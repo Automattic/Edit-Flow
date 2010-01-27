@@ -297,8 +297,8 @@ class ef_notifications {
 	 */
 	function save_post ( $post ) {
 				
-		// only if has add_post_followers cap
-		if( ( !wp_is_post_revision($post) && !wp_is_post_autosave($post) ) && isset($_POST['ef-save_followers']) && current_user_can('add_post_followers') ) {
+		// only if has edit_post_subscriptions cap
+		if( ( !wp_is_post_revision($post) && !wp_is_post_autosave($post) ) && isset($_POST['ef-save_followers']) && current_user_can('edit_post_subscriptions') ) {
 			$users = $_POST['following_users'];
 			$usergroups = $_POST['following_usergroups'];
 			$this->save_post_following_users($post, $users);
