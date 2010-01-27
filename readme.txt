@@ -1,10 +1,10 @@
-=== Edit Flow  ===
+=== Edit Flow ===
 Contributors: batmoo, danielbachhuber, sbressler, andrewspittle
 Donate link: http://copress.org/donate/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups
 Requires at least: 2.9.1
 Tested up to: 2.9.1
-Stable tag: 0.3
+Stable tag: 0.3.1
 
 Plugin for WordPress to allow for better editorial workflow.
 
