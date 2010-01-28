@@ -4,7 +4,7 @@ Donate link: http://copress.org/donate/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups
 Requires at least: 2.9.1
 Tested up to: 2.9.1
-Stable tag: 0.3.1
+Stable tag: 0.3.2
 
 Plugin for WordPress to allow for better editorial workflow.
 
@@ -154,6 +154,12 @@ For replies to work properly, you need to enable threaded commenting in your blo
 4. Threaded editorial commenting and additional metadata for posts
 
 == Changelog ==
+
+= 0.3.2 =
+* Fixed fatal error if notifications were disabled
+
+= 0.3.1 =
+* Small bug fixes
 
 = 0.3 =
 * Notification emails on status change now have specific subject lines messages based on action taken
