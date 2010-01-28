@@ -1,0 +1,425 @@
+# SOME DESCRIPTIVE TITLE.
+# This file is put in the public domain.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/edit-flow\n"
+"POT-Creation-Date: 2009-09-13 04:57+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: edit_flow.php:262
+msgid "Edit Flow"
+msgstr ""
+
+#: edit_flow.php:265
+msgid "Custom Status"
+msgstr ""
+
+#: edit_flow.php:268
+msgid "Settings"
+msgstr ""
+
+#: edit_flow.php:276
+msgid "Settings Saved"
+msgstr ""
+
+#: edit_flow.php:281
+msgid "Edit Flow Settings"
+msgstr ""
+
+#: edit_flow.php:294
+msgid "Custom Statuses"
+msgstr ""
+
+#: edit_flow.php:298
+msgid "Enable Custom Statuses for Posts"
+msgstr ""
+
+#: edit_flow.php:300
+msgid ""
+"Enabling this option allow you to assign custom statuses to your Posts. <br /"
+">Custom Statuses can be created and managed here: <a href=\""
+msgstr ""
+
+#: edit_flow.php:304
+msgid "Enable Custom Statuses for Pages"
+msgstr ""
+
+#: edit_flow.php:306
+msgid "Enabling this option allow you to assign custom statuses to your Pages."
+msgstr ""
+
+#: edit_flow.php:310
+msgid "Default Status for new posts"
+msgstr ""
+
+#: edit_flow.php:325
+msgid "The default status that is applied when a new post is created."
+msgstr ""
+
+#: edit_flow.php:332
+msgid "Dashboard"
+msgstr ""
+
+#: edit_flow.php:336
+msgid "Enable Dashboard Widgets"
+msgstr ""
+
+#: edit_flow.php:338
+msgid ""
+"Enables a special set of dashboard widgets for use with Edit Flow. Enable "
+"this setting to view the list of available widgets."
+msgstr ""
+
+#: edit_flow.php:343
+msgid "Enable Post Status Dashboard Widget"
+msgstr ""
+
+#: edit_flow.php:345
+msgid ""
+"Gives you an at-a-glance view of the current status of your unpublished "
+"content."
+msgstr ""
+
+#: edit_flow.php:353
+msgid "Notifications"
+msgstr ""
+
+#: edit_flow.php:357
+msgid "Enable Email Notifications"
+msgstr ""
+
+#: edit_flow.php:359
+msgid ""
+"This sends out emails notifications whenever certain actions related to "
+"posts occur. Currently, only the following notifications are available: a) "
+"email notification on post status change; and b) email notification when an "
+"editorial comment is added to a post."
+msgstr ""
+
+#: edit_flow.php:362
+msgid "Default Notification Recipients"
+msgstr ""
+
+#: edit_flow.php:373
+msgid ""
+"Indicate which roles should receive notifications. This option will email "
+"all users that are assigned the selected roles."
+msgstr ""
+
+#: edit_flow.php:381
+msgid "Save Changes"
+msgstr ""
+
+#: php/custom_status.php:279
+msgid "Status"
+msgstr ""
+
+#: php/custom_status.php:330
+msgid ""
+"There's something fishy going on! We don't like this type of nonce-sense. "
+"Hmph."
+msgstr ""
+
+#: php/custom_status.php:346
+msgid "Please enter a name for the status"
+msgstr ""
+
+#: php/custom_status.php:352
+msgid "That status name is restricted. Please use another name."
+msgstr ""
+
+#: php/custom_status.php:358 php/custom_status.php:409
+msgid "That status already exists. Please use another name."
+msgstr ""
+
+#: php/custom_status.php:367
+msgid "Status successfully added."
+msgstr ""
+
+#: php/custom_status.php:369
+msgid "Could not add the status: "
+msgstr ""
+
+#: php/custom_status.php:385
+msgid ""
+"That status is restricted and cannot be edited. You are welcome to delete "
+"it, however."
+msgstr ""
+
+#: php/custom_status.php:418
+msgid "Status successfully updated."
+msgstr ""
+
+#: php/custom_status.php:420
+msgid "Could not update the status: "
+msgstr ""
+
+#: php/custom_status.php:440
+msgid "That status does not exist. Try again?"
+msgstr ""
+
+#: php/custom_status.php:446
+msgid "Status successfully deleted."
+msgstr ""
+
+#: php/custom_status.php:448
+msgid "Could not delete the status: "
+msgstr ""
+
+#: php/custom_status.php:464
+msgid "There was an error with your request: "
+msgstr ""
+
+#: php/custom_status.php:473
+msgid "Custom Post Statuses"
+msgstr ""
+
+#: php/custom_status.php:477
+msgid "Note: Custom Statuses are currently disabled"
+msgstr ""
+
+#: php/custom_status.php:478
+msgid ""
+"While you are free to add, edit and delete to your heart's content, please "
+"note that you will not be able to assign posts to custom statuses unless you "
+"<a href=\""
+msgstr ""
+
+#: php/custom_status.php:497 php/custom_status.php:505
+#: php/custom_status.php:581
+msgid "Name"
+msgstr ""
+
+#: php/custom_status.php:498 php/custom_status.php:506
+#: php/custom_status.php:587
+msgid "Description"
+msgstr ""
+
+#: php/custom_status.php:499
+msgid "# of Posts"
+msgstr ""
+
+#: php/custom_status.php:507
+msgid "Posts"
+msgstr ""
+
+#: php/custom_status.php:540 php/post.php:104 php/post.php:132
+#: php/post.php:198
+msgid "Edit"
+msgstr ""
+
+#: php/custom_status.php:546
+msgid "Delete"
+msgstr ""
+
+#: php/custom_status.php:566
+msgid ""
+"<strong>Note:</strong><br/>Deleting a status does not delete the posts "
+"assigned that status. Instead, the posts will be set to the default status: "
+"<strong>Draft</strong>"
+msgstr ""
+
+#: php/custom_status.php:577 php/custom_status.php:599
+msgid "Update Custom Status"
+msgstr ""
+
+#: php/custom_status.php:577 php/custom_status.php:599
+msgid "Add Custom Status"
+msgstr ""
+
+#: php/custom_status.php:583
+msgid "The name is used to identify the status."
+msgstr ""
+
+#: php/custom_status.php:589
+msgid ""
+"The description is mainly for administrative use, just to give you some "
+"context on what the custom status is to be used for or means."
+msgstr ""
+
+#: php/notifications.php:56
+#, php-format
+msgid "[%1$s] Post Status Changed: \"%2$s\""
+msgstr ""
+
+#: php/notifications.php:60
+#, php-format
+msgid "Status was changed on post #%1$s \"%2$s\" by %3$s (%4$s)"
+msgstr ""
+
+#: php/notifications.php:72
+msgid "Post Details:"
+msgstr ""
+
+#: php/notifications.php:73
+#, php-format
+msgid "Title: %s"
+msgstr ""
+
+#: php/notifications.php:74
+#, php-format
+msgid "Author: %1$s (%2$s)"
+msgstr ""
+
+#: php/notifications.php:75
+#, php-format
+msgid "Due Date: %s"
+msgstr ""
+
+#: php/notifications.php:75 php/notifications.php:76 php/notifications.php:77
+msgid "Not assigned"
+msgstr ""
+
+#: php/notifications.php:76
+#, php-format
+msgid "Description: %s"
+msgstr ""
+
+#: php/notifications.php:77
+#, php-format
+msgid "Location: %s"
+msgstr ""
+
+#: php/notifications.php:81 php/notifications.php:131
+msgid "Actions you can take: "
+msgstr ""
+
+#: php/notifications.php:82
+#, php-format
+msgid "Add editorial comment: %s"
+msgstr ""
+
+#: php/notifications.php:83 php/notifications.php:133
+#, php-format
+msgid "Edit post: %s"
+msgstr ""
+
+#: php/notifications.php:84 php/notifications.php:134
+#, php-format
+msgid "View post: %s"
+msgstr ""
+
+#. translators: 1: blog name, 2: post title
+#: php/notifications.php:114
+#, php-format
+msgid "[%1$s] New Editorial Comment: \"%2$s\""
+msgstr ""
+
+#. translators: 1: post id, 2: post title
+#: php/notifications.php:117
+#, php-format
+msgid "A new editorial comment was added to post #%1$s \"%2$s\""
+msgstr ""
+
+#. translators: 1: comment author, 2: author email, 3: date, 4: time
+#: php/notifications.php:119
+#, php-format
+msgid "%1$s (%2$s) said on %3$s at %4$s:"
+msgstr ""
+
+#: php/notifications.php:132
+#, php-format
+msgid "Reply: %s"
+msgstr ""
+
+#: php/notifications.php:136
+msgid "You can see all editorial comments on this post here: "
+msgstr ""
+
+#: php/post.php:91
+msgid "Post Metadata"
+msgstr ""
+
+#: php/post.php:94
+msgid "Description:"
+msgstr ""
+
+#: php/post.php:99 php/post.php:128 php/post.php:194
+msgid "None assigned"
+msgstr ""
+
+#: php/post.php:112 php/post.php:158 php/post.php:206
+msgid "OK"
+msgstr ""
+
+#: php/post.php:118 php/post.php:184 php/post.php:213 php/post.php:398
+msgid "Cancel"
+msgstr ""
+
+#: php/post.php:123
+msgid "Due Date:"
+msgstr ""
+
+#: php/post.php:189
+msgid "Location:"
+msgstr ""
+
+#: php/post.php:333
+msgid "Editorial Comments"
+msgstr ""
+
+#: php/post.php:372
+msgid ""
+"You can't add comments yet as this is a new post. Come back once you've "
+"saved it. Cool?"
+msgstr ""
+
+#: php/post.php:386
+msgid "Respond to this post"
+msgstr ""
+
+#: php/post.php:386
+msgid "Respond to this Post"
+msgstr ""
+
+#: php/post.php:396
+msgid "Submit Response"
+msgstr ""
+
+#: php/post.php:429
+msgid "Reply to this comment"
+msgstr ""
+
+#: php/post.php:429
+msgid "Reply"
+msgstr ""
+
+#: php/post.php:463
+#, php-format
+msgid "%s at %s"
+msgstr ""
+
+#: php/post.php:481
+msgid "We detected some fishy nonce-sence. Knock it off."
+msgstr ""
+
+#: php/post.php:495
+msgid ""
+"Sorry, you don't have the privelages to add editorial comments. Please talk "
+"to your Administrator."
+msgstr ""
+
+#: php/post.php:501
+msgid "Please enter a comment."
+msgstr ""
+
+#: php/post.php:561
+msgid "Uh oh, we ran into bit of a problem! Try again?"
+msgstr ""
+
+#: php/post.php:602
+msgid "Published"
+msgstr ""
+
+#: php/post.php:602
+msgid "publish"
+msgstr ""

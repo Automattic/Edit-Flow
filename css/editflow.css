@@ -1,0 +1,350 @@
+/** Basic styles **/
+
+/* Post Status Widget - Dashboard */
+
+#post_status_widget .sub {margin-bottom:10px;font:20px Georgia, Times, serif;margin-top:5px;}
+
+#post_status_widget a {font-size:14px;font-weight:bold;}
+
+#post_status_widget .table table tbody tr {line-height:22px; border-bottom:1px solid #e5e5e5; }
+
+#post_status_widget td.b a {color:#ba2000;margin-right:10px; font-family: Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif; font-size: 18px; padding-right: 6px; text-align: right;}
+
+#post_status_widget span.small a {color:#989898;font-weight:normal;font-style:normal;}
+
+#post_status_widget span.small a:hover {border-bottom:1px dotted #989898;}
+
+
+/* QuickPitch */
+
+.quick-pitch-notice {
+	background-color: #ffffe0;
+	padding: 5px 10px;
+	margin-top: 5px;
+	margin-bottom: 10px;
+	border: 1px solid #e6db55;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+}
+
+#quick-pitch-notification h3 {
+	background: none;
+	text-shadow: none;
+	font: italic normal normal 16px/20px Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
+	padding-bottom: 0;
+}
+
+#quick-pitch-notification p {
+	padding-left: 10px;
+}
+
+#quick_pitch_widget h4 {
+	font-family: "Lucida Grande", Verdana, Arial, "Bitstream Vera Sans", sans-serif !important;
+	float: left;
+	width: 5.5em;
+	clear: both;
+	font-weight: normal;
+	text-align: right;
+	padding-top: 3px !important;
+	font-size: 12px !important;
+	line-height: 1.2em;
+}
+
+#quick_pitch_widget h4 label {
+	margin-right: 10px;
+}
+
+#ef_author_div {
+	padding-bottom: 9px;
+	padding-right: 3px;
+}
+
+#quick_pitch_widget .input-text-wrap,
+#quick_pitch_widget .textarea-wrap {
+	margin: 0 0 1em 5em;
+}
+
+#ef_description_div {
+	width: 200px;
+}
+
+.ef_location_div input {
+	padding: 2px !important;
+}
+
+.ef-submit {
+	height: 20px;
+	text-align: right;
+}
+
+/* post_metadata */
+
+#edit-flow {
+}
+
+	#edit-flow .inside {
+		margin: 0 !important;
+		padding: 10px;
+	}
+	#edit-flow h4 {
+		background: #F1F1F1;
+		font-weight: bold;
+		padding: 8px;
+		margin: 0;
+		border: 1px solid #DFDFDF;
+		-moz-border-radius: 3px;
+	}
+
+
+#ef_meta-data {
+	float: right;
+	width: 40%;
+	border-left: 1px solid #EEEEEE;
+}
+
+	#ef_meta-data textarea,
+	#ef_meta-data input {
+		margin-bottom: 10px;
+	}
+	#ef_meta-data label {
+		vertical-align: baseline;
+	}
+	#ef_description {
+		padding-top: 10px;
+		padding-bottom: 10px;
+		border-bottom: 1px solid #EEEEEE;
+		margin-bottom: 10px;
+		padding-left: 10px;
+	}
+	
+	#ef_description-display {
+		font-weight: bold;
+	}
+	
+	#ef_duedate {
+		padding-bottom: 10px;
+		border-bottom: 1px solid #EEEEEE;
+		margin-bottom: 10px;
+		padding-left: 10px;
+	}
+	
+	#ef_duedate label {
+		//padding-left: 18px;
+		background: url(../img/datebutton.gif) no-repeat;
+	}
+	
+	#ef_duedate-display {
+		font-weight: bold;
+	}
+	
+	#ef_location {
+		padding-bottom: 10px;
+		border-bottom: 1px solid #EEEEEE;
+		margin-bottom: 0;
+		padding-left: 10px;
+	}
+	
+	#ef_location-display {
+		font-weight: bold;
+	}
+	
+	#ef_workflow {
+		padding-left: 10px;
+	}
+	
+	#ef_workflow-display {
+		font-weight: bold;
+	}
+
+/** Comments **/
+
+#ef-comments_wrapper {
+	width: 58%;
+	padding: 0;
+}
+
+#ef-comments {
+	margin-bottom: 10px;
+}
+	#ef-comments li {
+		padding: 5px;
+		margin: 0px 0;
+		border-left: 5px solid #e5e5e5;
+		border-bottom: 1px solid #e5e5e5;
+	}
+	#ef-comments li:hover p.row-actions {
+		visibility: visible;
+	}
+	#ef-comments li p.row-actions {
+		text-align: right;
+	}
+	
+	#ef-comments ul.children {
+		margin-left: 30px;
+		margin-bottom: 10px;
+	}
+		#ef-comments ul.children li {
+			/*background: #EAF2FA;*/
+			border-left: 5px solid #e5e5e5;
+			border-bottom: 1px solid #e5e5e5;
+		}
+	
+	#ef-comments .even { background: none; }
+	#ef-comments .odd { background: none; }
+
+	#ef-comments img.avatar {
+		border:1px solid #CCCCCC;
+		float:left;
+		margin-left:2px;
+		margin-right:15px;
+		margin-top:0;	
+	}
+
+	#ef-comments h5 {
+		font-style: normal;
+		font-size:1em;
+		line-height:1.1em;
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+
+		#ef-comments h5 span.meta {
+			color:#666666;
+			font-size:0.85em;
+			margin:0 0 1.5em;
+			font-style: normal;
+		}
+
+	#ef-comments .comment-content {
+		margin-left: 67px;
+	}
+
+		#ef-comments .comment-content p {
+			color:#555555;
+			font-size:1em;
+			line-height:1.4em;
+			margin:0.7em 0;
+		}
+		
+	#ef-replyrow {
+	}
+		#ef-replyrow #ef-replycontent {
+			width:  100%;
+			height: 100px;
+		}
+		#ef-replyrow #ef-replysubmit {
+			margin: 6px 0;
+		}
+			#ef-replyrow #ef-replysubmit * {
+				margin-left: 3px;
+			}
+			#ef-replyrow #ef-replysubmit .error {
+				margin: 6px 6px 0 0;
+				line-height:1.2em;
+				padding:4px 10px;
+			}
+
+.ef-comment {
+	font-size: 14px;
+	line-height: 18px;
+}
+
+.ef-comment-meta {
+	margin-bottom: 5px;
+	margin-top: 5px;
+	float: none;
+	text-align: right;
+}
+
+#ef-comment-rbutton {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+/** Post subscriptions **/
+.ef-post_following_list {
+}
+
+	.ef-post_following_list li {
+		padding: 10px 5px 5px 5px;
+		margin: 0;
+		border-bottom: 1px solid #ccc;
+	}
+		.ef-post_following_list li:hover {
+			background: #EAF2FA;
+		}
+	.ef-post_following_list li input {
+		float: right;
+	}
+	.ef-post_following_list .ef-user_displayname,
+	.ef-post_following_list .ef-usergroup_name {
+		display: block;
+		font-size: 14px;
+	}
+	.ef-post_following_list .ef-user_useremail,
+	.ef-post_following_list .ef-usergroup_description {
+		display: block;
+		color: #ccc;
+		font-size: 12px;
+	}
+
+#ef-post_following_box {
+	margin:10px 0;	
+}
+	#ef-post_following_box h4 {
+		background: #F1F1F1;
+		font-weight: bold;
+		padding: 8px;
+		margin: 0;
+		border: 1px solid #DFDFDF;
+		-moz-border-radius: 3px;
+	}
+
+		
+	#ef-post_following_users_box,
+	#ef-post_following_usergroups_box {
+		width: 49%;	
+	}
+	#ef-post_following_users_box {
+		float: left;
+		margin-right:10px;
+	}
+	#ef-post_following_usergroups_box {
+		float: right;
+	}
+		#ef-post_following_users_box ul,
+		#ef-post_following_usergroups_box ul {
+			height: 300px;
+			overflow: auto;
+		}
+		
+
+
+/** User Groups **/
+#profile-page #post_following_usergroups {
+	width: 300px;
+}
+
+
+.usergroups-page {	
+}
+	.usergroups-page h2 .backlink {
+		font-size: 11px;	
+	}
+
+.form-usergroups .submit a,
+.form-usergroups .submit a:visited {	
+	font-style: normal;
+	font-size: 11px;
+}
+	.form-usergroups .submit a.delete,
+	.form-usergroups .submit a.delete:visited {
+		color: #BC0B0B;	
+	}
+		.form-usergroups .submit a.delete:hover,
+		.form-usergroups .submit a.delete:active {
+			color: red;
+		}
+	
