@@ -10,32 +10,35 @@ class custom_status {
 	/**
 	 * Constructor
 	 */
-	function __construct ( ) {
+	function __construct ( $active = 1) {
 		global $pagenow, $edit_flow;
 		
 		// Register new taxonomy so that we can store all our fancy new custom statuses (or is it stati?)
 		if(!is_taxonomy($this->status_taxonomy)) register_taxonomy( $this->status_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false) );
 		
+		// These actions should be called regardless of whether custom statuses are enabled or not
 		// Add actions and filters for the Edit/Manage Posts page
 		add_action('load-edit.php', array(&$this, 'load_edit_hooks'));
 		// Add action and filter for the Edit/Manage Pages page
 		add_action('load-edit-pages.php', array(&$this, 'load_edit_hooks'));
 		
-		// Hooks to add "status" column to Edit Posts page
-		add_filter('manage_posts_columns', array('custom_status', '_filter_manage_posts_columns'));
-		add_action('manage_posts_custom_column', array('custom_status', '_filter_manage_posts_custom_column'));
-		
-		// Hooks to add "status" column to Edit Pages page, BUT, only add it if not being filtered by post_status
-		add_filter('manage_pages_columns', array('custom_status', '_filter_manage_posts_columns'));
-		add_action('manage_pages_custom_column', array('custom_status', '_filter_manage_posts_custom_column'));
-		
+		if( $active ) {
+			
+			// Hooks to add "status" column to Edit Posts page
+			add_filter('manage_posts_columns', array('custom_status', '_filter_manage_posts_columns'));
+			add_action('manage_posts_custom_column', array('custom_status', '_filter_manage_posts_custom_column'));
+			
+			// Hooks to add "status" column to Edit Pages page, BUT, only add it if not being filtered by post_status
+			add_filter('manage_pages_columns', array('custom_status', '_filter_manage_posts_columns'));
+			add_action('manage_pages_custom_column', array('custom_status', '_filter_manage_posts_custom_column'));
+		}
 	} // END: __construct()
 	
 	/**
 	 * Hooks to make modifications to the Manage/Edit Posts
 	 */
 	function load_edit_hooks() {
-		// Add custom stati to Edit/Manage Posts  
+		// Add custom stati to Edit/Manage Posts
 		add_action('admin_notices',array(&$this, 'enable_custom_status_filters'));
 		// Modify the posts_where query to include custom stati
 		add_filter('posts_where', array(&$this, 'custom_status_where_filter'));

@@ -309,12 +309,16 @@ class post_metadata
 	 * Adds Edit Flow meta_box to Post/Page edit pages 
 	 */
 	function add_post_meta_box() {
+		global $edit_flow;
+		
 		if (function_exists('add_meta_box')) {
 			add_meta_box('edit-flow', __('Edit Flow', 'edit-flow'), array(&$this, 'post_meta_box'), 'post', 'normal', 'high');
 			add_meta_box('edit-flow', __('Edit Flow', 'edit-flow'), array(&$this, 'post_meta_box'), 'page', 'normal', 'high');
-
-			add_meta_box('edit-flow-subscriptions', __('Notification Subscriptions', 'edit-flow'), array(&$this, 'subscriptions_meta_box'), 'post', 'normal', 'high');
-			add_meta_box('edit-flow-subscriptions', __('Notification Subscriptions', 'edit-flow'), array(&$this, 'subscriptions_meta_box'), 'page', 'normal', 'high');
+			
+			if( $edit_flow->get_plugin_option('notifications_enabled') ) {
+				add_meta_box('edit-flow-subscriptions', __('Notification Subscriptions', 'edit-flow'), array(&$this, 'subscriptions_meta_box'), 'post', 'normal', 'high');
+				add_meta_box('edit-flow-subscriptions', __('Notification Subscriptions', 'edit-flow'), array(&$this, 'subscriptions_meta_box'), 'page', 'normal', 'high');
+			}
 		}
 	}
 	

@@ -104,10 +104,12 @@ class edit_flow {
 		$this->post_metadata = new post_metadata();
 		
 		// Create a new post_status object, if custom statuses enabled
-		if($this->get_plugin_option('custom_statuses_enabled')==1) $this->post_status = new post_status();
+		$post_status_active = (int) $this->get_plugin_option('custom_statuses_enabled');
+		$this->post_status = new post_status($post_status_active);
 		
 		// Create a new ef_notifications object, if notifications enabled
-		if($this->get_plugin_option('notifications_enabled')==1) $this->notifications = new ef_notifications();
+		$notifications_active = (int) $this->get_plugin_option('notifications_enabled');
+		$this->notifications = new ef_notifications($notifications_active);
 		
 		// The main controller for the plugin - redirects to child controllers where necessary
 		add_action( 'admin_init', array( &$this, 'global_admin_controller' ) );

@@ -14,7 +14,8 @@ class ef_notifications {
 	/**
 	 * Constructor
 	 */
-	function __construct ( ) {
+	function __construct ( $active = 1) {
+		global $edit_flow;
 		
 		// Register new taxonomy used to track which users are following posts 
 		if(!is_taxonomy($this->following_users_taxonomy)) register_taxonomy( $this->following_users_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false) );
@@ -23,19 +24,19 @@ class ef_notifications {
 		// Register new taxonomy used to track which usergroups are following posts 
 		if(!is_taxonomy($this->following_usergroups_taxonomy)) register_taxonomy( $this->following_usergroups_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false) );
 		
-		// Notification for post status change
-		add_action('transition_post_status', array(&$this, 'notification_status_change'), 10, 3 );
-		
-		// Notification for new comment
-		add_action( 'editflow_comment', array(&$this, 'notification_comment') );
-		
-		// Notification for comment reply
-		//add_action( 'editflow_comment_reply' );
-		
-		add_action( 'save_post', array( &$this, 'save_post' ) );
-		
-		// Action to reassign posts when a user is deleted
-		add_action('delete_user',  array(&$this, 'delete_user_action'));
+		if( $active ) {
+			
+			// Notification for post status change
+			add_action('transition_post_status', array( &$this, 'notification_status_change'), 10, 3 );
+			
+			// Notification for new comment
+			add_action( 'editflow_comment', array( &$this, 'notification_comment') );
+			
+			add_action( 'save_post', array( &$this, 'save_post' ) );
+			
+			// Action to reassign posts when a user is deleted
+			add_action( 'delete_user',  array(&$this, 'delete_user_action') );
+		}
 		
 	} // END: __construct()
 	
