@@ -50,14 +50,15 @@ jQuery(document).ready(function () {
 
 		// Add remaining statuses to dropdown
 		jQuery.each(custom_statuses, function() {
-			var option = jQuery('<option></option>')
+			var $option = jQuery('<option></option>')
 							.text(this.name)
 							.attr('value', this.slug)
-							.attr('title', this.description)
-						
-			if(current_status==this.slug) option.attr('selected','selected');
+							.attr('title', (this.description) ? this.description : '')
+							;
+							
+			if( current_status == this.slug ) $option.attr('selected','selected');
 			
-			jQuery(id).append(option)
+			$option.appendTo( jQuery(id) );
 		});
 	}
 	
