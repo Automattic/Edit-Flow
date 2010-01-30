@@ -28,8 +28,12 @@ jQuery(document).ready(function () {
 	// Add custom statuses to quick-edit status dropdowns on edit.php
 	if(jQuery('select[name="_status"]')) {
 		append_to_dropdown('select[name="_status"]');
-	}	
-
+	}
+	
+	if( jQuery('ul.subsubsub') ) {
+		add_tooltips_to_filter_links('ul.subsubsub a');
+	}
+	
 	// Add custom statuses to Status dropdown
 	function append_to_dropdown ( id ) {
 	
@@ -48,12 +52,21 @@ jQuery(document).ready(function () {
 		jQuery.each(custom_statuses, function() {
 			var option = jQuery('<option></option>')
 							.text(this.name)
-							.attr('value', this.slug)	
+							.attr('value', this.slug)
+							.attr('title', this.description)
 						
 			if(current_status==this.slug) option.attr('selected','selected');
 			
 			jQuery(id).append(option)
 		});
+	}
+	
+	function add_tooltips_to_filter_links( selector ) {
+		jQuery.each(custom_statuses, function() {
+			jQuery(selector + ':contains("'+ this.name +'")')
+				.attr('title', this.description)
+		})
+		
 	}
 	
 	// Update "Save" button text

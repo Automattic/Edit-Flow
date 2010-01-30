@@ -687,7 +687,7 @@ class post_status
 			if($selected == "publish") $status_array .= "{ name: '".__('Published', 'edit-flow')."', slug: '".__('publish', 'edit-flow')."' }, ";
 			
 			foreach($custom_statuses as $status) {
-				$status_array .= "{ name: '". esc_js($status->name) ."', slug: '". esc_js($status->slug) ."'}";
+				$status_array .= "{ name: '". esc_js($status->name) ."', slug: '". esc_js($status->slug) ."', description: '". esc_js($status->description) ."' }";
 				$status_array .= ($count == count($custom_statuses)) ? '' : ',';
 				$count++;
 			}
