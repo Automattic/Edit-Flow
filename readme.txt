@@ -20,7 +20,7 @@ There are a few key components to this project:
 
 More details can be found on the [CoPress Wiki](http://www.copress.org/wiki/Edit_Flow_Project)
 
-We welcome any and all feedback. Ideas are more awesome than money (okay, not always). Contact us at [editflow@copress.org].
+We welcome any and all feedback. Ideas are more awesome than money (okay, not always). Contact us at [editflow@copress.org](mailto:editflow@copress.org).
 
 = Stage 1: Custom Post Statuses =
 
@@ -154,6 +154,9 @@ For replies to work properly, you need to enable threaded commenting in your blo
 4. Threaded editorial commenting and additional metadata for posts
 
 == Changelog ==
+
+= 0.3.3 =
+* Added tooltips with descriptions to the Status dropwdown and Status Filter links. Thanks to [Gil Namur](lifeasahuman.com) for the great idea!
 
 = 0.3.2 =
 * Fixed fatal error if notifications were disabled
