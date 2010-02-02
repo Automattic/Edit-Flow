@@ -12,6 +12,8 @@ Plugin for WordPress to allow for better editorial workflow.
 
 The overall goal of this plugin is to improve the WordPress Admin interface for a multi-user newsroom’s editorial workflow. 
 
+NOTE: Edit Flow requires PHP5+ to work. Don't have PHP5? Talk to your hosting provider and hop on the PHP5 bandwagon. It's awesome.
+
 There are a few key components to this project: 
 
 * improving the meta data on top of posts to better reflect the information that needs to be recorded about an assignment;
