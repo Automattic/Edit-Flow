@@ -4,7 +4,7 @@ Plugin Name: Edit Flow
 Plugin URI: http://www.copress.org/wiki/Edit_Flow_Project
 Description: Remixing the WordPress admin for better editorial workflow options.
 Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Andrew Spittle, et al.
-Version: 0.3.2
+Version: 0.3.3
 Author URI: http://www.copress.org/
 
 Copyright 2009-2010 Mohammad Jangda, Daniel Bachhuber, et al.
@@ -38,7 +38,7 @@ include_once('php/upgrade.php');
 include_once('php/util.php');
 
 // Define contants
-define(EDIT_FLOW_VERSION, '0.3.2');
+define(EDIT_FLOW_VERSION, '0.3.3');
 define(EDIT_FLOW_FILE_PATH, dirname(__FILE__).'/'.basename(__FILE__));
 define(EDIT_FLOW_URL, plugins_url(plugin_basename(dirname(__FILE__)).'/'));
 define(EDIT_FLOW_URL_FROM_ROOT, plugins_url(plugin_basename(dirname(__FILE__)).'/'));
