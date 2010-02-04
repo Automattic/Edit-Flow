@@ -160,7 +160,7 @@ For replies to work properly, you need to enable threaded commenting in your blo
 == Changelog ==
 
 = 0.3.3 =
-* Added tooltips with descriptions to the Status dropwdown and Status Filter links. Thanks to [Gil Namur](lifeasahuman.com) for the great idea!
+* Added tooltips with descriptions to the Status dropwdown and Status Filter links. Thanks to [Gil Namur](http://lifeasahuman.com) for the great idea!
 * Fixed the issue where subscribed users/usergroups were not receiving notifications
 
 = 0.3.2 =
