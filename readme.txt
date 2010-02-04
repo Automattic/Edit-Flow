@@ -4,7 +4,7 @@ Donate link: http://copress.org/donate/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups
 Requires at least: 2.9.1
 Tested up to: 2.9.1
-Stable tag: 0.3.2
+Stable tag: 0.3.3
 
 Plugin for WordPress to allow for better editorial workflow.
 
@@ -154,11 +154,14 @@ For replies to work properly, you need to enable threaded commenting in your blo
 2. Custom Statuses are automatically added to Status dropdown on the Edit Post and Quick Edit Post screens
 3. A new column is added to the Edit Posts screen and the ability to filter by status
 4. Threaded editorial commenting and additional metadata for posts
+5. Usergroups allow you to bunch together groups of users
+6. You can now chose who should receive notifications on a per-post basis
 
 == Changelog ==
 
 = 0.3.3 =
 * Added tooltips with descriptions to the Status dropwdown and Status Filter links. Thanks to [Gil Namur](lifeasahuman.com) for the great idea!
+* Fixed the issue where subscribed users/usergroups were not receiving notifications
 
 = 0.3.2 =
 * Fixed fatal error if notifications were disabled

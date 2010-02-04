@@ -75,6 +75,8 @@ class EF_User_Query extends WP_User_Search {
 		// Fields returned by search
 		if( !$qv['return_fields'] ) 
 			$this->return_fields = 'ID';
+		else
+			$this->return_fields = $qv['return_fields'];
 /* TODO: enable multiple field/all select
 		else if ( $qv['return_fields'] == 'all' )
 			$this->return_fields = $wpdb->users . '.*';
@@ -196,7 +198,7 @@ class EF_User_Query extends WP_User_Search {
 		$this->full_query = $this->query_select . $this->query_from . $this->query_join . $this->query_where . $this->query_orderby . $this->query_limit;
 		// TODO: change this to get_results, when supporting multiple fields, all fields
 		$this->results = $wpdb->get_col($this->full_query);
-
+		
 		if ( $this->results )
 			$this->total_users_for_query = $wpdb->get_var('SELECT COUNT(ID) ' . $this->query_from_where); // no limit
 		else
