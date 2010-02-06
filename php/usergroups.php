@@ -791,11 +791,11 @@ function ef_usergroups_select_form( $selected = array(), $args = null ) {
 			$checked = (in_array($usergroup->slug, $selected)) ? 'checked="checked"' : '';
 			?>
 			<li>
-				<label for="<?php echo $input_id . $usergroup->slug ?>" title="<?php echo esc_attr($usergroup->description) ?>">
-					<input type="checkbox" id="<?php echo $input_id . $usergroup->slug ?>" name="<?php echo $input_id ?>[]" value="<?php echo $usergroup->slug ?>" <?php echo $checked ?> />
-					<span class="ef-usergroup_name"><?php echo $usergroup->name ?></span>
+				<label for="<?php echo $input_id . esc_attr($usergroup->slug) ?>" title="<?php echo esc_attr($usergroup->description) ?>">
+					<input type="checkbox" id="<?php echo $input_id . esc_attr($usergroup->slug) ?>" name="<?php echo $input_id ?>[]" value="<?php echo esc_attr($usergroup->slug) ?>" <?php echo $checked ?> />
+					<span class="ef-usergroup_name"><?php echo esc_html($usergroup->name) ?></span>
 					<span class="ef-usergroup_description" title="<?php echo esc_attr($usergroup->description) ?>">
-						<?php echo substr($usergroup->description, 0, 50) ?>
+						<?php echo (strlen($usergroup->description) >= 50) ? substr_replace(esc_html($usergroup->description), '...', 50) : esc_html($usergroup->description); ?>
 					</span>
 					
 				</label>
