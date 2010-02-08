@@ -669,7 +669,7 @@ class post_status
 		get_currentuserinfo() ;
 		
 		// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
-		if(current_user_can('publish_posts') && (($edit_flow->get_plugin_option('custom_statuses_enabled') && ($pagenow == 'post.php' || $pagenow == 'edit.php' || $pagenow == 'post-new.php')) || ($edit_flow->get_plugin_option('pages_custom_statuses_enabled') && ($pagenow == 'page.php' || $pagenow == 'edit-pages.php' || $pagenow == 'page-new.php')))) {
+		if(current_user_can('edit_posts') && (($edit_flow->get_plugin_option('custom_statuses_enabled') && ($pagenow == 'post.php' || $pagenow == 'edit.php' || $pagenow == 'post-new.php')) || ($edit_flow->get_plugin_option('pages_custom_statuses_enabled') && ($pagenow == 'page.php' || $pagenow == 'edit-pages.php' || $pagenow == 'page-new.php')))) {
 			
 			$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
 	
