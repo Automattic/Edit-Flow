@@ -314,8 +314,13 @@ class ef_notifications {
 	 */
 	function save_post_following_users ( $post, $users = null ) {
 		if( !is_array($users) ) $users = array();
-		$users = array_map( 'intval', $users );
 		
+		// Add current user to following users
+		$user = wp_get_current_user();
+		if( $user ) $users[] = $user->ID;
+		
+		$users = array_map( 'intval', $users );
+
 		$follow = $this->follow_post_user($post, $users, false);
 		
 	}
