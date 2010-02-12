@@ -27,6 +27,8 @@ class post_metadata
 		if(!function_exists('ef_filter_editorial_comments_count')) {
 			add_filter( 'get_comments_number', array(&$this, 'filter_editorial_comments_count') );
 		}
+		add_filter('comment_feed_where', array( &$this, 'filter_feed_comments' ));
+		
 		// init all ajax actions
 		$this->add_ajax_actions();
 	}
@@ -360,6 +362,13 @@ class post_metadata
 		if(!$comment_count) $comment_count = 0;
 		return $comment_count;
 	}
+	// Filter editorial comments from feeds
+	function filter_feed_comments( $cwhere ) {
+		$cwhere .= " AND (comment_type = '' OR comment_type = 'comment' OR comment_type = 'pingback' OR comment_type = 'trackback') ";
+		return $cwhere;
+	}
+	
+
 	
 	function post_comments_box( ) {
 		global $post, $post_ID;
