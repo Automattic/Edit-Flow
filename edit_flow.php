@@ -158,38 +158,6 @@ class edit_flow {
 		// Do other fancy stuff!
 		// Like load default values for Custom Status
 		
-		// Create default statuses
-		$default_terms = array( array( 'term' => 'Draft',
-										'args' => array( 'slug' => 'draft',
-														'description' => 'Post is simply a draft',
-														)
-									),
-								array( 'term' => 'Pending Review',
-										'args' => array( 'slug' => 'pending',
-														'description' => 'The post needs to be reviewed by an Editor',
-														)
-									),
-								array( 'term' => 'Pitch',
-										'args' => array( 'slug' => 'pitch',
-														'description' => 'Post idea proposed',
-														)
-									),
-								array( 'term' => 'Assigned',
-										'args' => array( 'slug' => 'assigned',
-														'description' => 'The post has been assigned to a writer'
-													)
-									),
-								array( 'term' => 'Waiting for Feedback',
-										'args' => array( 'slug' => 'waiting-for-feedback',
-														'description' => 'The post has been sent to the editor, and is waiting on feedback'
-													)
-									)
-							);
-		// Okay, now add the default statuses to the db if they don't already exist 
-		foreach($default_terms as $term) {
-			if(!is_term($term['term'])) $this->custom_status->add_custom_status( $term['term'], $term['args'] );
-		}
-		
 		// re-approve editorial comments
 		$wpdb->query($wpdb->prepare("UPDATE $wpdb->comments SET comment_approved = 1 WHERE comment_type = %s", $this->post_metadata->comment_type));
 		
