@@ -76,7 +76,7 @@ class edit_flow {
 	var $dashboard		= null;
 	var $post_status 	= null;
 	var $notifications	= null;
-	var $usergroups	= null;
+	var $usergroups		= null;
 
 	/**
 	 * Constructor
@@ -150,6 +150,8 @@ class edit_flow {
 	 * This function is called when plugin is activated.
 	 */
 	function activate_plugin ( ) {
+		global $wpdb;
+		
 		// Run function to generate db tables	
 		$this->build_db_tables();
 		
@@ -188,8 +190,23 @@ class edit_flow {
 			if(!is_term($term['term'])) $this->custom_status->add_custom_status( $term['term'], $term['args'] );
 		}
 		
+		// re-approve editorial comments
+		$wpdb->query($wpdb->prepare("UPDATE $wpdb->comments SET comment_approved = 1 WHERE comment_type = %s", $this->post_metadata->comment_type));
 		
-	} // END: activate plugin
+		
+	} // END: activate_plugin
+	
+	/**
+	 * This function is called when plugin is activated.
+	 */
+	function deactivate_plugin( ) {
+		global $wpdb;
+		
+		// unapprove editorial comments
+		$wpdb->query($wpdb->prepare("UPDATE $wpdb->comments SET comment_approved = 0 WHERE comment_type = %s", $this->post_metadata->comment_type));
+		
+		
+	} // END: deactivate_plugin
 	
 	/**
 	 * Creates all necessary db tables for plugin, if they don't exist.
@@ -497,5 +514,6 @@ add_action('admin_init', array(&$edit_flow,'admin_init'));
 
 // Hook to perform action when plugin activated
 register_activation_hook( EDIT_FLOW_FILE_PATH, array(&$edit_flow, 'activate_plugin'));
+register_deactivation_hook( EDIT_FLOW_FILE_PATH, array(&$edit_flow, 'deactivate_plugin'));
 
 ?>
