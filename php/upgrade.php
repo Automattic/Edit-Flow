@@ -1,7 +1,29 @@
 <?php
 // Handles all current and future upgrades for edit_flow
 function edit_flow_upgrade( $from ) {
+	if( !$from || $from < 0.1 ) edit_flow_upgrade_01();
 	if( $from < 0.3 ) edit_flow_upgrade_03();
+}
+
+// Upgrade to 0.1
+function edit_flow_upgrade_01() {
+	global $edit_flow;
+	
+	// Create default statuses
+	$default_terms = array( 
+		array( 'term' => 'Draft', 'args' => array( 'slug' => 'draft', 'description' => 'Post is simply a draft', ) ),
+		array( 'term' => 'Pending Review', 'args' => array( 'slug' => 'pending', 'description' => 'The post needs to be reviewed by an Editor', ) ),
+		array( 'term' => 'Pitch', 'args' => array( 'slug' => 'pitch', 'description' => 'Post idea proposed', ) ),
+		array( 'term' => 'Assigned', 'args' => array( 'slug' => 'assigned', 'description' => 'The post has been assigned to a writer' ) ),
+		array( 'term' => 'Waiting for Feedback', 'args' => array( 'slug' => 'waiting-for-feedback', 'description' => 'The post has been sent to the editor, and is waiting on feedback' ) ) 
+	);
+	
+	// Okay, now add the default statuses to the db if they don't already exist 
+	foreach($default_terms as $term) {
+		if(!is_term($term['term'])) $edit_flow->custom_status->add_custom_status( $term['term'], $term['args'] );
+	}
+	
+	update_option($edit_flow->get_plugin_option_fullname('version'), '0.1');
 }
 
 // Upgrade to 0.3
