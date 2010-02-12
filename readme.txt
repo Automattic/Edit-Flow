@@ -93,55 +93,7 @@ This section describes how to install the plugin and get it working.
 
 **Hiding comments from front-end**
 
-Editorial comments are stored as regular comments but identified in the database as different from regular comments. This allows However, given limitation in WordPress, editorial comments will only be hidden as long as Edit Flow is activated. To ensure that editorial comments stay hidden if you chose to deactivate Edit Flow, please add the following code to your theme's functions.php file:
-
-`
-<?php
-/* Function to filter out editorial comments from comments array. Used to hide editorial comments from front-end if the Edit Flow plugin is ever deactivated */
-$active_plugins = get_option('active_plugins');
-if ( !in_array( 'edit-flow/edit_flow.php' , $active_plugins ) ) {
-	add_filter( 'comments_array', 'ef_filter_editorial_comments' );
-	add_filter( 'get_comments_number', 'ef_filter_editorial_comments_count' );
-	
-	if(!function_exists('ef_filter_editorial_comments')) {
-		add_filter( 'comments_array', 'ef_filter_editorial_comments' );
-		function ef_filter_editorial_comments( $comments ) {
-			// Only filter if viewing front-end
-			if( !is_admin() ) {
-				$count = 0;
-				foreach($comments as $comment) {
-					if($comment->comment_type == 'editorial-comment') {
-						unset($comments[$count]);
-					}
-					$count++;
-				}
-			}
-			return $comments;
-		}
-	}
-	if(!function_exists('ef_filter_editorial_comments_count')) {
-		function ef_filter_editorial_comments_count( $count ) {
-			global $post;
-			// Only filter if viewing front-end
-			if( !is_admin() ) {
-				// Get number of editorial comments
-				$editorial_count = ef_get_editorial_comment_count($post->ID);
-				$count = $count - $editorial_count;
-			}
-			return $count;
-		}
-	}
-	if(!function_exists('ef_get_editorial_comment_count')) {
-		function ef_get_editorial_comment_count( $id ) {
-			global $wpdb; 
-			$comment_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $wpdb->comments WHERE comment_post_ID = %d AND comment_type = %s", $id, 'editorial-comment'));
-			if(!comment_count) $comment_count = 0;
-			return $comment_count;
-		}
-	}
-}
-?>
-`
+*UPDATE (2010-02-11):* You no longer have to worry about hiding editorial comments if Edit Flow is ever disabled. Edit Flow will automatically show and hide editorial comments on activation/deactivation.
 
 **Threaded Commenting**
 
@@ -158,6 +110,10 @@ For replies to work properly, you need to enable threaded commenting in your blo
 6. You can now chose who should receive notifications on a per-post basis
 
 == Changelog ==
+
+= 0.4 =
+* Users that edit a post automatically get subscribed to that post (only if they have the manage subscriptions capability)
+* Edit Flow automatically hides editorial comments if the plugin is disabled
 
 = 0.3.3 =
 * Added tooltips with descriptions to the Status dropwdown and Status Filter links. Thanks to [Gil Namur](http://lifeasahuman.com) for the great idea!
