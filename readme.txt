@@ -114,7 +114,8 @@ For replies to work properly, you need to enable threaded commenting in your blo
 = 0.4 =
 * Users that edit a post automatically get subscribed to that post (only if they have the manage subscriptions capability)
 * Edit Flow automatically hides editorial comments if the plugin is disabled
-* Moved default custom status additions to upgrade function so they don't get added everytime you activate
+* Moved default custom status additions to upgrade function so they don't get added every time you activate
+* Bug fix: remove editorial comments from comments feed
 
 = 0.3.3 =
 * Added tooltips with descriptions to the Status dropwdown and Status Filter links. Thanks to [Gil Namur](http://lifeasahuman.com) for the great idea!
