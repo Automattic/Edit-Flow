@@ -131,8 +131,8 @@
 	}
 	
 	#ef_duedate label {
-		//padding-left: 18px;
-		background: url(../img/datebutton.gif) no-repeat;
+		padding-left: 18px;
+		background: url(../img/date-button.gif) no-repeat;
 	}
 	
 	#ef_duedate-display {
@@ -347,4 +347,4 @@
 		.form-usergroups .submit a.delete:active {
 			color: red;
 		}
-	
+
