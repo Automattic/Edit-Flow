@@ -131,7 +131,7 @@ class ef_usergroups_admin {
 					// If everything is hunky dory, then rock on.
 					if( !is_wp_error($result) ) {
 						$message = __('New usergroup succesfully created!', 'edit-flow');
-						$redirect = EDIT_FLOW_USERGROUPS_EDIT_LINK .'&usergroup='. urlencode($result->slug) .'&message='. urlencode($message);
+						$redirect = EDIT_FLOW_USERGROUPS_PAGE .'&message='. urlencode($message);
 						wp_redirect( $redirect );
 					}
 				}
