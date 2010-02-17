@@ -302,6 +302,14 @@
 		-moz-border-radius: 3px;
 	}
 
+	#ef-post_following_box label.ef-select_all_box {
+		float: right;
+		margin: -20px 10px;
+	}
+
+		#ef-post_following_box label.ef-select_all_box input {
+			margin-bottom: 5px;
+		}
 		
 	#ef-post_following_users_box,
 	#ef-post_following_usergroups_box {

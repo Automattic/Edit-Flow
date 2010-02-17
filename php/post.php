@@ -318,7 +318,7 @@ class post_metadata
 			add_meta_box('edit-flow', __('Edit Flow', 'edit-flow'), array(&$this, 'post_meta_box'), 'page', 'normal', 'high');
 			
 			if( $edit_flow->get_plugin_option('notifications_enabled') ) {
-				add_meta_box('edit-flow-subscriptions', __('Notification Subscriptions', 'edit-flow'), array(&$this, 'subscriptions_meta_box'), 'post', 'normal', 'high');
+				add_meta_box('edit-flow-subscriptions', __('Notification Subscriptions', 'edit-flow'), array(&$this, 'subscriptions_meta_box'), 'post', 'advanced', 'high');
 				add_meta_box('edit-flow-subscriptions', __('Notification Subscriptions', 'edit-flow'), array(&$this, 'subscriptions_meta_box'), 'page', 'normal', 'high');
 			}
 		}
@@ -642,11 +642,13 @@ class post_metadata
 			<p><?php _e('Select the users and usergroups that should receive notifications when the status of this post is updated or when an editorial comment is added.', 'edit-flow') ?></p>
 			<div id="ef-post_following_users_box">
 				<h4><?php _e('Users', 'edit-flow') ?></h4>
+				<?php $this->select_all_button( "following_users" ); ?>
 				<?php ef_users_select_form($followers, $user_form_args); ?>
 			</div>
 			
 			<div id="ef-post_following_usergroups_box">
 				<h4><?php _e('User Groups', 'edit-flow') ?></h4>
+				<?php $this->select_all_button( "following_usergroups" ); ?>
 				<?php ef_usergroups_select_form($following_usergroups, $usergroups_form_args); ?>
 			</div>
 			<div class="clear"></div>
@@ -655,6 +657,14 @@ class post_metadata
 		<?php
 	}
 
+	function select_all_button( $id ) {
+	?>
+		<label class="ef-select_all_box">
+			<span>Select All </span>
+			<input type="checkbox" id="<?=$id;?>" class="follow_all" />
+		</label>
+	<?php
+	}
 }
 
 /**
