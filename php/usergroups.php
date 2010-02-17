@@ -788,7 +788,6 @@ function ef_usergroups_select_form( $selected = array(), $args = null ) {
 		<ul id="<?php echo $list_id ?>" class="<?php echo $list_class ?>">
 		<?php
 		foreach( $usergroups as $usergroup ) {
-			print_r($usergroup);
 			$checked = (in_array($usergroup->slug, $selected)) ? 'checked="checked"' : '';
 			?>
 			<li>
