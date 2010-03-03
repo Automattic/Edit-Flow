@@ -261,7 +261,9 @@ class ef_notifications {
 		if( is_wp_error($following_recipients) || !is_array($following_recipients) ) {
 			$following_recipients = array();
 		}
-
+		
+		// @TODO: Too many separate calls to set up and clean up $recipients. Optimize them.
+		
 		// Merge arrays and get rid of duplicates
 		$recipients = array_merge($authors, $admins, $following_recipients);
 		$recipients = array_unique($recipients);
@@ -270,7 +272,10 @@ class ef_notifications {
 		for( $i = 0; $i < count( $recipients ); $i++ ) {
 			if( empty( $recipients[$i] ) ) unset( $recipients[$i] );
 		}
-
+		
+		// Filter to allow modification of recipients
+		$recipients = apply_filters('ef_notfication_recipients', $recipients);
+		
 		// If string set to true, return comma-delimited
 		if($string && is_array($recipients)) {
 			return implode(',', $recipients);
