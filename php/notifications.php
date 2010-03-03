@@ -274,7 +274,7 @@ class ef_notifications {
 		}
 		
 		// Filter to allow modification of recipients
-		$recipients = apply_filters('ef_notfication_recipients', $recipients);
+		$recipients = apply_filters('ef_notfication_recipients', $recipients, $post);
 		
 		// If string set to true, return comma-delimited
 		if($string && is_array($recipients)) {
