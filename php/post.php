@@ -1,7 +1,7 @@
 <?php
 
 // Functions that hook into or modify post.php
-define(EDIT_FLOW_META_PREFIX, '_ef_');
+define( 'EDIT_FLOW_META_PREFIX', '_ef_' );
 
 class post_metadata
 {
@@ -496,10 +496,10 @@ class post_metadata
 				<h5 class="comment-meta">
 				
 					<span class="comment-author">
-						<?php comment_author_link() ?>
+						<?php comment_author_email_link($comment->comment_author) ?>
 					</span>
 					<span class="meta">
-						<?php printf( __('%s at %s', 'edit-flow'),  get_comment_date( get_option('date_format') ), get_comment_time() ); ?>
+						<?php printf( __(' said on %s at %s', 'edit-flow'), get_comment_date( get_option('date_format') ), get_comment_time() ); ?>
 					</span>
 				</h5>
 	

@@ -2,10 +2,10 @@
 
 // CONSTANTS!
 global $wpdb;
-define( EDIT_FLOW_USERGROUPS_PAGE, 'admin.php?page=edit-flow/usergroups' );
-define( EDIT_FLOW_USERGROUPS_ADD_LINK, EDIT_FLOW_USERGROUPS_PAGE . '&action=add' );
-define( EDIT_FLOW_USERGROUPS_EDIT_LINK, EDIT_FLOW_USERGROUPS_PAGE . '&action=edit' );
-define( EDIT_FLOW_USERGROUPS_USERMETA, $wpdb->prefix . 'ef_usergroups' ); // prefix added for MU compatibility
+define( 'EDIT_FLOW_USERGROUPS_PAGE' , 'admin.php?page=edit-flow/usergroups' );
+define( 'EDIT_FLOW_USERGROUPS_ADD_LINK' , EDIT_FLOW_USERGROUPS_PAGE . '&action=add' );
+define( 'EDIT_FLOW_USERGROUPS_EDIT_LINK' , EDIT_FLOW_USERGROUPS_PAGE . '&action=edit' );
+define( 'EDIT_FLOW_USERGROUPS_USERMETA' , $wpdb->prefix . 'ef_usergroups' ); // prefix added for MU compatibility
 
 class ef_usergroups_admin {
 
