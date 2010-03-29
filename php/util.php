@@ -1,6 +1,6 @@
 <?php
 // Utilities
-if( !class_exists(WP_User_Search) ) include_once(ABSPATH . 'wp-admin/includes/user.php');
+if( !class_exists( 'WP_User_Search' ) ) include_once(ABSPATH . 'wp-admin/includes/user.php');
 
 /**
  * This class is an extension of the WP_User_Search and allows for more advanced user searches.
