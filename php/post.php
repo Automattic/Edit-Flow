@@ -73,7 +73,7 @@ class post_metadata
 		
 		// Get the assignment description from the custom field
 		$description = get_post_meta($post->ID, '_ef_description');
-		$description = esc_html( $description[0] );
+		$description = stripslashes( esc_html( $description[0] ) );
 		
 		// Get the assignment due date from the custom field
 		$duedate = get_post_meta($post->ID, '_ef_duedate');
@@ -90,7 +90,7 @@ class post_metadata
 		
 		// Get the assignment location from the custom field
 		$location = get_post_meta($post->ID, '_ef_location');
-		$location = esc_html( $location[0] );
+		$location = stripslashes( esc_html( $location[0] ) );
 		
 		// Get the assignment workflow from the custom field
 //		$workflow = get_post_meta($post->ID, '_ef_workflow');
