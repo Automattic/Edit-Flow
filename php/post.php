@@ -1,7 +1,7 @@
 <?php
 
 // Functions that hook into or modify post.php
-define( 'EDIT_FLOW_META_PREFIX', '_ef_' );
+define(EDIT_FLOW_META_PREFIX, '_ef_');
 
 class post_metadata
 {
@@ -27,8 +27,6 @@ class post_metadata
 		if(!function_exists('ef_filter_editorial_comments_count')) {
 			add_filter( 'get_comments_number', array(&$this, 'filter_editorial_comments_count') );
 		}
-		add_filter('comment_feed_where', array( &$this, 'filter_feed_comments' ));
-		
 		// init all ajax actions
 		$this->add_ajax_actions();
 	}
@@ -56,6 +54,8 @@ class post_metadata
 			<?php
 		}
 		wp_enqueue_style('edit_flow-styles', EDIT_FLOW_URL.'/css/editflow.css', false, false, 'all');
+		wp_enqueue_style('edit_flow-calendar-styles', EDIT_FLOW_URL.'/css/calendar.css', false, false, 'all');		
+			
 	}
 		
 	function get_post_meta( $post_id, $name, $single = true ) {
@@ -73,7 +73,7 @@ class post_metadata
 		
 		// Get the assignment description from the custom field
 		$description = get_post_meta($post->ID, '_ef_description');
-		$description = stripslashes( esc_html( $description[0] ) );
+		$description = esc_html( $description[0] );
 		
 		// Get the assignment due date from the custom field
 		$duedate = get_post_meta($post->ID, '_ef_duedate');
@@ -90,7 +90,7 @@ class post_metadata
 		
 		// Get the assignment location from the custom field
 		$location = get_post_meta($post->ID, '_ef_location');
-		$location = stripslashes( esc_html( $location[0] ) );
+		$location = esc_html( $location[0] );
 		
 		// Get the assignment workflow from the custom field
 //		$workflow = get_post_meta($post->ID, '_ef_workflow');
@@ -318,7 +318,7 @@ class post_metadata
 			add_meta_box('edit-flow', __('Edit Flow', 'edit-flow'), array(&$this, 'post_meta_box'), 'page', 'normal', 'high');
 			
 			if( $edit_flow->get_plugin_option('notifications_enabled') ) {
-				add_meta_box('edit-flow-subscriptions', __('Notification Subscriptions', 'edit-flow'), array(&$this, 'subscriptions_meta_box'), 'post', 'advanced', 'high');
+				add_meta_box('edit-flow-subscriptions', __('Notification Subscriptions', 'edit-flow'), array(&$this, 'subscriptions_meta_box'), 'post', 'normal', 'high');
 				add_meta_box('edit-flow-subscriptions', __('Notification Subscriptions', 'edit-flow'), array(&$this, 'subscriptions_meta_box'), 'page', 'normal', 'high');
 			}
 		}
@@ -362,13 +362,6 @@ class post_metadata
 		if(!$comment_count) $comment_count = 0;
 		return $comment_count;
 	}
-	// Filter editorial comments from feeds
-	function filter_feed_comments( $cwhere ) {
-		$cwhere .= " AND (comment_type = '' OR comment_type = 'comment' OR comment_type = 'pingback' OR comment_type = 'trackback') ";
-		return $cwhere;
-	}
-	
-
 	
 	function post_comments_box( ) {
 		global $post, $post_ID;
@@ -496,10 +489,10 @@ class post_metadata
 				<h5 class="comment-meta">
 				
 					<span class="comment-author">
-						<?php comment_author_email_link($comment->comment_author) ?>
+						<?php comment_author_link() ?>
 					</span>
 					<span class="meta">
-						<?php printf( __(' said on %s at %s', 'edit-flow'), get_comment_date( get_option('date_format') ), get_comment_time() ); ?>
+						<?php printf( __('%s at %s', 'edit-flow'),  get_comment_date( get_option('date_format') ), get_comment_time() ); ?>
 					</span>
 				</h5>
 	
@@ -642,13 +635,11 @@ class post_metadata
 			<p><?php _e('Select the users and usergroups that should receive notifications when the status of this post is updated or when an editorial comment is added.', 'edit-flow') ?></p>
 			<div id="ef-post_following_users_box">
 				<h4><?php _e('Users', 'edit-flow') ?></h4>
-				<?php $this->select_all_button( "following_users" ); ?>
 				<?php ef_users_select_form($followers, $user_form_args); ?>
 			</div>
 			
 			<div id="ef-post_following_usergroups_box">
 				<h4><?php _e('User Groups', 'edit-flow') ?></h4>
-				<?php $this->select_all_button( "following_usergroups" ); ?>
 				<?php ef_usergroups_select_form($following_usergroups, $usergroups_form_args); ?>
 			</div>
 			<div class="clear"></div>
@@ -657,14 +648,6 @@ class post_metadata
 		<?php
 	}
 
-	function select_all_button( $id ) {
-	?>
-		<label class="ef-select_all_box">
-			<span>Select All </span>
-			<input type="checkbox" id="<?=$id;?>" class="follow_all" />
-		</label>
-	<?php
-	}
 }
 
 /**
@@ -688,7 +671,7 @@ class post_status
 		get_currentuserinfo() ;
 		
 		// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
-		if(current_user_can('edit_posts') && (($edit_flow->get_plugin_option('custom_statuses_enabled') && ($pagenow == 'post.php' || $pagenow == 'edit.php' || $pagenow == 'post-new.php')) || ($edit_flow->get_plugin_option('pages_custom_statuses_enabled') && ($pagenow == 'page.php' || $pagenow == 'edit-pages.php' || $pagenow == 'page-new.php')))) {
+		if(current_user_can('publish_posts') && (($edit_flow->get_plugin_option('custom_statuses_enabled') && ($pagenow == 'post.php' || $pagenow == 'edit.php' || $pagenow == 'post-new.php')) || ($edit_flow->get_plugin_option('pages_custom_statuses_enabled') && ($pagenow == 'page.php' || $pagenow == 'edit-pages.php' || $pagenow == 'page-new.php')))) {
 			
 			$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
 	

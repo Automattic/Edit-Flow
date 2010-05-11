@@ -38,14 +38,15 @@ include_once('php/upgrade.php');
 include_once('php/util.php');
 
 // Define contants
-define( 'EDIT_FLOW_VERSION' , '0.3.3');
-define( 'EDIT_FLOW_FILE_PATH' , dirname(__FILE__).'/'.basename(__FILE__) );
-define( 'EDIT_FLOW_URL' , plugins_url(plugin_basename(dirname(__FILE__)).'/') );
-define( 'EDIT_FLOW_URL_FROM_ROOT' , plugins_url(plugin_basename(dirname(__FILE__)).'/') );
-define( 'EDIT_FLOW_MAIN_PAGE' , 'admin.php?page=edit-flow/edit_flow' );
-define( 'EDIT_FLOW_SETTINGS_PAGE' , 'options-general.php?page=edit_flow' );
-define( 'EDIT_FLOW_CUSTOM_STATUS_PAGE' , 'admin.php?page=edit-flow/custom_status' );
-define( 'EDIT_FLOW_PREFIX' , 'ef_' );
+define(EDIT_FLOW_VERSION, '0.3.3');
+define(EDIT_FLOW_FILE_PATH, dirname(__FILE__).'/'.basename(__FILE__));
+define(EDIT_FLOW_URL, plugins_url(plugin_basename(dirname(__FILE__)).'/'));
+define(EDIT_FLOW_URL_FROM_ROOT, plugins_url(plugin_basename(dirname(__FILE__)).'/'));
+define(EDIT_FLOW_MAIN_PAGE, 'admin.php?page=edit-flow/edit_flow');
+define(EDIT_FLOW_SETTINGS_PAGE, 'options-general.php?page=edit_flow');
+define(EDIT_FLOW_CUSTOM_STATUS_PAGE, 'admin.php?page=edit-flow/custom_status');
+define(EDIT_FLOW_CALENDAR_PAGE, 'admin.php?page=edit-flow/calendar');
+define(EDIT_FLOW_PREFIX, 'ef_');
 
 // Core class
 class edit_flow {
@@ -64,7 +65,8 @@ class edit_flow {
 					'quickpitch_widget_enabled' => 1,
 					'myposts_widget_enabled' => 1,
 					'notifications_enabled' => 1,
-					'always_notify_admin' => 0
+					'always_notify_admin' => 0,
+					'custom_status_filter' => 'draft'
 				);
 	
 	// Used to store the names for any custom tables used by the plugin
@@ -76,7 +78,7 @@ class edit_flow {
 	var $dashboard		= null;
 	var $post_status 	= null;
 	var $notifications	= null;
-	var $usergroups		= null;
+	var $usergroups	= null;
 
 	/**
 	 * Constructor
@@ -150,31 +152,46 @@ class edit_flow {
 	 * This function is called when plugin is activated.
 	 */
 	function activate_plugin ( ) {
-		global $wpdb;
-		
 		// Run function to generate db tables	
 		$this->build_db_tables();
 		
 		// Do other fancy stuff!
 		// Like load default values for Custom Status
 		
-		// re-approve editorial comments
-		$wpdb->query($wpdb->prepare("UPDATE $wpdb->comments SET comment_approved = 1 WHERE comment_type = %s", $this->post_metadata->comment_type));
+		// Create default statuses
+		$default_terms = array( array( 'term' => 'Draft',
+										'args' => array( 'slug' => 'draft',
+														'description' => 'Post is simply a draft',
+														)
+									),
+								array( 'term' => 'Pending Review',
+										'args' => array( 'slug' => 'pending',
+														'description' => 'The post needs to be reviewed by an Editor',
+														)
+									),
+								array( 'term' => 'Pitch',
+										'args' => array( 'slug' => 'pitch',
+														'description' => 'Post idea proposed',
+														)
+									),
+								array( 'term' => 'Assigned',
+										'args' => array( 'slug' => 'assigned',
+														'description' => 'The post has been assigned to a writer'
+													)
+									),
+								array( 'term' => 'Waiting for Feedback',
+										'args' => array( 'slug' => 'waiting-for-feedback',
+														'description' => 'The post has been sent to the editor, and is waiting on feedback'
+													)
+									)
+							);
+		// Okay, now add the default statuses to the db if they don't already exist 
+		foreach($default_terms as $term) {
+			if(!is_term($term['term'])) $this->custom_status->add_custom_status( $term['term'], $term['args'] );
+		}
 		
 		
-	} // END: activate_plugin
-	
-	/**
-	 * This function is called when plugin is activated.
-	 */
-	function deactivate_plugin( ) {
-		global $wpdb;
-		
-		// unapprove editorial comments
-		$wpdb->query($wpdb->prepare("UPDATE $wpdb->comments SET comment_approved = 0 WHERE comment_type = %s", $this->post_metadata->comment_type));
-		
-		
-	} // END: deactivate_plugin
+	} // END: activate plugin
 	
 	/**
 	 * Creates all necessary db tables for plugin, if they don't exist.
@@ -250,7 +267,7 @@ class edit_flow {
 		// Only check if we have page query string and it's for edit-flow
 		if( $page && strstr($page, 'edit-flow') ) {
 			$component = substr( $page, (strrpos($page, '/') + 1) );
-			
+
 			switch( $component ) {
 				case 'usergroups':
 					$this->usergroups->admin_controller();
@@ -259,7 +276,7 @@ class edit_flow {
 				case 'custom_status':
 					// @TODO: Set up custom statuses to use controller
 					break;
-				
+					
 				default:
 					break;
 			}
@@ -273,6 +290,10 @@ class edit_flow {
 	function add_menu_items ( ) {
 		// Add Top-level Admin Menu
 		add_menu_page(__('Edit Flow', 'edit-flow'), __('Edit Flow', 'edit-flow'), 8, $this->get_page('edit-flow'), array(&$this, 'toplevel_page'));
+
+		// Add sub-menu page for Calendar		
+	//	add_submenu_page($this->get_page('edit-flow'), __('Calendar', 'edit-flow'), __('Calendar', 'edit-flow'), 8, $this->get_page('calendar_page'), array(&$this->calendar_page,'calendar_page'));
+	    add_submenu_page('post-new.php', 'Calendar', 'Calendar', 8, $this->get_page('calendar'), array(&$this,'calendar'));
 		
 		// Add sub-menu page for Custom statuses		
 		add_submenu_page($this->get_page('edit-flow'), __('Custom Status', 'edit-flow'), __('Custom Status', 'edit-flow'), 8, $this->get_page('custom_status'), array(&$this->custom_status,'admin_page'));
@@ -298,7 +319,12 @@ class edit_flow {
 	 * Adds necessary javascript
 	 */
 	function add_admin_scripts( ) {
-		wp_enqueue_script('edit_flow-js', EDIT_FLOW_URL.'js/edit_flow.js', array('jquery'), false, true);
+	    wp_enqueue_script('edit_flow-js', EDIT_FLOW_URL.'js/edit_flow.js', 
+	        array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'), false, true);//, 'jquery-ui-draggable', 'jquery-ui-droppable', 
+        wp_enqueue_script('edit_flow-calendar-js', EDIT_FLOW_URL.'js/calendar.js', 
+	        array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'), false, true);
+//		'jquery-ui-resizable', 'jquery-ui-selectable', 'jquery-ui-accordion', 
+//		'jquery-ui-slider', 'jquery-ui-tabs', 'jquery-ui-progressbar'), false, true);
 	}
 	
 	/* Adds Settings page for Edit Flow
@@ -428,10 +454,11 @@ class edit_flow {
 								</p>
 							</td>
 						</tr>
-						
+									
 					</table>
 									
 					<p class="submit">
+<input type="hidden" name="<?php echo $this->get_plugin_option_fullname('custom_status_filter') ?>" value="<?php echo ($this->get_plugin_option('custom_status_filter')) ?>" id="custom_status_filter" /> 
 						<input type="submit" class="button-primary" value="<?php _e('Save Changes', 'edit-flow') ?>" />
 					</p>
 				</form>
@@ -469,7 +496,10 @@ class edit_flow {
 		<?php 
 	} // END: toplevel_menu()
 
-
+    function calendar() {
+        include('php/templates/calendar.php');
+    }
+    
 } // END: class edit_flow
 
 // Create new instance of the edit_flow object
@@ -480,8 +510,8 @@ $edit_flow = new edit_flow();
 add_action('init', array(&$edit_flow,'init'));
 add_action('admin_init', array(&$edit_flow,'admin_init'));
 
+
 // Hook to perform action when plugin activated
 register_activation_hook( EDIT_FLOW_FILE_PATH, array(&$edit_flow, 'activate_plugin'));
-register_deactivation_hook( EDIT_FLOW_FILE_PATH, array(&$edit_flow, 'deactivate_plugin'));
 
 ?>
