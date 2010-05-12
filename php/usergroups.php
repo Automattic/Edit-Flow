@@ -826,8 +826,8 @@ function ef_users_select_form ( $selected = null, $args = null ) {
 	$parsed_args = wp_parse_args( $args, $defaults );
 	extract($parsed_args, EXTR_SKIP);
 	
-	// Using blog_id for MU support
-	$users = get_users_of_blog($blog_id);
+	// Only get the contributors and above for the current blog
+	$users = get_editable_authors( wp_get_current_user()->ID );
 	
 	if( !is_array($selected) ) $selected = array();
 	?>
