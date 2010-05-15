@@ -56,6 +56,7 @@ class post_metadata
 			<?php
 		}
 		wp_enqueue_style('edit_flow-styles', EDIT_FLOW_URL.'/css/editflow.css', false, false, 'all');
+		wp_enqueue_style('edit_flow-calendar-styles', EDIT_FLOW_URL.'/css/calendar.css', false, false, 'all');
 	}
 		
 	function get_post_meta( $post_id, $name, $single = true ) {
