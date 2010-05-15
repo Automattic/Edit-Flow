@@ -46,6 +46,7 @@ define( 'EDIT_FLOW_MAIN_PAGE' , 'admin.php?page=edit-flow/edit_flow' );
 define( 'EDIT_FLOW_SETTINGS_PAGE' , 'options-general.php?page=edit_flow' );
 define( 'EDIT_FLOW_CUSTOM_STATUS_PAGE' , 'admin.php?page=edit-flow/custom_status' );
 define( 'EDIT_FLOW_PREFIX' , 'ef_' );
+define( 'EDIT_FLOW_CALENDAR_PAGE', 'admin.php?page=edit-flow/calendar');
 
 // Core class
 class edit_flow {
@@ -64,7 +65,8 @@ class edit_flow {
 					'quickpitch_widget_enabled' => 1,
 					'myposts_widget_enabled' => 1,
 					'notifications_enabled' => 1,
-					'always_notify_admin' => 0
+					'always_notify_admin' => 0,
+					'custom_status_filter' => 'draft'
 				);
 	
 	// Used to store the names for any custom tables used by the plugin
@@ -283,6 +285,9 @@ class edit_flow {
 		// Add sub-menu page for Settings		
 		add_submenu_page($this->get_page('edit-flow'), __('Settings', 'edit-flow'), __('Settings', 'edit-flow'), 8, $this->get_page('settings'), array(&$this, 'settings_page'));
 		
+		// Add sub-menu page for Calendar
+		add_submenu_page('post-new.php', 'Calendar', 'Calendar', 8, $this->get_page('calendar'), array(&$this,'calendar'));
+		
 	} // END: add_menu_items() 
 	
 	/**
@@ -299,6 +304,8 @@ class edit_flow {
 	 */
 	function add_admin_scripts( ) {
 		wp_enqueue_script('edit_flow-js', EDIT_FLOW_URL.'js/edit_flow.js', array('jquery'), false, true);
+        wp_enqueue_script('edit_flow-calendar-js', EDIT_FLOW_URL.'js/calendar.js', 
+            array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'), false, true);
 	}
 	
 	/* Adds Settings page for Edit Flow
@@ -432,6 +439,7 @@ class edit_flow {
 					</table>
 									
 					<p class="submit">
+					    <input type="hidden" name="<?php echo $this->get_plugin_option_fullname('custom_status_filter') ?>" value="<?php echo ($this->get_plugin_option('custom_status_filter')) ?>" id="custom_status_filter" />
 						<input type="submit" class="button-primary" value="<?php _e('Save Changes', 'edit-flow') ?>" />
 					</p>
 				</form>
@@ -469,6 +477,10 @@ class edit_flow {
 		<?php 
 	} // END: toplevel_menu()
 
+
+    function calendar() {
+        include('php/templates/calendar.php');
+    }
 
 } // END: class edit_flow
 

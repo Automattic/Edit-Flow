@@ -1,0 +1,155 @@
+/*
+Edit Flow Calendar CSS
+Version 1.1
+*/
+
+#main-content {
+	width:85%;
+}
+
+/*** Calendar Styles ***/
+
+#calendar-wrap {
+	width:98%;
+	min-width:900px;
+	padding-left:1%;
+	padding-right:1%;
+	border-left:1px solid #e1e1e1;
+}
+
+#calendar-title {
+}
+
+.week-wrap {
+	margin-bottom:20px;
+}
+
+.week-unit {
+	min-width:100px;
+	width:12%;
+	padding-left:1%;
+	padding-right:1%;
+	float:left;
+	border-right: 1px solid #e1e1e1
+}
+
+.week-list {
+	padding:0;
+	min-height:40px; /*** Hack for when a list is empty. ***/
+}
+
+.week-list li {
+	list-style-type:none;
+	margin-left:0;
+	margin-bottom:10px;
+}
+
+.week-heading {
+	position: relative;
+    height: 28px;
+    -webkit-border-top-left-radius: 6px;	/*** Adds the rounded effect to fit with WP styles ***/
+    -webkit-border-top-right-radius: 6px;
+    -moz-border-radius-topleft: 6px;
+    -moz-border-radius-topright: 6px;
+	margin-right:2.3%;
+	margin-top:5px;
+}
+
+.day-heading {
+	margin-right:5px;
+	text-shadow:rgba(0, 0, 0, 0.398438) 0px -1px 0px;
+	color:white;
+	font:13px/26px Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif;
+}
+
+.first-heading {
+	margin-left:10px;
+}
+
+.week-list .item-metadata {
+	padding-left:15px;
+	color:#989898;
+	font:italic 12px Helvetica, Arial, sans-serif;
+}
+
+.week-list .item-metadata li {
+	display:inline;
+}
+
+.week-list .item-metadata .item-author {
+	
+}
+
+.week-list .item-metadata .item-category {
+	float:right;
+}
+
+.ui-state-highlight {
+	min-height:50px;
+	background-color:#fcffb5;
+}
+
+.item-handle {
+	float:left;
+	margin-bottom:10px;
+	margin-right:5px;
+	padding-top:2px;
+}
+
+.item-headline {
+	font-size:14px;
+	margin-bottom:5px;
+	margin-top:0;
+}
+
+.item-headline a {
+	text-decoration:none;
+	color:#000000;
+}
+
+.item-headline a:hover {
+	text-decoration:underline;
+	color:red;
+}
+
+.week-list img {
+	opacity:0.0;
+	cursor:move;
+}
+
+.week-list li:hover img {
+	opacity:1.0;
+}
+
+/*** Week Navigation Links ***/
+
+.day-navigation {
+	padding:0;
+	display:block;
+	height:20px;
+	margin-top:5px;
+	margin-bottom:0;
+}
+
+.day-navigation a {
+	text-decoration:none;
+	color:#989898;
+	font:bold 12px Helvetica, Arial, sans-serif;
+}
+
+.day-navigation a:hover {
+	text-decoration:underline;
+	color:#000000;
+}
+
+.day-navigation li {
+	list-style-type:none;
+}
+
+.day-navigation li.previous-week {
+	float:left;
+}
+
+.day-navigation li.next-week {
+	float:right;
+}
