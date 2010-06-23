@@ -10,7 +10,7 @@ class custom_status {
 	/**
 	 * Constructor
 	 */
-	function __construct ( $active = 1) {
+	function __construct ($active = 1) {
 		global $pagenow, $edit_flow;
 		
 		// Register new taxonomy so that we can store all our fancy new custom statuses (or is it stati?)
