@@ -93,7 +93,7 @@ This section describes how to install the plugin and get it working.
 
 **Hiding comments from front-end**
 
-*UPDATE (2010-02-11):* You no longer have to worry about hiding editorial comments if Edit Flow is ever disabled. Edit Flow will automatically show and hide editorial comments on activation/deactivation.
+*UPDATE (2010-02-11):* You no longer have to worry about hiding editorial comments if Edit Flow is ever disabled. Edit Flow will automatically show (in the admin) and hide (in the front-end) editorial comments on activation/deactivation.
 
 **Threaded Commenting**
 
@@ -118,7 +118,7 @@ For replies to work properly, you need to enable threaded commenting in your blo
 * Bug fix: remove editorial comments from comments feed
 
 = 0.3.3 =
-* Added tooltips with descriptions to the Status dropwdown and Status Filter links. Thanks to [Gil Namur](http://lifeasahuman.com) for the great idea!
+* Added tooltips with descriptions to the Status dropdown and Status Filter links. Thanks to [Gil Namur](http://lifeasahuman.com) for the great idea!
 * Fixed the issue where subscribed users/usergroups were not receiving notifications
 
 = 0.3.2 =
@@ -128,6 +128,7 @@ For replies to work properly, you need to enable threaded commenting in your blo
 * Small bug fixes
 
 = 0.3 =
+* *Note:* Edit Flow now requires 2.9+
 * Notification emails on status change now have specific subject lines messages based on action taken
 * Action links in comment notifications now take the user to the comment form; i.e. clicking reply link in the email will focus on the comment text box and reply to the message
 * Usergroups!
@@ -157,8 +158,16 @@ For replies to work properly, you need to enable threaded commenting in your blo
 
 = Edit Flow doesn't do X, Y, and Z. That makes me sad. =
 
-Contact us at [editflow@copress.org](editflow@copress.org) and we'll see what we can do.
+Contact us at [editflow@copress.org](mailto:editflow@copress.org) and we'll see what we can do.
 
 = I'm stuck at WordPress 2.8! How do I use v0.3 onwards? =
 
 Upgrade to WordPress 2.9 or later, fools!
+
+= Why do you hate PHP4? =
+
+We don't. PHP hates PHP4 and no longer supports it. So neither do we.
+
+= Edit Flow doesn't work!?! Your stupid! =
+
+First, install some sort of spellchecker, possibly a [great one like AtD](http://afterthedeadline.com/) and then [send us an email](mailto:editflow@copress.org) with a few more details about what doesn't work, and we'll see what we can do.
