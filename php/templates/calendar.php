@@ -43,46 +43,43 @@ for ($i=0; $i<7; $i++) {
 	</style>
     <div id="main-content"><!-- Main Content -->
       <div class="wrap">
-    <div id="calendar-filter">
-    <form method="GET" action="">
-    <?php
-    if ($_GET['date']) { echo '<input type="hidden" name="date" value="'. $_GET['date'] . '"/>'; }
-    ?>
-    <select name="<?php  echo $edit_flow->get_plugin_option_fullname('custom_status_filter') ?>" id="custom_status_filter">
-    <option value="all" <?php if ($edit_flow->get_plugin_option('custom_status_filter')=='all') { echo 'selected="selected"';}?>>All Posts</option>
-    <option value="my-posts" <?php if ($edit_flow->get_plugin_option('custom_status_filter')=='my-posts') { echo 'selected="selected"';}?>>My Posts</option>
-    <?php $statuses = $edit_flow->custom_status->get_custom_statuses() ?>
-        <?php foreach($statuses as $status) : ?>
-
-                <?php $selected = ($edit_flow->get_plugin_option('custom_status_filter')==$status->slug) ? 'selected="selected"' : ''; ?>
-                <option value="<?php esc_attr_e($status->slug) ?>" <?php echo $selected ?>>
-                        <?php esc_html_e($status->name); ?>
-                </option>
-
-        <?php endforeach; ?>
-    </select>
-    <input type="hidden" name="page" value="edit-flow/calendar"/>
-    <input type="submit" class="button primary" value="Filter"/>
-    </form>
-	</div>
+  
     	<div id="calendar-title"><!-- Calendar Title -->
     		<div class="icon32" id="icon-edit"><br/></div><!-- These two lines will now fit with the WP style. The icon-edit ID could be changed if we'd like a different icon to appear there. -->
-    		<h2><?php echo date('F d, Y', strtotime($dates[count($dates)-1])) ?> - 
-        	<?php echo date('F d, Y', strtotime($dates[0])) ?></h2>
+    		<h2><?php echo date('F d, Y', strtotime($dates[count($dates)-1])); ?> - 
+        	<?php echo date('F d, Y', strtotime($dates[0])); ?></h2>
     	</div><!-- /Calendar Title -->
 
     	<div id="calendar-wrap"><!-- Calendar Wrapper -->
     		<ul class="day-navigation">
-    			<li class="previous-week">
-    			    <a href="<?php echo ef_get_calendar_previous_link($dates[count($dates)-1]) ?>">
-    		            Previous 7 days
-    		        </a>
-    		    </li>
-    			<li class="next-week">
-        			<a href="<?php echo ef_get_calendar_next_link($dates[0]) ?>">
-        		        Next 7 days
-        		    </a>
+    		  <li id="calendar-filter">
+    		    <form method="GET" action="">
+            <?php
+            if ($_GET['date']) { echo '<input type="hidden" name="date" value="'. $_GET['date'] . '"/>'; }
+            ?>
+            <select name="<?php  echo $edit_flow->get_plugin_option_fullname('custom_status_filter') ?>" id="custom_status_filter">
+            <option value="all" <?php if ($edit_flow->get_plugin_option('custom_status_filter')=='all') { echo 'selected="selected"';}?>>All Posts</option>
+            <option value="my-posts" <?php if ($edit_flow->get_plugin_option('custom_status_filter')=='my-posts') { echo 'selected="selected"';}?>>My Posts</option>
+            <?php $statuses = $edit_flow->custom_status->get_custom_statuses() ?>
+                <?php foreach($statuses as $status) : ?>
+
+                        <?php $selected = ($edit_flow->get_plugin_option('custom_status_filter')==$status->slug) ? 'selected="selected"' : ''; ?>
+                        <option value="<?php esc_attr_e($status->slug) ?>" <?php echo $selected ?>>
+                                <?php esc_html_e($status->name); ?>
+                        </option>
+
+                <?php endforeach; ?>
+            </select>
+            <input type="hidden" name="page" value="edit-flow/calendar"/>
+            <input type="submit" class="button primary" value="Filter"/>
+            </form>
+          </li>
+          <li class="next-week">
+        			<a href="<?php echo ef_get_calendar_next_link($dates[0]) ?>">Next &raquo;</a>
     			</li>
+    			<li class="previous-week">
+    			    <a href="<?php echo ef_get_calendar_previous_link($dates[count($dates)-1]) ?>">&laquo; Previous</a>
+          </li>
     		</ul>
 
     		<div id="week-wrap"><!-- Week Wrapper -->
@@ -152,15 +149,11 @@ for ($i=0; $i<7; $i++) {
     			<div style="clear:both"></div>
     		</div><!-- /Week Wrapper -->
     		<ul class="day-navigation">
-    			<li class="previous-week">
-    			    <a href="<?php echo ef_get_calendar_previous_link($dates[count($dates)-1]) ?>">
-    		            Previous 7 days
-    		        </a>
+    		  <li class="next-week">
+        			<a href="<?php echo ef_get_calendar_next_link($dates[0]) ?>">Next &raquo;</a>
     			</li>
-    			<li class="next-week">
-        			<a href="<?php echo ef_get_calendar_next_link($dates[0]) ?>">
-        		        Next 7 days
-        		    </a>
+    			<li class="previous-week">
+    			    <a href="<?php echo ef_get_calendar_previous_link($dates[count($dates)-1]) ?>">&laquo;Previous</a>
     			</li>
     		</ul>
     		<div style="clear:both"></div>
