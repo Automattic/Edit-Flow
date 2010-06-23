@@ -4,7 +4,7 @@ Plugin Name: Edit Flow
 Plugin URI: http://www.copress.org/wiki/Edit_Flow_Project
 Description: Remixing the WordPress admin for better editorial workflow options.
 Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Andrew Spittle, et al.
-Version: 0.3.3
+Version: 0.5a
 Author URI: http://www.copress.org/
 
 Copyright 2009-2010 Mohammad Jangda, Daniel Bachhuber, et al.
@@ -286,7 +286,7 @@ class edit_flow {
 		add_submenu_page($this->get_page('edit-flow'), __('Settings', 'edit-flow'), __('Settings', 'edit-flow'), 8, $this->get_page('settings'), array(&$this, 'settings_page'));
 		
 		// Add sub-menu page for Calendar
-		add_submenu_page('post-new.php', 'Calendar', 'Calendar', 8, $this->get_page('calendar'), array(&$this,'calendar'));
+		add_submenu_page('index.php', 'Edit Flow', 'Edit Flow', 8, $this->get_page('calendar'), array(&$this,'calendar'));
 		
 	} // END: add_menu_items() 
 	
