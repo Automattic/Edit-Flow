@@ -300,12 +300,13 @@ class edit_flow {
 	}
 	
 	/**
-	 * Adds necessary javascript
+	 * Adds necessary Javascript to admin
 	 */
-	function add_admin_scripts( ) {
+	function add_admin_scripts() {
 		wp_enqueue_script('edit_flow-js', EDIT_FLOW_URL.'js/edit_flow.js', array('jquery'), false, true);
-        wp_enqueue_script('edit_flow-calendar-js', EDIT_FLOW_URL.'js/calendar.js', 
-            array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'), false, true);
+		wp_enqueue_script('edit_flow-custom_status-js', EDIT_FLOW_URL.'js/custom_status.js', array('jquery'), false, true);
+    wp_enqueue_script('edit_flow-calendar-js', EDIT_FLOW_URL.'js/calendar.js', 
+      array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'), false, true);
 	}
 	
 	/* Adds Settings page for Edit Flow

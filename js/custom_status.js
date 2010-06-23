@@ -1,4 +1,4 @@
-jQuery(document).ready(function () {
+jQuery(document).ready(function() {
 
 	// Add custom statuses to post.php Status dropdown
 	if(jQuery('select[name="post_status"]')) {
@@ -29,19 +29,19 @@ jQuery(document).ready(function () {
 	if(jQuery('select[name="_status"]')) {
 		append_to_dropdown('select[name="_status"]');
 	}
-	
-	if( jQuery('ul.subsubsub') ) {
-		add_tooltips_to_filter_links('ul.subsubsub a');
+		
+	if (jQuery('ul.subsubsub')) {
+		add_tooltips_to_filter_links('ul.subsubsub li a');
 	}
 	
 	// Add custom statuses to Status dropdown
-	function append_to_dropdown ( id ) {
+	function append_to_dropdown(id) {
 	
 		// Empty dropdown
 		jQuery(id).empty();
 
 		// Add "Published" status to quick-edit
-		if(id=='select[name="_status"]') {
+		if (id=='select[name="_status"]') {
 			jQuery(id).append(jQuery('<option></option')
 				.attr('value','publish')
 				.text('Published')
@@ -62,7 +62,7 @@ jQuery(document).ready(function () {
 		});
 	}
 	
-	function add_tooltips_to_filter_links( selector ) {
+	function add_tooltips_to_filter_links(selector) {	
 		jQuery.each(custom_statuses, function() {
 			jQuery(selector + ':contains("'+ this.name +'")')
 				.attr('title', this.description)
@@ -77,7 +77,7 @@ jQuery(document).ready(function () {
 	}
 	
 	// Returns the name of the status given a slug
-	function get_status_name ( slug ) {
+	function get_status_name (slug) {
 		var name = '';
 		jQuery.each(custom_statuses, function() {
 			if(this.slug==slug) name = this.name;

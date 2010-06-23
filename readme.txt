@@ -20,9 +20,9 @@ There are a few key components to this project:
 * empowering newsrooms, blog networks and multi-user blogs to manage more of their editorial workflow from within the WordPress admin; and
 * building out a way to track all of this active meta data within the system as a way of visualizing content and priorities at a glance.
 
-More details can be found on the [CoPress Wiki](http://www.copress.org/wiki/Edit_Flow_Project)
+More details can be found on the [Edit Flow website](http://www.editflow.org/)
 
-We welcome any and all feedback. Ideas are more awesome than money (okay, not always). Contact us at [editflow@copress.org](mailto:editflow@copress.org).
+We welcome any and all feedback. Ideas are more awesome than money (okay, not always). Contact us at [feedback@editflow.org](mailto:feedback@editflow.org).
 
 = Stage 1: Custom Post Statuses =
 
