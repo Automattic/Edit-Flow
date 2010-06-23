@@ -20,27 +20,22 @@ Version 1.1
 #calendar-title {
 }
 
-#calendar-filter {
-	float: right;
-	padding-top: 20px;
-}
-
-.week-wrap {
-	margin-bottom:20px;
+#week-wrap {
+		margin-bottom:20px;
 }
 
 .week-unit {
-	min-width:100px;
-	width:12%;
-	padding-left:1%;
-	padding-right:1%;
-	float:left;
-	border-right: 1px solid #e1e1e1
+		min-width:100px;
+		width:12%;
+		padding-left:1%;
+		padding-right:1%;
+		float:left;
+		border-right: 1px solid #e1e1e1;
 }
 
 .week-list {
 	padding:0;
-	min-height:40px; /*** Hack for when a list is empty. ***/
+	min-height:115px; /*** Hack for when a list is empty. ***/
 }
 
 .week-list li {
@@ -136,26 +131,41 @@ Version 1.1
 	display:block;
 	height:20px;
 	margin-top:5px;
-	margin-bottom:0;
+	margin-bottom:15px;
 }
 
 .day-navigation a {
 	text-decoration:none;
-	color:#989898;
-	font:bold 12px Helvetica, Arial, sans-serif;
+	-moz-border-radius:5px 5px 5px 5px;
+	-webkit-border-radius:5px 5px 5px 5px;
+	border-radius: 5px 5px 5px 5px;
+	border: 1px solid;
+	padding: 3px 6px;
+	color:#21759B;
+	font-weight: bold;
+	font-size: 11px;
+	line-height: 30px;
+	background: url("../images/menu-bits.gif") repeat-x scroll left -379px #EEEEEE;
 }
 
 .day-navigation a:hover {
-	text-decoration:underline;
-	color:#000000;
+	text-decoration:none;
+	border-color: #D54321;
+	color: #D54E21;
 }
 
 .day-navigation li {
 	list-style-type:none;
 }
 
+#calendar-filter {
+	float: left;
+	margin-top: 2px;
+}
+
 .day-navigation li.previous-week {
-	float:left;
+	float:right;
+	margin-right: 15px;
 }
 
 .day-navigation li.next-week {
