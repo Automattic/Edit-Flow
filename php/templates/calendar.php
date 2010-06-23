@@ -58,14 +58,14 @@ for ($i=0; $i<7; $i++) {
             if ($_GET['date']) { echo '<input type="hidden" name="date" value="'. $_GET['date'] . '"/>'; }
             ?>
             <select name="<?php  echo $edit_flow->get_plugin_option_fullname('custom_status_filter') ?>" id="custom_status_filter">
-            <option value="all" <?php if ($edit_flow->get_plugin_option('custom_status_filter')=='all') { echo 'selected="selected"';}?>>All Posts</option>
-            <option value="my-posts" <?php if ($edit_flow->get_plugin_option('custom_status_filter')=='my-posts') { echo 'selected="selected"';}?>>My Posts</option>
+            <option value="all" <?php if ($edit_flow->get_plugin_option('custom_status_filter')=='all') { echo 'selected="selected"';}?>>Show All Posts</option>
+            <option value="my-posts" <?php if ($edit_flow->get_plugin_option('custom_status_filter')=='my-posts') { echo 'selected="selected"';}?>>Show My Posts</option>
             <?php $statuses = $edit_flow->custom_status->get_custom_statuses() ?>
                 <?php foreach($statuses as $status) : ?>
 
                         <?php $selected = ($edit_flow->get_plugin_option('custom_status_filter')==$status->slug) ? 'selected="selected"' : ''; ?>
                         <option value="<?php esc_attr_e($status->slug) ?>" <?php echo $selected ?>>
-                                <?php esc_html_e($status->name); ?>
+                                Status: <?php esc_html_e($status->name); ?>
                         </option>
 
                 <?php endforeach; ?>
