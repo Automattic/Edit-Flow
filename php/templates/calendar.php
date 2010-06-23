@@ -42,7 +42,8 @@ for ($i=0; $i<7; $i++) {
 	    }
 	</style>
     <div id="main-content"><!-- Main Content -->
-    <div style="float: right">
+      <div class="wrap">
+    <div id="calendar-filter">
     <form method="GET" action="">
     <?php
     if ($_GET['date']) { echo '<input type="hidden" name="date" value="'. $_GET['date'] . '"/>'; }
@@ -61,7 +62,7 @@ for ($i=0; $i<7; $i++) {
         <?php endforeach; ?>
     </select>
     <input type="hidden" name="page" value="edit-flow/calendar"/>
-    <input type="submit" value="filter"/>
+    <input type="submit" class="button primary" value="Filter"/>
     </form>
 	</div>
     	<div id="calendar-title"><!-- Calendar Title -->
@@ -165,6 +166,7 @@ for ($i=0; $i<7; $i++) {
     		<div style="clear:both"></div>
     	</div><!-- /Calendar Wrapper -->
 
+      </div>
     </div><!-- /Main Content -->
 
 <?php 
