@@ -545,13 +545,7 @@ class EF_Usergroup {
 		
 		if( !empty($this->users) ) return $this->users;
 		
-		$user_query_vars = array(
-			'usermeta' => array(EDIT_FLOW_USERGROUPS_USERMETA => $this->slug)
-			);
-		
-		// Inst. the search class and get results
-		$user_query = new EF_User_Query($user_query_vars);
-		$users = $user_query->get_results();
+		$users = ef_get_users_by_usermeta(EDIT_FLOW_USERGROUPS_USERMETA, $this->slug);
 		
 		if( is_wp_error($users) )
 			$this->users = array();
@@ -570,7 +564,7 @@ class EF_Usergroup {
 function ef_get_user_usergroups( $user_id = 0 ) {
 	if( !$user_id ) $user_id = wp_get_current_user()->ID;
 	if( !$user_id ) return;
-	return get_metadata('user', $user_id, EDIT_FLOW_USERGROUPS_USERMETA);
+	return ef_get_user_metadata($user_id, EDIT_FLOW_USERGROUPS_USERMETA);
 }
 
 /**
@@ -582,12 +576,12 @@ function ef_get_user_usergroups( $user_id = 0 ) {
 function ef_add_user_to_usergroup ( $user, $usergroups, $append = true ) {
 	
 	// if we have a username get user_id
-	$user = ( is_int($user) ) ? $user : get_user_by_login($user);
+	$user = ( is_int($user) ) ? $user : get_user_by_login($user)->ID;
 	if( !$user ) return;
 	
 	if( !is_array($usergroups) ) $usergroups = array($usergroups);
 
-	$old_usergroups = get_metadata('user', $user, EDIT_FLOW_USERGROUPS_USERMETA);
+	$old_usergroups = ef_get_user_metadata($user, EDIT_FLOW_USERGROUPS_USERMETA);
 	if( !is_array($old_usergroups) ) $old_usergroups = array($old_usergroups);
 	
 	$added_usergroups = $deleted_usergroups = array();
@@ -604,17 +598,17 @@ function ef_add_user_to_usergroup ( $user, $usergroups, $append = true ) {
 		$added_usergroups = array_diff($usergroups, $old_usergroups);
 		$deleted_usergroups = array_diff($old_usergroups, $usergroups);
 		
+		// TODO: replace with ef_remove_user_from_usergroup
 		// Delete usergroups that were removed
 		foreach( $deleted_usergroups as $del ) {
-			delete_metadata('user', $user, EDIT_FLOW_USERGROUPS_USERMETA, $del);
+			ef_delete_user_metadata($user, EDIT_FLOW_USERGROUPS_USERMETA, $del);
 		}
 	}
 		
 	// Add usergroups that were added
 	foreach( $added_usergroups as $add ) {
-		add_metadata('user', $user, EDIT_FLOW_USERGROUPS_USERMETA, $add);
+		ef_add_user_metadata($user, EDIT_FLOW_USERGROUPS_USERMETA, $add);
 	}
-	
 	return;
 }
 
@@ -634,20 +628,11 @@ function ef_remove_user_from_usergroup ( $user, $usergroups ) {
 	if( !is_array($usergroups) ) $usergroups = array($usergroups);
 	
 	foreach( $usergroups as $usergroup ) {
-		delete_metadata( 'user', $user, EDIT_FLOW_USERGROUPS_USERMETA, $usergroup );
+		ef_delete_user_metadata( $user, EDIT_FLOW_USERGROUPS_USERMETA, $usergroup );
 	}
 	
 	return;
 }
-	
-/**
- * Returns an array of all users in the specified usergroup
- * @param $slug string slug of the usergroup
- */
- /*
-function get_users_in_usergroup ( $slug ) {
-	
-}*/
 
 /**
  * Returns an array of all users in the specified usergroup
@@ -710,7 +695,7 @@ function ef_remove_usergroup( $slug ) {
 
 
 /**
- * Returns an array of all UserGroup objects in WordPress
+ * Returns an array of all Usergroup objects in WordPress
  * 
  */
 function ef_get_usergroups ( ) {

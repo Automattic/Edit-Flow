@@ -245,27 +245,20 @@ class ef_notifications {
 		
 		// Get following users and usergroups
 		$usergroups = ef_get_following_usergroups($post_id, 'slugs');
-		$users = ef_get_following_users($post_id);
-
-		// Set up args for the user search
-		$user_query_vars = array('return_fields' => 'user_email');		
-		if( is_array($users) && !empty($users) )
-			$user_query_vars['search_fields'] = array('user_login' => $users);
-		if( is_array($usergroups) && !empty($usergroups) )
-			$user_query_vars['usermeta'] = array(EDIT_FLOW_USERGROUPS_USERMETA => $usergroups);
+		if( $usergroups && !empty( $usergroups ) )
+			$usergroup_users = ef_get_users_in_usergroup( $usergroups, 'user_email' );
+		else
+			$usergroup_users = array();
 		
-		// Inst. the search class and get results
-		$user_query = new EF_User_Query($user_query_vars);
-		$following_recipients = $user_query->get_results();
-		
-		if( is_wp_error($following_recipients) || !is_array($following_recipients) ) {
-			$following_recipients = array();
-		}
-		
-		// @TODO: Too many separate calls to set up and clean up $recipients. Optimize them.
+		$users = ef_get_following_users($post_id, 'user_email');
 		
 		// Merge arrays and get rid of duplicates
-		$recipients = array_merge($authors, $admins, $following_recipients);
+		$recipients = array_merge($authors, $admins, $users, $usergroup_users);
+		
+		// Filter to allow modification of recipients 
+		$recipients = apply_filters('ef_notfication_recipients', $recipients, $post);
+		
+		// Filter out any duplicates
 		$recipients = array_unique($recipients);
 		
 		// Get rid of empty email entries
@@ -507,50 +500,42 @@ class ef_notifications {
 } // END: class ef_notifications
 
 /**
- * Gets a list of the users following this post
- * @param $post_id string term to be added
- * @param $return string taxonomy to add term to
+ * Gets a list of the users following the specified post
+ * @param int $post_id The ID of the post 
+ * @param string $return The field to return
  * @return array of users
  */
 function ef_get_following_users ( $post_id, $return = 'user_login' ) {
 	global $edit_flow;
-
+	
+	// Get following_users terms for the post
 	$users = wp_get_object_terms($post_id, $edit_flow->notifications->following_users_taxonomy, array('fields' => 'names'));
 
-	if( is_wp_error($users) || empty($users) ) return false;
+	// Don't have any following users
+	if( !$users || is_wp_error($users) ) return array();
 	
-	$args = array( 'search_fields' => array('user_login' => $users) );
+	// if just want user_login, return as is
+	if( $return == 'user_login' ) return $users;
+	
+	$users = get_users_field_by( 'user_login', $users, $return );
+	if( !$users || is_wp_error($users) )
+		$users = array();
+	return $users;
+}
 
-	switch( $return ) {
-		case 'id':
-			// get just ids; don't need to set anything since query class handles it all
-			break;
-			
-		case 'all':
-			$args['return_fields'] = 'all';			
-			break;
-		
-		case 'email':
-			// get just emails
-			$args['return_fields'] = 'user_email';
-			break;
-			
-		case 'user_login':
-		default:
-			return $users; // no action taken since our object terms return is already user_login form
-			break;
-	}
-	// Create user query obj and get results
-	$search = new EF_User_Query($args);
-	$results = $search->get_results();
-	if( !$results || is_wp_error($results) )
-		return false;
-	return $results;
+/**
+ * Returns an array of all users in the specified usergroup(s)
+ * @param string|array $slug Slug of the usergroup(s)
+ */
+function ef_get_users_in_usergroup ( $slug, $return = 'ID' ) {
+	$users = ef_get_users_by_usermeta( EDIT_FLOW_USERGROUPS_USERMETA, $slug, $return );
+	if( !$users || is_wp_error( $users ) ) $users = array();
+	return $users;
 }
 
 /**
  * Gets a list of the usergroups that are following specified post
- * @param $post_id string term to be added
+ * @param int $post_id 
  * @return array of usergroup slugs
  */
 function ef_get_following_usergroups ( $post_id, $return = 'all' ) {
@@ -612,5 +597,3 @@ function ef_is_user_unfollowing_post( ) {
 	// TODO: Finish function
 	return false;
 }
-
-?>

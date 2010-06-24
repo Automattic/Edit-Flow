@@ -5,7 +5,8 @@ jQuery(document).ready(function () {
 		var $li = jQuery(this);
 		if($li.text() == '') $li.hide();
 	});
-
+	
+	/*
 	// This should probably be moved to usergroups.js when that file is included
 	jQuery(".follow_all").click(function() {
 		var checked_status = this.checked;
@@ -13,4 +14,5 @@ jQuery(document).ready(function () {
 			this.checked = checked_status;
 		});
 	});
+	*/
 });
