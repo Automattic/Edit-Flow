@@ -272,4 +272,88 @@ class EF_User_Query extends WP_User_Search {
 	}
 }
 
-?>
+/** Abstracted functions for compatablity with WP.com **/
+
+/**
+ * Returns the $return field for the user(s) matching the $field and $value(s)
+ * @param string $field
+ * @param string|array $value 
+ * @param string $return The field to return 
+ */
+function get_users_field_by ( $field, $value, $return = 'ID' ) {
+	
+	$args = array( 
+		'search_fields' => array($field => $value),
+		'return_fields' => $return
+		);
+	
+	// Create user query obj and get results
+	$search = new EF_User_Query($args);
+	$users = $search->get_results();
+
+	if( !$users || is_wp_error($users) )
+		return false;
+	return $users;
+}
+
+/**
+ * Returns an array of all users with the value or values matching the specified meta_key
+ * @param string $meta_key 
+ * @param string|array $meta_value 
+ * @param string $return The field to return
+ */
+function ef_get_users_by_usermeta( $meta_key, $meta_value = '', $return = 'ID' ) {
+	global $limit_to_blog_users;
+	
+	$args = array(
+		'return_fields' => $return,
+		'usermeta' => array( $meta_key => $meta_value )
+		);
+	
+	// Instantiate the search class and get results
+	$user_query = new EF_User_Query($args);
+
+	return $user_query->get_results();
+}
+
+/**
+ * Wrapper for get_metadata('user', ... )
+ * @param int $obj_id ID of the user
+ * @param string $meta_key
+ * @param bool $single Return just the first entry if true, or all entries if false
+ */
+function ef_get_user_metadata( $obj_id, $meta_key = '', $single = false ) {
+	return get_metadata( 'user', $obj_id, $meta_key, $single );
+}
+
+/**
+ * Wrapper for get_metadata('user', ... )
+ * @param int $obj_id ID of the user
+ * @param string $meta_key
+ * @param string $meta_value
+ * @param bool $unique
+ */
+function ef_add_user_metadata( $obj_id, $meta_key, $meta_value, $unique = false ) {
+	return add_metadata( 'user', $obj_id, $meta_key, $meta_value, $unique );
+}
+
+/**
+ * Wrapper for update_metadata('user', ... )
+ * @param int $obj_id ID of the user
+ * @param string $meta_key 
+ * @param string $meta_value
+ * @param string $prev_value
+ */
+function ef_update_user_metadata( $obj_id, $meta_key, $meta_value, $prev_value = '' ) {
+	return update_metadata( 'user', $obj_id, $meta_key, $meta_value, $prev_value );
+}
+
+/**
+ * Wrapper for delete_metadata('user', ... )
+ * @param int $obj_id ID of the user
+ * @param string $meta_key 
+ * @param string $meta_value 
+ */
+function ef_delete_user_metadata( $obj_id, $meta_key, $meta_value = '', $delete_all = false ) {
+	return delete_metadata( 'user', $obj_id, $meta_key, $meta_value, $delete_all );
+}
