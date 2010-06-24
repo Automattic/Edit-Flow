@@ -14,15 +14,19 @@ class custom_status {
 		global $pagenow, $edit_flow;
 		
 		// Register new taxonomy so that we can store all our fancy new custom statuses (or is it stati?)
-		if(!is_taxonomy($this->status_taxonomy)) register_taxonomy( $this->status_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false) );
+		if(!is_taxonomy($this->status_taxonomy)) register_taxonomy( $this->status_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
 		
+		// Not needed as of 3.0 since it supports built in post statuses
 		// These actions should be called regardless of whether custom statuses are enabled or not
 		// Add actions and filters for the Edit/Manage Posts page
-		add_action('load-edit.php', array(&$this, 'load_edit_hooks'));
+		//add_action('load-edit.php', array(&$this, 'load_edit_hooks'));
 		// Add action and filter for the Edit/Manage Pages page
-		add_action('load-edit-pages.php', array(&$this, 'load_edit_hooks'));
+		//add_action('load-edit-pages.php', array(&$this, 'load_edit_hooks'));
 		
 		if( $active ) {
+			
+			// Register custom statuses
+			$this->register_custom_statuses();
 			
 			// Hooks to add "status" column to Edit Posts page
 			add_filter('manage_posts_columns', array('custom_status', '_filter_manage_posts_columns'));
@@ -33,6 +37,33 @@ class custom_status {
 			add_action('manage_pages_custom_column', array('custom_status', '_filter_manage_posts_custom_column'));
 		}
 	} // END: __construct()
+	
+	
+	/**
+	 * Makes the call to register_post_status to register the user's custom statuses.
+	 * Also unregisters draft and pending, in case the user doesn't want them.
+	 */
+	function register_custom_statuses() {
+		global $wp_post_statuses;
+		
+		// @TODO: support for custom post types
+		
+		// Users can delete draft and pending statuses if they want, so let's get rid of them
+		// They'll get re-added if the user hasn't "deleted" them
+		unset( $wp_post_statuses[ 'draft' ] );
+		unset( $wp_post_statuses[ 'pending' ] );
+		
+		$custom_statuses = $this->get_custom_statuses();
+		
+		foreach( $custom_statuses as $status ) {
+			register_post_status( $status->slug, array(
+				'label'       => $status->name
+				, 'protected'   => true
+				, '_builtin'    => false
+				, 'label_count' => _n_noop( "{$status->name} <span class='count'>(%s)</span>", "{$status->name} <span class='count'>(%s)</span>" )
+			) );
+		}
+	}
 	
 	/**
 	 * Hooks to make modifications to the Manage/Edit Posts
@@ -306,6 +337,8 @@ class custom_status {
 			case 'pending':
 			case 'new':
 			case 'inherit':
+			case 'auto-draft':
+			case 'trash':
 				$return = true;
 				break;
 			
@@ -695,5 +728,3 @@ function ef_get_custom_status_post_count ( $status ) {
 	
 	return $wpdb->get_var($query);
 }
-
-?>

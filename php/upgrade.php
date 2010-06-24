@@ -64,5 +64,3 @@ function edit_flow_upgrade_03 () {
 	}
 	update_option($edit_flow->get_plugin_option_fullname('version'), '0.3');
 }
-
-?>

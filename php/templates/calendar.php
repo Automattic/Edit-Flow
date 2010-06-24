@@ -38,7 +38,7 @@ for ($i=0; $i<7; $i++) {
 ?>
 	<style>
 		.week-heading {
-	        background: #6D6D6D url('<?php echo(path_join(WP_PLUGIN_URL, basename( dirname( __FILE__ ) )."/../../../wp-admin/images/menu-bits.gif")); ?>') repeat-x scroll left top;
+	        background: #6D6D6D url('<?php echo admin_url('/images/menu-bits.gif'); ?>') repeat-x scroll left top;
 	    }
 	</style>
     <div id="main-content"><!-- Main Content -->
@@ -85,25 +85,25 @@ for ($i=0; $i<7; $i++) {
     		<div id="week-wrap"><!-- Week Wrapper -->
     			<div class="week-heading"><!-- New HTML begins with this week-heading div. Adds a WP-style dark grey heading to the calendar. Styles were added inline here to save having 7 different divs for this. -->
     				<div class="day-heading first-heading" style="width: 13.8%; height: 100%; position: absolute; left: 0%; top: 0%; ">
-    					<?= date('F d', strtotime($dates[6])) ?>
+    					<?php echo date('F d', strtotime($dates[6])) ?>
     				</div>
     				<div class="day-heading" style="width: 13.8%; height: 100%; position: absolute; left: 15.6%; top: 0%; ">
-					<?= date('F d', strtotime($dates[5])) ?>
+					<?php echo date('F d', strtotime($dates[5])) ?>
     				</div>
     				<div class="day-heading" style="width: 13.8%; height: 100%; position: absolute; left: 30%; top: 0%; ">
-					<?= date('F d', strtotime($dates[4])) ?>
+					<?php echo date('F d', strtotime($dates[4])) ?>
     				</div>
     				<div class="day-heading" style="width: 13.8%; height: 100%; position: absolute; left: 44.1%; top: 0%; ">
-					<?= date('F d', strtotime($dates[3])) ?>
+					<?php echo date('F d', strtotime($dates[3])) ?>
     				</div>
     				<div class="day-heading" style="width: 13.8%; height: 100%; position: absolute; left: 58.4%; top: 0%; ">
-					<?= date('F d', strtotime($dates[2])) ?>
+					<?php echo date('F d', strtotime($dates[2])) ?>
     				</div>
     				<div class="day-heading" style="width: 13.8%; height: 100%; position: absolute; left: 72.2%; top: 0%; ">
-					<?= date('F d', strtotime($dates[1])) ?>
+					<?php echo date('F d', strtotime($dates[1])) ?>
     				</div>
     				<div class="day-heading last-heading" style="width: 13.8%; height: 100%; position: absolute; left: 87%; top: 0%; ">
-					<?= date('F d', strtotime($dates[0])) ?>
+					<?php echo date('F d', strtotime($dates[0])) ?>
     				</div>
     			</div><!-- From here on it is the same HTML but you can add two more week-units now to get the 7 days into the calendar. -->
     			
@@ -112,7 +112,7 @@ for ($i=0; $i<7; $i++) {
             	    $cal_posts = ef_get_calendar_posts($date);
             	?>
     			<div class="week-unit"><!-- Week Unit 1 -->
-    				<ul id="<?= date('Y-m-d', strtotime($date)) ?>" class="week-list connectedSortable">
+    				<ul id="<?php echo date('Y-m-d', strtotime($date)) ?>" class="week-list connectedSortable">
     				    <?php
     				    foreach ($cal_posts as $cal_post) {
             		        $cats = wp_get_object_terms($cal_post->ID, 'category');
@@ -124,15 +124,15 @@ for ($i=0; $i<7; $i++) {
             		        }
             		        
             		    ?>
-    					<li id="<?= $cal_post->ID ?>">
-    						<span class="item-handle"><img src="<?= EDIT_FLOW_URL_FROM_ROOT ?>img/drag_handle.jpg" alt="Drag Handle" /></span>
+    					<li id="<?php echo $cal_post->ID ?>">
+    						<span class="item-handle"><img src="<?php echo EDIT_FLOW_URL ?>img/drag_handle.jpg" alt="Drag Handle" /></span>
     						<h5 class="item-headline">
     						    <?php echo edit_post_link($cal_post->post_title, '', '', $cal_post->ID); ?>
     						</h5>
     						<ul class="item-metadata">
     							<li class="item-author">By <?php echo $cal_post->display_name ?></li>
     							<li class="item-category">
-    							    <?= $cat ?>
+    							    <?php echo $cat ?>
     							</li>
     							<div style="clear:both"></div>
     						</ul>
@@ -193,5 +193,3 @@ function ef_get_calendar_posts( $date ) {
     $cal_posts = $wpdb->get_results($sql);
     return $cal_posts;
 }
-
-?>
