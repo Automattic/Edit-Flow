@@ -41,7 +41,6 @@ include_once('php/util.php');
 define( 'EDIT_FLOW_VERSION' , '0.3.3');
 define( 'EDIT_FLOW_FILE_PATH' , dirname(__FILE__).'/'.basename(__FILE__) );
 define( 'EDIT_FLOW_URL' , plugins_url(plugin_basename(dirname(__FILE__)).'/') );
-define( 'EDIT_FLOW_URL_FROM_ROOT' , plugins_url(plugin_basename(dirname(__FILE__)).'/') );
 define( 'EDIT_FLOW_MAIN_PAGE' , 'admin.php?page=edit-flow/edit_flow' );
 define( 'EDIT_FLOW_SETTINGS_PAGE' , 'options-general.php?page=edit_flow' );
 define( 'EDIT_FLOW_CUSTOM_STATUS_PAGE' , 'admin.php?page=edit-flow/custom_status' );
@@ -103,11 +102,11 @@ class edit_flow {
 		if($this->get_plugin_option('dashboard_widgets_enabled')) $this->dashboard = new edit_flow_dashboard(); 
 		
 		// Create the post_metadata object
-		$this->post_metadata = new post_metadata();
+		$this->post_metadata = new ef_post_metadata();
 		
 		// Create a new post_status object, if custom statuses enabled
 		$post_status_active = (int) $this->get_plugin_option('custom_statuses_enabled');
-		$this->post_status = new post_status($post_status_active);
+		$this->post_status = new ef_post_status($post_status_active);
 		
 		// Create a new ef_notifications object, if notifications enabled
 		$notifications_active = (int) $this->get_plugin_option('notifications_enabled');
@@ -274,19 +273,19 @@ class edit_flow {
 	 */
 	function add_menu_items ( ) {
 		// Add Top-level Admin Menu
-		add_menu_page(__('Edit Flow', 'edit-flow'), __('Edit Flow', 'edit-flow'), 8, $this->get_page('edit-flow'), array(&$this, 'toplevel_page'));
+		add_menu_page(__('Edit Flow', 'edit-flow'), __('Edit Flow', 'edit-flow'), 'manage_options', $this->get_page('edit-flow'), array(&$this, 'toplevel_page'));
 		
 		// Add sub-menu page for Custom statuses		
-		add_submenu_page($this->get_page('edit-flow'), __('Custom Status', 'edit-flow'), __('Custom Status', 'edit-flow'), 8, $this->get_page('custom_status'), array(&$this->custom_status,'admin_page'));
+		add_submenu_page($this->get_page('edit-flow'), __('Custom Status', 'edit-flow'), __('Custom Status', 'edit-flow'), 'manage_options', $this->get_page('custom_status'), array(&$this->custom_status,'admin_page'));
 		
 		// Add sub-menu page for User Groups
-		add_submenu_page($this->get_page('edit-flow'), __('User Groups', 'edit-flow'), __('User Groups', 'edit-flow'), 8, $this->get_page('usergroups'), array(&$this->usergroups,'admin_page'));
+		add_submenu_page($this->get_page('edit-flow'), __('User Groups', 'edit-flow'), __('User Groups', 'edit-flow'), 'manage_options', $this->get_page('usergroups'), array(&$this->usergroups,'admin_page'));
 		
 		// Add sub-menu page for Settings		
-		add_submenu_page($this->get_page('edit-flow'), __('Settings', 'edit-flow'), __('Settings', 'edit-flow'), 8, $this->get_page('settings'), array(&$this, 'settings_page'));
+		add_submenu_page($this->get_page('edit-flow'), __('Settings', 'edit-flow'), __('Settings', 'edit-flow'), 'manage_options', $this->get_page('settings'), array(&$this, 'settings_page'));
 		
 		// Add sub-menu page for Calendar
-		add_submenu_page('index.php', 'Edit Flow', 'Edit Flow', 8, $this->get_page('calendar'), array(&$this,'calendar'));
+		add_submenu_page('index.php', __('Edit Flow Calendar', 'edit-flow'), __('Edit Flow Calendar', 'edit-flow'), 'edit_posts', $this->get_page('calendar'), array(&$this,'calendar'));
 		
 	} // END: add_menu_items() 
 	
@@ -303,10 +302,13 @@ class edit_flow {
 	 * Adds necessary Javascript to admin
 	 */
 	function add_admin_scripts() {
+		global $pagenow, $plugin_page;
+		
 		wp_enqueue_script('edit_flow-js', EDIT_FLOW_URL.'js/edit_flow.js', array('jquery'), false, true);
-		wp_enqueue_script('edit_flow-custom_status-js', EDIT_FLOW_URL.'js/custom_status.js', array('jquery'), false, true);
-    wp_enqueue_script('edit_flow-calendar-js', EDIT_FLOW_URL.'js/calendar.js', 
-      array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'), false, true);
+		
+		// TODO: Need to move to calendar class
+		if( $pagenow == 'admin.php' && $plugin_page == $this->get_page( 'calendar' ) )
+			wp_enqueue_script('edit_flow-calendar-js', EDIT_FLOW_URL.'js/calendar.js', array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'), false, true);
 	}
 	
 	/* Adds Settings page for Edit Flow

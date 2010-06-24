@@ -206,6 +206,3 @@ class edit_flow_dashboard {
 		<?php
 	}
 }
-
-
-?>

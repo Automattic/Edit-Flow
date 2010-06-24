@@ -18,11 +18,11 @@ class ef_notifications {
 		global $edit_flow;
 		
 		// Register new taxonomy used to track which users are following posts 
-		if(!is_taxonomy($this->following_users_taxonomy)) register_taxonomy( $this->following_users_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false) );
+		if(!is_taxonomy($this->following_users_taxonomy)) register_taxonomy( $this->following_users_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
 		// Register new taxonomy used to track which users are UNfollowing posts 
-		if(!is_taxonomy($this->unfollowing_users_taxonomy)) register_taxonomy( $this->unfollowing_users_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false) );
+		if(!is_taxonomy($this->unfollowing_users_taxonomy)) register_taxonomy( $this->unfollowing_users_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
 		// Register new taxonomy used to track which usergroups are following posts 
-		if(!is_taxonomy($this->following_usergroups_taxonomy)) register_taxonomy( $this->following_usergroups_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false) );
+		if(!is_taxonomy($this->following_usergroups_taxonomy)) register_taxonomy( $this->following_usergroups_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
 		
 		if( $active ) {
 			

@@ -3,7 +3,7 @@
 // Functions that hook into or modify post.php
 define( 'EDIT_FLOW_META_PREFIX', '_ef_' );
 
-class post_metadata
+class ef_post_metadata
 {
 	// This is comment type used to differentiate editorial comments
 	var $comment_type = 'editorial-comment';
@@ -672,7 +672,7 @@ class post_metadata
  * @class post_status
  * Main class that handles post status on Edit Post pages 
  */
-class post_status
+class ef_post_status
 {
 	
 	function __construct() {
@@ -694,7 +694,8 @@ class post_status
 			$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
 	
 			// Get the status of the current post		
-			if($post_ID==0) {
+			if( $post_ID == 0 ) {
+				// TODO: check to make sure that the default exists
 				$selected = $edit_flow->get_plugin_option('custom_status_default_status');
 			} else {
 				$selected = $post->post_status;
@@ -703,8 +704,23 @@ class post_status
 			// Alright, we want to set up the JS var which contains all custom statuses
 			$count = 1;
 			$status_array = ''; // actually a JSON object
+			
 			// Add the "Publish" status if the post is published
-			if($selected == "publish") $status_array .= "{ name: '".__('Published', 'edit-flow')."', slug: '".__('publish', 'edit-flow')."' }, ";
+			if( $selected == 'publish' )
+				$status_array .= "{ name: '".__( 'Published' )."', slug: 'publish' }, ";
+				
+			elseif ( $selected == 'private' )
+				$status_array .= "{ name: '".__( 'Privately Published' )."', slug: 'publish' }, ";
+				
+			elseif ( $selected == 'future' )
+				$status_array .= "{ name: '".__( 'Scheduled' )."', slug: 'future' }, ";
+			
+			// TODO: support for bulk editing
+			/*
+			//if ( $bulk )
+				//<option value="-1"><?php _e('&mdash; No Change &mdash;'); ?></option>
+				//<option value="private"><?php _e('Private') ?></option>
+			*/
 			
 			foreach($custom_statuses as $status) {
 				$status_array .= "{ name: '". esc_js($status->name) ."', slug: '". esc_js($status->slug) ."', description: '". esc_js($status->description) ."' }";
@@ -843,6 +859,3 @@ function ef_get_comments_plus( $args = '' ) {
 
 	return $comments;
 }
-
-
-?>

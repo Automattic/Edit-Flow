@@ -847,5 +847,3 @@ function ef_users_select_form ( $selected = null, $args = null ) {
 	-->
 	<?php
 }
-
-?>

@@ -34,4 +34,3 @@ function ef_the_errors( $errors = array() ) {
 	<?php endif; ?>
 	<?php
 }
-?>
