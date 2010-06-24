@@ -307,7 +307,7 @@ class edit_flow {
 		wp_enqueue_script('edit_flow-js', EDIT_FLOW_URL.'js/edit_flow.js', array('jquery'), false, true);
 		
 		// TODO: Need to move to calendar class
-		if( $pagenow == 'admin.php' && $plugin_page == $this->get_page( 'calendar' ) )
+		if( $pagenow == 'index.php' && $plugin_page == $this->get_page( 'calendar' ) )
 			wp_enqueue_script('edit_flow-calendar-js', EDIT_FLOW_URL.'js/calendar.js', array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'), false, true);
 	}
 	
