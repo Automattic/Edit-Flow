@@ -38,10 +38,9 @@ for ($i=0; $i<7; $i++) {
 ?>
 	<style>
 		.week-heading {
-	        background: #6D6D6D url('<?php echo admin_url('/images/menu-bits.gif'); ?>') repeat-x scroll left top;
+	        background: #DFDFDF url('<?php echo admin_url('/images/menu-bits.gif'); ?>') repeat-x scroll left top;
 	    }
 	</style>
-    <div id="main-content"><!-- Main Content -->
       <div class="wrap">
   
     	<div id="calendar-title"><!-- Calendar Title -->
@@ -87,22 +86,22 @@ for ($i=0; $i<7; $i++) {
     				<div class="day-heading first-heading" style="width: 13.8%; height: 100%; position: absolute; left: 0%; top: 0%; ">
     					<?php echo date('F d', strtotime($dates[6])) ?>
     				</div>
-    				<div class="day-heading" style="width: 13.8%; height: 100%; position: absolute; left: 15.6%; top: 0%; ">
+    				<div class="day-heading" style="left: 15.6%; top: 0%; ">
 					<?php echo date('F d', strtotime($dates[5])) ?>
     				</div>
-    				<div class="day-heading" style="width: 13.8%; height: 100%; position: absolute; left: 30%; top: 0%; ">
+    				<div class="day-heading" style="left: 30%; top: 0%; ">
 					<?php echo date('F d', strtotime($dates[4])) ?>
     				</div>
-    				<div class="day-heading" style="width: 13.8%; height: 100%; position: absolute; left: 44.1%; top: 0%; ">
+    				<div class="day-heading" style="left: 44.1%; top: 0%; ">
 					<?php echo date('F d', strtotime($dates[3])) ?>
     				</div>
-    				<div class="day-heading" style="width: 13.8%; height: 100%; position: absolute; left: 58.4%; top: 0%; ">
+    				<div class="day-heading" style="left: 58.4%; top: 0%; ">
 					<?php echo date('F d', strtotime($dates[2])) ?>
     				</div>
-    				<div class="day-heading" style="width: 13.8%; height: 100%; position: absolute; left: 72.2%; top: 0%; ">
+    				<div class="day-heading" style="left: 72.2%; top: 0%; ">
 					<?php echo date('F d', strtotime($dates[1])) ?>
     				</div>
-    				<div class="day-heading last-heading" style="width: 13.8%; height: 100%; position: absolute; left: 87%; top: 0%; ">
+    				<div class="day-heading last-heading" style="left: 87%; top: 0%; ">
 					<?php echo date('F d', strtotime($dates[0])) ?>
     				</div>
     			</div><!-- From here on it is the same HTML but you can add two more week-units now to get the 7 days into the calendar. -->
@@ -124,18 +123,27 @@ for ($i=0; $i<7; $i++) {
             		        }
             		        
             		    ?>
-    					<li id="<?php echo $cal_post->ID ?>">
-    						<span class="item-handle"><img src="<?php echo EDIT_FLOW_URL ?>img/drag_handle.jpg" alt="Drag Handle" /></span>
-    						<h5 class="item-headline">
-    						    <?php echo edit_post_link($cal_post->post_title, '', '', $cal_post->ID); ?>
-    						</h5>
+    					<li class="week-item" id="<?php echo $cal_post->ID ?>">
+    					  <div class="item-handle">
+    						<span class="item-headline post-title">
+    						    <?php echo $cal_post->post_title; ?>
+    						</span>
     						<ul class="item-metadata">
     							<li class="item-author">By <?php echo $cal_post->display_name ?></li>
     							<li class="item-category">
     							    <?php echo $cat ?>
     							</li>
-    							<div style="clear:both"></div>
     						</ul>
+    						</div>
+    						<div class="item-actions">
+    						  <span class="edit">
+    						    <?php echo edit_post_link('Edit', '', '', $cal_post->ID); ?>
+    						  </span> | 
+    						  <span class="view">
+    						    <a href="<?php echo get_permalink($cal_post->ID); ?>">View</a>
+    						  </span>
+    						</div>
+    						<div style="clear:left;"></div>
     					</li>
     					<?php
             	        }
@@ -160,7 +168,6 @@ for ($i=0; $i<7; $i++) {
     	</div><!-- /Calendar Wrapper -->
 
       </div>
-    </div><!-- /Main Content -->
 
 <?php 
 function ef_get_calendar_previous_link( $date ) {
@@ -189,6 +196,7 @@ function ef_get_calendar_posts( $date ) {
         $sql .= " u.ID = " . wp_get_current_user()->ID . " and ";
     }
     $sql .= "w.post_status <> 'auto-draft' and "; // Hide auto draft posts
+    $sql .= "w.post_status <> 'trash' and "; // Hide trashed posts
     $sql .= "w.post_type = 'post' and w.post_date like '". $q_date . "%'";
     #echo "<pre>" . $sql . "</pre>";
     $cal_posts = $wpdb->get_results($sql);

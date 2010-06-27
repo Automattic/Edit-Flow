@@ -12,9 +12,6 @@ Version 1.1
 #calendar-wrap {
 	width:98%;
 	min-width:900px;
-	padding-left:1%;
-	padding-right:1%;
-	border-left:1px solid #e1e1e1;
 }
 
 #calendar-title {
@@ -25,12 +22,12 @@ Version 1.1
 }
 
 .week-unit {
-		min-width:100px;
-		width:12%;
-		padding-left:1%;
-		padding-right:1%;
-		float:left;
-		border-right: 1px solid #e1e1e1;
+	width:13.23%;
+	padding-left:5px;
+	padding-right:5px;
+	padding-top: 10px;
+	float:left;
+	border-right: 1px solid #e1e1e1;
 }
 
 .week-list {
@@ -51,7 +48,8 @@ Version 1.1
 	-webkit-border-top-right-radius: 6px;
 	-moz-border-radius-topleft: 6px;
 	-moz-border-radius-topright: 6px;
-	margin-right:11px;
+	border-radius-topleft: 6px;
+	border-radius-topright: 6px;
 	margin-top:5px;
 }
 
@@ -63,6 +61,9 @@ Version 1.1
 	line-height: 1.3em;
 	font-size: 11px;
 	font-weight: bold;
+	width: 13.8%;
+	height: 100%;
+	position: absolute;
 }
 
 .first-heading {
@@ -72,11 +73,19 @@ Version 1.1
 .week-list .item-metadata {
 	padding-left:15px;
 	color:#989898;
-	font:italic 12px Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	font-family: Helvetica, Arial, sans-serif;
 }
 
-.week-list .item-metadata li {
-	display:inline;
+.week-list ul.item-metadata {
+	margin-top: 4px;
+	margin-left: 0;
+	padding-left: 0;
+}
+
+.week-list ul.item-metadata li {
+	margin-top: 2px;
+	margin-bottom: 2px;
 }
 
 .week-list .item-metadata .item-author {
@@ -84,23 +93,20 @@ Version 1.1
 }
 
 .week-list .item-metadata .item-category {
-	float:right;
+	
 }
 
 .ui-state-highlight {
-	min-height:50px;
+	min-height:100px;
 	background-color:#fcffb5;
 }
 
-.item-handle {
-	float:left;
-	margin-bottom:10px;
-	margin-right:5px;
-	padding-top:2px;
+.item-handle:hover {
+	cursor:move;
 }
 
 .item-headline {
-	font-size:14px;
+	font-size:12px;
 	margin-bottom:5px;
 	margin-top:0;
 }
@@ -115,9 +121,33 @@ Version 1.1
 	color:red;
 }
 
+div.item-actions {
+	font-family: "Lucida Grande",Verdana,Arial,"Bitstream Vera Sans",sans-serif;
+	font-size: 11px;
+	opacity:0;
+}
+
+.week-item:hover .item-actions {
+	opacity:1;
+}
+
+div.item-actions a {
+	text-decoration: none;
+}
+
 .week-list img {
 	opacity:0.0;
 	cursor:move;
+}
+
+.week-item {
+	margin-top: 0;
+	margin-bottom: 0 !important;
+	padding: 5px;
+}
+
+.week-item:hover {
+	background-color: ;
 }
 
 .week-list li:hover img {
