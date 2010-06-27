@@ -188,6 +188,7 @@ function ef_get_calendar_posts( $date ) {
     if ($edit_flow->get_plugin_option('custom_status_filter') == 'my-posts') {
         $sql .= " u.ID = " . wp_get_current_user()->ID . " and ";
     }
+    $sql .= "w.post_status <> 'auto-draft' and "; // Hide auto draft posts
     $sql .= "w.post_type = 'post' and w.post_date like '". $q_date . "%'";
     #echo "<pre>" . $sql . "</pre>";
     $cal_posts = $wpdb->get_results($sql);
