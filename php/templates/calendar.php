@@ -37,7 +37,7 @@ for ($i=0; $i<7; $i++) {
 
 ?>
 	<style>
-		.week-heading {
+		.week-heading, .week-footing {
 	        background: #DFDFDF url('<?php echo admin_url('/images/menu-bits.gif'); ?>') repeat-x scroll left top;
 	    }
 	</style>
@@ -84,33 +84,33 @@ for ($i=0; $i<7; $i++) {
     		<div id="week-wrap"><!-- Week Wrapper -->
     			<div class="week-heading"><!-- New HTML begins with this week-heading div. Adds a WP-style dark grey heading to the calendar. Styles were added inline here to save having 7 different divs for this. -->
     				<div class="day-heading first-heading" style="width: 13.8%; height: 100%; position: absolute; left: 0%; top: 0%; ">
-    					<?php echo date('F d', strtotime($dates[6])) ?>
+    					<?php echo date('F d', strtotime($dates[6])); ?>
     				</div>
     				<div class="day-heading" style="left: 15.6%; top: 0%; ">
-					<?php echo date('F d', strtotime($dates[5])) ?>
+					<?php echo date('F d', strtotime($dates[5])); ?>
     				</div>
     				<div class="day-heading" style="left: 30%; top: 0%; ">
-					<?php echo date('F d', strtotime($dates[4])) ?>
+					<?php echo date('F d', strtotime($dates[4])); ?>
     				</div>
     				<div class="day-heading" style="left: 44.1%; top: 0%; ">
-					<?php echo date('F d', strtotime($dates[3])) ?>
+					<?php echo date('F d', strtotime($dates[3])); ?>
     				</div>
     				<div class="day-heading" style="left: 58.4%; top: 0%; ">
-					<?php echo date('F d', strtotime($dates[2])) ?>
+					<?php echo date('F d', strtotime($dates[2])); ?>
     				</div>
     				<div class="day-heading" style="left: 72.2%; top: 0%; ">
-					<?php echo date('F d', strtotime($dates[1])) ?>
+					<?php echo date('F d', strtotime($dates[1])); ?>
     				</div>
     				<div class="day-heading last-heading" style="left: 87%; top: 0%; ">
-					<?php echo date('F d', strtotime($dates[0])) ?>
+					<?php echo date('F d', strtotime($dates[0])); ?>
     				</div>
     			</div><!-- From here on it is the same HTML but you can add two more week-units now to get the 7 days into the calendar. -->
     			
     			<?php
-            	foreach (array_reverse($dates) as $date) {
+            	foreach (array_reverse($dates) as $key => $date) {
             	    $cal_posts = ef_get_calendar_posts($date);
             	?>
-    			<div class="week-unit"><!-- Week Unit 1 -->
+    			<div class="week-unit<?php if ($key == 0) echo ' left-column'; ?>"><!-- Week Unit 1 -->
     				<ul id="<?php echo date('Y-m-d', strtotime($date)) ?>" class="week-list connectedSortable">
     				    <?php
     				    foreach ($cal_posts as $cal_post) {
@@ -155,6 +155,30 @@ for ($i=0; $i<7; $i++) {
     	        ?>
     	        
     			<div style="clear:both"></div>
+    			<div class="week-footing"><!-- New HTML begins with this week-heading div. Adds a WP-style dark grey heading to the calendar. Styles were added inline here to save having 7 different divs for this. -->
+    				<div class="day-heading first-heading" style="width: 13.8%; height: 100%; position: absolute; left: 0%; top: 0%; ">
+    					<?php echo date('F d', strtotime($dates[6])); ?>
+    				</div>
+    				<div class="day-heading" style="left: 15.6%; top: 0%; ">
+					<?php echo date('F d', strtotime($dates[5])); ?>
+    				</div>
+    				<div class="day-heading" style="left: 30%; top: 0%; ">
+					<?php echo date('F d', strtotime($dates[4])); ?>
+    				</div>
+    				<div class="day-heading" style="left: 44.1%; top: 0%; ">
+					<?php echo date('F d', strtotime($dates[3])); ?>
+    				</div>
+    				<div class="day-heading" style="left: 58.4%; top: 0%; ">
+					<?php echo date('F d', strtotime($dates[2])); ?>
+    				</div>
+    				<div class="day-heading" style="left: 72.2%; top: 0%; ">
+					<?php echo date('F d', strtotime($dates[1])); ?>
+    				</div>
+    				<div class="day-heading last-heading" style="left: 87%; top: 0%; ">
+					<?php echo date('F d', strtotime($dates[0])); ?>
+    				</div>
+    			</div><!-- From here on it is the same HTML but you can add two more week-units now to get the 7 days into the calendar. -->
+    			
     		</div><!-- /Week Wrapper -->
     		<ul class="day-navigation">
     		  <li class="next-week">
