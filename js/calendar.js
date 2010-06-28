@@ -1,5 +1,12 @@
 jQuery(document).ready(function () {
 	
+	// Don't make this look grabbable until JS has loaded
+	jQuery('.item-handle').hover(function() {
+		jQuery(this).css('cursor','move');
+	}, function() {
+		jQuery(this).css('cursor','auto');
+	});
+	
 	jQuery(document).keydown(function(e){
 
 		switch (e.keyCode) {
@@ -26,6 +33,7 @@ jQuery(document).ready(function () {
 		},
 		stop: function(e, ui) {
 
+			jQuery('li.performing-ajax').css('display', 'inline-block');
 			var post = ui.item[0].id;
 			var date = ui.item[0].parentNode.id;
 
@@ -40,13 +48,16 @@ jQuery(document).ready(function () {
 					post_id: post,
 					date: date
 				},
-           function(data) {
-				// Remove the prior message (if it exists) and append a new one
-				jQuery('div#message').remove();
-				date = new Date(date);
-				var message = 'Item date changed to '+ month_names[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear() + '.';
-				jQuery('h2').after('<div id="message" class="updated below-h2"><p>'+message+'</p></div>');
-           }
+				function(data) {
+					// Remove the prior message (if it exists) and append a new one
+					jQuery('div#message').remove();
+					date = new Date(date);
+					var day = date.getDate();
+					day++;
+					var message = 'Item due date changed to '+ month_names[date.getMonth()] + ' ' + day + ', ' + date.getFullYear() + '.';
+					jQuery('h2').after('<div id="message" class="updated below-h2"><p>'+message+'</p></div>');
+					jQuery('li.performing-ajax').css('display', 'none');
+				}
        );
        
    }

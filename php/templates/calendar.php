@@ -17,10 +17,6 @@ if($_GET['edit_flow_custom_status_filter']) {
         $_GET['edit_flow_custom_status_filter']);
 }
 
-#echo '<pre>';
-#print_r($edit_flow->options);
-#echo '</pre>'; 
-
 date_default_timezone_set('UTC');
 $dates = array();
 if ($_GET['date']) {
@@ -72,6 +68,9 @@ for ($i=0; $i<7; $i++) {
             <input type="hidden" name="page" value="edit-flow/calendar"/>
             <input type="submit" class="button primary" value="Filter"/>
             </form>
+          </li>
+          <li class="performing-ajax">
+            <img src="<?php echo EDIT_FLOW_URL; ?>img/wpspin_light.gif" alt="Loading" />
           </li>
           <li class="next-week">
         			<a id="trigger-left" href="<?php echo ef_get_calendar_next_link($dates[0]) ?>">Next &raquo;</a>
