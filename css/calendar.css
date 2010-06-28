@@ -17,15 +17,20 @@ Version 1.1
 }
 
 #week-wrap {
-		margin-bottom:20px;
+	margin-bottom:20px;
+	width: 100%;
+	overflow: hidden;
 }
 
 .week-unit {
 	width:13.23%;
-	padding:5px;
+	padding-left:5px;
+	padding-right: 5px;
+	padding-top: 5px;
 	float:left;
 	border-right: 1px solid #e1e1e1;
-	height: 100%;
+	padding-bottom:9010px;
+	margin-bottom:-9000px;	
 }
 
 .week-unit.left-column {
@@ -64,7 +69,6 @@ Version 1.1
 	-moz-border-radius-bottomright: 6px;
 	border-radius-bottomleft: 6px;
 	border-radius-bottomright: 6px;
-	margin-bottom:5px;
 }
 
 .day-heading {
