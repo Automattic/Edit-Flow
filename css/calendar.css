@@ -111,7 +111,7 @@ Version 1.1
 }
 
 .ui-state-highlight {
-	min-height:100px;
+	height:100px;
 	background-color:#fcffb5;
 }
 

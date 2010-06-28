@@ -74,10 +74,10 @@ for ($i=0; $i<7; $i++) {
             </form>
           </li>
           <li class="next-week">
-        			<a href="<?php echo ef_get_calendar_next_link($dates[0]) ?>">Next &raquo;</a>
+        			<a id="trigger-left" href="<?php echo ef_get_calendar_next_link($dates[0]) ?>">Next &raquo;</a>
     			</li>
     			<li class="previous-week">
-    			    <a href="<?php echo ef_get_calendar_previous_link($dates[count($dates)-1]) ?>">&laquo; Previous</a>
+    			    <a id="trigger-right" href="<?php echo ef_get_calendar_previous_link($dates[count($dates)-1]) ?>">&laquo; Previous</a>
           </li>
     		</ul>
 
