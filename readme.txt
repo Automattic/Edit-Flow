@@ -1,9 +1,9 @@
 === Edit Flow ===
-Contributors: batmoo, danielbachhuber, sbressler, andrewspittle
-Donate link: http://copress.org/donate/
+Contributors: batmoo, danielbachhuber, sbressler, andrewspittle, jboydston
+Donate link: http://editflow.org/donate/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups
 Requires at least: 2.9.1
-Tested up to: 2.9.1
+Tested up to: 3.0
 Stable tag: 0.3.3
 
 Plugin for WordPress to allow for better editorial workflow.
@@ -16,9 +16,9 @@ NOTE: Edit Flow requires PHP5+ to work. Don't have PHP5? Talk to your hosting pr
 
 There are a few key components to this project: 
 
-* improving the meta data on top of posts to better reflect the information that needs to be recorded about an assignment;
-* empowering newsrooms, blog networks and multi-user blogs to manage more of their editorial workflow from within the WordPress admin; and
-* building out a way to track all of this active meta data within the system as a way of visualizing content and priorities at a glance.
+* Improving the meta data on top of posts to better reflect the information that needs to be recorded about an assignment;
+* Empowering newsrooms, blog networks and multi-user blogs to manage more of their editorial workflow from within the WordPress admin; and
+* Building out a way to track all of this active meta data within the system as a way of visualizing content and priorities at a glance.
 
 More details can be found on the [Edit Flow website](http://www.editflow.org/)
 
@@ -106,10 +106,13 @@ For replies to work properly, you need to enable threaded commenting in your blo
 2. Custom Statuses are automatically added to Status dropdown on the Edit Post and Quick Edit Post screens
 3. A new column is added to the Edit Posts screen and the ability to filter by status
 4. Threaded editorial commenting and additional metadata for posts
-5. Usergroups allow you to bunch together groups of users
-6. You can now chose who should receive notifications on a per-post basis
+5. See posts at a glance with the editorial calendar, and drag and drop to reschedule
 
 == Changelog ==
+
+= 0.5 =
+* Calendar view for visualizing and spec assignments at a glance
+* Improvements for WordPress 3.0 compatibility
 
 = 0.4 =
 * Users that edit a post automatically get subscribed to that post (only if they have the manage subscriptions capability)
@@ -158,11 +161,11 @@ For replies to work properly, you need to enable threaded commenting in your blo
 
 = Edit Flow doesn't do X, Y, and Z. That makes me sad. =
 
-Contact us at [editflow@copress.org](mailto:editflow@copress.org) and we'll see what we can do.
+Contact us at [feedback@editflow.org](mailto:feedback@editflow.org) and we'll see what we can do.
 
 = I'm stuck at WordPress 2.8! How do I use v0.3 onwards? =
 
-Upgrade to WordPress 2.9 or later, fools!
+Upgrade to WordPress 2.9 or later, peeps!
 
 = Why do you hate PHP4? =
 
@@ -170,4 +173,4 @@ We don't. PHP hates PHP4 and no longer supports it. So neither do we.
 
 = Edit Flow doesn't work!?! Your stupid! =
 
-First, install some sort of spellchecker, possibly a [great one like AtD](http://afterthedeadline.com/) and then [send us an email](mailto:editflow@copress.org) with a few more details about what doesn't work, and we'll see what we can do.
+First, install some sort of spellchecker, possibly a [great one like AtD](http://afterthedeadline.com/) and then [send us an email](mailto:feedback@editflow.org) with a few more details about what doesn't work, and we'll see what we can do.
