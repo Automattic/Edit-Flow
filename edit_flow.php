@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Edit Flow
-Plugin URI: http://www.copress.org/wiki/Edit_Flow_Project
+Plugin URI: http://www.editflow.org/
 Description: Remixing the WordPress admin for better editorial workflow options.
 Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Andrew Spittle, et al.
 Version: 0.5a
-Author URI: http://www.copress.org/
+Author URI: http://www.editflow.org/
 
 Copyright 2009-2010 Mohammad Jangda, Daniel Bachhuber, et al.
 
