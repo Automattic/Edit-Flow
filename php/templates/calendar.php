@@ -17,6 +17,12 @@ if($_GET['edit_flow_custom_status_filter']) {
         $_GET['edit_flow_custom_status_filter']);
 }
 
+if($_GET['edit_flow_custom_category_filter']) {
+    $edit_flow->options['custom_category_filter'] = $_GET['edit_flow_custom_category_filter'];  
+    update_option($edit_flow->get_plugin_option_fullname('custom_category_filter'), 
+        $_GET['edit_flow_custom_category_filter']);
+}
+
 date_default_timezone_set('UTC');
 $dates = array();
 if ($_GET['date']) {
@@ -63,6 +69,16 @@ for ($i=0; $i<7; $i++) {
                                 Status: <?php esc_html_e($status->name); ?>
                         </option>
 
+                <?php endforeach; ?>
+            </select>
+            <select name="<?php echo $edit_flow->get_plugin_option_fullname('custom_category_filter') ?>" id="custom_category_filter">
+                <option value="all" <?php if ($edit_flow->get_plugin_option('custom_category_filter')=='all') { echo 'selected="selected"';}?>>View  All Categories</option>
+                <?php $categories = get_categories(); ?>
+                <?php foreach ($categories as $category) : ?>
+                    <?php $selected = ($edit_flow->get_plugin_option('custom_category_filter')==$category->term_id) ? 'selected="selected"' : ''; ?>
+                    <option value="<?php esc_html_e($category->term_id) ?>" <?php echo $selected ?>>
+                        Category: <?php esc_html_e($category->name); ?>
+                    </option>
                 <?php endforeach; ?>
             </select>
             <input type="hidden" name="page" value="edit-flow/calendar"/>
@@ -208,8 +224,9 @@ function ef_get_calendar_posts( $date ) {
     global $wpdb, $edit_flow;
     $q_date = date('Y-m-d', strtotime($date));
     
-    $sql = "SELECT w.ID, w.guid, w.post_date, u.display_name, w.post_title ";
-    $sql .= "FROM " . $wpdb->posts . " w, ". $wpdb->users . " u ";
+    $sql = "SELECT DISTINCT w.ID, w.guid, w.post_date, u.display_name, w.post_title ";
+    $sql .= "FROM " . $wpdb->posts . " w, ". $wpdb->users . " u, ";
+    $sql .= $wpdb->term_relationships . " t ";
     $sql .= "WHERE u.ID=w.post_author and ";
     if (($edit_flow->get_plugin_option('custom_status_filter') != 'all') && 
         ($edit_flow->get_plugin_option('custom_status_filter') != 'my-posts')) {
@@ -220,7 +237,11 @@ function ef_get_calendar_posts( $date ) {
     }
     $sql .= "w.post_status <> 'auto-draft' and "; // Hide auto draft posts
     $sql .= "w.post_status <> 'trash' and "; // Hide trashed posts
-    $sql .= "w.post_type = 'post' and w.post_date like '". $q_date . "%'";
+    $sql .= "w.post_type = 'post' and w.post_date like '". $q_date . "%' and ";
+    $sql .= "t.object_id = w.ID";
+    if ($edit_flow->get_plugin_option('custom_category_filter') != 'all') {
+        $sql .= " and t.term_taxonomy_id = " . $edit_flow->get_plugin_option('custom_category_filter'   );
+    }
     #echo "<pre>" . $sql . "</pre>";
     $cal_posts = $wpdb->get_results($sql);
     return $cal_posts;

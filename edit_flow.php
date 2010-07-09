@@ -65,7 +65,8 @@ class edit_flow {
 					'myposts_widget_enabled' => 1,
 					'notifications_enabled' => 1,
 					'always_notify_admin' => 0,
-					'custom_status_filter' => 'draft'
+					'custom_status_filter' => 'draft',
+					'custom_category_filter' => 'all'
 				);
 	
 	// Used to store the names for any custom tables used by the plugin
@@ -443,6 +444,7 @@ class edit_flow {
 									
 					<p class="submit">
 					    <input type="hidden" name="<?php echo $this->get_plugin_option_fullname('custom_status_filter') ?>" value="<?php echo ($this->get_plugin_option('custom_status_filter')) ?>" id="custom_status_filter" />
+				        <input type="hidden" name="<?php echo $this->get_plugin_option_fullname('custom_category_filter') ?>" value="<?php echo ($this->get_plugin_option('custom_category_filter')) ?>" id="custom_category_filter" />
 						<input type="submit" class="button-primary" value="<?php _e('Save Changes', 'edit-flow') ?>" />
 					</p>
 				</form>
