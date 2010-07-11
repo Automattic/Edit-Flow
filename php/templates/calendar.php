@@ -77,7 +77,7 @@ for ($i=0; $i<7; $i++) {
                 <?php foreach ($categories as $category) : ?>
                     <?php $selected = ($edit_flow->get_plugin_option('custom_category_filter')==$category->term_id) ? 'selected="selected"' : ''; ?>
                     <option value="<?php esc_html_e($category->term_id) ?>" <?php echo $selected ?>>
-                        Category: <?php esc_html_e($category->name); ?>
+                      <?php esc_html_e($category->name); ?>
                     </option>
                 <?php endforeach; ?>
             </select>
