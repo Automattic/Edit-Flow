@@ -23,6 +23,13 @@ if($_GET['edit_flow_custom_category_filter']) {
         $_GET['edit_flow_custom_category_filter']);
 }
 
+if($_GET['edit_flow_custom_author_filter']) {
+    $edit_flow->options['custom_author_filter'] = $_GET['edit_flow_custom_author_filter'];  
+    update_option($edit_flow->get_plugin_option_fullname('custom_author_filter'), 
+        $_GET['edit_flow_custom_author_filter']);
+}
+
+
 date_default_timezone_set('UTC');
 $dates = array();
 if ($_GET['date']) {
@@ -80,6 +87,16 @@ for ($i=0; $i<7; $i++) {
                       <?php esc_html_e($category->name); ?>
                     </option>
                 <?php endforeach; ?>
+            </select>
+                <select name="<?php echo $edit_flow->get_plugin_option_fullname('custom_author_filter') ?>" id="custom_author_filter">
+                    <option value="all" <?php if ($edit_flow->get_plugin_option('custom_author_filter')=='all') { echo 'selected="selected"';}?>>View  All Authors</option>
+                    <?php $users = ef_get_users(); ?>
+                    <?php foreach ($users as $user) : ?>
+                        <?php $selected = ($edit_flow->get_plugin_option('custom_author_filter')==$user->ID) ? 'selected="selected"' : ''; ?>
+                        <option value="<?php esc_html_e($user->ID) ?>" <?php echo $selected ?>>
+                          <?php esc_html_e($user->user_nicename); ?>
+                        </option>
+                    <?php endforeach; ?>
             </select>
             <input type="hidden" name="page" value="edit-flow/calendar"/>
             <input type="submit" class="button primary" value="Filter"/>
@@ -240,9 +257,23 @@ function ef_get_calendar_posts( $date ) {
     $sql .= "w.post_type = 'post' and w.post_date like '". $q_date . "%' and ";
     $sql .= "t.object_id = w.ID";
     if ($edit_flow->get_plugin_option('custom_category_filter') != 'all') {
-        $sql .= " and t.term_taxonomy_id = " . $edit_flow->get_plugin_option('custom_category_filter'   );
+        $sql .= " and t.term_taxonomy_id = " . $edit_flow->get_plugin_option('custom_category_filter');
     }
+    if ($edit_flow->get_plugin_option('custom_author_filter') != 'all') {
+        $sql .= " and u.ID = " . $edit_flow->get_plugin_option('custom_author_filter');
+    }
+    
     #echo "<pre>" . $sql . "</pre>";
     $cal_posts = $wpdb->get_results($sql);
     return $cal_posts;
+}
+
+function ef_get_users() {
+    global $wpdb;
+    
+    $sql = "SELECT DISTINCT u.ID, u.user_nicename FROM " . $wpdb->users . " u";
+    $sql .= " ORDER BY u.user_nicename";
+    print $sql;
+    $users = $wpdb->get_results($sql);
+    return $users;
 }
