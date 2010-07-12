@@ -51,10 +51,11 @@ jQuery(document).ready(function () {
 				function(data) {
 					// Remove the prior message (if it exists) and append a new one
 					jQuery('div#message').remove();
-					date = new Date(date);
+					date = date.split('-')
+					date = new Date(date[0], date[1], date[2]);
 					var day = date.getDate();
-					day++;
-					var message = 'Item due date changed to '+ month_names[date.getMonth()] + ' ' + day + ', ' + date.getFullYear() + '.';
+					var month = date.getMonth() - 1;
+					var message = 'Item due date changed to '+ month_names[month] + ' ' + day + ', ' + date.getFullYear() + '.';
 					jQuery('h2').after('<div id="message" class="updated below-h2"><p>'+message+'</p></div>');
 					jQuery('li.performing-ajax').css('display', 'none');
 				}

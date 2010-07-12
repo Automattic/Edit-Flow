@@ -2,7 +2,7 @@
 Contributors: batmoo, danielbachhuber, sbressler, andrewspittle, jboydston
 Donate link: http://editflow.org/donate/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups
-Requires at least: 2.9.1
+Requires at least: 3.0
 Tested up to: 3.0
 Stable tag: 0.5
 
