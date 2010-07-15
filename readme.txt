@@ -1,6 +1,6 @@
 === Edit Flow ===
 Contributors: batmoo, danielbachhuber, sbressler, andrewspittle, jboydston
-Donate link: http://editflow.org/donate/
+Donate link: http://www.editflow.org/donate/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups
 Requires at least: 3.0
 Tested up to: 3.0
@@ -10,7 +10,7 @@ Plugin for WordPress to allow for better editorial workflow.
 
 == Description ==
 
-The overall goal of this plugin is to improve the WordPress Admin interface for a multi-user newsroom’s editorial workflow. 
+The overall goal of this plugin is to improve the WordPress Admin interface for a multi-user newsroom's editorial workflow. 
 
 NOTE: Edit Flow requires PHP5+ to work. Don't have PHP5? Talk to your hosting provider and hop on the PHP5 bandwagon. It's awesome.
 
@@ -35,7 +35,7 @@ Enables users to create custom statuses for posts, and assign those to posts.
 
 **Assigning Custom Statuses to Posts**
 
-* With custom statuses defined, they can now be assigned to posts. The plugin adds the custom statuses to the “Status” dropdown when editing a post (screenshot above). Additionally, given the likely frequency of use of this feature, the Status dropdown is made visible by default. The plugin also allows you to set a default status for new posts, which WordPress sets to "Draft" by default.
+* With custom statuses defined, they can now be assigned to posts. The plugin adds the custom statuses to the "Status" dropdown when editing a post (screenshot above). Additionally, given the likely frequency of use of this feature, the Status dropdown is made visible by default. The plugin also allows you to set a default status for new posts, which WordPress sets to "Draft" by default.
 
 **Managing Posts**
 
