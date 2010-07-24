@@ -46,9 +46,9 @@ class ef_notifications {
 	function notification_status_change ($new_status, $old_status, $post) {
 		global $current_user, $edit_flow;
 		
-		// No need to notify if it's a revision
-		// Also no need to email if post status wasn't changed
-		if ($new_status != 'inherit' && $old_status != $new_status) {
+		// No need to notify if it's a revision, auto-draft, or if post status wasn't changed
+		$ignored_statuses = array( $old_status, 'inherit', 'auto-draft' );
+		if ( !in_array($new_status, $ignored_statuses) ) {
 			
 			// Get current user
 			get_currentuserinfo();
