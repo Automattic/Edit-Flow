@@ -625,7 +625,8 @@ class custom_status {
 					</table>
 												
 					<div class="form-wrap">
-						<p><?php _e('<strong>Note:</strong><br/>Deleting a status does not delete the posts assigned that status. Instead, the posts will be set to the default status: <strong>Draft</strong>', 'edit-flow') ?>.
+						<?php $default_status = get_term_by('slug', $edit_flow->get_plugin_option('custom_status_default_status'), 'post_status')->name; ?>
+						<p><?php _e("<strong>Note:</strong><br/>Deleting a status does not delete the posts assigned that status. Instead, the posts will be set to the default status: <strong>$default_status</strong>", 'edit-flow') ?>.
 						</p>
 					</div>
 						
