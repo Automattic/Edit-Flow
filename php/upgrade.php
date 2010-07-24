@@ -1,8 +1,9 @@
 <?php
 // Handles all current and future upgrades for edit_flow
 function edit_flow_upgrade( $from ) {
-	if( !$from || $from < 0.1 ) edit_flow_upgrade_01();
-	if( $from < 0.3 ) edit_flow_upgrade_03();
+	if ( !$from || $from < 0.1 ) edit_flow_upgrade_01();
+	if ( $from < 0.3 ) edit_flow_upgrade_03();
+	if ( $from < ef_version_number_float( '0.5.1' ) ) edit_flow_upgrade_051();
 }
 
 // Upgrade to 0.1
@@ -41,7 +42,7 @@ function edit_flow_upgrade_03 () {
 		$admin_role->add_cap('edit_post_subscriptions');
 		$admin_role->add_cap('edit_usergroups');
 	}
-	if( $wp_roles->is_role('administrator') ) {	
+	if( $wp_roles->is_role('editor') ) {	
 		$editor_role =& get_role('editor');
 		$editor_role->add_cap('edit_post_subscriptions');
 	}
@@ -63,4 +64,24 @@ function edit_flow_upgrade_03 () {
 		}
 	}
 	update_option($edit_flow->get_plugin_option_fullname('version'), '0.3');
+}
+
+function edit_flow_upgrade_051() {
+	global $wp_roles, $edit_flow;
+
+	if ( ! isset( $wp_roles ) )
+		$wp_roles = new WP_Roles();
+
+	// Add necessary capabilities to allow management of calendar
+	// view_calendar - administrator --> contributor
+	$calendar_roles = array( 'administrator' => array('ef_view_calendar', 'ef_edit_calendar'),
+	                         'editor' =>        array('ef_view_calendar', 'ef_edit_calendar'),
+	                         'author' =>        array('ef_view_calendar'),
+	                         'contributor' =>   array('ef_view_calendar') );
+	
+	foreach ($calendar_roles as $role => $caps) {
+		ef_add_caps_to_role( $role, $caps );
+	}
+	
+	update_option($edit_flow->get_plugin_option_fullname('version'), '0.5.1');
 }
