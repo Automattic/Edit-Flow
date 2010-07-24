@@ -4,7 +4,7 @@ Plugin Name: Edit Flow
 Plugin URI: http://www.editflow.org/
 Description: Remixing the WordPress admin for better editorial workflow options.
 Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Andrew Spittle, et al.
-Version: 0.5
+Version: 0.5.1
 Author URI: http://www.editflow.org/
 
 Copyright 2009-2010 Mohammad Jangda, Daniel Bachhuber, et al.
@@ -38,11 +38,11 @@ include_once('php/upgrade.php');
 include_once('php/util.php');
 
 // Define contants
-define( 'EDIT_FLOW_VERSION' , '0.3.3');
+define( 'EDIT_FLOW_VERSION' , '0.5.1');
 define( 'EDIT_FLOW_FILE_PATH' , dirname(__FILE__).'/'.basename(__FILE__) );
 define( 'EDIT_FLOW_URL' , plugins_url(plugin_basename(dirname(__FILE__)).'/') );
 define( 'EDIT_FLOW_MAIN_PAGE' , 'admin.php?page=edit-flow/edit_flow' );
-define( 'EDIT_FLOW_SETTINGS_PAGE' , 'options-general.php?page=edit_flow' );
+define( 'EDIT_FLOW_SETTINGS_PAGE' , 'admin.php?page=edit-flow/settings' );
 define( 'EDIT_FLOW_CUSTOM_STATUS_PAGE' , 'admin.php?page=edit-flow/custom_status' );
 define( 'EDIT_FLOW_PREFIX' , 'ef_' );
 define( 'EDIT_FLOW_CALENDAR_PAGE', 'index.php?page=edit-flow/calendar');
@@ -67,7 +67,8 @@ class edit_flow {
 					'always_notify_admin' => 0,
 					'custom_status_filter' => 'draft',
 					'custom_category_filter' => 'all',
-					'custom_author_filter' => 'all'
+					'custom_author_filter' => 'all',
+					'calendar_enabled' => 1
 				);
 	
 	// Used to store the names for any custom tables used by the plugin
@@ -144,7 +145,7 @@ class edit_flow {
 	    }
 	    	    
 		// Upgrade if need be
-		$ef_prev_version = floatval($this->get_plugin_option('version'));
+		$ef_prev_version = ef_version_number_float($this->get_plugin_option('version'));
 		if($ef_prev_version < EDIT_FLOW_VERSION) edit_flow_upgrade($ef_prev_version);
 
 	} // END: admin_init()
@@ -287,7 +288,8 @@ class edit_flow {
 		add_submenu_page($this->get_page('edit-flow'), __('Settings', 'edit-flow'), __('Settings', 'edit-flow'), 'manage_options', $this->get_page('settings'), array(&$this, 'settings_page'));
 		
 		// Add sub-menu page for Calendar
-		add_submenu_page('index.php', __('Edit Flow Calendar', 'edit-flow'), __('Edit Flow Calendar', 'edit-flow'), 'edit_posts', $this->get_page('calendar'), array(&$this,'calendar'));
+		if ( $this->calendar_viewable() )
+			add_submenu_page('index.php', __('Edit Flow Calendar', 'edit-flow'), __('Edit Flow Calendar', 'edit-flow'), 'edit_posts', $this->get_page('calendar'), array(&$this,'calendar'));
 		
 	} // END: add_menu_items() 
 	
@@ -381,6 +383,39 @@ class edit_flow {
 									<span class="description"><?php _e('Enabling this option will keep the "Status" dropdown visible at all times when editing posts and pages to allow for easy updating of statuses.', 'edit-flow') ?></span>
 								</p>
 									
+							</td>
+						</tr>
+						
+						<tr valign="top">
+							<th scope="row"><strong><?php _e('Calendar', 'edit-flow') ?></strong></th>
+							<td>
+								<p>
+									<label for="calendar_enabled">
+										<input type="checkbox" name="<?php  echo $this->get_plugin_option_fullname('calendar_enabled') ?>" value="1" <?php checked($this->get_plugin_option('calendar_enabled')); ?> id="calendar_enabled" />
+										<?php _e('Enable Edit Flow Calendar', 'edit-flow') ?>
+									</label> <br />
+									<span class="description"><?php _e('This enables the Edit Flow Calendar to view editorial content at a glance.', 'edit-flow') ?></span>
+								</p>
+								<?php
+								/* Options for modifying the roles with calendar viewing privileges, though the logic to actually modify those roles was never written. Just didn't want to delete this yet.
+								<p>
+									<strong>Roles that can view calendar</strong><br />
+									<?php foreach($wp_roles->get_names() as $role => $role_name) :
+										if ( $wp_roles->is_role( $role ) ) :
+											$target_role =& get_role( $role );
+											$role_has_cap = $target_role->has_cap( 'view_calendar' );
+											?>
+											<label for="calendar_view_<?php echo $role; ?>">
+												<input type="checkbox" id="calendar_view_<?php echo $role; ?>" value="<?php echo $role; ?>" <?php echo ($role_has_cap ? 'checked="yes"' : '');?> style="margin-bottom: 5px;" />
+												<?php _e($role_name, 'edit-flow') ?>
+											</label>
+											<br />
+										<?php endif; ?>
+									<?php endforeach; ?>
+									<span class="description"><?php _e('Select which roles above may view the Edit Flow Calendar.', 'edit-flow') ?></span>
+								</p>
+								*/
+								?>
 							</td>
 						</tr>
 						
@@ -484,10 +519,22 @@ class edit_flow {
 		<?php 
 	} // END: toplevel_menu()
 
-
     function calendar() {
-        include('php/templates/calendar.php');
+		include('php/templates/calendar.php');
     }
+	
+	function calendar_viewable() {
+		$calendar_enabled = (int)$this->get_plugin_option('calendar_enabled');
+		
+		if ($calendar_enabled) {
+			$view_calendar_cap = 'ef_view_calendar';
+			$view_calendar_cap = apply_filters( 'ef_view_calendar_cap', $view_calendar_cap );
+
+			if( current_user_can( $view_calendar_cap ) )
+				return true;
+		}
+		return false;
+	}
 
 } // END: class edit_flow
 

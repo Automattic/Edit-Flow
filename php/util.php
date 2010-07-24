@@ -357,3 +357,27 @@ function ef_update_user_metadata( $obj_id, $meta_key, $meta_value, $prev_value =
 function ef_delete_user_metadata( $obj_id, $meta_key, $meta_value = '', $delete_all = false ) {
 	return delete_metadata( 'user', $obj_id, $meta_key, $meta_value, $delete_all );
 }
+
+/**
+ * Adds an array of capabilities to a role.
+ */
+function ef_add_caps_to_role( $role, $caps ) {
+	global $wp_roles;
+	
+	if ( $wp_roles->is_role( $role ) ) {
+		$role =& get_role( $role );
+		foreach ( $caps as $cap )
+			$role->add_cap( $cap );
+	}
+}
+
+/**
+ * Returns a float value representing the provided string version. e.g. 1.0.1 will be returned as 1.01.
+ * This is useful for version number comparisons.
+ */
+function ef_version_number_float( $version ) {
+	$version_numbers = explode('.', $version);
+	for ($i = 0, $multiplier = 1; $i < count( $version_numbers ); ++$i, $multiplier /= 10)
+		$version_float += $version_numbers[$i] * $multiplier;
+	return $version_float;
+}

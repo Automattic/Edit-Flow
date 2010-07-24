@@ -163,6 +163,19 @@ For replies to work properly, you need to enable threaded commenting in your blo
 
 Contact us at [feedback@editflow.org](mailto:feedback@editflow.org) and we'll see what we can do.
 
+= I don't like the preset roles that are able to view the calendar. How can I edit them? =
+
+There are two ways you can do this. One is to put something like the following code in your functions.php file:
+
+`add_filter( 'ef_view_calendar_cap', 'change_editflows_stupid_default_caps' );
+
+function change_editflows_stupid_default_caps( $cap ) {
+	return 'edit_posts';
+}`
+This will allow anyone with the capability to edit posts to view the calendar. See other capabilities you could use [here](http://codex.wordpress.org/Roles_and_Capabilities#Capability_vs._Role_Table).
+
+The other option is to install a role management plugin, like Justin Tadlock's excellent [Members plugin](http://wordpress.org/extend/plugins/members/), and let the plugin do the heavy lifting of customizing the roles and capabilities to your heart's content.
+
 = I'm stuck at WordPress 2.8! How do I use v0.3 onwards? =
 
 Upgrade to WordPress 2.9 or later, peeps!
