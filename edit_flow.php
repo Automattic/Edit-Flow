@@ -248,11 +248,16 @@ class edit_flow {
 		return $this->options_group . $name;
 	}
 	
+	function update_plugin_option( $name, $new_value ) {
+		if( is_array($this->options) && !empty( $this->options[$name] ) ) {
+			$this->options[$name] = $new_value;
+			update_option( $this->get_plugin_option_fullname( $name ), $new_value );
+		}
+	}
+	
 	function global_admin_controller ( ) {
-		$page = esc_html( $_REQUEST['page'] );
-		
 		// Only check if we have page query string and it's for edit-flow
-		if( $page && strstr($page, 'edit-flow') ) {
+		if ( array_key_exists( 'page', $_REQUEST) && $page = esc_html( $_REQUEST['page'] ) && strstr($page, 'edit-flow') ) {
 			$component = substr( $page, (strrpos($page, '/') + 1) );
 			
 			switch( $component ) {

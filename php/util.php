@@ -377,6 +377,7 @@ function ef_add_caps_to_role( $role, $caps ) {
  */
 function ef_version_number_float( $version ) {
 	$version_numbers = explode('.', $version);
+	$version_float = 0;
 	for ($i = 0, $multiplier = 1; $i < count( $version_numbers ); ++$i, $multiplier /= 10)
 		$version_float += $version_numbers[$i] * $multiplier;
 	return $version_float;
