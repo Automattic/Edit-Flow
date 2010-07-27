@@ -21,7 +21,7 @@ function edit_flow_upgrade_01() {
 	
 	// Okay, now add the default statuses to the db if they don't already exist 
 	foreach($default_terms as $term) {
-		if(!is_term($term['term'])) $edit_flow->custom_status->add_custom_status( $term['term'], $term['args'] );
+		if(!term_exists($term['term'])) $edit_flow->custom_status->add_custom_status( $term['term'], $term['args'] );
 	}
 	
 	update_option($edit_flow->get_plugin_option_fullname('version'), '0.1');
@@ -59,7 +59,7 @@ function edit_flow_upgrade_03 () {
 	
 	// Okay, now add the default statuses to the db if they don't already exist 
 	foreach($default_usergroups as $usergroup) {
-		if( !is_term($usergroup['slug'], $edit_flow->notifications->following_usergroups_taxonomy) ) {
+		if( !term_exists($usergroup['slug'], $edit_flow->notifications->following_usergroups_taxonomy) ) {
 			ef_add_usergroup( $usergroup['slug'], $usergroup['args'] );
 		}
 	}
@@ -74,8 +74,8 @@ function edit_flow_upgrade_051() {
 
 	// Add necessary capabilities to allow management of calendar
 	// view_calendar - administrator --> contributor
-	$calendar_roles = array( 'administrator' => array('ef_view_calendar', 'ef_edit_calendar'),
-	                         'editor' =>        array('ef_view_calendar', 'ef_edit_calendar'),
+	$calendar_roles = array( 'administrator' => array('ef_view_calendar'),
+	                         'editor' =>        array('ef_view_calendar'),
 	                         'author' =>        array('ef_view_calendar'),
 	                         'contributor' =>   array('ef_view_calendar') );
 	
