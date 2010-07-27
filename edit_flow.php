@@ -256,8 +256,12 @@ class edit_flow {
 	}
 	
 	function global_admin_controller ( ) {
+		$page = null;
+		if ( array_key_exists( 'page', $_REQUEST) )
+			$page = esc_html( $_REQUEST['page'] );
+		
 		// Only check if we have page query string and it's for edit-flow
-		if ( array_key_exists( 'page', $_REQUEST) && $page = esc_html( $_REQUEST['page'] ) && strstr($page, 'edit-flow') ) {
+		if ( !empty($page) && strstr($page, 'edit-flow') ) {
 			$component = substr( $page, (strrpos($page, '/') + 1) );
 			
 			switch( $component ) {
@@ -320,13 +324,14 @@ class edit_flow {
 			wp_enqueue_script('edit_flow-calendar-js', EDIT_FLOW_URL.'js/calendar.js', array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'), false, true);
 	}
 	
-	/* Adds Settings page for Edit Flow
-	 *
+	/* 
+	 * Adds Settings page for Edit Flow.
 	 */
 	function settings_page( ) {
 		global $wp_roles;
 		
-		if($_GET['updated']=='true') { $msg = __('Settings Saved', 'edit-flow'); }
+		$msg = null;
+		if( array_key_exists( 'updated', $_GET ) && $_GET['updated']=='true' ) { $msg = __('Settings Saved', 'edit-flow'); }
 		
 		?>
 			<div class="wrap">
