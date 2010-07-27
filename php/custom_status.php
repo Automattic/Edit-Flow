@@ -14,7 +14,7 @@ class custom_status {
 		global $pagenow, $edit_flow;
 		
 		// Register new taxonomy so that we can store all our fancy new custom statuses (or is it stati?)
-		if(!is_taxonomy($this->status_taxonomy)) register_taxonomy( $this->status_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
+		if(!taxonomy_exists($this->status_taxonomy)) register_taxonomy( $this->status_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
 		
 		// Not needed as of 3.0 since it supports built in post statuses
 		// These actions should be called regardless of whether custom statuses are enabled or not
@@ -186,7 +186,7 @@ class custom_status {
 				// if not one of inbuilt custom statuses, delete query where AND (wp_posts.post_status = 'publish' OR wp_posts.post_status = 'future' OR wp_posts.post_status = 'draft' OR wp_posts.post_status = 'pending' OR wp_posts.post_status = 'private')
 				// append status to where
 				
-				if(is_term($status, $this->status_taxonomy)) {
+				if(term_exists($status, $this->status_taxonomy)) {
 					//delete only the offending query --- not the entire query
 					 $search_string = "AND (".$wpdb->posts.".post_status = 'publish' OR ".$wpdb->posts.".post_status = 'future' OR ".$wpdb->posts.".post_status = 'draft' OR ".$wpdb->posts.".post_status = 'pending'";
 					if ( is_user_logged_in() ) {
@@ -231,14 +231,25 @@ class custom_status {
 	 * Basically a wrapper for the wp_update_term function
 	 */
 	function update_custom_status ( $status_id, $args = array() ) {
+		global $edit_flow;
+		
+		$default_status = $this->ef_get_default_custom_status()->slug;
+		$defaults = array(
+				'slug' => $default_status
+		);
+
+		// If new status not indicated, use default status
+		$args = wp_parse_args( $args, $defaults );
 	
 		// Reassign posts to new status slug
 		$old_status = get_term($status_id, $this->status_taxonomy)->slug;
 
 		if(!$this->is_restricted_status($old_status)) {
-			// If new status not indicated, set to "draft", else get slug for new status
 			$new_status = $args['slug'];
 			$this->reassign_post_status( $old_status, $new_status );
+			
+			if ($old_status == $default_status)
+				$edit_flow->update_plugin_option( 'custom_status_default_status', $new_status );
 		}
 
 		return wp_update_term( $status_id, $this->status_taxonomy, $args );
@@ -251,24 +262,33 @@ class custom_status {
 	 * BUT, also reassigns posts that currently have the deleted status assigned.  
 	 */
 	function delete_custom_status ( $status_id, $args = array(), $reassign = '' ) {
-	
+		global $edit_flow;
 		// Reassign posts to alternate status
 
 		// Get slug for the old status
 		$old_status = get_term($status_id, $this->status_taxonomy)->slug;
 
-		if(!$this->is_restricted_status($old_status)) {
+		if ($reassign == $old_status)
+			return new WP_Error( 'invalid', __( 'cannot reassign to the status you want to delete', 'edit-flow' ) );
 		
-			// If new status not indicated, set to "draft", else get slug for new status
-			if(!$reassign) $new_status = 'draft';
-			else $new_status = get_term($reassign, $this->status_taxonomy)->slug;
+		if(!$this->is_restricted_status($old_status)) {
+			$default_status = $this->ef_get_default_custom_status()->slug;
+			// If new status in $reassign, use that for all posts of the old_status
+			if( !empty( $reassign ) )
+				$new_status = get_term($reassign, $this->status_taxonomy)->slug;
+			else
+				$new_status = $default_status;
+			if ( $old_status == $default_status && term_exists( 'draft', $this->status_taxonomy ) ) { // Deleting default status
+				$new_status = 'draft';
+				$edit_flow->update_plugin_option( 'custom_status_default_status', $new_status );
+			}
 			
 			$this->reassign_post_status( $old_status, $new_status );
-		}
-	
-		return wp_delete_term( $status_id, $this->status_taxonomy, $args );
+			
+			return wp_delete_term( $status_id, $this->status_taxonomy, $args );
+		} else
+			return new WP_Error( 'restricted', __( 'restricted status ', 'edit-flow' ) . '(' . get_term($status_id, $this->status_taxonomy)->name . ')' );
 	} // END: delete_custom_status
-	
 
 	function get_custom_statuses ($statuses = '', $args ='' ) {
 		
@@ -285,9 +305,20 @@ class custom_status {
 		
 		return $statuses;		
 	}
+
+	/**
+	 * Returns the term object from the database for the default custom status. Commonly used fields are name and slug.
+	 */
+	function ef_get_default_custom_status() {
+		global $edit_flow;
+		return get_term_by('slug', $edit_flow->get_plugin_option( 'custom_status_default_status' ), $this->status_taxonomy );
+	}
 	
-	function reassign_post_status( $old_status, $new_status = 'draft' ) {
+	function reassign_post_status( $old_status, $new_status = '' ) {
 		global $wpdb;
+		
+		if ( empty( $new_status ) )
+			$new_status = $this->ef_get_default_custom_status()->slug;
 		
 		// Make the database call
 		$result = $wpdb->update( $wpdb->posts, array( 'post_status' => $new_status ), array( 'post_status' => $old_status ), array( '%s' ));
@@ -357,7 +388,11 @@ class custom_status {
 		$nonce_fail_msg = __('There\'s something fishy going on! We don\'t like this type of nonce-sense. Hmph.', 'edit-flow');
 		$msg_class = 'updated';
 		
-		$action = ($_POST['action']) ? $wpdb->escape($_POST['action']) : $wpdb->escape($_GET['action']);
+		$action = null; $error_details = null; $msg = null; $edit_status = null; $update = null;
+		if ( array_key_exists( 'action', $_POST ) )
+			$action = $wpdb->escape($_POST['action']);
+		else if ( array_key_exists( 'action', $_GET ) )
+			$action = $wpdb->escape($_GET['action']);
 		
 		switch($action) {
 			
@@ -394,7 +429,7 @@ class custom_status {
 					}
 					
 					// Check to make sure the status doesn't already exist
-					if(is_term($status_slug)) {
+					if(term_exists($status_slug)) {
 						$error_details = __('That status already exists. Please use another name.', 'edit-flow');
 						break;
 					}
@@ -432,8 +467,6 @@ class custom_status {
 				break;
 			
 			case 'update':
-			
-				// @TODO if updated status is the same as the default_status, update the default
 				
 				// Verfiy nonce
 				if(wp_verify_nonce($_POST['custom-status-add-nonce'], 'custom-status-add-nonce')) {
@@ -467,7 +500,7 @@ class custom_status {
 					}
 					
 					// Check to make sure the status doesn't already exist
-					if(is_term($status_slug) && (get_term($term_id, $this->status_taxonomy)->slug != $status_slug)) {
+					if(term_exists($status_slug) && (get_term($term_id, $this->status_taxonomy)->slug != $status_slug)) {
 						$error_details = __('That status already exists. Please use another name.', 'edit-flow');
 						break;
 					}
@@ -491,14 +524,12 @@ class custom_status {
 			
 			case 'delete':
 			
-				// @TODO if updated status is the same as the default_status, update the default
-			
 				// Verfiy nonce
 				if(wp_verify_nonce($_GET['_wpnonce'], 'custom-status-delete-nonce')) {
 					$term_id = (int) $_GET['term_id'];
 
-					// Check to make sure the status doesn't already exist
-					if(!is_term($term_id, $this->status_taxonomy)) {
+					// Check to make sure the status isn't already deleted
+					if(!term_exists($term_id, $this->status_taxonomy)) {
 						$error_details = __('That status does not exist. Try again?', 'edit-flow');
 						break;
 					}
@@ -604,7 +635,9 @@ class custom_status {
 													|
 												</span>
 												<span class="delete">
-													<a href="<?php echo $delete_link ?>" class="delete:the-list:status-<?php echo $status->term_id ?> submitdelete" onclick="if(!confirm('Are you sure you want to delete this status?')) return false;">
+													<?php $default_status = $this->ef_get_default_custom_status(); ?>
+													<?php $new_status = ($status->slug == $default_status->slug) ? 'Draft' : $default_status->name; ?>
+													<a href="<?php echo $delete_link ?>" class="delete:the-list:status-<?php echo $status->term_id ?> submitdelete" onclick="if(!confirm('Are you sure you want to delete this status?\n\nPosts with this status will be assigned to the following status upon deletion: <?php echo $new_status; ?>.')) return false;">
 														<?php _e('Delete', 'edit-flow') ?>
 													</a>
 												</span>
@@ -625,7 +658,7 @@ class custom_status {
 					</table>
 												
 					<div class="form-wrap">
-						<?php $default_status = get_term_by('slug', $edit_flow->get_plugin_option('custom_status_default_status'), 'post_status')->name; ?>
+						<?php $default_status = $this->ef_get_default_custom_status()->name; ?>
 						<p><?php _e("<strong>Note:</strong><br/>Deleting a status does not delete the posts assigned that status. Instead, the posts will be set to the default status: <strong>$default_status</strong>", 'edit-flow') ?>.
 						</p>
 					</div>
@@ -642,19 +675,19 @@ class custom_status {
 
 							<div class="form-field form-required">
 								<label for="status_name"><?php _e('Name', 'edit-flow') ?></label>
-								<input type="text" aria-required="true" size="20" maxlength="20" id="status_name" name="status_name" value="<?php esc_attr_e($edit_status->name) ?>" />
+								<input type="text" aria-required="true" size="20" maxlength="20" id="status_name" name="status_name" value="<?php if ( !empty( $edit_status ) ) esc_attr_e($edit_status->name) ?>" />
 								<p><?php _e('The name is used to identify the status. (Max: 20 characters)', 'edit-flow') ?></p>
 							</div>
 						
 							<div class="form-field">
 								<label for="status_description"><?php _e('Description', 'edit-flow') ?></label>
-								<textarea cols="40" rows="5" id="status_description" name="status_description"><?php esc_attr_e($edit_status->description) ?></textarea>
+								<textarea cols="40" rows="5" id="status_description" name="status_description"><?php if ( !empty( $edit_status ) ) esc_attr_e($edit_status->description) ?></textarea>
 							    <p><?php _e('The description is mainly for administrative use, just to give you some context on what the custom status is to be used for or means.', 'edit-flow') ?></p>
 							</div>
 							
 							<input type="hidden" name="action" value="<?php echo ($update) ? 'update' : 'add' ?>" />
 							<?php if($update) : ?>
-								<input type="hidden" name="term_id" value="<?php echo $edit_status->term_id ?>" />
+								<input type="hidden" name="term_id" value="<?php if ( !empty( $edit_status ) ) echo $edit_status->term_id ?>" />
 							<?php endif; ?>
 							<input type="hidden" name="page" value="edit-flow/php/custom_status.php" />
 							<input type="hidden" name="custom-status-add-nonce" id="custom-status-add-nonce" value="<?php echo wp_create_nonce('custom-status-add-nonce') ?>" />
