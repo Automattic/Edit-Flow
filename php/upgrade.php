@@ -21,7 +21,7 @@ function edit_flow_upgrade_01() {
 	
 	// Okay, now add the default statuses to the db if they don't already exist 
 	foreach($default_terms as $term) {
-		if(!term_exists($term['term'])) $edit_flow->custom_status->add_custom_status( $term['term'], $term['args'] );
+		if( !ef_term_exists( $term['term'] ) ) $edit_flow->custom_status->add_custom_status( $term['term'], $term['args'] );
 	}
 	
 	update_option($edit_flow->get_plugin_option_fullname('version'), '0.1');

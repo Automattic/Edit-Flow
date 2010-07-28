@@ -382,3 +382,22 @@ function ef_version_number_float( $version ) {
 		$version_float += $version_numbers[$i] * $multiplier;
 	return $version_float;
 }
+
+// Wrapper for taxonomy_exists / is_taxonomy functions
+// Needed for 2.9 compatibility
+function ef_taxonomy_exists( $taxonomy ) {
+	if( function_exists( 'taxonomy_exists' ) )
+		return taxonomy_exists( $taxonomy );
+	else
+		return is_taxonomy( $taxonomy );
+}
+
+// Wrapper for term_exists / is_term functions
+// Needed for 2.9 compatibility
+function ef_term_exists( $term, $taxonomy = '', $parent = 0 ) {
+	if( function_exists( 'taxonomy_exists' ) )
+		return term_exists( $term, $taxonomy, $parent );
+	else
+		return is_term( $term, $taxonomy, $parent );
+	
+}
