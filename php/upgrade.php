@@ -59,7 +59,7 @@ function edit_flow_upgrade_03 () {
 	
 	// Okay, now add the default statuses to the db if they don't already exist 
 	foreach($default_usergroups as $usergroup) {
-		if( !term_exists($usergroup['slug'], $edit_flow->notifications->following_usergroups_taxonomy) ) {
+		if( !ef_term_exists( $usergroup['slug'], $edit_flow->notifications->following_usergroups_taxonomy ) ) {
 			ef_add_usergroup( $usergroup['slug'], $usergroup['args'] );
 		}
 	}
