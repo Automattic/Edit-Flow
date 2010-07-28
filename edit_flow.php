@@ -514,16 +514,19 @@ class edit_flow {
 			<p>Through discussions with existing newsrooms that use WordPress as their CMS of choice, we have identified the following weak points within the WordPress Administration interface in the context of a multi-user environment:</p>
 				
 			<ul>
-				<li>The editorial workflow is limited and does not scale well where numerous individuals interact with a single Post or where more complex editing workflows are required;
+				<li>- The editorial workflow is limited and does not scale well where numerous individuals interact with a single Post or where more complex editing workflows are required;
 				</li>
-				<li>The editorial workflow is not conducive to planning of future content (while the Draft feature does facilitate this to some extent, the existing feature set does not scale in scenarios where different users are responsible for different components of a post, or different steps within the workflow.
+				<li>- The editorial workflow is not conducive to planning of future content (while the Draft feature does facilitate this to some extent, the existing feature set does not scale in scenarios where different users are responsible for different components of a post, or different steps within the workflow.
 				</li>
-				<li>The ability for users to communicate within the Administration interface is limited, both the planning of future Posts/assignments and during the editing process.
+				<li>- The ability for users to communicate within the Administration interface is limited, both the planning of future Posts/assignments and during the editing process.
 				</li>
 			</ul>
-		</div>
 			
-			<p>More about <a href="http://www.copress.org/wiki/Edit_Flow_Project">Edit Flow</a> or <a href="http://copress.org">CoPress</a></p>
+			<p>To help you use WordPress more effectively, we're adding cool features that make you go "Yay!" and add all kinds of efficiency to your publishing workflow!</p>
+			
+			<p>Learn more about <a href="http://www.editflow.org" target="_blank">Edit Flow</a>. Got an itch that Edit Flow doesn't scratch yet? <a href="http://mailto:editflow@copress.org">Get in touch!</a></p>
+			
+			<p><small>One day we'll put something a little more useful here. Like an ice-cream maker. Or a self-destruct button.</small></p>
 			
 		</div>
 		<?php 
