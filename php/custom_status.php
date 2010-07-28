@@ -16,13 +16,16 @@ class custom_status {
 		// Register new taxonomy so that we can store all our fancy new custom statuses (or is it stati?)
 		if( !ef_taxonomy_exists( $this->status_taxonomy ) ) register_taxonomy( $this->status_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
 		
-		// Not needed as of 3.0 since it supports built in post statuses
-		// These actions should be called regardless of whether custom statuses are enabled or not
-		// Add actions and filters for the Edit/Manage Posts page
-		//add_action('load-edit.php', array(&$this, 'load_edit_hooks'));
-		// Add action and filter for the Edit/Manage Pages page
-		//add_action('load-edit-pages.php', array(&$this, 'load_edit_hooks'));
 		
+		// Note: These hooks do not need to be called as of 3.0 since it supports built in post statuses
+		// Note: For pre-3.0, these actions should be called regardless of whether custom statuses are enabled or not
+		if( ! function_exists( 'register_post_status' ) ) {
+			// Add actions and filters for the Edit/Manage Posts page
+			add_action( 'load-edit.php', array( &$this, 'load_edit_hooks' ) );
+			// Add action and filter for the Edit/Manage Pages page
+			add_action( 'load-edit-pages.php', array( &$this, 'load_edit_hooks' ) );
+		}
+				
 		if( $active ) {
 			
 			// Register custom statuses
@@ -35,6 +38,7 @@ class custom_status {
 			// Hooks to add "status" column to Edit Pages page, BUT, only add it if not being filtered by post_status
 			add_filter('manage_pages_columns', array('custom_status', '_filter_manage_posts_columns'));
 			add_action('manage_pages_custom_column', array('custom_status', '_filter_manage_posts_custom_column'));
+			
 		}
 	} // END: __construct()
 	
@@ -47,26 +51,28 @@ class custom_status {
 		global $wp_post_statuses;
 		
 		// @TODO: support for custom post types
-		
-		// Users can delete draft and pending statuses if they want, so let's get rid of them
-		// They'll get re-added if the user hasn't "deleted" them
-		unset( $wp_post_statuses[ 'draft' ] );
-		unset( $wp_post_statuses[ 'pending' ] );
-		
-		$custom_statuses = $this->get_custom_statuses();
-		
-		foreach( $custom_statuses as $status ) {
-			register_post_status( $status->slug, array(
-				'label'       => $status->name
-				, 'protected'   => true
-				, '_builtin'    => false
-				, 'label_count' => _n_noop( "{$status->name} <span class='count'>(%s)</span>", "{$status->name} <span class='count'>(%s)</span>" )
-			) );
+		if( function_exists( 'register_post_status' ) ) {
+			// Users can delete draft and pending statuses if they want, so let's get rid of them
+			// They'll get re-added if the user hasn't "deleted" them
+			unset( $wp_post_statuses[ 'draft' ] );
+			unset( $wp_post_statuses[ 'pending' ] );
+			
+			$custom_statuses = $this->get_custom_statuses();
+			
+			foreach( $custom_statuses as $status ) {
+				register_post_status( $status->slug, array(
+					'label'       => $status->name
+					, 'protected'   => true
+					, '_builtin'    => false
+					, 'label_count' => _n_noop( "{$status->name} <span class='count'>(%s)</span>", "{$status->name} <span class='count'>(%s)</span>" )
+				) );
+			}
 		}
 	}
 	
 	/**
 	 * Hooks to make modifications to the Manage/Edit Posts
+	 * Only used for pre-3.0
 	 */
 	function load_edit_hooks() {
 		// Add custom stati to Edit/Manage Posts
@@ -74,7 +80,11 @@ class custom_status {
 		// Modify the posts_where query to include custom stati
 		add_filter('posts_where', array(&$this, 'custom_status_where_filter'));
 	} // END: load_edit_hooks()
-	
+
+	/**
+	 * Hooks to make modifications to the Manage/Edit Pages
+	 * Only used for pre-3.0
+	 */
 	function load_edit_pages_hooks() {
 		global $edit_flow;
 		
