@@ -18,11 +18,11 @@ class ef_notifications {
 		global $edit_flow;
 		
 		// Register new taxonomy used to track which users are following posts 
-		if(!taxonomy_exists($this->following_users_taxonomy)) register_taxonomy( $this->following_users_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
+		if( !ef_taxonomy_exists( $this->following_users_taxonomy ) ) register_taxonomy( $this->following_users_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
 		// Register new taxonomy used to track which users are UNfollowing posts 
-		if(!taxonomy_exists($this->unfollowing_users_taxonomy)) register_taxonomy( $this->unfollowing_users_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
+		if( !ef_taxonomy_exists( $this->unfollowing_users_taxonomy ) ) register_taxonomy( $this->unfollowing_users_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
 		// Register new taxonomy used to track which usergroups are following posts 
-		if(!taxonomy_exists($this->following_usergroups_taxonomy)) register_taxonomy( $this->following_usergroups_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
+		if( !ef_taxonomy_exists( $this->following_usergroups_taxonomy ) ) register_taxonomy( $this->following_usergroups_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
 		
 		if( $active ) {
 			
@@ -397,7 +397,7 @@ class ef_notifications {
 		$name = $user->user_login;
 		
 		// Remove the user from the following_users taxonomy
-		if( term_exists($name, $this->following_users_taxonomy) ) {
+		if( ef_term_exists($name, $this->following_users_taxonomy) ) {
 			$set = wp_set_object_terms( $post->ID, $name, $this->following_users_taxonomy, true );
 			$old_term_ids =  wp_get_object_terms($post_id, $this->following_users_taxonomy, array('fields' => 'ids', 'orderby' => 'none'));
 	

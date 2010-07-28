@@ -39,7 +39,7 @@ class edit_flow_dashboard {
 			
 			check_admin_referer( 'quickpitch-submit', 'ef-quickpitch_nonce' );
 			
-			$pitch_status = term_exists( 'pitch', $edit_flow->custom_status->status_taxonomy ) ? 'pitch' : $edit_flow->get_plugin_option('custom_status_default_status');
+			$pitch_status = ef_term_exists( 'pitch', $edit_flow->custom_status->status_taxonomy ) ? 'pitch' : $edit_flow->get_plugin_option('custom_status_default_status');
 			
 			// Get WordPress-specific post data
 			$post['post_title'] = esc_sql($_POST['ef_title']);

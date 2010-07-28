@@ -14,7 +14,7 @@ class custom_status {
 		global $pagenow, $edit_flow;
 		
 		// Register new taxonomy so that we can store all our fancy new custom statuses (or is it stati?)
-		if(!taxonomy_exists($this->status_taxonomy)) register_taxonomy( $this->status_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
+		if( !ef_taxonomy_exists( $this->status_taxonomy ) ) register_taxonomy( $this->status_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
 		
 		// Not needed as of 3.0 since it supports built in post statuses
 		// These actions should be called regardless of whether custom statuses are enabled or not
@@ -186,7 +186,7 @@ class custom_status {
 				// if not one of inbuilt custom statuses, delete query where AND (wp_posts.post_status = 'publish' OR wp_posts.post_status = 'future' OR wp_posts.post_status = 'draft' OR wp_posts.post_status = 'pending' OR wp_posts.post_status = 'private')
 				// append status to where
 				
-				if(term_exists($status, $this->status_taxonomy)) {
+				if( ef_term_exists( $status, $this->status_taxonomy ) ) {
 					//delete only the offending query --- not the entire query
 					 $search_string = "AND (".$wpdb->posts.".post_status = 'publish' OR ".$wpdb->posts.".post_status = 'future' OR ".$wpdb->posts.".post_status = 'draft' OR ".$wpdb->posts.".post_status = 'pending'";
 					if ( is_user_logged_in() ) {
@@ -278,7 +278,7 @@ class custom_status {
 				$new_status = get_term($reassign, $this->status_taxonomy)->slug;
 			else
 				$new_status = $default_status;
-			if ( $old_status == $default_status && term_exists( 'draft', $this->status_taxonomy ) ) { // Deleting default status
+			if ( $old_status == $default_status && ef_term_exists( 'draft', $this->status_taxonomy ) ) { // Deleting default status
 				$new_status = 'draft';
 				$edit_flow->update_plugin_option( 'custom_status_default_status', $new_status );
 			}
@@ -429,7 +429,7 @@ class custom_status {
 					}
 					
 					// Check to make sure the status doesn't already exist
-					if(term_exists($status_slug)) {
+					if( ef_term_exists( $status_slug ) ) {
 						$error_details = __('That status already exists. Please use another name.', 'edit-flow');
 						break;
 					}
@@ -500,7 +500,7 @@ class custom_status {
 					}
 					
 					// Check to make sure the status doesn't already exist
-					if(term_exists($status_slug) && (get_term($term_id, $this->status_taxonomy)->slug != $status_slug)) {
+					if( ef_term_exists( $status_slug ) && (get_term($term_id, $this->status_taxonomy)->slug != $status_slug)) {
 						$error_details = __('That status already exists. Please use another name.', 'edit-flow');
 						break;
 					}
@@ -529,7 +529,7 @@ class custom_status {
 					$term_id = (int) $_GET['term_id'];
 
 					// Check to make sure the status isn't already deleted
-					if(!term_exists($term_id, $this->status_taxonomy)) {
+					if( !ef_term_exists( $term_id, $this->status_taxonomy ) ) {
 						$error_details = __('That status does not exist. Try again?', 'edit-flow');
 						break;
 					}
