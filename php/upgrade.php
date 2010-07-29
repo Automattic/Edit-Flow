@@ -24,7 +24,7 @@ function edit_flow_upgrade_01() {
 		if( !ef_term_exists( $term['term'] ) ) $edit_flow->custom_status->add_custom_status( $term['term'], $term['args'] );
 	}
 	
-	update_option($edit_flow->get_plugin_option_fullname('version'), '0.1');
+	$edit_flow->update_plugin_option( 'version', '0.1' );
 }
 
 // Upgrade to 0.3
@@ -63,7 +63,7 @@ function edit_flow_upgrade_03 () {
 			ef_add_usergroup( $usergroup['slug'], $usergroup['args'] );
 		}
 	}
-	update_option($edit_flow->get_plugin_option_fullname('version'), '0.3');
+	$edit_flow->update_plugin_option( 'version', '0.3' );
 }
 
 function edit_flow_upgrade_051() {
@@ -83,5 +83,5 @@ function edit_flow_upgrade_051() {
 		ef_add_caps_to_role( $role, $caps );
 	}
 	
-	update_option($edit_flow->get_plugin_option_fullname('version'), '0.5.1');
+	$edit_flow->update_plugin_option( 'version', '0.5.1' );
 }
