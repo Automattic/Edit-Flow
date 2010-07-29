@@ -105,7 +105,12 @@ class ef_notifications {
 			
 			if( current_user_can('edit_post', $post_id) ) {
 				$edit_link = htmlspecialchars_decode(get_edit_post_link($post_id));
-				$view_link = htmlspecialchars_decode(get_permalink($post_id));
+				if ( $new_status != 'publish' ) {
+          $preview_nonce = wp_create_nonce('post_preview_' . $post_id);
+          $view_link = add_query_arg( array( 'preview' => true, 'preview_id' => $post_id, 'preview_nonce' => $preview_nonce ), get_permalink($post_id) );
+				} else {
+          $view_link = htmlspecialchars_decode(get_permalink($post_id)); 
+				}
 				$body .= "\r\n";
 				$body .= __('Actions you can take: ') . "\r\n";
 				$body .= sprintf( __('Add editorial comment: %s'), $edit_link . '#editorialcomments/add' ) . "\r\n";
