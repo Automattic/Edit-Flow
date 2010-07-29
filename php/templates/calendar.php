@@ -119,25 +119,25 @@ for ($i=0; $i<7; $i++) {
 			<div id="week-wrap"><!-- Week Wrapper -->
 				<div class="week-heading"><!-- New HTML begins with this week-heading div. Adds a WP-style dark grey heading to the calendar. Styles were added inline here to save having 7 different divs for this. -->
 					<div class="day-heading first-heading" style="width: 13.8%; height: 100%; position: absolute; left: 0%; top: 0%; ">
-						<?php echo date('l', strtotime($dates[6])); ?>, <?php echo date('F d', strtotime($dates[6])); ?>
+						<?php echo date('l', strtotime($dates[6])); ?>, <?php echo date('M d', strtotime($dates[6])); ?>
 					</div>
 					<div class="day-heading" style="left: 15.6%; top: 0%; ">
-            <?php echo date('l', strtotime($dates[5])); ?>, <?php echo date('F d', strtotime($dates[5])); ?>
+            <?php echo date('l', strtotime($dates[5])); ?>, <?php echo date('M d', strtotime($dates[5])); ?>
 					</div>
 					<div class="day-heading" style="left: 30%; top: 0%; ">
-            <?php echo date('l', strtotime($dates[4])); ?>, <?php echo date('F d', strtotime($dates[4])); ?>
+            <?php echo date('l', strtotime($dates[4])); ?>, <?php echo date('M d', strtotime($dates[4])); ?>
 					</div>
 					<div class="day-heading" style="left: 44.1%; top: 0%; ">
-            <?php echo date('l', strtotime($dates[3])); ?>, <?php echo date('F d', strtotime($dates[3])); ?>
+            <?php echo date('l', strtotime($dates[3])); ?>, <?php echo date('M d', strtotime($dates[3])); ?>
 					</div>
 					<div class="day-heading" style="left: 58.4%; top: 0%; ">
-					  <?php echo date('l', strtotime($dates[2])); ?>, <?php echo date('F d', strtotime($dates[2])); ?>
+					  <?php echo date('l', strtotime($dates[2])); ?>, <?php echo date('M d', strtotime($dates[2])); ?>
 					</div>
 					<div class="day-heading" style="left: 72.2%; top: 0%; ">
-					<?php echo date('l', strtotime($dates[1])); ?>, <?php echo date('F d', strtotime($dates[1])); ?>
+					<?php echo date('l', strtotime($dates[1])); ?>, <?php echo date('M d', strtotime($dates[1])); ?>
 					</div>
 					<div class="day-heading last-heading" style="left: 87%; top: 0%; ">
-					<?php echo date('l', strtotime($dates[0])); ?>, <?php echo date('F d', strtotime($dates[0])); ?>
+					<?php echo date('l', strtotime($dates[0])); ?>, <?php echo date('M d', strtotime($dates[0])); ?>
 					</div>
 				</div><!-- From here on it is the same HTML but you can add two more week-units now to get the 7 days into the calendar. -->
 				
@@ -192,25 +192,25 @@ for ($i=0; $i<7; $i++) {
 				<div style="clear:both"></div>
 				<div class="week-footing"><!-- New HTML begins with this week-heading div. Adds a WP-style dark grey heading to the calendar. Styles were added inline here to save having 7 different divs for this. -->
 					<div class="day-heading first-heading" style="width: 13.8%; height: 100%; position: absolute; left: 0%; top: 0%; ">
-						<?php echo date('l', strtotime($dates[6])); ?>, <?php echo date('F d', strtotime($dates[6])); ?>
+						<?php echo date('l', strtotime($dates[6])); ?>, <?php echo date('M d', strtotime($dates[6])); ?>
 					</div>
 					<div class="day-heading" style="left: 15.6%; top: 0%; ">
-					  <?php echo date('l', strtotime($dates[5])); ?>, <?php echo date('F d', strtotime($dates[5])); ?>
+					  <?php echo date('l', strtotime($dates[5])); ?>, <?php echo date('M d', strtotime($dates[5])); ?>
 					</div>
 					<div class="day-heading" style="left: 30%; top: 0%; ">
-            <?php echo date('l', strtotime($dates[4])); ?>, <?php echo date('F d', strtotime($dates[4])); ?>
+            <?php echo date('l', strtotime($dates[4])); ?>, <?php echo date('M d', strtotime($dates[4])); ?>
 					</div>
 					<div class="day-heading" style="left: 44.1%; top: 0%; ">
-            <?php echo date('l', strtotime($dates[3])); ?>, <?php echo date('F d', strtotime($dates[3])); ?>
+            <?php echo date('l', strtotime($dates[3])); ?>, <?php echo date('M d', strtotime($dates[3])); ?>
 					</div>
 					<div class="day-heading" style="left: 58.4%; top: 0%; ">
-					  <?php echo date('l', strtotime($dates[2])); ?>, <?php echo date('F d', strtotime($dates[2])); ?>
+					  <?php echo date('l', strtotime($dates[2])); ?>, <?php echo date('M d', strtotime($dates[2])); ?>
 					</div>
 					<div class="day-heading" style="left: 72.2%; top: 0%; ">
-            <?php echo date('l', strtotime($dates[1])); ?>, <?php echo date('F d', strtotime($dates[1])); ?>
+            <?php echo date('l', strtotime($dates[1])); ?>, <?php echo date('M d', strtotime($dates[1])); ?>
 					</div>
 					<div class="day-heading last-heading" style="left: 87%; top: 0%; ">
-            <?php echo date('l', strtotime($dates[0])); ?>, <?php echo date('F d', strtotime($dates[0])); ?>					  
+            <?php echo date('l', strtotime($dates[0])); ?>, <?php echo date('M d', strtotime($dates[0])); ?>					  
 					</div>
 				</div><!-- From here on it is the same HTML but you can add two more week-units now to get the 7 days into the calendar. -->
 				
