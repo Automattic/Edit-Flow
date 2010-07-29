@@ -184,7 +184,7 @@ class edit_flow {
 	 * Creates all necessary db tables for plugin, if they don't exist.
 	 * @return void
 	 */
-	protected function build_db_tables() {
+	function build_db_tables() {
 		global $wpdb;
 		
 		/*
@@ -208,7 +208,7 @@ class edit_flow {
 	 * Note: default values are stored in the $this->options array
 	 * Note: a prefix unique to the plugin is appended to all options. Prefix is stored in $this->options_group 
 	 */
-	protected function load_options ( ) {
+	function load_options ( ) {
 
 		$new_options = array();
 		
@@ -248,6 +248,15 @@ class edit_flow {
 		return $this->options_group . $name;
 	}
 	
+	/**
+	 * Updates option for the plugin specified by $name, e.g. custom_stati_enabled
+	 *
+	 * Note: The plugin option prefix does not need to be included in $name 
+	 * 
+	 * @param string name of the option
+	 * @param string value to be set
+	 *
+	 */
 	function update_plugin_option( $name, $new_value ) {
 		if( is_array($this->options) && !empty( $this->options[$name] ) ) {
 			$this->options[$name] = $new_value;
@@ -489,6 +498,7 @@ class edit_flow {
 					</table>
 									
 					<p class="submit">
+						<input type="hidden" name="<?php echo $this->get_plugin_option_fullname('version') ?>" value="<?php echo ($this->get_plugin_option('version')) ?>" />
 					    <input type="hidden" name="<?php echo $this->get_plugin_option_fullname('custom_status_filter') ?>" value="<?php echo ($this->get_plugin_option('custom_status_filter')) ?>" id="custom_status_filter" />
 				        <input type="hidden" name="<?php echo $this->get_plugin_option_fullname('custom_category_filter') ?>" value="<?php echo ($this->get_plugin_option('custom_category_filter')) ?>" id="custom_category_filter" />
 				        <input type="hidden" name="<?php echo $this->get_plugin_option_fullname('custom_author_filter') ?>" value="<?php echo ($this->get_plugin_option('custom_author_filter')) ?>" id="custom_author_filter" />
