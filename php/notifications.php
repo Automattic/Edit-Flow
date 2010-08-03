@@ -495,17 +495,10 @@ class ef_notifications {
 	 * @return WP_error if insert fails, true otherwise
 	 */
 	function add_term_if_not_exists( $term, $taxonomy ) {
-	  if ( function_exists( 'term_exists' )) {
-	    if( !term_exists($term, $taxonomy) ) {
-  			$args = array( 'slug' => sanitize_title($term) );		
-  			return wp_insert_term( $term, $taxonomy, $args );
-  		}
-	  } else {
-	    if( !is_term($term, $taxonomy) ) {
-  			$args = array( 'slug' => sanitize_title($term) );		
-  			return wp_insert_term( $term, $taxonomy, $args );
-  		}
-	  }
+	  if ( !ef_term_exists($term, $taxonomy) ) {
+      $args = array( 'slug' => sanitize_title($term) );		
+      return wp_insert_term( $term, $taxonomy, $args );
+    }
 		return true;
 	}
 	
