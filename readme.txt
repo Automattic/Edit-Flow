@@ -3,8 +3,8 @@ Contributors: batmoo, danielbachhuber, sbressler, andrewspittle, jboydston
 Donate link: http://www.editflow.org/donate/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups
 Requires at least: 2.9
-Tested up to: 3.0
-Stable tag: 0.5.1
+Tested up to: 3.0.1
+Stable tag: 0.5.2
 
 Plugin for WordPress to allow for better editorial workflow.
 
