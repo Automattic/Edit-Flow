@@ -4,7 +4,7 @@ Plugin Name: Edit Flow
 Plugin URI: http://www.editflow.org/
 Description: Remixing the WordPress admin for better editorial workflow options.
 Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Andrew Spittle, et al.
-Version: 0.5.2
+Version: 0.5.3
 Author URI: http://www.editflow.org/
 
 Copyright 2009-2010 Mohammad Jangda, Daniel Bachhuber, et al.
@@ -36,9 +36,10 @@ include_once('php/usergroups.php');
 include_once('php/templates/functions.php');
 include_once('php/upgrade.php');
 include_once('php/util.php');
+include_once('php/story_budget.php');
 
 // Define contants
-define( 'EDIT_FLOW_VERSION' , '0.5.2');
+define( 'EDIT_FLOW_VERSION' , '0.5.3');
 define( 'EDIT_FLOW_FILE_PATH' , dirname(__FILE__).'/'.basename(__FILE__) );
 define( 'EDIT_FLOW_URL' , plugins_url(plugin_basename(dirname(__FILE__)).'/') );
 define( 'EDIT_FLOW_MAIN_PAGE' , 'admin.php?page=edit-flow/edit_flow' );
@@ -81,6 +82,7 @@ class edit_flow {
 	var $post_status 	= null;
 	var $notifications	= null;
 	var $usergroups		= null;
+	var $story_budget	= null;
 
 	/**
 	 * Constructor
@@ -106,6 +108,9 @@ class edit_flow {
 		
 		// Create the post_metadata object
 		$this->post_metadata = new ef_post_metadata();
+		
+		// Create the story budgeting object
+		$this->story_budget = new story_budget();
 		
 		// Create a new post_status object, if custom statuses enabled
 		$post_status_active = (int) $this->get_plugin_option('custom_statuses_enabled');
@@ -308,6 +313,8 @@ class edit_flow {
 		// Add sub-menu page for Calendar
 		if ( $this->calendar_viewable() )
 			add_submenu_page('index.php', __('Edit Flow Calendar', 'edit-flow'), __('Edit Flow Calendar', 'edit-flow'), 'edit_posts', $this->get_page('calendar'), array(&$this,'calendar'));
+		
+		add_submenu_page( 'index.php', __('Story Budget', 'edit-flow'), __('Story Budget', 'edit-flow'), 'edit_others_posts', $this->get_page('story_budget'), array(&$this->story_budget, 'story_budget') );
 		
 	} // END: add_menu_items() 
 	
