@@ -6,64 +6,67 @@
  *
  * Somewhat prioritized TODOs:
  * TODO: Any and all filtering
- * TODO: Add filtering for single day. Month filtering probably useless?
- * TODO: Trash links (with nonce)
- * TODO: Author, status, and category links for each post
- * TODO: Make sure working properly with custom statuses
  * TODO: Integrate with Screen Options API
+ * TODO: Add filtering for single day. Month filtering as it currently exists probably useless?
+ * TODO: Make trash links work (using nonce) and quick edit links
+ * TODO: Verify author, status, and category links for each post work as planned (vs. filtering in budget rather than switching to edit screen)
+ * TODO: Make sure working properly with custom statuses
  * TODO: Review inline TODOs
  *
  * @author Scott Bressler
  */
 class story_budget {
 	var $taxonomy_used = 'category';
-
+	
+	// TODO: Make this editable in Screen Options
+	var $num_columns = 2;
+	
 	function __construct() {
 	}
 	
 	function story_budget() {
-		$terms = get_terms($this->taxonomy_used, 'orderby=name&order=desc&parent=0');
-		$ordered_terms = apply_filters( 'story_budget_reorder_terms', $terms ); // allow for reordering or any other filtering of terms
+		$terms = get_terms($this->taxonomy_used, 'orderby=name&order=asc&parent=0');
+		$terms = apply_filters( 'story_budget_reorder_terms', $terms ); // allow for reordering or any other filtering of terms
 ?>
 	<script type="text/javascript">
 		jQuery(document).ready(function($) {
 			$("#toggle_details").click(function() {
-				$(".post-title > p").toggle(); // hide post details when directed to
+				$(".post-title > p").slideToggle(); // hide post details when directed to
 			});
 			$("h3.hndle,div.handlediv").click(function() {
 				$(this).parent().children("div.inside").slideToggle(); // hide sections when directed to
 			});
 		});
 	</script>
+	<style type="text/css">
+	#dashboard-widgets-wrap .postbox {
+		min-width: 0px;
+	}
+	</style>
 		<?php $this->table_navigation(); ?>
-
-		<div class="clear"></div>
 	
 		<div id="dashboard-widgets-wrap">
 			<div id="dashboard-widgets" class="metabox-holder">
-				<div class='postbox-container' style='width:49%;'>
-					<div class="meta-box-sortables">
-						<?php
-							if ( count($ordered_terms) > 0 )
-								for ($i = 0; $i < count($ordered_terms); $i+=2)
-									$this->term_display( $ordered_terms[$i] );
-							else
-								echo 'You have no terms from which to display stories!';
-						?>
-					</div>
-				</div>
-		
-				<div class='postbox-container' style='width:49%;'>
-					<div class="meta-box-sortables">
-						<?php
-							if ( count($ordered_terms) > 1 )
-								for ($i = 1; $i < count($ordered_terms); $i+=2)
-									$this->term_display( $ordered_terms[$i] );
-						?>
-					</div>
-				</div>
+			<?php
+				for ($i = 0; $i < $this->num_columns; ++$i) {
+					$this->print_column($i, $terms);
+				}
+			?>
 			</div>
 		</div><!-- /dashboard-widgets -->
+<?php
+	}
+	
+	function print_column($col_num, $terms) {
+?>
+	<div class='postbox-container' style='width:<?php echo 98/$this->num_columns; ?>%'>
+		<div class="meta-box-sortables">
+		<?php
+			for ($i = $col_num; $i < count($terms); $i += $this->num_columns)
+				$this->term_display( $terms[$i] );
+		?>
+		</div>
+	</div>
 <?php
 	}
 	
@@ -86,7 +89,7 @@ class story_budget {
 				<tfoot></tfoot>
 
 				<tbody>
-					<?php
+				<?php
 					global $post;
 					$today = getdate();
 					$date_query = '';//year=' .$today["year"] .'&monthnum=' .$today["mon"] .'&day=' .$today["mday"];
@@ -98,7 +101,7 @@ class story_budget {
 					);					
 					foreach ($posts as $post)
 						$this->post_display($post, $term);
-					?>
+				?>
 				</tbody>
 			</table>
 		</div>
@@ -108,7 +111,7 @@ class story_budget {
 	
 	function post_display($the_post, $parent_term) {
 		global $post;
-		setup_postdata($post);
+		setup_postdata($the_post);
 ?>
 			<tr id='post-<?php echo $post->ID; ?>' class='alternate author-self status-publish iedit' valign="top">
 
@@ -118,20 +121,20 @@ class story_budget {
 					<p><?php do_action('story_budget_post_details'); ?></p>
 					<div class="row-actions"><span class='edit'><a href="post.php?post=<?php echo $post->ID; ?>&action=edit">Edit</a> | </span><span class='inline hide-if-no-js'><a href="#" class="editinline" title="Edit this item inline">Quick&nbsp;Edit</a> | </span><span class='trash'><a class='submitdelete' title='Move this item to the Trash' href='#'>Trash</a> | </span><span class='view'><a href="<?php the_permalink(); // TODO: preview link? ?>" title="View &#8220;Test example post&#8221;" rel="permalink">View</a></span></div>
 				</td>
-				<td class="author column-author"><a href="#"><?php the_author(); ?></a></td>
-				<td class="status column-status"><a href="#"><?php echo $post->post_status; // TODO: figure out why this doesn't work: get_term_by('slug', $post->post_status, 'post_status'); ?></a></td>
+				<td class="author column-author"><a href="edit.php?post_type=post&author=<?php echo $post->post_author;?>"><?php the_author(); ?></a></td>
+				<td class="status column-status"><a href="edit.php?post_type=post&post_status=<?php echo $post->post_status; ?>"><?php echo $post->post_status; // TODO: figure out why this doesn't work: get_term_by('slug', $post->post_status, 'post_status'); Probably related to fact that hardcoded switch is used here: http://phpxref.ftwr.co.uk/wordpress/nav.html?wp-admin/includes/template.php.source.html#l1328 ?></a></td>
 				<td class="categories column-categories">
-					<?php
-						// Display the subcategories of the post
-						$categories = get_the_category();
-						for ($i = 0; $i < count($categories); $i++) {
-							$cat = $categories[$i];
-							if ($cat->cat_ID != $parent_term->term_id) {
-								echo "<a href='#'>{$cat->cat_name}</a>";
-								echo ($i < count($categories) - 1) ? ', ' : '';
-							}
+				<?php
+					// Display the subcategories of the post
+					$subterms = get_the_category();
+					for ($i = 0; $i < count($subterms); $i++) {
+						$subterm = $subterms[$i];
+						if ($subterm->term_id != $parent_term->term_id) {
+							echo "<a href='edit.php?post_type=post&category_name={$subterm->slug}'>{$subterm->name}</a>";
+							echo ($i < count($subterms) - 1) ? ', ' : ''; // Separate list (all but last item) with commas
 						}
-					?>
+					}
+				?>
 				</td>
 			</tr>
 <?php
@@ -153,6 +156,7 @@ class story_budget {
 			</select>
 			<select name='m'><!-- Archive selectors -->
 				<option selected='selected' value='0'>Show all dates</option>
+				<?php // TODO: Do something useful here, probably in PHP ?>
 				<option value='201007'>July 2010</option>
 				<option value='201006'>June 2010</option>
 				<option value='201005'>May 2010</option>
@@ -192,6 +196,7 @@ class story_budget {
 		<div class="clear"></div>
 		
 	</div><!-- /tablenav -->
+	<div class="clear"></div>
 <?php
 	}
 }
