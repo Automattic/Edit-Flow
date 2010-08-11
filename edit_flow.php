@@ -37,6 +37,7 @@ include_once('php/templates/functions.php');
 include_once('php/upgrade.php');
 include_once('php/util.php');
 include_once('php/story_budget.php');
+include_once('php/post_metadata.php');
 
 // Define contants
 define( 'EDIT_FLOW_VERSION' , '0.5.3');
@@ -107,7 +108,7 @@ class edit_flow {
 		if($this->get_plugin_option('dashboard_widgets_enabled')) $this->dashboard = new edit_flow_dashboard(); 
 		
 		// Create the post_metadata object
-		$this->post_metadata = new ef_post_metadata();
+		$this->post_metadata = new ef_custom_metadata();
 		
 		// Create the story budgeting object
 		$this->story_budget = new story_budget();
