@@ -16,7 +16,7 @@
  *
  * @author Scott Bressler
  */
-class story_budget {
+class ef_story_budget {
 	var $taxonomy_used = 'category';
 	
 	// TODO: Make this editable in Screen Options
@@ -52,6 +52,37 @@ class story_budget {
 		</div><!-- /dashboard-widgets -->
 <?php
 	}
+
+	/**
+	 * Get posts by term and any matching filters
+	 * @todo Get this to actually work
+	 */
+	function get_matching_posts_by_term_and_filters( $term ) {
+		global $wpdb, $edit_flow;
+		
+		$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
+		
+		$query = "SELECT * FROM $wpdb->posts posts JOIN $wpdb->term_relationships ON posts.ID = $wpdb->term_relationships.object_id WHERE ";
+		
+		$post_where = '';		
+		
+		//if (!isset($_GET['post_status'])) {
+			$post_where .= $wpdb->prepare( '(posts.post_status = %s ', 'publish' );
+			foreach($custom_statuses as $status) {
+				$post_where .= $wpdb->prepare( ' OR posts.post_status = %s', $status->slug );
+			}
+			$post_where .= ') ';
+	
+		
+		//$post_where .= $wpdb->prepare( 'AND (posts.term_taxonomy_id = %d) ', $term->term_id );
+		$post_where .= ' AND posts.post_type = "post"';
+		$query .= $post_where . ';';
+		
+		var_dump($query);
+		
+		return $wpdb->get_results( $query );
+		
+	}
 	
 	/**
 	 * Prints a single column in the story budget.
@@ -78,6 +109,8 @@ class story_budget {
 	 * @param object $term The term to print.
 	 */
 	function print_term($term) {
+		
+		
 ?>
 	<div class="postbox">
 		<div class="handlediv" title="Click to toggle"><br /></div>
@@ -97,15 +130,7 @@ class story_budget {
 
 				<tbody>
 				<?php
-					global $post;
-					$today = getdate();
-					$date_query = '';//year=' .$today["year"] .'&monthnum=' .$today["mon"] .'&day=' .$today["mday"];
-					$posts = get_posts(array(
-						'cat' => $term->term_id,
-						'date' => $date_query,
-						'post_status' => '' // doesn't pull in posts with custom_status it seems!
-						)
-					);					
+					$posts = $this->get_matching_posts_by_term_and_filters($term);			
 					foreach ($posts as $post)
 						$this->print_post($post, $term);
 				?>
@@ -161,6 +186,7 @@ class story_budget {
 ?>
 	<div class="tablenav">
 		<div class="alignleft actions">
+			<form method="get" action="">
 			<?php $custom_statuses = $edit_flow->custom_status->get_custom_statuses(); ?>
 			<select name='status'><!-- Status selectors -->
 				<option selected='selected' value='0'>Show all statuses</option>
@@ -197,12 +223,19 @@ class story_budget {
 			<?php
 				// Borrowed from wp-admin/edit.php
 				if ( ef_taxonomy_exists('category') ) {
-					$dropdown_options = array('show_option_all' => __('View all categories'), 'hide_empty' => 0, 'hierarchical' => 1,
-						'show_count' => 0, 'orderby' => 'name', 'selected' => $cat);
+					$dropdown_options = array(
+						'show_option_all' => __('View all categories'),
+						'hide_empty' => 0,
+						'hierarchical' => 1,
+						'show_count' => 0,
+						'orderby' => 'name',
+						'selected' => $cat
+						);
 					wp_dropdown_categories($dropdown_options);
 				}
 			?>
 			<input type="submit" id="post-query-submit" value="Filter" class="button-secondary" />
+			</form>
 		</div><!-- /alignleft actions -->
 
 		<p class="print-box" style="float:right; margin-right: 30px;"><!-- Print link -->
