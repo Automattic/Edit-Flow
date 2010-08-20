@@ -111,7 +111,7 @@ class edit_flow {
 		$this->post_metadata = new ef_custom_metadata();
 		
 		// Create the story budgeting object
-		$this->story_budget = new story_budget();
+		$this->story_budget = new ef_story_budget();
 		
 		// Create a new post_status object, if custom statuses enabled
 		$post_status_active = (int) $this->get_plugin_option('custom_statuses_enabled');
@@ -312,8 +312,9 @@ class edit_flow {
 		add_submenu_page($this->get_page('edit-flow'), __('Settings', 'edit-flow'), __('Settings', 'edit-flow'), 'manage_options', $this->get_page('settings'), array(&$this, 'settings_page'));
 		
 		// Add sub-menu page for Calendar
-		if ( $this->calendar_viewable() )
+		if ( $this->calendar_viewable() ) {
 			add_submenu_page('index.php', __('Edit Flow Calendar', 'edit-flow'), __('Edit Flow Calendar', 'edit-flow'), 'edit_posts', $this->get_page('calendar'), array(&$this,'calendar'));
+		}
 		
 		add_submenu_page( 'index.php', __('Story Budget', 'edit-flow'), __('Story Budget', 'edit-flow'), 'edit_others_posts', $this->get_page('story_budget'), array(&$this->story_budget, 'story_budget') );
 		
