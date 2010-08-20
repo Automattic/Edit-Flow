@@ -11,6 +11,7 @@
  * TODO: Make trash links work (using nonce) and quick edit links
  * TODO: Verify author, status, and category links for each post work as planned (vs. filtering in budget rather than switching to edit screen)
  * TODO: Make sure working properly with custom statuses
+ * TODO: Move JS and CSS to their own files
  * TODO: Review inline TODOs
  *
  * @author Scott Bressler
@@ -21,30 +22,25 @@ class story_budget {
 	// TODO: Make this editable in Screen Options
 	var $num_columns = 2;
 	
+	/**
+	 * Construct a story_budget class. For now we're not doing anything here.
+	 */
 	function __construct() {
 	}
-	
+
+	/**
+	 * Create the story budget view. This calls lots of other methods to do its work. This will create
+	 * the table navigation, then print the columns based on $this->num_columns, which will in turn
+	 * print the stories themselves.
+	 */
 	function story_budget() {
 		$terms = get_terms($this->taxonomy_used, 'orderby=name&order=asc&parent=0');
 		$terms = apply_filters( 'story_budget_reorder_terms', $terms ); // allow for reordering or any other filtering of terms
+
+		printJS();
+		printCSS();
+		$this->table_navigation();
 ?>
-	<script type="text/javascript">
-		jQuery(document).ready(function($) {
-			$("#toggle_details").click(function() {
-				$(".post-title > p").slideToggle(); // hide post details when directed to
-			});
-			$("h3.hndle,div.handlediv").click(function() {
-				$(this).parent().children("div.inside").slideToggle(); // hide sections when directed to
-			});
-		});
-	</script>
-	<style type="text/css">
-	#dashboard-widgets-wrap .postbox {
-		min-width: 0px;
-	}
-	</style>
-		<?php $this->table_navigation(); ?>
-	
 		<div id="dashboard-widgets-wrap">
 			<div id="dashboard-widgets" class="metabox-holder">
 			<?php
@@ -57,20 +53,31 @@ class story_budget {
 <?php
 	}
 	
+	/**
+	 * Prints a single column in the story budget.
+	 *
+	 * @param int $col_num The column which we're going to print.
+	 * @param array $terms The terms to print in this column.
+	 */
 	function print_column($col_num, $terms) {
 ?>
 	<div class='postbox-container' style='width:<?php echo 98/$this->num_columns; ?>%'>
 		<div class="meta-box-sortables">
 		<?php
 			for ($i = $col_num; $i < count($terms); $i += $this->num_columns)
-				$this->term_display( $terms[$i] );
+				$this->print_term( $terms[$i] );
 		?>
 		</div>
 	</div>
 <?php
 	}
 	
-	function term_display($term) {
+	/**
+	 * Prints the stories in a single term in the story budget.
+	 *
+	 * @param object $term The term to print.
+	 */
+	function print_term($term) {
 ?>
 	<div class="postbox">
 		<div class="handlediv" title="Click to toggle"><br /></div>
@@ -100,7 +107,7 @@ class story_budget {
 						)
 					);					
 					foreach ($posts as $post)
-						$this->post_display($post, $term);
+						$this->print_post($post, $term);
 				?>
 				</tbody>
 			</table>
@@ -109,7 +116,13 @@ class story_budget {
 <?php
 	}
 	
-	function post_display($the_post, $parent_term) {
+	/**
+	 * Prints a single story in the story budget.
+	 *
+	 * @param object $the_post The post to print.
+	 * @param object $parent_term The top-level term to which this post belongs.
+	 */
+	function print_post($the_post, $parent_term) {
 		global $post;
 		setup_postdata($the_post);
 ?>
@@ -140,7 +153,9 @@ class story_budget {
 <?php
 	}
 	
-	
+	/**
+	 * Print the table navigation and filter controls.
+	 */
 	function table_navigation() {
 		global $edit_flow;
 ?>
@@ -198,6 +213,37 @@ class story_budget {
 	</div><!-- /tablenav -->
 	<div class="clear"></div>
 <?php
+	}
+
+	/**
+	 * Print the CSS needed for the story budget. This should probably be included from a separate file.
+	 */
+	function printCSS() {
+?>
+		<style type="text/css">
+		#dashboard-widgets-wrap .postbox {
+			min-width: 0px;
+		}
+		</style>
+<?php 
+	}
+
+	/**
+	 * Print the CSS needed for the story budget. This should probably be included from a separate file.
+	 */
+	function printJS() {
+?>
+		<script type="text/javascript">
+		jQuery(document).ready(function($) {
+			$("#toggle_details").click(function() {
+				$(".post-title > p").slideToggle(); // hide post details when directed to
+			});
+			$("h3.hndle,div.handlediv").click(function() {
+				$(this).parent().children("div.inside").slideToggle(); // hide sections when directed to
+			});
+		});
+		</script>
+<?php  
 	}
 }
 
