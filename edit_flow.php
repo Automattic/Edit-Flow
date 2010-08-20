@@ -48,6 +48,7 @@ define( 'EDIT_FLOW_SETTINGS_PAGE' , 'admin.php?page=edit-flow/settings' );
 define( 'EDIT_FLOW_CUSTOM_STATUS_PAGE' , 'admin.php?page=edit-flow/custom_status' );
 define( 'EDIT_FLOW_PREFIX' , 'ef_' );
 define( 'EDIT_FLOW_CALENDAR_PAGE', 'index.php?page=edit-flow/calendar');
+define( 'EDIT_FLOW_STORY_BUDGET_PAGE', 'index.php?page=edit-flow/story_budget');
 
 // Core class
 class edit_flow {

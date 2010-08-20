@@ -66,14 +66,22 @@ class ef_story_budget {
 		
 		$post_where = '';		
 		
-		//if (!isset($_GET['post_status'])) {
+		// Show only approved statuses if we aren't filtering, otherwise filter to status
+		if (!isset($_GET['post_status'])) {
 			$post_where .= "($wpdb->posts.post_status = 'publish'";
 			foreach($custom_statuses as $status) {
 				$post_where .= $wpdb->prepare( " OR $wpdb->posts.post_status = %s", $status->slug );
 			}
 			$post_where .= ') ';
-	
+		} else {
+			$post_where .= $wpdb->prepare( "$wpdb->posts.post_status = %s ", $_GET['post_status'] );
+		}
 		
+		if (isset($_GET['post_author'])) {
+			$post_where .= $wpdb->prepare( "$wpdb->posts.post_author = %s ", $_GET['post_author'] );
+		}
+	
+		// Limit results to the default category where type is 'post'
 		$post_where .= $wpdb->prepare( "AND $wpdb->term_relationships.term_taxonomy_id = %d ", $term->term_id );
 		$post_where .= " AND $wpdb->posts.post_type = 'post'";
 		$query .= $post_where . ';';
@@ -181,20 +189,30 @@ class ef_story_budget {
 	 */
 	function table_navigation() {
 		global $edit_flow;
+		$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
 ?>
 	<div class="tablenav">
 		<div class="alignleft actions">
-			<form method="get" action="">
-			<?php $custom_statuses = $edit_flow->custom_status->get_custom_statuses(); ?>
-			<select name='status'><!-- Status selectors -->
-				<option selected='selected' value='0'>Show all statuses</option>
+			<form method="get" action="<?php echo admin_url() . EDIT_FLOW_STORY_BUDGET_PAGE; ?>">
+			<select id='post_status' name='post_status'><!-- Status selectors -->
+				<option value='0'>Show all statuses</option>
 				<?php
-					foreach ( $custom_statuses as $custom_status )
-						echo "<option value='{$custom_status->slug}'>{$custom_status->name}</option>";
+					foreach ( $custom_statuses as $custom_status ) {
+						echo "<option value='$custom_status->slug'";
+						if ( $custom_status->slug == $_GET['post_status'] ) {
+							echo " selected='selected'";
+						}
+						echo ">$custom_status->name</option>";
+					}
+				echo "<option value='publish'";
+				if ( $_GET['post_status'] == 'publish' ) {
+					echo " selected='selected'";
+				}
+				echo ">Published</option>";
 				?>
 			</select>
 			<select name='m'><!-- Archive selectors -->
-				<option selected='selected' value='0'>Show all dates</option>
+				<option value='0'>Show all dates</option>
 				<?php // TODO: Do something useful here, probably in PHP ?>
 				<option value='201007'>July 2010</option>
 				<option value='201006'>June 2010</option>
@@ -232,6 +250,7 @@ class ef_story_budget {
 					wp_dropdown_categories($dropdown_options);
 				}
 			?>
+			<input type="hidden" name="page" value="edit-flow/story_budget"/>
 			<input type="submit" id="post-query-submit" value="Filter" class="button-secondary" />
 			</form>
 		</div><!-- /alignleft actions -->
