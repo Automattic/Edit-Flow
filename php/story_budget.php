@@ -37,8 +37,8 @@ class ef_story_budget {
 		$terms = get_terms($this->taxonomy_used, 'orderby=name&order=asc&parent=0');
 		$terms = apply_filters( 'story_budget_reorder_terms', $terms ); // allow for reordering or any other filtering of terms
 
-		printJS();
-		printCSS();
+		$this->printJS();
+		$this->printCSS();
 		$this->table_navigation();
 ?>
 		<div id="dashboard-widgets-wrap">
@@ -77,8 +77,6 @@ class ef_story_budget {
 		//$post_where .= $wpdb->prepare( 'AND (posts.term_taxonomy_id = %d) ', $term->term_id );
 		$post_where .= ' AND posts.post_type = "post"';
 		$query .= $post_where . ';';
-		
-		var_dump($query);
 		
 		return $wpdb->get_results( $query );
 		
