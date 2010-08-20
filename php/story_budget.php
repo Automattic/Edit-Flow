@@ -62,7 +62,7 @@ class ef_story_budget {
 		
 		$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
 		
-		$query = "SELECT * FROM $wpdb->posts JOIN $wpdb->term_relationships ON $wpdb->posts.ID = $wpdb->term_relationships.object_id WHERE ";
+		$query = "SELECT * FROM $wpdb->users, $wpdb->posts JOIN $wpdb->term_relationships ON $wpdb->posts.ID = $wpdb->term_relationships.object_id WHERE ";
 		
 		$post_where = '';		
 		
@@ -77,8 +77,9 @@ class ef_story_budget {
 			$post_where .= $wpdb->prepare( "$wpdb->posts.post_status = %s ", $_GET['post_status'] );
 		}
 		
+		// Filter by post_author if it's set
 		if (isset($_GET['post_author'])) {
-			$post_where .= $wpdb->prepare( "$wpdb->posts.post_author = %s ", $_GET['post_author'] );
+			$post_where .= $wpdb->prepare( "AND $wpdb->posts.post_author = %s ", (int)$_GET['post_author'] );
 		}
 	
 		// Limit results to the default category where type is 'post'
@@ -150,23 +151,34 @@ class ef_story_budget {
 	/**
 	 * Prints a single story in the story budget.
 	 *
-	 * @param object $the_post The post to print.
+	 * @param object $post The post to print.
 	 * @param object $parent_term The top-level term to which this post belongs.
 	 */
-	function print_post($the_post, $parent_term) {
-		global $post;
-		setup_postdata($the_post);
+	function print_post( $post, $parent_term ) {
+		
+		// Build filtering URLs for post_author and post_status
+	 	$filter_url = admin_url() . EDIT_FLOW_STORY_BUDGET_PAGE;	
+		$author_filter_url = $filter_url . '&post_author=' . $post->post_author;
+		$status_filter_url = $filter_url . '&post_status=' . $post->post_status;	
+		if ( isset($_GET['post_status']) ) {
+			$author_filter_url .= '&post_status=' . $_GET['post_status'];
+		}
+		if ( isset($_GET['post_author']) ) {
+			$status_filter_url .= '&post_author=' . $_GET['post_author'];
+		}
+		
+		
 ?>
 			<tr id='post-<?php echo $post->ID; ?>' class='alternate author-self status-publish iedit' valign="top">
 
 				<td class="post-title column-title">
-					<strong><a class="row-title" href="post.php?post=<?php echo $post->ID; ?>&action=edit" title="Edit &#8220;<?php the_title(); ?>&#8221;"><?php the_title(); ?></a></strong>
-					<p><?php the_excerpt(); ?></p>
+					<strong><a class="row-title" href="post.php?post=<?php echo $post->ID; ?>&action=edit" title="Edit &#8220;<?php echo $post->post_title; ?>&#8221;"><?php echo $post->post_title; ?></a></strong>
+					<p><?php echo $post->post_excerpt; ?></p>
 					<p><?php do_action('story_budget_post_details'); ?></p>
 					<div class="row-actions"><span class='edit'><a href="post.php?post=<?php echo $post->ID; ?>&action=edit">Edit</a> | </span><span class='inline hide-if-no-js'><a href="#" class="editinline" title="Edit this item inline">Quick&nbsp;Edit</a> | </span><span class='trash'><a class='submitdelete' title='Move this item to the Trash' href='#'>Trash</a> | </span><span class='view'><a href="<?php the_permalink(); // TODO: preview link? ?>" title="View &#8220;Test example post&#8221;" rel="permalink">View</a></span></div>
 				</td>
-				<td class="author column-author"><a href="edit.php?post_type=post&author=<?php echo $post->post_author;?>"><?php the_author(); ?></a></td>
-				<td class="status column-status"><a href="edit.php?post_type=post&post_status=<?php echo $post->post_status; ?>"><?php echo $post->post_status; // TODO: figure out why this doesn't work: get_term_by('slug', $post->post_status, 'post_status'); Probably related to fact that hardcoded switch is used here: http://phpxref.ftwr.co.uk/wordpress/nav.html?wp-admin/includes/template.php.source.html#l1328 ?></a></td>
+				<td class="author column-author"><a href="<?php echo $author_filter_url; ?>"><?php echo $post->display_name; ?></a></td>
+				<td class="status column-status"><a href="<?php echo $status_filter_url; ?>"><?php echo $post->post_status; ?></a></td>
 				<td class="categories column-categories">
 				<?php
 					// Display the subcategories of the post
