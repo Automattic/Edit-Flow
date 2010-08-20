@@ -62,20 +62,20 @@ class ef_story_budget {
 		
 		$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
 		
-		$query = "SELECT * FROM $wpdb->posts posts JOIN $wpdb->term_relationships ON posts.ID = $wpdb->term_relationships.object_id WHERE ";
+		$query = "SELECT * FROM $wpdb->posts JOIN $wpdb->term_relationships ON $wpdb->posts.ID = $wpdb->term_relationships.object_id WHERE ";
 		
 		$post_where = '';		
 		
 		//if (!isset($_GET['post_status'])) {
-			$post_where .= $wpdb->prepare( '(posts.post_status = %s ', 'publish' );
+			$post_where .= "($wpdb->posts.post_status = 'publish'";
 			foreach($custom_statuses as $status) {
-				$post_where .= $wpdb->prepare( ' OR posts.post_status = %s', $status->slug );
+				$post_where .= $wpdb->prepare( " OR $wpdb->posts.post_status = %s", $status->slug );
 			}
 			$post_where .= ') ';
 	
 		
-		//$post_where .= $wpdb->prepare( 'AND (posts.term_taxonomy_id = %d) ', $term->term_id );
-		$post_where .= ' AND posts.post_type = "post"';
+		$post_where .= $wpdb->prepare( "AND $wpdb->term_relationships.term_taxonomy_id = %d ", $term->term_id );
+		$post_where .= " AND $wpdb->posts.post_type = 'post'";
 		$query .= $post_where . ';';
 		
 		return $wpdb->get_results( $query );
