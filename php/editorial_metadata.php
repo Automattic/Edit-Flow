@@ -92,6 +92,7 @@ class ef_editorial_metadata {
 			<option value="paragraph" <?php selected( 'paragraph', $metadata_type ); ?>>Paragraph</option>
 			<option value="date" <?php selected( 'date', $metadata_type ); ?>>Date</option>
 			<option value="location" <?php selected( 'location', $metadata_type ); ?>>Location</option>
+			<option value="user" <?php selected( 'user', $metadata_type ); ?>>User</option> 
 		</select>
 <?php
 	}
@@ -242,6 +243,15 @@ class ef_editorial_metadata {
 				case "paragraph":
 					echo "<label for='paragraph'>{$metadatum->name}: </label>"; // TODO: Needs a more specific 'for'/name/id for this particular field, and below
 					echo "<textarea id='paragraph' name='paragraph'>" . get_post_meta( $post->ID, $this->metadata_postmeta_key, true ) . "</textarea>";
+					break;
+				case "user": 
+					echo "<label for='user'>{$metadatum->name}: </label>"; // TODO: Needs a more specific 'for'/name/id for this particular field, and below 
+					$user_dropdown_args = array( 
+							'show_option_all' => __( '-- Select a user below --' ), 
+							'name'     => 'user',//$this->metadata_postmeta_key, // TODO: this should mimic the 'for' field above 
+							'selected' => get_post_meta( $post->ID, $this->metadata_postmeta_key, true ) 
+						); 
+					wp_dropdown_users( $user_dropdown_args );
 					break;
 				default:
 					echo "<p>This metadata type is not yet supported</p>";
