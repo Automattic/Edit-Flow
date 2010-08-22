@@ -78,13 +78,13 @@ class edit_flow {
 	var $tables = array();
 	
 	// used to create an instance of the various classes 
-	var $custom_status 	= null;
-	var $post_metadata 	= null;
-	var $dashboard		= null;
-	var $post_status 	= null;
-	var $notifications	= null;
-	var $usergroups		= null;
-	var $story_budget	= null;
+	var $custom_status 		= null;
+	var $editorial_metadata = null;
+	var $dashboard			= null;
+	var $post_status 		= null;
+	var $notifications		= null;
+	var $usergroups			= null;
+	var $story_budget		= null;
 
 	/**
 	 * Constructor
@@ -108,8 +108,8 @@ class edit_flow {
 		// Create a new edit_flow_dashboard object
 		if($this->get_plugin_option('dashboard_widgets_enabled')) $this->dashboard = new edit_flow_dashboard(); 
 		
-		// Create the post_metadata object
-		$this->post_metadata = new ef_custom_metadata();
+		// Create the editorial_metadata object
+		$this->editorial_metadata = new ef_editorial_metadata();
 		
 		// Create the story budgeting object
 		$this->story_budget = new ef_story_budget();
@@ -300,11 +300,18 @@ class edit_flow {
 	 * Adds menu items for the plugin
 	 */
 	function add_menu_items ( ) {
-		// Add Top-level Admin Menu
+		
+		/**
+		 * Add Top-level Admin Menu
+		 */
 		add_menu_page(__('Edit Flow', 'edit-flow'), __('Edit Flow', 'edit-flow'), 'manage_options', $this->get_page('edit-flow'), array(&$this, 'toplevel_page'));
 		
 		// Add sub-menu page for Custom statuses		
-		add_submenu_page($this->get_page('edit-flow'), __('Custom Status', 'edit-flow'), __('Custom Status', 'edit-flow'), 'manage_options', $this->get_page('custom_status'), array(&$this->custom_status,'admin_page'));
+		add_submenu_page( $this->get_page('edit-flow'), __('Custom Status', 'edit-flow'), __('Custom Status', 'edit-flow'), 'manage_options', $this->get_page('custom_status'), array(&$this->custom_status,'admin_page'));
+		
+		add_submenu_page( $this->get_page('edit-flow'), __('Editorial Metadata', 'edit-flow'),
+                        __('Editorial Metadata', 'edit-flow'), 'manage_options',
+                        'edit-tags.php?taxonomy='.$this->editorial_metadata->metadata_taxonomy);
 		
 		// Add sub-menu page for User Groups
 		add_submenu_page($this->get_page('edit-flow'), __('User Groups', 'edit-flow'), __('User Groups', 'edit-flow'), 'manage_options', $this->get_page('usergroups'), array(&$this->usergroups,'admin_page'));

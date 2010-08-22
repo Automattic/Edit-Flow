@@ -3,7 +3,7 @@
 // TODO: Refactor/fix all the post meta boxes. Reuse code more, and figure out postmeta
 //		 	storage mechanism (need to store with more than just the same key!)
 // TODO: Allow reordering of metadata terms?
-class ef_custom_metadata {
+class ef_editorial_metadata {
 
 	var $metadata_taxonomy;
 	var $metadata_postmeta_key;
@@ -11,7 +11,7 @@ class ef_custom_metadata {
 	var $metadata_string;
 
 	function __construct() {
-		$this->metadata_taxonomy = 'ef_post_metadata';
+		$this->metadata_taxonomy = 'ef_editorial_meta';
 		$this->metadata_postmeta_key = "_{$this->metadata_taxonomy}";
 		$this->metadata_separator = '|';
 		$this->metadata_string = __( 'Metadata Type', 'edit-flow' );
@@ -24,7 +24,7 @@ class ef_custom_metadata {
 	function metadata_taxonomy_display_filters() {
 		global $pagenow;
 		
-		if($pagenow == 'edit-tags.php') { // TODO: also should check that we're editing $this->metadata_taxonomy. How?
+		if ( $pagenow == 'edit-tags.php' ) { // TODO: also should check that we're editing $this->metadata_taxonomy. How?
 			// Edit the columns for the post metadata taxonomy page (remove the description, add the post metadata type)
 			add_filter( "manage_edit-{$this->metadata_taxonomy}_columns", array( &$this, 'edit_column_headers' ) );
 			add_filter( "manage_{$this->metadata_taxonomy}_custom_column", array( &$this, 'add_custom_columns' ), 10, 3 );
@@ -88,16 +88,15 @@ class ef_custom_metadata {
 		$metadata_type = $this->get_metadata_type( $term );
 ?>
 		<select id="<?php echo $this->metadata_taxonomy; ?>" name="<?php echo $this->metadata_taxonomy; ?>">
-			<option value="user" <?php selected( 'user', $metadata_type ); ?>>User</option>
 			<option value="text" <?php selected( 'text', $metadata_type ); ?>>Text</option>
-			<option value="long-text" <?php selected( 'long-text', $metadata_type ); ?>>Long Text</option>
+			<option value="paragraph" <?php selected( 'paragraph', $metadata_type ); ?>>Paragraph</option>
 			<option value="date" <?php selected( 'date', $metadata_type ); ?>>Date</option>
 			<option value="location" <?php selected( 'location', $metadata_type ); ?>>Location</option>
 		</select>
 <?php
 	}
 	
-	function edit_column_headers($column_headers) {
+	function edit_column_headers( $column_headers ) {
 		// TODO: implement this using array_diff or array_unshift or something better?
 		$new_headers = array();
 		foreach ( $column_headers as $column_name => $column_display_name ) {
@@ -111,7 +110,7 @@ class ef_custom_metadata {
 		return $new_headers;
 	}
 	
-	function add_custom_columns($empty_string, $column_name, $term_id) {
+	function add_custom_columns( $empty_string, $column_name, $term_id ) {
 		if ( $column_name == $this->metadata_taxonomy ) {
 			$term = get_term_by( 'term_id', $term_id, $this->metadata_taxonomy );
 			$separator_pos = strpos( $metadata_type, $this->metadata_separator );
@@ -146,7 +145,7 @@ class ef_custom_metadata {
 	function order_metadata_rows($orderby, $args) {
 		global $current_screen;
 		
-		if ( $current_screen->id == 'edit-ef_post_metadata' ) // only sort by description when editing metadata
+		if ( $current_screen->id == 'edit-ef_editorial_metadata' ) // only sort by description when editing metadata
 			return "tt.description";
 		else // TODO: is this needed if the orderby filter were only added on the metadata screen? (it isn't now, it's on all edit-tags screens, but maybe it could be)
 			return $orderby;
@@ -155,19 +154,19 @@ class ef_custom_metadata {
 	// Register the post metadata taxonomy and add some default terms
 	
 	function register_taxonomy() {
-		register_taxonomy($this->metadata_taxonomy, array('post', 'page'),
+		register_taxonomy( $this->metadata_taxonomy, array( 'post' ),
 			array(
-				'public' => true,
+				'public' => false,
 				'labels' => array(
-					'name' => _x( 'Post Metadata', 'taxonomy general name' ),
-					'singular_name' => _x( 'Post Metadata', 'taxonomy singular name' ),
-						'search_items' => __( 'Search Post Metadata' ),
-						'popular_items' => __( 'Popular Post Metadata' ),
-						'all_items' => __( 'All Post Metadata' ),
-						'edit_item' => __( 'Edit Post Metadata' ),
-						'update_item' => __( 'Update Post Metadata' ),
-						'add_new_item' => __( 'Add New Post Metadata Term' ),
-						'new_item_name' => __( 'New Post Metadata Term' ),
+					'name' => _x( 'Editorial Metadata', 'taxonomy general name' ),
+					'singular_name' => _x( 'Editorial Metadata', 'taxonomy singular name' ),
+						'search_items' => __( 'Search Editorial Metadata' ),
+						'popular_items' => __( 'Popular Editorial Metadata' ),
+						'all_items' => __( 'All Editorial Metadata' ),
+						'edit_item' => __( 'Edit Editorial Metadata' ),
+						'update_item' => __( 'Update Editorial Metadata' ),
+						'add_new_item' => __( 'Add New Editorial Metadata Term' ),
+						'new_item_name' => __( 'New Editorial Metadata Term' ),
 					)
 			)
 		);
@@ -175,33 +174,33 @@ class ef_custom_metadata {
 		// TODO: Remove these for production use. Or at least make sure they are only inserted once!
 		$default_metadata = array(
 			array(
-				'term' => 'Photographer',
-				'args' => array( 
-					'slug' => 'photographer',
-					'description' => 'user')
-			),
-			array(
 				'term' => 'Due Date',
 				'args' => array( 
 					'slug' => 'due-date',
 					'description' => 'date')
 			),
 			array(
-				'term' => 'Summary',
+				'term' => 'Description',
 				'args' => array( 
-					'slug' => 'summary',
-					'description' => 'text')
+					'slug' => 'description',
+					'description' => 'paragraph')
 			),
 			array(
-				'term' => 'Interview notes',
+				'term' => 'Notes',
 				'args' => array( 
 					'slug' => 'interview-notes',
-					'description' => 'long-text')
+					'description' => 'paragraph')
 			),
 			array(
-				'term' => 'Scene of the crime',
+				'term' => 'Contact information',
 				'args' => array( 
-					'slug' => 'crime-scene',
+					'slug' => 'Contact-information',
+					'description' => 'paragraph')
+			),
+			array(
+				'term' => 'Location',
+				'args' => array( 
+					'slug' => 'location',
 					'description' => 'location')
 			),
 		);
@@ -216,42 +215,33 @@ class ef_custom_metadata {
 	
 	function add_post_metaboxes() {
 		if ( function_exists( 'add_meta_box' ) )
-			add_meta_box( $this->metadata_taxonomy, __( 'Post Metadata', 'edit-flow' ), array( &$this, 'print_metabox' ), 'post', 'normal', 'high' ); // todo: remove high priority
+			add_meta_box( $this->metadata_taxonomy, __( 'Editorial Metadata', 'edit-flow' ), array( &$this, 'display_metabox' ), 'post', 'normal', 'high' ); // todo: remove high priority
 	}
 	
-	function print_metabox($post) {
+	function display_metabox( $post ) {
 		$metadata = get_terms( $this->metadata_taxonomy, array(
 				'orderby'	 => 'description',
 				'hide_empty' => false
 			)
 		);
-		foreach( $metadata as $metadatum) {
+		foreach ( $metadata as $metadatum ) {
 			$metadata_type = $this->get_metadata_type($metadatum);
 			switch( $metadata_type ) {
 				case "date":
-					echo "<strong>Date</strong><br /><label for='date'>{$metadatum->name}: </label>"; // TODO: Needs a more specific 'for'/name/id for this particular field, and below
+					echo "<label for='date'>{$metadatum->name}: </label>"; // TODO: Needs a more specific 'for'/name/id for this particular field, and below
 					echo "<input id='date' name='date' type='text' class='date-pick' value='" . get_post_meta( $post->ID, $this->metadata_postmeta_key, true ) . "' />";
 					break;
 				case "location":
-					echo "<strong>Location</strong><br /><label for='location'>{$metadatum->name}: </label>"; // TODO: Needs a more specific 'for'/name/id for this particular field, and below
+					echo "<label for='location'>{$metadatum->name}: </label>"; // TODO: Needs a more specific 'for'/name/id for this particular field, and below
 					echo "<input id='location' name='location' type='text' value='" . get_post_meta( $post->ID, $this->metadata_postmeta_key, true ) . "' />";
 					break;
 				case "text":
-					echo "<strong>Text</strong><br /><label for='text'>{$metadatum->name}: </label>"; // TODO: Needs a more specific 'for'/name/id for this particular field, and below
+					echo "<label for='text'>{$metadatum->name}: </label>"; // TODO: Needs a more specific 'for'/name/id for this particular field, and below
 					echo "<input id='text' name='location' type='text' value='" . get_post_meta( $post->ID, $this->metadata_postmeta_key, true ) . "' />";
 					break;
-				case "long-text":
-					echo "<strong>Long text</strong><br /><label for='long-text'>{$metadatum->name}: </label>"; // TODO: Needs a more specific 'for'/name/id for this particular field, and below
-					echo "<input id='long-text' name='long-text' type='text' value='" . get_post_meta( $post->ID, $this->metadata_postmeta_key, true ) . "' />";
-					break;
-				case "user":
-					echo "<strong>User</strong><br /><label for='user'>{$metadatum->name}: </label>"; // TODO: Needs a more specific 'for'/name/id for this particular field, and below
-					$user_dropdown_args = array(
-						'show_option_all' => __( '-- Select a user below --' ),
-						'name'     => 'user',//$this->metadata_postmeta_key, // TODO: this should mimic the 'for' field above
-						'selected' => get_post_meta( $post->ID, $this->metadata_postmeta_key, true )
-					);
-					wp_dropdown_users( $user_dropdown_args );
+				case "paragraph":
+					echo "<label for='paragraph'>{$metadatum->name}: </label>"; // TODO: Needs a more specific 'for'/name/id for this particular field, and below
+					echo "<textarea id='paragraph' name='paragraph'>" . get_post_meta( $post->ID, $this->metadata_postmeta_key, true ) . "</textarea>";
 					break;
 				default:
 					echo "<p>This metadata type is not yet supported</p>";
@@ -260,13 +250,6 @@ class ef_custom_metadata {
 		}
 	}
 	
-}
-
-// Useful for debugging
-function printarr($arr) {
-	echo "<pre>";
-	print_r($arr);
-	echo "</pre>";
-}
+} // END class
 
 ?>
