@@ -1,7 +1,6 @@
 <?php
 
-// TODO: Refactor/fix all the post meta boxes. Reuse code more, and figure out postmeta
-//		 	storage mechanism (need to store with more than just the same key!)
+// TODO: Refactor/fix all the post meta boxes. Reuse code more.
 // TODO: Allow reordering of metadata terms?
 class ef_editorial_metadata {
 
@@ -18,7 +17,7 @@ class ef_editorial_metadata {
 		$this->metadata_taxonomy_display_filters();
 		
 		add_action( 'init', array( &$this, 'register_taxonomy' ) );
-		add_action( 'admin_menu', array( &$this, 'add_post_metaboxes' ) );
+		add_action( 'admin_init', array( &$this, 'handle_post_metaboxes' ) );
 	}
 	
 	function metadata_taxonomy_display_filters() {
@@ -122,15 +121,32 @@ class ef_editorial_metadata {
 	}
 	
 	/**
-	 * Gets the metadata type described by this term, stored in the term itself. Usually stores in $term->description.
+	 * Gets the metadata type described by this term, stored in the term itself. Usually stored in $term->description.
 	 *
-	 * @param string|object $value Term from which to get the metadata object or the metadata type itself.
+	 * @param object|string|int $value Term from which to get the metadata object (object or term_id) or the metadata type itself.
 	 */
 	function get_metadata_type($value) {
 		if ( is_object( $value ) )
 			return $value->description;
+		else if ( is_int( $value ) )
+			return get_term_field( 'description', $value, $this->metadata_taxonomy, 'raw' );
 		else
 			return $value;
+	}
+	
+	function get_postmeta_key( $term ) {
+		$key = $this->metadata_postmeta_key;
+		$type = $this->get_metadata_type( $term );
+		$prefix = "{$key}_{$type}";
+		return "{$prefix}_" . ( is_object( $term ) ? $term->term_id : $term );
+	}
+	
+	function get_editorial_metadata_terms() {
+		return get_terms( $this->metadata_taxonomy, array(
+				'orderby'	 => 'description',
+				'hide_empty' => false
+			)
+		);
 	}
 	
 	/* Expensive, makes database call.
@@ -146,8 +162,8 @@ class ef_editorial_metadata {
 	function order_metadata_rows($orderby, $args) {
 		global $current_screen;
 		
-		if ( $current_screen->id == 'edit-ef_editorial_metadata' ) // only sort by description when editing metadata
-			return "tt.description";
+		if ( $current_screen->id == "edit-{$this->metadata_taxonomy}" ) // only sort by description when editing metadata
+			return apply_filters( 'ef_editorial_metadata_term_sort_order', 'tt.description' );
 		else // TODO: is this needed if the orderby filter were only added on the metadata screen? (it isn't now, it's on all edit-tags screens, but maybe it could be)
 			return $orderby;
 	}
@@ -175,16 +191,16 @@ class ef_editorial_metadata {
 		// TODO: Remove these for production use. Or at least make sure they are only inserted once!
 		$default_metadata = array(
 			array(
+				'term' => 'Photographer',
+				'args' => array( 
+					'slug' => 'photographer',
+					'description' => 'user')
+			),
+			array(
 				'term' => 'Due Date',
 				'args' => array( 
 					'slug' => 'due-date',
 					'description' => 'date')
-			),
-			array(
-				'term' => 'Description',
-				'args' => array( 
-					'slug' => 'description',
-					'description' => 'paragraph')
 			),
 			array(
 				'term' => 'Notes',
@@ -214,49 +230,94 @@ class ef_editorial_metadata {
 	
 	// Post metabox stuff:
 	
-	function add_post_metaboxes() {
-		if ( function_exists( 'add_meta_box' ) )
-			add_meta_box( $this->metadata_taxonomy, __( 'Editorial Metadata', 'edit-flow' ), array( &$this, 'display_metabox' ), 'post', 'normal', 'high' ); // todo: remove high priority
+	function handle_post_metaboxes() {
+		if ( function_exists( 'add_meta_box' ) ) {
+			add_meta_box( $this->metadata_taxonomy, __( 'Editorial Metadata', 'edit-flow' ), array( &$this, 'display_meta_box' ), 'post', 'normal', 'high' ); // todo: remove high priority
+			add_action( 'save_post', array(&$this, 'save_meta_box'), 10, 2 );			
+			add_action( 'edit_post', array( &$this, 'save_meta_box' ), 10, 2 );
+			add_action( 'publish_post', array( &$this, 'save_meta_box' ), 10, 2 );
+		}
 	}
 	
-	function display_metabox( $post ) {
-		$metadata = get_terms( $this->metadata_taxonomy, array(
-				'orderby'	 => 'description',
-				'hide_empty' => false
-			)
-		);
-		foreach ( $metadata as $metadatum ) {
-			$metadata_type = $this->get_metadata_type($metadatum);
-			switch( $metadata_type ) {
+	function display_meta_box( $post ) {
+		// Add CSS so that labels (particularly for textareas) are aligned to the top
+?>
+		<style type="text/css">
+			#<?php echo "{$this->metadata_taxonomy}_meta_box"; ?> label {
+				vertical-align: top;
+			}
+		</style>
+<?php
+		echo "<div id='{$this->metadata_taxonomy}_meta_box'>";
+		// Add nonce for verification upon save
+		echo "<input type='hidden' name='{$this->metadata_taxonomy}_nonce' value='" . wp_create_nonce(__FILE__) . "' />";
+	
+		$terms = $this->get_editorial_metadata_terms();
+		foreach ( $terms as $term ) {
+			$postmeta_key = $this->get_postmeta_key( $term );
+			$current_metadata = esc_attr( get_post_meta( $post->ID, $postmeta_key, true ) );
+			switch( $this->get_metadata_type( $term ) ) {
 				case "date":
-					echo "<label for='date'>{$metadatum->name}: </label>"; // TODO: Needs a more specific 'for'/name/id for this particular field, and below
-					echo "<input id='date' name='date' type='text' class='date-pick' value='" . get_post_meta( $post->ID, $this->metadata_postmeta_key, true ) . "' />";
+					echo "<label for='$postmeta_key'>{$term->name}: </label>";
+					echo "<input id='$postmeta_key' name='$postmeta_key' type='text' class='date-pick' value='$current_metadata' />";
 					break;
 				case "location":
-					echo "<label for='location'>{$metadatum->name}: </label>"; // TODO: Needs a more specific 'for'/name/id for this particular field, and below
-					echo "<input id='location' name='location' type='text' value='" . get_post_meta( $post->ID, $this->metadata_postmeta_key, true ) . "' />";
+					echo "<label for='$postmeta_key'>{$term->name}: </label>";
+					echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
+					if ( !empty( $current_metadata ) )
+						echo "&nbsp;&nbsp;<a href='http://maps.google.com/?q={$current_metadata}&t=m' target='_blank'>Google Map for $current_metadata</a>";
 					break;
 				case "text":
-					echo "<label for='text'>{$metadatum->name}: </label>"; // TODO: Needs a more specific 'for'/name/id for this particular field, and below
-					echo "<input id='text' name='location' type='text' value='" . get_post_meta( $post->ID, $this->metadata_postmeta_key, true ) . "' />";
+					echo "<label for='$postmeta_key'>{$term->name}: </label>";
+					echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
 					break;
 				case "paragraph":
-					echo "<label for='paragraph'>{$metadatum->name}: </label>"; // TODO: Needs a more specific 'for'/name/id for this particular field, and below
-					echo "<textarea id='paragraph' name='paragraph'>" . get_post_meta( $post->ID, $this->metadata_postmeta_key, true ) . "</textarea>";
+					echo "<label for='$postmeta_key'>{$term->name}: </label>";
+					echo "<textarea id='$postmeta_key' name='$postmeta_key'>$current_metadata</textarea>";
 					break;
 				case "user": 
-					echo "<label for='user'>{$metadatum->name}: </label>"; // TODO: Needs a more specific 'for'/name/id for this particular field, and below 
+					echo "<label for='$postmeta_key'>{$term->name}: </label>";
 					$user_dropdown_args = array( 
 							'show_option_all' => __( '-- Select a user below --' ), 
-							'name'     => 'user',//$this->metadata_postmeta_key, // TODO: this should mimic the 'for' field above 
-							'selected' => get_post_meta( $post->ID, $this->metadata_postmeta_key, true ) 
+							'name'     => $postmeta_key,
+							'selected' => $current_metadata 
 						); 
 					wp_dropdown_users( $user_dropdown_args );
 					break;
 				default:
-					echo "<p>This metadata type is not yet supported</p>";
+					echo "<p>This editorial metadata type is not yet supported</p>";
 			}
 			echo "<p></p>";
+		} // Done iterating through metadata terms
+		
+		echo "</div>";
+	}
+	
+	function save_meta_box( $id, $post ) {
+		// Authentication checks: make sure data came from our meta box and that the current user is allowed to edit the post
+		if ( !wp_verify_nonce( $_POST[$this->metadata_taxonomy . "_nonce"], __FILE__ )
+			|| !current_user_can( 'edit_post', $id )
+			|| defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return $id;
+		}
+		
+		// Authentication passed, save data		
+		$terms = $this->get_editorial_metadata_terms();
+		foreach ( $terms as $term ) {
+			// Setup the key for this editorial metadata term (same as what's in $_POST
+			$key = $this->get_postmeta_key( $term );
+			
+			// Get the current editorial metadata
+			// TODO: do we care about the current_metadata at all?
+			//$current_metadata = get_post_meta( $id, $key, true );
+			
+			// $new_metadata = addslashes_gpc( $_POST[$key] ); // TODO: is this necessary?
+			$new_metadata = $_POST[$key];
+			
+			if ( empty ( $new_metadata ) )
+				delete_post_meta( $id, $key );
+			else
+				update_post_meta( $id, $key, $new_metadata );
 		}
 	}
 	
