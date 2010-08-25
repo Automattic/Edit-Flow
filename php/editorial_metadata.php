@@ -87,10 +87,11 @@ class ef_editorial_metadata {
 		$metadata_type = $this->get_metadata_type( $term );
 ?>
 		<select id="<?php echo $this->metadata_taxonomy; ?>" name="<?php echo $this->metadata_taxonomy; ?>">
-			<option value="text" <?php selected( 'text', $metadata_type ); ?>>Text</option>
-			<option value="paragraph" <?php selected( 'paragraph', $metadata_type ); ?>>Paragraph</option>
+			<option value="checkbox" <?php selected( 'checkbox', $metadata_type ); ?>>Checkbox</option> 
 			<option value="date" <?php selected( 'date', $metadata_type ); ?>>Date</option>
 			<option value="location" <?php selected( 'location', $metadata_type ); ?>>Location</option>
+			<option value="paragraph" <?php selected( 'paragraph', $metadata_type ); ?>>Paragraph</option>
+			<option value="text" <?php selected( 'text', $metadata_type ); ?>>Text</option>
 			<option value="user" <?php selected( 'user', $metadata_type ); ?>>User</option> 
 		</select>
 <?php
@@ -126,11 +127,11 @@ class ef_editorial_metadata {
 	 * @param object|string|int $value Term from which to get the metadata object (object or term_id) or the metadata type itself.
 	 */
 	function get_metadata_type($value) {
-		if ( is_object( $value ) )
+		if ( is_object( $value ) ) {
 			return $value->description;
-		else if ( is_int( $value ) )
+		} else if ( is_int( $value ) && $value > 0 ) {
 			return get_term_field( 'description', $value, $this->metadata_taxonomy, 'raw' );
-		else
+		} else
 			return $value;
 	}
 	
@@ -149,16 +150,6 @@ class ef_editorial_metadata {
 		);
 	}
 	
-	/* Expensive, makes database call.
-	 * TODO: decide if this is necessary
-	function get_metadata_type($term, $taxonomy) {
-		if ( is_int( $term ) && $term == 0)
-			return $term;
-		if ( is_object( $term) )
-			$term = $term->term_id;
-		return get_term_field( 'description', $term, $taxonomy, 'raw' );
-	}*/
-
 	function order_metadata_rows($orderby, $args) {
 		global $current_screen;
 		
@@ -211,7 +202,7 @@ class ef_editorial_metadata {
 			array(
 				'term' => 'Contact information',
 				'args' => array( 
-					'slug' => 'Contact-information',
+					'slug' => 'contact-information',
 					'description' => 'paragraph')
 			),
 			array(
@@ -219,6 +210,12 @@ class ef_editorial_metadata {
 				'args' => array( 
 					'slug' => 'location',
 					'description' => 'location')
+			),
+			array(
+				'term' => 'Needs photo',
+				'args' => array( 
+					'slug' => 'needs-photo',
+					'description' => 'checkbox')
 			),
 		);
 		
@@ -275,6 +272,10 @@ class ef_editorial_metadata {
 					echo "<label for='$postmeta_key'>{$term->name}: </label>";
 					echo "<textarea id='$postmeta_key' name='$postmeta_key'>$current_metadata</textarea>";
 					break;
+				case "checkbox":
+					echo "<label for='$postmeta_key'>{$term->name}: </label>";
+					echo "<input id='$postmeta_key' name='$postmeta_key' type='checkbox' value='1' " . checked($current_metadata, 1, false) . " />";
+					break;
 				case "user": 
 					echo "<label for='$postmeta_key'>{$term->name}: </label>";
 					$user_dropdown_args = array( 
@@ -289,8 +290,33 @@ class ef_editorial_metadata {
 			}
 			echo "<p></p>";
 		} // Done iterating through metadata terms
-		
+		$this->print_date_scripts_and_styles();
 		echo "</div>";
+	}
+	
+	function print_date_scripts_and_styles() {
+	// TODO: add this all via filters and enqueue_script (dependency on jQuery, obviously)
+?>
+	<script src="<?php echo EDIT_FLOW_URL; ?>js/lib/date.js" type="text/javascript"></script>
+	<script src="<?php echo EDIT_FLOW_URL; ?>js/lib/jquery.datePicker.js" type="text/javascript"></script>
+	<script type="text/javascript">
+	Date.firstDayOfWeek = <?php echo get_option( 'start_of_week' ); ?>;
+	Date.format = 'mm/dd/yyyy';
+	jQuery(document).ready(function($) {
+		$('.date-pick')
+			.datePicker({
+				createButton: false,
+				startDate: '01/01/2010',
+				endDate: (new Date()).asString(),
+				clickInput: true}
+				);
+	});
+	</script>
+	
+	<style type="text/css">
+	@import url("<?php echo EDIT_FLOW_URL; ?>css/datepicker.css");
+	</style>
+<?php
 	}
 	
 	function save_meta_box( $id, $post ) {
