@@ -243,9 +243,9 @@ class custom_status {
 	function update_custom_status ( $status_id, $args = array() ) {
 		global $edit_flow;
 		
-		$default_status = $this->ef_get_default_custom_status();
+		$default_status = $this->ef_get_default_custom_status()->slug;
 		$defaults = array(
-				'slug' => $default_status->slug
+				'slug' => $default_status
 		);
 
 		// If new status not indicated, use default status
