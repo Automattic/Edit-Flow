@@ -249,34 +249,31 @@ class ef_notifications {
 		if( $notify_admins ) $admins[] = get_option('admin_email');
 		
 		// Get following users and usergroups
-		$usergroups = ef_get_following_usergroups($post_id, 'slugs');
+		$usergroups = ef_get_following_usergroups( $post_id, 'slugs' );
 		if( $usergroups && !empty( $usergroups ) )
 			$usergroup_users = ef_get_users_in_usergroup( $usergroups, 'user_email' );
 		else
 			$usergroup_users = array();
 		
-		$users = ef_get_following_users($post_id, 'user_email');
+		$users = ef_get_following_users( $post_id, 'user_email' );
 		
-		// Merge arrays and get rid of duplicates
-		$recipients = array_merge($authors, $admins, $users, $usergroup_users);
-		
-		// Filter to allow modification of recipients 
-		$recipients = apply_filters('ef_notfication_recipients', $recipients, $post);
+		// Merge arrays
+		$recipients = array_merge( $authors, $admins, $users, $usergroup_users );
 		
 		// Filter out any duplicates
-		$recipients = array_unique($recipients);
+		$recipients = array_unique( $recipients );
 		
 		// Get rid of empty email entries
-		for( $i = 0; $i < count( $recipients ); $i++ ) {
-			if( empty( $recipients[$i] ) ) unset( $recipients[$i] );
+		for ( $i = 0; $i < count( $recipients ); $i++ ) {
+			if ( empty( $recipients[$i] ) ) unset( $recipients[$i] );
 		}
 		
 		// Filter to allow modification of recipients
-		$recipients = apply_filters('ef_notfication_recipients', $recipients, $post);
+		$recipients = apply_filters( 'ef_notfication_recipients', $recipients, $post );
 		
 		// If string set to true, return comma-delimited
-		if($string && is_array($recipients)) {
-			return implode(',', $recipients);
+		if ( $string && is_array( $recipients ) ) {
+			return implode( ',', $recipients );
 		} else {
 			return $recipients;
 		}
