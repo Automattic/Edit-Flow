@@ -314,7 +314,7 @@ class ef_editorial_metadata {
 	</script>
 	
 	<style type="text/css">
-	@import url("<?php echo EDIT_FLOW_URL; ?>css/datepicker.css");
+	@import url("<?php echo EDIT_FLOW_URL; ?>css/datepicker-editflow.css");
 	</style>
 <?php
 	}
