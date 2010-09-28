@@ -380,7 +380,7 @@ class ef_story_budget {
 	});
 	</script>
 	<style type="text/css">
-	@import url("<?php echo EDIT_FLOW_URL; ?>css/datepicker.css");
+	@import url("<?php echo EDIT_FLOW_URL; ?>css/datepicker-editflow.css");
 	</style>
 <?php
 	}
