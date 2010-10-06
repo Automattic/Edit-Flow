@@ -265,7 +265,7 @@ class edit_flow {
 	 *
 	 */
 	function update_plugin_option( $name, $new_value ) {
-		if( is_array($this->options) && !empty( $this->options[$name] ) ) {
+		if( is_array($this->options) /* && !empty( $this->options[$name] ) */ ) {
 			$this->options[$name] = $new_value;
 			update_option( $this->get_plugin_option_fullname( $name ), $new_value );
 		}

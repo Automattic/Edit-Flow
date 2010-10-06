@@ -4,7 +4,7 @@ Donate link: http://www.editflow.org/donate/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups
 Requires at least: 2.9
 Tested up to: 3.0.1
-Stable tag: 0.5.2
+Stable tag: 0.5.3
 
 Plugin for WordPress to allow for better editorial workflow.
 
@@ -109,6 +109,9 @@ For replies to work properly, you need to enable threaded commenting in your blo
 5. See posts at a glance with the editorial calendar, and drag and drop to reschedule
 
 == Changelog ==
+
+= 0.5.3 =
+* Fixes issue where default Custom Statuses and User Groups were returning even after being deleted
 
 = 0.5.1 =
 * Editorial calendar improvements: filter by category or author
