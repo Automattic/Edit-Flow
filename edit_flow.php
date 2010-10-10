@@ -44,7 +44,7 @@ include_once('php/editorial_metadata.php');
 define( 'EDIT_FLOW_VERSION' , '0.5.3');
 define( 'EDIT_FLOW_FILE_PATH' , dirname(__FILE__).'/'.basename(__FILE__) );
 define( 'EDIT_FLOW_URL' , plugins_url(plugin_basename(dirname(__FILE__)).'/') );
-define( 'EDIT_FLOW_SETTINGS_PAGE' , 'admin.php?page=edit-flow/edit_flow' );
+define( 'EDIT_FLOW_SETTINGS_PAGE' , 'admin.php?page=edit-flow/edit-flow' );
 define( 'EDIT_FLOW_CUSTOM_STATUS_PAGE' , 'admin.php?page=edit-flow/custom_status' );
 define( 'EDIT_FLOW_PREFIX' , 'ef_' );
 define( 'EDIT_FLOW_CALENDAR_PAGE', 'index.php?page=edit-flow/calendar');
