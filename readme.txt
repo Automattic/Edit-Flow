@@ -1,4 +1,3 @@
-Git change
 === Edit Flow ===
 Contributors: batmoo, danielbachhuber, sbressler, andrewspittle, jboydston
 Donate link: http://www.editflow.org/donate/
