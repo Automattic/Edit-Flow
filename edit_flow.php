@@ -37,6 +37,7 @@ include_once('php/templates/functions.php');
 include_once('php/upgrade.php');
 include_once('php/util.php');
 include_once('php/story_budget.php');
+include_once('php/settings.php');
 include_once('php/editorial_metadata.php');
 
 // Define contants
@@ -99,28 +100,15 @@ class edit_flow {
 		// Load plugin options
 		$this->load_options();
 				
-		// Create the new custom_status object
+		// Create all of our objects
 		$this->custom_status = new custom_status();
-		
-		// Create a new user groups object
 		$this->usergroups = new ef_usergroups_admin();
-		
-		// Create a new edit_flow_dashboard object
-		if($this->get_plugin_option('dashboard_widgets_enabled')) $this->dashboard = new edit_flow_dashboard(); 
-		
-		// Create the editorial_metadata object
 		$this->editorial_metadata = new ef_editorial_metadata();
-		
-		// Create the story budgeting object
 		$this->story_budget = new ef_story_budget();
-		
-		// Create a new post_status object, if custom statuses enabled
-		$post_status_active = (int) $this->get_plugin_option('custom_statuses_enabled');
-		$this->post_status = new ef_post_status($post_status_active);
-		
-		// Create a new ef_notifications object, if notifications enabled
-		$notifications_active = (int) $this->get_plugin_option('notifications_enabled');
-		$this->notifications = new ef_notifications($notifications_active);
+		$this->settings = new ef_settings();
+		if ($this->get_plugin_option('dashboard_widgets_enabled')) $this->dashboard = new edit_flow_dashboard(); 
+		$this->notifications = new ef_notifications( (int) $this->get_plugin_option('notifications_enabled') );
+		$this->post_status = new ef_post_status( (int) $this->get_plugin_option('custom_statuses_enabled') );
 		
 		// The main controller for the plugin - redirects to child controllers where necessary
 		add_action( 'admin_init', array( &$this, 'global_admin_controller' ) );
