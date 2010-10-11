@@ -683,7 +683,7 @@ class ef_post_status
 	 * Adds all necessary javascripts to make custom statuses work
 	 */
 	function post_admin_header() {
-		global $post, $post_ID, $edit_flow, $pagenow, $current_user;
+		global $post, $edit_flow, $pagenow, $current_user;
 		
 		// Get current user
 		get_currentuserinfo() ;
@@ -694,7 +694,7 @@ class ef_post_status
 			$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
 	
 			// Get the status of the current post		
-			if( $post_ID == 0 ) {
+			if( $post->ID == 0 || $post->post_status == 'auto-draft' ) {
 				// TODO: check to make sure that the default exists
 				$selected = $edit_flow->get_plugin_option('custom_status_default_status');
 			} else {
