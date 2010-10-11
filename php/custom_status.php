@@ -315,6 +315,43 @@ class custom_status {
 		
 		return $statuses;		
 	}
+	
+	/**
+	 * Returns the a single status object based on ID or slug
+	 * @param 
+	 */
+	function get_custom_status( $status ) {
+		if( is_int( $status ) ) {
+			return get_term_by( 'id', $status, $this->status_taxonomy );
+		} else {
+			return get_term_by( 'slug', $status, $this->status_taxonomy );
+		}
+	}
+	
+	/**
+	 * Returns the friendly name for a given status
+	 * @param 
+	 */
+	function get_custom_status_friendly_name( $status ) {
+		
+		$status_friendly_name = '';
+		
+		$builtin_stati = array(
+			'publish' => 'Published'
+			, 'future' => 'Scheduled'
+			, 'trash' => 'Trash'
+		);
+		
+		if( array_key_exists( $status, $builtin_stati ) ) {
+			$status_friendly_name = $builtin_stati[$status];
+		} else {
+			$status_object = $this->get_custom_status( $status );
+			if( $status_object && !is_wp_error( $status_object ) ) {
+				$status_friendly_name = $status_object->name;
+			}
+		}
+		return $status_friendly_name;
+	}
 
 	/**
 	 * Returns the term object from the database for the default custom status. Commonly used fields are name and slug.
