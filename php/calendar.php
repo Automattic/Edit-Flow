@@ -1,12 +1,21 @@
 <?php
-
+/**
+ * This class displays an editorial calendar for viewing upcoming and past content at a glance
+ *
+ * Somewhat prioritized @todos:
+ * @todo 
+ *
+ * @author Scott Bressler
+ */
 if ( !class_exists('ef_calendar') ) {
 
 class ef_calendar {
 	
 	function __construct() {
 		
-		add_action('admin_enqueue_scripts', array(&$this, 'add_admin_scripts'));
+		add_action( 'admin_enqueue_scripts', array(&$this, 'add_admin_scripts' ));
+		add_action( 'admin_print_styles', array(&$this, 'add_admin_styles' ));
+		
 	}
 	
 	function init() {
@@ -24,22 +33,17 @@ class ef_calendar {
 		
 	}
 	
+	/**
+	 * Add any necessary CSS to the WordPress admin
+	 */
 	function add_admin_styles() {
+		
+		wp_enqueue_style('edit_flow-calendar-css', EDIT_FLOW_URL.'css/calendar.css', false, EDIT_FLOW_VERSION, 'all');
 		
 	}
 	
 	function view_calendar() {
-		global $edit_flow;		
-		
-		if ('POST' == $_SERVER['REQUEST_METHOD']) {
-			if ((isset($_POST['post_id']) && (isset($_POST['date'])))) {
-				global $wpdb;
-
-				$wpdb->update( $wpdb->posts, array( 'post_date' => $_POST['date'],  ), 
-					array( 'ID' => $_POST['post_id'] ), array( '%s' ), array( '%d' ) );      
-				die('updated');  
-			}
-		}
+		global $edit_flow;
 
 		if($_GET['edit_flow_custom_status_filter']) {
 			$edit_flow->options['custom_status_filter'] = $_GET['edit_flow_custom_status_filter'];
