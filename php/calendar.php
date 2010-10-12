@@ -21,6 +21,7 @@ class ef_calendar {
 	}
 	
 	function init() {
+		global $edit_flow;
 		
 	}
 
@@ -78,68 +79,17 @@ class ef_calendar {
 		}
 
 		?>
-			  <div class="wrap">
+		<div class="wrap">
 
 				<div id="calendar-title"><!-- Calendar Title -->
-					<div class="icon32" id="icon-edit"><br/></div><!-- These two lines will now fit with the WP style. The icon-edit ID could be changed if we'd like a different icon to appear there. -->
+					<div class="icon32" id="icon-edit"><br/></div>
 					<h2><?php echo date('F d, Y', strtotime($dates[count($dates)-1])); ?> - 
 					<?php echo date('F d, Y', strtotime($dates[0])); ?></h2>
 				</div><!-- /Calendar Title -->
 
 				<div id="calendar-wrap"><!-- Calendar Wrapper -->
-					<ul class="day-navigation">
-					  <li id="calendar-filter">
-						<form method="GET" action="">
-					<?php
-					if ($_GET['date']) { echo '<input type="hidden" name="date" value="'. $_GET['date'] . '"/>'; }
-					?>
-					<select name="<?php  echo $edit_flow->get_plugin_option_fullname('custom_status_filter') ?>" id="custom_status_filter">
-					<option value="all" <?php if ($edit_flow->get_plugin_option('custom_status_filter')=='all') { echo 'selected="selected"';}?>>Show All Posts</option>
-					<option value="my-posts" <?php if ($edit_flow->get_plugin_option('custom_status_filter')=='my-posts') { echo 'selected="selected"';}?>>Show My Posts</option>
-					<?php $statuses = $edit_flow->custom_status->get_custom_statuses() ?>
-						<?php foreach($statuses as $status) : ?>
-
-								<?php $selected = ($edit_flow->get_plugin_option('custom_status_filter')==$status->slug) ? 'selected="selected"' : ''; ?>
-								<option value="<?php esc_attr_e($status->slug) ?>" <?php echo $selected ?>>
-										Status: <?php esc_html_e($status->name); ?>
-								</option>
-
-						<?php endforeach; ?>
-					</select>
-					<select name="<?php echo $edit_flow->get_plugin_option_fullname('custom_category_filter') ?>" id="custom_category_filter">
-						<option value="all" <?php if ($edit_flow->get_plugin_option('custom_category_filter')=='all') { echo 'selected="selected"';}?>>View  All Categories</option>
-						<?php $categories = get_categories(); ?>
-						<?php foreach ($categories as $category) : ?>
-							<?php $selected = ($edit_flow->get_plugin_option('custom_category_filter')==$category->term_id) ? 'selected="selected"' : ''; ?>
-							<option value="<?php esc_html_e($category->term_id) ?>" <?php echo $selected ?>>
-							  <?php esc_html_e($category->name); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-					<select name="<?php echo $edit_flow->get_plugin_option_fullname('custom_author_filter') ?>" id="custom_author_filter">
-						<option value="all" <?php if ($edit_flow->get_plugin_option('custom_author_filter')=='all') { echo 'selected="selected"';}?>>View  All Authors</option>
-						<?php $users = get_users_of_blog(); ?>
-						<?php foreach ($users as $user) : ?>
-							<?php $selected = ($edit_flow->get_plugin_option('custom_author_filter')==$user->ID) ? 'selected="selected"' : ''; ?>
-							<option value="<?php esc_html_e($user->ID) ?>" <?php echo $selected ?>>
-							  <?php esc_html_e($user->display_name); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-					<input type="hidden" name="page" value="edit-flow/calendar"/>
-					<input type="submit" class="button primary" value="Filter"/>
-					</form>
-				  </li>
-				  <li class="performing-ajax">
-					<img src="<?php echo EDIT_FLOW_URL; ?>img/wpspin_light.gif" alt="Loading" />
-				  </li>
-				  <li class="next-week">
-							<a id="trigger-left" href="<?php echo $this->get_calendar_next_link($dates[0]) ?>">Next &raquo;</a>
-						</li>
-						<li class="previous-week">
-							<a id="trigger-right" href="<?php echo $this->get_calendar_previous_link($dates[count($dates)-1]) ?>">&laquo; Previous</a>
-				  </li>
-					</ul>
+					
+		<?php echo $this->get_top_navigation(); ?>
 
 					<div id="week-wrap"><!-- Week Wrapper -->
 						<div class="week-heading"><!-- New HTML begins with this week-heading div. Adds a WP-style dark grey heading to the calendar. Styles were added inline here to save having 7 different divs for this. -->
@@ -254,6 +204,68 @@ class ef_calendar {
 			  </div>
 
 		<?php 
+		
+	}
+	
+	/**
+	 * Generates the filtering and navigation options for the top of the calendar
+	 * @return string $html HTML for the top navigation
+	 */
+	function get_top_navigation() {
+		global $edit_flow;
+	
+		$html = '';
+		$html .= '<ul class="day-navigation"><li id="calendar-filter"><form method="POST">';
+		if ( $_GET['date'] ) {
+			$html .= '<input type="hidden" name="date" value="'. $_GET['date'] . '"/>';
+		}
+	
+		// Filter by post status
+		$html .= '<select name="' . $edit_flow->get_plugin_option_fullname('custom_status_filter') . '" id="custom_status_filter">';
+		$html .= '<option value="0">Show All Posts</option>';
+		$statuses = $edit_flow->custom_status->get_custom_statuses();
+		foreach ( $statuses as $status ) {
+			$html .= '<option value="' . esc_attr($status->slug) . '">';
+			$html .= 'Status: ' . esc_html($status->name);
+			$html .= '</option>';
+		}
+		$html .= '</select>';
+	
+		// Filter by categories
+		$html .= '<select name="' . $edit_flow->get_plugin_option_fullname('custom_category_filter') . '" id="custom_category_filter">';
+		$html .= '<option value="0">View All Categories</option>';
+		$categories = get_categories();
+		foreach ( $categories as $category ) {
+			$html .= '<option value="' . esc_html($category->term_id) . '">';
+	 		$html .= esc_html($category->name);
+			$html .= '</option>';
+		}
+		$html .= '</select>';
+		$html .= '<select name="' . $edit_flow->get_plugin_option_fullname('custom_author_filter') . '" id="custom_author_filter">';
+		$html .= '<option value="0">View All Authors</option>';
+		$users = get_users_of_blog();
+		foreach ( $users as $user ) {
+			$html .= '<option value="' . esc_html($user->ID) . '">';
+	 		$html .= esc_html($user->display_name);
+			$html .= '</option>';
+		}
+		$html .= '</select>';
+		$html .= '<input type="submit" class="button primary" value="Filter"/>';
+		$html .= '</form></li>';
+		$html .= '<li class="performing-ajax">';
+		$html .= '<img src="' .  EDIT_FLOW_URL . 'img/wpspin_light.gif" alt="Loading" />';
+		$html .= '</li>';
+	  	/* 
+		@todo Redo navigation using a form
+		<li class="next-week">
+					<a id="trigger-left" href="#">Next &raquo;</a>
+				</li>
+				<li class="previous-week">
+					<a id="trigger-right" href="#">&laquo; Previous</a>
+		  </li>
+			</ul> */
+		
+		return $html;
 		
 	}
 	
