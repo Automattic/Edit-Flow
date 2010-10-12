@@ -91,30 +91,10 @@ class ef_calendar {
 					
 		<?php echo $this->get_top_navigation(); ?>
 
-					<div id="week-wrap"><!-- Week Wrapper -->
+			<div id="week-wrap"><!-- Week Wrapper -->
 						<div class="week-heading"><!-- New HTML begins with this week-heading div. Adds a WP-style dark grey heading to the calendar. Styles were added inline here to save having 7 different divs for this. -->
-							<div class="day-heading first-heading" style="width: 13.8%; height: 100%; position: absolute; left: 0%; top: 0%; ">
-								<?php echo date('l', strtotime($dates[6])); ?>, <?php echo date('M d', strtotime($dates[6])); ?>
-							</div>
-							<div class="day-heading" style="left: 15.6%; top: 0%; ">
-		            <?php echo date('l', strtotime($dates[5])); ?>, <?php echo date('M d', strtotime($dates[5])); ?>
-							</div>
-							<div class="day-heading" style="left: 30%; top: 0%; ">
-		            <?php echo date('l', strtotime($dates[4])); ?>, <?php echo date('M d', strtotime($dates[4])); ?>
-							</div>
-							<div class="day-heading" style="left: 44.1%; top: 0%; ">
-		            <?php echo date('l', strtotime($dates[3])); ?>, <?php echo date('M d', strtotime($dates[3])); ?>
-							</div>
-							<div class="day-heading" style="left: 58.4%; top: 0%; ">
-							  <?php echo date('l', strtotime($dates[2])); ?>, <?php echo date('M d', strtotime($dates[2])); ?>
-							</div>
-							<div class="day-heading" style="left: 72.2%; top: 0%; ">
-							<?php echo date('l', strtotime($dates[1])); ?>, <?php echo date('M d', strtotime($dates[1])); ?>
-							</div>
-							<div class="day-heading last-heading" style="left: 87%; top: 0%; ">
-							<?php echo date('l', strtotime($dates[0])); ?>, <?php echo date('M d', strtotime($dates[0])); ?>
-							</div>
-						</div><!-- From here on it is the same HTML but you can add two more week-units now to get the 7 days into the calendar. -->
+							<?php echo $this->get_time_period_header( $dates ); ?>
+						</div>
 
 						<?php
 						foreach (array_reverse($dates) as $key => $date) {
@@ -165,29 +145,9 @@ class ef_calendar {
 						?>
 
 						<div style="clear:both"></div>
-						<div class="week-footing"><!-- New HTML begins with this week-heading div. Adds a WP-style dark grey heading to the calendar. Styles were added inline here to save having 7 different divs for this. -->
-							<div class="day-heading first-heading" style="width: 13.8%; height: 100%; position: absolute; left: 0%; top: 0%; ">
-								<?php echo date('l', strtotime($dates[6])); ?>, <?php echo date('M d', strtotime($dates[6])); ?>
-							</div>
-							<div class="day-heading" style="left: 15.6%; top: 0%; ">
-							  <?php echo date('l', strtotime($dates[5])); ?>, <?php echo date('M d', strtotime($dates[5])); ?>
-							</div>
-							<div class="day-heading" style="left: 30%; top: 0%; ">
-		            <?php echo date('l', strtotime($dates[4])); ?>, <?php echo date('M d', strtotime($dates[4])); ?>
-							</div>
-							<div class="day-heading" style="left: 44.1%; top: 0%; ">
-		            <?php echo date('l', strtotime($dates[3])); ?>, <?php echo date('M d', strtotime($dates[3])); ?>
-							</div>
-							<div class="day-heading" style="left: 58.4%; top: 0%; ">
-							  <?php echo date('l', strtotime($dates[2])); ?>, <?php echo date('M d', strtotime($dates[2])); ?>
-							</div>
-							<div class="day-heading" style="left: 72.2%; top: 0%; ">
-		            <?php echo date('l', strtotime($dates[1])); ?>, <?php echo date('M d', strtotime($dates[1])); ?>
-							</div>
-							<div class="day-heading last-heading" style="left: 87%; top: 0%; ">
-		            <?php echo date('l', strtotime($dates[0])); ?>, <?php echo date('M d', strtotime($dates[0])); ?>					  
-							</div>
-						</div><!-- From here on it is the same HTML but you can add two more week-units now to get the 7 days into the calendar. -->
+						<div class="week-footing">
+						<?php echo $this->get_time_period_header( $dates ); ?>
+						</div>
 
 					</div><!-- /Week Wrapper -->
 					<ul class="day-navigation">
@@ -267,6 +227,41 @@ class ef_calendar {
 		
 		return $html;
 		
+	}
+	
+	function get_time_period_header( $dates ) {
+		
+		$html = '';
+		// Day 1
+		$html .= '<div class="day-heading first-heading" style="width: 13.8%; height: 100%; position: absolute; left: 0%; top: 0%; ">';
+		$html .= date('l', strtotime($dates[6])) . ', ' . date('M d', strtotime($dates[6]));
+		$html .= '</div>';
+		// Day 2
+		$html .= '<div class="day-heading" style="left: 15.6%; top: 0%; ">';
+		$html .= date('l', strtotime($dates[5])) . ', ' . date('M d', strtotime($dates[5]));
+		$html .= '</div>';
+		// Day 3
+		$html .= '<div class="day-heading" style="left: 30%; top: 0%; ">';
+		$html .= date('l', strtotime($dates[4])) . ', ' . date('M d', strtotime($dates[4]));
+		$html .= '</div>';
+		// Day 4
+		$html .= '<div class="day-heading" style="left: 44.1%; top: 0%; ">';
+		$html .= date('l', strtotime($dates[3])) . ', ' . date('M d', strtotime($dates[3]));
+		$html .= '</div>';
+		// Day 5
+		$html .= '<div class="day-heading" style="left: 58.4%; top: 0%; ">';
+		$html .= date('l', strtotime($dates[2])) . ', ' . date('M d', strtotime($dates[2]));
+		$html .= '</div>';
+		// Day 6
+		$html .= '<div class="day-heading" style="left: 72.2%; top: 0%; ">';
+		$html .= date('l', strtotime($dates[1])) . ', ' . date('M d', strtotime($dates[1]));
+		$html .= '</div>';
+		// Day 7
+		$html .= '<div class="day-heading last-heading" style="left: 87%; top: 0%; ">';
+		$html .= date('l', strtotime($dates[0])) . ', ' . date('M d', strtotime($dates[0]));
+		$html .= '</div>';
+		
+		return $html;
 	}
 	
 	/**
