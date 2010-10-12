@@ -69,9 +69,6 @@ class edit_flow {
 					'myposts_widget_enabled' => 1,
 					'notifications_enabled' => 1,
 					'always_notify_admin' => 0,
-					'custom_status_filter' => 'draft',
-					'custom_category_filter' => 'all',
-					'custom_author_filter' => 'all',
 					'calendar_enabled' => 1
 				);
 	
