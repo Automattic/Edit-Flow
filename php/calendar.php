@@ -50,6 +50,41 @@ class ef_calendar {
 	}
 	
 	/**
+	 * Get all of the posts within a week's period from the date specified
+	 * @return object $cal_posts All of the posts as an object
+	 */
+	function get_calendar_posts( $date ) {
+
+		global $wpdb, $edit_flow;
+		$q_date = date('Y-m-d', strtotime($date));
+
+		$sql = "SELECT DISTINCT w.ID, w.guid, w.post_date, u.display_name, w.post_title ";
+		$sql .= "FROM " . $wpdb->posts . " w, ". $wpdb->users . " u, ";
+		$sql .= $wpdb->term_relationships . " t ";
+		$sql .= "WHERE u.ID=w.post_author and ";
+		if (($edit_flow->get_plugin_option('custom_status_filter') != 'all') && 
+			($edit_flow->get_plugin_option('custom_status_filter') != 'my-posts')) {
+			$sql .= "w.post_status = '" . $edit_flow->get_plugin_option('custom_status_filter') . "' and ";
+		}
+		if ($edit_flow->get_plugin_option('custom_status_filter') == 'my-posts') {
+			$sql .= " u.ID = " . wp_get_current_user()->ID . " and ";
+		}
+		$sql .= "w.post_status <> 'auto-draft' and "; // Hide auto draft posts
+		$sql .= "w.post_status <> 'trash' and "; // Hide trashed posts
+		$sql .= "w.post_type = 'post' and w.post_date like '". $q_date . "%' and ";
+		$sql .= "t.object_id = w.ID";
+		if ($edit_flow->get_plugin_option('custom_category_filter') != 'all') {
+			$sql .= " and t.term_taxonomy_id = " . $edit_flow->get_plugin_option('custom_category_filter');
+		}
+		if ($edit_flow->get_plugin_option('custom_author_filter') != 'all') {
+			$sql .= " and u.ID = " . $edit_flow->get_plugin_option('custom_author_filter');
+		}
+
+		$cal_posts = $wpdb->get_results($sql);
+		return $cal_posts;
+	}
+	
+	/**
 	 * Given a day in string format, returns the day at the end of that week, which can be the given date.
 	 * The end of the week is determined by the blog option, 'start_of_week'.
 	 *
