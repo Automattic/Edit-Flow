@@ -85,3 +85,10 @@ function edit_flow_upgrade_051() {
 	
 	$edit_flow->update_plugin_option( 'version', '0.5.1' );
 }
+
+function edit_flow_upgrade_06() {
+	
+	// @todo Remove all of the prior calendar state save data (being stored in user meta now)
+	
+	$edit_flow->update_plugin_option( 'version', '0.6' );
+}
