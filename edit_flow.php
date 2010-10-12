@@ -333,10 +333,6 @@ class edit_flow {
 		
 	}
 
-    function calendar() {
-		include('php/templates/calendar.php');
-    }
-
 } // END: class edit_flow
 
 // Create new instance of the edit_flow object
