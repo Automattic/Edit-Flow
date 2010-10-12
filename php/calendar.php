@@ -49,6 +49,23 @@ class ef_calendar {
 		
 	}
 	
+	/**
+	 * Given a day in string format, returns the day at the end of that week, which can be the given date.
+	 * The end of the week is determined by the blog option, 'start_of_week'.
+	 *
+	 * @param string $date String representing a date
+	 * @param string $format Date format in which the end of the week should be returned
+	 *
+	 * @see http://www.php.net/manual/en/datetime.formats.date.php for valid date formats
+	 */
+	function get_end_of_week($date, $format = 'Y-m-d') {
+		$date = strtotime( $date );
+		$end_of_week = get_option('start_of_week') - 1;
+		$day_of_week = date('w', $date);
+		$date += ((7 + $end_of_week - $day_of_week) % 7) * 60 * 60 * 24;
+		return date($format, $date);
+	}
+	
 }
 	
 }
