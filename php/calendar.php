@@ -3,9 +3,11 @@
  * This class displays an editorial calendar for viewing upcoming and past content at a glance
  *
  * Somewhat prioritized @todos:
- * @todo 
+ * @todo Convert calendar navigation from $_GET to $_POST
+ * @todo Highlight today on the calendar
+ * @todo Save calendar state to usermeta table
  *
- * @author Scott Bressler
+ * @author danielbachhuber
  */
 if ( !class_exists('ef_calendar') ) {
 
@@ -29,7 +31,7 @@ class ef_calendar {
 	 */
 	function add_admin_scripts() {
 		
-		wp_enqueue_script('edit_flow-calendar-js', EDIT_FLOW_URL.'js/calendar.js', array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'), false, true);
+		//wp_enqueue_script('edit_flow-calendar-js', EDIT_FLOW_URL.'js/calendar.js', array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'), false, true);
 		
 	}
 	
