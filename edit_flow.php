@@ -104,7 +104,7 @@ class edit_flow {
 		$this->custom_status = new custom_status();
 		$this->usergroups = new ef_usergroups_admin();
 		$this->editorial_metadata = new ef_editorial_metadata();
-		$this->calendar = new ef_calendar()
+		$this->calendar = new ef_calendar();
 		$this->story_budget = new ef_story_budget();
 		$this->settings = new ef_settings();
 		if ($this->get_plugin_option('dashboard_widgets_enabled')) $this->dashboard = new edit_flow_dashboard(); 
