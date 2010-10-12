@@ -48,11 +48,6 @@ for ($i=0; $i<7; $i++) {
 }
 
 ?>
-	<style>
-		.week-heading, .week-footing {
-			background: #DFDFDF url('<?php echo admin_url('/images/menu-bits.gif'); ?>') repeat-x scroll left top;
-		}
-	</style>
 	  <div class="wrap">
   
 		<div id="calendar-title"><!-- Calendar Title -->
