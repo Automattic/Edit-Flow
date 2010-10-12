@@ -224,12 +224,3 @@ for ($i=0; $i<7; $i++) {
 	  </div>
 
 <?php 
-function ef_get_calendar_previous_link( $date ) {
-	$p_date = date('d-m-Y', strtotime("-1 day", strtotime($date)));
-	return EDIT_FLOW_CALENDAR_PAGE.'&amp;date='.$p_date;
-}
-
-function ef_get_calendar_next_link( $date ) {
-	$n_date = date('d-m-Y', strtotime("+7 days", strtotime($date)));
-	return EDIT_FLOW_CALENDAR_PAGE.'&amp;date='.$n_date;
-}

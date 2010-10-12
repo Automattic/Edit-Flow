@@ -85,6 +85,22 @@ class ef_calendar {
 	}
 	
 	/**
+	 * Gets the link for the previous time period
+	 */
+	function get_calendar_previous_link( $date ) {
+		$p_date = date('d-m-Y', strtotime("-1 day", strtotime($date)));
+		return EDIT_FLOW_CALENDAR_PAGE . '&amp;date=' . $p_date;
+	}
+
+	/**
+	 * Gets the link for the next time period
+	 */
+	function get_calendar_next_link( $date ) {
+		$n_date = date('d-m-Y', strtotime("+7 days", strtotime($date)));
+		return EDIT_FLOW_CALENDAR_PAGE . '&amp;date=' . $n_date;
+	}
+	
+	/**
 	 * Given a day in string format, returns the day at the end of that week, which can be the given date.
 	 * The end of the week is determined by the blog option, 'start_of_week'.
 	 *
