@@ -128,10 +128,10 @@ class ef_calendar {
 					<img src="<?php echo EDIT_FLOW_URL; ?>img/wpspin_light.gif" alt="Loading" />
 				  </li>
 				  <li class="next-week">
-							<a id="trigger-left" href="<?php echo get_calendar_next_link($dates[0]) ?>">Next &raquo;</a>
+							<a id="trigger-left" href="<?php echo $this->get_calendar_next_link($dates[0]) ?>">Next &raquo;</a>
 						</li>
 						<li class="previous-week">
-							<a id="trigger-right" href="<?php echo get_calendar_previous_link($dates[count($dates)-1]) ?>">&laquo; Previous</a>
+							<a id="trigger-right" href="<?php echo $this->get_calendar_previous_link($dates[count($dates)-1]) ?>">&laquo; Previous</a>
 				  </li>
 					</ul>
 
@@ -236,10 +236,10 @@ class ef_calendar {
 					</div><!-- /Week Wrapper -->
 					<ul class="day-navigation">
 					  <li class="next-week">
-							<a href="<?php echo get_calendar_next_link($dates[0]) ?>">Next &raquo;</a>
+							<a href="<?php echo $this->get_calendar_next_link($dates[0]) ?>">Next &raquo;</a>
 						</li>
 						<li class="previous-week">
-							<a href="<?php echo get_calendar_previous_link($dates[count($dates)-1]) ?>">&laquo; Previous</a>
+							<a href="<?php echo $this->get_calendar_previous_link($dates[count($dates)-1]) ?>">&laquo; Previous</a>
 						</li>
 					</ul>
 					<div style="clear:both"></div>
