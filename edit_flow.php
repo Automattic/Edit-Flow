@@ -36,6 +36,7 @@ include_once('php/usergroups.php');
 include_once('php/templates/functions.php');
 include_once('php/upgrade.php');
 include_once('php/util.php');
+include_once('php/calendar.php');
 include_once('php/story_budget.php');
 include_once('php/settings.php');
 include_once('php/editorial_metadata.php');
@@ -103,6 +104,7 @@ class edit_flow {
 		$this->custom_status = new custom_status();
 		$this->usergroups = new ef_usergroups_admin();
 		$this->editorial_metadata = new ef_editorial_metadata();
+		$this->calendar = new ef_calendar();
 		$this->story_budget = new ef_story_budget();
 		$this->settings = new ef_settings();
 		if ($this->get_plugin_option('dashboard_widgets_enabled')) $this->dashboard = new edit_flow_dashboard(); 
@@ -304,8 +306,8 @@ class edit_flow {
 		add_submenu_page($this->get_page('edit-flow'), __('User Groups', 'edit-flow'), __('User Groups', 'edit-flow'), 'manage_options', $this->get_page('usergroups'), array(&$this->usergroups,'admin_page'));
 		
 		// Add sub-menu page for Calendar
-		if ( $this->calendar_viewable() ) {
-			add_submenu_page('index.php', __('Edit Flow Calendar', 'edit-flow'), __('Edit Flow Calendar', 'edit-flow'), 'edit_posts', $this->get_page('calendar'), array(&$this,'calendar'));
+		if ( $this->calendar->viewable() ) {
+			add_submenu_page('index.php', __('Edit Flow Calendar', 'edit-flow'), __('Edit Flow Calendar', 'edit-flow'), 'edit_posts', $this->get_page('calendar'), array(&$this->calendar, 'view_calendar'));
 		}
 		
 		add_submenu_page( 'index.php', __('Story Budget', 'edit-flow'), __('Story Budget', 'edit-flow'), 'edit_others_posts', $this->get_page('story_budget'), array(&$this->story_budget, 'story_budget') );
@@ -329,26 +331,6 @@ class edit_flow {
 		
 		wp_enqueue_script('edit_flow-js', EDIT_FLOW_URL.'js/edit_flow.js', array('jquery'), false, true);
 		
-		// TODO: Need to move to calendar class
-		if( $pagenow == 'index.php' && $plugin_page == $this->get_page( 'calendar' ) )
-			wp_enqueue_script('edit_flow-calendar-js', EDIT_FLOW_URL.'js/calendar.js', array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'), false, true);
-	}
-
-    function calendar() {
-		include('php/templates/calendar.php');
-    }
-	
-	function calendar_viewable() {
-		$calendar_enabled = (int)$this->get_plugin_option('calendar_enabled');
-		
-		if ($calendar_enabled) {
-			$view_calendar_cap = 'ef_view_calendar';
-			$view_calendar_cap = apply_filters( 'ef_view_calendar_cap', $view_calendar_cap );
-
-			if( current_user_can( $view_calendar_cap ) )
-				return true;
-		}
-		return false;
 	}
 
 } // END: class edit_flow

@@ -22,6 +22,10 @@ Version 1.1
 	overflow: hidden;
 }
 
+.week-heading, .week-footing {
+	background: #DFDFDF url('../img/menu-bits.gif') repeat-x scroll left top;
+}
+
 .week-unit {
 	width:13.24%;
 	padding-left:5px;
