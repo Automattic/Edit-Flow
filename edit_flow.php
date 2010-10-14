@@ -264,8 +264,8 @@ class edit_flow {
 			$page = esc_html( $_REQUEST['page'] );
 		
 		// Only check if we have page query string and it's for edit-flow
-		if ( !empty($page) && strstr($page, 'edit-flow') ) {
-			$component = substr( $page, (strrpos($page, '/') + 1) );
+		if ( !empty( $page ) && strstr( $page, 'edit-flow' ) ) {
+			$component = substr( $page, ( strrpos( $page, '/' ) + 1 ) );
 			
 			switch( $component ) {
 				case 'usergroups':
@@ -273,7 +273,7 @@ class edit_flow {
 					break;
 				
 				case 'custom_status':
-					// @TODO: Set up custom statuses to use controller
+					$this->custom_status->admin_controller();
 					break;
 				
 				default:

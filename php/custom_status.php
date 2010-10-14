@@ -428,71 +428,87 @@ class custom_status {
 	}
 
 	
-	
-	function admin_page ( ) {
-		global $wpdb, $edit_flow;
+	/**
+	 * Main controller for Usergroups
+	 * Determines what actions to take, takes those actions, and sets up necessary data for views (handled by admin_page())
+	 * Sets up a var called $ef_page_data that the admin_page() function can use to pull data from
+	 */
+	function admin_controller ( ) {
+		global $ef_page_data;
+		
+		// Only allow users with the proper caps
+		if ( !current_user_can( 'manage_options' ) )
+			wp_die( __( 'Sorry, you do not have permission to edit custom statuses.', 'edit-flow' ) );
+		
+		// Global var that holds all the data needed on edit flow pages
+		$ef_page_data = array();
 		
 		$nonce_fail_msg = __('There\'s something fishy going on! We don\'t like this type of nonce-sense. Hmph.', 'edit-flow');
 		$msg_class = 'updated';
 		
 		$action = null; $error_details = null; $msg = null; $edit_status = null; $update = null;
-		if ( array_key_exists( 'action', $_POST ) )
-			$action = $wpdb->escape($_POST['action']);
-		else if ( array_key_exists( 'action', $_GET ) )
-			$action = $wpdb->escape($_GET['action']);
 		
-		switch($action) {
+		$action = sanitize_key( $_REQUEST['action'] );
+
+		switch( $action ) {
 			
 			case 'add':
-				
+			
 				// Verfiy nonce
-				if(wp_verify_nonce($_POST['custom-status-add-nonce'], 'custom-status-add-nonce')) {
+				if( wp_verify_nonce( $_POST['custom-status-add-nonce'], 'custom-status-add-nonce' ) ) {
 					
-					$status_name = esc_html(trim($_POST['status_name']));
-					$status_slug = sanitize_title($status_name);
-					$status_description = esc_html($_POST['status_description']);
+					$ef_page_data['update'] = false;
+					
+					$status_name = esc_html( trim( $_POST['status_name'] ) );
+					$status_slug = sanitize_title( $status_name );
+					$status_description = esc_html( $_POST['status_description'] );
 					
 					// Check if name field was filled in
-					if(!$status_name || empty($status_name)) {
-						$error_details = __('Please enter a name for the status', 'edit-flow');
+					if( ! $status_name || empty( $status_name ) ) {
+						$ef_page_data['errors'] = __( 'Please enter a name for the status', 'edit-flow' );
 						break;
 					}
 					
 					// Check that the name isn't numeric
 					if( (int)$status_name != 0 ) {
-						$error_details = __('Please enter a valid name.', 'edit-flow');
+						$ef_page_data['errors'] = __( 'Please enter a valid name.', 'edit-flow' );
 					}
 					
 					// Check that the status name doesn't exceed 20 chars
-					if( count($status_name) > 20 ) {
-						$error_details = __('The status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow');
+					if( count( $status_name ) > 20 ) {
+						$ef_page_data['errors'] = __( 'The status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' );
 						break;
 					}
 					
 					// Check to make sure the name is not restricted
-					if($this->is_restricted_status(strtolower($status_slug))) {
-						$error_details = __('That status name is restricted. Please use another name.', 'edit-flow');
+					if($this->is_restricted_status( strtolower( $status_slug ) ) ) {
+						$ef_page_data['errors'] = __( 'That status name is restricted. Please use another name.', 'edit-flow' );
 						break;
 					}
 					
 					// Check to make sure the status doesn't already exist
 					if( ef_term_exists( $status_slug ) ) {
-						$error_details = __('That status already exists. Please use another name.', 'edit-flow');
+						$ef_page_data['errors'] = __( 'That status already exists. Please use another name.', 'edit-flow' );
 						break;
 					}
 					
-					$args = array('description' => $status_description, 'slug' => $status_slug );
-					
 					// Try to add the status
-					$return = $this->add_custom_status($status_name, $args);
-					if(!is_wp_error($return)) {
-						$msg = __('Status successfully added.', 'edit-flow');
+					$status_args = array( 
+						'description' => $status_description
+						, 'slug' => $status_slug
+					);
+					$return = $this->add_custom_status( $status_name, $status_args );
+					
+					if( ! is_wp_error( $return ) ) {
+						$msg = __( 'Status successfully added.', 'edit-flow' );
+						$redirect = EDIT_FLOW_CUSTOM_STATUS_PAGE .'&message='. urlencode( $msg );
+						wp_redirect( $redirect );
 					} else {
-						$error_details = __('Could not add the status: ', 'edit-flow') . $return->get_error_message();
+						$ef_page_data['errors'] = sprintf( __( 'Could not add the status: ', 'edit-flow' ), $return->get_error_message() );
 					}
 					
 				} else {
-					$error_details = $nonce_fail_msg;
+					$ef_page_data['errors'] = $nonce_fail_msg;
 				}
 				
 				break;
@@ -500,20 +516,24 @@ class custom_status {
 			case 'edit':
 				$term_id = (int) $_GET['term_id'];
 				
-				if($term_id && $the_status = get_term($term_id, $this->status_taxonomy)) {
+				if( $term_id && $the_status = get_term( $term_id, $this->status_taxonomy ) ) {
 					
 					// Stop users from editing restricted statuses
 					if($this->is_restricted_status($the_status->slug)) {
-						$error_details = __('That status is restricted and cannot be edited. You are welcome to delete it, however.', 'edit-flow'); 
-						$update = false;
+						$message = __( 'That status is restricted and cannot be edited. However, you are welcome to delete it.', 'edit-flow' );
+						$redirect = EDIT_FLOW_CUSTOM_STATUS_PAGE .'&errors='. urlencode( $message );
+						wp_redirect( $redirect );
 					} else {
-						$update = true;
-						$edit_status = $the_status;
+						$ef_page_data['title'] = __( 'Update Custom Status', 'edit-flow' );
+						$ef_page_data['custom_status'] = $the_status;
+						$ef_page_data['update'] = true;
 					}
 				}
+				
 				break;
 			
 			case 'update':
+				
 				
 				// Verfiy nonce
 				if(wp_verify_nonce($_POST['custom-status-add-nonce'], 'custom-status-add-nonce')) {
@@ -525,30 +545,30 @@ class custom_status {
 					
 					// Check if name field was filled in
 					if(!$status_name || empty($status_name)) {
-						$error_details = __('Please enter a name for the status', 'edit-flow');
+						$ef_page_data['errors'] = __('Please enter a name for the status', 'edit-flow');
 						break;
 					}
 
 					// Check that the name isn't numeric
 					if( (int)$status_name != 0 ) {
-						$error_details = __('Please enter a valid name.', 'edit-flow');
+						$ef_page_data['errors'] = __('Please enter a valid name.', 'edit-flow');
 					}
 
 					// Check that the status name doesn't exceed 20 chars
 					if( count($status_name) > 20 ) {
-						$error_details = __('The status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow');
+						$ef_page_data['errors'] = __('The status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow');
 						break;
 					}
 					
 					// Check to make sure the name is not restricted
 					if($this->is_restricted_status(strtolower($status_slug))) {
-						$error_details = __('That status name is restricted. Please use another name.', 'edit-flow');
+						$ef_page_data['errors'] = __('That status name is restricted. Please use another name.', 'edit-flow');
 						break;
 					}
 					
 					// Check to make sure the status doesn't already exist
 					if( ef_term_exists( $status_slug ) && (get_term($term_id, $this->status_taxonomy)->slug != $status_slug)) {
-						$error_details = __('That status already exists. Please use another name.', 'edit-flow');
+						$ef_page_data['errors'] = __('That status already exists. Please use another name.', 'edit-flow');
 						break;
 					}
 					
@@ -557,20 +577,22 @@ class custom_status {
 					
 					$return = $this->update_custom_status($term_id, $args);
 					if(!is_wp_error($return)) {
-						$msg = __('Status successfully updated.', 'edit-flow');						
+						$message = __('Status successfully updated.', 'edit-flow');
+						$redirect = EDIT_FLOW_CUSTOM_STATUS_PAGE .'&message='. urlencode($message);
+						wp_redirect( $redirect );
+						
 					} else {
-						$error_details = __('Could not update the status: ', 'edit-flow') . $return->get_error_message();
+						$ef_page_data['errors'] = __('Could not update the status: ', 'edit-flow') . $return->get_error_message();
 					}
 					
 				} else {
-					$error_details = $nonce_fail_msg;
+					$ef_page_data['errors'] = $nonce_fail_msg;
 				}
-
-				
+			
 				break;
-			
+				
 			case 'delete':
-			
+				
 				// Verfiy nonce
 				if(wp_verify_nonce($_GET['_wpnonce'], 'custom-status-delete-nonce')) {
 					$term_id = (int) $_GET['term_id'];
@@ -583,174 +605,48 @@ class custom_status {
 					
 					$return = $this->delete_custom_status($term_id);
 					if(!is_wp_error($return)) {
-						$msg = __('Status successfully deleted.', 'edit-flow');
+						$message = __('Status successfully deleted.', 'edit-flow');
+						$redirect = EDIT_FLOW_CUSTOM_STATUS_PAGE .'&message='. urlencode($message);
+						wp_redirect( $redirect );
 					} else {
-						$error_details = __('Could not delete the status: ', 'edit-flow') . $return->get_error_message();
+						$ef_page_data['errors'] = __('Could not delete the status: ', 'edit-flow') . $return->get_error_message();
 					}
 						
 				} else {
-					$error_details = $nonce_fail_msg;
+					$ef_page_data['errors'] = $nonce_fail_msg;
 				}
 				
 				break;
 				
+			case 'view':
 			default:
-				$update = false;
 				break;
-				
 		}
-		
-		if($error_details) {
-			$msg = __('There was an error with your request: ', 'edit-flow');
-			$msg .= '<br /><strong>'.$error_details.'</strong>';
-			$msg_class = 'error';
-		}
-		
-		$statuses = $this->get_custom_statuses();
-	
-		?>
-		<div class="wrap">
-			<div id="icon-tools" class="icon32"><br /></div>
-			<h2><?php _e('Custom Post Statuses', 'edit-flow') ?></h2>
-			
-			<?php if(!$edit_flow->get_plugin_option('custom_statuses_enabled')) : ?>
-				<div class="error" id="plugin-message">
-					<p><strong><?php _e('Note: Custom Statuses are currently disabled', 'edit-flow') ?></strong></p>
-					<p><em><?php _e('While you are free to add, edit and delete to your heart\'s content, please note that you will not be able to assign posts to custom statuses unless you <a href="'. EDIT_FLOW_SETTINGS_PAGE.'">enable them</a>.', 'edit-flow') ?></em></p>
-				</div>
-			<?php endif ?>
-			
-			<?php if($msg) : ?>
-				<div id="message" class="<?php echo $msg_class ?> fade below-h2">
-					<p><?php echo $msg ?></p>
-				</div>
-			<?php endif; ?>
-			
-			
-			<div id="col-container">
-				<div id="col-right">
-					<div class="col-wrap">
-							
-						<table cellspacing="0" class="widefat fixed">
-							<thead>
-								<tr>
-									<th class="manage-column column-cb check-column" id="cb" scope="col"></th>
-									<th style="" class="manage-column column-name" id="name" scope="col"><?php _e('Name', 'edit-flow') ?></th>
-									<th style="" class="manage-column column-description" id="description" scope="col"><?php _e('Description') ?></th>
-									<th style="" class="manage-column column-posts num" id="posts" scope="col"><?php _e('# of Posts', 'edit-flow') ?></th>
-								</tr>
-							</thead>
-							<tfoot>
-								<tr>
-									<th style="" class="manage-column column-cb check-column" scope="col"></th>
-									<th style="" class="manage-column column-name" scope="col"><?php _e('Name', 'edit-flow') ?></th>
-									<th style="" class="manage-column column-description" scope="col"><?php _e('Description', 'edit-flow') ?></th>
-									<th style="" class="manage-column column-posts num" scope="col"><?php _e('Posts', 'edit-flow') ?></th>
-								</tr>
-							</tfoot>
-							
-							<tbody class="list:post_status" id="the-list">
-							
-							<?php
-							if (is_array($statuses)) {
-							
-								$delete_nonce = wp_create_nonce('custom-status-delete-nonce');
-							
-								foreach ($statuses as $status) {
-								
-									$count = ef_get_custom_status_post_count($status->slug);
-								
-									$status_link = ef_get_custom_status_filter_link($status->slug);
-									$edit_link = ef_get_custom_status_edit_link($status->term_id);
-									$delete_link = EDIT_FLOW_CUSTOM_STATUS_PAGE.'&amp;action=delete&amp;term_id='.$status->term_id.'&amp;_wpnonce='.$delete_nonce;
-								
-									?>
-									
-									<tr class="iedit alternate" id="status-<?php echo $status->term_id ?>">
-										<th class="check-column" scope="row">
-										</th>
-										<td class="name column-name">
-											<a title="Edit <?php esc_attr_e($status->name) ?>" href="<?php echo $edit_link ?>" class="row-title">
-											<?php echo $status->name ?>
-											</a>
-											<br/>
-											<div class="row-actions">
-												<span class="edit">
-													<a href="<?php echo $edit_link ?>">
-														<?php _e('Edit', 'edit-flow') ?>
-													</a>
-													|
-												</span>
-												<span class="delete">
-													<?php $default_status = $this->ef_get_default_custom_status(); ?>
-													<?php $new_status = ($status->slug == $default_status->slug) ? 'Draft' : $default_status->name; ?>
-													<a href="<?php echo $delete_link ?>" class="delete:the-list:status-<?php echo $status->term_id ?> submitdelete" onclick="if(!confirm('Are you sure you want to delete this status?\n\nPosts with this status will be assigned to the following status upon deletion: <?php echo $new_status; ?>.')) return false;">
-														<?php _e('Delete', 'edit-flow') ?>
-													</a>
-												</span>
-											</div>
-										</td>
-										<td class="description column-description">
-											<?php esc_html_e($status->description) ?>
-										</td>
-										<td class="posts column-posts num">
-											<a href="<?php echo $status_link ?>" title="View all posts with the status <?php esc_attr_e($status->name) ?>"><?php echo $count ?></a>
-										</td>
-									<?php
-								}
-							}
-							?>
-							</tr>
-						</tbody>
-					</table>
-												
-					<div class="form-wrap">
-						<?php $default_status = $this->ef_get_default_custom_status()->name; ?>
-						<p><?php _e("<strong>Note:</strong><br/>Deleting a status does not delete the posts assigned that status. Instead, the posts will be set to the default status: <strong>$default_status</strong>", 'edit-flow') ?>.
-						</p>
-					</div>
-						
-				</div>
-			</div>
-		
-		
-		<div id="col-left">
-			<div class="col-wrap">
-				<div class="form-wrap">
-					<h3><?php echo ($update) ? __('Update Custom Status', 'edit-flow') : __('Add Custom Status', 'edit-flow') ?></h3>
-						<form class="add:the-list:" action="<?php echo EDIT_FLOW_CUSTOM_STATUS_PAGE ?>" method="post" id="addstatus" name="addstatus">
 
-							<div class="form-field form-required">
-								<label for="status_name"><?php _e('Name', 'edit-flow') ?></label>
-								<input type="text" aria-required="true" size="20" maxlength="20" id="status_name" name="status_name" value="<?php if ( !empty( $edit_status ) ) esc_attr_e($edit_status->name) ?>" />
-								<p><?php _e('The name is used to identify the status. (Max: 20 characters)', 'edit-flow') ?></p>
-							</div>
-						
-							<div class="form-field">
-								<label for="status_description"><?php _e('Description', 'edit-flow') ?></label>
-								<textarea cols="40" rows="5" id="status_description" name="status_description"><?php if ( !empty( $edit_status ) ) esc_attr_e($edit_status->description) ?></textarea>
-							    <p><?php _e('The description is mainly for administrative use, just to give you some context on what the custom status is to be used for or means.', 'edit-flow') ?></p>
-							</div>
-							
-							<input type="hidden" name="action" value="<?php echo ($update) ? 'update' : 'add' ?>" />
-							<?php if($update) : ?>
-								<input type="hidden" name="term_id" value="<?php if ( !empty( $edit_status ) ) echo $edit_status->term_id ?>" />
-							<?php endif; ?>
-							<input type="hidden" name="page" value="edit-flow/php/custom_status.php" />
-							<input type="hidden" name="custom-status-add-nonce" id="custom-status-add-nonce" value="<?php echo wp_create_nonce('custom-status-add-nonce') ?>" />
-							
-							<p class="submit"><input type="submit" value="<?php echo ($update) ? __('Update Custom Status', 'edit-flow') : __('Add Custom Status', 'edit-flow') ?>" name="submit" class="button"/></p>
-						</form>
-					</div>
-				</div>
-			</div>
-		</div>
-			
-		</div>
-		<?php
-	} // END: admin_page()
-	
-	
+		$ef_page_data['custom_statuses'] = $this->get_custom_statuses();
+		
+	}
+
+	/**
+	 * Handles the main admin page for Custom Statuses.
+	 */
+	function admin_page( ) {
+		global $ef_page_data;
+		
+		// Set up defaults
+		$page_defaults = array(
+			'title' => __( 'Custom Post Statuses', 'edit-flow' )
+			, 'view' => 'templates/custom_status_main.php',
+		);
+		
+		// extract all the args
+		$ef_page_data = wp_parse_args( $ef_page_data, $page_defaults );
+		extract( $ef_page_data );
+		
+		include_once( $ef_page_data['view'] );
+		
+	}	
+		
 } // END: class custom_status
 
 
