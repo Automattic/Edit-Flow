@@ -10,35 +10,85 @@
  * TODO: Move JS and CSS to their own files
  * TODO: Review inline TODOs
  *
- * @author Scott Bressler
+ * @author sbressler
  */
 class ef_story_budget {
 	var $taxonomy_used = 'category';
 	
-	// TODO: Make this editable in Screen Options
-	var $num_columns = 2;
+	var $num_columns = 0;
+	
+	var $max_num_columns = 5;
+	
+	const screen_id = 'dashboard_page_edit-flow/story_budget';
 	
 	/**
 	 * Construct a story_budget class. For now we're not doing anything here.
 	 */
 	function __construct() {
+		include_once('screen-options.php');
+		// add_filter('screen_settings', array(&$this, 'append_screen_settings'), 10, 2);
+		add_screen_options_panel('edit_flow_story_budget_screen_columns', 'Screen Layout', array( &$this, 'print_column_prefs' ), self::screen_id, array( &$this, 'save_column_prefs' ), true );
+	}
+	
+	function append_screen_settings( $current_options, $screen ) {
+		global $current_screen;
+		if ($current_screen->id != $screen->id) {
+			// Somehow we got into this method on a screen other than the story budget. Don't append any screen settings.
+			return $current_options;
+		}
+		
+		$new_options = "\n<h5>Screen Layout</h5>\n";
+		$new_options .= $this->print_column_prefs();
+		
+		return $current_options . $new_options;
+	}
+	
+	
+	function get_num_columns() {
+		if ( $this->num_columns === 0) {
+			$this->num_columns = get_user_option("screen_layout_" . self::screen_id);
+		}
+		return $this->num_columns;
+	}
+	
+	function print_column_prefs() {
+		$return_val = 'Number of Columns: ';
+		for ( $i = 1; $i <= $this->max_num_columns; ++$i ) {
+			$return_val .= "<label><input type='radio' name='edit_flow-screen_columns' value='$i' " . checked($this->get_num_columns(), $i, false) . " onclick='editFlowSetNumColumns($i);' /> $i</label>\n"; // TODO checked state
+		}
+		return $return_val;
+	}
+	
+	function save_column_prefs($posted_fields) {
+		global $current_screen;
+		$this->num_columns = (int) $posted_fields['edit_flow-screen_columns'];
+		
+		$user = wp_get_current_user();;
+		update_user_option( $user->ID, "screen_layout_" . self::screen_id, (int) $posted_fields['edit_flow-screen_columns'] );
 	}
 
 	/**
 	 * Create the story budget view. This calls lots of other methods to do its work. This will create
-	 * the table navigation, then print the columns based on $this->num_columns, which will in turn
+	 * the table navigation, then print the columns based on get_num_columns(), which will in turn
 	 * print the stories themselves.
 	 */
 	function story_budget() {
+		global $current_screen;
+		if ( !strpos( $current_screen->id, 'story_budget' ) ) {
+			return;
+		}
+			
 		$cat = $_GET['cat'];
 		if ( isset ( $cat ) && !empty( $cat ) ) {
 			$terms = array();
 			$terms[] = get_term( $cat, $this->taxonomy_used );
 		} else {
-			$terms = get_terms($this->taxonomy_used, 'orderby=name&order=asc&parent=0&hide_empty=0');
+			// TODO: make sure that hide_empty really should be true
+			$terms = get_terms($this->taxonomy_used, 'orderby=name&order=asc&parent=0&hide_empty=1');
 		}
-		$terms = apply_filters( 'story_budget_reorder_terms', $terms ); // allow for reordering or any other filtering of terms
-
+		$terms = apply_filters( 'edit_flow-story_budget-reorder_terms', $terms ); // allow for reordering or any other filtering of terms
+		$this->max_num_columns = min( count ( $terms ), $this->max_num_columns );
+		
 		$this->print_JS();
 		$this->print_CSS();
 		$this->table_navigation();
@@ -46,9 +96,9 @@ class ef_story_budget {
 		<div id="dashboard-widgets-wrap">
 			<div id="dashboard-widgets" class="metabox-holder">
 			<?php
-				for ($i = 0; $i < $this->num_columns; ++$i) {
+				// for ($i = 0; $i < $this->get_num_columns(); ++$i) {
 					$this->print_column($i, $terms);
-				}
+				// }
 			?>
 			</div>
 		</div><!-- /dashboard-widgets -->
@@ -121,13 +171,14 @@ class ef_story_budget {
 	 * @param array $terms The terms to print in this column.
 	 */
 	function print_column($col_num, $terms) {
-		// If printing fewer than $this->num_columns terms, only print that many columns
-		$num_columns = min( count ( $terms ), $this->num_columns );
+		// If printing fewer than get_num_columns() terms, only print that many columns
+		$num_columns = $this->get_num_columns();
 ?>
-		<div class='postbox-container' style='width:<?php echo 98/$num_columns; ?>%'>
+		<div class='postbox-container'>
 			<div class="meta-box-sortables">
 			<?php
-				for ($i = $col_num; $i < count($terms); $i += $num_columns)
+				// for ($i = $col_num; $i < count($terms); $i += $num_columns)
+				for ($i = 0; $i < count($terms); $i++)
 					$this->print_term( $terms[$i] );
 			?>
 			</div>
@@ -149,7 +200,7 @@ class ef_story_budget {
 		if ( !empty( $posts ) ) : // TODO: is this necessary if get_terms above behaves correctly?
 		
 ?>
-	<div class="postbox">
+	<div class="postbox" style='float: left; margin-right: 10px; width: <?php echo 95/$this->get_num_columns(); ?>%'>
 		<div class="handlediv" title="Click to toggle"><br /></div>
 		<h3 class='hndle'><span><?php echo $term->name; ?></span></h3>
 		<div class="inside">
@@ -290,9 +341,9 @@ class ef_story_budget {
 			?>
 			
 			<label for="start_date">From: </label>
-			<input id='start_date' name='start_date' type='text' class="date-pick" value="<?php echo $_GET['start_date']; ?>" />
+			<input id='start_date' name='start_date' type='text' class="date-pick" value="<?php echo $_GET['start_date']; ?>" autocomplete="off" />
 			<label for="end_date">To: </label>
-			<input id='end_date' name='end_date' type='text' size='20' class="date-pick" value="<?php echo $_GET['end_date']; ?>" />
+			<input id='end_date' name='end_date' type='text' size='20' class="date-pick" value="<?php echo $_GET['end_date']; ?>" autocomplete="off" />
 			<?php $this->print_date_scripts_and_style(); ?>
 			<input type="hidden" name="page" value="edit-flow/story_budget"/>
 			<input type="submit" id="post-query-submit" value="Filter" class="button-secondary" />
@@ -328,6 +379,7 @@ class ef_story_budget {
 	function print_JS() {
 ?>
 		<script type="text/javascript">
+		var editFlowNumColumns = 0;
 		jQuery(document).ready(function($) {
 			$("#toggle_details").click(function() {
 				$(".post-title > p").slideToggle(); // hide post details when directed to
@@ -336,6 +388,12 @@ class ef_story_budget {
 				$(this).parent().children("div.inside").slideToggle(); // hide sections when directed to
 			});
 		});
+		
+		function editFlowSetNumColumns(numColumns) {
+			editFlowNumColumns = numColumns;
+			jQuery(".postbox").css('width', 97 / editFlowNumColumns + '%');
+			console.log("User switched to show " + editFlowNumColumns + " columns");
+		}
 		</script>
 <?php
 	}
@@ -386,7 +444,7 @@ class ef_story_budget {
 	}
 	
 	function story_budget_excerpt_length( $default_length ) {
-		return 60 / $this->num_columns;
+		return 60 / $this->get_num_columns();
 	}
 }
 
