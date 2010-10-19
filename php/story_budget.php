@@ -42,7 +42,7 @@ class ef_story_budget {
 	function print_column_prefs() {
 		$return_val = 'Number of Columns: ';
 		for ( $i = 1; $i <= $this->max_num_columns; ++$i ) {
-			$return_val .= "<label><input type='radio' name='edit_flow-screen_columns' value='$i' " . checked($this->get_num_columns(), $i, false) . " /> $i</label>\n"; // TODO checked state
+			$return_val .= "<label><input type='radio' name='edit_flow-screen_columns' value='$i' " . checked($this->get_num_columns(), $i, false) . " /> $i</label>\n";
 		}
 		return $return_val;
 	}
