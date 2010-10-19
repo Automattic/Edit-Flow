@@ -2,13 +2,12 @@
 
 /**
  * This class displays a budgeting system for an editorial desk's publishing workflow.
- * This is a cursory attempt at implementation with many outstanding TODOs.
  *
  * Somewhat prioritized TODOs:
- * TODO: Integrate column number with Screen Options API
  * TODO: Make trash links work (using nonce) and quick edit links
  * TODO: Move JS and CSS to their own files
  * TODO: Review inline TODOs
+ * TODO: Fix any bugs with collapsing postbox divs and floating columns
  *
  * @author sbressler
  */
@@ -19,34 +18,23 @@ class ef_story_budget {
 	
 	var $max_num_columns = 5;
 	
+	var $terms = array();
+	
+	const screen_width_percent = 98;
+	
 	const screen_id = 'dashboard_page_edit-flow/story_budget';
 	
 	/**
-	 * Construct a story_budget class. For now we're not doing anything here.
+	 * Construct a story_budget class and adds screen options.
 	 */
 	function __construct() {
 		include_once('screen-options.php');
-		// add_filter('screen_settings', array(&$this, 'append_screen_settings'), 10, 2);
-		add_screen_options_panel('edit_flow_story_budget_screen_columns', 'Screen Layout', array( &$this, 'print_column_prefs' ), self::screen_id, array( &$this, 'save_column_prefs' ), true );
+		add_screen_options_panel( 'edit_flow_story_budget_screen_columns', 'Screen Layout', array( &$this, 'print_column_prefs' ), self::screen_id, array( &$this, 'save_column_prefs' ), true );
 	}
-	
-	function append_screen_settings( $current_options, $screen ) {
-		global $current_screen;
-		if ($current_screen->id != $screen->id) {
-			// Somehow we got into this method on a screen other than the story budget. Don't append any screen settings.
-			return $current_options;
-		}
-		
-		$new_options = "\n<h5>Screen Layout</h5>\n";
-		$new_options .= $this->print_column_prefs();
-		
-		return $current_options . $new_options;
-	}
-	
 	
 	function get_num_columns() {
 		if ( $this->num_columns === 0) {
-			$this->num_columns = get_user_option("screen_layout_" . self::screen_id);
+			$this->num_columns = get_user_option( 'screen_layout_' . self::screen_id );
 		}
 		return $this->num_columns;
 	}
@@ -54,7 +42,7 @@ class ef_story_budget {
 	function print_column_prefs() {
 		$return_val = 'Number of Columns: ';
 		for ( $i = 1; $i <= $this->max_num_columns; ++$i ) {
-			$return_val .= "<label><input type='radio' name='edit_flow-screen_columns' value='$i' " . checked($this->get_num_columns(), $i, false) . " onclick='editFlowSetNumColumns($i);' /> $i</label>\n"; // TODO checked state
+			$return_val .= "<label><input type='radio' name='edit_flow-screen_columns' value='$i' " . checked($this->get_num_columns(), $i, false) . " /> $i</label>\n"; // TODO checked state
 		}
 		return $return_val;
 	}
@@ -64,7 +52,7 @@ class ef_story_budget {
 		$this->num_columns = (int) $posted_fields['edit_flow-screen_columns'];
 		
 		$user = wp_get_current_user();;
-		update_user_option( $user->ID, "screen_layout_" . self::screen_id, (int) $posted_fields['edit_flow-screen_columns'] );
+		update_user_option( $user->ID, 'screen_layout_' . self::screen_id, (int) $posted_fields['edit_flow-screen_columns'] );
 	}
 
 	/**
@@ -77,22 +65,21 @@ class ef_story_budget {
 		if ( !strpos( $current_screen->id, 'story_budget' ) ) {
 			return;
 		}
-			
+		
 		$cat = $_GET['cat'];
 		if ( isset ( $cat ) && !empty( $cat ) ) {
 			$terms = array();
 			$terms[] = get_term( $cat, $this->taxonomy_used );
 		} else {
-			// TODO: make sure that hide_empty really should be true
+			// TODO: Verify that hide_empty really should be true (1)
 			$terms = get_terms($this->taxonomy_used, 'orderby=name&order=asc&parent=0&hide_empty=1');
 		}
-		$terms = apply_filters( 'edit_flow-story_budget-reorder_terms', $terms ); // allow for reordering or any other filtering of terms
-		$this->max_num_columns = min( count ( $terms ), $this->max_num_columns );
+		$this->terms = apply_filters( 'ef_story_budget_reorder_terms', $terms ); // allow for reordering or any other filtering of terms
 		
 		$this->print_JS();
 		$this->print_CSS();
 		$this->table_navigation();
-?>
+		?>
 		<div id="dashboard-widgets-wrap">
 			<div id="dashboard-widgets" class="metabox-holder">
 			<?php
@@ -102,7 +89,7 @@ class ef_story_budget {
 			?>
 			</div>
 		</div><!-- /dashboard-widgets -->
-<?php
+		<?php
 	}
 
 	/**
@@ -173,7 +160,7 @@ class ef_story_budget {
 	function print_column($col_num, $terms) {
 		// If printing fewer than get_num_columns() terms, only print that many columns
 		$num_columns = $this->get_num_columns();
-?>
+		?>
 		<div class='postbox-container'>
 			<div class="meta-box-sortables">
 			<?php
@@ -183,7 +170,7 @@ class ef_story_budget {
 			?>
 			</div>
 		</div>
-<?php
+		<?php
 	}
 	
 	/**
@@ -199,8 +186,8 @@ class ef_story_budget {
 	//	echo "<pre>"; print_r($term);echo "</pre>";
 		if ( !empty( $posts ) ) : // TODO: is this necessary if get_terms above behaves correctly?
 		
-?>
-	<div class="postbox" style='float: left; margin-right: 10px; width: <?php echo 95/$this->get_num_columns(); ?>%'>
+	?>
+	<div class="postbox" style='width: <?php echo self::screen_width_percent / $this->get_num_columns(); ?>%'>
 		<div class="handlediv" title="Click to toggle"><br /></div>
 		<h3 class='hndle'><span><?php echo $term->name; ?></span></h3>
 		<div class="inside">
@@ -225,7 +212,7 @@ class ef_story_budget {
 			</table>
 		</div>
 	</div>
-<?php
+	<?php
 		endif;
 	}
 	
@@ -264,7 +251,7 @@ class ef_story_budget {
 		//add_filter( 'excerpt_length', array( &$this, 'story_budget_excerpt_length') );
 		//remove_filter( 'excerpt_length', array( &$this, 'story_budget_excerpt_length') );
 		
-?>
+		?>
 			<tr id='post-<?php echo $post->ID; ?>' class='alternate author-self status-publish iedit' valign="top">
 				<td class="post-title column-title">
 					<strong><a class="row-title" href="post.php?post=<?php echo $post->ID; ?>&action=edit" title="Edit &#8220;<?php echo $post->post_title; ?>&#8221;"><?php echo $post->post_title; ?></a></strong>
@@ -276,7 +263,7 @@ class ef_story_budget {
 				<td class="status column-status"><a href="<?php echo $status_filter_url; ?>"><?php echo $post->post_status; ?></a></td>
 				<td class="categories column-categories"><?php $this->print_subcategories( $post->ID, $parent_term ); ?></td>
 			</tr>
-<?php
+		<?php
 	}
 	
 	/**
@@ -303,7 +290,7 @@ class ef_story_budget {
 	function table_navigation() {
 		global $edit_flow;
 		$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
-?>
+	?>
 	<div class="tablenav">
 		<div class="alignleft actions">
 			<form method="get" action="<?php echo admin_url() . EDIT_FLOW_STORY_BUDGET_PAGE; ?>">
@@ -357,29 +344,41 @@ class ef_story_budget {
 		
 	</div><!-- /tablenav -->
 	<div class="clear"></div>
-<?php
+	<?php
 	}
 
 	/**
 	 * Print the CSS needed for the story budget. This should probably be included from a separate file.
 	 */
 	function print_CSS() {
-?>
+	?>
 		<style type="text/css">
 		#dashboard-widgets-wrap .postbox {
 			min-width: 0px;
 		}
+		.postbox-container {
+			width: 99%;
+		}
+
+		.postbox {
+			display: inline-block;
+			position: relative;
+			margin: 0 0 20px;
+		}
+
+		.story-budget thead tr th {
+			background: #f1f1f1 !important;
+		}
 		</style>
-<?php 
+	<?php
 	}
 
 	/**
-	 * Print the CSS needed for the story budget. This should probably be included from a separate file.
+	 * Print the JS needed for the story budget. This should probably be included from a separate file.
 	 */
 	function print_JS() {
-?>
+	?>
 		<script type="text/javascript">
-		var editFlowNumColumns = 0;
 		jQuery(document).ready(function($) {
 			$("#toggle_details").click(function() {
 				$(".post-title > p").slideToggle(); // hide post details when directed to
@@ -387,20 +386,22 @@ class ef_story_budget {
 			$("h3.hndle,div.handlediv").click(function() {
 				$(this).parent().children("div.inside").slideToggle(); // hide sections when directed to
 			});
+			$("input[name=edit_flow-screen_columns]").click(function() {
+				var numColumns = $(this).val(); // Get the new number of columns
+				jQuery(".postbox").css('width', <?php echo self::screen_width_percent; ?> / numColumns + '%');
+			});
+			
+			// Hide any column number choices beyond the number of terms being displayed
+			var numTerms = $(".postbox").size();
+			$("input[name=edit_flow-screen_columns]").slice(numTerms).parent().hide();
 		});
-		
-		function editFlowSetNumColumns(numColumns) {
-			editFlowNumColumns = numColumns;
-			jQuery(".postbox").css('width', 97 / editFlowNumColumns + '%');
-			console.log("User switched to show " + editFlowNumColumns + " columns");
-		}
 		</script>
-<?php
+	<?php
 	}
 	
 	function print_date_scripts_and_style() {
 	// TODO: add this all via filters and enqueue_script (dependency on jQuery, obviously)
-?>
+	?>
 	<script src="<?php echo EDIT_FLOW_URL; ?>js/lib/date.js" type="text/javascript"></script>
 	<script src="<?php echo EDIT_FLOW_URL; ?>js/lib/jquery.datePicker.js" type="text/javascript"></script>
 	<script type="text/javascript">
@@ -440,12 +441,12 @@ class ef_story_budget {
 	<style type="text/css">
 	@import url("<?php echo EDIT_FLOW_URL; ?>css/datepicker-editflow.css");
 	</style>
-<?php
+	<?php
 	}
 	
 	function story_budget_excerpt_length( $default_length ) {
 		return 60 / $this->get_num_columns();
 	}
-}
+} // End class ef_story_budget
 
 ?>
