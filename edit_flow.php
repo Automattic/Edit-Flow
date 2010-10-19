@@ -107,9 +107,9 @@ class edit_flow {
 		$this->calendar = new ef_calendar();
 		$this->story_budget = new ef_story_budget();
 		$this->settings = new ef_settings();
-		if ($this->get_plugin_option('dashboard_widgets_enabled')) $this->dashboard = new edit_flow_dashboard(); 
 		$this->notifications = new ef_notifications( (int) $this->get_plugin_option('notifications_enabled') );
 		$this->post_status = new ef_post_status( (int) $this->get_plugin_option('custom_statuses_enabled') );
+		$this->dashboard = new edit_flow_dashboard(); 
 		
 		// The main controller for the plugin - redirects to child controllers where necessary
 		add_action( 'admin_init', array( &$this, 'global_admin_controller' ) );
