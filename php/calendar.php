@@ -48,15 +48,15 @@ class ef_calendar {
 	function view_calendar() {
 		global $edit_flow;
 
-		if($_GET['edit_flow_custom_status_filter']) {
+		if ($_GET['edit_flow_custom_status_filter']) {
 			$edit_flow->options['custom_status_filter'] = $_GET['edit_flow_custom_status_filter'];
 		}
 
-		if($_GET['edit_flow_custom_category_filter']) {
+		if ($_GET['edit_flow_custom_category_filter']) {
 			$edit_flow->options['custom_category_filter'] = $_GET['edit_flow_custom_category_filter'];  
 		}
 
-		if($_GET['edit_flow_custom_author_filter']) {
+		if ( $_GET['edit_flow_custom_author_filter'] ) {
 			$edit_flow->options['custom_author_filter'] = $_GET['edit_flow_custom_author_filter'];
 		}
 
@@ -175,11 +175,12 @@ class ef_calendar {
 		global $edit_flow;
 	
 		$html = '';
-		$html .= '<ul class="day-navigation"><li id="calendar-filter"><form method="POST">';
+		$html .= '<ul class="day-navigation"><li id="calendar-filter"><form method="GET">';
 		if ( $_GET['date'] ) {
 			$html .= '<input type="hidden" name="date" value="'. $_GET['date'] . '"/>';
 		}
-	
+		$html .= '<input type="hidden" name="page" value="edit-flow/calendar" />';
+		
 		// Filter by post status
 		$html .= '<select name="' . $edit_flow->get_plugin_option_fullname('custom_status_filter') . '" id="custom_status_filter">';
 		$html .= '<option value="0">Show All Posts</option>';
