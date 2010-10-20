@@ -3,9 +3,10 @@
  * This class displays an editorial calendar for viewing upcoming and past content at a glance
  *
  * Somewhat prioritized @todos:
- * @todo Convert calendar navigation from $_GET to $_POST
  * @todo Highlight today on the calendar
- * @todo Save calendar state to usermeta table
+ * @todo Rewrite SQL query to get all of the posts in one go
+ * @todo Re-enable pagination links on the top
+ * @todo Ensure all of the styles work cross-browser
  *
  * @author danielbachhuber
  */
@@ -294,6 +295,7 @@ class ef_calendar {
 	
 	/**
 	 * Get all of the posts within a week's period from the date specified
+	 * @todo Rewrite the query for getting posts
 	 * @return object $cal_posts All of the posts as an object
 	 */
 	function get_calendar_posts( $date, $args = null ) {
