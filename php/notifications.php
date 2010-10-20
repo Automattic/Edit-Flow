@@ -47,7 +47,7 @@ class ef_notifications {
 		global $edit_flow;
 		
 		// No need to notify if it's a revision, auto-draft, or if post status wasn't changed
-		$ignored_statuses = array( $old_status, 'inherit', 'auto-draft' );
+		$ignored_statuses = apply_filters( 'ef_notification_ignored_statuses', array( $old_status, 'inherit', 'auto-draft' ), $post->post_type );
 		
 		if ( !in_array( $new_status, $ignored_statuses ) ) {
 			
