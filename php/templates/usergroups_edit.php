@@ -13,7 +13,7 @@
 	?>
 
 	<?php ef_the_message( $message ) ?>
-	<?php ef_the_errors( $result ) ?>
+	<?php ef_the_errors( $errors ) ?>
 	<form class="form-usergroups" method="post" id="addusergroup" name="addusergroup">
 		<div id="col-right">
 			<div class="col-wrap">

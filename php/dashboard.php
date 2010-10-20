@@ -11,6 +11,10 @@ class edit_flow_dashboard {
 	function add_dashboard_widgets () {
 		global $edit_flow, $current_user;
 		
+		if (!$edit_flow->get_plugin_option('dashboard_widgets_enabled')) {
+			return;
+		}
+		
 		// If the current user is a Contributor or greater, show the dashboard widgets
 		if ($current_user->has_cap('edit_posts')) {
 			

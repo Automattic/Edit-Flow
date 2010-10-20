@@ -2,57 +2,94 @@
 
 /**
  * This class displays a budgeting system for an editorial desk's publishing workflow.
- * This is a cursory attempt at implementation with many outstanding TODOs.
  *
  * Somewhat prioritized TODOs:
- * TODO: Integrate column number with Screen Options API
  * TODO: Make trash links work (using nonce) and quick edit links
  * TODO: Move JS and CSS to their own files
  * TODO: Review inline TODOs
+ * TODO: Fix any bugs with collapsing postbox divs and floating columns
  *
- * @author Scott Bressler
+ * @author sbressler
  */
 class ef_story_budget {
 	var $taxonomy_used = 'category';
 	
-	// TODO: Make this editable in Screen Options
-	var $num_columns = 2;
+	var $num_columns = 0;
+	
+	var $max_num_columns = 5;
+	
+	var $terms = array();
+	
+	const screen_width_percent = 98;
+	
+	const screen_id = 'dashboard_page_edit-flow/story_budget';
 	
 	/**
-	 * Construct a story_budget class. For now we're not doing anything here.
+	 * Construct a story_budget class and adds screen options.
 	 */
 	function __construct() {
+		include_once('screen-options.php');
+		add_screen_options_panel( 'edit_flow_story_budget_screen_columns', 'Screen Layout', array( &$this, 'print_column_prefs' ), self::screen_id, array( &$this, 'save_column_prefs' ), true );
+	}
+	
+	function get_num_columns() {
+		if ( $this->num_columns === 0) {
+			$this->num_columns = get_user_option( 'screen_layout_' . self::screen_id );
+		}
+		return $this->num_columns;
+	}
+	
+	function print_column_prefs() {
+		$return_val = 'Number of Columns: ';
+		for ( $i = 1; $i <= $this->max_num_columns; ++$i ) {
+			$return_val .= "<label><input type='radio' name='edit_flow-screen_columns' value='$i' " . checked($this->get_num_columns(), $i, false) . " /> $i</label>\n";
+		}
+		return $return_val;
+	}
+	
+	function save_column_prefs($posted_fields) {
+		global $current_screen;
+		$this->num_columns = (int) $posted_fields['edit_flow-screen_columns'];
+		
+		$user = wp_get_current_user();;
+		update_user_option( $user->ID, 'screen_layout_' . self::screen_id, (int) $posted_fields['edit_flow-screen_columns'] );
 	}
 
 	/**
 	 * Create the story budget view. This calls lots of other methods to do its work. This will create
-	 * the table navigation, then print the columns based on $this->num_columns, which will in turn
+	 * the table navigation, then print the columns based on get_num_columns(), which will in turn
 	 * print the stories themselves.
 	 */
 	function story_budget() {
+		global $current_screen;
+		if ( !strpos( $current_screen->id, 'story_budget' ) ) {
+			return;
+		}
+		
 		$cat = $_GET['cat'];
 		if ( isset ( $cat ) && !empty( $cat ) ) {
 			$terms = array();
 			$terms[] = get_term( $cat, $this->taxonomy_used );
 		} else {
-			$terms = get_terms($this->taxonomy_used, 'orderby=name&order=asc&parent=0&hide_empty=0');
+			// TODO: Verify that hide_empty really should be true (1)
+			$terms = get_terms($this->taxonomy_used, 'orderby=name&order=asc&parent=0&hide_empty=1');
 		}
-		$terms = apply_filters( 'story_budget_reorder_terms', $terms ); // allow for reordering or any other filtering of terms
-
+		$this->terms = apply_filters( 'ef_story_budget_reorder_terms', $terms ); // allow for reordering or any other filtering of terms
+		
 		$this->print_JS();
 		$this->print_CSS();
 		$this->table_navigation();
-?>
+		?>
 		<div id="dashboard-widgets-wrap">
 			<div id="dashboard-widgets" class="metabox-holder">
 			<?php
-				for ($i = 0; $i < $this->num_columns; ++$i) {
+				// for ($i = 0; $i < $this->get_num_columns(); ++$i) {
 					$this->print_column($i, $terms);
-				}
+				// }
 			?>
 			</div>
 		</div><!-- /dashboard-widgets -->
-<?php
+		<?php
 	}
 
 	/**
@@ -121,18 +158,19 @@ class ef_story_budget {
 	 * @param array $terms The terms to print in this column.
 	 */
 	function print_column($col_num, $terms) {
-		// If printing fewer than $this->num_columns terms, only print that many columns
-		$num_columns = min( count ( $terms ), $this->num_columns );
-?>
-		<div class='postbox-container' style='width:<?php echo 98/$num_columns; ?>%'>
+		// If printing fewer than get_num_columns() terms, only print that many columns
+		$num_columns = $this->get_num_columns();
+		?>
+		<div class='postbox-container'>
 			<div class="meta-box-sortables">
 			<?php
-				for ($i = $col_num; $i < count($terms); $i += $num_columns)
+				// for ($i = $col_num; $i < count($terms); $i += $num_columns)
+				for ($i = 0; $i < count($terms); $i++)
 					$this->print_term( $terms[$i] );
 			?>
 			</div>
 		</div>
-<?php
+		<?php
 	}
 	
 	/**
@@ -148,8 +186,8 @@ class ef_story_budget {
 	//	echo "<pre>"; print_r($term);echo "</pre>";
 		if ( !empty( $posts ) ) : // TODO: is this necessary if get_terms above behaves correctly?
 		
-?>
-	<div class="postbox">
+	?>
+	<div class="postbox" style='width: <?php echo self::screen_width_percent / $this->get_num_columns(); ?>%'>
 		<div class="handlediv" title="Click to toggle"><br /></div>
 		<h3 class='hndle'><span><?php echo $term->name; ?></span></h3>
 		<div class="inside">
@@ -174,7 +212,7 @@ class ef_story_budget {
 			</table>
 		</div>
 	</div>
-<?php
+	<?php
 		endif;
 	}
 	
@@ -213,7 +251,7 @@ class ef_story_budget {
 		//add_filter( 'excerpt_length', array( &$this, 'story_budget_excerpt_length') );
 		//remove_filter( 'excerpt_length', array( &$this, 'story_budget_excerpt_length') );
 		
-?>
+		?>
 			<tr id='post-<?php echo $post->ID; ?>' class='alternate author-self status-publish iedit' valign="top">
 				<td class="post-title column-title">
 					<strong><a class="row-title" href="post.php?post=<?php echo $post->ID; ?>&action=edit" title="Edit &#8220;<?php echo $post->post_title; ?>&#8221;"><?php echo $post->post_title; ?></a></strong>
@@ -225,7 +263,7 @@ class ef_story_budget {
 				<td class="status column-status"><a href="<?php echo $status_filter_url; ?>"><?php echo $post->post_status; ?></a></td>
 				<td class="categories column-categories"><?php $this->print_subcategories( $post->ID, $parent_term ); ?></td>
 			</tr>
-<?php
+		<?php
 	}
 	
 	/**
@@ -252,7 +290,7 @@ class ef_story_budget {
 	function table_navigation() {
 		global $edit_flow;
 		$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
-?>
+	?>
 	<div class="tablenav">
 		<div class="alignleft actions">
 			<form method="get" action="<?php echo admin_url() . EDIT_FLOW_STORY_BUDGET_PAGE; ?>">
@@ -290,9 +328,9 @@ class ef_story_budget {
 			?>
 			
 			<label for="start_date">From: </label>
-			<input id='start_date' name='start_date' type='text' class="date-pick" value="<?php echo $_GET['start_date']; ?>" />
+			<input id='start_date' name='start_date' type='text' class="date-pick" value="<?php echo $_GET['start_date']; ?>" autocomplete="off" />
 			<label for="end_date">To: </label>
-			<input id='end_date' name='end_date' type='text' size='20' class="date-pick" value="<?php echo $_GET['end_date']; ?>" />
+			<input id='end_date' name='end_date' type='text' size='20' class="date-pick" value="<?php echo $_GET['end_date']; ?>" autocomplete="off" />
 			<?php $this->print_date_scripts_and_style(); ?>
 			<input type="hidden" name="page" value="edit-flow/story_budget"/>
 			<input type="submit" id="post-query-submit" value="Filter" class="button-secondary" />
@@ -306,27 +344,40 @@ class ef_story_budget {
 		
 	</div><!-- /tablenav -->
 	<div class="clear"></div>
-<?php
+	<?php
 	}
 
 	/**
 	 * Print the CSS needed for the story budget. This should probably be included from a separate file.
 	 */
 	function print_CSS() {
-?>
+	?>
 		<style type="text/css">
 		#dashboard-widgets-wrap .postbox {
 			min-width: 0px;
 		}
+		.postbox-container {
+			width: 99%;
+		}
+
+		.postbox {
+			display: inline-block;
+			position: relative;
+			margin: 0 0 20px;
+		}
+
+		.story-budget thead tr th {
+			background: #f1f1f1 !important;
+		}
 		</style>
-<?php 
+	<?php
 	}
 
 	/**
-	 * Print the CSS needed for the story budget. This should probably be included from a separate file.
+	 * Print the JS needed for the story budget. This should probably be included from a separate file.
 	 */
 	function print_JS() {
-?>
+	?>
 		<script type="text/javascript">
 		jQuery(document).ready(function($) {
 			$("#toggle_details").click(function() {
@@ -335,14 +386,22 @@ class ef_story_budget {
 			$("h3.hndle,div.handlediv").click(function() {
 				$(this).parent().children("div.inside").slideToggle(); // hide sections when directed to
 			});
+			$("input[name=edit_flow-screen_columns]").click(function() {
+				var numColumns = $(this).val(); // Get the new number of columns
+				jQuery(".postbox").css('width', <?php echo self::screen_width_percent; ?> / numColumns + '%');
+			});
+			
+			// Hide any column number choices beyond the number of terms being displayed
+			var numTerms = $(".postbox").size();
+			$("input[name=edit_flow-screen_columns]").slice(numTerms).parent().hide();
 		});
 		</script>
-<?php
+	<?php
 	}
 	
 	function print_date_scripts_and_style() {
 	// TODO: add this all via filters and enqueue_script (dependency on jQuery, obviously)
-?>
+	?>
 	<script src="<?php echo EDIT_FLOW_URL; ?>js/lib/date.js" type="text/javascript"></script>
 	<script src="<?php echo EDIT_FLOW_URL; ?>js/lib/jquery.datePicker.js" type="text/javascript"></script>
 	<script type="text/javascript">
@@ -382,12 +441,12 @@ class ef_story_budget {
 	<style type="text/css">
 	@import url("<?php echo EDIT_FLOW_URL; ?>css/datepicker-editflow.css");
 	</style>
-<?php
+	<?php
 	}
 	
 	function story_budget_excerpt_length( $default_length ) {
-		return 60 / $this->num_columns;
+		return 60 / $this->get_num_columns();
 	}
-}
+} // End class ef_story_budget
 
 ?>

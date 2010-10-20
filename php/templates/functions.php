@@ -18,15 +18,24 @@ function ef_the_message( $message = '' ) {
  * Displays a list of error messages
  * @param $errors
  */
-function ef_the_errors( $errors = array() ) {
+function ef_the_errors( $errors ) {
+	
+	if( is_wp_error( $errors ) ) {
+		$errors = $errors->get_error_messages();
+	}
+	
+	$errors = (array)$errors;
+	
+	if( isset( $_REQUEST['errors'] ) ) {
+		$errors = array_merge( $errors, array_map( 'esc_html', (array)$_REQUEST['errors'] ) );
+	}
 	?>
-	<?php if( isset($errors) && is_wp_error( $errors ) ) : ?>
+	<?php if( is_array( $errors ) && ! empty( $errors ) ) : ?>
 		<div id="error" class="error fade">
 			<p>
-				<?php _e('Uh oh! Looks like we found some errors:', 'edit-flow'); ?>
 				<ul>
-					<?php foreach( $errors->get_error_messages() as $error ) : ?>
-						- <strong><?php echo $error ?></strong>
+					<?php foreach( $errors as $error ) : ?>
+						<li>&raquo; <?php echo $error ?></li>
 					<?php endforeach; ?>
 				</ul>
 			</p>

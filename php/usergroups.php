@@ -133,6 +133,8 @@ class ef_usergroups_admin {
 						$message = __('New usergroup succesfully created!', 'edit-flow');
 						$redirect = EDIT_FLOW_USERGROUPS_PAGE .'&message='. urlencode($message);
 						wp_redirect( $redirect );
+					} else {
+						$ef_page_data['errors'] = $result;
 					}
 				}
 				// Setting up page data, woo!
@@ -163,7 +165,9 @@ class ef_usergroups_admin {
 						$message = __('Usergroup succesfully updated!', 'edit-flow');
 						$redirect = EDIT_FLOW_USERGROUPS_EDIT_LINK .'&usergroup='. urlencode($result->slug) .'&message='. urlencode($message);
 						wp_redirect( $redirect );
-					} 
+					} else {
+						$ef_page_data['errors'] = $result;
+					}
 				} 
 				
 				$slug = esc_html($_GET['usergroup']);
@@ -204,7 +208,7 @@ class ef_usergroups_admin {
 				} else {
 					// @TODO: more decsriptive error message
 					$ef_page_data['usergroups'] = ef_get_usergroups();
-					$ef_page_data['errors'][] = __('Looks like something went wrong with the delete.', 'edit-flow');
+					$ef_page_data['errors'] = __('Looks like something went wrong with the delete.', 'edit-flow');
 				}
 				break;
 				
