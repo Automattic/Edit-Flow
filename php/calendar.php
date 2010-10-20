@@ -310,22 +310,22 @@ class ef_calendar {
 
 		$query = "SELECT DISTINCT w.ID, w.guid, w.post_date, u.display_name, w.post_title ";
 		$query .= "FROM " . $wpdb->posts . " w, ". $wpdb->users . " u, ";
-		$query .= $wpdb->term_relationships . " t ";
+		$query .= $wpdb->term_relationships . " r, " . $wpdb->terms . " t ";
 		$query .= "WHERE u.ID=w.post_author AND ";
 		if ( $args['post_status'] ) {
 			$query .= "w.post_status = '" . $args['post_status'] . "' AND ";
 		}
-		$query .= "w.post_status <> 'auto-draft' and "; // Hide auto draft posts
-		$query .= "w.post_status <> 'trash' and "; // Hide trashed posts
-		$query .= "w.post_type = 'post' and w.post_date like '". $q_date . "%' and ";
-		$query .= "t.object_id = w.ID";
-		//if ($edit_flow->get_plugin_option('custom_category_filter') != 'all') {
-		//	$query .= " and t.term_taxonomy_id = " . $edit_flow->get_plugin_option('custom_category_filter');
-		//}
+		$query .= "w.post_status <> 'auto-draft' AND "; // Hide auto draft posts
+		$query .= "w.post_status <> 'trash' AND "; // Hide trashed posts
+		$query .= "w.post_type = 'post' and w.post_date like '". $q_date . "%' AND ";
+		$query .= "r.object_id = w.ID";
+		if ( $args['category_name'] ) {
+			$query .= " AND t.slug = '" . $args['category_name'] . "'";
+		}
 		if ( $args['author'] ) {
 			$query .= " and u.ID = " . $args['author'];
 		}
-
+		$query .= ";";
 		$cal_posts = $wpdb->get_results( $query );
 		return $cal_posts;
 	}
