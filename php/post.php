@@ -35,7 +35,7 @@ class ef_post_metadata
 	
 	// Add necessary AJAX actions
 	function add_ajax_actions( ) {
-		add_action('wp_ajax_editflow_ajax_insert_comment', array(&$this, 'ajax_insert_comment' ));
+		add_action( 'wp_ajax_editflow_ajax_insert_comment', array( &$this, 'ajax_insert_comment' ) );
 	}
 	
 	// Loads scripts 
@@ -44,7 +44,7 @@ class ef_post_metadata
 		
 		// Only add the script to Edit Post and Edit Page -- don't want to bog down the rest of the admin with unnecessary javascript
 		if($pagenow == 'post.php' || $pagenow == 'page.php') {
-			wp_enqueue_script('edit_flow-post_comment', EDIT_FLOW_URL.'js/post_comment.js', array('jquery','post'), false, true);
+			wp_enqueue_script( 'edit_flow-post_comment', EDIT_FLOW_URL . 'js/post_comment.js', array( 'jquery','post' ), false, true );
 			
 			//wp_enqueue_script('edit_flow-usergroups', EDIT_FLOW_URL.'js/usergroups.js', array('jquery','post'), false, true);
 			//wp_enqueue_script('jquery-quicksearch', EDIT_FLOW_URL.'js/jquery.quicksearch.pack.js', array('jquery'), false, true);
@@ -55,8 +55,7 @@ class ef_post_metadata
 			</script>
 			<?php
 		}
-		wp_enqueue_style('edit_flow-styles', EDIT_FLOW_URL.'/css/editflow.css', false, false, 'all');
-		wp_enqueue_style('edit_flow-calendar-styles', EDIT_FLOW_URL.'/css/calendar.css', false, false, 'all');
+		wp_enqueue_style( 'edit_flow-styles', EDIT_FLOW_URL . 'css/editflow.css', false, false, 'all' );
 	}
 		
 	function get_post_meta( $post_id, $name, $single = true ) {

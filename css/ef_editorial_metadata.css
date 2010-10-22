@@ -1,0 +1,28 @@
+/** Editorial Metadata **/
+
+#ef_editorial_meta_meta_box label, #ef_editorial_meta_meta_box span.description {
+	vertical-align: top;
+}
+
+div#normal-sortables #ef_editorial_meta_meta_box label, #ef_editorial_meta_meta_box span.description {
+	position: relative;
+	top: 3px;
+}
+
+#ef_editorial_meta_meta_box span.description {
+	margin-left: 5px;
+	line-height: 1.3em;
+}
+/* When displaying the metabox on the right, show the description underneath the inputs */
+div#side-sortables #ef_editorial_meta_meta_box span.description {
+	display: block;
+}
+
+#ef_editorial_meta_meta_box div.ef_editorial_meta_date label {
+	background: url("../img/date-button.gif") no-repeat scroll 0 0 transparent;
+	padding-left: 18px;
+}
+
+#ef_editorial_meta_meta_box div.ef_editorial_meta_location span {
+	padding-left: 5px;
+}

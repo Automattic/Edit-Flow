@@ -77,6 +77,7 @@ class edit_flow {
 	
 	// used to create an instance of the various classes 
 	var $custom_status 		= null;
+	var $ef_post_metadata	= null;
 	var $editorial_metadata = null;
 	var $dashboard			= null;
 	var $post_status 		= null;
@@ -100,7 +101,8 @@ class edit_flow {
 		// Create all of our objects
 		$this->custom_status = new custom_status();
 		$this->usergroups = new ef_usergroups_admin();
-		$this->editorial_metadata = new ef_editorial_metadata();
+		$this->ef_post_metadata = new ef_post_metadata();
+		$this->editorial_metadata = new EF_Editorial_Metadata();
 		$this->calendar = new ef_calendar();
 		$this->story_budget = new ef_story_budget();
 		$this->settings = new ef_settings();
