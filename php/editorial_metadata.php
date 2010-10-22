@@ -9,14 +9,19 @@
  * 5) Play with adding more metadata to a post
  * 6) Clear the metadata for a single term in a post and watch the count go down!
  * 6) Delete a term and note the metadata disappears from posts
- * 7) Re-add the term (same slug) and the metadata does not return because of the following TODO
+ * 7) Re-add the term (same slug) and the metadata does not return because of the third TODO
  * 
+ * A bunch of TODOs, but only the first two are showstoppers
+ * TODO: Remove old metadata section from editorial comments meta_box
+ * TODO: Verify old metadata can be updated seamlessly
  * TODO: Should the key for postmeta be by term slug rather than term_id so that if a term is added back
  * 		 later its related metadata will appear again? Otherwise we might as well delete metadata when a
  * 		 term is deleted as there is no way to resurface the metadata without manually adding the term
  * 		 with the old ID. Need to pick one of these two changes and do it!
  * TODO: Fully document this class.
  * TODO: Move remaining JS into it's own file
+ * TODO: Add ability for drag-drop of metadata terms?
+ * TODO: Add ability to specify "due date" in settings based on one of the date metadata fields? Then the calendar could use that again.
  */
 class EF_Editorial_Metadata {
 
