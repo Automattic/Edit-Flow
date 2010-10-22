@@ -1,5 +1,7 @@
 <?php
 
+// Retrieved from this blog post: http://w-shadow.com/blog/2010/06/29/adding-stuff-to-wordpress-screen-options/
+
 if ( !class_exists('wsScreenOptions10') ):
 
 /**
