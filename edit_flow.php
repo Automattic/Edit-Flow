@@ -154,24 +154,12 @@ class edit_flow {
 		// Run function to generate db tables	
 		$this->build_db_tables();
 		
-		// Do other fancy stuff!
-		// Like load default values for Custom Status
-		
-		// re-approve editorial comments
-		$wpdb->query($wpdb->prepare("UPDATE $wpdb->comments SET comment_approved = 1 WHERE comment_type = %s", $this->post_metadata->comment_type));
-		
-		
 	} // END: activate_plugin
 	
 	/**
 	 * This function is called when plugin is activated.
 	 */
 	function deactivate_plugin( ) {
-		global $wpdb;
-		
-		// unapprove editorial comments
-		$wpdb->query($wpdb->prepare("UPDATE $wpdb->comments SET comment_approved = 0 WHERE comment_type = %s", $this->post_metadata->comment_type));
-		
 		
 	} // END: deactivate_plugin
 	

@@ -4,6 +4,7 @@ function edit_flow_upgrade( $from ) {
 	if ( !$from || $from < 0.1 ) edit_flow_upgrade_01();
 	if ( $from < 0.3 ) edit_flow_upgrade_03();
 	if ( $from < ef_version_number_float( '0.5.1' ) ) edit_flow_upgrade_051();
+	if ( $from < 0.6 ) edit_flow_upgrade_06();
 }
 
 // Upgrade to 0.1
@@ -87,6 +88,9 @@ function edit_flow_upgrade_051() {
 }
 
 function edit_flow_upgrade_06() {
+	global $wpdb, $edit_flow;
+	
+	$wpdb->query( $wpdb->prepare( "UPDATE $wpdb->comments SET comment_approved = %s WHERE comment_type = %s", $edit_flow->ef_post_metadata->comment_type, $edit_flow->ef_post_metadata->comment_type ) );
 	
 	// @todo Remove all of the prior calendar state save data (being stored in user meta now)
 	// ..options: 'custom_status_filter', 'custom_category_filter', 'custom_author_filter'

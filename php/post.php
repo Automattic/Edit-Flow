@@ -18,17 +18,6 @@ class ef_post_metadata
 		// Load necessary scripts and stylesheets
 		add_action('admin_enqueue_scripts', array(&$this, 'add_admin_scripts'));
 		
-		// Set up filter to hide editorial comments from front-end
-		// Use functioning exits, because we'll be asking users to add the function to their theme file
-		// This is to make sure that in the event that the plugin is disabled, editorial comments stay hidden
-		if(!function_exists('ef_filter_editorial_comments')) {
-			add_filter( 'comments_array', array(&$this, 'filter_editorial_comments') );
-		}
-		if(!function_exists('ef_filter_editorial_comments_count')) {
-			add_filter( 'get_comments_number', array(&$this, 'filter_editorial_comments_count') );
-		}
-		add_filter('comment_feed_where', array( &$this, 'filter_feed_comments' ));
-		
 		// init all ajax actions
 		$this->add_ajax_actions();
 	}
@@ -323,52 +312,12 @@ class ef_post_metadata
 			}
 		}
 	}
-	
-	/**
-	 * Function to filter out editorial comments from comments array
-	 * Mainly used to hide editorial comments from front-end
-	 */
-	function filter_editorial_comments( $comments ) {
-		// Only filter if viewing front-end
-		if( !is_admin() ) {
-			$count = 0;
-			foreach($comments as $comment) {
-				//print_r($comment);
-				if($comment->comment_type == $this->comment_type) {
-					unset($comments[$count]);
-				}
-				$count++;
-			}
-		}
-		return $comments;
-	}
-	/**
-	 * Function to recalculate the number of comments on a post
-	 * Mainly used to hide editorial comments from front-end
-	 */
-	function filter_editorial_comments_count( $count ) {
-		global $post;
-		// Only filter if viewing front-end
-		if( !is_admin() ) {
-			// Get number of editorial comments
-			$editorial_count = $this->get_editorial_comment_count($post->ID);
-			$count = $count - $editorial_count;
-		}
-		return $count;
-	}
-	private function get_editorial_comment_count( $id ) {
+	function get_editorial_comment_count( $id ) {
 		global $wpdb; 
 		$comment_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $wpdb->comments WHERE comment_post_ID = %d AND comment_type = %s", $id, $this->comment_type));
 		if(!$comment_count) $comment_count = 0;
 		return $comment_count;
 	}
-	// Filter editorial comments from feeds
-	function filter_feed_comments( $cwhere ) {
-		$cwhere .= " AND (comment_type = '' OR comment_type = 'comment' OR comment_type = 'pingback' OR comment_type = 'trackback') ";
-		return $cwhere;
-	}
-	
-
 	
 	function post_comments_box( ) {
 		global $post, $post_ID;
@@ -387,7 +336,8 @@ class ef_post_metadata
 									'post_id' => $post->ID,
 									'comment_type' => $this->comment_type,
 									'orderby' => 'comment_date',
-									'order' => 'ASC'
+									'order' => 'ASC',
+									'status' => $this->comment_type
 								)
 							);
 				?>
@@ -561,7 +511,7 @@ class ef_post_metadata
 			    'comment_date' => $time,
 			    'comment_date_gmt' => $time,
 				// Set to -1?
-			    'comment_approved' => 1,
+			    'comment_approved' => $this->comment_type,
 			);
 			
 			// Insert Comment
@@ -791,6 +741,8 @@ function ef_get_comments_plus( $args = '' ) {
 		$approved = "comment_approved = '1'";
 	elseif ( 'spam' == $status )
 		$approved = "comment_approved = 'spam'";
+	elseif( ! empty( $status ) )
+		$approved = $wpdb->prepare( "comment_approved = %s", $status );
 	else
 		$approved = "( comment_approved = '0' OR comment_approved = '1' )";
 
