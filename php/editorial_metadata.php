@@ -396,7 +396,7 @@ class EF_Editorial_Metadata {
 		);
 		
 		foreach ( $default_metadata as $term )
-			if ( !is_term( $term['term'] ) )
+			if ( !ef_term_exists( $term['term'] ) )
 				wp_insert_term( $term['term'], $this->metadata_taxonomy, $term['args'] );
 				
 	}
