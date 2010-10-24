@@ -104,7 +104,7 @@ class edit_flow {
 		$this->ef_post_metadata = new ef_post_metadata();
 		$this->editorial_metadata = new EF_Editorial_Metadata();
 		$this->calendar = new ef_calendar();
-		$this->story_budget = new ef_story_budget();
+		$this->story_budget = new EF_Story_Budget();
 		$this->settings = new ef_settings();
 		$this->notifications = new ef_notifications( (int) $this->get_plugin_option('notifications_enabled') );
 		$this->post_status = new ef_post_status( (int) $this->get_plugin_option('custom_statuses_enabled') );
