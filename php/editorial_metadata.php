@@ -526,5 +526,3 @@ class EF_Editorial_Metadata {
 	}
 	
 } // END EF_Editorial_Metadata class
-
-?>

@@ -191,5 +191,3 @@ class ef_settings {
 }
 
 }
-
-?>

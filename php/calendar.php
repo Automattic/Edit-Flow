@@ -368,5 +368,3 @@ class ef_calendar {
 }
 	
 }
-
-?>

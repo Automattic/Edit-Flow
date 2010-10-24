@@ -280,5 +280,3 @@ if ( !function_exists('add_screen_options_panel') ){
 	}
 	
 }    
-
-?>

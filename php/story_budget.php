@@ -569,5 +569,3 @@ class ef_story_budget {
 	}
 	
 } // End class EF_Story_Budget
-
-?>
