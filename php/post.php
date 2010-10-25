@@ -11,10 +11,7 @@ class ef_post_metadata
 	function __construct() {
 		// Set up metabox and related actions
 		add_action('admin_menu', array(&$this, 'add_post_meta_box'));
-		add_action('save_post', array(&$this, 'save_post_meta_box'));
-		add_action('edit_post', array(&$this, 'save_post_meta_box'));
-		add_action('publish_post', array(&$this, 'save_post_meta_box'));
-		
+				
 		// Load necessary scripts and stylesheets
 		add_action('admin_enqueue_scripts', array(&$this, 'add_admin_scripts'));
 		
@@ -54,245 +51,12 @@ class ef_post_metadata
 		if($single)	return $meta[0];
 		else return $meta;
 	}
-	
-	function post_meta_box() {
-		global $post, $edit_flow;
 		
-		$user = wp_get_current_user();
-		
-		// Get the assignment description from the custom field
-		$description = get_post_meta($post->ID, '_ef_description');
-		$description = stripslashes( esc_html( $description[0] ) );
-		
-		// Get the assignment due date from the custom field
-		$duedate = get_post_meta($post->ID, '_ef_duedate');
-		$duedate = absint( $duedate[0] );
-		if($duedate) {
-			$duedate_month = date('M', $duedate);
-			$duedate_day = date('j', $duedate);
-			$duedate_year = date('Y', $duedate);
-		} else {
-			$duedate_month = date('M');
-			$duedate_day = date('j');
-			$duedate_year = date('Y');	
-		}
-		
-		// Get the assignment location from the custom field
-		$location = get_post_meta($post->ID, '_ef_location');
-		$location = stripslashes( esc_html( $location[0] ) );
-		
-		// Get the assignment workflow from the custom field
-//		$workflow = get_post_meta($post->ID, '_ef_workflow');
-//		$workflow = esc_html( $workflow[0] );
-		
-		$following = ef_is_user_following_post($post, $user);
-		
-		$show_subscriptions = ($edit_flow->get_plugin_option('notifications_enabled') && current_user_can('edit_post_subscriptions'));
-		
-		// TODO: need to separate view into separate template
-		
-		/*
-		<div id="ef_meta-data">
-			<h4><?php _e('Post Metadata', 'edit-flow') ?></h4>
-			
-			<div id="ef_description">
-				<label for="ef-description"><?php _e('Description:', 'edit-flow') ?></label>
-				<span id="ef_description-display"><?php 
-					if ($description != '' && $description != null) {
-						echo $description;
-					} else {
-						_e('None assigned', 'edit-flow');
-					} ?></span>&nbsp;
-				<a href="#ef-metadata" onclick="jQuery(this).hide();
-					jQuery('#ef_description-edit').slideDown(300);
-					return false;" id="ef_description-edit_button"><?php _e('Edit', 'edit-flow') ?></a>
-				<div id="ef_description-edit" style="display:none;">
-					<textarea cols="20" rows="3" id="ef-description" name="ef-description" maxlength="140" autocomplete="off"><?php echo $description; ?></textarea>
-					<br />
-					<a href="#ef-metadata" class="button" onclick="jQuery('#ef_description-edit').slideUp(300);
-						var description = jQuery('#ef-description').val();
-						jQuery('#ef_description-display').text(description == '' ? 'None assigned' : description).show();
-						jQuery('#ef_description-edit_button').show();
-						return false;"><?php _e('OK', 'edit-flow') ?></a>&nbsp;
-					<a href="#ef-metadata" onclick="jQuery('#ef_description-edit').slideUp(300);
-						var description = jQuery('#ef_description-display').text();
-						if (description != 'None assigned')
-							jQuery('#ef-description').val(description);
-						jQuery('#ef_description-display').show();
-						jQuery('#ef_description-edit_button').show();
-						return false;"><?php _e('Cancel', 'edit-flow') ?></a>
-				</div>
-			</div>
-			
-			<?php //TODO: Need to move the js into a seperate file, since a lot is duplicated ?>
-			<div id="ef_duedate">
-				<label for="ef_duedate_month"><?php _e('Due Date:', 'edit-flow') ?></label>
-				<span id="ef_duedate-display"><?php
-					if ($duedate != null) {
-						echo $duedate_month . ' ' . $duedate_day . ', ' . $duedate_year;
-					} else {
-						_e('None assigned', 'edit-flow');
-					} ?></span>&nbsp;
-				<a href="#ef-metadata" onclick="jQuery(this).hide();
-					jQuery('#ef_duedate-edit').slideDown(300);
-					return false;" id="ef_duedate-edit_button"><?php _e('Edit', 'edit-flow') ?></a>
-				<div id="ef_duedate-edit" style="display:none;">
-					<select id="ef_duedate_month" name="ef_duedate_month">
-						<?php $months = array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'); ?>
-						<?php foreach( $months as $month ) : ?>
-							<option <?php if ($duedate_month == $month) echo 'selected="selected"'; ?>><?php echo $month ?></option>
-						<?php endforeach; ?>
-					</select>
-					<input type="text" id="ef_duedate_day" name="ef_duedate_day" value="<?php echo $duedate_day; ?>" size="2" maxlength="2" autocomplete="off" />,
-					<input type="text" id="ef_duedate_year" name="ef_duedate_year" value="<?php echo $duedate_year; ?>" size="4" maxlength="4" autocomplete="off" />
-					<br />
-					<a href="#ef-metadata" class="button" onclick="jQuery('#ef_duedate-edit').slideUp(300);
-						var duedate_month = jQuery('#ef_duedate_month').val();
-				 		var duedate_day = jQuery('#ef_duedate_day').val();
-						var duedate_year = jQuery('#ef_duedate_year').val();
-						var duedate = duedate_month + ' ' + duedate_day + ', ' + duedate_year;
-						jQuery('#ef_duedate-display').text(duedate).show();
-						jQuery('#ef_duedate-edit_button').show();
-						return false;"><?php _e('OK', 'edit-flow') ?></a>&nbsp;
-					<a href="#ef-metadata" onclick="jQuery('#ef_duedate-edit').slideUp(300);
-						var duedate_full = jQuery('#ef_duedate-display').text();
-						if (duedate_full != 'None assigned') {
-							var month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'];
-							var duedate = new Date(duedate_full);
-							var duedate_month = duedate.getMonth();
-							var duedate_day = duedate.getDate();
-							var duedate_year = duedate.getFullYear();
-							jQuery('#ef_duedate_month').val(month[duedate_month]);
-							jQuery('#ef_duedate_day').val(duedate_day);
-							jQuery('#ef_duedate_year').val(duedate_year);
-						}
-						jQuery('#ef_duedate-edit_button').show();
-						return false;"><?php _e('Cancel', 'edit-flow') ?></a>
-				</div>
-			</div>
-			
-			<div id="ef_location">
-				<label for="ef-location"><?php _e('Location:', 'edit-flow') ?></label>
-				<span id="ef_location-display"><?php
-					if ($location != null && $location != '') {
-						echo $location;
-					} else {
-						_e('None assigned', 'edit-flow');
-					} ?></span>&nbsp;
-				<a href="#ef-metadata" onclick="jQuery(this).hide();
-					jQuery('#ef_location-edit').slideDown(300);
-					return false;" id="ef_location-edit_button"><?php _e('Edit', 'edit-flow') ?></a>
-				<div id="ef_location-edit" style="display:none;">
-					<input type="text" size="20" id="ef-location" name="ef-location" maxlength="50" autocomplete="off" value="<?php echo esc_attr($location); ?>">
-					<br />
-					<a href="#ef-metadata" class="button" onclick="jQuery('#ef_location-edit').slideUp(300);
-						var location = jQuery('#ef-location').val();
-						jQuery('#ef_location-display').text(location == '' ? 'None assigned' : location);
-						jQuery('#ef_location-edit_button').show();
-						return false;"><?php _e('OK', 'edit-flow') ?></a>&nbsp;
-					<a href="#ef-metadata" onclick="jQuery('#ef_location-edit').slideUp(300);
-						var location = jQuery('#ef_location-display').text();
-						if (location != 'None assigned') {
-							jQuery('#ef-location').val(location);
-						}
-						jQuery('#ef_location-edit_button').show();
-						return false;"><?php _e('Cancel', 'edit-flow') ?></a>
-				</div>
-			</div>
-		
-			<!-- <div id="ef_workflow">
-				<label for="ef_workflow">Workflow:</label>
-				<span id="ef_workflow-display"><?php
-					if ($workflow != null && $workflow != '') {
-						//echo $workflow;
-					} else {
-						//echo 'None assigned';
-					} ?></span>&nbsp;
-				<a href="#ef-metadata" onclick="jQuery(this).hide();
-					jQuery('#ef_workflow-edit').slideDown(300);
-					return false;" id="ef_workflow-edit_button">Edit</a>
-				<div id="ef_workflow-edit" style="display:none;">
-					<select id="ef-workflow" name="ef-workflow">
-						<option value="01">Workflows are coming</option>
-						<option value="02">Second workflow might be sports</option>
-						<option value="02">And the third could be opinion</option>
-					</select>
-					<a href="#ef-metadata" class="button" onclick="jQuery('#ef_workflow-edit').slideUp(300);
-						var location = jQuery('#ef-location').val();
-						jQuery('#ef_workflow-display').text(location);
-						jQuery('#ef_workflow-edit_button').show();
-						return false;">OK</a>&nbsp;
-					<a href="#ef-metadata" onclick="jQuery('#ef_workflow-edit').slideUp(300);
-						var location = jQuery('#ef_workflow-display').text();
-						if (location != 'None assigned') {
-							jQuery('#ef-location').val(location);
-						}
-						jQuery('#ef_workflow-edit_button').show();
-						return false;">Cancel</a>
-				</div>
-			</div> -->
-			<!--
-			<div>
-				<?php // TODO: ONLY show if notifications enabled ?>
-				<?php if( $following ) : ?>
-					<p><?php _e('You are subscribed to notifications for this post', 'edit-flow'); ?></p>
-					<a href="" class="button"><?php _e('Unfollow this post', 'edit-flow'); ?></a>
-				<?php else : ?>
-					<a href="" class="button"><?php _e('Follow this post', 'edit-flow'); ?></a>
-				<?php endif; ?>
-				
-			</div>
-			-->
-			
-			<?php if( $show_subscriptions ) : ?>
-				<!--<a href="#TB_inline?width=600&inlineId=ef-post_following_box" class="button thickbox"><?php _e('Manage Subscriptions', 'edit-flow') ?></a>-->
-			<?php endif; ?>
-			
-			<input type="hidden" name="ef-nonce" id="ef-nonce" value="<?php echo wp_create_nonce('ef-nonce'); ?>" />
-		</div>
-		*/ ?>
-		<?php $this->post_comments_box(); ?>
-
-		<div class="clear"></div>
-		
-		<?php
-	}
-	
 	function subscriptions_meta_box ( ) {
 		global $edit_flow;
 		
 		if( $edit_flow->get_plugin_option('notifications_enabled') && current_user_can('edit_post_subscriptions') ) 
 			$this->post_followers_box( $followers_box_args );
-	}
-	
-	function save_post_meta_box($post_id) {
-		global $edit_flow, $post;
-		
-		if ( isset( $_POST['ef-nonce'] ) && !wp_verify_nonce( $_POST['ef-nonce'], 'ef-nonce')) {
-			return $post_id;  
-		}
-		
-		if( !wp_is_post_revision($post) && !wp_is_post_autosave($post) ) {
-			
-			// Get the assignment description and save it to a custom field
-			$description = esc_html($_POST['ef-description']);
-			update_post_meta($post_id, '_ef_description', $description);	
-			
-			// Get the assignment due date and save it to a custom field
-			$duedate_month = esc_html($_POST['ef_duedate_month']);
-			$duedate_day = (int)$_POST['ef_duedate_day'];
-			$duedate_year = (int)$_POST['ef_duedate_year'];
-			$duedate = strtotime($duedate_month . ' ' . $duedate_day . ', ' . $duedate_year);
-			update_post_meta($post_id, '_ef_duedate', $duedate);
-			
-			// Get the assignment location and save it to the custom field
-			$location = esc_html($_POST['ef-location']);
-			update_post_meta($post_id, '_ef_location', $location);
-			
-			// Get the assignment workflow and save it to the custom field
-			//$workflow = $_POST['ef-workflow'];
-			//update_post_meta($post_id, '_ef_workflow', $workflow);
-		}		
 	}
 	
 	/**
@@ -302,8 +66,8 @@ class ef_post_metadata
 		global $edit_flow;
 		
 		if (function_exists('add_meta_box')) {
-			add_meta_box('edit-flow', __('Edit Flow', 'edit-flow'), array(&$this, 'post_meta_box'), 'post', 'normal', 'high');
-			add_meta_box('edit-flow', __('Edit Flow', 'edit-flow'), array(&$this, 'post_meta_box'), 'page', 'normal', 'high');
+			add_meta_box('edit-flow', __('Editorial Comments', 'edit-flow'), array(&$this, 'editorial_comments_meta_box'), 'post', 'normal', 'high');
+			add_meta_box('edit-flow', __('Editorial Comments', 'edit-flow'), array(&$this, 'editorial_comments_meta_box'), 'page', 'normal', 'high');
 			
 			if( $edit_flow->get_plugin_option('notifications_enabled') ) {
 				add_meta_box('edit-flow-subscriptions', __('Notification Subscriptions', 'edit-flow'), array(&$this, 'subscriptions_meta_box'), 'post', 'advanced', 'high');
@@ -318,16 +82,15 @@ class ef_post_metadata
 		return $comment_count;
 	}
 	
-	function post_comments_box( ) {
+	function editorial_comments_meta_box( ) {
 		global $post, $post_ID;
 		?>
 		<div id="ef-comments_wrapper">
 			<a name="editorialcomments"></a>
-			<h4><?php _e('Editorial Comments', 'edit-flow') ?></h4>
 			
 			<?php
 			// Show comments only if not a new post
-			if($post_ID != 0) :
+			if( ! in_array( $post->post_status, array( 'new', 'auto-draft' ) ) ) :
 				
 				// Unused since switched to wp_list_comments
 				$editorial_comments = ef_get_comments_plus (
@@ -360,12 +123,13 @@ class ef_post_metadata
 			<?php
 			else :
 			?>
-				<p><?php _e('You can\'t add comments yet as this is a new post. Come back once you\'ve saved it. Cool?', 'edit-flow') ?></p>
+				<p><?php _e('You can\'t add comments yet because this is a new post. Come back once you\'ve saved it. Cool?', 'edit-flow') ?></p>
 			<?php
 			endif;
 			?>
 			<div class="clear"></div>
 		</div>
+		<div class="clear"></div>
 		<?php
 	}
 	

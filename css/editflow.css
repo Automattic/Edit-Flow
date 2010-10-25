@@ -161,18 +161,21 @@
 /** Comments **/
 
 #ef-comments_wrapper {
-	width: 58%;
 	padding: 0;
 }
 
 #ef-comments {
 	margin-bottom: 10px;
+	border-top: 1px solid #e5e5e5;
+	background: #eee;
 }
 	#ef-comments li {
 		padding: 5px;
 		margin: 0px 0;
 		border-left: 5px solid #e5e5e5;
+		border-right: 5px solid #e5e5e5;
 		border-bottom: 1px solid #e5e5e5;
+		background: #fff;
 	}
 	#ef-comments li:hover p.row-actions {
 		visibility: visible;
@@ -190,10 +193,10 @@
 			border-left: 5px solid #e5e5e5;
 			border-bottom: 1px solid #e5e5e5;
 		}
-	
+	/*
 	#ef-comments .even { background: none; }
 	#ef-comments .odd { background: none; }
-
+*/
 	#ef-comments img.avatar {
 		border:1px solid #CCCCCC;
 		float:left;
