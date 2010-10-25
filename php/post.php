@@ -91,8 +91,7 @@ class ef_post_metadata
 		
 		// TODO: need to separate view into separate template
 		
-		?>
-		
+		/*
 		<div id="ef_meta-data">
 			<h4><?php _e('Post Metadata', 'edit-flow') ?></h4>
 			
@@ -251,7 +250,7 @@ class ef_post_metadata
 			
 			<input type="hidden" name="ef-nonce" id="ef-nonce" value="<?php echo wp_create_nonce('ef-nonce'); ?>" />
 		</div>
-		
+		*/ ?>
 		<?php $this->post_comments_box(); ?>
 
 		<div class="clear"></div>
@@ -269,7 +268,7 @@ class ef_post_metadata
 	function save_post_meta_box($post_id) {
 		global $edit_flow, $post;
 		
-		if ( !wp_verify_nonce( $_POST['ef-nonce'], 'ef-nonce')) {
+		if ( isset( $_POST['ef-nonce'] ) && !wp_verify_nonce( $_POST['ef-nonce'], 'ef-nonce')) {
 			return $post_id;  
 		}
 		

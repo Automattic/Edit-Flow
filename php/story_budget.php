@@ -4,7 +4,6 @@
  * This class displays a budgeting system for an editorial desk's publishing workflow.
  *
  * Somewhat prioritized TODOs:
- * TODO: Make trash links work (using nonce) and quick edit links
  * TODO: Move JS and CSS to their own files
  * TODO: Review inline TODOs
  * TODO: Fix any bugs with collapsing postbox divs and floating columns
@@ -290,7 +289,11 @@ class ef_story_budget {
 					<strong><a class="row-title" href="post.php?post=<?php echo $post->ID; ?>&action=edit" title="Edit &#8220;<?php echo $post->post_title; ?>&#8221;"><?php echo $post->post_title; ?></a></strong>
 					<p><?php echo wp_kses_post(substr($post->post_content, 0, 5 * $this->story_budget_excerpt_length(0))); // TODO: just call the_excerpt once setup_postadata works ?></p>
 					<p><?php do_action('story_budget_post_details'); ?></p>
-					<div class="row-actions"><span class='edit'><a href="post.php?post=<?php echo $post->ID; ?>&action=edit">Edit</a> | </span><span class='inline hide-if-no-js'><a href="#" class="editinline" title="Edit this item inline">Quick&nbsp;Edit</a> | </span><span class='trash'><a class='submitdelete' title='Move this item to the Trash' href='#'>Trash</a> | </span><span class='view'><a href="<?php the_permalink(); // TODO: preview link? TODO: this doesn't work ?>" title="View &#8220;Test example post&#8221;" rel="permalink">View</a></span></div>
+					<div class="row-actions">
+						<span class='edit'><a href="post.php?post=<?php echo $post->ID; ?>&action=edit">Edit</a> | </span>
+						<span class='inline hide-if-no-js'><a href="#" class="editinline" title="Edit this item inline">Quick&nbsp;Edit</a> | </span>
+						<span class='trash'><a class='submitdelete' title='Move this item to the Trash' href='<?php echo get_delete_post_link( $post->ID ); ?>'>Trash</a> | </span>
+						<span class='view'><a href="<?php the_permalink(); // TODO: preview link? TODO: this doesn't work ?>" title="View &#8220;Test example post&#8221;" rel="permalink">View</a></span></div>
 				</td>
 				<td class="author column-author"><a href="<?php echo $author_filter_url; ?>"><?php echo $authordata->display_name; ?></a></td>
 				<td class="status column-status"><a href="<?php echo $status_filter_url; ?>"><?php echo $post->post_status; ?></a></td>

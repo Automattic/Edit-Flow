@@ -395,9 +395,11 @@ class EF_Editorial_Metadata {
 			),
 		);
 		
-		foreach ( $default_metadata as $term )
-			if ( !ef_term_exists( $term['term'] ) )
+		foreach ( $default_metadata as $term ) {
+			if ( !ef_term_exists( $term['term'] ) ) {
 				wp_insert_term( $term['term'], $this->metadata_taxonomy, $term['args'] );
+			}
+		}
 				
 	}
 	
@@ -471,7 +473,8 @@ class EF_Editorial_Metadata {
 	function save_meta_box( $id, $post ) {
 		// Authentication checks: make sure data came from our meta box and that the current user is allowed to edit the post
 		// TODO: switch to using check_admin_referrer
-		if ( !wp_verify_nonce( $_POST[$this->metadata_taxonomy . "_nonce"], __FILE__ )
+		if ( isset( $_POST[$this->metadata_taxonomy . "_nonce"] )
+			&& !wp_verify_nonce( $_POST[$this->metadata_taxonomy . "_nonce"], __FILE__ )
 			|| !current_user_can( 'edit_post', $id )
 			|| defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE
 			|| $post->post_type != 'post' ) {
@@ -490,7 +493,7 @@ class EF_Editorial_Metadata {
 			// TODO: do we care about the current_metadata at all?
 			//$current_metadata = get_post_meta( $id, $key, true );
 			
-			$new_metadata = $_POST[$key];
+			$new_metadata = isset( $_POST[$key] ) ? $_POST[$key] : '';
 			
 			if ( empty ( $new_metadata ) ) {
 				delete_post_meta( $id, $key );
