@@ -199,7 +199,7 @@ class EF_User_Query extends WP_User_Search {
 			$this->query_where = " WHERE 0=1";	
 		else
 			$this->query_where = " WHERE 1=1 AND (". implode(' OR ', $query_where_searches) .")";
-		$this->query_join .= ($this->join_usermeta) ? " INNER JOIN $wpdb->usermeta ON $wpdb->users.ID = $wpdb->usermeta.user_id" : "";
+		$this->query_join .= isset( $this->join_usermeta ) && $this->join_usermeta ? " INNER JOIN $wpdb->usermeta ON $wpdb->users.ID = $wpdb->usermeta.user_id" : "";
 
 	}
 	

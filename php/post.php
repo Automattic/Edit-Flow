@@ -56,7 +56,7 @@ class ef_post_metadata
 		global $edit_flow;
 		
 		if( $edit_flow->get_plugin_option('notifications_enabled') && current_user_can('edit_post_subscriptions') ) 
-			$this->post_followers_box( $followers_box_args );
+			$this->post_followers_box();
 	}
 	
 	/**
@@ -333,7 +333,7 @@ class ef_post_metadata
 		}
 		
 		// Only show on posts that have been saved
-		if( !$post_ID || $post_ID == 0 ) {
+		if( in_array( $post->post_status, array( 'new', 'auto-draft' ) ) ) {
 			?>
 			<p><?php _e('You can\'t add subscribers yet since this is a new post. Come back once you\'ve saved it. Deal?', 'edit-flow') ?></p>
 			<?php
@@ -342,7 +342,7 @@ class ef_post_metadata
 		
 		$followers = ef_get_following_users( $post->ID, 'id' );
 		
-		if( !is_array($followers) ) $followers = array($followers);
+		if( !is_array($followers) ) $followers = (array) $followers;
 		$following_usergroups = ef_get_following_usergroups($post->ID, 'slugs');
 		
 		$user_form_args = array();
