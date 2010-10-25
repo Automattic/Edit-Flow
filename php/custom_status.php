@@ -32,12 +32,12 @@ class custom_status {
 			$this->register_custom_statuses();
 			
 			// Hooks to add "status" column to Edit Posts page
-			add_filter('manage_posts_columns', array('custom_status', '_filter_manage_posts_columns'));
-			add_action('manage_posts_custom_column', array('custom_status', '_filter_manage_posts_custom_column'));
+			add_filter('manage_posts_columns', array(&$this, '_filter_manage_posts_columns'));
+			add_action('manage_posts_custom_column', array(&$this, '_filter_manage_posts_custom_column'));
 			
 			// Hooks to add "status" column to Edit Pages page, BUT, only add it if not being filtered by post_status
-			add_filter('manage_pages_columns', array('custom_status', '_filter_manage_posts_columns'));
-			add_action('manage_pages_custom_column', array('custom_status', '_filter_manage_posts_custom_column'));
+			add_filter('manage_pages_columns', array(&$this, '_filter_manage_posts_columns'));
+			add_action('manage_pages_custom_column', array(&$this, '_filter_manage_posts_custom_column'));
 			
 		}
 	} // END: __construct()
@@ -337,9 +337,12 @@ class custom_status {
 		$status_friendly_name = '';
 		
 		$builtin_stati = array(
-			'publish' => 'Published'
-			, 'future' => 'Scheduled'
-			, 'trash' => 'Trash'
+			'publish' => 'Published',
+			'draft' => 'Draft',
+			'future' => 'Scheduled',
+			'private' => 'Private',
+			'pending' => 'Pending Review',
+			'trash' => 'Trash',
 		);
 		
 		if( array_key_exists( $status, $builtin_stati ) ) {
@@ -350,6 +353,7 @@ class custom_status {
 				$status_friendly_name = $status_object->name;
 			}
 		}
+		
 		return $status_friendly_name;
 	}
 
@@ -395,7 +399,7 @@ class custom_status {
 	function _filter_manage_posts_custom_column($column_name) {
 		if ($column_name == 'status') {
 			global $post, $custom_status;
-			echo ef_get_status_name('slug' , $post->post_status);
+			echo $this->get_custom_status_friendly_name( $post->post_status );
 		}
 	}
 	
@@ -648,43 +652,6 @@ class custom_status {
 	}	
 		
 } // END: class custom_status
-
-
-
-/**
- * Gets the proper name for the custom status
- * Can be fetched using either the "slug" or "id"
- * @param $field The field to search by: "slug" or "id"
- * @param $value The value to search for
- */
-function ef_get_status_name ( $field, $value ) { 
-	switch($value) {
-		case 'publish':
-			return 'Published';	
-		case 'draft':
-			return 'Draft';
-		case 'future':
-			return  'Scheduled';
-		case 'private':
-			return 'Private';
-		case 'pending':
-			return 'Pending Review';
-			
-		default:
-			switch($field) {
-				case 'slug':
-					$status = get_term_by('slug', $value, 'post_status');
-					break;
-				case 'id':
-					$status = get_term_by('term_id', $value, 'post_status');
-					break;
-				default:
-					return null;
-			}
-			break;
-	}
-	return $status->name;
-} // END: ef_get_status_name()
 
 function ef_get_custom_status_filter_link ( $slug ) {
 	return 'edit.php?post_status='.$slug;
