@@ -20,6 +20,9 @@ function ef_the_message( $message = '' ) {
  */
 function ef_the_errors( $errors ) {
 	
+	if( ! $errors )
+		return;
+	
 	if( is_wp_error( $errors ) ) {
 		$errors = $errors->get_error_messages();
 	}

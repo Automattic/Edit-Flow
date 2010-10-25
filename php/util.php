@@ -47,7 +47,17 @@ class EF_User_Query extends WP_User_Search {
 			return new WP_Error('ef_user_query-empty-args', __('C\'mon! You need to pass at least some arguments for the query!'));
 		}
 		
-		$this->query_vars = $query_vars;
+		$defaults = array(
+			'search_term' => '',
+			'return_fields' => '',
+			'search_fields' => '',
+			'role' => '',
+			'usermeta' => '',
+			'orderby' => '',
+			'page' => '',
+		);
+		
+		$this->query_vars = wp_parse_args( $query_vars, $defaults );
 		
 		$this->parse_query_vars();
 		$this->prepare_query();
@@ -88,7 +98,7 @@ class EF_User_Query extends WP_User_Search {
 		$this->role = trim($qv['role']);
 		
 		// Sort
-		$this->orderby = ($orderby) ? $orderby : 'ID';	
+		$this->orderby = ( $qv['orderby'] ) ? $qv['orderby'] : 'ID';	
 
 		// TODO: if not array, convert it to one
 		$this->usermetas = $qv['usermeta'];
@@ -106,7 +116,7 @@ class EF_User_Query extends WP_User_Search {
 		$this->query_from = " FROM $wpdb->users";
 		
 		// Set up Limit counts
-		if($users_count) $this->query_limit = $wpdb->prepare(" LIMIT %d, %d", $this->first_user, $this->users_per_page);
+		if( isset( $this->users_count ) ) $this->query_limit = $wpdb->prepare(" LIMIT %d, %d", $this->first_user, $this->users_per_page);
 		
 		// Order By
 		$this->query_orderby = ' ORDER BY '. $this->orderby;
@@ -195,12 +205,13 @@ class EF_User_Query extends WP_User_Search {
 	
 	function query() {
 		global $wpdb;
+		$query_from_join_where = $this->query_from . $this->query_join . $this->query_where;
 		$this->full_query = $this->query_select . $this->query_from . $this->query_join . $this->query_where . $this->query_orderby . $this->query_limit;
 		// TODO: change this to get_results, when supporting multiple fields, all fields
 		$this->results = $wpdb->get_col($this->full_query);
 		
 		if ( $this->results )
-			$this->total_users_for_query = $wpdb->get_var('SELECT COUNT(ID) ' . $this->query_from_where); // no limit
+			$this->total_users_for_query = $wpdb->get_var('SELECT COUNT(ID) ' . $query_from_join_where); // no limit
 		else
 			$this->search_errors = new WP_Error('no_matching_users_found', __('No matching users were found!'));
     }

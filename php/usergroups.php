@@ -104,9 +104,12 @@ class ef_usergroups_admin {
 			wp_die(__('Sorry, you do not have permission to edit usergroups.'));
 		
 		// Global var that holds all the data needed on edit flow pages
-		$ef_page_data = array();
+		$ef_page_data = array(
+			'message' => '',
+			'errors' => '',
+		);
 		
-		$action = esc_html($_GET['action']);
+		$action = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : '';
 		
 		switch($action) {
 			
@@ -140,6 +143,7 @@ class ef_usergroups_admin {
 				// Setting up page data, woo!
 				$ef_page_data['title'] = __('Add Usergroup', 'edit-flow');
 				$ef_page_data['usergroup'] = null;
+				$ef_page_data['usergroup_users'] = array();
 				$ef_page_data['update'] = false;
 				$ef_page_data['backlink'] = true;
 				$ef_page_data['view'] = 'templates/usergroups_edit.php';
