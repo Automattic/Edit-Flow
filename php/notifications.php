@@ -145,7 +145,7 @@ class ef_notifications {
 		$current_user = wp_get_current_user();
 	
 		// Check if this a reply
-		$parent_ID = $comment->comment_parent_ID;
+		$parent_ID = isset( $comment->comment_parent_ID ) ? $comment->comment_parent_ID : 0;
 		if($parent_ID) $parent = get_comment($parent_ID);
 		
 		// Set user to follow post
