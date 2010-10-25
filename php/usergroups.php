@@ -448,13 +448,15 @@ class EF_UserGroups {
 	 * 
 	 */
 	function unique_slug ( $slug, $count = 0 ) {
+		if( !strpos( $slug, EDIT_FLOW_PREFIX ) )
+			$slug = EDIT_FLOW_PREFIX . $slug;
+		
 		if( $this->is_usergroup($slug) ) {
 			$count++;
 			$slug = $slug .'-'. $count;
 			return $this->unique_slug($slug, $count);
 		}
-		if( !strstr($slug, EDIT_FLOW_PREFIX) )
-			$slug = EDIT_FLOW_PREFIX . $slug;
+		
 		return $slug;
 	}
 } // END: class EF_Usergroups
