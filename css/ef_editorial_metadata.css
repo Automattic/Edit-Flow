@@ -1,28 +1,45 @@
 /** Editorial Metadata **/
 
-#ef_editorial_meta_meta_box label, #ef_editorial_meta_meta_box span.description {
-	vertical-align: top;
+/* Spacing between each term */
+#ef_editorial_meta_meta_box div.ef_editorial_meta {
+	margin-bottom: 10px;
 }
 
-div#normal-sortables #ef_editorial_meta_meta_box label, #ef_editorial_meta_meta_box span.description {
-	position: relative;
-	top: 3px;
-}
-
-#ef_editorial_meta_meta_box span.description {
-	margin-left: 5px;
-	line-height: 1.3em;
-}
-/* When displaying the metabox on the right, show the description underneath the inputs */
-div#side-sortables #ef_editorial_meta_meta_box span.description {
+#ef_editorial_meta_meta_box div.ef_editorial_meta label,
+#ef_editorial_meta_meta_box div.ef_editorial_meta span.description {
 	display: block;
 }
 
-#ef_editorial_meta_meta_box div.ef_editorial_meta_date label {
+#ef_editorial_meta_meta_box div.ef_editorial_meta label {
+	font-weight: bold;
+	font-size: 1.2em;
+}
+
+#ef_editorial_meta_meta_box div.ef_editorial_meta_date label:first-child  {
 	background: url("../img/date-button.gif") no-repeat scroll 0 0 transparent;
 	padding-left: 18px;
 }
 
-#ef_editorial_meta_meta_box div.ef_editorial_meta_location span {
-	padding-left: 5px;
+/* Spacing above Google Maps link */
+#ef_editorial_meta_meta_box div.ef_editorial_meta_location div {
+	margin-top: 5px;
+	line-height: 1.4em;
+}
+
+#ef_editorial_meta_meta_box span.description {
+	margin: 3px 0 5px;
+	font-weight: normal;
+}
+
+div#normal-sortables #ef_editorial_meta_meta_box input[type=text],
+div#normal-sortables #ef_editorial_meta_meta_box textarea,
+div#normal-sortables #ef_editorial_meta_meta_box select {
+	min-width: 250px;
+	width: 30%;
+}
+
+div#side-sortables #ef_editorial_meta_meta_box input[type=text],
+div#side-sortables #ef_editorial_meta_meta_box textarea,
+div#side-sortables #ef_editorial_meta_meta_box select {
+	width: 98%;
 }

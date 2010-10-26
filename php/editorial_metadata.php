@@ -428,32 +428,35 @@ class EF_Editorial_Metadata {
 			$postmeta_key = $this->get_postmeta_key( $term );
 			$current_metadata = esc_attr( get_post_meta( $post->ID, $postmeta_key, true ) );
 			$type = $this->get_metadata_type( $term );
-			echo "<div class='{$this->metadata_taxonomy}_$type'>";
+			$description = $this->get_unserialized_value( htmlspecialchars_decode( $term->description ), self::description );
+			$description_span = "<span class='description'>$description</span>";
+			echo "<div class='{$this->metadata_taxonomy} {$this->metadata_taxonomy}_$type'>";
 			switch( $type ) {
 				case "date":
-					echo "<label for='$postmeta_key'>{$term->name}: </label>";
+					echo "<label for='$postmeta_key'>{$term->name}</label>";
+					echo "<label for='$postmeta_key'>$description_span</label>";
 					echo "<input id='$postmeta_key' name='$postmeta_key' type='text' class='date-pick' value='$current_metadata' />";
 					break;
 				case "location":
-					echo "<label for='$postmeta_key'>{$term->name}: </label>";
+					echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
 					echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
 					if ( !empty( $current_metadata ) )
-						echo "<span><a href='http://maps.google.com/?q={$current_metadata}&t=m' target='_blank'>Google Map for &#8220;$current_metadata&#8221;</a></span>";
+						echo "<div><a href='http://maps.google.com/?q={$current_metadata}&t=m' target='_blank'>Google Map for &#8220;$current_metadata&#8221;</a></div>";
 					break;
 				case "text":
-					echo "<label for='$postmeta_key'>{$term->name}: </label>";
+					echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
 					echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
 					break;
 				case "paragraph":
-					echo "<label for='$postmeta_key'>{$term->name}: </label>";
+					echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
 					echo "<textarea id='$postmeta_key' name='$postmeta_key'>$current_metadata</textarea>";
 					break;
 				case "checkbox":
-					echo "<label for='$postmeta_key'>{$term->name}: </label>";
+					echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
 					echo "<input id='$postmeta_key' name='$postmeta_key' type='checkbox' value='1' " . checked($current_metadata, 1, false) . " />";
 					break;
 				case "user": 
-					echo "<label for='$postmeta_key'>{$term->name}: </label>";
+					echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
 					$user_dropdown_args = array( 
 							'show_option_all' => __( '-- Select a user below --', 'edit-flow' ), 
 							'name'     => $postmeta_key,
@@ -464,8 +467,7 @@ class EF_Editorial_Metadata {
 				default:
 					echo "<p>This editorial metadata type is not yet supported</p>";
 			}
-			$description = $this->get_unserialized_value( htmlspecialchars_decode( $term->description ), self::description );
-			echo "<span class='description'>$description</span><p></p></div>";
+			echo "</div>";
 		} // Done iterating through metadata terms
 		echo "</div>";
 	}
