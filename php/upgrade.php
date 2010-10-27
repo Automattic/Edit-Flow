@@ -2,7 +2,7 @@
 // Handles all current and future upgrades for edit_flow
 function edit_flow_upgrade( $from ) {
 	if ( !$from || version_compare( $from, '0.1', '<' ) ) edit_flow_upgrade_01();
-	if ( version_compare( $from, '0.3', '<' ) edit_flow_upgrade_03();
+	if ( version_compare( $from, '0.3', '<' ) ) edit_flow_upgrade_03();
 	if ( version_compare( $from, '0.5.1', '<' ) ) edit_flow_upgrade_051();
 	if ( version_compare( $from, '0.6', '<' ) ) edit_flow_upgrade_06();
 }
