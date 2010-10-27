@@ -14,6 +14,8 @@ if ( !class_exists('EF_Calendar') ) {
 
 class EF_Calendar {
 	
+	const usermeta_key_prefix = 'ef_calendar_';
+	
 	function __construct() {
 		
 		add_action( 'admin_enqueue_scripts', array(&$this, 'add_admin_scripts' ));
@@ -25,8 +27,6 @@ class EF_Calendar {
 		global $edit_flow;
 		
 	}
-
-	
 	
 	/**
 	 * Add any necessary Javascript to the WordPress admin
@@ -46,15 +46,74 @@ class EF_Calendar {
 		
 	}
 	
+	/**
+	 * Get the user's filters for calendar, either with $_GET or from saved
+	 * @uses get_user_meta()
+	 * @return array $filters All of the set filters
+	 */
+	function get_filters() {
+		global $edit_flow;
+		
+		$current_user = wp_get_current_user();
+		$filters = array();
+		// Use the 3.0+ method if it exists to get any saved filters
+		if ( function_exists( 'get_user_meta' ) ) {
+			$old_filters = get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
+		} else {
+			$old_filters = get_usermeta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
+		}
+	
+		// Set the proper keys to empty so we don't thr
+		if ( empty( $old_filters ) ) {
+			$old_filters['post_status'] = '';
+			$old_filters['category_name'] = '';
+			$old_filters['author'] = '';	
+		}
+		
+		// Post status
+		if ( isset( $_GET['post_status'] ) && !empty( $_GET['post_status'] ) ) {
+			$filters['post_status'] = $_GET['post_status'];
+		} else {
+			$filters['post_status'] = $old_filters['post_status'];
+		}
+		
+		// Category
+		if ( isset( $_GET['category_name'] ) && !empty( $_GET['category_name'] ) ) {
+			$filters['category_name'] = $_GET['category_name'];
+		} else {
+			$filters['category_name'] = $old_filters['category_name'];
+		}
+		
+		// Author
+		if ( isset( $_GET['author'] ) && !empty( $_GET['author'] ) ) {
+			$filters['author'] = $_GET['author'];
+		} else {
+			$filters['author'] = $old_filters['author'];
+		}
+		
+		// Use the 3.0+ method if it exists to update our saved filters for a user
+		if ( function_exists( 'update_user_meta' ) ) {
+			update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $filters );
+		} else {
+			update_usermeta( $current_user->ID, self::usermeta_key_prefix . 'filters', $filters );
+		}
+		
+		return $filters;
+	}
+	
+	/**
+	 * Build the calendar view
+	 */
 	function view_calendar() {
 		global $edit_flow;
 
 		date_default_timezone_set('UTC');
-		$dates = array();
 		
-		$args = array(	'post_status' => $_GET['post_status'],
-		 				'category_name' => $_GET['category_name'],
-						'author' => $_GET['author']
+		// Get filters either from $_GET or from user settings
+		$filters = $this->get_filters();
+		$args = array(	'post_status' => $filters['post_status'],
+		 				'category_name' => $filters['category_name'],
+						'author' => $filters['author']
 					);
 		
 		
@@ -68,6 +127,7 @@ class EF_Calendar {
 
 		$date = $this->get_end_of_week($date); // don't just set the given date as the end of the week. use the blog's settings
 
+		$dates = array();
 		for ($i=0; $i<7; $i++) {
 			$dates[$i] = $date;
 			$date = date('Y-m-d', strtotime("-1 day", strtotime($date)));
