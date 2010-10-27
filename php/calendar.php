@@ -67,7 +67,8 @@ class EF_Calendar {
 		if ( empty( $old_filters ) ) {
 			$old_filters['post_status'] = '';
 			$old_filters['category_name'] = '';
-			$old_filters['author'] = '';	
+			$old_filters['author'] = '';
+			$old_filters['start_date'] = '';	
 		}
 		
 		// Post status
@@ -90,6 +91,20 @@ class EF_Calendar {
 		} else {
 			$filters['author'] = $old_filters['author'];
 		}
+		
+		// Start date
+		if ( isset( $_GET['start_date'] ) && !empty( $_GET['start_date'] ) ) {
+			$time = strtotime( $_GET['start_date'] );
+			$filters['start_date'] = date('Y-m-d', $time);
+		} else {
+			if ( $old_filters['start_date'] ) {
+				$filters['start_date'] = $old_filters['start_date'];
+			} else {
+				$filters['start_date'] = date('Y-m-d');
+			}
+		}
+
+		$filters['start_date'] = $this->get_end_of_week( $filters['start_date'] ); // don't just set the given date as the end of the week. use the blog's settings
 		
 		// Use the 3.0+ method if it exists to update our saved filters for a user
 		if ( function_exists( 'update_user_meta' ) ) {
@@ -115,18 +130,8 @@ class EF_Calendar {
 		 				'category_name' => $filters['category_name'],
 						'author' => $filters['author']
 					);
-		
-		
-		if ( $_GET['date'] ) {
-			$time = strtotime( $_GET['date'] );
-			$date = date('Y-m-d', $time);
-		} else {
-			$time = time();
-			$date = date('Y-m-d');
-		}
 
-		$date = $this->get_end_of_week($date); // don't just set the given date as the end of the week. use the blog's settings
-
+		$date = $filters['start_date'];
 		$dates = array();
 		for ($i=0; $i<7; $i++) {
 			$dates[$i] = $date;
@@ -144,7 +149,7 @@ class EF_Calendar {
 
 				<div id="calendar-wrap"><!-- Calendar Wrapper -->
 					
-		<?php echo $this->get_top_navigation(); ?>
+		<?php echo $this->get_top_navigation( $filters ); ?>
 
 			<div id="week-wrap"><!-- Week Wrapper -->
 						<div class="week-heading"><!-- New HTML begins with this week-heading div. Adds a WP-style dark grey heading to the calendar. Styles were added inline here to save having 7 different divs for this. -->
@@ -226,15 +231,16 @@ class EF_Calendar {
 	
 	/**
 	 * Generates the filtering and navigation options for the top of the calendar
+	 * @param array $filters Any set filters
 	 * @return string $html HTML for the top navigation
 	 */
-	function get_top_navigation() {
+	function get_top_navigation( $filters ) {
 		global $edit_flow;
 	
 		$html = '';
 		$html .= '<ul class="day-navigation"><li id="calendar-filter"><form method="GET">';
-		if ( $_GET['date'] ) {
-			$html .= '<input type="hidden" name="date" value="'. $_GET['date'] . '"/>';
+		if ( $filters['start_date'] ) {
+			$html .= '<input type="hidden" name="start_date" value="'. $filters['start_date'] . '"/>';
 		}
 		$html .= '<input type="hidden" name="page" value="edit-flow/calendar" />';
 		
@@ -244,7 +250,7 @@ class EF_Calendar {
 		$statuses = $edit_flow->custom_status->get_custom_statuses();
 		foreach ( $statuses as $status ) {
 			$html .= '<option value="' . $status->slug . '"';
-			if ( $_GET['post_status'] ==  $status->slug ) {
+			if ( $filters['post_status'] ==  $status->slug ) {
 				$html .= ' selected="selected"';
 			}
 			$html .= '>';
@@ -259,7 +265,7 @@ class EF_Calendar {
 		$categories = get_categories();
 		foreach ( $categories as $category ) {
 			$html .= '<option value="' . $category->slug . '"';
-			if ( $_GET['category_name'] ==  $category->slug ) {
+			if ( $filters['category_name'] ==  $category->slug ) {
 				$html .= ' selected="selected"';
 			}
 			$html .= '>';
@@ -274,7 +280,7 @@ class EF_Calendar {
 		$users = get_users_of_blog();
 		foreach ( $users as $user ) {
 			$html .= '<option value="' . $user->ID . '"';
-			if ( $_GET['author'] ==  $user->ID ) {
+			if ( $filters['author'] ==  $user->ID ) {
 				$html .= ' selected="selected"';
 			}
 			$html .= '>';
