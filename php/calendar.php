@@ -242,9 +242,7 @@ class EF_Calendar {
 	
 		$html = '';
 		$html .= '<ul class="day-navigation"><li id="calendar-filter"><form method="GET">';
-		if ( $filters['start_date'] ) {
-			$html .= '<input type="hidden" name="start_date" value="'. $filters['start_date'] . '"/>';
-		}
+		$html .= '<input type="hidden" name="start_date" value="'. $filters['start_date'] . '"/>';
 		$html .= '<input type="hidden" name="page" value="edit-flow/calendar" />';
 		
 		// Filter by post status
@@ -257,7 +255,7 @@ class EF_Calendar {
 				$html .= ' selected="selected"';
 			}
 			$html .= '>';
-			$html .= 'Status: ' . esc_html($status->name);
+			$html .= esc_html($status->name);
 			$html .= '</option>';
 		}
 		$html .= '</select>';
