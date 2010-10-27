@@ -10,9 +10,9 @@
  *
  * @author danielbachhuber
  */
-if ( !class_exists('ef_calendar') ) {
+if ( !class_exists('EF_Calendar') ) {
 
-class ef_calendar {
+class EF_Calendar {
 	
 	function __construct() {
 		

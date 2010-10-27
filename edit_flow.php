@@ -103,7 +103,7 @@ class edit_flow {
 		$this->usergroups = new ef_usergroups_admin();
 		$this->ef_post_metadata = new ef_post_metadata();
 		$this->editorial_metadata = new EF_Editorial_Metadata();
-		$this->calendar = new ef_calendar();
+		$this->calendar = new EF_Calendar();
 		$this->story_budget = new EF_Story_Budget();
 		$this->settings = new ef_settings();
 		$this->notifications = new ef_notifications( (int) $this->get_plugin_option('notifications_enabled') );
