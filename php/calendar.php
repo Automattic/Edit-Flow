@@ -156,53 +156,56 @@ class EF_Calendar {
 						</div>
 
 						<?php
-						foreach (array_reverse($dates) as $key => $date) {
+						foreach (array_reverse($dates) as $key => $date) :
 							
-							$cal_posts = $this->get_calendar_posts( $date, $args );
+							$posts = $this->get_calendar_posts( $date, $args );
 							
 						?>
 						<div class="week-unit<?php if ($key == 0) echo ' left-column'; ?>"><!-- Week Unit 1 -->
 							<ul id="<?php echo date('Y-m-d', strtotime($date)) ?>" class="week-list connectedSortable">
 								<?php
-								foreach ($cal_posts as $cal_post) {
-									$cats = wp_get_object_terms($cal_post->ID, 'category');
-									$cat = $cats[0]->name;
-									if (count($cats) > 1) { 
-										$cat .= " and  " . (count($cats) - 1);
-										if (count($cats)-1 == 1) { $cat .= " other"; }
-										else { $cat .= " others"; }
-									}
-
+								// We're using The Loop!
+								if ( $posts->have_posts() ) : 
+								while ( $posts->have_posts()) : $posts->the_post();
+									$post_id = get_the_id();
 								?>
-								<li class="week-item" id="<?php echo $cal_post->ID ?>">
+								<li class="week-item" id="post-<?php the_id(); ?>">
 								  <div class="item-handle">
 									<span class="item-headline post-title">
-										<?php echo $cal_post->post_title; ?>
+										<?php the_title(); ?>
 									</span>
 									<ul class="item-metadata">
-										<li class="item-author">By <?php echo $cal_post->display_name ?></li>
+										<li class="item-author">By <?php the_author(); ?></li>
 										<li class="item-category">
-											<?php echo $cat ?>
+											<?php
+												// Listing of all the categories
+												$categories_html = '';
+												$categories = get_the_category( $post_id );
+												foreach ( $categories as $category ) {
+													$categories_html .= $category->name . ', ';
+												}
+												echo rtrim( $categories_html, ', ' );
+											?>
 										</li>
 									</ul>
 									</div>
 									<div class="item-actions">
 									  <span class="edit">
-										<?php echo edit_post_link('Edit', '', '', $cal_post->ID); ?>
+										<?php echo edit_post_link( 'Edit', '', '', $post_id ); ?>
 									  </span> | 
 									  <span class="view">
-										<a href="<?php echo get_permalink($cal_post->ID); ?>">View</a>
+										<a href="<?php echo the_permalink(); ?>">View</a>
 									  </span>
 									</div>
 									<div style="clear:left;"></div>
 								</li>
 								<?php
-								}
+								endwhile; endif; // END if ( $posts->have_posts() )
 								?>
 							</ul>
 						</div><!-- /Week Unit 1 -->
 						<?php
-						}
+						endforeach;
 						?>
 
 						<div style="clear:both"></div>
@@ -354,9 +357,10 @@ class EF_Calendar {
 	}
 	
 	/**
-	 * Get all of the posts within a week's period from the date specified
-	 * @todo Rewrite the query for getting posts
-	 * @return object $cal_posts All of the posts as an object
+	 * Get all of the posts for a given day
+	 * @param string $date The date for which we want posts
+	 * @param array $args Any filter arguments we want to pass
+	 * @return object $posts All of the posts as an object
 	 */
 	function get_calendar_posts( $date, $args = null ) {
 		global $wpdb, $edit_flow;
@@ -367,29 +371,14 @@ class EF_Calendar {
 						);
 		
 		$args = array_merge( $defaults, $args );
+		$date_array = explode( '-', $date );
+		$args['year'] = $date_array[0];
+		$args['monthnum'] = $date_array[1];
+		$args['day'] = $date_array[2];		
 		
-		$q_date = date('Y-m-d', strtotime($date));
-
-		$query = "SELECT DISTINCT w.ID, w.guid, w.post_date, u.display_name, w.post_title ";
-		$query .= "FROM " . $wpdb->posts . " w, ". $wpdb->users . " u, ";
-		$query .= $wpdb->term_relationships . " r, " . $wpdb->terms . " t ";
-		$query .= "WHERE u.ID=w.post_author AND ";
-		if ( $args['post_status'] ) {
-			$query .= "w.post_status = '" . $args['post_status'] . "' AND ";
-		}
-		$query .= "w.post_status <> 'auto-draft' AND "; // Hide auto draft posts
-		$query .= "w.post_status <> 'trash' AND "; // Hide trashed posts
-		$query .= "w.post_type = 'post' and w.post_date like '". $q_date . "%' AND ";
-		$query .= "r.object_id = w.ID";
-		if ( $args['category_name'] ) {
-			$query .= " AND t.slug = '" . $args['category_name'] . "'";
-		}
-		if ( $args['author'] ) {
-			$query .= " and u.ID = " . $args['author'];
-		}
-		$query .= ";";
-		$cal_posts = $wpdb->get_results( $query );
-		return $cal_posts;
+		$posts = new WP_Query( $args );
+		
+		return $posts;
 	}
 	
 	/**
