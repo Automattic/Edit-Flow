@@ -143,8 +143,7 @@ class EF_Calendar {
 
 				<div id="calendar-title"><!-- Calendar Title -->
 					<div class="icon32" id="icon-edit"><br/></div>
-					<h2><?php echo date('F d, Y', strtotime($dates[count($dates)-1])); ?> - 
-					<?php echo date('F d, Y', strtotime($dates[0])); ?></h2>
+					<h2><?php _e( 'Edit Flow Calendar', 'edit-flow'); ?></h2>
 				</div><!-- /Calendar Title -->
 
 				<div id="calendar-wrap"><!-- Calendar Wrapper -->

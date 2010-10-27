@@ -294,7 +294,7 @@ class edit_flow {
 		
 		// Add sub-menu page for Calendar
 		if ( $this->calendar->viewable() ) {
-			add_submenu_page('index.php', __('Edit Flow Calendar', 'edit-flow'), __('Edit Flow Calendar', 'edit-flow'), 'edit_posts', $this->get_page('calendar'), array(&$this->calendar, 'view_calendar'));
+			add_submenu_page('index.php', __('Calendar', 'edit-flow'), __('Calendar', 'edit-flow'), 'edit_posts', $this->get_page('calendar'), array(&$this->calendar, 'view_calendar'));
 		}
 		
 		add_submenu_page( 'index.php', __('Story Budget', 'edit-flow'), __('Story Budget', 'edit-flow'), 'edit_others_posts', $this->get_page('story_budget'), array(&$this->story_budget, 'story_budget') );
