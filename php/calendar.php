@@ -42,7 +42,7 @@ class EF_Calendar {
 	 */
 	function add_admin_styles() {
 		
-		wp_enqueue_style('edit_flow-calendar-css', EDIT_FLOW_URL.'css/calendar.css', false, EDIT_FLOW_VERSION, 'all');
+		wp_enqueue_style( 'edit_flow-calendar-css', EDIT_FLOW_URL.'css/calendar.css', false, EDIT_FLOW_VERSION );
 		
 	}
 	
@@ -149,7 +149,7 @@ class EF_Calendar {
 
 				<div id="calendar-wrap"><!-- Calendar Wrapper -->
 					
-		<?php echo $this->get_top_navigation( $filters ); ?>
+		<?php echo $this->get_top_navigation( $filters, $dates ); ?>
 
 			<div id="week-wrap"><!-- Week Wrapper -->
 						<div class="week-heading"><!-- New HTML begins with this week-heading div. Adds a WP-style dark grey heading to the calendar. Styles were added inline here to save having 7 different divs for this. -->
@@ -214,10 +214,10 @@ class EF_Calendar {
 					</div><!-- /Week Wrapper -->
 					<ul class="day-navigation">
 					  <li class="next-week">
-							<a href="<?php echo $this->get_calendar_next_link($dates[0]) ?>">Next &raquo;</a>
+							<a href="<?php echo $this->get_next_link( $dates[0], $filters ); ?>">Next &raquo;</a>
 						</li>
 						<li class="previous-week">
-							<a href="<?php echo $this->get_calendar_previous_link($dates[count($dates)-1]) ?>">&laquo; Previous</a>
+							<a href="<?php echo $this->get_previous_link( $dates[count($dates)-1], $filters ); ?>">&laquo; Previous</a>
 						</li>
 					</ul>
 					<div style="clear:both"></div>
@@ -232,9 +232,10 @@ class EF_Calendar {
 	/**
 	 * Generates the filtering and navigation options for the top of the calendar
 	 * @param array $filters Any set filters
+	 * @param array $dates All of the days of the week. Used for generating navigation links
 	 * @return string $html HTML for the top navigation
 	 */
-	function get_top_navigation( $filters ) {
+	function get_top_navigation( $filters, $dates ) {
 		global $edit_flow;
 	
 		$html = '';
@@ -290,18 +291,12 @@ class EF_Calendar {
 		$html .= '</select>';
 		$html .= '<input type="submit" class="button primary" value="Filter"/>';
 		$html .= '</form></li>';
-		$html .= '<li class="performing-ajax">';
-		$html .= '<img src="' .  EDIT_FLOW_URL . 'img/wpspin_light.gif" alt="Loading" />';
-		$html .= '</li>';
-	  	/* 
-		@todo Redo navigation using a form
-		<li class="next-week">
-					<a id="trigger-left" href="#">Next &raquo;</a>
-				</li>
-				<li class="previous-week">
-					<a id="trigger-right" href="#">&laquo; Previous</a>
-		  </li>
-			</ul> */
+	  
+		// Previous and next navigation items
+		$html .= '<li class="next-week">';
+		$html .= '<a id="trigger-left" href="' . $this->get_next_link( $dates[0], $filters ) . '">Next &raquo;</a></li>';
+		$html .= '<li class="previous-week">';
+		$html .= '<a id="trigger-right" href="' . $this->get_previous_link( $dates[count($dates)-1], $filters ) . '">&laquo; Previous</a></li></ul>';
 		
 		return $html;
 		
@@ -400,18 +395,26 @@ class EF_Calendar {
 	
 	/**
 	 * Gets the link for the previous time period
+	 * @param string $start_date The start date for the previous period
+	 * @param array $filters Any filters that need to be applied
+	 * @return string $url The URL for the next page
 	 */
-	function get_calendar_previous_link( $date ) {
-		$p_date = date('d-m-Y', strtotime("-1 day", strtotime($date)));
-		return EDIT_FLOW_CALENDAR_PAGE . '&amp;date=' . $p_date;
+	function get_previous_link( $start_date, $filters ) {
+		$p_date = date('d-m-Y', strtotime("-1 day", strtotime($start_date)));
+		$url = EDIT_FLOW_CALENDAR_PAGE . '&amp;start_date=' . $p_date;
+		return $url;
 	}
 
 	/**
 	 * Gets the link for the next time period
+	 * @param string $start_date The start date for the next period
+	 * @param array $filters Any filters that need to be applied
+	 * @return string $url The URL for the next page
 	 */
-	function get_calendar_next_link( $date ) {
-		$n_date = date('d-m-Y', strtotime("+7 days", strtotime($date)));
-		return EDIT_FLOW_CALENDAR_PAGE . '&amp;date=' . $n_date;
+	function get_next_link( $start_date, $filters ) {
+		$n_date = date('d-m-Y', strtotime("+7 days", strtotime($start_date)));
+		$url = EDIT_FLOW_CALENDAR_PAGE . '&amp;start_date=' . $n_date;
+		return $url;
 	}
 	
 	/**
