@@ -4,8 +4,7 @@
  *
  * Somewhat prioritized @todos:
  * @todo Highlight today on the calendar
- * @todo Rewrite SQL query to get all of the posts in one go
- * @todo Re-enable pagination links on the top
+ * @todo Add 'Clear' button for filters
  * @todo Ensure all of the styles work cross-browser
  *
  * @author danielbachhuber
@@ -290,7 +289,8 @@ class EF_Calendar {
 		}
 		$html .= '</select>';
 		$html .= '<input type="submit" class="button primary" value="Filter"/>';
-		$html .= '</form></li>';
+		$html .= '</form>';
+		$html .= '</li>';
 	  
 		// Previous and next navigation items
 		$html .= '<li class="next-week">';
