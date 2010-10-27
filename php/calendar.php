@@ -72,21 +72,21 @@ class EF_Calendar {
 		}
 		
 		// Post status
-		if ( isset( $_GET['post_status'] ) && !empty( $_GET['post_status'] ) ) {
+		if ( isset( $_GET['post_status'] ) ) {
 			$filters['post_status'] = $_GET['post_status'];
 		} else {
 			$filters['post_status'] = $old_filters['post_status'];
 		}
 		
 		// Category
-		if ( isset( $_GET['category_name'] ) && !empty( $_GET['category_name'] ) ) {
+		if ( isset( $_GET['category_name'] ) ) {
 			$filters['category_name'] = $_GET['category_name'];
 		} else {
 			$filters['category_name'] = $old_filters['category_name'];
 		}
 		
 		// Author
-		if ( isset( $_GET['author'] ) && !empty( $_GET['author'] ) ) {
+		if ( isset( $_GET['author'] ) ) {
 			$filters['author'] = $_GET['author'];
 		} else {
 			$filters['author'] = $old_filters['author'];
