@@ -38,7 +38,8 @@
 
 div#normal-sortables #ef_editorial_meta_meta_box input[type=text],
 div#normal-sortables #ef_editorial_meta_meta_box textarea,
-div#normal-sortables #ef_editorial_meta_meta_box select {
+div#normal-sortables #ef_editorial_meta_meta_box select,
+div#normal-sortables #ef_editorial_meta_meta_box label {
 	min-width: 250px;
 	width: 30%;
 }
