@@ -163,8 +163,8 @@ class EF_Calendar {
 								$today_css = ' today';
 							}
 						?>
-						<div class="week-unit<?php if ($key == 0) echo ' left-column'; echo $today_css ?>"><!-- Week Unit 1 -->
-							<ul id="<?php echo date( $date_format, strtotime($date)) ?>" class="week-list connectedSortable">
+						<div class="week-unit<?php if ( $key == 0 ) echo ' left-column'; echo $today_css; ?>"><!-- Week Unit 1 -->
+							<ul id="<?php echo date( $date_format, strtotime($date)); ?>" class="week-list connectedSortable">
 								<?php
 								// We're using The Loop!
 								if ( $posts->have_posts() ) : 
