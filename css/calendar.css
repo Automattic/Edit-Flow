@@ -16,6 +16,10 @@ Version 1.1
 #calendar-title {
 }
 
+input#ef-clear-filters {
+	margin-left: 5px;
+}
+
 #week-wrap {
 	margin-bottom:5px;
 	width: 100%;

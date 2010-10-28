@@ -131,6 +131,7 @@ class EF_Calendar {
 					);
 
 		$date = $filters['start_date'];
+		// All of the days of the week
 		$dates = array();
 		for ($i=0; $i<7; $i++) {
 			$dates[$i] = $date;
@@ -289,6 +290,15 @@ class EF_Calendar {
 		}
 		$html .= '</select>';
 		$html .= '<input type="submit" class="button primary" value="Filter"/>';
+		$html .= '</form></li>';
+		// Clear filters functionality (all of the fields, but empty)
+		$html .= '<li><form method="GET">';
+		$html .= '<input type="hidden" name="page" value="edit-flow/calendar" />';
+		$html .= '<input type="hidden" name="start_date" value="' . date('Y-m-d') . '"/>';
+		$html .= '<input type="hidden" name="post_status" value="" />';
+		$html .= '<input type="hidden" name="category_name" value="" />';
+		$html .= '<input type="hidden" name="author" value="" />';
+		$html .= '<input type="submit" id="ef-clear-filters" class="button-secondary" value="Clear"/>';
 		$html .= '</form>';
 		$html .= '</li>';
 	  
