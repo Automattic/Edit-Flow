@@ -1,10 +1,9 @@
-Date.format = 'mm/dd/yyyy';
+Date.format = 'mmm dd yyyy';
 jQuery(document).ready(function($) {
 	$('.date-pick')
 		.datePicker({
 			createButton: false,
-			startDate: '01/01/2010',
-			endDate: (new Date()).asString(),
+			startDate: 'Jan 01 1970',
 			clickInput: true}
 			);
 });

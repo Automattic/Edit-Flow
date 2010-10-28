@@ -15,7 +15,7 @@ class ef_story_budget {
 	
 	var $num_columns = 0;
 	
-	var $max_num_columns = 5;
+	var $max_num_columns;
 	
 	var $terms = array();
 	
@@ -31,8 +31,13 @@ class ef_story_budget {
 	 * Construct a story_budget class and adds screen options.
 	 */
 	function __construct() {
+		$this->max_num_columns = apply_filters( 'ef-story_budget-max_num_columns', 3 );
+	
 		include_once('screen-options.php');
 		add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', 'Screen Layout', array( &$this, 'print_column_prefs' ), self::screen_id, array( &$this, 'save_column_prefs' ), true );
+		
+		// Load necessary scripts and stylesheets
+		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );
 	}
 	
 	function get_num_columns() {
@@ -76,9 +81,9 @@ class ef_story_budget {
 	}
 
 	/**
-	 * Create the story budget view. This calls lots of other methods to do its work. This will create
-	 * the table navigation, then print the columns based on get_num_columns(), which will in turn
-	 * print the stories themselves.
+	 * Create the story budget view. This calls lots of other methods to do its work. This will
+	 * ouput any messages, create the table navigation, then print the columns based on
+	 * get_num_columns(), which will in turn print the stories themselves.
 	 */
 	function story_budget() {
 		global $current_screen;
@@ -97,22 +102,23 @@ class ef_story_budget {
 			// TODO: Verify that hide_empty really should be true (1)
 			$terms = get_terms($this->taxonomy_used, 'orderby=name&order=asc&parent=0&hide_empty=1');
 		}
-		$this->terms = apply_filters( 'ef_story_budget_reorder_terms', $terms ); // allow for reordering or any other filtering of terms
+		$this->terms = apply_filters( 'ef-story_budget-reorder_terms', $terms ); // allow for reordering or any other filtering of terms
 		
-		$this->print_JS();
-		$this->print_CSS();
-		$this->table_navigation();
 		?>
-		<div id="dashboard-widgets-wrap">
-			<div id="dashboard-widgets" class="metabox-holder">
-			<?php
-				// for ($i = 0; $i < $this->get_num_columns(); ++$i) {
-				//	$this->print_column($i, $terms);
-				// }
-				$this->print_column( $terms );
-			?>
-			</div>
-		</div><!-- /dashboard-widgets -->
+		<div class="wrap">
+			<?php $this->print_messages(); ?>
+			<?php $this->table_navigation(); ?>
+			<div id="dashboard-widgets-wrap">
+				<div id="dashboard-widgets" class="metabox-holder">
+				<?php
+					// for ($i = 0; $i < $this->get_num_columns(); ++$i) {
+					//	$this->print_column($i, $terms);
+					// }
+					$this->print_column( $terms );
+				?>
+				</div>
+			</div><!-- /dashboard-widgets -->
+		</div><!-- /wrap -->
 		<?php
 	}
 
@@ -172,7 +178,7 @@ class ef_story_budget {
 		$post_where .= $wpdb->prepare( "AND $wpdb->term_relationships.term_taxonomy_id = %d ", $term->term_taxonomy_id );
 		$post_where .= " AND $wpdb->posts.post_type = 'post'";
 		
-		$query .= apply_filters( 'ef_story_budget_query_where', $post_where ) . ';';
+		$query .= apply_filters( 'ef-story_budget-query_where', $post_where ) . ';';
 		
 		return $wpdb->get_results( $query );
 	}
@@ -213,9 +219,9 @@ class ef_story_budget {
 	 *
 	 * @param object $term The term to print.
 	 */
-	function print_term($term) {
+	function print_term( $term ) {
 		global $wpdb;
-		$posts = $this->get_matching_posts_by_term_and_filters($term);
+		$posts = $this->get_matching_posts_by_term_and_filters( $term );
 		if ( !empty( $posts ) ) : // TODO: is this necessary if get_terms above behaves correctly?
 		
 	?>
@@ -255,7 +261,7 @@ class ef_story_budget {
 	 * @param object $parent_term The top-level term to which this post belongs.
 	 */
 	function print_post( $the_post, $parent_term ) {
-		global $post;
+		global $post, $edit_flow;
 		$post = $the_post; // TODO: this isn't right - need to call setup_postdata($the_post). But that doesn't work. Why?
 		$authordata = get_userdata($post->post_author); // get the author data so we can use the author's display name
 		
@@ -283,20 +289,25 @@ class ef_story_budget {
 		//add_filter( 'excerpt_length', array( &$this, 'story_budget_excerpt_length') );
 		//remove_filter( 'excerpt_length', array( &$this, 'story_budget_excerpt_length') );
 		
+		// Get the friendly name for the status (e.g. Pending Review for pending)
+		$status = $edit_flow->custom_status->get_custom_status_friendly_name( $post->post_status );
+		
 		?>
 			<tr id='post-<?php echo $post->ID; ?>' class='alternate author-self status-publish iedit' valign="top">
 				<td class="post-title column-title">
 					<strong><a class="row-title" href="post.php?post=<?php echo $post->ID; ?>&action=edit" title="Edit &#8220;<?php echo $post->post_title; ?>&#8221;"><?php echo $post->post_title; ?></a></strong>
-					<p><?php echo wp_kses_post(substr($post->post_content, 0, 5 * $this->story_budget_excerpt_length(0))); // TODO: just call the_excerpt once setup_postadata works ?></p>
+					<p><?php echo strip_tags( substr( $post->post_content, 0, 5 * $this->story_budget_excerpt_length(0) ) ); // TODO: just call the_excerpt once setup_postadata works ?></p>
 					<p><?php do_action('story_budget_post_details'); ?></p>
 					<div class="row-actions">
 						<span class='edit'><a href="post.php?post=<?php echo $post->ID; ?>&action=edit">Edit</a> | </span>
 						<span class='inline hide-if-no-js'><a href="#" class="editinline" title="Edit this item inline">Quick&nbsp;Edit</a> | </span>
+						<?php if ( EMPTY_TRASH_DAYS > 0 ) : ?>
 						<span class='trash'><a class='submitdelete' title='Move this item to the Trash' href='<?php echo get_delete_post_link( $post->ID ); ?>'>Trash</a> | </span>
+						<?php endif; ?>
 						<span class='view'><a href="<?php the_permalink(); // TODO: preview link? TODO: this doesn't work ?>" title="View &#8220;Test example post&#8221;" rel="permalink">View</a></span></div>
 				</td>
 				<td class="author column-author"><a href="<?php echo $author_filter_url; ?>"><?php echo $authordata->display_name; ?></a></td>
-				<td class="status column-status"><a href="<?php echo $status_filter_url; ?>"><?php echo $post->post_status; ?></a></td>
+				<td class="status column-status"><a href="<?php echo $status_filter_url; ?>"><?php echo $status ?></a></td>
 				<td class="categories column-categories"><?php $this->print_subcategories( $post->ID, $parent_term ); ?></td>
 			</tr>
 		<?php
@@ -320,6 +331,31 @@ class ef_story_budget {
 		}
 	}
 	
+	function print_messages() {
+		echo '<h2>Story Budget</h2>';
+	
+		if ( isset($_GET['trashed']) || isset($_GET['untrashed']) ) {
+
+			echo '<div id="message" class="updated"><p>';
+			
+			// Following mostly stolen from edit.php
+			
+			if ( isset( $_GET['trashed'] ) && (int) $_GET['trashed'] ) {
+				printf( _n( 'Item moved to the trash.', '%s items moved to the trash.', $_GET['trashed'] ), number_format_i18n( $_GET['trashed'] ) );
+				$ids = isset($_GET['ids']) ? $_GET['ids'] : 0;
+				echo ' <a href="' . esc_url( wp_nonce_url( "edit.php?post_type=post&doaction=undo&action=untrash&ids=$ids", "bulk-posts" ) ) . '">' . __('Undo') . '</a><br />';
+				unset($_GET['trashed']);
+			}
+
+			if ( isset($_GET['untrashed'] ) && (int) $_GET['untrashed'] ) {
+				printf( _n( 'Item restored from the Trash.', '%s items restored from the Trash.', $_GET['untrashed'] ), number_format_i18n( $_GET['untrashed'] ) );
+				unset($_GET['undeleted']);
+			}
+			
+			echo '</p></div>';
+		}
+	}
+	
 	/**
 	 * Print the table navigation and filter controls, using the current user's filters if any are set.
 	 */
@@ -332,8 +368,8 @@ class ef_story_budget {
 		<div class="alignleft actions">
 			<form method="get" action="<?php echo admin_url() . EDIT_FLOW_STORY_BUDGET_PAGE; ?>" style="float: left;">
 				<input type="hidden" name="page" value="edit-flow/story_budget"/>
-				<select id='post_status' name='post_status'><!-- Status selectors -->
-					<option value='0'>Show all statuses</option>
+				<select id="post_status" name="post_status"><!-- Status selectors -->
+					<option value="0">Show all statuses</option>
 					<?php
 						foreach ( $custom_statuses as $custom_status ) {
 							echo "<option value='$custom_status->slug' " . selected($custom_status->slug, $user_filters['post_status']) . ">$custom_status->name</option>";
@@ -353,7 +389,7 @@ class ef_story_budget {
 							'orderby' => 'name',
 							'selected' => $user_filters['cat']
 							);
-						wp_dropdown_categories($category_dropdown_args);
+						wp_dropdown_categories( $category_dropdown_args );
 					}
 					
 					// TODO: Consider getting rid of this dropdown? The Edit Posts page doesn't have it and only allows filtering by user by clicking on their name. Should we do the same here?
@@ -369,7 +405,6 @@ class ef_story_budget {
 				<input id='start_date' name='start_date' type='text' class="date-pick" value="<?php echo $user_filters['start_date']; ?>" autocomplete="off" />
 				<label for="end_date">To: </label>
 				<input id='end_date' name='end_date' type='text' size='20' class="date-pick" value="<?php echo $user_filters['end_date']; ?>" autocomplete="off" />
-				<?php $this->print_date_scripts_and_style(); ?>
 				<input type="submit" id="post-query-submit" value="Filter" class="button-secondary" />
 			</form>
 			<form method="get" action="<?php echo admin_url() . EDIT_FLOW_STORY_BUDGET_PAGE; ?>" style="float: left;">
@@ -392,102 +427,25 @@ class ef_story_budget {
 	<div class="clear"></div>
 	<?php
 	}
-
-	/**
-	 * Print the CSS needed for the story budget. This should probably be included from a separate file.
-	 */
-	function print_CSS() {
-	?>
-		<style type="text/css">
-		#dashboard-widgets-wrap .postbox {
-			min-width: 0px;
-		}
-		.postbox-container {
-			width: 99%;
-		}
-
-		.postbox {
-			display: inline-block;
-			position: relative;
-			margin: 0 0 20px;
-		}
-
-		.story-budget thead tr th {
-			background: #f1f1f1 !important;
-		}
-		</style>
-	<?php
-	}
-
-	/**
-	 * Print the JS needed for the story budget. This should probably be included from a separate file.
-	 */
-	function print_JS() {
-	?>
-		<script type="text/javascript">
-		jQuery(document).ready(function($) {
-			$("#toggle_details").click(function() {
-				$(".post-title > p").slideToggle(); // hide post details when directed to
-			});
-			$("h3.hndle,div.handlediv").click(function() {
-				$(this).parent().children("div.inside").slideToggle(); // hide sections when directed to
-			});
-			$("input[name=ef_story_budget_screen_columns]").click(function() {
-				var numColumns = $(this).val(); // Get the new number of columns
-				jQuery(".postbox").css('width', <?php echo self::screen_width_percent; ?> / numColumns + '%');
-			});
-			
-			// Hide any column number choices beyond the number of terms being displayed
-			// var numTerms = $(".postbox").size();
-			// $("input[name=ef_story_budget_screen_columns]").slice(numTerms).parent().hide();
-		});
-		</script>
-	<?php
-	}
 	
-	function print_date_scripts_and_style() {
-	// TODO: add this all via filters and enqueue_script (dependency on jQuery, obviously)
-	?>
-	<script src="<?php echo EDIT_FLOW_URL; ?>js/lib/date.js" type="text/javascript"></script>
-	<script src="<?php echo EDIT_FLOW_URL; ?>js/lib/jquery.datePicker.js" type="text/javascript"></script>
-	<script type="text/javascript">
-	Date.firstDayOfWeek = <?php echo get_option( 'start_of_week' ); ?>;
-	Date.format = 'mm/dd/yyyy';
-	jQuery(document).ready(function($) {
-		$('.date-pick')
-			.datePicker({
-				createButton: false,
-				startDate: '01/01/2010',
-				endDate: (new Date()).asString(),
-				clickInput: true}
-				)
-		$('#start_date').bind(
-			'dpClosed',
-			function(e, selectedDates) {
-				var d = selectedDates[0];
-				if (d) {
-					d = new Date(d);
-					$('#end_date').dpSetStartDate(d.addDays(1).asString());
-				}
-			}
-		);
-		$('#end_date').bind(
-			'dpClosed',
-			function(e, selectedDates) {
-				var d = selectedDates[0];
-				if (d) {
-					d = new Date(d);
-					$('#start_date').dpSetEndDate(d.addDays(-1).asString());
-				}
-			}
-		);
-
-	});
-	</script>
-	<style type="text/css">
-	@import url("<?php echo EDIT_FLOW_URL; ?>css/datepicker-editflow.css");
-	</style>
-	<?php
+	function add_admin_scripts() {
+		global $current_screen;
+		
+		if ( $current_screen->id == self::screen_id ) {
+			wp_enqueue_script('edit_flow-date-lib', EDIT_FLOW_URL . 'js/lib/date.js', array(), false, true);
+			wp_enqueue_script('edit_flow-date_picker-lib', EDIT_FLOW_URL . 'js/lib/jquery.datePicker.js', array( 'jquery' ), false, true);
+			?>
+			<script type="text/javascript">
+				Date.firstDayOfWeek = <?php echo get_option( 'start_of_week' ); ?>;
+				editFlowStoryBudgetColumnsWidth = <?php echo self::screen_width_percent ?>;
+			</script>
+			<?php
+			wp_enqueue_script('edit_flow-date_picker', EDIT_FLOW_URL . 'js/ef_date.js', array( 'edit_flow-date_picker-lib', 'edit_flow-date-lib' ), false, true);
+			wp_enqueue_script('edit_flow-story_budget', EDIT_FLOW_URL . 'js/ef_story_budget.js', array( 'edit_flow-date_picker' ), false, true);
+		
+			wp_enqueue_style('edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, false, 'all');
+			wp_enqueue_style('edit_flow-story_budget-styles', EDIT_FLOW_URL . 'css/ef_story_budget.css', false, false, 'all');
+		}
 	}
 	
 	function story_budget_excerpt_length( $default_length ) {

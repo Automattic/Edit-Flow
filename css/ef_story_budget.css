@@ -1,0 +1,19 @@
+/** Story Budget **/
+
+#dashboard-widgets-wrap .postbox {
+	min-width: 0px;
+}
+
+.postbox-container {
+	width: 99%;
+}
+
+.postbox {
+	display: inline-block;
+	margin: 0 0 20px;
+	position: relative;
+}
+
+.story-budget thead tr th {
+	background: #f1f1f1 !important;
+}
