@@ -9,11 +9,11 @@ Version 1.1
 
 /*** Calendar Styles ***/
 
-#calendar-wrap {
+#ef-calendar-wrap {
 	min-width:900px;
 }
 
-#calendar-title {
+#ef-calendar-title {
 }
 
 #week-wrap {

@@ -3,8 +3,6 @@
  * This class displays an editorial calendar for viewing upcoming and past content at a glance
  *
  * Somewhat prioritized @todos:
- * @todo Highlight today on the calendar
- * @todo Add 'Clear' button for filters
  * @todo Ensure all of the styles work cross-browser
  *
  * @author danielbachhuber
@@ -136,13 +134,12 @@ class EF_Calendar {
 
 		?>
 		<div class="wrap">
+			<div id="ef-calendar-title"><!-- Calendar Title -->
+				<div class="icon32" id="icon-edit"></div>
+				<h2><?php _e( 'Calendar', 'edit-flow'); ?></h2>
+			</div><!-- /Calendar Title -->
 
-				<div id="calendar-title"><!-- Calendar Title -->
-					<div class="icon32" id="icon-edit"><br/></div>
-					<h2><?php _e( 'Edit Flow Calendar', 'edit-flow'); ?></h2>
-				</div><!-- /Calendar Title -->
-
-				<div id="calendar-wrap"><!-- Calendar Wrapper -->
+			<div id="ef-calendar-wrap"><!-- Calendar Wrapper -->
 					
 			<?php $this->print_top_navigation( $filters, $dates ); ?>
 

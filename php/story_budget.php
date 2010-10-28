@@ -105,7 +105,7 @@ class ef_story_budget {
 		$this->terms = apply_filters( 'ef-story_budget-reorder_terms', $terms ); // allow for reordering or any other filtering of terms
 		
 		?>
-		<div class="wrap">
+		<div class="wrap" id="ef-story-budget-wrap">
 			<?php $this->print_messages(); ?>
 			<?php $this->table_navigation(); ?>
 			<div id="dashboard-widgets-wrap">
@@ -332,8 +332,13 @@ class ef_story_budget {
 	}
 	
 	function print_messages() {
-		echo '<h2>Story Budget</h2>';
+	?>
+		<div id="ef-story-budget-title"><!-- Story Budget Title -->
+			<div class="icon32" id="icon-edit"></div>
+			<h2><?php _e( 'Story Budget', 'edit-flow' ); ?></h2>
+		</div><!-- /Story Budget Title -->
 	
+	<?php
 		if ( isset($_GET['trashed']) || isset($_GET['untrashed']) ) {
 
 			echo '<div id="message" class="updated"><p>';
@@ -364,7 +369,7 @@ class ef_story_budget {
 		$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
 		$user_filters = $this->get_user_filters();
 	?>
-	<div class="tablenav">
+	<div class="tablenav" id="ef-story-budget-tablenav">
 		<div class="alignleft actions">
 			<form method="get" action="<?php echo admin_url() . EDIT_FLOW_STORY_BUDGET_PAGE; ?>" style="float: left;">
 				<input type="hidden" name="page" value="edit-flow/story_budget"/>
@@ -425,7 +430,6 @@ class ef_story_budget {
 		<div class="clear"></div>
 		
 	</div><!-- /tablenav -->
-	<div class="clear"></div>
 	<?php
 	}
 	
