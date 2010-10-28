@@ -65,7 +65,7 @@ class EF_Calendar {
 		// Set the proper keys to empty so we don't thr
 		if ( empty( $old_filters ) ) {
 			$old_filters['post_status'] = '';
-			$old_filters['category_name'] = '';
+			$old_filters['cat'] = '';
 			$old_filters['author'] = '';
 			$old_filters['start_date'] = '';	
 		}
@@ -78,10 +78,10 @@ class EF_Calendar {
 		}
 		
 		// Category
-		if ( isset( $_GET['category_name'] ) ) {
-			$filters['category_name'] = $_GET['category_name'];
+		if ( isset( $_GET['cat'] ) ) {
+			$filters['cat'] = $_GET['cat'];
 		} else {
-			$filters['category_name'] = $old_filters['category_name'];
+			$filters['cat'] = $old_filters['cat'];
 		}
 		
 		// Author
@@ -122,7 +122,7 @@ class EF_Calendar {
 		// Get filters either from $_GET or from user settings
 		$filters = $this->get_filters();
 		$args = array(	'post_status' => $filters['post_status'],
-		 				'category_name' => $filters['category_name'],
+		 				'cat' => $filters['cat'],
 						'author' => $filters['author']
 					);
 
@@ -258,12 +258,12 @@ class EF_Calendar {
 		$html .= '</select>';
 	
 		// Filter by categories
-		$html .= '<select name="category_name" id="custom_category_filter">';
+		$html .= '<select name="cat" id="custom_category_filter">';
 		$html .= '<option value="">View All Categories</option>';
 		$categories = get_categories();
 		foreach ( $categories as $category ) {
-			$html .= '<option value="' . $category->slug . '"';
-			if ( $filters['category_name'] ==  $category->slug ) {
+			$html .= '<option value="' . $category->term_id . '"';
+			if ( $filters['cat'] ==  $category->term_id ) {
 				$html .= ' selected="selected"';
 			}
 			$html .= '>';
@@ -293,7 +293,7 @@ class EF_Calendar {
 		$html .= '<input type="hidden" name="page" value="edit-flow/calendar" />';
 		$html .= '<input type="hidden" name="start_date" value="' . $filters['start_date'] . '"/>';
 		$html .= '<input type="hidden" name="post_status" value="" />';
-		$html .= '<input type="hidden" name="category_name" value="" />';
+		$html .= '<input type="hidden" name="cat" value="" />';
 		$html .= '<input type="hidden" name="author" value="" />';
 		$html .= '<input type="submit" id="ef-clear-filters" class="button-secondary" value="Reset"/>';
 		$html .= '</form>';
@@ -371,7 +371,7 @@ class EF_Calendar {
 		global $wpdb, $edit_flow;
 		
 		$defaults = array( 	'post_status' => null,
-							'category_name' => null,
+							'cat' => null,
 							'author' => null
 						);
 		
@@ -395,7 +395,7 @@ class EF_Calendar {
 	function get_previous_link( $start_date, $filters ) {
 		$p_date = date('d-m-Y', strtotime("-1 day", strtotime($start_date)));
 		$url = EDIT_FLOW_CALENDAR_PAGE . '&amp;start_date=' . $p_date;
-		$url .= '&amp;post_status=' . $filters['post_status'] . '&amp;category_name=' . $filters['category_name'];
+		$url .= '&amp;post_status=' . $filters['post_status'] . '&amp;cat=' . $filters['cat'];
 		$url .= '&amp;author=' . $filters['author'];
 		return $url;
 	}
@@ -409,7 +409,7 @@ class EF_Calendar {
 	function get_next_link( $start_date, $filters ) {
 		$n_date = date('d-m-Y', strtotime("+7 days", strtotime($start_date)));
 		$url = EDIT_FLOW_CALENDAR_PAGE . '&amp;start_date=' . $n_date;
-		$url .= '&amp;post_status=' . $filters['post_status'] . '&amp;category_name=' . $filters['category_name'];
+		$url .= '&amp;post_status=' . $filters['post_status'] . '&amp;cat=' . $filters['cat'];
 		$url .= '&amp;author=' . $filters['author'];
 		return $url;
 	}
