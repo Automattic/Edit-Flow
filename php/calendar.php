@@ -156,9 +156,15 @@ class EF_Calendar {
 							
 							$posts = $this->get_calendar_posts( $date, $args );
 							
+							$date_format = 'Y-m-d';
+							$today_css = '';
+							// If we're currently outputting posts for today, give it some special CSS treatment
+							if ( date( $date_format, strtotime( $date ) ) == date( $date_format ) ) {
+								$today_css = ' today';
+							}
 						?>
-						<div class="week-unit<?php if ($key == 0) echo ' left-column'; ?>"><!-- Week Unit 1 -->
-							<ul id="<?php echo date('Y-m-d', strtotime($date)) ?>" class="week-list connectedSortable">
+						<div class="week-unit<?php if ($key == 0) echo ' left-column'; echo $today_css ?>"><!-- Week Unit 1 -->
+							<ul id="<?php echo date( $date_format, strtotime($date)) ?>" class="week-list connectedSortable">
 								<?php
 								// We're using The Loop!
 								if ( $posts->have_posts() ) : 
@@ -205,7 +211,7 @@ class EF_Calendar {
 						endforeach;
 						?>
 
-						<div style="clear:both"></div>
+						<div class="clear"></div>
 						<div class="week-footing">
 						<?php echo $this->get_time_period_header( $dates ); ?>
 						</div>
@@ -219,7 +225,7 @@ class EF_Calendar {
 							<a href="<?php echo $this->get_previous_link( $dates[count($dates)-1], $filters ); ?>">&laquo; Previous</a>
 						</li>
 					</ul>
-					<div style="clear:both"></div>
+					<div class="clear"></div>
 				</div><!-- /Calendar Wrapper -->
 
 			  </div>

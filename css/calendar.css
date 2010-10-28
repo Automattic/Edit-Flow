@@ -46,6 +46,10 @@ Version 1.1
 	min-height:115px; /*** Hack for when a list is empty. ***/
 }
 
+div#week-wrap div.today { /*** Different background color for today ***/
+	background-color: #FFFFE0; /*** Light yellow: this is the same color as message notifications ***/
+}
+
 .week-list li {
 	list-style-type:none;
 	margin-left:0;
