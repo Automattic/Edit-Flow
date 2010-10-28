@@ -121,10 +121,10 @@ class EF_Calendar {
 		
 		// Get filters either from $_GET or from user settings
 		$filters = $this->get_filters();
-		$args = array(	'post_status' => $filters['post_status'],
-		 				'cat' => $filters['cat'],
-						'author' => $filters['author']
-					);
+		$args = array( 'post_status' => $filters['post_status'],
+		 			   'cat'         => $filters['cat'],
+					   'author'      => $filters['author']
+					  );
 
 		$date = $filters['start_date'];
 		// All of the days of the week
@@ -144,7 +144,7 @@ class EF_Calendar {
 
 				<div id="calendar-wrap"><!-- Calendar Wrapper -->
 					
-		<?php echo $this->get_top_navigation( $filters, $dates ); ?>
+			<?php $this->print_top_navigation( $filters, $dates ); ?>
 
 			<div id="week-wrap"><!-- Week Wrapper -->
 						<div class="week-heading"><!-- New HTML begins with this week-heading div. Adds a WP-style dark grey heading to the calendar. Styles were added inline here to save having 7 different divs for this. -->
@@ -232,81 +232,74 @@ class EF_Calendar {
 	 * Generates the filtering and navigation options for the top of the calendar
 	 * @param array $filters Any set filters
 	 * @param array $dates All of the days of the week. Used for generating navigation links
-	 * @return string $html HTML for the top navigation
 	 */
-	function get_top_navigation( $filters, $dates ) {
+	function print_top_navigation( $filters, $dates ) {
 		global $edit_flow;
-	
-		$html = '';
-		$html .= '<ul class="day-navigation"><li id="calendar-filter"><form method="GET">';
-		$html .= '<input type="hidden" name="start_date" value="'. $filters['start_date'] . '"/>';
-		$html .= '<input type="hidden" name="page" value="edit-flow/calendar" />';
 		
-		// Filter by post status
-		$html .= '<select name="post_status" id="post_status_filter">';
-		$html .= '<option value="">Show All Posts</option>';
-		$statuses = $edit_flow->custom_status->get_custom_statuses();
-		foreach ( $statuses as $status ) {
-			$html .= '<option value="' . $status->slug . '"';
-			if ( $filters['post_status'] ==  $status->slug ) {
-				$html .= ' selected="selected"';
-			}
-			$html .= '>';
-			$html .= esc_html($status->name);
-			$html .= '</option>';
-		}
-		$html .= '</select>';
-	
-		// Filter by categories
-		$html .= '<select name="cat" id="custom_category_filter">';
-		$html .= '<option value="">View All Categories</option>';
-		$categories = get_categories();
-		foreach ( $categories as $category ) {
-			$html .= '<option value="' . $category->term_id . '"';
-			if ( $filters['cat'] ==  $category->term_id ) {
-				$html .= ' selected="selected"';
-			}
-			$html .= '>';
-	 		$html .= esc_html($category->name);
-			$html .= '</option>';
-		}
-		$html .= '</select>';
-		
-		// Filter by users
-		$html .= '<select name="author" id="custom_author_filter">';
-		$html .= '<option value="">View All Authors</option>';
-		$users = get_users_of_blog();
-		foreach ( $users as $user ) {
-			$html .= '<option value="' . $user->ID . '"';
-			if ( $filters['author'] ==  $user->ID ) {
-				$html .= ' selected="selected"';
-			}
-			$html .= '>';
-	 		$html .= esc_html($user->display_name);
-			$html .= '</option>';
-		}
-		$html .= '</select>';
-		$html .= '<input type="submit" class="button primary" value="Filter"/>';
-		$html .= '</form></li>';
-		// Clear filters functionality (all of the fields, but empty)
-		$html .= '<li><form method="GET">';
-		$html .= '<input type="hidden" name="page" value="edit-flow/calendar" />';
-		$html .= '<input type="hidden" name="start_date" value="' . $filters['start_date'] . '"/>';
-		$html .= '<input type="hidden" name="post_status" value="" />';
-		$html .= '<input type="hidden" name="cat" value="" />';
-		$html .= '<input type="hidden" name="author" value="" />';
-		$html .= '<input type="submit" id="ef-clear-filters" class="button-secondary" value="Reset"/>';
-		$html .= '</form>';
-		$html .= '</li>';
+		$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
+		?>
+		<ul class="day-navigation">
+			<li id="calendar-filter">
+				<form method="GET">
+					<input type="hidden" name="page" value="edit-flow/calendar" />
+					<input type="hidden" name="start_date" value="<?php echo $filters['start_date'] ?>"/>
+					<!-- Filter by status -->
+					<select id="post_status" name="post_status">
+						<option value="">View all statuses</option>
+						<?php
+							foreach ( $custom_statuses as $custom_status ) {
+								echo "<option value='$custom_status->slug' " . selected($custom_status->slug, $filters['post_status']) . ">$custom_status->name</option>";
+							}
+							echo "<option value='publish'" . selected('publish', $filters['post_status']) . ">Published</option>";
+						?>
+					</select>
+					
+					<?php
+								
+					// Filter by categories, borrowed from wp-admin/edit.php
+					if ( ef_taxonomy_exists('category') ) {
+						$category_dropdown_args = array(
+							'show_option_all' => __( 'View all categories' ),
+							'hide_empty' => 0,
+							'hierarchical' => 1,
+							'show_count' => 0,
+							'orderby' => 'name',
+							'selected' => $filters['cat']
+							);
+						wp_dropdown_categories( $category_dropdown_args );
+					}
+					
+					$user_dropdown_args = array(
+						'show_option_all' => __( 'View all users' ),
+						'name'     => 'author',
+						'selected' => $filters['author']
+						);
+					wp_dropdown_users( $user_dropdown_args );
+					?>
+					<input type="submit" id="post-query-submit" class="button-secondary" value="Filter"/>
+				</form>
+			</li>
+			<!-- Clear filters functionality (all of the fields, but empty) -->
+			<li>
+				<form method="GET">
+					<input type="hidden" name="page" value="edit-flow/calendar" />
+					<input type="hidden" name="start_date" value="<?php echo $filters['start_date']; ?>"/>
+					<input type="hidden" name="post_status" value="" />
+					<input type="hidden" name="cat" value="" />
+					<input type="hidden" name="author" value="" />
+					<input type="submit" id="post-query-clear" class="button-secondary" value="Reset"/>
+				</form>
+			</li>
 	  
-		// Previous and next navigation items
-		$html .= '<li class="next-week">';
-		$html .= '<a id="trigger-left" href="' . $this->get_next_link( $dates[0], $filters ) . '">Next &raquo;</a></li>';
-		$html .= '<li class="previous-week">';
-		$html .= '<a id="trigger-right" href="' . $this->get_previous_link( $dates[count($dates)-1], $filters ) . '">&laquo; Previous</a></li></ul>';
-		
-		return $html;
-		
+			<!-- Previous and next navigation items -->
+			<li class="next-week">
+				<a id="trigger-left" href="<?php echo $this->get_next_link( $dates[0], $filters ); ?>">Next &raquo;</a>
+			</li>
+			<li class="previous-week">
+				<a id="trigger-right" href="<?php echo $this->get_previous_link( $dates[count($dates)-1], $filters ); ?>">&laquo; Previous</a>
+			</li>
+		</ul>
+	<?php
 	}
 	
 	function get_time_period_header( $dates ) {
@@ -370,12 +363,20 @@ class EF_Calendar {
 	function get_calendar_posts( $date, $args = null ) {
 		global $wpdb, $edit_flow;
 		
-		$defaults = array( 	'post_status' => null,
-							'cat' => null,
-							'author' => null
-						);
-		
+		$defaults = array( 'post_status' => null,
+						   'cat'         => null,
+						   'author'      => null
+						  );
+						 
 		$args = array_merge( $defaults, $args );
+		
+		// The WP functions for printing the category and author assign a value of 0 to the default
+		// options, but passing this to the query is bad (trashed and auto-draft posts appear!), so
+		// unset those arguments. We could alternatively amend the first option from these
+		// dropdowns with a regex on the wp_dropdown_cats and wp_dropdown_users filters.
+		if ( $args['cat'] === '0' ) unset( $args['cat'] );
+		if ( $args['author'] === '0' ) unset( $args['author'] );
+				
 		$date_array = explode( '-', $date );
 		$args['year'] = $date_array[0];
 		$args['monthnum'] = $date_array[1];
