@@ -32,18 +32,22 @@ class EF_Editorial_Metadata {
 	var $metadata_taxonomy;
 	var $metadata_postmeta_key;
 	var $metadata_string;
+	var $screen_id;
 	
 	/**
 	 * A cache of the last metadata type that was seen or used. This is used to persist state between the
 	 * pre_edit_term and edited_term methods below.
 	 */
 	var $metadata_type_cache;
+	
+	var $metadata_slug_cache;
 
 	const description = 'desc';
 	const metadata_type_key = 'type';
 	
 	function __construct() {
 		$this->metadata_taxonomy = 'ef_editorial_meta';
+		$this->screen_id = "edit-{$this->metadata_taxonomy}";
 		$this->metadata_postmeta_key = "_{$this->metadata_taxonomy}";
 		$this->metadata_string = __( 'Metadata Type', 'edit-flow' );
 		
@@ -74,13 +78,36 @@ class EF_Editorial_Metadata {
 			
 			add_filter( "pre_{$this->metadata_taxonomy}_description", array( &$this, "insert_metadata_into_description_field" ) );
 			
+			// Enforce that a metadata slug cannot be change once the term is created
+			// We could use edit_{$taxonomy}, but then the value returned by AJAX call on quick edits would still be changed
+			add_action( "edit_terms", array( &$this, "pre_edit_term" ) );
+			add_action( "edited_terms", array( &$this, "edited_term" ) );
+			
 			// Enforce that a metadata type cannot be changed once the term is created
-			add_action( "edit_term_taxonomy", array( &$this, "pre_edit_term" ), 10, 2);
-			add_action( "edited_term_taxonomy", array( &$this, "edited_term" ), 10, 2);
+			add_action( "edit_term_taxonomy", array( &$this, "pre_edit_term_taxonomy" ), 10, 2);
+			add_action( "edited_term_taxonomy", array( &$this, "edited_term_taxonomy" ), 10, 2);
 		}
 	}
 	
-	function pre_edit_term( $tt_id, $taxonomy ) {
+	function pre_edit_term( $term_id ) {
+		$term = get_term( $term_id, $this->metadata_taxonomy );
+		if ( !is_null( $term ) ) {
+			// We'll only get a non-null result if we're editing a editorial_meta term (since that's the taxonomy we pass above)
+			$this->metadata_slug_cache = $term->slug;
+		}
+	}
+	
+	function edited_term( $term_id ) {
+		global $wpdb;
+		$term = get_term( $term_id, $this->metadata_taxonomy );
+		if ( !is_null( $term ) ) {
+			// As above, we'll only get a non-null result if we're editing a editorial_meta term (since that's the taxonomy we pass above)
+			// Switch back to the cached slug before the attempted update
+			$wpdb->update( $wpdb->terms, array( 'slug' => $this->metadata_slug_cache ), compact( 'term_id' ) );
+		}
+	}
+	
+	function pre_edit_term_taxonomy( $tt_id, $taxonomy ) {
 		if ( $taxonomy === $this->metadata_taxonomy ) {
 			global $wpdb;
 			
@@ -90,7 +117,7 @@ class EF_Editorial_Metadata {
 		}
 	}
 	
-	function edited_term( $tt_id, $taxonomy ) {
+	function edited_term_taxonomy( $tt_id, $taxonomy ) {
 		if ( $taxonomy === $this->metadata_taxonomy ) {
 			global $wpdb;
 			
@@ -114,13 +141,16 @@ class EF_Editorial_Metadata {
 	
 	function insert_metadata_into_description_field( $description ) {
 		$field_prefix = $this->metadata_taxonomy . '_';
-		$metadata_type = $_POST[$field_prefix . self::metadata_type_key];
+		$metadata_type = isset( $_POST[$field_prefix . self::metadata_type_key] ) ? $_POST[$field_prefix . self::metadata_type_key] : '';
 		if ( isset( $_POST[$field_prefix . self::description] ) ) {
 			$metadata_description = $_POST[$field_prefix . self::description];
 		} else if ( $_POST['action'] == 'add-tag' ) {
 			// If the posted metadata description is empty, use the given description
 			// This code path is executed when adding a term, but should not be executed when editing a term
 			$metadata_description = $description;
+		} else if ( $_POST['action'] == 'inline-save-tax' ) {
+			// This code path is executing when quick editing a term, in which case we have a slashed version of the current description
+			$metadata_description = $this->get_unserialized_value( stripslashes( $description ), self::description );
 		}
 		return $this->get_serialized_description( $metadata_description, $metadata_type );
 	}
@@ -165,7 +195,7 @@ class EF_Editorial_Metadata {
 	<?php
 	}
 	
-	function edit_form_fields($term, $taxonomy) {
+	function edit_form_fields( $term, $taxonomy ) {
 		// We need to add a new textarea for description that is just like the default one but that contains the right name, ID, and content
 		// The default one would have ugly serialized data in it.
 		$field_prefix = $this->metadata_taxonomy . '_';
@@ -200,13 +230,6 @@ class EF_Editorial_Metadata {
 			</td>
 		</tr>
 		<input type="hidden" name="<?php echo $this->metadata_taxonomy . '_' . self::metadata_type_key; ?>" value="<?php echo $type; ?>" />
-		
-		<script type="text/javascript">
-			jQuery(document).ready(function($) {
-				// Hide the default textarea. Kind of ugly but no hook to do this in PHP
-				$("textarea#description").parent().parent().hide();
-			});
-		</script>
 	<?php
 	}
 	
@@ -272,6 +295,11 @@ class EF_Editorial_Metadata {
 			<?php
 			wp_enqueue_script('edit_flow-date_picker', EDIT_FLOW_URL . 'js/ef_date.js', array( 'edit_flow-date_picker-lib', 'edit_flow-date-lib' ), false, true);
 		// }
+		
+		// Either editing the taxonomy or a specific term
+		if ( $current_screen->id == $this->screen_id ) {
+			wp_enqueue_script('edit_flow-editorial_metadata', EDIT_FLOW_URL . 'js/ef_editorial_metadata.js', array( 'jquery' ), false, true);
+		}
 		
 		if ( $current_screen->id == 'post' ) {
 			wp_enqueue_style('edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, false, 'all');
@@ -520,7 +548,7 @@ class EF_Editorial_Metadata {
 		$key = $this->metadata_postmeta_key;
 		$type = $this->get_metadata_type( $term );
 		$prefix = "{$key}_{$type}";
-		return "{$prefix}_" . ( is_object( $term ) ? $term->term_id : $term );
+		return "{$prefix}_" . ( is_object( $term ) ? $term->slug : $term );
 	}
 	
 	function get_editorial_metadata_terms() {
