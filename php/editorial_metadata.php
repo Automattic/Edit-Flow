@@ -468,6 +468,7 @@ class EF_Editorial_Metadata {
 					echo "<p>This editorial metadata type is not yet supported</p>";
 			}
 			echo "</div>";
+			echo "<div class='clear'></div>";
 		} // Done iterating through metadata terms
 		echo "</div>";
 	}
