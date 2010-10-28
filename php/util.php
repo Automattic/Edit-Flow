@@ -1,6 +1,12 @@
 <?php
 // Utilities
 if( !class_exists( 'WP_User_Search' ) ) include_once(ABSPATH . 'wp-admin/includes/user.php');
+// If the class still doesn't exist, we must be using WordPress 3.1 or newer and must look in
+// deprecated.php for it. But first we need to include its dependencies.
+if( !class_exists( 'WP_User_Search' ) ) {
+	include_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
+	include_once( ABSPATH . 'wp-admin/includes/deprecated.php' );
+}
 
 /**
  * This class is an extension of the WP_User_Search and allows for more advanced user searches.
