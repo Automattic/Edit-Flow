@@ -172,10 +172,11 @@ class EF_Calendar {
 								<li class="week-item" id="post-<?php the_id(); ?>">
 								  <div class="item-handle">
 									<span class="item-headline post-title">
-										<?php the_title(); ?>
+										<?php echo edit_post_link( get_the_title(), '', '', $post_id ); ?>
 									</span>
 									<ul class="item-metadata">
 										<li class="item-author">By <?php the_author(); ?></li>
+										<li class="item-time"><?php the_time( get_option('time_format') ); ?>
 										<li class="item-category">
 											<?php
 												// Listing of all the categories
