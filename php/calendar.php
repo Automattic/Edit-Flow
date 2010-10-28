@@ -96,11 +96,7 @@ class EF_Calendar {
 			$time = strtotime( $_GET['start_date'] );
 			$filters['start_date'] = date('Y-m-d', $time);
 		} else {
-			if ( $old_filters['start_date'] ) {
-				$filters['start_date'] = $old_filters['start_date'];
-			} else {
-				$filters['start_date'] = date('Y-m-d');
-			}
+			$filters['start_date'] = date('Y-m-d');
 		}
 
 		$filters['start_date'] = $this->get_end_of_week( $filters['start_date'] ); // don't just set the given date as the end of the week. use the blog's settings
@@ -295,11 +291,11 @@ class EF_Calendar {
 		// Clear filters functionality (all of the fields, but empty)
 		$html .= '<li><form method="GET">';
 		$html .= '<input type="hidden" name="page" value="edit-flow/calendar" />';
-		$html .= '<input type="hidden" name="start_date" value="' . date('Y-m-d') . '"/>';
+		$html .= '<input type="hidden" name="start_date" value="' . $filters['start_date'] . '"/>';
 		$html .= '<input type="hidden" name="post_status" value="" />';
 		$html .= '<input type="hidden" name="category_name" value="" />';
 		$html .= '<input type="hidden" name="author" value="" />';
-		$html .= '<input type="submit" id="ef-clear-filters" class="button-secondary" value="Clear"/>';
+		$html .= '<input type="submit" id="ef-clear-filters" class="button-secondary" value="Reset"/>';
 		$html .= '</form>';
 		$html .= '</li>';
 	  
