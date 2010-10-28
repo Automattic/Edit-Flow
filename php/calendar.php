@@ -250,6 +250,7 @@ class EF_Calendar {
 							foreach ( $custom_statuses as $custom_status ) {
 								echo "<option value='$custom_status->slug' " . selected($custom_status->slug, $filters['post_status']) . ">$custom_status->name</option>";
 							}
+							echo "<option value='scheduled'" . selected('scheduled', $filters['post_status']) . ">Scheduled</option>";
 							echo "<option value='publish'" . selected('publish', $filters['post_status']) . ">Published</option>";
 						?>
 					</select>
