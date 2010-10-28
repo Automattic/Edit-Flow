@@ -369,7 +369,7 @@ class ef_story_budget {
 			<form method="get" action="<?php echo admin_url() . EDIT_FLOW_STORY_BUDGET_PAGE; ?>" style="float: left;">
 				<input type="hidden" name="page" value="edit-flow/story_budget"/>
 				<select id="post_status" name="post_status"><!-- Status selectors -->
-					<option value="0">Show all statuses</option>
+					<option value="">View all statuses</option>
 					<?php
 						foreach ( $custom_statuses as $custom_status ) {
 							echo "<option value='$custom_status->slug' " . selected($custom_status->slug, $user_filters['post_status']) . ">$custom_status->name</option>";
@@ -382,7 +382,7 @@ class ef_story_budget {
 					// Borrowed from wp-admin/edit.php
 					if ( ef_taxonomy_exists('category') ) {
 						$category_dropdown_args = array(
-							'show_option_all' => __( 'Show all categories' ),
+							'show_option_all' => __( 'View all categories' ),
 							'hide_empty' => 0,
 							'hierarchical' => 1,
 							'show_count' => 0,
@@ -394,7 +394,7 @@ class ef_story_budget {
 					
 					// TODO: Consider getting rid of this dropdown? The Edit Posts page doesn't have it and only allows filtering by user by clicking on their name. Should we do the same here?
 					$user_dropdown_args = array(
-						'show_option_all' => __( 'Show all users' ),
+						'show_option_all' => __( 'View all users' ),
 						'name'     => 'post_author',
 						'selected' => $user_filters['post_author']
 						);
@@ -409,12 +409,12 @@ class ef_story_budget {
 			</form>
 			<form method="get" action="<?php echo admin_url() . EDIT_FLOW_STORY_BUDGET_PAGE; ?>" style="float: left;">
 				<input type="hidden" name="page" value="edit-flow/story_budget"/>
-				<input type="hidden" name="post_status" value="0"/>
-				<input type="hidden" name="cat" value="0"/>
-				<input type="hidden" name="post_author" value="0"/>
+				<input type="hidden" name="post_status" value=""/>
+				<input type="hidden" name="cat" value=""/>
+				<input type="hidden" name="post_author" value=""/>
 				<input type="hidden" name="start_date" value=""/>
 				<input type="hidden" name="end_date" value=""/>
-				<input type="submit" id="post-query-clear" value="Clear Filters" class="button-secondary" />
+				<input type="submit" id="post-query-clear" value="Reset" class="button-secondary" />
 			</form>
 		</div><!-- /alignleft actions -->
 		
