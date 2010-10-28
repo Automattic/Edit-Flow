@@ -398,6 +398,8 @@ class EF_Calendar {
 	function get_previous_link( $start_date, $filters ) {
 		$p_date = date('d-m-Y', strtotime("-1 day", strtotime($start_date)));
 		$url = EDIT_FLOW_CALENDAR_PAGE . '&amp;start_date=' . $p_date;
+		$url .= '&amp;post_status=' . $filters['post_status'] . '&amp;category_name=' . $filters['category_name'];
+		$url .= '&amp;author=' . $filters['author'];
 		return $url;
 	}
 
@@ -410,6 +412,8 @@ class EF_Calendar {
 	function get_next_link( $start_date, $filters ) {
 		$n_date = date('d-m-Y', strtotime("+7 days", strtotime($start_date)));
 		$url = EDIT_FLOW_CALENDAR_PAGE . '&amp;start_date=' . $n_date;
+		$url .= '&amp;post_status=' . $filters['post_status'] . '&amp;category_name=' . $filters['category_name'];
+		$url .= '&amp;author=' . $filters['author'];
 		return $url;
 	}
 	
