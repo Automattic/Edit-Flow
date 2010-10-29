@@ -551,7 +551,16 @@ class EF_Editorial_Metadata {
 		return "{$prefix}_" . ( is_object( $term ) ? $term->slug : $term );
 	}
 	
+	
+	/**
+	 * Returns te value for a given metadata
+	 *
+	 * @param object|string|int term The term object, slug or ID for the metadata field term
+	 * @param int post_id The ID of the post
+	 */
 	function get_postmeta_value( $term, $post_id ) {
+		if( ! is_object( $term ) )
+			$term = $this->get_editorial_metadata_term( $term );
 		$postmeta_key = $this->get_postmeta_key( $term );
 		return get_metadata( 'post', $post_id, $postmeta_key, true );
 	}
@@ -562,6 +571,25 @@ class EF_Editorial_Metadata {
 				'hide_empty' => false
 			)
 		);
+	}
+	
+	/**
+	 * Returns a term for single metadata field
+	 *
+	 * @param int|string field The slug or ID for the metadata field term to return 
+	 */
+	function get_editorial_metadata_term( $field ) {
+		
+		if( is_int( $field ) ) {
+			$term = get_term_by( 'id', $field, $this->metadata_taxonomy );
+		} elseif( is_string( $field ) ) {
+			$term = get_term_by( 'slug', $field, $this->metadata_taxonomy );
+		}
+		
+		if( ! $term || is_wp_error( $term ) )
+			return false;
+		
+		return $term;
 	}
 	
 } // END EF_Editorial_Metadata class
