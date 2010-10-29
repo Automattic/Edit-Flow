@@ -135,13 +135,16 @@ class ef_settings {
 									</label> <br />
 									<span class="description"><?php _e('Gives you an at-a-glance view of the current status of your unpublished content.', 'edit-flow') ?></span>
 								</p>
+								<?php
+								/* 
+								QuickPitch widget is disabled as of v0.6 because we need to refactor editorial metadata handling ^DB
 								<p>
 									<label for="quickpitch_widget_enabled">
 										<input type="checkbox" name="<?php  echo $edit_flow->get_plugin_option_fullname('quickpitch_widget_enabled') ?>" value="1" <?php echo ($edit_flow->get_plugin_option('quickpitch_widget_enabled')) ? 'checked="checked"' : ''; ?> id="quickpitch_widget_enabled" />
 										<?php _e('Enable QuickPitch Dashboard Widget') ?>
 									</label> <br />
 									<span class="description"><?php _e('Gives you the ability to create a pitch or draft post from the dashboard.', 'edit-flow') ?></span>
-								</p>
+								</p> */ ?>
 								<p>
 									<label for="myposts_widget_enabled">
 										<input type="checkbox" name="<?php  echo $edit_flow->get_plugin_option_fullname('myposts_widget_enabled') ?>" value="1" <?php echo ($edit_flow->get_plugin_option('myposts_widget_enabled')) ? 'checked="checked"' : ''; ?> id="myposts_widget_enabled" />

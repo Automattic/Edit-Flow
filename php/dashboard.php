@@ -23,12 +23,15 @@ class edit_flow_dashboard {
 				wp_add_dashboard_widget('post_status_widget', __('Unpublished Content', 'edit-flow'), array(&$this, 'post_status_widget'));
 			}
 			
+			/* 
+			QuickPitch widget is disabled as of v0.6 because we need to refactor editorial metadata handling ^DB
 			// Add the QuickPitch widget, if enabled
 			if ($edit_flow->get_plugin_option('quickpitch_widget_enabled')) {
 				wp_add_dashboard_widget('quick_pitch_widget', __('QuickPitch', 'edit-flow'), array(&$this, 'quick_pitch_widget'));
 			}
+			*/
 			
-			// Add the QuickPitch widget, if enabled
+			// Add the MyPosts widget, if enabled
 			if ($edit_flow->get_plugin_option('myposts_widget_enabled')) {
 				wp_add_dashboard_widget('myposts_widget', __('Posts I\'m Following', 'edit-flow'), array(&$this, 'myposts_widget'));
 			}
