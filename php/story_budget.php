@@ -450,6 +450,7 @@ class ef_story_budget {
 		
 			wp_enqueue_style('edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, false, 'all');
 			wp_enqueue_style('edit_flow-story_budget-styles', EDIT_FLOW_URL . 'css/ef_story_budget.css', false, false, 'all');
+			wp_enqueue_style('edit_flow-story_budget-print-styles', EDIT_FLOW_URL . 'css/ef_story_budget_print.css', false, false, 'print');
 		}
 	}
 	
