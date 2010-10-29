@@ -232,10 +232,11 @@ class ef_story_budget {
 			<table class="widefat post fixed story-budget" cellspacing="0">
 				<thead>
 					<tr>
-						<th scope="col" id="title" class="manage-column column-title" >Title</th>
-						<th scope="col" id="author" class="manage-column column-author">Author</th>
-						<th scope="col" id="status" class="manage-column column-author">Status</th>
-						<th scope="col" id="categories" class="manage-column column-categories" title="Subcategories of <?php echo $term->name;?>">Subcats</th>
+						<th scope="col" id="title" class="manage-column column-title" ><?php _e( 'Title', 'edit-flow' ); ?></th>
+						<th scope="col" id="author" class="manage-column column-author"><?php _e( 'Author', 'edit-flow' ); ?></th>
+						<!-- Intentionally using column-author below for CSS -->
+						<th scope="col" id="status" class="manage-column column-author"><?php _e( 'Status', 'edit-flow' ); ?></th>
+						<th scope="col" id="updated" class="manage-column column-author" title="<?php _e( 'Time the post was last updated', 'edit-flow'); ?>"><?php _e( 'Updated', 'edit-flow' ); ?></th>
 					</tr>
 				</thead>
 
@@ -292,6 +293,7 @@ class ef_story_budget {
 		// Get the friendly name for the status (e.g. Pending Review for pending)
 		$status = $edit_flow->custom_status->get_custom_status_friendly_name( $post->post_status );
 		
+		$post_edit_url = esc_url( add_query_arg( array( 'post' => $post->ID, 'action' => 'edit' ), admin_url( 'post.php' ) ) );
 		?>
 			<tr id='post-<?php echo $post->ID; ?>' class='alternate author-self status-publish iedit' valign="top">
 				<td class="post-title column-title">
@@ -299,16 +301,16 @@ class ef_story_budget {
 					<p><?php echo strip_tags( substr( $post->post_content, 0, 5 * $this->story_budget_excerpt_length(0) ) ); // TODO: just call the_excerpt once setup_postadata works ?></p>
 					<p><?php do_action('story_budget_post_details'); ?></p>
 					<div class="row-actions">
-						<span class='edit'><a href="post.php?post=<?php echo $post->ID; ?>&action=edit">Edit</a> | </span>
+						<span class='edit'><a href="<?php echo $post_edit_url; ?>">Edit</a> | </span>
 						<span class='inline hide-if-no-js'><a href="#" class="editinline" title="Edit this item inline">Quick&nbsp;Edit</a> | </span>
 						<?php if ( EMPTY_TRASH_DAYS > 0 ) : ?>
 						<span class='trash'><a class='submitdelete' title='Move this item to the Trash' href='<?php echo get_delete_post_link( $post->ID ); ?>'>Trash</a> | </span>
 						<?php endif; ?>
-						<span class='view'><a href="<?php the_permalink(); // TODO: preview link? TODO: this doesn't work ?>" title="View &#8220;Test example post&#8221;" rel="permalink">View</a></span></div>
+						<span class='view'><a href="<?php the_permalink(); // TODO: preview link? ?>" title="View &#8220;Test example post&#8221;" rel="permalink">View</a></span></div>
 				</td>
 				<td class="author column-author"><a href="<?php echo $author_filter_url; ?>"><?php echo $authordata->display_name; ?></a></td>
 				<td class="status column-status"><a href="<?php echo $status_filter_url; ?>"><?php echo $status ?></a></td>
-				<td class="categories column-categories"><?php $this->print_subcategories( $post->ID, $parent_term ); ?></td>
+				<td class="last-updated column-updated"><abbr class="ef-timeago" title="<?php echo printf( __( 'Last updated at %s', 'edit-flow' ), date( 'c', get_the_modified_date( 'U' ) ) ); ?>"><?php echo ef_timesince(get_the_modified_date('U')); ?><?php //$this->print_subcategories( $post->ID, $parent_term ); ?></abbr></td>
 			</tr>
 		<?php
 	}
@@ -319,13 +321,15 @@ class ef_story_budget {
 	 * @param int $id The post id whose subcategories should be printed.
 	 * @param object $parent_term The top-level term to which the post with given ID belongs.
 	 */
+	// TODO: Add this as an optional field
 	function print_subcategories( $id, $parent_term ) {
 		// Display the subcategories of the post
 		$subterms = get_the_category( $id );
 		for ($i = 0; $i < count($subterms); $i++) {
 			$subterm = $subterms[$i];
 			if ($subterm->term_id != $parent_term->term_id) {
-				echo "<a href='edit.php?post_type=post&category_name={$subterm->slug}'>{$subterm->name}</a>";
+				$subterm_url = esc_url( add_query_arg( array( 'post_type' => 'post', 'category_name' => $subterm_slug ), admin_url( 'edit.php' ) ) );	
+				echo "<a href='$subterm_url'>{$subterm->name}</a>";
 				echo ($i < count( $subterms ) - 1) ? ', ' : ''; // Separate list (all but last item) with commas
 			}
 		}
