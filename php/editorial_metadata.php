@@ -454,7 +454,7 @@ class EF_Editorial_Metadata {
 		$terms = $this->get_editorial_metadata_terms();
 		foreach ( $terms as $term ) {
 			$postmeta_key = $this->get_postmeta_key( $term );
-			$current_metadata = esc_attr( get_post_meta( $post->ID, $postmeta_key, true ) );
+			$current_metadata = esc_attr( $this->get_postmeta_value( $term, $post->ID ) );
 			$type = $this->get_metadata_type( $term );
 			$description = $this->get_unserialized_value( htmlspecialchars_decode( $term->description ), self::description );
 			$description_span = "<span class='description'>$description</span>";
@@ -549,6 +549,11 @@ class EF_Editorial_Metadata {
 		$type = $this->get_metadata_type( $term );
 		$prefix = "{$key}_{$type}";
 		return "{$prefix}_" . ( is_object( $term ) ? $term->slug : $term );
+	}
+	
+	function get_postmeta_value( $term, $post_id ) {
+		$postmeta_key = $this->get_postmeta_key( $term );
+		return get_metadata( 'post', $post_id, $postmeta_key, true );
 	}
 	
 	function get_editorial_metadata_terms() {
