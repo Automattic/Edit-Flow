@@ -71,6 +71,15 @@ class EF_Calendar {
 		// Post status
 		if ( isset( $_GET['post_status'] ) ) {
 			$filters['post_status'] = $_GET['post_status'];
+			// Check to ensure we've been passed a valid post status
+			$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
+			$all_valid_statuses = array( 'future', 'publish' );
+			foreach ( $custom_statuses as $custom_status ) {
+				$all_valid_statuses[] = $custom_status->slug;
+			}
+			if ( !in_array( $filters['post_status'], $all_valid_statuses ) ) {
+				$filters['post_status'] = '';
+			}
 		} else {
 			$filters['post_status'] = $old_filters['post_status'];
 		}
@@ -384,7 +393,7 @@ class EF_Calendar {
 		$date_array = explode( '-', $date );
 		$args['year'] = $date_array[0];
 		$args['monthnum'] = $date_array[1];
-		$args['day'] = $date_array[2];		
+		$args['day'] = $date_array[2];	
 		
 		$posts = new WP_Query( $args );
 		
