@@ -363,72 +363,7 @@ class EF_Editorial_Metadata {
 						'new_item_name' => __( 'New Editorial Metadata', 'edit-flow' ),
 					)
 			)
-		);
-		
-		// TODO: Remove these for production use. Or at least make sure they are only inserted once via an upgrade script!
-		$default_metadata = array(
-			array(
-				'term' => 'Photographer',
-				'args' => array( 'slug' => 'photographer',
-								 'description' => serialize( array( 'type' => 'user',
-																	'desc' => 'The photographer assigned to this article',
-																   )
-															)
-								)
-			),
-			array(
-				'term' => 'Due Date',
-				'args' => array( 'slug' => 'due-date',
-								 'description' => serialize( array( 'type' => 'date',
-																	'desc' => 'The deadline for this article',
-																   )
-															)
-								)
-			),
-			array(
-				'term' => 'Notes',
-				'args' => array( 'slug' => 'interview-notes',
-								 'description' => serialize( array( 'type' => 'paragraph',
-																	'desc' => 'Notes on the interviews used for this article',
-																   )
-															)
-								)
-			),
-			array(
-				'term' => 'Contact information',
-				'args' => array( 'slug' => 'contact-information',
-								 'description' => serialize( array( 'type' => 'paragraph',
-																	'desc' => 'Information on how to contact the writer of this article',
-																   )
-															)
-								)
-			),
-			array(
-				'term' => 'Location',
-				'args' => array( 'slug' => 'location',
-								 'description' => serialize( array( 'type' => 'location',
-																	'desc' => 'The location covered by this article',
-																   )
-															)
-								)
-			),
-			array(
-				'term' => 'Needs photo',
-				'args' => array( 'slug' => 'needs-photo',
-								 'description' => serialize( array( 'type' => 'checkbox',
-																	'desc' => 'Checked if this article needs a photo',
-																   )
-															)
-								)
-			),
-		);
-		
-		foreach ( $default_metadata as $term ) {
-			if ( !ef_term_exists( $term['term'] ) ) {
-				wp_insert_term( $term['term'], $this->metadata_taxonomy, $term['args'] );
-			}
-		}
-				
+		);		
 	}
 	
 	// -------------------------

@@ -90,7 +90,87 @@ function edit_flow_upgrade_051() {
 function edit_flow_upgrade_06() {
 	global $wpdb, $edit_flow;
 	
-	$wpdb->query( $wpdb->prepare( "UPDATE $wpdb->comments SET comment_approved = %s WHERE comment_type = %s", $edit_flow->ef_post_metadata->comment_type, $edit_flow->ef_post_metadata->comment_type ) );
+	// Editorial comments should have comment_approved set a given key instead of just 1 
+	$wpdb->update( $wpdb->comments, array( 'comment_approved' => $edit_flow->ef_post_metadata->comment_type ), array( 'comment_type' => $edit_flow->ef_post_metadata->comment_type ), array( '%s' ), array( '%s' ) );
+
+	// Add new metadata fields 
+	$default_metadata = array(
+			array(
+				'term' => 'Photographer',
+				'args' => array( 'slug' => 'photographer',
+								 'description' => serialize( array( 'type' => 'user',
+																	'desc' => 'The photographer assigned to this article',
+																   )
+															)
+								)
+			),
+			array(
+				'term' => 'Due Date',
+				'args' => array( 'slug' => 'duedate',
+								 'description' => serialize( array( 'type' => 'date',
+																	'desc' => 'The deadline for this article',
+																   )
+															)
+															
+								)
+			),
+			array(
+				'term' => 'Description',
+				'args' => array( 'slug' => 'description',
+								 'description' => serialize( array( 'type' => 'paragraph',
+																	'desc' => 'A short description of what this post will be about.',
+																   )
+															)
+								)
+			),
+			array(
+				'term' => 'Contact information',
+				'args' => array( 'slug' => 'contact-information',
+								 'description' => serialize( array( 'type' => 'paragraph',
+																	'desc' => 'Information on how to contact the writer of this article',
+																   )
+															)
+								)
+			),
+			array(
+				'term' => 'Location',
+				'args' => array( 'slug' => 'location',
+								 'description' => serialize( array( 'type' => 'location',
+																	'desc' => 'The location covered by this article',
+																   )
+															)
+								)
+			),
+			array(
+				'term' => 'Needs photo',
+				'args' => array( 'slug' => 'needs-photo',
+								 'description' => serialize( array( 'type' => 'checkbox',
+																	'desc' => 'Checked if this article needs a photo',
+																   )
+															)
+								)
+			),
+		);
+		
+		foreach ( $default_metadata as $term ) {
+			if ( !ef_term_exists( $term['args']['slug'], $edit_flow->editorial_metadata->metadata_taxonomy ) ) {
+				wp_insert_term( $term['term'], $edit_flow->editorial_metadata->metadata_taxonomy, $term['args'] );
+			}
+		}
+	
+	// Upgrade old metadata to new metadata
+	$metadata_fields = array( 'duedate', 'location', 'description' );
+	foreach( $metadata_fields as $metadata_field ) {
+		
+		$old_meta_key = '_ef_' . $metadata_field;
+		$new_meta_term = $edit_flow->editorial_metadata->get_editorial_metadata_term( $metadata_field );
+		$new_meta_key = $edit_flow->editorial_metadata->get_postmeta_key( $new_meta_term );
+		
+		$wpdb->update( $wpdb->postmeta, array( 'meta_key' => $new_meta_key ), array( 'meta_key' => $old_meta_key ), array( '%s' ), array( '%s' ) );
+	}
+	
+	// Delete old _ef_workflow metas since they're just unused and clogging the database
+	$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = '_ef_workflow'" );
 	
 	// @todo Remove all of the prior calendar state save data (being stored in user meta now)
 	// ..options: 'custom_status_filter', 'custom_category_filter', 'custom_author_filter'
