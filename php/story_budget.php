@@ -452,8 +452,8 @@ class ef_story_budget {
 			wp_enqueue_script('edit_flow-date_picker', EDIT_FLOW_URL . 'js/ef_date.js', array( 'edit_flow-date_picker-lib', 'edit_flow-date-lib' ), false, true);
 			wp_enqueue_script('edit_flow-story_budget', EDIT_FLOW_URL . 'js/ef_story_budget.js', array( 'edit_flow-date_picker' ), false, true);
 		
-			wp_enqueue_style('edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, false, 'all');
-			wp_enqueue_style('edit_flow-story_budget-styles', EDIT_FLOW_URL . 'css/ef_story_budget.css', false, false, 'all');
+			wp_enqueue_style('edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, false, 'screen');
+			wp_enqueue_style('edit_flow-story_budget-styles', EDIT_FLOW_URL . 'css/ef_story_budget.css', false, false, 'screen');
 			wp_enqueue_style('edit_flow-story_budget-print-styles', EDIT_FLOW_URL . 'css/ef_story_budget_print.css', false, false, 'print');
 		}
 	}
