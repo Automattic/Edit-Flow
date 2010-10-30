@@ -22,9 +22,13 @@ There are a few key components to this project:
 
 More details can be found on the [Edit Flow website](http://www.editflow.org/)
 
-We welcome any and all feedback. Ideas are more awesome than money (okay, not always). Contact us at [feedback@editflow.org](mailto:feedback@editflow.org).
+For support questions, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10).
 
-= Stage 1: Custom Post Statuses =
+We welcome any and all feedback [feedback@editflow.org](mailto:feedback@editflow.org).
+
+== Features ==
+
+= Custom Post Statuses =
 
 Enables users to create custom statuses for posts, and assign those to posts.
 
@@ -46,38 +50,39 @@ Enables users to create custom statuses for posts, and assign those to posts.
 
 * As a small bonus, we threw in a small dashboard widget that gives you a quick glance of the state of currently unpublished content. As this was a last minute addition, it's minimal and largely unstyled, but something we'll clean up and build out more in the coming days.
 
-= Stage 2: Post Metadata and Editorial Commenting =
-
-**Post Metadata**
-
-* We've added some basic fields to allow you to capture some additional data for each article.
-
-**Quick Pitch**
+= Quick Pitch =
 
 * Similar to QuickPress, this dashboard widget allows users to create a new pitch for an article.
+* <b>Note:</b> QuickPitch has been removed but will return once we figure out how to incorporate the new editorial metadata!
 
-**Editorial Comments**
+= Editorial Comments =
 
 * Edit Flow now supports editorial comments. Discussions on posts/articles can now take place between editorial staff within the WordPress Administration interface. This can cutdown on long-winded back-and-forth email threads as all comments are conveniently displayed within the Edit Posts page and better facilitate online workflows. Threading is supported (assuming it's enabled on your install)
 
-**Notifications**
+= Notifications =
 
 * We've added basic email notification support. Email notifications are delivered when a post's status changes or an editorial comment is added to a post. Notifications are delivered to: 
 ** Post author and Administrators, by default;
 ** Any specified roles (under Edit Flow > settings); and
 ** Any users that comment on posts.
 
-= Stage 3: Usergroups =
+= Usergroups =
 
 * We've added a feature called usergroups. It's sort of like roles, except that it just provides a way for you to group users that perform similar roles in your organization into cohesive virtual groups. Once grouped, usergroups can be subscribed to posts, so that all members receive post updates. This is just the start! We're looking a bunch of cool things to do with usergroups down the road.
 * Speaking of notifications, you can now select which users should receive notifications for specific posts!
 * Again on the topic of notifications, we've made emails a bit more specific in the type of information they contain as well some specific action links that'll probably save you a bunch of time.
 
-= Stage 4: To come =
+= Editorial Metadata =
 
-**What to expect**
+* Define your own metadata
 
-* We're looking at visualizations (editorial calendars!), post checklists, more dashboard widgets, more interesting ways to keep up-to-date (activity streams!) and other goodies.
+= Story Budget =
+
+* A streamlined interface to manage and track your content
+
+= To come =
+
+* We're looking at post checklists, more dashboard widgets, more interesting ways to keep up-to-date (activity streams!) and other goodies.
 
 == Installation ==
 
@@ -85,9 +90,9 @@ This section describes how to install the plugin and get it working.
 
 1. Extract the contents of the zip file into your `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Party.
+1. Enjoy!
 
-== Other Notes ==
+== Notes ==
 
 = Editorial Comments =
 
@@ -109,6 +114,11 @@ For replies to work properly, you need to enable threaded commenting in your blo
 5. See posts at a glance with the editorial calendar, and drag and drop to reschedule
 
 == Changelog ==
+
+= 0.6 =
+* Editorial Metadata
+* Story Budget
+* Bug fix: editorial comments would show up on the Recent Comments widget.
 
 = 0.5.3 =
 * Fixes issue where default Custom Statuses and User Groups were returning even after being deleted
