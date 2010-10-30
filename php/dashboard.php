@@ -200,7 +200,6 @@ class edit_flow_dashboard {
 					<?php
 					$url = esc_url(get_edit_post_link( $post->ID ));
 					$title = esc_html($post->post_title);
-					$item = "<h4><a href='$url' title='" . sprintf( __( 'Edit &#8220;%s&#8221;' ), esc_attr( $title ) ) . "'>" . esc_html($title) . "</a> <abbr title='" . get_the_time(__('Y/m/d g:i:s A'), $draft) . "'>" . get_the_time( get_option( 'date_format' ), $draft ) . '</abbr></h4>';
 					?>
 					<li>
 						<h4><a href="<?php echo $url ?>" title="<?php _e('Edit this post', 'edit-flow') ?>"><?php echo $title; ?></a></h4>
