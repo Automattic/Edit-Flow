@@ -290,7 +290,7 @@ class edit_flow {
                         'edit-tags.php?taxonomy='.$this->editorial_metadata->metadata_taxonomy);
 		
 		// Add sub-menu page for User Groups
-		add_submenu_page($this->get_page('edit-flow'), __('User Groups', 'edit-flow'), __('User Groups', 'edit-flow'), 'manage_options', $this->get_page('usergroups'), array(&$this->usergroups,'admin_page'));
+		add_submenu_page($this->get_page('edit-flow'), __('Usergroups', 'edit-flow'), __('Usergroups', 'edit-flow'), 'manage_options', $this->get_page('usergroups'), array(&$this->usergroups,'admin_page'));
 		
 		// Add sub-menu page for Calendar
 		if ( $this->calendar->viewable() ) {
