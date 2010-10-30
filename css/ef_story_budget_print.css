@@ -23,6 +23,15 @@ a {
 	margin-top: -60px;
 }
 
+#wpbody #wpbody-content,
+#wpbody #wpbody-content .postbox-container,
+.postbox,
+.inside,
+.widefat,
+.meta-box-sortables {
+	float: none !important; /* Hack to prevent Gecko from cutting off floated elements in print */
+}
+
 .icon32 {
 	display: block;
 	float: none;
