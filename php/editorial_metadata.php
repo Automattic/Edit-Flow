@@ -12,14 +12,11 @@
  * 7) Re-add the term (same slug) and the metadata does not return because of the third TODO
  * 
  * A bunch of TODOs, but only the first two are showstoppers
- * TODO: Remove old metadata section from editorial comments meta_box
- * TODO: Verify old metadata can be updated seamlessly
  * TODO: Should the key for postmeta be by term slug rather than term_id so that if a term is added back
  * 		 later its related metadata will appear again? Otherwise we might as well delete metadata when a
  * 		 term is deleted as there is no way to resurface the metadata without manually adding the term
  * 		 with the old ID. Need to pick one of these two changes and do it!
  * TODO: Fully document this class.
- * TODO: Move remaining JS into it's own file
  * TODO: Add ability for drag-drop of metadata terms?
  * TODO: Add ability to specify "due date" in settings based on one of the date metadata fields? Then the calendar could use that again.
  */
@@ -72,7 +69,8 @@ class EF_Editorial_Metadata {
 		}
 		
 		// Adding a term happens via admin-ajax.php, so make sure we copy the metadata_type into description then too
-		if ( $pagenow == 'edit-tags.php' || $pagenow == 'admin-ajax.php' ) {// Edit the columns for the post metadata taxonomy page (remove the description, add the post metadata type)
+		if ( $pagenow == 'edit-tags.php' || $pagenow == 'admin-ajax.php' ) {
+			// Edit the columns for the post metadata taxonomy page (remove the description, add the post metadata type)
 			add_filter( "manage_edit-{$this->metadata_taxonomy}_columns", array( &$this, "edit_column_headers" ) );
 			add_filter( "manage_{$this->metadata_taxonomy}_custom_column", array( &$this, "add_custom_columns" ), 10, 3 );
 			
@@ -150,8 +148,14 @@ class EF_Editorial_Metadata {
 			$metadata_description = $description;
 		} else if ( $_POST['action'] == 'inline-save-tax' ) {
 			// This code path is executing when quick editing a term, in which case we have a slashed version of the current description
-			$metadata_description = $this->get_unserialized_value( stripslashes( $description ), self::description );
+			$metadata_description = $this->get_unserialized_value( $description, self::description );
 		}
+		// Escape any special characters (', ", <, >, &)
+		$metadata_description = esc_attr( $metadata_description );
+		// TODO ASAP: For some reason, if the description is simply " the length returned by serialize() is 7 even
+		// though it should be 6 (&quot;). This makes the maybe_unserialize call fail. Similarly, inserting an
+		// apostrophe results in &#039; being inserted into the DB, but the serialize call makes the string length 7
+		// instead of 6. Even more strangely, if I insert &quot; directly, it is serialized properly.
 		return $this->get_serialized_description( $metadata_description, $metadata_type );
 	}
 	
@@ -199,7 +203,7 @@ class EF_Editorial_Metadata {
 		// We need to add a new textarea for description that is just like the default one but that contains the right name, ID, and content
 		// The default one would have ugly serialized data in it.
 		$field_prefix = $this->metadata_taxonomy . '_';
-		$types = $this->get_supported_metadata_types();
+		$metadata_types = $this->get_supported_metadata_types();
 		$type = $this->get_metadata_type( $term );
 		?>
 		<tr class="form-field form-required">
@@ -225,7 +229,7 @@ class EF_Editorial_Metadata {
 		<tr class="form-field">
 			<th scope="row" valign="top"><?php _e('Type', 'edit-flow'); ?></th>
 			<td>
-				<input type="text" disabled="disabled" value="<?php echo $types[$type]; ?>" /><br />
+				<input type="text" disabled="disabled" value="<?php echo $metadata_types[$type]; ?>" /><br />
 				<span class="description">The metadata type cannot be changed once created.</span>
 			</td>
 		</tr>
@@ -275,9 +279,15 @@ class EF_Editorial_Metadata {
 	}
 	
 	function add_custom_columns( $empty_string, $column_name, $term_id ) {
-		$term_description = maybe_unserialize( get_term_by( 'term_id', $term_id, $this->metadata_taxonomy )->description );
+		// Get the full description from the DB and unserialize into an array
+		$term = $this->get_editorial_metadata_term( (int) $term_id );
+		$term_description = maybe_unserialize( $term->description );
+		
+		// Display the information from the DB for this row to the user for our custom columns
 		if ( $column_name == self::metadata_type_key ) {
-			return $term_description[self::metadata_type_key];
+			// Return the display (pretty) type for the metadata. e.g. Location instead of location
+			$metadata_types = $this->get_supported_metadata_types();
+			return $metadata_types[$term_description[self::metadata_type_key]];
 		} else if ( $column_name == self::description ) {
 			return $term_description[self::description];
 		}
@@ -488,7 +498,7 @@ class EF_Editorial_Metadata {
 	
 	
 	/**
-	 * Returns te value for a given metadata
+	 * Returns the value for the given metadata
 	 *
 	 * @param object|string|int term The term object, slug or ID for the metadata field term
 	 * @param int post_id The ID of the post
@@ -514,7 +524,6 @@ class EF_Editorial_Metadata {
 	 * @param int|string field The slug or ID for the metadata field term to return 
 	 */
 	function get_editorial_metadata_term( $field ) {
-		
 		if( is_int( $field ) ) {
 			$term = get_term_by( 'id', $field, $this->metadata_taxonomy );
 		} elseif( is_string( $field ) ) {
