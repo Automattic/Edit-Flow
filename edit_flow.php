@@ -101,7 +101,7 @@ class edit_flow {
 		// Create all of our objects
 		$this->custom_status = new custom_status();
 		$this->usergroups = new ef_usergroups_admin();
-		$this->ef_post_metadata = new ef_post_metadata();
+		$this->ef_post_metadata = new EF_Post_Metadata();
 		$this->editorial_metadata = new EF_Editorial_Metadata();
 		$this->calendar = new EF_Calendar();
 		$this->story_budget = new EF_Story_Budget();

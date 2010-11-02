@@ -3,7 +3,9 @@
 // Functions that hook into or modify post.php
 define( 'EDIT_FLOW_META_PREFIX', '_ef_' );
 
-class ef_post_metadata
+if ( !class_exists('EF_Post_Metadata') ) {
+
+class EF_Post_Metadata
 {
 	// This is comment type used to differentiate editorial comments
 	var $comment_type = 'editorial-comment';
@@ -453,7 +455,9 @@ class ef_post_status
 			wp_enqueue_script('edit_flow-custom_status', EDIT_FLOW_URL.'js/custom_status.js', array('jquery','post'), false, true);
 		}
 	} // END: post_admin_header()
-} // END: class
+} // END: class EF_Post_Metadata
+
+} // END: !class_exists('EF_Post_Metadata')
 
 /**
  * Retrieve a list of comments -- overloaded from get_comments and with mods by filosofo (SVN Ticket #10668)
