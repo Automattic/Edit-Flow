@@ -2,7 +2,9 @@
 
 // Code for all dashboard widgets will go here
 
-class edit_flow_dashboard {
+if ( !class_exists('EF_Dashboard') ) {
+
+class EF_Dashboard {
 	
 	function __construct () {
 		add_action('wp_dashboard_setup', array(&$this, 'add_dashboard_widgets'));
@@ -214,3 +216,5 @@ class edit_flow_dashboard {
 		<?php
 	}
 }
+
+} // END - !class_exists('EF_Dashboard')

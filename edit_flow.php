@@ -108,7 +108,7 @@ class edit_flow {
 		$this->settings = new ef_settings();
 		$this->notifications = new ef_notifications( (int) $this->get_plugin_option('notifications_enabled') );
 		$this->post_status = new ef_post_status( (int) $this->get_plugin_option('custom_statuses_enabled') );
-		$this->dashboard = new edit_flow_dashboard(); 
+		$this->dashboard = new EF_Dashboard(); 
 		
 		// The main controller for the plugin - redirects to child controllers where necessary
 		add_action( 'admin_init', array( &$this, 'global_admin_controller' ) );
