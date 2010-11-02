@@ -146,14 +146,14 @@ div#week-wrap div.today { /*** Different background color for today ***/
 	color:red;
 }
 
-div.item-actions {
-	font-family: "Lucida Grande",Verdana,Arial,"Bitstream Vera Sans",sans-serif;
+.item-actions {
+	font-family: "Lucida Grande",Verdana,Arial,sans-serif;
 	font-size: 11px;
-	opacity:0;
+	visibility: hidden;
 }
 
 .week-item:hover .item-actions {
-	opacity:1;
+	visibility:visible !important;
 }
 
 div.item-actions a {
