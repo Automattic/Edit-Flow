@@ -99,7 +99,7 @@ class edit_flow {
 		$this->load_options();
 				
 		// Create all of our objects
-		$this->custom_status = new custom_status();
+		$this->custom_status = new EF_Custom_Status();
 		$this->usergroups = new ef_usergroups_admin();
 		$this->ef_post_metadata = new EF_Post_Metadata();
 		$this->editorial_metadata = new EF_Editorial_Metadata();

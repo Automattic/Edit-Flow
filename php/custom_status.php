@@ -2,7 +2,9 @@
  
 // Functions related to hooking into custom statuses will go here
 
-class custom_status {
+if ( !class_exists( 'EF_Custom_Status' ) ) {
+
+class EF_Custom_Status {
 
 	// This is taxonomy name used to store all our custom statuses
 	var $status_taxonomy = 'post_status';
@@ -652,6 +654,8 @@ class custom_status {
 	}	
 		
 } // END: class custom_status
+
+} // END: !class_exists('EF_Custom_Status')
 
 function ef_get_custom_status_filter_link ( $slug ) {
 	return 'edit.php?post_status='.$slug;
