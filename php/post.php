@@ -382,11 +382,15 @@ class EF_Post_Metadata
 	}
 }
 
+} // END: !class_exists('EF_Post_Metadata')
+
 /**
  * @class post_status
  * Main class that handles post status on Edit Post pages 
  */
-class ef_post_status
+if ( !class_exists('EF_Post_Status') ) {
+
+class EF_Post_Status
 {
 	
 	function __construct() {
@@ -455,9 +459,9 @@ class ef_post_status
 			wp_enqueue_script('edit_flow-custom_status', EDIT_FLOW_URL.'js/custom_status.js', array('jquery','post'), false, true);
 		}
 	} // END: post_admin_header()
-} // END: class EF_Post_Metadata
+} // END: class EF_Post_Status
 
-} // END: !class_exists('EF_Post_Metadata')
+} // END: !class_exists('EF_Post_Status')
 
 /**
  * Retrieve a list of comments -- overloaded from get_comments and with mods by filosofo (SVN Ticket #10668)
