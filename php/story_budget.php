@@ -37,7 +37,47 @@ class ef_story_budget {
 		add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', 'Screen Layout', array( &$this, 'print_column_prefs' ), self::screen_id, array( &$this, 'save_column_prefs' ), true );
 		
 		// Load necessary scripts and stylesheets
-		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
+		add_action( 'admin_print_scripts', array( &$this, 'print_admin_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_styles' ) );		
+	}
+	
+	/**
+	 * Enqueue necessary admin scripts
+	 */
+	function enqueue_admin_scripts() {
+		global $current_screen;
+		
+		if ( $current_screen->id == self::screen_id ) {
+			wp_enqueue_script('edit_flow-date-lib', EDIT_FLOW_URL . 'js/lib/date.js', array(), false, true);
+			wp_enqueue_script('edit_flow-date_picker-lib', EDIT_FLOW_URL . 'js/lib/jquery.datePicker.js', array( 'jquery' ), false, true);
+			wp_enqueue_script('edit_flow-date_picker', EDIT_FLOW_URL . 'js/ef_date.js', array( 'edit_flow-date_picker-lib', 'edit_flow-date-lib' ), false, true);
+			wp_enqueue_script('edit_flow-story_budget', EDIT_FLOW_URL . 'js/ef_story_budget.js', array( 'edit_flow-date_picker' ), false, true);
+		
+		}
+	}
+	
+	/**
+	 * Print admin scripts
+	 */
+	function print_admin_scripts() {
+		?>
+		<script type="text/javascript">
+			Date.firstDayOfWeek = <?php echo get_option( 'start_of_week' ); ?>;
+			editFlowStoryBudgetColumnsWidth = <?php echo self::screen_width_percent ?>;
+		</script>
+		<?php
+	}
+	
+	/**
+	 * Enqueue necessary admin styles
+	 */
+	function enqueue_admin_styles() {
+		
+		wp_enqueue_style('edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, EDIT_FLOW_VERSION, 'screen');
+		wp_enqueue_style('edit_flow-story_budget-styles', EDIT_FLOW_URL . 'css/ef_story_budget.css', false, EDIT_FLOW_VERSION, 'screen');
+		wp_enqueue_style('edit_flow-story_budget-print-styles', EDIT_FLOW_URL . 'css/ef_story_budget_print.css', false, EDIT_FLOW_VERSION, 'print');
+		
 	}
 	
 	function get_num_columns() {
@@ -437,26 +477,6 @@ class ef_story_budget {
 	<?php
 	}
 	
-	function add_admin_scripts() {
-		global $current_screen;
-		
-		if ( $current_screen->id == self::screen_id ) {
-			wp_enqueue_script('edit_flow-date-lib', EDIT_FLOW_URL . 'js/lib/date.js', array(), false, true);
-			wp_enqueue_script('edit_flow-date_picker-lib', EDIT_FLOW_URL . 'js/lib/jquery.datePicker.js', array( 'jquery' ), false, true);
-			?>
-			<script type="text/javascript">
-				Date.firstDayOfWeek = <?php echo get_option( 'start_of_week' ); ?>;
-				editFlowStoryBudgetColumnsWidth = <?php echo self::screen_width_percent ?>;
-			</script>
-			<?php
-			wp_enqueue_script('edit_flow-date_picker', EDIT_FLOW_URL . 'js/ef_date.js', array( 'edit_flow-date_picker-lib', 'edit_flow-date-lib' ), false, true);
-			wp_enqueue_script('edit_flow-story_budget', EDIT_FLOW_URL . 'js/ef_story_budget.js', array( 'edit_flow-date_picker' ), false, true);
-		
-			wp_enqueue_style('edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, false, 'screen');
-			wp_enqueue_style('edit_flow-story_budget-styles', EDIT_FLOW_URL . 'css/ef_story_budget.css', false, false, 'screen');
-			wp_enqueue_style('edit_flow-story_budget-print-styles', EDIT_FLOW_URL . 'css/ef_story_budget_print.css', false, false, 'print');
-		}
-	}
 	
 	function story_budget_excerpt_length( $default_length ) {
 		return 60 / $this->get_num_columns();
