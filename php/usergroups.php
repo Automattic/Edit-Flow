@@ -7,7 +7,9 @@ define( 'EDIT_FLOW_USERGROUPS_ADD_LINK' , EDIT_FLOW_USERGROUPS_PAGE . '&action=a
 define( 'EDIT_FLOW_USERGROUPS_EDIT_LINK' , EDIT_FLOW_USERGROUPS_PAGE . '&action=edit' );
 define( 'EDIT_FLOW_USERGROUPS_USERMETA' , $wpdb->prefix . 'ef_usergroups' ); // prefix added for MU compatibility
 
-class ef_usergroups_admin {
+if ( !class_exists( 'EF_Usergroups_Admin' ) ) {
+
+class EF_Usergroups_Admin {
 
 	/**
 	 * Constructor
@@ -253,7 +255,9 @@ class ef_usergroups_admin {
 		<?php
 	}
 	
-}
+} // END: class EF_Usergroups_Admin
+
+} // END: !class_exists('EF_Usergroups_Admin')
 
 class EF_UserGroups {
 
