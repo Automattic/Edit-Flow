@@ -1,8 +1,8 @@
 <?php
 
-if ( !class_exists('ef_settings') ) {
+if ( !class_exists('EF_Settings') ) {
 
-class ef_settings {
+class EF_Settings {
 	
 	function __construct() {
 		
