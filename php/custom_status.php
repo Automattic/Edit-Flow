@@ -452,7 +452,7 @@ class custom_status {
 		
 		$action = null; $error_details = null; $msg = null; $edit_status = null; $update = null;
 		
-		$action = sanitize_key( $_REQUEST['action'] );
+		$action = isset( $_REQUEST['action'] ) ? sanitize_key( $_REQUEST['action'] ) : '';
 
 		switch( $action ) {
 			

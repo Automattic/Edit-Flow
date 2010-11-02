@@ -4,7 +4,7 @@
  * @param $message The message to be displayed
  */
 function ef_the_message( $message = '' ) {
-	if(!$message && isset($_REQUEST['message'])) $message = esc_html($_REQUEST['message']);
+	if( !$message && isset( $_REQUEST['message'] ) ) $message = esc_html( $_REQUEST['message'] );
 	?>
 	<?php if( $message ) : ?>
 		<div id="message" class="updated fade">
