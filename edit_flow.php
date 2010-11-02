@@ -106,7 +106,7 @@ class edit_flow {
 		$this->calendar = new EF_Calendar();
 		$this->story_budget = new EF_Story_Budget();
 		$this->settings = new EF_Settings();
-		$this->notifications = new ef_notifications( (int) $this->get_plugin_option('notifications_enabled') );
+		$this->notifications = new EF_Notifications( (int) $this->get_plugin_option('notifications_enabled') );
 		$this->post_status = new ef_post_status( (int) $this->get_plugin_option('custom_statuses_enabled') );
 		$this->dashboard = new EF_Dashboard(); 
 		

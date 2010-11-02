@@ -2,7 +2,9 @@
  
 // Functions related to hooking into custom statuses will go here
 
-class ef_notifications {
+if ( !class_exists('EF_Notifications') ) {
+
+class EF_Notifications {
 	
 	// Taxonomy name used to store users following posts
 	var $following_users_taxonomy = 'following_users';
@@ -510,6 +512,8 @@ class ef_notifications {
 	}
 	
 } // END: class ef_notifications
+
+} // END: !class_exists('EF_Notifications')
 
 /**
  * Gets a list of the users following the specified post
