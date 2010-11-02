@@ -276,7 +276,7 @@ class ef_story_budget {
 						<th scope="col" id="author" class="manage-column column-author"><?php _e( 'Author', 'edit-flow' ); ?></th>
 						<!-- Intentionally using column-author below for CSS -->
 						<th scope="col" id="status" class="manage-column column-author"><?php _e( 'Status', 'edit-flow' ); ?></th>
-						<th scope="col" id="updated" class="manage-column column-author" title="<?php _e( 'Time the post was last updated', 'edit-flow'); ?>"><?php _e( 'Updated', 'edit-flow' ); ?></th>
+						<th scope="col" id="updated" class="manage-column column-author" title="<?php _e( 'Last update time', 'edit-flow'); ?>"><?php _e( 'Updated', 'edit-flow' ); ?></th>
 					</tr>
 				</thead>
 
@@ -469,7 +469,7 @@ class ef_story_budget {
 		</div><!-- /alignleft actions -->
 		
 		<p class="print-box" style="float:right; margin-right: 30px;"><!-- Print link -->
-			<a href="#" id="toggle_details">Toggle Post Details</a> | <a href="#">Print</a>
+			<a href="#" id="toggle_details">Toggle Post Details</a> | <a href="#" id="print_link">Print</a>
 		</p>
 		<div class="clear"></div>
 		
