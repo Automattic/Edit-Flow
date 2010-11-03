@@ -9,13 +9,9 @@
  * 5) Play with adding more metadata to a post
  * 6) Clear the metadata for a single term in a post and watch the count go down!
  * 6) Delete a term and note the metadata disappears from posts
- * 7) Re-add the term (same slug) and the metadata does not return because of the third TODO
+ * 7) Re-add the term (same slug) and the metadata returns!
  * 
- * A bunch of TODOs, but only the first two are showstoppers
- * TODO: Should the key for postmeta be by term slug rather than term_id so that if a term is added back
- * 		 later its related metadata will appear again? Otherwise we might as well delete metadata when a
- * 		 term is deleted as there is no way to resurface the metadata without manually adding the term
- * 		 with the old ID. Need to pick one of these two changes and do it!
+ * A bunch of TODOs
  * TODO: Fully document this class.
  * TODO: Add ability for drag-drop of metadata terms?
  * TODO: Add ability to specify "due date" in settings based on one of the date metadata fields? Then the calendar could use that again.
@@ -152,18 +148,14 @@ class EF_Editorial_Metadata {
 		}
 		// Escape any special characters (', ", <, >, &)
 		$metadata_description = esc_attr( $metadata_description );
-		// TODO ASAP: For some reason, if the description is simply " the length returned by serialize() is 7 even
-		// though it should be 6 (&quot;). This makes the maybe_unserialize call fail. Similarly, inserting an
-		// apostrophe results in &#039; being inserted into the DB, but the serialize call makes the string length 7
-		// instead of 6. Even more strangely, if I insert &quot; directly, it is serialized properly.
 		return $this->get_serialized_description( $metadata_description, $metadata_type );
 	}
 	
 	function get_serialized_description( $metadata_description, $metadata_type ) {
 		return addslashes( serialize( array( self::description			=> $metadata_description,
-								 self::metadata_type_key 	=> $metadata_type,
-								)
-						) );
+		                                     self::metadata_type_key	=> $metadata_type,
+		                                    )
+		                             ) );
 	}
 	
 	function add_form_fields($taxonomy) {
@@ -180,7 +172,6 @@ class EF_Editorial_Metadata {
 				// anywhere but they have to re-add the deleted term if they want to see it
 				
 				// TODO: make this localizable!
-				// TODO: This isn't true since metadata is keyed off of the term_id rather than slug. See class-level TODO
 				var msg = "\n\nAny metadata for this term will remain but will not be visible unless this term is re-added.";
 				commonL10n.warnDelete += msg; // This is the string in the DOM shown on deletion
 				
@@ -205,13 +196,13 @@ class EF_Editorial_Metadata {
 		$field_prefix = $this->metadata_taxonomy . '_';
 		$metadata_types = $this->get_supported_metadata_types();
 		$type = $this->get_metadata_type( $term );
+		// For some reason the description's HTML is encoded when we get it as an object
 		$description = $this->get_unserialized_value( htmlspecialchars_decode( $term->description ), self::description );
 		?>
 		<tr class="form-field form-required">
 			<th scope="row" valign="top"><label for="<?php echo $field_prefix . self::description; ?>"><?php _ex('Description', 'Taxonomy Description'); ?></label></th>
 			<td>
 				<textarea rows="5" cols="40" name="<?php echo $field_prefix . self::description; ?>" id="<?php echo $field_prefix . self::description; ?>"><?php
-						// For some reason the description's HTML is encoded when we get it as an object
 						echo $description;
 					?></textarea><br />
 				<span class="description">The description is not prominent by default, however some themes may show it.</span>
@@ -347,7 +338,7 @@ class EF_Editorial_Metadata {
 	function order_metadata_rows($orderby, $args) {
 		global $current_screen;
 		
-		// TODO: add following check in other methods
+		// TODO: add following check in other methods (if possible)
 		if ( $current_screen->id == "edit-{$this->metadata_taxonomy}" ) // only sort by description when editing metadata
 			return apply_filters( 'ef_editorial_metadata_sort_order', 'name' );
 		else // TODO: is this needed if the orderby filter were only added on the metadata screen? (it isn't now, it's on all edit-tags screens, but maybe it could be)
@@ -384,11 +375,8 @@ class EF_Editorial_Metadata {
 	function handle_post_metaboxes() {
 		if ( function_exists( 'add_meta_box' ) ) {
 			// TODO: Side or normal default placement for the meta_box? Looks good in either...
-			add_meta_box( $this->metadata_taxonomy, __( 'Editorial Metadata', 'edit-flow' ), array( &$this, 'display_meta_box' ), 'post', 'normal' );
+			add_meta_box( $this->metadata_taxonomy, __( 'Editorial Metadata', 'edit-flow' ), array( &$this, 'display_meta_box' ), 'post', 'side' );
 			add_action( 'save_post', array(&$this, 'save_meta_box'), 10, 2 );
-			// TODO: Any need to hook into the below two actions or is save_post enough?
-			// add_action( 'edit_post', array( &$this, 'save_meta_box' ), 10, 2 );
-			// add_action( 'publish_post', array( &$this, 'save_meta_box' ), 10, 2 );
 		}
 	}
 	
@@ -449,7 +437,7 @@ class EF_Editorial_Metadata {
 	
 	function save_meta_box( $id, $post ) {
 		// Authentication checks: make sure data came from our meta box and that the current user is allowed to edit the post
-		// TODO: switch to using check_admin_referrer
+		// TODO: switch to using check_admin_referrer? See core (e.g. edit.php) for usage
 		if ( isset( $_POST[$this->metadata_taxonomy . "_nonce"] )
 			&& !wp_verify_nonce( $_POST[$this->metadata_taxonomy . "_nonce"], __FILE__ )
 			|| !current_user_can( 'edit_post', $id )
