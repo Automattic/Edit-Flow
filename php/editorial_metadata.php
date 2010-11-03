@@ -160,10 +160,10 @@ class EF_Editorial_Metadata {
 	}
 	
 	function get_serialized_description( $metadata_description, $metadata_type ) {
-		return serialize( array( self::description			=> $metadata_description,
+		return addslashes( serialize( array( self::description			=> $metadata_description,
 								 self::metadata_type_key 	=> $metadata_type,
 								)
-						);
+						) );
 	}
 	
 	function add_form_fields($taxonomy) {
@@ -205,13 +205,14 @@ class EF_Editorial_Metadata {
 		$field_prefix = $this->metadata_taxonomy . '_';
 		$metadata_types = $this->get_supported_metadata_types();
 		$type = $this->get_metadata_type( $term );
+		$description = $this->get_unserialized_value( htmlspecialchars_decode( $term->description ), self::description );
 		?>
 		<tr class="form-field form-required">
 			<th scope="row" valign="top"><label for="<?php echo $field_prefix . self::description; ?>"><?php _ex('Description', 'Taxonomy Description'); ?></label></th>
 			<td>
 				<textarea rows="5" cols="40" name="<?php echo $field_prefix . self::description; ?>" id="<?php echo $field_prefix . self::description; ?>"><?php
 						// For some reason the description's HTML is encoded when we get it as an object
-						echo $this->get_unserialized_value( htmlspecialchars_decode( $term->description ), self::description );
+						echo $description;
 					?></textarea><br />
 				<span class="description">The description is not prominent by default, however some themes may show it.</span>
 			</td>
@@ -289,7 +290,7 @@ class EF_Editorial_Metadata {
 			$metadata_types = $this->get_supported_metadata_types();
 			return $metadata_types[$term_description[self::metadata_type_key]];
 		} else if ( $column_name == self::description ) {
-			return $term_description[self::description];
+			return stripslashes( $term_description[self::description] );
 		}
 	}
 	
@@ -337,7 +338,7 @@ class EF_Editorial_Metadata {
 	function get_unserialized_value( $string_to_unserialize, $key ) {
 		$unserialized_array = maybe_unserialize( $string_to_unserialize );
 		if ( is_array( $unserialized_array ) ) {
-			return $unserialized_array[$key];
+			return stripslashes( $unserialized_array[$key] );
 		} else {
 			return $string_to_unserialize;
 		}
