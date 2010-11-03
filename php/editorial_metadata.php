@@ -396,7 +396,7 @@ class EF_Editorial_Metadata {
 					echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
 					echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
 					if ( !empty( $current_metadata ) )
-						echo "<div><a href='http://maps.google.com/?q={$current_metadata}&t=m' target='_blank'>Google Map for &#8220;$current_metadata&#8221;</a></div>";
+						echo "<div><a href='http://maps.google.com/?q={$current_metadata}&t=m' target='_blank'>" . sprintf( __( 'View &#8220;%s&#8221; on Google Maps', 'edit-flow' ), $current_metadata ) . "</a></div>";
 					break;
 				case "text":
 					echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
