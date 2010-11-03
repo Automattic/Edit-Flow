@@ -248,14 +248,13 @@ class EF_Editorial_Metadata {
 	function edit_column_headers( $column_headers ) {
 		// TODO: implement this using array_diff or array_unshift or something better?
 		$new_headers = array();
+		// Don't display the 'slug' column
+		unset( $column_headers['slug'] );
 		foreach ( $column_headers as $column_name => $column_display_name ) {
 			if ( $column_name == 'description' ) {
 				// Put the new columns in the place of description
 				$new_headers[self::metadata_type_key] = $this->metadata_string;
 				$new_headers[self::description] = 'Description';
-			} else if ( $column_name == 'slug' ) {
-				// TODO: can't we remove this column more easily?
-				// Do nothing
 			} else {
 				$new_headers[$column_name] = $column_display_name;
 			}
