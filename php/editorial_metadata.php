@@ -107,7 +107,7 @@ class EF_Editorial_Metadata {
 			
 			// TODO: Is get_row the right function to use? Can this be done with a $wpdb function rather than a custom query?
 			$desc = $wpdb->get_row( $wpdb->prepare( "SELECT description FROM $wpdb->term_taxonomy WHERE term_taxonomy_id = %d AND taxonomy = %s", $tt_id, $taxonomy ) )->description;
-			$this->metadata_type_cache = $this->get_unserialized_value( $desc, self::metadata_type_key );
+			$this->metadata_type_cache = $this->get_unencoded_value( $desc, self::metadata_type_key );
 		}
 	}
 	
@@ -117,15 +117,15 @@ class EF_Editorial_Metadata {
 			
 			// Get newly saved metadata type
 			// TODO: Same as above - can this be done better?
-			$serialized_description = $wpdb->get_row( $wpdb->prepare( "SELECT description FROM $wpdb->term_taxonomy WHERE term_taxonomy_id = %d AND taxonomy = %s", $tt_id, $taxonomy ) )->description;
+			$encoded_description = $wpdb->get_row( $wpdb->prepare( "SELECT description FROM $wpdb->term_taxonomy WHERE term_taxonomy_id = %d AND taxonomy = %s", $tt_id, $taxonomy ) )->description;
 			
 			// If the new type is different from the old type, we need to revert
-			if ( $this->metadata_type_cache !== $this->get_unserialized_value( $serialized_description, self::metadata_type_key ) ) {
-				$metadata_description = $this->get_unserialized_value( $serialized_description, self::description );
-				$updated_serialized_description = $this->get_serialized_description( $metadata_description, $this->metadata_type_cache );
+			if ( $this->metadata_type_cache !== $this->get_unencoded_value( $encoded_description, self::metadata_type_key ) ) {
+				$metadata_description = $this->get_unencoded_value( $encoded_description, self::description );
+				$updated_encoded_description = $this->get_encoded_description( $metadata_description, $this->metadata_type_cache );
 				
 				// Revert term type back to old type
-				$wpdb->update( $wpdb->term_taxonomy, array( 'description' => $updated_serialized_description ), array( 'term_taxonomy_id' => $tt_id ) );
+				$wpdb->update( $wpdb->term_taxonomy, array( 'description' => $updated_encoded_description ), array( 'term_taxonomy_id' => $tt_id ) );
 			} else {
 				// Metadata type hasn't changed, so do nothing
 			}
@@ -144,12 +144,12 @@ class EF_Editorial_Metadata {
 			$metadata_description = $description;
 		} else if ( $_POST['action'] == 'inline-save-tax' ) {
 			// This code path is executing when quick editing a term, in which case we have a slashed version of the current description
-			$metadata_description = $this->get_unserialized_value( $description, self::description );
+			$metadata_description = $this->get_unencoded_value( $description, self::description );
 		}
-		return $this->get_serialized_description( $metadata_description, $metadata_type );
+		return $this->get_encoded_description( $metadata_description, $metadata_type );
 	}
 	
-	function get_serialized_description( $metadata_description, $metadata_type ) {
+	function get_encoded_description( $metadata_description, $metadata_type ) {
 		// Escape any special characters (', ", <, >, &)		
 		$metadata_description = htmlentities( esc_attr( $metadata_description ), ENT_QUOTES );
 		return json_encode( array( 		self::description			=> $metadata_description,
@@ -197,7 +197,7 @@ class EF_Editorial_Metadata {
 		$metadata_types = $this->get_supported_metadata_types();
 		$type = $this->get_metadata_type( $term );
 		// For some reason the description's HTML is encoded when we get it as an object
-		$description = $this->get_unserialized_value( $term->description, self::description );
+		$description = $this->get_unencoded_value( $term->description, self::description );
 		?>
 		<tr class="form-field form-required">
 			<th scope="row" valign="top"><label for="<?php echo $field_prefix . self::description; ?>"><?php _ex('Description', 'Taxonomy Description'); ?></label></th>
@@ -317,17 +317,17 @@ class EF_Editorial_Metadata {
 		} else {
 			$metadata_type = $term;
 		}
-		return $this->get_unserialized_value( $metadata_type, self::metadata_type_key );
+		return $this->get_unencoded_value( $metadata_type, self::metadata_type_key );
 	}
 	
-	function get_unserialized_value( $string_to_unserialize, $key ) {
-		$string_to_unserialize = stripslashes( htmlspecialchars_decode( $string_to_unserialize ) );
-		$unserialized_array = json_decode( $string_to_unserialize, true );
-		if ( is_array( $unserialized_array ) ) {
-			$unserialized_array[$key] = html_entity_decode( $unserialized_array[$key], ENT_QUOTES );			
-			return $unserialized_array[$key];
+	function get_unencoded_value( $string_to_unencode, $key ) {
+		$string_to_unencode = stripslashes( htmlspecialchars_decode( $string_to_unencode ) );
+		$unencoded_array = json_decode( $string_to_unencode, true );
+		if ( is_array( $unencoded_array ) ) {
+			$unencoded_array[$key] = html_entity_decode( $unencoded_array[$key], ENT_QUOTES );			
+			return $unencoded_array[$key];
 		} else {
-			return $string_to_unserialize;
+			return $string_to_unencode;
 		}
 	}
 	
@@ -386,7 +386,7 @@ class EF_Editorial_Metadata {
 			$postmeta_key = $this->get_postmeta_key( $term );
 			$current_metadata = esc_attr( $this->get_postmeta_value( $term, $post->ID ) );
 			$type = $this->get_metadata_type( $term );
-			$description = $this->get_unserialized_value( $term->description, self::description );
+			$description = $this->get_unencoded_value( $term->description, self::description );
 			$description_span = "<span class='description'>$description</span>";
 			echo "<div class='{$this->metadata_taxonomy} {$this->metadata_taxonomy}_$type'>";
 			switch( $type ) {
