@@ -146,12 +146,12 @@ class EF_Editorial_Metadata {
 			// This code path is executing when quick editing a term, in which case we have a slashed version of the current description
 			$metadata_description = $this->get_unserialized_value( $description, self::description );
 		}
-		// Escape any special characters (', ", <, >, &)
-		$metadata_description = esc_attr( $metadata_description );
 		return $this->get_serialized_description( $metadata_description, $metadata_type );
 	}
 	
 	function get_serialized_description( $metadata_description, $metadata_type ) {
+		// Escape any special characters (', ", <, >, &)		
+		$metadata_description = esc_attr( $metadata_description );
 		return addslashes( serialize( array( self::description			=> $metadata_description,
 		                                     self::metadata_type_key	=> $metadata_type,
 		                                    )
