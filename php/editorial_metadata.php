@@ -209,14 +209,8 @@ class EF_Editorial_Metadata {
 			</td>
 		</tr>
 		<?php
-		/* Commented out so that we do not encourage editing the metadata type once added (also specifically disallowed on update)
-		<tr class="form-field form-required">
-			<th scope="row" valign="top"><label for="<?php echo $field_prefix . '_' . self::metadata_type_key; ?>"><?php echo $this->metadata_string; ?></label></th>
-			<td><?php $this->get_select_html( htmlspecialchars_decode( $term->description ) ); ?></td>
-		</tr>
-		*/
 		// People could try to change the value of the hidden field below (the metadata type), but they'd get nowhere as
-		// pre_edit_term and edited_term will stop them in there tracks!
+		// pre_edit_term and edited_term will stop them in their tracks!
 		?>
 		<tr class="form-field">
 			<th scope="row" valign="top"><?php _e('Type', 'edit-flow'); ?></th>
