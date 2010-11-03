@@ -151,11 +151,11 @@ class EF_Editorial_Metadata {
 	
 	function get_serialized_description( $metadata_description, $metadata_type ) {
 		// Escape any special characters (', ", <, >, &)		
-		$metadata_description = esc_attr( $metadata_description );
-		return addslashes( serialize( array( self::description			=> $metadata_description,
-		                                     self::metadata_type_key	=> $metadata_type,
-		                                    )
-		                             ) );
+		$metadata_description = htmlentities( esc_attr( $metadata_description ), ENT_QUOTES );
+		return json_encode( array( 		self::description			=> $metadata_description,
+										self::metadata_type_key	=> $metadata_type,
+									)
+		                             );
 	}
 	
 	function add_form_fields($taxonomy) {
@@ -266,15 +266,16 @@ class EF_Editorial_Metadata {
 	function add_custom_columns( $empty_string, $column_name, $term_id ) {
 		// Get the full description from the DB and unserialize into an array
 		$term = $this->get_editorial_metadata_term( (int) $term_id );
-		$term_description = maybe_unserialize( $term->description );
-		
+		$term_description = stripslashes( $term->description );
+		$term_description = json_decode( $term_description, true );
 		// Display the information from the DB for this row to the user for our custom columns
 		if ( $column_name == self::metadata_type_key ) {
 			// Return the display (pretty) type for the metadata. e.g. Location instead of location
 			$metadata_types = $this->get_supported_metadata_types();
 			return $metadata_types[$term_description[self::metadata_type_key]];
 		} else if ( $column_name == self::description ) {
-			return stripslashes( $term_description[self::description] );
+			$description = html_entity_decode( $term_description[self::description], ENT_QUOTES );			
+			return $description;
 		}
 	}
 	
@@ -320,10 +321,11 @@ class EF_Editorial_Metadata {
 	}
 	
 	function get_unserialized_value( $string_to_unserialize, $key ) {
-		$string_to_unserialize = htmlspecialchars_decode( $string_to_unserialize );
-		$unserialized_array = maybe_unserialize( $string_to_unserialize );
+		$string_to_unserialize = stripslashes( htmlspecialchars_decode( $string_to_unserialize ) );
+		$unserialized_array = json_decode( $string_to_unserialize, true );
 		if ( is_array( $unserialized_array ) ) {
-			return stripslashes( $unserialized_array[$key] );
+			$unserialized_array[$key] = html_entity_decode( $unserialized_array[$key], ENT_QUOTES );			
+			return $unserialized_array[$key];
 		} else {
 			return $string_to_unserialize;
 		}

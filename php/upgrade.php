@@ -98,16 +98,16 @@ function edit_flow_upgrade_06() {
 			array(
 				'term' => 'Photographer',
 				'args' => array( 'slug' => 'photographer',
-								 'description' => serialize( array( 'type' => 'user',
+								 'description' => json_encode( array( 'type' => 'user',
 																	'desc' => 'The photographer assigned to this article',
 																   )
-															)
+															),
 								)
 			),
 			array(
 				'term' => 'Due Date',
 				'args' => array( 'slug' => 'duedate',
-								 'description' => serialize( array( 'type' => 'date',
+								 'description' => json_encode( array( 'type' => 'date',
 																	'desc' => 'The deadline for this article',
 																   )
 															)
@@ -117,7 +117,7 @@ function edit_flow_upgrade_06() {
 			array(
 				'term' => 'Description',
 				'args' => array( 'slug' => 'description',
-								 'description' => serialize( array( 'type' => 'paragraph',
+								 'description' => json_encode( array( 'type' => 'paragraph',
 																	'desc' => 'A short description of what this post will be about.',
 																   )
 															)
@@ -126,7 +126,7 @@ function edit_flow_upgrade_06() {
 			array(
 				'term' => 'Contact information',
 				'args' => array( 'slug' => 'contact-information',
-								 'description' => serialize( array( 'type' => 'paragraph',
+								 'description' => json_encode( array( 'type' => 'paragraph',
 																	'desc' => 'Information on how to contact the writer of this article',
 																   )
 															)
@@ -135,7 +135,7 @@ function edit_flow_upgrade_06() {
 			array(
 				'term' => 'Location',
 				'args' => array( 'slug' => 'location',
-								 'description' => serialize( array( 'type' => 'location',
+								 'description' => json_encode( array( 'type' => 'location',
 																	'desc' => 'The location covered by this article',
 																   )
 															)
@@ -144,7 +144,7 @@ function edit_flow_upgrade_06() {
 			array(
 				'term' => 'Needs photo',
 				'args' => array( 'slug' => 'needs-photo',
-								 'description' => serialize( array( 'type' => 'checkbox',
+								 'description' => json_encode( array( 'type' => 'checkbox',
 																	'desc' => 'Checked if this article needs a photo',
 																   )
 															)
@@ -154,7 +154,8 @@ function edit_flow_upgrade_06() {
 		
 		foreach ( $default_metadata as $term ) {
 			if ( !ef_term_exists( $term['args']['slug'], $edit_flow->editorial_metadata->metadata_taxonomy ) ) {
-				wp_insert_term( $term['term'], $edit_flow->editorial_metadata->metadata_taxonomy, $term['args'] );
+				$new_term = wp_insert_term( $term['term'], $edit_flow->editorial_metadata->metadata_taxonomy, $term['args'] );
+				$wpdb->update( $wpdb->term_taxonomy, array( 'description' => $term['args']['description'] ), array( 'term_taxonomy_id' => $new_term['term_taxonomy_id'] ) );
 			}
 		}
 	
