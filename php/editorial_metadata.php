@@ -150,7 +150,8 @@ class EF_Editorial_Metadata {
 	}
 	
 	function get_encoded_description( $metadata_description, $metadata_type ) {
-		// Escape any special characters (', ", <, >, &)		
+		// Escape any special characters (', ", <, >, &)
+		$metadata_description = strip_tags( $metadata_description, '<b><a><strong><i><ul><li><ol><blockquote>');			
 		$metadata_description = htmlentities( esc_attr( $metadata_description ), ENT_QUOTES );
 		return json_encode( array( 		self::description			=> $metadata_description,
 										self::metadata_type_key	=> $metadata_type,
@@ -459,6 +460,8 @@ class EF_Editorial_Metadata {
 			if ( empty ( $new_metadata ) ) {
 				delete_post_meta( $id, $key );
 			} else {
+				
+				$new_metadata = strip_tags( $new_metadata );
 				update_post_meta( $id, $key, $new_metadata );
 				
 				// Add the slugs of the terms with non-empty new metadata to an array
