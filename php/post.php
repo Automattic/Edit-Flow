@@ -410,6 +410,7 @@ class EF_Post_Status
 		if(current_user_can('edit_posts') && (($edit_flow->get_plugin_option('custom_statuses_enabled') && ($pagenow == 'post.php' || $pagenow == 'edit.php' || $pagenow == 'post-new.php')) || ($edit_flow->get_plugin_option('pages_custom_statuses_enabled') && ($pagenow == 'page.php' || $pagenow == 'edit-pages.php' || $pagenow == 'page-new.php')))) {
 			
 			$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
+			$custom_statuses = apply_filters( 'ef_custom_status_list', $custom_statuses, $post );
 	
 			// Get the status of the current post		
 			if( $post->ID == 0 || $post->post_status == 'auto-draft' ) {
