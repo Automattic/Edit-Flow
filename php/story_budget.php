@@ -17,6 +17,8 @@ class ef_story_budget {
 	
 	var $max_num_columns;
 	
+	var $no_matching_posts_message = true;
+	
 	var $terms = array();
 	
 	const screen_width_percent = 98;
@@ -155,6 +157,9 @@ class ef_story_budget {
 				?>
 				</div>
 			</div><!-- /dashboard-widgets -->
+			<?php if ( $this->no_matching_posts_message ): ?>
+			<div id="message" class="updated fade"><p><?php _e( 'There are currently no matching posts', 'edit-flow' ); ?></p></div>
+			<?php endif; ?>
 		</div><!-- /wrap -->
 		<?php
 	}
@@ -259,8 +264,10 @@ class ef_story_budget {
 	function print_term( $term ) {
 		global $wpdb;
 		$posts = $this->get_matching_posts_by_term_and_filters( $term );
-		if ( !empty( $posts ) ) : // TODO: is this necessary if get_terms above behaves correctly?
-		
+		if ( !empty( $posts ) ) :
+			// Don't display the $no_matching_posts_message
+			$this->no_matching_posts_message = false;
+			
 	?>
 	<div class="postbox" style='width: <?php echo self::screen_width_percent / $this->get_num_columns(); ?>%'>
 		<div class="handlediv" title="Click to toggle"><br /></div>
