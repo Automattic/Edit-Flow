@@ -88,7 +88,10 @@ function edit_flow_upgrade_051() {
 }
 
 function edit_flow_upgrade_06() {
-	global $wpdb, $edit_flow;
+	global $wpdb, $edit_flow, $wp_roles;
+	
+	if ( ! isset( $wp_roles ) )
+		$wp_roles = new WP_Roles();
 	
 	// Editorial comments should have comment_approved set a given key instead of just 1 
 	$wpdb->update( $wpdb->comments, array( 'comment_approved' => $edit_flow->ef_post_metadata->comment_type ), array( 'comment_type' => $edit_flow->ef_post_metadata->comment_type ), array( '%s' ), array( '%s' ) );
@@ -172,6 +175,11 @@ function edit_flow_upgrade_06() {
 	
 	// Delete old _ef_workflow metas since they're just unused and clogging the database
 	$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key = '_ef_workflow'" );
+	
+	if( $wp_roles->is_role('author') ) {	
+		$author_role =& get_role('author');
+		$author_role->add_cap('edit_post_subscriptions');
+	}
 	
 	// @todo Remove all of the prior calendar state save data (being stored in user meta now)
 	// ..options: 'custom_status_filter', 'custom_category_filter', 'custom_author_filter'

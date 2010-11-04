@@ -57,7 +57,9 @@ class EF_Post_Metadata
 	function subscriptions_meta_box ( ) {
 		global $edit_flow;
 		
-		if( $edit_flow->get_plugin_option('notifications_enabled') && current_user_can('edit_post_subscriptions') ) 
+		$post_subscriptions_cap = apply_filters( 'ef_edit_post_subscriptions_cap', 'edit_post_subscriptions' );
+		
+		if( $edit_flow->get_plugin_option('notifications_enabled') && current_user_can( $post_subscriptions_cap ) ) 
 			$this->post_followers_box();
 	}
 	
