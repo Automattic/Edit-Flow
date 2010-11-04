@@ -76,6 +76,7 @@
 													<a href="<?php echo $edit_link ?>">
 														<?php _e('Edit', 'edit-flow') ?>
 													</a>
+												<?php if ( !$edit_flow->custom_status->is_restricted_status( $status->slug ) ): ?>													
 													|
 												</span>
 												<span class="delete">
@@ -85,6 +86,9 @@
 														<?php _e('Delete', 'edit-flow') ?>
 													</a>
 												</span>
+												<?php else: ?>
+												</span>
+												<?php endif; ?>
 											</div>
 										</td>
 										<td class="description column-description">
