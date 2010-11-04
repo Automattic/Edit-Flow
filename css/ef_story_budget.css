@@ -17,3 +17,23 @@
 .story-budget thead tr th {
 	background: #f1f1f1 !important;
 }
+
+.ef-updated {
+	background-color: #FFFFE0;
+	border-color: #E6DB55;
+	-moz-border-radius: 3px 3px 3px 3px;
+	border-style: solid;
+	border-width: 1px;
+	margin: 5px 15px 2px;
+	padding: 0 0.6em;
+}
+
+.wrap .ef-updated  {
+	margin: 5px 0 15px;
+}
+
+.ef-updated p {
+	line-height: 1;
+	margin: 0.5em 0;
+	padding: 2px;
+}

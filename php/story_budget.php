@@ -4,11 +4,8 @@
  * This class displays a budgeting system for an editorial desk's publishing workflow.
  *
  * Somewhat prioritized TODOs:
- * TODO: Move JS and CSS to their own files
  * TODO: Review inline TODOs
  * TODO: Fix any bugs with collapsing postbox divs and floating columns
- *
- * @author sbressler
  */
 class ef_story_budget {
 	var $taxonomy_used = 'category';
@@ -17,7 +14,7 @@ class ef_story_budget {
 	
 	var $max_num_columns;
 	
-	var $no_matching_posts_message = true;
+	var $no_matching_posts = true;
 	
 	var $terms = array();
 	
@@ -157,9 +154,7 @@ class ef_story_budget {
 				?>
 				</div>
 			</div><!-- /dashboard-widgets -->
-			<?php if ( $this->no_matching_posts_message ): ?>
-			<div id="message" class="updated fade"><p><?php _e( 'There are currently no matching posts', 'edit-flow' ); ?></p></div>
-			<?php endif; ?>
+			<?php $this->matching_posts_messages(); ?>
 		</div><!-- /wrap -->
 		<?php
 	}
@@ -246,7 +241,7 @@ class ef_story_budget {
 		// If printing fewer than get_num_columns() terms, only print that many columns
 		$num_columns = $this->get_num_columns();
 		?>
-		<div class='postbox-container'>
+		<div class="postbox-container">
 			<div class="meta-box-sortables">
 			<?php
 				// for ($i = $col_num; $i < count($terms); $i += $num_columns)
@@ -267,8 +262,8 @@ class ef_story_budget {
 		global $wpdb;
 		$posts = $this->get_matching_posts_by_term_and_filters( $term );
 		if ( !empty( $posts ) ) :
-			// Don't display the $no_matching_posts_message
-			$this->no_matching_posts_message = false;
+			// Don't display the message for $no_matching_posts
+			$this->no_matching_posts = false;
 			
 	?>
 	<div class="postbox" style='width: <?php echo self::screen_width_percent / $this->get_num_columns(); ?>%'>
@@ -391,7 +386,7 @@ class ef_story_budget {
 	<?php
 		if ( isset($_GET['trashed']) || isset($_GET['untrashed']) ) {
 
-			echo '<div id="message" class="updated"><p>';
+			echo '<div id="trashed-message" class="updated"><p>';
 			
 			// Following mostly stolen from edit.php
 			
@@ -483,7 +478,21 @@ class ef_story_budget {
 	<?php
 	}
 	
-	
+	/**
+	 * Display any messages after displaying all the story budget boxes. This will likely be for messages when no
+	 * stories are found to match the current filters.
+	 */
+	function matching_posts_messages() {
+		if ( $this->no_matching_posts ) { ?>
+		<style type="text/css">
+			/* Apparently the meta-box-sortables class has a minimum height of 300px. Not good with nothing inside them! */
+			.postbox-container .meta-box-sortables { min-height: 0; }
+		</style>
+		<div id="noposts-message" class="ef-updated fade"><p><?php _e( 'There are currently no matching posts', 'edit-flow' ); ?></p></div>
+		<?php
+		}
+	}
+
 	function story_budget_excerpt_length( $default_length ) {
 		return 60 / $this->get_num_columns();
 	}
