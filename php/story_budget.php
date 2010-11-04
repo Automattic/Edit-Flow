@@ -220,7 +220,9 @@ class ef_story_budget {
 		$post_where .= $wpdb->prepare( "AND $wpdb->term_relationships.term_taxonomy_id = %d ", $term->term_taxonomy_id );
 		$post_where .= " AND $wpdb->posts.post_type = 'post'";
 		
-		$query .= apply_filters( 'ef-story_budget-query_where', $post_where ) . ';';
+		$query .= apply_filters( 'ef-story_budget-query_where', $post_where );
+		
+		$query .= apply_filters( 'ef-story_budget-order_by', ' ORDER BY post_modified DESC' ) . ';';
 		
 		return $wpdb->get_results( $query );
 	}
