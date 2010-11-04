@@ -118,7 +118,7 @@
 		<div id="col-left">
 			<div class="col-wrap">
 				<div class="form-wrap">
-					<h3><?php echo ( isset( $update ) ) ? __('Update Custom Status', 'edit-flow') : __('Add Custom Status', 'edit-flow') ?></h3>
+					<h3><?php echo ( isset( $update ) && $update ) ? __('Update Custom Status', 'edit-flow') : __('Add Custom Status', 'edit-flow') ?></h3>
 						<form class="add:the-list:" action="<?php echo EDIT_FLOW_CUSTOM_STATUS_PAGE ?>" method="post" id="addstatus" name="addstatus">
 
 							<div class="form-field form-required">
@@ -133,14 +133,14 @@
 							    <p><?php _e('The description is mainly for administrative use, just to give you some context on what the custom status is to be used for or means.', 'edit-flow') ?></p>
 							</div>
 
-							<input type="hidden" name="action" value="<?php echo ( isset( $update ) ) ? 'update' : 'add' ?>" />
+							<input type="hidden" name="action" value="<?php echo ( isset( $update ) && $update ) ? 'update' : 'add' ?>" />
 							<?php if ( isset( $update ) && $update ) : ?>
 								<input type="hidden" name="term_id" value="<?php if ( !empty( $custom_status ) ) echo $custom_status->term_id ?>" />
 							<?php endif; ?>
 							<input type="hidden" name="page" value="edit-flow/php/custom_status" />
 							<input type="hidden" name="custom-status-add-nonce" id="custom-status-add-nonce" value="<?php echo wp_create_nonce('custom-status-add-nonce') ?>" />
 							
-							<p class="submit"><input type="submit" value="<?php echo ( isset( $update ) ) ? __('Update Custom Status', 'edit-flow') : __('Add Custom Status', 'edit-flow') ?>" name="submit" class="button"/></p>
+							<p class="submit"><input type="submit" value="<?php echo ( isset( $update ) && $update ) ? __('Update Custom Status', 'edit-flow') : __('Add Custom Status', 'edit-flow') ?>" name="submit" class="button"/></p>
 						</form>
 					</div>
 				</div>
