@@ -488,7 +488,7 @@ class ef_story_budget {
 			/* Apparently the meta-box-sortables class has a minimum height of 300px. Not good with nothing inside them! */
 			.postbox-container .meta-box-sortables { min-height: 0; }
 		</style>
-		<div id="noposts-message" class="ef-updated fade"><p><?php _e( 'There are currently no matching posts', 'edit-flow' ); ?></p></div>
+		<div id="noposts-message" class="ef-updated"><p><?php _e( 'There are currently no matching posts', 'edit-flow' ); ?></p></div>
 		<?php
 		}
 	}
