@@ -213,11 +213,21 @@ class ef_story_budget {
 	
 		// Limit results to the given category where type is 'post'
 		$post_where .= $wpdb->prepare( "AND $wpdb->term_relationships.term_taxonomy_id = %d ", $term->term_taxonomy_id );
-		$post_where .= " AND $wpdb->posts.post_type = 'post'";
+		$post_where .= "AND $wpdb->posts.post_type = 'post' ";
+		
+		// Limit the number of results per category
+		$default_query_limit_number = 10;
+		$query_limit_number = apply_filters( 'ef-story_budget-query_limit', $default_query_limit_number );
+		// Don't allow filtering the limit below 0
+		if ( $query_limit_number < 0 ) {
+			$query_limit_number = $default_query_limit_number;
+		}
+		$query_limit = "LIMIT $query_limit_number ";
 		
 		$query .= apply_filters( 'ef-story_budget-query_where', $post_where );
-		
-		$query .= apply_filters( 'ef-story_budget-order_by', ' ORDER BY post_modified DESC' ) . ';';
+		$query .= apply_filters( 'ef-story_budget-order_by', 'ORDER BY post_modified DESC ' );
+		$query .= $query_limit;
+		$query .= ';';
 		
 		return $wpdb->get_results( $query );
 	}
