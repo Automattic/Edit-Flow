@@ -186,7 +186,7 @@ class ef_story_budget {
 		if ( !empty( $post_status ) ) {
 			$post_where .= $wpdb->prepare( "$wpdb->posts.post_status = %s ", $post_status );
 		} else {
-			$post_where .= "($wpdb->posts.post_status IN ('publish'";
+			$post_where .= "($wpdb->posts.post_status IN ('publish', 'future'";
 			$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
 			foreach( $custom_statuses as $status ) {
 				$post_where .= $wpdb->prepare( ", %s", $status->slug );
