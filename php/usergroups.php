@@ -107,8 +107,8 @@ class EF_Usergroups_Admin {
 		
 		// Global var that holds all the data needed on edit flow pages
 		$ef_page_data = array(
-			'message' => '',
-			'errors' => '',
+			'message' => null,
+			'errors' => null,
 		);
 		
 		$action = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : '';

@@ -458,8 +458,8 @@ class EF_Custom_Status {
 
 		// Global var that holds all the data needed on edit flow pages
 		$ef_page_data = array(
-			'message' => '',
-			'errors' => '',
+			'message' => null,
+			'errors' => null,
 		);
 
 		switch( $action ) {
