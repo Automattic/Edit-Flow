@@ -4,9 +4,7 @@
 	<h2><?php _e('Custom Post Statuses', 'edit-flow') ?></h2>
 			
 	<?php 
-		$message = isset( $_GET['message'] ) ? $_GET['message'] : '';		
 		ef_the_message( $message );
-		$errors = isset( $_GET['errors'] ) ? $_GET['errors'] : '';
 		ef_the_errors( $errors );
 	?>
 

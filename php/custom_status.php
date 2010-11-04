@@ -452,9 +452,15 @@ class EF_Custom_Status {
 		$nonce_fail_msg = __('There\'s something fishy going on! We don\'t like this type of nonce-sense. Hmph.', 'edit-flow');
 		$msg_class = 'updated';
 		
-		$action = null; $error_details = null; $msg = null; $edit_status = null; $update = null;
+		$action = $error_details = $msg = $edit_status = $update = null;
 		
 		$action = isset( $_REQUEST['action'] ) ? sanitize_key( $_REQUEST['action'] ) : '';
+
+		// Global var that holds all the data needed on edit flow pages
+		$ef_page_data = array(
+			'message' => '',
+			'errors' => '',
+		);
 
 		switch( $action ) {
 			

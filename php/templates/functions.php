@@ -34,11 +34,11 @@ function ef_the_errors( $errors ) {
 	}
 	?>
 	<?php if( is_array( $errors ) && ! empty( $errors ) ) : ?>
-		<div id="error" class="error fade">
+		<div id="ef-error" class="error fade">
 			<p>
 				<ul>
 					<?php foreach( $errors as $error ) : ?>
-						<li>&raquo; <?php echo $error ?></li>
+						<li><?php echo $error ?></li>
 					<?php endforeach; ?>
 				</ul>
 			</p>
