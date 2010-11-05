@@ -132,9 +132,14 @@ div#week-wrap div.today { /*** Different background color for today ***/
 
 .item-headline {
 	font-size:12px;
-	font-weight: bold;
 	margin-bottom:5px;
 	margin-top:0;
+}
+
+.item-status {
+	font-size: 11px;
+	font-style:italic;
+	color: #999999;
 }
 
 .item-headline a {

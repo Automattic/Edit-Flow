@@ -179,9 +179,10 @@ class EF_Calendar {
 								?>
 								<li class="week-item" id="post-<?php the_id(); ?>">
 								  <div class="item-handle">
-									<span class="item-headline post-title">
-										<?php echo edit_post_link( get_the_title(), '', '', $post_id ); ?>
-									</span>
+									<div class="item-headline post-title">
+										<strong><?php echo edit_post_link( get_the_title(), '', '', $post_id ); ?></strong>
+										<span class="item-status">[<?php echo $edit_flow->custom_status->get_custom_status_friendly_name( get_post_status( $post_id ) ); ?>]</span>
+									</div>
 									<ul class="item-metadata">
 										<li class="item-author">By <?php the_author(); ?></li>
 										<li class="item-time"><?php the_time( get_option('time_format') ); ?>
