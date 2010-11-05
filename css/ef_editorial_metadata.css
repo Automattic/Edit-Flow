@@ -22,6 +22,11 @@
 	padding-left: 20px;
 }
 
+#ef_editorial_meta_meta_box div.ef_editorial_meta_location label:first-child {
+	background: transparent url("../img/globe-V3.png") no-repeat scroll 2px 0;
+	padding-left: 20px;
+}
+
 /* Spacing above Google Maps link */
 #ef_editorial_meta_meta_box div.ef_editorial_meta_location div {
 	line-height: 1.4em;
