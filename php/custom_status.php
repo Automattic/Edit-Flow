@@ -532,7 +532,7 @@ class EF_Custom_Status {
 					
 					// Stop users from editing restricted statuses
 					if($this->is_restricted_status($the_status->slug)) {
-						$message = __( 'That status is restricted and cannot be edited. However, you are welcome to delete it.', 'edit-flow' );
+						$message = __( 'The specified status is restricted and cannot be edited.', 'edit-flow' );
 						$redirect = EDIT_FLOW_CUSTOM_STATUS_PAGE .'&errors='. urlencode( $message );
 						wp_redirect( $redirect );
 					} else {

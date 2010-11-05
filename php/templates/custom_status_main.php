@@ -67,16 +67,20 @@
 										<th class="check-column" scope="row">
 										</th>
 										<td class="name column-name">
+											<?php if ( !$edit_flow->custom_status->is_restricted_status( $status->slug ) ): ?>
 											<a title="Edit <?php esc_attr_e($status->name) ?>" href="<?php echo $edit_link ?>" class="row-title">
 											<?php echo $status->name ?>
 											</a>
+											<?php else: ?>
+											<strong class="protected-status" style="font-size:12px;"><?php echo $status->name; ?></strong>
+											<?php endif; ?>
 											<br/>
 											<div class="row-actions">
+											<?php if ( !$edit_flow->custom_status->is_restricted_status( $status->slug ) ): ?>
 												<span class="edit">
 													<a href="<?php echo $edit_link ?>">
 														<?php _e('Edit', 'edit-flow') ?>
 													</a>
-												<?php if ( !$edit_flow->custom_status->is_restricted_status( $status->slug ) ): ?>													
 													|
 												</span>
 												<span class="delete">
@@ -86,10 +90,10 @@
 														<?php _e('Delete', 'edit-flow') ?>
 													</a>
 												</span>
-												<?php else: ?>
-												</span>
-												<?php endif; ?>
-											</div>
+											<?php else: ?>
+												<span style="visibility:hidden;">You can't edit protected statuses.</span>
+											<?php endif; ?>													
+											</div>										
 										</td>
 										<td class="description column-description">
 											<?php esc_html_e($status->description) ?>
