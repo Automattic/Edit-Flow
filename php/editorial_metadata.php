@@ -151,7 +151,8 @@ class EF_Editorial_Metadata {
 	
 	function get_encoded_description( $metadata_description, $metadata_type ) {
 		// Escape any special characters (', ", <, >, &)
-		$metadata_description = strip_tags( $metadata_description, '<b><a><strong><i><ul><li><ol><blockquote>');			
+		$allowed_tags = '<b><a><strong><i><ul><li><ol><blockquote><em>';
+		$metadata_description = strip_tags( $metadata_description, $allowed_tags );			
 		$metadata_description = htmlentities( esc_attr( $metadata_description ), ENT_QUOTES );
 		return json_encode( array( 		self::description			=> $metadata_description,
 										self::metadata_type_key	=> $metadata_type,
