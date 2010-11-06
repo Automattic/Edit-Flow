@@ -71,12 +71,9 @@ class EF_Calendar {
 		// Post status
 		if ( isset( $_GET['post_status'] ) ) {
 			$filters['post_status'] = $_GET['post_status'];
-			// Check to ensure we've been passed a valid post status
-			$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
+			// Check to ensure we've been passed a valid post status (either a built-in status or a custom status)
 			$all_valid_statuses = array( 'future', 'publish' );
-			foreach ( $custom_statuses as $custom_status ) {
-				$all_valid_statuses[] = $custom_status->slug;
-			}
+			array_push( $all_valid_statuses, $edit_flow->custom_status->get_custom_statuses() );
 			if ( !in_array( $filters['post_status'], $all_valid_statuses ) ) {
 				$filters['post_status'] = '';
 			}
