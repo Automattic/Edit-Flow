@@ -222,7 +222,7 @@ class ef_story_budget {
 		if ( $query_limit_number < 0 ) {
 			$query_limit_number = $default_query_limit_number;
 		}
-		$query_limit = "LIMIT $query_limit_number ";
+		$query_limit = $wpdb->prepare( 'LIMIT %d ', $query_limit_number );
 		
 		$query .= apply_filters( 'ef-story_budget-query_where', $post_where );
 		$query .= apply_filters( 'ef-story_budget-order_by', 'ORDER BY post_modified DESC ' );
