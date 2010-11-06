@@ -83,56 +83,6 @@ class EF_Editorial_Metadata {
 		}
 	}
 	
-	function pre_edit_term( $term_id ) {
-		$term = get_term( $term_id, $this->metadata_taxonomy );
-		if ( !is_null( $term ) ) {
-			// We'll only get a non-null result if we're editing a editorial_meta term (since that's the taxonomy we pass above)
-			$this->metadata_slug_cache = $term->slug;
-		}
-	}
-	
-	function edited_term( $term_id ) {
-		global $wpdb;
-		$term = get_term( $term_id, $this->metadata_taxonomy );
-		if ( !is_null( $term ) ) {
-			// As above, we'll only get a non-null result if we're editing a editorial_meta term (since that's the taxonomy we pass above)
-			// Switch back to the cached slug before the attempted update
-			$wpdb->update( $wpdb->terms, array( 'slug' => $this->metadata_slug_cache ), compact( 'term_id' ) );
-		}
-	}
-	
-	function pre_edit_term_taxonomy( $tt_id, $taxonomy ) {
-		if ( $taxonomy === $this->metadata_taxonomy ) {
-			global $wpdb;
-			
-			// TODO: Is get_row the right function to use? Can this be done with a $wpdb function rather than a custom query?
-			$desc = $wpdb->get_row( $wpdb->prepare( "SELECT description FROM $wpdb->term_taxonomy WHERE term_taxonomy_id = %d AND taxonomy = %s", $tt_id, $taxonomy ) )->description;
-			$this->metadata_type_cache = $this->get_unencoded_value( $desc, self::metadata_type_key );
-		}
-	}
-	
-	function edited_term_taxonomy( $tt_id, $taxonomy ) {
-		if ( $taxonomy === $this->metadata_taxonomy ) {
-			global $wpdb;
-			
-			// Get newly saved metadata type
-			// TODO: Same as above - can this be done better?
-			$encoded_description = $wpdb->get_row( $wpdb->prepare( "SELECT description FROM $wpdb->term_taxonomy WHERE term_taxonomy_id = %d AND taxonomy = %s", $tt_id, $taxonomy ) )->description;
-			
-			// If the new type is different from the old type, we need to revert
-			if ( $this->metadata_type_cache !== $this->get_unencoded_value( $encoded_description, self::metadata_type_key ) ) {
-				$metadata_description = $this->get_unencoded_value( $encoded_description, self::description );
-				$updated_encoded_description = $this->get_encoded_description( $metadata_description, $this->metadata_type_cache );
-				
-				// Revert term type back to old type
-				$wpdb->update( $wpdb->term_taxonomy, array( 'description' => $updated_encoded_description ), array( 'term_taxonomy_id' => $tt_id ) );
-			} else {
-				// Metadata type hasn't changed, so do nothing
-			}
-		}
-		$this->metadata_type_cache = NULL;
-	}
-	
 	function insert_metadata_into_description_field( $description ) {
 		$field_prefix = $this->metadata_taxonomy . '_';
 		$metadata_type = isset( $_POST[$field_prefix . self::metadata_type_key] ) ? $_POST[$field_prefix . self::metadata_type_key] : '';
@@ -150,14 +100,14 @@ class EF_Editorial_Metadata {
 	}
 	
 	function get_encoded_description( $metadata_description, $metadata_type ) {
-		// Escape any special characters (', ", <, >, &)
 		$allowed_tags = '<b><a><strong><i><ul><li><ol><blockquote><em>';
-		$metadata_description = strip_tags( $metadata_description, $allowed_tags );			
+		$metadata_description = strip_tags( $metadata_description, $allowed_tags );
+		// Escape any special characters (', ", <, >, &)
 		$metadata_description = htmlentities( esc_attr( $metadata_description ), ENT_QUOTES );
-		return json_encode( array( 		self::description			=> $metadata_description,
-										self::metadata_type_key	=> $metadata_type,
-									)
-		                             );
+		return json_encode( array( self::description        => $metadata_description,
+		                           self::metadata_type_key  => $metadata_type,
+		                          )
+		                   );
 	}
 	
 	function add_form_fields($taxonomy) {
@@ -170,16 +120,15 @@ class EF_Editorial_Metadata {
 		
 		<script type="text/javascript">
 			jQuery(document).ready(function($) {
-				// Inform users with text added to the deletion JS confirm dialog that their postmeta isn't going
-				// anywhere but they have to re-add the deleted term if they want to see it
+				// Inform users that their postmeta isn't going anywhere but they have to re-add the deleted term if
+				// they want to see it. Add this information to the JS confirm dialog upon term deletion
 				
-				// TODO: make this localizable!
-				var msg = "\n\nAny metadata for this term will remain but will not be visible unless this term is re-added.";
+				var msg = "<?php _e('\n\nAny metadata for this term will remain but will not be visible unless this term is re-added.', 'edit-flow'); ?>";
 				commonL10n.warnDelete += msg; // This is the string in the DOM shown on deletion
 				
 				<?php if ( isset($_GET['message']) && ( $msg = (int) $_GET['message'] ) && ( $msg === 2 || $msg === 6 ) ) : ?>
-					var msgSingleTerm = "Any metadata for the deleted term will remain but will not be visible unless the term is re-added.";
-					var msgMultipleTerms = "Any metadata for the deleted terms will remain but will not be visible unless the terms are re-added.";
+					var msgSingleTerm = "<?php _e('Any metadata for the deleted term will remain but will not be visible unless the term is re-added.', 'edit-flow'); ?>";
+					var msgMultipleTerms = "<?php _e('Any metadata for the deleted terms will remain but will not be visible unless the terms are re-added.', 'edit-flow'); ?>";
 					<?php if ( $msg === 2 ) : ?>
 						var msg = msgSingleTerm;
 					<?php elseif ( $msg === 6 ) : ?>
@@ -238,17 +187,17 @@ class EF_Editorial_Metadata {
 	}
 	
 	function get_supported_metadata_types() {
-		return array( 'checkbox' 	=> __('Checkbox', 'edit-flow'),
-					  'date' 		=> __('Date', 'edit-flow'),
-					  'location' 	=> __('Location', 'edit-flow'),
-					  'paragraph' 	=> __('Paragraph', 'edit-flow'),
-					  'text' 		=> __('Text', 'edit-flow'),
-					  'user'		=> __('User', 'edit-flow'),
-					);
+		return array( 'checkbox'   => __('Checkbox', 'edit-flow'),
+		              'date'       => __('Date', 'edit-flow'),
+		              'location'   => __('Location', 'edit-flow'),
+		              'paragraph'  => __('Paragraph', 'edit-flow'),
+		              'text'       => __('Text', 'edit-flow'),
+		              'user'       => __('User', 'edit-flow'),
+		             );
 	}
 	
 	function edit_column_headers( $column_headers ) {
-		// TODO: implement this using array_diff or array_unshift or something better?
+		// TODO: implement this using array_diff or something better?
 		$new_headers = array();
 		// Don't display the 'slug' column
 		unset( $column_headers['slug'] );
@@ -268,15 +217,13 @@ class EF_Editorial_Metadata {
 	function add_custom_columns( $empty_string, $column_name, $term_id ) {
 		// Get the full description from the DB and unserialize into an array
 		$term = $this->get_editorial_metadata_term( (int) $term_id );
-		$term_description = stripslashes( $term->description );
-		$term_description = json_decode( $term_description, true );
 		// Display the information from the DB for this row to the user for our custom columns
 		if ( $column_name == self::metadata_type_key ) {
-			// Return the display (pretty) type for the metadata. e.g. Location instead of location
+			// Return the display (pretty) type for the metadata. e.g. 'Location' instead of 'location'
 			$metadata_types = $this->get_supported_metadata_types();
-			return $metadata_types[$term_description[self::metadata_type_key]];
+			return $metadata_types[$this->get_metadata_type( $term )];
 		} else if ( $column_name == self::description ) {
-			$description = html_entity_decode( $term_description[self::description], ENT_QUOTES );			
+			$description = $this->get_unencoded_value( $term->description, self::description );;
 			return $description;
 		}
 	}
@@ -310,7 +257,7 @@ class EF_Editorial_Metadata {
 	 *
 	 * @param object|string|int term Term from which to get the metadata object (object or term_id) or the metadata type itself.
 	 */
-	function get_metadata_type($term) {
+	function get_metadata_type( $term ) {
 		$metadata_type = '';
 		if ( is_object( $term ) ) {
 			$metadata_type = $term->description;
@@ -342,9 +289,63 @@ class EF_Editorial_Metadata {
 		else // TODO: is this needed if the orderby filter were only added on the metadata screen? (it isn't now, it's on all edit-tags screens, but maybe it could be)
 			return $orderby;
 	}
+		
+	// -------------------------
+	// Ensure that metadata slugs and types do not change after creation
+	// -------------------------
+	
+	function pre_edit_term( $term_id ) {
+		$term = get_term( $term_id, $this->metadata_taxonomy );
+		if ( !is_null( $term ) ) {
+			// We'll only get a non-null result if we're editing a editorial_meta term (since that's the taxonomy we pass above)
+			$this->metadata_slug_cache = $term->slug;
+		}
+	}
+	
+	function edited_term( $term_id ) {
+		global $wpdb;
+		$term = get_term( $term_id, $this->metadata_taxonomy );
+		if ( !is_null( $term ) ) {
+			// As above, we'll only get a non-null result if we're editing a editorial_meta term (since that's the taxonomy we pass above)
+			// Switch back to the cached slug before the attempted update
+			$wpdb->update( $wpdb->terms, array( 'slug' => $this->metadata_slug_cache ), compact( 'term_id' ) );
+		}
+	}
+	
+	function pre_edit_term_taxonomy( $tt_id, $taxonomy ) {
+		if ( $taxonomy === $this->metadata_taxonomy ) {
+			global $wpdb;
+			
+			// TODO: Is get_row the right function to use? Can this be done with a $wpdb function rather than a custom query?
+			$desc = $wpdb->get_row( $wpdb->prepare( "SELECT description FROM $wpdb->term_taxonomy WHERE term_taxonomy_id = %d AND taxonomy = %s", $tt_id, $taxonomy ) )->description;
+			$this->metadata_type_cache = $this->get_unencoded_value( $desc, self::metadata_type_key );
+		}
+	}
+	
+	function edited_term_taxonomy( $tt_id, $taxonomy ) {
+		if ( $taxonomy === $this->metadata_taxonomy ) {
+			global $wpdb;
+			
+			// Get newly saved metadata type
+			// TODO: Same as above - can this be done better?
+			$encoded_description = $wpdb->get_row( $wpdb->prepare( "SELECT description FROM $wpdb->term_taxonomy WHERE term_taxonomy_id = %d AND taxonomy = %s", $tt_id, $taxonomy ) )->description;
+			
+			// If the new type is different from the old type, we need to revert
+			if ( $this->metadata_type_cache !== $this->get_unencoded_value( $encoded_description, self::metadata_type_key ) ) {
+				$metadata_description = $this->get_unencoded_value( $encoded_description, self::description );
+				$updated_encoded_description = $this->get_encoded_description( $metadata_description, $this->metadata_type_cache );
+				
+				// Revert term type back to old type
+				$wpdb->update( $wpdb->term_taxonomy, array( 'description' => $updated_encoded_description ), array( 'term_taxonomy_id' => $tt_id ) );
+			} else {
+				// Metadata type hasn't changed, so do nothing
+			}
+		}
+		$this->metadata_type_cache = NULL;
+	}
 	
 	// -------------------------
-	// Register the post metadata taxonomy and add some default terms
+	// Register the post metadata taxonomy
 	// -------------------------
 	
 	function register_taxonomy() {
@@ -367,7 +368,7 @@ class EF_Editorial_Metadata {
 	}
 	
 	// -------------------------
-	// Post metabox stuff:
+	// Post metabox stuff
 	// -------------------------
 	
 	function handle_post_metaboxes() {
@@ -398,7 +399,8 @@ class EF_Editorial_Metadata {
 					echo "<input id='$postmeta_key' name='$postmeta_key' type='text' class='date-pick' value='$current_metadata' />";
 					break;
 				case "location":
-					echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
+					echo "<label for='$postmeta_key'>{$term->name}</label>";
+					echo "<label for='$postmeta_key'>$description_span</label>";
 					echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
 					if ( !empty( $current_metadata ) )
 						echo "<div><a href='http://maps.google.com/?q={$current_metadata}&t=m' target='_blank'>" . sprintf( __( 'View &#8220;%s&#8221; on Google Maps', 'edit-flow' ), $current_metadata ) . "</a></div>";
@@ -501,8 +503,8 @@ class EF_Editorial_Metadata {
 	
 	function get_editorial_metadata_terms() {
 		return get_terms( $this->metadata_taxonomy, array(
-				'orderby'	 => apply_filters( 'ef_editorial_metadata_term_order', 'name' ),
-				'hide_empty' => false
+		        'orderby'    => apply_filters( 'ef_editorial_metadata_term_order', 'name' ),
+		        'hide_empty' => false
 			)
 		);
 	}
