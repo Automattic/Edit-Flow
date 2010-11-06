@@ -353,7 +353,9 @@ class ef_story_budget {
 					<p><?php do_action('story_budget_post_details'); ?></p>
 					<div class="row-actions">
 						<span class='edit'><a href="<?php echo $post_edit_url; ?>">Edit</a> | </span>
+						<!-- Perhaps get Quick Edit to work in a future release
 						<span class='inline hide-if-no-js'><a href="#" class="editinline" title="Edit this item inline">Quick&nbsp;Edit</a> | </span>
+						-->
 						<?php if ( EMPTY_TRASH_DAYS > 0 ) : ?>
 						<span class='trash'><a class='submitdelete' title='Move this item to the Trash' href='<?php echo get_delete_post_link( $post->ID ); ?>'>Trash</a> | </span>
 						<?php endif; ?>
