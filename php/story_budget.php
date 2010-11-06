@@ -30,7 +30,7 @@ class ef_story_budget {
 	 * Construct a story_budget class and adds screen options.
 	 */
 	function __construct() {
-		$this->max_num_columns = apply_filters( 'ef-story_budget-max_num_columns', 3 );
+		$this->max_num_columns = apply_filters( 'ef_story_budget_max_num_columns', 3 );
 	
 		include_once('screen-options.php');
 		add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', 'Screen Layout', array( &$this, 'print_column_prefs' ), self::screen_id, array( &$this, 'save_column_prefs' ), true );
@@ -138,7 +138,7 @@ class ef_story_budget {
 			// TODO: Verify that hide_empty really should be true (1)
 			$terms = get_terms($this->taxonomy_used, 'orderby=name&order=asc&parent=0&hide_empty=1');
 		}
-		$this->terms = apply_filters( 'ef-story_budget-reorder_terms', $terms ); // allow for reordering or any other filtering of terms
+		$this->terms = apply_filters( 'ef_story_budget_reorder_terms', $terms ); // allow for reordering or any other filtering of terms
 		
 		?>
 		<div class="wrap" id="ef-story-budget-wrap">
@@ -217,15 +217,15 @@ class ef_story_budget {
 		
 		// Limit the number of results per category
 		$default_query_limit_number = 10;
-		$query_limit_number = apply_filters( 'ef-story_budget-query_limit', $default_query_limit_number );
+		$query_limit_number = apply_filters( 'ef_story_budget_query_limit', $default_query_limit_number );
 		// Don't allow filtering the limit below 0
 		if ( $query_limit_number < 0 ) {
 			$query_limit_number = $default_query_limit_number;
 		}
 		$query_limit = $wpdb->prepare( 'LIMIT %d ', $query_limit_number );
 		
-		$query .= apply_filters( 'ef-story_budget-query_where', $post_where );
-		$query .= apply_filters( 'ef-story_budget-order_by', 'ORDER BY post_modified DESC ' );
+		$query .= apply_filters( 'ef_story_budget_query_where', $post_where );
+		$query .= apply_filters( 'ef_story_budget_order_by', 'ORDER BY post_modified DESC ' );
 		$query .= $query_limit;
 		$query .= ';';
 		
