@@ -54,6 +54,7 @@ div#week-wrap div.today { /*** Different background color for today ***/
 	list-style-type:none;
 	margin-left:0;
 	margin-bottom:10px;
+	word-wrap: break-word;
 }
 
 .week-heading {
