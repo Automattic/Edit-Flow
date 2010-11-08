@@ -10,7 +10,7 @@ Plugin for WordPress to allow for better editorial workflow.
 
 == Description ==
 
-The overall goal of this plugin is to improve the WordPress Admin interface for a multi-user newsroom's editorial workflow. 
+Edit Flow is 
 
 NOTE: Edit Flow requires PHP5+ to work. Don't have PHP5? Talk to your hosting provider and hop on the PHP5 bandwagon. It's awesome.
 
@@ -22,9 +22,9 @@ There are a few key components to this project:
 
 More details can be found on the [Edit Flow website](http://www.editflow.org/)
 
-For support questions, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10).
+For support questions and feedback, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10).
 
-We welcome any and all feedback [feedback@editflow.org](mailto:feedback@editflow.org).
+Contact  [@editflow.org](mailto:feedback@editflow.org).
 
 == Features ==
 
@@ -49,11 +49,6 @@ Enables users to create custom statuses for posts, and assign those to posts.
 **Dashboard Widget**
 
 * As a small bonus, we threw in a small dashboard widget that gives you a quick glance of the state of currently unpublished content. As this was a last minute addition, it's minimal and largely unstyled, but something we'll clean up and build out more in the coming days.
-
-= Quick Pitch =
-
-* Similar to QuickPress, this dashboard widget allows users to create a new pitch for an article.
-* <b>Note:</b> QuickPitch has been removed but will return once we figure out how to incorporate the new editorial metadata!
 
 = Editorial Comments =
 
@@ -89,8 +84,8 @@ Enables users to create custom statuses for posts, and assign those to posts.
 This section describes how to install the plugin and get it working.
 
 1. Extract the contents of the zip file into your `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Enjoy!
+2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Enjoy!
 
 == Notes ==
 
@@ -118,7 +113,7 @@ For replies to work properly, you need to enable threaded commenting in your blo
 = 0.6 =
 * Editorial Metadata
 * Story Budget
-* Bug fix: editorial comments would show up on the Recent Comments widget.
+* Bug fix: Editorial comments should no longer show up in the stock Recent Comments widget or 
 
 = 0.5.3 =
 * Fixes issue where default Custom Statuses and User Groups were returning even after being deleted
