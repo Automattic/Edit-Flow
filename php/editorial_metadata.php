@@ -100,14 +100,22 @@ class EF_Editorial_Metadata {
 	}
 	
 	function get_encoded_description( $metadata_description, $metadata_type ) {
-		$allowed_tags = '<b><a><strong><i><ul><li><ol><blockquote><em>';
+		// Damn pesky carriage returns...
+		$metadata_description = str_replace("\r\n", "\n", $metadata_description);
+		$metadata_description = str_replace("\r", "\n", $metadata_description);
+		// Convert all newlines to <br /> for storage (and because it's the proper way to present them)
+		$metadata_description = str_replace("\n", "<br />", $metadata_description);		
+		$allowed_tags = '<b><a><strong><i><ul><li><ol><blockquote><em><br>';
 		$metadata_description = strip_tags( $metadata_description, $allowed_tags );
 		// Escape any special characters (', ", <, >, &)
-		$metadata_description = htmlentities( esc_attr( $metadata_description ), ENT_QUOTES );
-		return json_encode( array( self::description        => $metadata_description,
+		$metadata_description = esc_attr( $metadata_description );
+		$metadata_description = htmlentities( $metadata_description, ENT_QUOTES );
+		$encoded = json_encode( array( self::description        => $metadata_description,
 		                           self::metadata_type_key  => $metadata_type,
 		                          )
 		                   );
+		
+		return $encoded;
 	}
 	
 	function add_form_fields($taxonomy) {
@@ -154,7 +162,11 @@ class EF_Editorial_Metadata {
 			<th scope="row" valign="top"><label for="<?php echo $field_prefix . self::description; ?>"><?php _ex('Description', 'Taxonomy Description'); ?></label></th>
 			<td>
 				<textarea rows="5" cols="40" name="<?php echo $field_prefix . self::description; ?>" id="<?php echo $field_prefix . self::description; ?>"><?php
-						echo $description;
+					// Process out any '<' and '>', and change <br /> to newlines so it displays properly in the textarea
+					$description = preg_replace( "/&lt;/", "<", $description );
+					$description = preg_replace( "/&gt;/", ">", $description );					
+					$description = preg_replace( "/(<br\s*\/?>\s*)/", "\r\n", $description );
+					echo $description;
 					?></textarea><br />
 				<span class="description">The description is not prominent by default, however some themes may show it.</span>
 			</td>
