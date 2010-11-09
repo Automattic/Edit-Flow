@@ -359,9 +359,9 @@ class ef_story_budget {
 						<span class='inline hide-if-no-js'><a href="#" class="editinline" title="Edit this item inline">Quick&nbsp;Edit</a> | </span>
 						-->
 						<?php if ( EMPTY_TRASH_DAYS > 0 ) : ?>
-						<span class='trash'><a class='submitdelete' title='Move this item to the Trash' href='<?php echo get_delete_post_link( $post->ID ); ?>'><?php _e( 'Trash', 'edit-flow' ); ?></a> | </span>
+						<span class='trash'><a class='submitdelete' title='<?php _e( 'Move this item to the Trash', 'edit-flow' ); ?>' href='<?php echo get_delete_post_link( $post->ID ); ?>'><?php _e( 'Trash', 'edit-flow' ); ?></a> | </span>
 						<?php endif; ?>
-						<span class='view'><a href="<?php the_permalink(); // TODO: preview link? ?>" title="View &#8220;Test example post&#8221;" rel="permalink">View</a></span></div>
+						<span class='view'><a href="<?php the_permalink(); // TODO: preview link? ?>" title="<?php _e( 'View Post', 'edit-flow' ); ?>" rel="permalink"><?php _e( 'View', 'edit-flow' ); ?></a></span></div>
 				</td>
 				<td class="author column-author"><a href="<?php echo $author_filter_url; ?>"><?php echo $authordata->display_name; ?></a></td>
 				<td class="status column-status"><a href="<?php echo $status_filter_url; ?>"><?php echo $status ?></a></td>
@@ -466,9 +466,9 @@ class ef_story_budget {
 					wp_dropdown_users( $user_dropdown_args );
 				?>
 				
-				<label for="start_date">From: </label>
+				<label for="start_date"><?php _e( 'From:', 'edit-flow' ); ?> </label>
 				<input id='start_date' name='start_date' type='text' class="date-pick" value="<?php echo $user_filters['start_date']; ?>" autocomplete="off" />
-				<label for="end_date">To: </label>
+				<label for="end_date"><?php _e( 'To:', 'edit-flow' ); ?> </label>
 				<input id='end_date' name='end_date' type='text' size='20' class="date-pick" value="<?php echo $user_filters['end_date']; ?>" autocomplete="off" />
 				<input type="submit" id="post-query-submit" value="<?php _e( 'Filter', 'edit-flow' ); ?>" class="button-secondary" />
 			</form>
