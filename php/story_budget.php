@@ -277,7 +277,7 @@ class ef_story_budget {
 			
 	?>
 	<div class="postbox" style='width: <?php echo self::screen_width_percent / $this->get_num_columns(); ?>%'>
-		<div class="handlediv" title="Click to toggle"><br /></div>
+		<div class="handlediv" title="<?php _e( 'Click to toggle', 'edit-flow' ); ?>"><br /></div>
 		<h3 class='hndle'><span><?php echo $term->name; ?></span></h3>
 		<div class="inside">
 			<table class="widefat post fixed story-budget" cellspacing="0">
@@ -353,13 +353,13 @@ class ef_story_budget {
 					<p><?php do_action('story_budget_post_details'); ?></p>
 					<div class="row-actions">
 						<?php if( current_user_can( 'edit_post', $post->ID ) ) : ?>
-							<span class='edit'><a href="<?php echo $post_edit_url; ?>">Edit</a> | </span>
+							<span class='edit'><a href="<?php echo $post_edit_url; ?>"><?php _e( 'Edit', 'edit-flow' ); ?></a> | </span>
 						<?php endif; ?>
 						<!-- Perhaps get Quick Edit to work in a future release
 						<span class='inline hide-if-no-js'><a href="#" class="editinline" title="Edit this item inline">Quick&nbsp;Edit</a> | </span>
 						-->
 						<?php if ( EMPTY_TRASH_DAYS > 0 ) : ?>
-						<span class='trash'><a class='submitdelete' title='Move this item to the Trash' href='<?php echo get_delete_post_link( $post->ID ); ?>'>Trash</a> | </span>
+						<span class='trash'><a class='submitdelete' title='Move this item to the Trash' href='<?php echo get_delete_post_link( $post->ID ); ?>'><?php _e( 'Trash', 'edit-flow' ); ?></a> | </span>
 						<?php endif; ?>
 						<span class='view'><a href="<?php the_permalink(); // TODO: preview link? ?>" title="View &#8220;Test example post&#8221;" rel="permalink">View</a></span></div>
 				</td>
@@ -470,7 +470,7 @@ class ef_story_budget {
 				<input id='start_date' name='start_date' type='text' class="date-pick" value="<?php echo $user_filters['start_date']; ?>" autocomplete="off" />
 				<label for="end_date">To: </label>
 				<input id='end_date' name='end_date' type='text' size='20' class="date-pick" value="<?php echo $user_filters['end_date']; ?>" autocomplete="off" />
-				<input type="submit" id="post-query-submit" value="Filter" class="button-secondary" />
+				<input type="submit" id="post-query-submit" value="<?php _e( 'Filter', 'edit-flow' ); ?>" class="button-secondary" />
 			</form>
 			<form method="get" action="<?php echo admin_url() . EDIT_FLOW_STORY_BUDGET_PAGE; ?>" style="float: left;">
 				<input type="hidden" name="page" value="edit-flow/story_budget"/>
@@ -479,12 +479,12 @@ class ef_story_budget {
 				<input type="hidden" name="post_author" value=""/>
 				<input type="hidden" name="start_date" value=""/>
 				<input type="hidden" name="end_date" value=""/>
-				<input type="submit" id="post-query-clear" value="Reset" class="button-secondary" />
+				<input type="submit" id="post-query-clear" value="<?php _e( 'Reset', 'edit-flow' ); ?>" class="button-secondary" />
 			</form>
 		</div><!-- /alignleft actions -->
 		
 		<p class="print-box" style="float:right; margin-right: 30px;"><!-- Print link -->
-			<a href="#" id="toggle_details">Toggle Post Details</a> | <a href="#" id="print_link">Print</a>
+			<a href="#" id="toggle_details"><?php _e( 'Toggle Post Details', 'edit-flow' ); ?></a> | <a href="#" id="print_link">Print</a>
 		</p>
 		<div class="clear"></div>
 		

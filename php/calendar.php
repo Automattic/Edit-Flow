@@ -181,7 +181,7 @@ class EF_Calendar {
 										<span class="item-status">[<?php echo $edit_flow->custom_status->get_custom_status_friendly_name( get_post_status( $post_id ) ); ?>]</span>
 									</div>
 									<ul class="item-metadata">
-										<li class="item-author">By <?php the_author(); ?></li>
+										<li class="item-author"><?php echo sprintf( __( 'By %s', 'edit-flow' ), get_the_author() ); ?></li>
 										<li class="item-time"><?php the_time( get_option('time_format') ); ?>
 										<li class="item-category">
 											<?php
@@ -255,7 +255,7 @@ class EF_Calendar {
 					<input type="hidden" name="start_date" value="<?php echo $filters['start_date'] ?>"/>
 					<!-- Filter by status -->
 					<select id="post_status" name="post_status">
-						<option value="">View all statuses</option>
+						<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
 						<?php
 							foreach ( $custom_statuses as $custom_status ) {
 								echo "<option value='$custom_status->slug' " . selected($custom_status->slug, $filters['post_status']) . ">$custom_status->name</option>";
@@ -287,7 +287,7 @@ class EF_Calendar {
 						);
 					wp_dropdown_users( $user_dropdown_args );
 					?>
-					<input type="submit" id="post-query-submit" class="button-secondary" value="Filter"/>
+					<input type="submit" id="post-query-submit" class="button-secondary" value="<?php _e( 'Filter', 'edit-flow' ); ?>"/>
 				</form>
 			</li>
 			<!-- Clear filters functionality (all of the fields, but empty) -->
@@ -304,10 +304,10 @@ class EF_Calendar {
 	  
 			<!-- Previous and next navigation items -->
 			<li class="next-week">
-				<a id="trigger-left" href="<?php echo $this->get_next_link( $dates[0], $filters ); ?>">Next &raquo;</a>
+				<a id="trigger-left" href="<?php echo $this->get_next_link( $dates[0], $filters ); ?>"><?php _e( 'Next &raquo;', 'edit-flow' ); ?></a>
 			</li>
 			<li class="previous-week">
-				<a id="trigger-right" href="<?php echo $this->get_previous_link( $dates[count($dates)-1], $filters ); ?>">&laquo; Previous</a>
+				<a id="trigger-right" href="<?php echo $this->get_previous_link( $dates[count($dates)-1], $filters ); ?>"><?php _e( '&laquo; Previous', 'edit-flow' ); ?></a>
 			</li>
 		</ul>
 	<?php
