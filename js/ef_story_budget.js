@@ -3,7 +3,7 @@
 jQuery(document).ready(function($) {
 	// Hide all post details when directed
 	$("#toggle_details").click(function() {
-		$(".post-title > p").slideToggle(); 
+		$(".post-title > p").toggleClass('hidden'); 
 	});
 	
 	// Make print link open up print dialog
