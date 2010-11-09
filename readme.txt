@@ -96,6 +96,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Completely rewritten calendar view now saves filter state on a user by user basis. Also, highlights current day, and displays status and time for each post.
 * Temporarily disabled QuickPitch widget until we rewrite it to support editorial metadata.
 * Bug fix: Editorial comments should no longer show up in the stock Recent Comments widget or in the comments view in the WordPress Admin. The comment count number should also be correct.
+* Bug fix: Duplicate custom post statuses and usergroups are handled in more sane ways (aka creating, editing, and deleting should work as expected)
 
 = 0.5.3 (Oct. 6, 2010) =
 * Fixes issue where default Custom Statuses and User Groups were returning even after being deleted
