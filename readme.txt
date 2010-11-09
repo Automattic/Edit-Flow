@@ -42,7 +42,8 @@ If the automatic process above fails, follow these simple steps to do a manual i
 2. Custom Statuses are automatically added to Status dropdown on the Edit Post and Quick Edit Post screens
 3. A new column is added to the Edit Posts screen and the ability to filter by status
 4. Threaded editorial commenting and additional metadata for posts
-5. See posts at a glance with the editorial calendar
+5. See posts your upcoming posts on the Calendar
+6. Get a sense of your upcoming content on the Story Budget
 
 == Frequently Asked Questions ==
 
