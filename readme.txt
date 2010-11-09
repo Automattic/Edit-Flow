@@ -1,93 +1,75 @@
 === Edit Flow ===
 Contributors: batmoo, danielbachhuber, sbressler, andrewspittle, jboydston
 Donate link: http://www.editflow.org/donate/
-Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups
+Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 2.9
 Tested up to: 3.0.1
 Stable tag: 0.5.3
 
-Plugin for WordPress to allow for better editorial workflow.
+Redefining your editorial workflow
 
 == Description ==
 
-Edit Flow is 
+Edit Flow offers a suite of functionality to redefine your editorial workflow within WordPress. Features include:
 
-NOTE: Edit Flow requires PHP5+ to work. Don't have PHP5? Talk to your hosting provider and hop on the PHP5 bandwagon. It's awesome.
+* Custom Statuses - Create any number of custom statuses to define the stages of your editorial workflow. By default, Edit Flow adds "Assigned", "Pitch", and "Waiting for Feedback" to WordPress' default "Draft" and "Pending Review"
+* Editorial Comments - Protected threaded commenting on every post for discussion about the production of a given piece of content. This can cutdown on long-winded back-and-forth email threads as all comments are conveniently displayed within the Edit Post page.
+* Email Notifications - Receive email notifications for new editorial comments or when a post changes status. Notifications are delivered to admins and the post author by default, but any users that comment on posts will receive follow up email notifications.
+* Usergroups - Sort of like roles, usergroups provice a way to group users that perform similar roles in your organization. At the moment, usergroups can be subscribed to posts so that all members receive post updates.
+* Calendar - View all of your upcoming posts on a week-by-week calendar, and filter by post status, category, or user.
+* Editorial Metadata - Define custom editorial metadata to be attached to every post. Admins can add editorial metadata like "contact information", "assignment description", "due date", or "location" using the following field types: checkbox, date, location, paragraph, text, or user dropdown
+* Story Budget - View all of your upcoming posts in a more traditional story budget view. Posts are grouped by category, and view can be filtered by post status, category, user, or limited to a date range. Hit the print button to take it on the go.
 
-There are a few key components to this project: 
+More details and documentation can be found on the [Edit Flow website](http://www.editflow.org/)
 
-* Improving the meta data on top of posts to better reflect the information that needs to be recorded about an assignment;
-* Empowering newsrooms, blog networks and multi-user blogs to manage more of their editorial workflow from within the WordPress admin; and
-* Building out a way to track all of this active meta data within the system as a way of visualizing content and priorities at a glance.
+For support questions, feedback and ideas, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10).
 
-More details can be found on the [Edit Flow website](http://www.editflow.org/)
-
-For support questions and feedback, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10).
-
-Contact  [@editflow.org](mailto:feedback@editflow.org).
-
-== Features ==
-
-= Custom Post Statuses =
-
-Enables users to create custom statuses for posts, and assign those to posts.
-
-**Adding/Editing/Managing Custom Statuses**
-
-* Upon activation, the plugin adds five default statuses ("Assigned", "Draft", "Pending Review", "Pitch", "Waiting for Feedback"). These can all be edited or deleted (with the exception of "Draft" and "Pending Review", which can only be deleted). Users can also add additional custom statuses. Overall, we tried to make this as flexible as possible, acknowledging the extreme diversity in workflows and requirements across different newsrooms.
-* The "Add/Edit/Manage Custom Statuses" screen is reminiscent of the interface used to manage categories and tags. From a design stand-point, we tried to keep with standard WordPress interface conventions (to minimize the learning curve) and, similarly, make the plugin as less intrusive as possible.
-
-**Assigning Custom Statuses to Posts**
-
-* With custom statuses defined, they can now be assigned to posts. The plugin adds the custom statuses to the "Status" dropdown when editing a post (screenshot above). Additionally, given the likely frequency of use of this feature, the Status dropdown is made visible by default. The plugin also allows you to set a default status for new posts, which WordPress sets to "Draft" by default.
-
-**Managing Posts**
-
-* A new column is added to the Edit/Manage Posts screen that indicates the current status of the post. Additionally, the posts on this screen can be filtered by status, by clicking on the links at the top.
-* To ease the management of content, a new column is added to the Edit/Manage Posts screen that indicates the current status of the posts displayed. Additionally, the posts on this screen can be filtered by status, by clicking on the links at the top.
-
-**Dashboard Widget**
-
-* As a small bonus, we threw in a small dashboard widget that gives you a quick glance of the state of currently unpublished content. As this was a last minute addition, it's minimal and largely unstyled, but something we'll clean up and build out more in the coming days.
-
-= Editorial Comments =
-
-* Edit Flow now supports editorial comments. Discussions on posts/articles can now take place between editorial staff within the WordPress Administration interface. This can cutdown on long-winded back-and-forth email threads as all comments are conveniently displayed within the Edit Posts page and better facilitate online workflows. Threading is supported (assuming it's enabled on your install)
-
-= Notifications =
-
-* We've added basic email notification support. Email notifications are delivered when a post's status changes or an editorial comment is added to a post. Notifications are delivered to: 
-** Post author and Administrators, by default;
-** Any specified roles (under Edit Flow > settings); and
-** Any users that comment on posts.
-
-= Usergroups =
-
-* We've added a feature called usergroups. It's sort of like roles, except that it just provides a way for you to group users that perform similar roles in your organization into cohesive virtual groups. Once grouped, usergroups can be subscribed to posts, so that all members receive post updates. This is just the start! We're looking a bunch of cool things to do with usergroups down the road.
-* Speaking of notifications, you can now select which users should receive notifications for specific posts!
-* Again on the topic of notifications, we've made emails a bit more specific in the type of information they contain as well some specific action links that'll probably save you a bunch of time.
-
-= Editorial Metadata =
-
-* Define your own metadata
-
-= Story Budget =
-
-* A streamlined interface to manage and track your content
-
-= To come =
-
-* We're looking at post checklists, more dashboard widgets, more interesting ways to keep up-to-date (activity streams!) and other goodies.
+For everything else, say [hello@editflow.org](mailto:hello@editflow.org).
 
 == Installation ==
 
 This section describes how to install the plugin and get it working.
 
 1. Extract the contents of the zip file into your `/wp-content/plugins/` directory
-2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Enjoy!
+1. Activate the plugin through the 'Plugins' menu in WordPress
+1. Write and enjoy the merits of a structured editorial workflow!
 
-== Notes ==
+== Screenshots ==
+
+1. The ability to Add, Edit, and Delete Custom Statuses
+2. Custom Statuses are automatically added to Status dropdown on the Edit Post and Quick Edit Post screens
+3. A new column is added to the Edit Posts screen and the ability to filter by status
+4. Threaded editorial commenting and additional metadata for posts
+5. See posts at a glance with the editorial calendar, and drag and drop to reschedule
+
+== Frequently Asked Questions ==
+
+= Why do I get an error like 'Parse error: syntax error, unexpected T_STRING, expecting T_OLD_FUNCTION or T_FUNCTION or T_VAR' on activation? =
+
+Edit Flow requires PHP5+ to work and you're probably not on PHP5. Talk to your hosting provider and hop on the PHP5 bandwagon. It's awesome.
+
+= I don't like the preset roles that are able to view the calendar. How can I edit them? =
+
+There are two ways you can do this. One is to put something like the following code in your functions.php file:
+
+`add_filter( 'ef_view_calendar_cap', 'change_editflows_stupid_default_caps' );
+
+function change_editflows_stupid_default_caps( $cap ) {
+	return 'edit_posts';
+}`
+This will allow anyone with the capability to edit posts to view the calendar. See other capabilities you could use [here](http://codex.wordpress.org/Roles_and_Capabilities#Capability_vs._Role_Table).
+
+The other option is to install a role management plugin, like Justin Tadlock's excellent [Members plugin](http://wordpress.org/extend/plugins/members/), and let the plugin do the heavy lifting of customizing the roles and capabilities to your heart's content.
+
+= I'm stuck at WordPress 2.8! How do I use v0.3 onwards? =
+
+Upgrade to WordPress 2.9 or later, peeps!
+
+= Edit Flow doesn't do X, Y, and Z. That makes me sad. =
+
+Contact us at [hello@editflow.org](mailto:hello@editflow.org) and we'll see what we can do.
+
+== Other Notes ==
 
 = Editorial Comments =
 
@@ -99,21 +81,19 @@ This section describes how to install the plugin and get it working.
 
 For replies to work properly, you need to enable threaded commenting in your blog's settings. Find it under **Settings > Discussion** and enable the setting called **Enable threaded (nested) comments**.
 
+== Upgrade Notice ==
 
-== Screenshots ==
-
-1. The ability to Add, Edit, and Delete Custom Statuses
-2. Custom Statuses are automatically added to Status dropdown on the Edit Post and Quick Edit Post screens
-3. A new column is added to the Edit Posts screen and the ability to filter by status
-4. Threaded editorial commenting and additional metadata for posts
-5. See posts at a glance with the editorial calendar, and drag and drop to reschedule
+= 0.6 =
+New features, including story budget and editorial metadata, a completely rewritten calendar view, and bug fix for editorial comments appearing in the admin.
 
 == Changelog ==
 
 = 0.6 =
-* Editorial Metadata
-* Story Budget
-* Bug fix: Editorial comments should no longer show up in the stock Recent Comments widget or 
+* New feature: Editorial Metadata. Previously, Edit Flow had 'due date', 'location' and 'description', as available editorial metadata. We've expanded this functionality to be completely customizable; admins can add any number of editorial metadata as the following fields: checkbox, date, location, paragraph, text, or user dropdown.
+* New feature: Story Budget. View all of your upcoming posts in a more traditional story budget view. Posts are grouped by category, and view can be filtered by post status, category, user, or limited to a date range. Hit the print button to take it on the go.
+* Completely rewritten calendar view now saves filter state on a user by user basis. Also, highlights current day, and displays status and time for each post.
+* Temporarily disabled QuickPitch widget until we rewrite it to support editorial metadata.
+* Bug fix: Editorial comments should no longer show up in the stock Recent Comments widget or in the comments view in the WordPress Admin. The comment count number should also be correct.
 
 = 0.5.3 =
 * Fixes issue where default Custom Statuses and User Groups were returning even after being deleted
@@ -170,34 +150,3 @@ For replies to work properly, you need to enable threaded commenting in your blo
 
 = 0.1.5 =
 * Ability to assign custom statuses to posts
-
-== Frequently Asked Questions ==
-
-= Edit Flow doesn't do X, Y, and Z. That makes me sad. =
-
-Contact us at [feedback@editflow.org](mailto:feedback@editflow.org) and we'll see what we can do.
-
-= I don't like the preset roles that are able to view the calendar. How can I edit them? =
-
-There are two ways you can do this. One is to put something like the following code in your functions.php file:
-
-`add_filter( 'ef_view_calendar_cap', 'change_editflows_stupid_default_caps' );
-
-function change_editflows_stupid_default_caps( $cap ) {
-	return 'edit_posts';
-}`
-This will allow anyone with the capability to edit posts to view the calendar. See other capabilities you could use [here](http://codex.wordpress.org/Roles_and_Capabilities#Capability_vs._Role_Table).
-
-The other option is to install a role management plugin, like Justin Tadlock's excellent [Members plugin](http://wordpress.org/extend/plugins/members/), and let the plugin do the heavy lifting of customizing the roles and capabilities to your heart's content.
-
-= I'm stuck at WordPress 2.8! How do I use v0.3 onwards? =
-
-Upgrade to WordPress 2.9 or later, peeps!
-
-= Why do you hate PHP4? =
-
-We don't. PHP hates PHP4 and no longer supports it. So neither do we.
-
-= Edit Flow doesn't work!?! Your stupid! =
-
-First, install some sort of spellchecker, possibly a [great one like AtD](http://afterthedeadline.com/) and then [send us an email](mailto:feedback@editflow.org) with a few more details about what doesn't work, and we'll see what we can do.
