@@ -173,11 +173,16 @@ class EF_Calendar {
 								if ( $posts->have_posts() ) : 
 								while ( $posts->have_posts()) : $posts->the_post();
 									$post_id = get_the_id();
+									$edit_post_link = get_edit_post_link( $post_id );
 								?>
 								<li class="week-item" id="post-<?php the_id(); ?>">
 								  <div class="item-handle">
 									<div class="item-headline post-title">
-										<strong><?php echo edit_post_link( get_the_title(), '', '', $post_id ); ?></strong>
+										<?php if ( $edit_post_link ): ?>
+										<strong><?php edit_post_link( get_the_title(), '', '', $post_id ); ?></strong>
+										<?php else: ?>
+										<strong><?php the_title(); ?></strong>
+										<?php endif; ?>
 										<span class="item-status">[<?php echo $edit_flow->custom_status->get_custom_status_friendly_name( get_post_status( $post_id ) ); ?>]</span>
 									</div>
 									<ul class="item-metadata">
@@ -197,9 +202,11 @@ class EF_Calendar {
 									</ul>
 									</div>
 									<div class="item-actions">
+										<?php if ( $edit_post_link ): ?>
 									  <span class="edit">
-										<?php echo edit_post_link( 'Edit', '', '', $post_id ); ?>
+										<?php edit_post_link( 'Edit', '', '', $post_id ); ?>
 									  </span> | 
+										<?php endif; ?>
 									  <span class="view">
 										<a href="<?php echo the_permalink(); ?>">View</a>
 									  </span>
