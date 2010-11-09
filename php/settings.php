@@ -125,7 +125,7 @@ class EF_Settings {
 										<input type="checkbox" name="<?php  echo $edit_flow->get_plugin_option_fullname('story_budget_enabled') ?>" value="1" <?php checked($edit_flow->get_plugin_option('story_budget_enabled')); ?> id="story_budget_enabled" />
 										<?php _e('Enable Story Budget', 'edit-flow') ?>
 									</label> <br />
-									<span class="description"><?php _e('This enables the Story Budget Calendar, an optimized dashboard to view all your content.', 'edit-flow') ?></span>
+									<span class="description"><?php _e('This enables the Story Budget, an optimized dashboard to view the progress all your content.', 'edit-flow') ?></span>
 								</p>
 							</td>
 						</tr>
