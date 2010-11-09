@@ -407,7 +407,11 @@ class EF_Editorial_Metadata {
 			switch( $type ) {
 				case "date":
 					// TODO: Move this to a function
-					$current_metadata = isset( $current_metadata ) ? date( 'M j Y' , intval( $current_metadata ) ) : '';
+					if ( isset( $current_metadata ) && $current_metadata ) {
+						$current_metadata = date( 'M j Y' , intval( $current_metadata ) );						
+					} else {
+						$current_metadata = '';
+					}
 					echo "<label for='$postmeta_key'>{$term->name}</label>";
 					echo "<label for='$postmeta_key'>$description_span</label>";
 					echo "<input id='$postmeta_key' name='$postmeta_key' readonly='readonly' type='text' class='date-pick' value='$current_metadata' />";
