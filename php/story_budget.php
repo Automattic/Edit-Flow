@@ -352,7 +352,9 @@ class ef_story_budget {
 					<p><?php echo strip_tags( substr( $post->post_content, 0, 5 * $this->story_budget_excerpt_length(0) ) ); // TODO: just call the_excerpt once setup_postadata works ?></p>
 					<p><?php do_action('story_budget_post_details'); ?></p>
 					<div class="row-actions">
-						<span class='edit'><a href="<?php echo $post_edit_url; ?>">Edit</a> | </span>
+						<?php if( current_user_can( 'edit_post', $post->ID ) ) : ?>
+							<span class='edit'><a href="<?php echo $post_edit_url; ?>">Edit</a> | </span>
+						<?php endif; ?>
 						<!-- Perhaps get Quick Edit to work in a future release
 						<span class='inline hide-if-no-js'><a href="#" class="editinline" title="Edit this item inline">Quick&nbsp;Edit</a> | </span>
 						-->
