@@ -406,9 +406,11 @@ class EF_Editorial_Metadata {
 			echo "<div class='{$this->metadata_taxonomy} {$this->metadata_taxonomy}_$type'>";
 			switch( $type ) {
 				case "date":
+					// TODO: Move this to a function
+					$current_metadata = isset( $current_metadata ) ? date( 'M j Y' , intval( $current_metadata ) ) : '';
 					echo "<label for='$postmeta_key'>{$term->name}</label>";
 					echo "<label for='$postmeta_key'>$description_span</label>";
-					echo "<input id='$postmeta_key' name='$postmeta_key' type='text' class='date-pick' value='$current_metadata' />";
+					echo "<input id='$postmeta_key' name='$postmeta_key' readonly='readonly' type='text' class='date-pick' value='$current_metadata' />";
 					break;
 				case "location":
 					echo "<label for='$postmeta_key'>{$term->name}</label>";
@@ -475,6 +477,12 @@ class EF_Editorial_Metadata {
 			if ( empty ( $new_metadata ) ) {
 				delete_post_meta( $id, $key );
 			} else {
+				
+				$type = $this->get_metadata_type( $term );
+				// TODO: Move this to a function
+				if( $type == 'date' ) {
+					$new_metadata = strtotime( $new_metadata );
+				}
 				
 				$new_metadata = strip_tags( $new_metadata );
 				update_post_meta( $id, $key, $new_metadata );

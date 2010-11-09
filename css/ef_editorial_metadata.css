@@ -21,6 +21,10 @@
 	background: transparent url("../img/date-button.gif") no-repeat scroll 2px 0;
 	padding-left: 20px;
 }
+	#ef_editorial_meta_meta_box div.ef_editorial_meta_date input[readonly] {
+		background: #fff;
+		cursor: pointer;
+	}
 
 #ef_editorial_meta_meta_box div.ef_editorial_meta_location label:first-child {
 	background: transparent url("../img/globe-V3.png") no-repeat scroll 2px 0;
