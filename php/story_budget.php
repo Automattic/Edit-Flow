@@ -29,16 +29,19 @@ class ef_story_budget {
 	/**
 	 * Construct a story_budget class and adds screen options.
 	 */
-	function __construct() {
-		$this->max_num_columns = apply_filters( 'ef_story_budget_max_num_columns', 3 );
+	function __construct( $active = 1 ) {
 	
-		include_once('screen-options.php');
-		add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', 'Screen Layout', array( &$this, 'print_column_prefs' ), self::screen_id, array( &$this, 'save_column_prefs' ), true );
-		
-		// Load necessary scripts and stylesheets
-		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
-		add_action( 'admin_print_scripts', array( &$this, 'print_admin_scripts' ) );
-		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_styles' ) );		
+		if( $active ) {
+			$this->max_num_columns = apply_filters( 'ef_story_budget_max_num_columns', 3 );
+			
+			include_once('screen-options.php');
+			add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', 'Screen Layout', array( &$this, 'print_column_prefs' ), self::screen_id, array( &$this, 'save_column_prefs' ), true );
+			
+			// Load necessary scripts and stylesheets
+			add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
+			add_action( 'admin_print_scripts', array( &$this, 'print_admin_scripts' ) );
+			add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_styles' ) );		
+		}
 	}
 	
 	/**

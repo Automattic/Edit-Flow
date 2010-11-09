@@ -69,7 +69,8 @@ class edit_flow {
 					'myposts_widget_enabled' => 1,
 					'notifications_enabled' => 1,
 					'always_notify_admin' => 0,
-					'calendar_enabled' => 1
+					'calendar_enabled' => 1,
+					'story_budget_enabled' => 1,
 				);
 	
 	// Used to store the names for any custom tables used by the plugin
@@ -104,7 +105,7 @@ class edit_flow {
 		$this->ef_post_metadata = new EF_Post_Metadata();
 		$this->editorial_metadata = new EF_Editorial_Metadata();
 		$this->calendar = new EF_Calendar();
-		$this->story_budget = new EF_Story_Budget();
+		$this->story_budget = new EF_Story_Budget( (int) $this->get_plugin_option( 'story_budget_enabled' ) );
 		$this->settings = new EF_Settings();
 		$this->notifications = new EF_Notifications( (int) $this->get_plugin_option('notifications_enabled') );
 		$this->post_status = new EF_Post_Status( (int) $this->get_plugin_option('custom_statuses_enabled') );
@@ -297,7 +298,9 @@ class edit_flow {
 			add_submenu_page('index.php', __('Calendar', 'edit-flow'), __('Calendar', 'edit-flow'), 'edit_posts', $this->get_page('calendar'), array(&$this->calendar, 'view_calendar'));
 		}
 		
-		add_submenu_page( 'index.php', __('Story Budget', 'edit-flow'), __('Story Budget', 'edit-flow'), 'edit_others_posts', $this->get_page('story_budget'), array(&$this->story_budget, 'story_budget') );
+		if( intval( $this->get_plugin_option( 'story_budget_enabled' ) ) ) {
+			add_submenu_page( 'index.php', __('Story Budget', 'edit-flow'), __('Story Budget', 'edit-flow'), 'edit_others_posts', $this->get_page('story_budget'), array(&$this->story_budget, 'story_budget') );
+		}
 		
 	} // END: add_menu_items() 
 	
