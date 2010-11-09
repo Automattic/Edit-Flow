@@ -12,12 +12,12 @@ Redefining your editorial workflow
 
 Edit Flow offers a suite of functionality to redefine your editorial workflow within WordPress. Features include:
 
-* Custom Statuses - Create any number of custom statuses to define the stages of your editorial workflow. By default, Edit Flow adds "Assigned", "Pitch", and "Waiting for Feedback" to WordPress' default "Draft" and "Pending Review"
-* Editorial Comments - Protected threaded commenting on every post for discussion about the production of a given piece of content. This can cutdown on long-winded back-and-forth email threads as all comments are conveniently displayed within the Edit Post page.
+* Custom Statuses - Create any number of custom statuses to define the stages of your editorial workflow. By default, Edit Flow adds "Assigned", "Pitch", and "Waiting for Feedback" to WordPress' default "Draft" and "Pending Review".
+* Editorial Comments - Threaded commenting in the WordPress admin on every post for discussion about the production of a given piece of content. This can cutdown on long-winded back-and-forth email threads as all comments are conveniently displayed within the Edit Post page.
 * Email Notifications - Receive email notifications for new editorial comments or when a post changes status. Notifications are delivered to admins and the post author by default, but any users that comment on posts will receive follow up email notifications.
-* Usergroups - Sort of like roles, usergroups provice a way to group users that perform similar roles in your organization. At the moment, usergroups can be subscribed to posts so that all members receive post updates.
+* Usergroups - Similar to roles, usergroups provice a way to group users that perform similar roles in your organization. At the moment, usergroups can be subscribed to posts so that all members receive post updates.
 * Calendar - View all of your upcoming posts on a week-by-week calendar, and filter by post status, category, or user.
-* Editorial Metadata - Define custom editorial metadata to be attached to every post. Admins can add editorial metadata like "contact information", "assignment description", "due date", or "location" using the following field types: checkbox, date, location, paragraph, text, or user dropdown
+* Editorial Metadata - Define custom editorial metadata to be attached to every post. Admins can add editorial metadata like "contact information", "assignment description", "due date", or "location" using the following field types: checkbox, date, location, paragraph, text, or user dropdown.
 * Story Budget - View all of your upcoming posts in a more traditional story budget view. Posts are grouped by category, and view can be filtered by post status, category, user, or limited to a date range. Hit the print button to take it on the go.
 
 More details and documentation can be found on the [Edit Flow website](http://www.editflow.org/)
@@ -28,7 +28,9 @@ For everything else, say [hello@editflow.org](mailto:hello@editflow.org).
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
+The easiest way to install this plugin is to go to Add New in the Plugins section of your blog admin and search for "Edit Flow." On the far right side of the search results, click "Install."
+
+If the automatic process above fails, follow these simple steps to do a manual install:
 
 1. Extract the contents of the zip file into your `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
@@ -40,7 +42,7 @@ This section describes how to install the plugin and get it working.
 2. Custom Statuses are automatically added to Status dropdown on the Edit Post and Quick Edit Post screens
 3. A new column is added to the Edit Posts screen and the ability to filter by status
 4. Threaded editorial commenting and additional metadata for posts
-5. See posts at a glance with the editorial calendar, and drag and drop to reschedule
+5. See posts at a glance with the editorial calendar
 
 == Frequently Asked Questions ==
 
@@ -84,27 +86,27 @@ For replies to work properly, you need to enable threaded commenting in your blo
 == Upgrade Notice ==
 
 = 0.6 =
-New features, including story budget and editorial metadata, a completely rewritten calendar view, and bug fix for editorial comments appearing in the admin.
+New features, including story budget and editorial metadata, a completely rewritten calendar view, and a bug fix for editorial comments appearing in the admin.
 
 == Changelog ==
 
 = 0.6 =
-* New feature: Editorial Metadata. Previously, Edit Flow had 'due date', 'location' and 'description', as available editorial metadata. We've expanded this functionality to be completely customizable; admins can add any number of editorial metadata as the following fields: checkbox, date, location, paragraph, text, or user dropdown.
+* New feature: Editorial Metadata. Previously, Edit Flow had 'due date', 'location' and 'description', as available editorial metadata. We've expanded this functionality to be completely customizable; admins can add any number of editorial metadata with the following types: checkbox, date, location, paragraph, text, or user dropdown.
 * New feature: Story Budget. View all of your upcoming posts in a more traditional story budget view. Posts are grouped by category, and view can be filtered by post status, category, user, or limited to a date range. Hit the print button to take it on the go.
 * Completely rewritten calendar view now saves filter state on a user by user basis. Also, highlights current day, and displays status and time for each post.
 * Temporarily disabled QuickPitch widget until we rewrite it to support editorial metadata.
 * Bug fix: Editorial comments should no longer show up in the stock Recent Comments widget or in the comments view in the WordPress Admin. The comment count number should also be correct.
 
-= 0.5.3 =
+= 0.5.3 (Oct. 6, 2010) =
 * Fixes issue where default Custom Statuses and User Groups were returning even after being deleted
 
-= 0.5.1 =
+= 0.5.1 (Jul. 29, 2010) =
 * Editorial calendar improvements: filter by category or author
 * QuickPitch stories get default status instead of pitch status
 * No email notifications for “Auto Draft” post status
 * Backwards compatibility with WordPress 2.9.x
 
-= 0.5 =
+= 0.5 (Jul. 3, 2010) =
 * Calendar view for visualizing and spec assignments at a glance
 * Improvements for WordPress 3.0 compatibility
 
@@ -114,11 +116,11 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Moved default custom status additions to upgrade function so they don't get added every time you activate
 * Bug fix: remove editorial comments from comments feed
 
-= 0.3.3 =
+= 0.3.3 (Feb. 4, 2010) =
 * Added tooltips with descriptions to the Status dropdown and Status Filter links. Thanks to [Gil Namur](http://lifeasahuman.com) for the great idea!
 * Fixed the issue where subscribed users/usergroups were not receiving notifications
 
-= 0.3.2 =
+= 0.3.2 (Jan. 28, 2010)=
 * Fixed fatal error if notifications were disabled
 
 = 0.3.1 =
