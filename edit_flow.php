@@ -294,12 +294,12 @@ class edit_flow {
 		add_submenu_page($this->get_page('edit-flow'), __('Usergroups', 'edit-flow'), __('Usergroups', 'edit-flow'), 'manage_options', $this->get_page('usergroups'), array(&$this->usergroups,'admin_page'));
 		
 		// Add sub-menu page for Calendar
-		if ( $this->calendar->viewable() ) {
-			add_submenu_page('index.php', __('Calendar', 'edit-flow'), __('Calendar', 'edit-flow'), 'edit_posts', $this->get_page('calendar'), array(&$this->calendar, 'view_calendar'));
+		if ( (int) $this->get_plugin_option( 'calendar_enabled' ) ) {
+			add_submenu_page('index.php', __('Calendar', 'edit-flow'), __('Calendar', 'edit-flow'), apply_filters( 'ef_view_calendar_cap', 'ef_view_calendar' ), $this->get_page('calendar'), array(&$this->calendar, 'view_calendar'));
 		}
 		
-		if( intval( $this->get_plugin_option( 'story_budget_enabled' ) ) ) {
-			add_submenu_page( 'index.php', __('Story Budget', 'edit-flow'), __('Story Budget', 'edit-flow'), 'edit_others_posts', $this->get_page('story_budget'), array(&$this->story_budget, 'story_budget') );
+		if( (int) $this->get_plugin_option( 'story_budget_enabled' ) ) {
+			add_submenu_page( 'index.php', __('Story Budget', 'edit-flow'), __('Story Budget', 'edit-flow'), apply_filters( 'ef_view_story_budget_cap', 'ef_view_story_budget' ), $this->get_page('story_budget'), array(&$this->story_budget, 'story_budget') );
 		}
 		
 	} // END: add_menu_items() 

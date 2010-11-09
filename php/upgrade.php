@@ -181,6 +181,19 @@ function edit_flow_upgrade_06() {
 		$author_role->add_cap('edit_post_subscriptions');
 	}
 	
+	// Add necessary capabilities to allow management of calendar
+	// view_calendar - administrator --> contributor
+	$story_budget_roles = array(
+		'administrator' => array( 'ef_view_story_budget' ),
+		'editor' =>        array( 'ef_view_story_budget' ),
+		'author' =>        array( 'ef_view_story_budget' ),
+		'contributor' =>   array( 'ef_view_story_budget' )
+	);
+	
+	foreach( $story_budget_roles as $role => $caps ) {
+		ef_add_caps_to_role( $role, $caps );
+	}
+	
 	// @todo Remove all of the prior calendar state save data (being stored in user meta now)
 	// ..options: 'custom_status_filter', 'custom_category_filter', 'custom_author_filter'
 	
