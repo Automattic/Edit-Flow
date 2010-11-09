@@ -1,4 +1,8 @@
 /** Story Budget **/
+#ef-story-budget-tablenav {
+	height: auto;
+	overflow: hidden;
+}
 
 #dashboard-widgets-wrap .postbox {
 	min-width: 0px;
@@ -36,4 +40,8 @@
 	line-height: 1;
 	margin: 0.5em 0;
 	padding: 2px;
+}
+
+#start_date, #end_date {
+	width: 100px;
 }
