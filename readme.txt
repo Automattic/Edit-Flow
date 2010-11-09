@@ -4,7 +4,7 @@ Donate link: http://www.editflow.org/donate/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 2.9
 Tested up to: 3.0.1
-Stable tag: 0.5.3
+Stable tag: 0.6
 
 Redefining your editorial workflow
 
@@ -91,7 +91,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
-= 0.6 =
+= 0.6 (Nov. 9, 2010) =
 * New feature: Editorial Metadata. Previously, Edit Flow had 'due date', 'location' and 'description', as available editorial metadata. We've expanded this functionality to be completely customizable; admins can add any number of editorial metadata with the following types: checkbox, date, location, paragraph, text, or user dropdown.
 * New feature: Story Budget. View all of your upcoming posts in a more traditional story budget view. Posts are grouped by category, and view can be filtered by post status, category, user, or limited to a date range. Hit the print button to take it on the go.
 * Completely rewritten calendar view now saves filter state on a user by user basis. Also, highlights current day, and displays status and time for each post.
