@@ -3,7 +3,7 @@ Contributors: batmoo, danielbachhuber, sbressler, andrewspittle, jboydston
 Donate link: http://www.editflow.org/donate/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 2.9
-Tested up to: 3.0.1
+Tested up to: 3.1-alpha
 Stable tag: 0.6
 
 Redefining your editorial workflow
@@ -44,6 +44,8 @@ If the automatic process above fails, follow these simple steps to do a manual i
 4. Threaded editorial commenting and additional metadata for posts
 5. See posts your upcoming posts on the Calendar
 6. Get a sense of your upcoming content on the Story Budget
+7. Editorial metadata comes with a bunch of built-in terms, but these can be changed to your heart's content
+8. Within each post you can modify the metadata recorded for the post
 
 == Frequently Asked Questions ==
 
@@ -87,7 +89,7 @@ For replies to work properly, you need to enable threaded commenting in your blo
 == Upgrade Notice ==
 
 = 0.6 =
-New features, including story budget and editorial metadata, a completely rewritten calendar view, and a bug fix for editorial comments appearing in the admin.
+New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 == Changelog ==
 
