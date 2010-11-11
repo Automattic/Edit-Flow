@@ -69,10 +69,10 @@ class EF_Usergroups_Admin {
 				<tbody>
 					<tr>
 						<th>
-							<h3><?php _e('User Groups', 'edit-flow') ?></h3> 
+							<h3><?php _e('Usergroups', 'edit-flow') ?></h3> 
 							<p>
 								<?php _e('Select the usergroups that this user should is a part of.', 'edit-flow') ?><br />
-								<!--<small><a href="<?php echo EDIT_FLOW_MAIN_PAGE ?>#usergroups" target="_blank" title="<?php _e('Learn more about user groups and how to use them. Opens new window.', 'edit-flow') ?>"><?php _e('What are user groups?', 'edit-flow') ?></a></small>-->
+								<!--<small><a href="<?php echo EDIT_FLOW_MAIN_PAGE ?>#usergroups" target="_blank" title="<?php _e('Learn more about user groups and how to use them. Opens new window.', 'edit-flow') ?>"><?php _e('What are usergroups?', 'edit-flow') ?></a></small>-->
 							</p>
 						</th>
 						<td>
