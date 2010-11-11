@@ -17,7 +17,7 @@
 	<form class="form-usergroups" method="post" id="addusergroup" name="addusergroup">
 		<div id="col-right">
 			<div class="col-wrap">
-				<div class="form-wrap">
+				<div id="ef-usergroup-users" class="form-wrap">
 					<h4><?php _e('Users', 'edit-flow') ?></h4>
 					<?php 
 					$select_form_args = array (
@@ -25,6 +25,12 @@
 						);
 					?>
 					<?php ef_users_select_form($usergroup_users, $select_form_args) ?>
+					
+					<script>
+					jQuery(document).ready(function(){
+						jQuery('#ef-usergroup-users ul').listFilterizer();
+					});
+					</script>
 				</div>
 			</div>
 		</div>

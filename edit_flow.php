@@ -144,6 +144,8 @@ class edit_flow {
 		$ef_prev_version = $this->get_plugin_option('version');
 		if ( version_compare( $ef_prev_version, EDIT_FLOW_VERSION, '<' ) ) edit_flow_upgrade($ef_prev_version);
 
+		$this->register_scripts_and_styles();
+		
 	} // END: admin_init()
 	
 	/**
@@ -246,6 +248,14 @@ class edit_flow {
 			$this->options[$name] = $new_value;
 			update_option( $this->get_plugin_option_fullname( $name ), $new_value );
 		}
+	}
+
+	/**
+	 * Registers commonly used scripts + styles for easy enqueueing
+	 */	
+	function register_scripts_and_styles() {
+		wp_register_script( 'jquery-listfilterizer', EDIT_FLOW_URL . 'js/jquery.listfilterizer.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
+		wp_register_style( 'jquery-listfilterizer', EDIT_FLOW_URL . 'css/jquery.listfilterizer.css', false, EDIT_FLOW_VERSION, 'all' );
 	}
 	
 	function global_admin_controller ( ) {

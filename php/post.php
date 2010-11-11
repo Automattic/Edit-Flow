@@ -34,14 +34,16 @@ class EF_Post_Metadata
 		if($pagenow == 'post.php' || $pagenow == 'page.php') {
 			wp_enqueue_script( 'edit_flow-post_comment', EDIT_FLOW_URL . 'js/post_comment.js', array( 'jquery','post' ), false, true );
 			
-			//wp_enqueue_script('edit_flow-usergroups', EDIT_FLOW_URL.'js/usergroups.js', array('jquery','post'), false, true);
-			//wp_enqueue_script('jquery-quicksearch', EDIT_FLOW_URL.'js/jquery.quicksearch.pack.js', array('jquery'), false, true);
 			$thread_comments = (int) get_option('thread_comments');
 			?>
 			<script type="text/javascript">
 				var ef_thread_comments = <?php echo ($thread_comments) ? $thread_comments : 0; ?>;
 			</script>
 			<?php
+			
+			wp_enqueue_script( 'jquery-listfilterizer' );
+			wp_enqueue_style( 'jquery-listfilterizer' );
+			
 		}
 		wp_enqueue_style( 'edit_flow-styles', EDIT_FLOW_URL . 'css/editflow.css', false, false, 'all' );
 	}
@@ -371,6 +373,13 @@ class EF_Post_Metadata
 			<div class="clear"></div>
 			<input type="hidden" name="ef-save_followers" value="1" /> <?php // Extra protection against autosaves ?>
 		</div>
+		
+		<script>
+		jQuery(document).ready(function(){
+			jQuery('#ef-post_following_box ul').listFilterizer();
+		});
+		</script>
+		
 		<?php
 	}
 

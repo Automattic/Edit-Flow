@@ -325,10 +325,14 @@
 	#ef-post_following_usergroups_box {
 		float: right;
 	}
-		#ef-post_following_users_box ul,
-		#ef-post_following_usergroups_box ul {
+		#ef-post_following_users_box .ef-post_following_list,
+		#ef-post_following_usergroups_box .ef-post_following_list {
 			height: 300px;
 			overflow: auto;
+		}
+		#ef-post_following_users_box .list-filterer-tools,
+		#ef-post_following_usergroups_box .list-filterer-tools {
+			margin-top: 10px;
 		}
 		
 

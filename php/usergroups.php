@@ -20,6 +20,33 @@ class EF_Usergroups_Admin {
 		add_action('edit_user_profile', array(&$this, 'user_profile_page'));
 		add_action('user_profile_update_errors', array(&$this, 'user_profile_update'), 10, 3);
 		
+		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_styles' ) );
+	}
+	
+	/**
+	 * Enqueue necessary admin scripts
+	 */
+	function enqueue_admin_scripts() {
+		global $current_screen;
+		
+		if ( $this->is_whitelisted_page() ) {
+			wp_enqueue_script( 'jquery-listfilterizer' );
+		}
+	}
+	
+	/**
+	 * Enqueue necessary admin styles
+	 */
+	function enqueue_admin_styles() {
+		if( $this->is_whitelisted_page() ) {
+			wp_enqueue_style( 'jquery-listfilterizer' );
+		}
+	}
+	
+	function is_whitelisted_page() {
+		global $pagenow, $plugin_page;
+		return $plugin_page == 'edit-flow/usergroups' || in_array( $pagenow, array( 'user-edit.php', 'profile.php' ) );
 	}
 	
 	/**
@@ -38,7 +65,7 @@ class EF_Usergroups_Admin {
 		// Only enable editing if user has the proper cap
 		if(current_user_can('edit_usergroups')) {
 			?>
-			<table class="form-table">
+			<table id="ef-user-usergroups" class="form-table">
 				<tbody>
 					<tr>
 						<th>
@@ -50,6 +77,11 @@ class EF_Usergroups_Admin {
 						</th>
 						<td>
 							<?php ef_usergroups_select_form($selected_usergroups, $usergroups_form_args); ?>
+							<script>
+							jQuery(document).ready(function(){
+								jQuery('#ef-user-usergroups ul').listFilterizer();
+							});
+							</script>
 						</td>
 					</tr>
 				</tbody>
