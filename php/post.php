@@ -144,7 +144,7 @@ class EF_Post_Metadata
 		global $post;
 		
 		?>
-		<a href="#" id="ef-comment_respond" onclick="editorialCommentReply.open();return false;" class="button-primary alignright" title=" <?php _e('Respond to this post', 'edit-flow') ?>"><span><?php _e('Respond to this Post', 'edit-flow') ?></span></a>
+		<a href="#" id="ef-comment_respond" onclick="editorialCommentReply.open();return false;" class="button-primary alignright hide-if-no-js" title=" <?php _e('Respond to this post', 'edit-flow') ?>"><span><?php _e('Respond to this Post', 'edit-flow') ?></span></a>
 		
 		<!-- Reply form, hidden until reply clicked by user -->
 		<div id="ef-replyrow" style="display: none;">
