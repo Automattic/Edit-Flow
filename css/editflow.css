@@ -363,3 +363,10 @@
 			color: red;
 		}
 
+/** Post Status **/
+/* Hide by default in case of JS issues **/
+label[for=post_status],
+#post-status-display,
+#post-status-select {
+	display: none;
+}

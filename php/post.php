@@ -405,8 +405,31 @@ class EF_Post_Status
 {
 	
 	function __construct() {
-		add_action('admin_enqueue_scripts', array(&$this, 'post_admin_header'));
+		
+		add_action( 'admin_enqueue_scripts', array( &$this, 'post_admin_header' ) );
+		add_action( 'admin_notices', array( &$this, 'no_js_notice' ) );		
+		
 	} // END: __construct()
+	
+	function is_whitelisted_page() {
+		global $edit_flow, $pagenow;
+		
+		// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
+		return ( current_user_can('edit_posts') && ( $edit_flow->get_plugin_option( 'custom_statuses_enabled' ) && in_array( $pagenow, array( 'post.php', 'edit.php', 'post-new.php' ) ) ) || ( $edit_flow->get_plugin_option( 'pages_custom_statuses_enabled' ) && ( in_array( $pagenow, array( 'page.php', 'edit-pages.php', 'page-new.php' ) ) ) ) );
+	}
+	
+	/**
+	 * Displays a notice to users if they have JS disabled
+	 */
+	function no_js_notice() {
+		if( $this->is_whitelisted_page() ) :
+		?>
+		<div class="update-nag hide-if-js">
+			<?php _e( '<strong>Note:</strong> Your browser does not support JavaScript or has JavaScript disabled. You will not be able to access or change the post status.', 'edit-flow' ); ?>
+		</div>
+		<?php
+		endif;
+	}
 	
 	/**
 	 * Adds all necessary javascripts to make custom statuses work
@@ -418,7 +441,7 @@ class EF_Post_Status
 		get_currentuserinfo() ;
 		
 		// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
-		if(current_user_can('edit_posts') && (($edit_flow->get_plugin_option('custom_statuses_enabled') && ($pagenow == 'post.php' || $pagenow == 'edit.php' || $pagenow == 'post-new.php')) || ($edit_flow->get_plugin_option('pages_custom_statuses_enabled') && ($pagenow == 'page.php' || $pagenow == 'edit-pages.php' || $pagenow == 'page-new.php')))) {
+		if( $this->is_whitelisted_page() ) {
 			
 			$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
 			$custom_statuses = apply_filters( 'ef_custom_status_list', $custom_statuses, $post );

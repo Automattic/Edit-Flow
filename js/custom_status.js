@@ -1,5 +1,8 @@
 jQuery(document).ready(function() {
 
+	jQuery('label[for=post_status]').show();
+	jQuery('#post-status-display').show();
+
 	// Add custom statuses to post.php Status dropdown
 	if(jQuery('select[name="post_status"]')) {
 		
