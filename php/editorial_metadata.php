@@ -242,7 +242,10 @@ class EF_Editorial_Metadata {
 	
 	function add_admin_scripts() {
 		global $current_screen;
-	//	if ( $current_screen->id == 'post' ) {
+		
+		// Add the metabox date picker JS and CSS
+		if ( $current_screen->id == 'post' || $current_screen->id == 'page' ) {
+			// First add the datepicker JS
 			wp_enqueue_script('edit_flow-date-lib', EDIT_FLOW_URL . 'js/lib/date.js', array(), false, true);
 			wp_enqueue_script('edit_flow-date_picker-lib', EDIT_FLOW_URL . 'js/lib/jquery.datePicker.js', array( 'jquery' ), false, true);
 			?>
@@ -251,16 +254,15 @@ class EF_Editorial_Metadata {
 			</script>
 			<?php
 			wp_enqueue_script('edit_flow-date_picker', EDIT_FLOW_URL . 'js/ef_date.js', array( 'edit_flow-date_picker-lib', 'edit_flow-date-lib' ), false, true);
-		// }
+			
+			// Now add the rest of the metabox CSS
+			wp_enqueue_style('edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, false, 'all');
+			wp_enqueue_style('edit_flow-editorial_metadata-styles', EDIT_FLOW_URL . 'css/ef_editorial_metadata.css', false, false, 'all');
+		}
 		
 		// Either editing the taxonomy or a specific term
 		if ( $current_screen->id == $this->screen_id ) {
 			wp_enqueue_script('edit_flow-editorial_metadata', EDIT_FLOW_URL . 'js/ef_editorial_metadata.js', array( 'jquery' ), false, true);
-		}
-		
-		if ( $current_screen->id == 'post' ) {
-			wp_enqueue_style('edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, false, 'all');
-			wp_enqueue_style('edit_flow-editorial_metadata-styles', EDIT_FLOW_URL . 'css/ef_editorial_metadata.css', false, false, 'all');
 		}
 	}
 	
@@ -361,7 +363,7 @@ class EF_Editorial_Metadata {
 	// -------------------------
 	
 	function register_taxonomy() {
-		register_taxonomy( $this->metadata_taxonomy, array( 'post' ),
+		register_taxonomy( $this->metadata_taxonomy, array( 'post', 'page' ),
 			array(
 				'public' => false,
 				'labels' => array(
@@ -387,7 +389,8 @@ class EF_Editorial_Metadata {
 		if ( function_exists( 'add_meta_box' ) ) {
 			// TODO: Side or normal default placement for the meta_box? Looks good in either...
 			add_meta_box( $this->metadata_taxonomy, __( 'Editorial Metadata', 'edit-flow' ), array( &$this, 'display_meta_box' ), 'post', 'side' );
-			add_action( 'save_post', array(&$this, 'save_meta_box'), 10, 2 );
+			add_meta_box( $this->metadata_taxonomy, __( 'Editorial Metadata', 'edit-flow' ), array( &$this, 'display_meta_box' ), 'page', 'side' );
+			add_action( 'save_post', array( &$this, 'save_meta_box' ), 10, 2 );
 		}
 	}
 	
@@ -407,14 +410,13 @@ class EF_Editorial_Metadata {
 			switch( $type ) {
 				case "date":
 					// TODO: Move this to a function
-					if ( isset( $current_metadata ) && $current_metadata ) {
-						$current_metadata = date( 'M j Y' , intval( $current_metadata ) );						
-					} else {
-						$current_metadata = '';
+					if ( !empty( $current_metadata ) ) {
+						// Turn timestamp into a human-readable date
+						$current_metadata = date( 'M d Y' , intval( $current_metadata ) );						
 					}
 					echo "<label for='$postmeta_key'>{$term->name}</label>";
 					echo "<label for='$postmeta_key'>$description_span</label>";
-					echo "<input id='$postmeta_key' name='$postmeta_key' readonly='readonly' type='text' class='date-pick' value='$current_metadata' />";
+					echo "<input id='$postmeta_key' name='$postmeta_key' type='text' class='date-pick' value='$current_metadata' />";
 					break;
 				case "location":
 					echo "<label for='$postmeta_key'>{$term->name}</label>";
@@ -458,9 +460,11 @@ class EF_Editorial_Metadata {
 		// TODO: switch to using check_admin_referrer? See core (e.g. edit.php) for usage
 		if ( isset( $_POST[$this->metadata_taxonomy . "_nonce"] )
 			&& !wp_verify_nonce( $_POST[$this->metadata_taxonomy . "_nonce"], __FILE__ )
-			|| !current_user_can( 'edit_post', $id )
 			|| defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE
-			|| $post->post_type != 'post' ) {
+			// Only support posts and pages for now
+			|| !in_array( $post->post_type, array( 'post', 'page' ) )
+			|| $post->post_type == 'post' && !current_user_can( 'edit_posts', $id )
+			|| $post->post_type == 'page' && !current_user_can( 'edit_pages', $id ) ) {
 			return $id;
 		}
 		
