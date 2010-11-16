@@ -19,9 +19,10 @@
 	};
 	
 	$.fn.listFilterizer = function(options) {
-		var options = $.extend({}, $.fn.listFilterizer.defaults, options);
-        
-		var filtersEnabled = options.filters.length > 0;
+		var options = $.extend({}, $.fn.listFilterizer.defaults, options)
+			, inputElem = document.createElement('input')
+			, filtersEnabled = options.filters.length > 0
+			;
 		
 		return this.each(function() {
 			
@@ -58,17 +59,29 @@
 				}
 				
 				// IE freaks out if you try to set the input type as search
-				var inputType = ('placeholder' in document.createElement('input')) ? 'search' : 'text';
+				var inputType = supportsSearch() ? 'search' : 'text';
 				
 				$input = $('<input/>')
 					.attr('type', inputType)
-					.attr('placeholder', options.inputPlaceholder)
 					.attr(options.inputAttrs)
 					.addClass(options.inputClass)
 					.bind('search', _filterInputSearch)
 					.bind('keydown', _filterInputKeydown)
 					.bind('keyup', _filterInputKeyup)
+					.attr('placeholder', options.inputPlaceholder)
 					;
+				
+				// Fallback for browsers that don't support placeholders
+				if(!supportsPlaceholder()) {
+					$input
+						.val(options.inputPlaceholder)
+						.focus(function() {
+							if(this.value == options.inputPlaceholder) this.value = '';
+						})
+						.blur(function() {
+							if(!$.trim(this.value)) this.value = options.inputPlaceholder;
+						});
+				}
 				
 				$tools.append($input);
 				
@@ -89,8 +102,18 @@
 			}
 			
 			function _filterInputKeydown(e) {
+				console.log(e)
 				// Prevent enter key
-				if(e.keyCode == 13) e.preventDefault();
+				switch(e.keyCode) {
+					case 13:
+						e.preventDefault();
+						break;
+					case 27:
+						e.target.setAttribute('value', '');
+						break;
+					default:
+						break;
+				}
 			}
 			function _filterInputKeyup(e) {
 				filterList();
@@ -141,7 +164,9 @@
 			}
 			
 			function getActiveSearch() {
-				return $input.val() || '';
+				var search = $input.val() || '';
+				search = (search == options.inputPlaceholder) ? '' : search;
+				return search;
 			}
 			
 			function getActiveTab() {
@@ -152,6 +177,15 @@
 			// Do the init thing!
 			init(this);
 		});
+		
+		// Borrowed graciously from Modernizr: https://github.com/Modernizr/Modernizr
+		function supportsSearch() {
+			inputElem.setAttribute('type', 'search');
+			return inputElem.type !== 'text';
+		}
+		function supportsPlaceholder() {
+			return !!('placeholder' in inputElem);
+		}
 	}
 	
 	$.fn.listFilterizer.defaults = {
