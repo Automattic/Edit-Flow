@@ -93,6 +93,12 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
+= 0.6.1 =
+* Added search and filtering tools for user and usergroup lists
+* Users without JavaScript no longer see the status dropdown.
+* Users with JavaScript no longer see the respond button for editorial comments
+* Editorial Metadata support for Pages
+
 = 0.6 (Nov. 9, 2010) =
 * New feature: Editorial Metadata. Previously, Edit Flow had 'due date', 'location' and 'description', as available editorial metadata. We've expanded this functionality to be completely customizable; admins can add any number of editorial metadata with the following types: checkbox, date, location, paragraph, text, or user dropdown.
 * New feature: Story Budget. View all of your upcoming posts in a more traditional story budget view. Posts are grouped by category, and view can be filtered by post status, category, user, or limited to a date range. Hit the print button to take it on the go.
