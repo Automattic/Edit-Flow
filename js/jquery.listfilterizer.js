@@ -74,13 +74,27 @@
 				// Fallback for browsers that don't support placeholders
 				if(!supportsPlaceholder()) {
 					$input
+						.addClass(options.inputPlaceholderClass)
 						.val(options.inputPlaceholder)
 						.focus(function() {
-							if(this.value == options.inputPlaceholder) this.value = '';
+							var $this = $(this);
+							if($this.val() == options.inputPlaceholder) {
+								$this
+									.val('')
+									.removeClass(options.inputPlaceholderClass)
+									;
+							}
 						})
 						.blur(function() {
-							if(!$.trim(this.value)) this.value = options.inputPlaceholder;
-						});
+							var $this = $(this);
+							if(!$.trim($this.val())) {
+								$this
+									.val(options.inputPlaceholder)
+									.addClass(options.inputPlaceholderClass)
+									;
+							}
+						})
+						;
 				}
 				
 				$tools.append($input);
@@ -206,15 +220,16 @@
 		, containerTag: 'div'
 		, containerAttrs: {}
 		, toolsTag: 'div'
-		, toolsClass: 'list-filterer-tools'
+		, toolsClass: 'list-filterizer-tools'
 		, toolsAttrs: {}
 		
-		, tabsClass: 'list-filterer-tabs'
+		, tabsClass: 'list-filterizer-tabs'
 		, tabsAttrs: {}
 		, activeTabClass: 'active'
 		
-		, inputClass: 'list-filterer-search'
+		, inputClass: 'list-filterizer-search'
 		, inputPlaceholder: 'Search...'
+		, inputPlaceholderClass: 'input-placeholder'
 		, inputAttrs: {}
 		
 		, noResultsText: 'No results found' // TODO: implement this

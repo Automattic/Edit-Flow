@@ -330,9 +330,9 @@
 			height: 300px;
 			overflow: auto;
 		}
-		#ef-post_following_users_box .list-filterer-tools,
-		#ef-post_following_usergroups_box .list-filterer-tools {
-			margin-top: 10px;
+		#ef-post_following_users_box .list-filterizer-tools,
+		#ef-post_following_usergroups_box .list-filterizer-tools {
+			margin-top: 5px;
 		}
 		
 

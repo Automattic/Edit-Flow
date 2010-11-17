@@ -1,14 +1,14 @@
-.list-filterer-tools {
+.list-filterizer-tools {
 	overflow: hidden;
 }
-.list-filterer-tabs {
+.list-filterizer-tabs {
 	list-style: none;
 	padding: 0;
 	margin: 0;
 	float: right;
 	overflow: hidden;
 }
-	.list-filterer-tabs li {
+	.list-filterizer-tabs li {
 		color: #21759B;
 		border: 1px solid transparent;
 		cursor: pointer;
@@ -16,11 +16,14 @@
 		padding: 2px 4px;
 		margin-right: 4px;
 	}
-	.list-filterer-tabs li.active,
-	.list-filterer-tabs li:hover {
+	.list-filterizer-tabs li.active,
+	.list-filterizer-tabs li:hover {
 		background: #21759B;
 		border: 1px solid #21759B;
 		-webkit-border-radius: 4px; -moz-border-radius: 4px; -ms-border-radius: 4px; border-radius: 4px;
 		color: #fff;
 		
 	}
+.list-filterizer-tools .input-placeholder {
+	color: #999;
+}
