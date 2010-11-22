@@ -208,9 +208,6 @@ class EF_Notifications {
 	 */
 	function send_email( $action, $post, $msg_subject, $msg_body  ) {
 	
-		// Set To: to admin email
-		$admin_email = get_option('admin_email');
-		
 		// Get list of email recipients -- set them CC		
 		$recipients = $this->_get_notification_recipients($post, true);
 		
@@ -229,9 +226,14 @@ class EF_Notifications {
 		$msg_headers  = '';
 		//$msg_headers .= 'From: "WordPress" <'. $wp_email .'> \r\n';
 		//$msg_headers .= 'Reply-to: '. $admin_email .'\r\n';
-		if($recipients) $msg_headers .= 'Bcc: '. $recipients ." \n";
+		//if($recipients) $msg_headers .= 'Bcc: '. $recipients ." \n";
 		
-		$return = @wp_mail( $admin_email, $msg_subject, $msg_body, $msg_headers);
+		if( $recipients && ! is_array( $recipients ) )
+			$recipients = explode( ',', $recipients );
+		
+		foreach( $recipients as $recipient ) {
+			$return = @wp_mail( $recipient, $msg_subject, $msg_body, $msg_headers );
+		}
 		
 		// @TODO Logging for failed notifications
 		//if(!$return) $this->log_error();
