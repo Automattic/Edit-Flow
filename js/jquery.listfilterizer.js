@@ -116,7 +116,6 @@
 			}
 			
 			function _filterInputKeydown(e) {
-				console.log(e)
 				// Prevent enter key
 				switch(e.keyCode) {
 					case 13:
