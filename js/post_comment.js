@@ -51,6 +51,8 @@ editorialCommentReply = {
 	 * @id = comment id
 	 */
 	open : function(id) {
+		var parent;
+		
 		// Close any open reply boxes
 		this.close();
 		
