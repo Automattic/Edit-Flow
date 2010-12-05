@@ -38,6 +38,9 @@ class EF_Notifications {
 			
 			// Action to reassign posts when a user is deleted
 			add_action( 'delete_user',  array(&$this, 'delete_user_action') );
+			
+			// Sends cron-scheduled emails
+			add_action( 'ef_send_scheduled_email', array( &$this, 'send_scheduled_email' ), 10, 4 );
 		}
 		
 	} // END: __construct()
@@ -206,38 +209,49 @@ class EF_Notifications {
 	/*
 	 *
 	 */
-	function send_email( $action, $post, $msg_subject, $msg_body  ) {
+	function send_email( $action, $post, $subject, $message ) {
 	
 		// Get list of email recipients -- set them CC		
 		$recipients = $this->_get_notification_recipients($post, true);
 		
-		$blogname = get_option('blogname');
-		$wp_email = 'wordpress@' . preg_replace('#^www\.#', '', strtolower($_SERVER['SERVER_NAME']));
-		
-		/*
-		$msg_headers = array( 
-			// @TODO: Make this configurable
-			//'From' => $edit_flow->get_option('from_name') .' <'. $edit_flow->get_option('from_email') .'>',
-			'from' => " WordPress <$wp_email>",
-			'reply-to' => "$admin_email",
-			'bcc' => $recipients,
-		);
-		*/
-		$msg_headers  = '';
-		//$msg_headers .= 'From: "WordPress" <'. $wp_email .'> \r\n';
-		//$msg_headers .= 'Reply-to: '. $admin_email .'\r\n';
-		//if($recipients) $msg_headers .= 'Bcc: '. $recipients ." \n";
-		
 		if( $recipients && ! is_array( $recipients ) )
 			$recipients = explode( ',', $recipients );
 		
-		foreach( $recipients as $recipient ) {
-			$return = @wp_mail( $recipient, $msg_subject, $msg_body, $msg_headers );
-		}
+		$this->schedule_emails( $recipients, $subject, $message );
 		
-		// @TODO Logging for failed notifications
-		//if(!$return) $this->log_error();
-		return $return;
+		return;
+	}
+	
+	/**
+	 * Schedules emails to be sent in succession
+	 * 
+	 * @param mixed $recipients Individual email or array of emails
+	 * @param string $subject Subject of the email
+	 * @param string $message Body of the email
+	 * @param string $message_headers. (optional) Message headers
+	 */
+	function schedule_emails( $recipients, $subject, $message, $message_headers = '' ) {
+		$recipients = (array) $recipients;
+		
+		$count = 0;
+		$time_offset = 10;
+		
+		foreach( $recipients as $recipient ) {
+			$count++;
+			wp_schedule_single_event( time() + $time_offset * $count, 'ef_send_scheduled_email', array( $recipient, $subject, $message, $message_headers ) );
+		}
+	}
+	
+	/**
+	 * Callback for scheduled_email cron that does the actual sending
+	 * 
+	 * @param mixed $to Email to send to
+	 * @param string $subject Subject of the email
+	 * @param string $message Body of the email
+	 * @param string $message_headers. (optional) Message headers
+	 */
+	function send_scheduled_email( $to, $subject, $message, $message_headers = '' ) {
+		@wp_mail( $to, $subject, $message, $message_headers );
 	}
 	
 	/* Returns a list of recipients for a given post
