@@ -136,7 +136,6 @@ class EF_Notifications {
 			$body .= $this->get_notification_footer($post);
 			
 			$this->send_email( 'status-change', $post, $subject, $body );
-			return;
 		}
 	}
 	
@@ -194,7 +193,6 @@ class EF_Notifications {
 		$body .= $this->get_notification_footer($post);
 		
 		$this->send_email( 'comment', $post, $subject, $body );
-		return;
 	}
 	
 	function get_notification_footer( $post ) {
@@ -206,10 +204,10 @@ class EF_Notifications {
 		return $body;
 	} 
 	
-	/*
+	/**
 	 *
 	 */
-	function send_email( $action, $post, $subject, $message ) {
+	function send_email( $action, $post, $subject, $message, $message_headers = '' ) {
 	
 		// Get list of email recipients -- set them CC		
 		$recipients = $this->_get_notification_recipients($post, true);
@@ -217,9 +215,7 @@ class EF_Notifications {
 		if( $recipients && ! is_array( $recipients ) )
 			$recipients = explode( ',', $recipients );
 		
-		$this->schedule_emails( $recipients, $subject, $message );
-		
-		return;
+		$this->schedule_emails( $recipients, $subject, $message, $message_headers );
 	}
 	
 	/**
@@ -229,16 +225,16 @@ class EF_Notifications {
 	 * @param string $subject Subject of the email
 	 * @param string $message Body of the email
 	 * @param string $message_headers. (optional) Message headers
+	 * @param int $time_offset (optional) Delay in seconds per email
 	 */
-	function schedule_emails( $recipients, $subject, $message, $message_headers = '' ) {
+	function schedule_emails( $recipients, $subject, $message, $message_headers = '', $time_offset = 10 ) {
 		$recipients = (array) $recipients;
 		
-		$count = 0;
-		$time_offset = 10;
+		$send_time = time();
 		
 		foreach( $recipients as $recipient ) {
-			$count++;
-			wp_schedule_single_event( time() + $time_offset * $count, 'ef_send_scheduled_email', array( $recipient, $subject, $message, $message_headers ) );
+			$send_time += $time_offset;
+			wp_schedule_single_event( $send_time, 'ef_send_scheduled_email', array( $recipient, $subject, $message, $message_headers ) );
 		}
 	}
 	
