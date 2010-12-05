@@ -227,7 +227,7 @@ class EF_Notifications {
 	 * @param string $message_headers. (optional) Message headers
 	 * @param int $time_offset (optional) Delay in seconds per email
 	 */
-	function schedule_emails( $recipients, $subject, $message, $message_headers = '', $time_offset = 10 ) {
+	function schedule_emails( $recipients, $subject, $message, $message_headers = '', $time_offset = 1 ) {
 		$recipients = (array) $recipients;
 		
 		$send_time = time();
