@@ -98,6 +98,8 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Users without JavaScript no longer see the status dropdown.
 * Users with JavaScript no longer see the respond button for editorial comments
 * Editorial Metadata support for Pages
+* Email notifications are now sent using queueing for improved performance
+* Bug fix: Editorial Comments issue in IE (Thanks [asecondwill](http://wordpress.org/support/profile/asecondwill)!)
 
 = 0.6 (Nov. 9, 2010) =
 * New feature: Editorial Metadata. Previously, Edit Flow had 'due date', 'location' and 'description', as available editorial metadata. We've expanded this functionality to be completely customizable; admins can add any number of editorial metadata with the following types: checkbox, date, location, paragraph, text, or user dropdown.
