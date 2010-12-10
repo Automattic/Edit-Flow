@@ -281,7 +281,7 @@ class EF_Custom_Status {
 		$old_status = get_term($status_id, $this->status_taxonomy)->slug;
 
 		if ($reassign == $old_status)
-			return new WP_Error( 'invalid', __( 'cannot reassign to the status you want to delete', 'edit-flow' ) );
+			return new WP_Error( 'invalid', __( 'Cannot reassign to the status you want to delete', 'edit-flow' ) );
 		
 		if(!$this->is_restricted_status($old_status)) {
 			$default_status = $this->ef_get_default_custom_status()->slug;
@@ -299,7 +299,7 @@ class EF_Custom_Status {
 			
 			return wp_delete_term( $status_id, $this->status_taxonomy, $args );
 		} else
-			return new WP_Error( 'restricted', __( 'restricted status ', 'edit-flow' ) . '(' . get_term($status_id, $this->status_taxonomy)->name . ')' );
+			return new WP_Error( 'restricted', __( 'Restricted status ', 'edit-flow' ) . '(' . get_term($status_id, $this->status_taxonomy)->name . ')' );
 	} // END: delete_custom_status
 
 	function get_custom_statuses ($statuses = '', $args ='' ) {
@@ -339,12 +339,12 @@ class EF_Custom_Status {
 		$status_friendly_name = '';
 		
 		$builtin_stati = array(
-			'publish' => 'Published',
-			'draft' => 'Draft',
-			'future' => 'Scheduled',
-			'private' => 'Private',
-			'pending' => 'Pending Review',
-			'trash' => 'Trash',
+			'publish' => __( 'Published', 'edit-flow' ),
+			'draft' => __( 'Draft', 'edit-flow' ),
+			'future' => __( 'Scheduled', 'edit-flow' ),
+			'private' => __( 'Private', 'edit-flow' ),
+			'pending' => __( 'Pending Review', 'edit-flow' ),
+			'trash' => __( 'Trash', 'edit-flow' ),
 		);
 		
 		if( array_key_exists( $status, $builtin_stati ) ) {
@@ -449,7 +449,7 @@ class EF_Custom_Status {
 		// Global var that holds all the data needed on edit flow pages
 		$ef_page_data = array();
 		
-		$nonce_fail_msg = __('There\'s something fishy going on! We don\'t like this type of nonce-sense. Hmph.', 'edit-flow');
+		$nonce_fail_msg = __( 'There\'s something fishy going on! We don\'t like this type of nonce-sense. Hmph.', 'edit-flow' );
 		$msg_class = 'updated';
 		
 		$action = $error_details = $msg = $edit_status = $update = null;
@@ -647,7 +647,7 @@ class EF_Custom_Status {
 		
 		// Set up defaults
 		$page_defaults = array(
-			'title' => __( 'Custom Post Statuses', 'edit-flow' )
+			'title' => __( 'Custom Statuses', 'edit-flow' )
 			, 'view' => 'templates/custom_status_main.php',
 		);
 		
