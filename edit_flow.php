@@ -92,6 +92,8 @@ class edit_flow {
 	function __construct() {
 		global $wpdb;
 		
+		load_plugin_textdomain( 'edit-flow', null, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+
 		// Define custom tables used here
 		// Sample array entry: 'table_name' => $wpdb->prefix.'table_name' 
 		$this->tables = array();
