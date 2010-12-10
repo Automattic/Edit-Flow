@@ -142,7 +142,7 @@ class EF_Calendar {
 		<div class="wrap">
 			<div id="ef-calendar-title"><!-- Calendar Title -->
 				<div class="icon32" id="icon-edit"></div>
-				<h2><?php _e( 'Calendar', 'edit-flow'); ?></h2>
+				<h2><?php _e( 'Calendar', 'edit-flow' ); ?></h2>
 			</div><!-- /Calendar Title -->
 
 			<div id="ef-calendar-wrap"><!-- Calendar Wrapper -->
@@ -204,11 +204,11 @@ class EF_Calendar {
 									<div class="item-actions">
 										<?php if ( $edit_post_link ): ?>
 									  <span class="edit">
-										<?php edit_post_link( 'Edit', '', '', $post_id ); ?>
+										<?php edit_post_link( __( 'Edit', 'edit-flow' ), '', '', $post_id ); ?>
 									  </span> | 
 										<?php endif; ?>
 									  <span class="view">
-										<a href="<?php echo the_permalink(); ?>">View</a>
+										<a href="<?php echo the_permalink(); ?>"><?php _e( 'View', 'edit-flow' ); ?></a>
 									  </span>
 									</div>
 									<div style="clear:left;"></div>
@@ -230,10 +230,10 @@ class EF_Calendar {
 					</div><!-- /Week Wrapper -->
 					<ul class="day-navigation">
 					  <li class="next-week">
-							<a href="<?php echo $this->get_next_link( $dates[0], $filters ); ?>">Next &raquo;</a>
+							<a href="<?php echo $this->get_next_link( $dates[0], $filters ); ?>"><?php _e( 'Next &raquo;', 'edit-flow' ); ?></a>
 						</li>
 						<li class="previous-week">
-							<a href="<?php echo $this->get_previous_link( $dates[count($dates)-1], $filters ); ?>">&laquo; Previous</a>
+							<a href="<?php echo $this->get_previous_link( $dates[count($dates)-1], $filters ); ?>"><?php _e( '&laquo; Previous', 'edit-flow' ); ?></a>
 						</li>
 					</ul>
 					<div class="clear"></div>
@@ -267,8 +267,8 @@ class EF_Calendar {
 							foreach ( $custom_statuses as $custom_status ) {
 								echo "<option value='$custom_status->slug' " . selected($custom_status->slug, $filters['post_status']) . ">$custom_status->name</option>";
 							}
-							echo "<option value='future'" . selected('future', $filters['post_status']) . ">Scheduled</option>";
-							echo "<option value='publish'" . selected('publish', $filters['post_status']) . ">Published</option>";
+							echo "<option value='future'" . selected('future', $filters['post_status']) . ">" . __( 'Scheduled', 'edit-flow' ) . "</option>";
+							echo "<option value='publish'" . selected('publish', $filters['post_status']) . ">" . __( 'Published', 'edit-flow' ) . "</option>";
 						?>
 					</select>
 					
@@ -277,7 +277,7 @@ class EF_Calendar {
 					// Filter by categories, borrowed from wp-admin/edit.php
 					if ( ef_taxonomy_exists('category') ) {
 						$category_dropdown_args = array(
-							'show_option_all' => __( 'View all categories' ),
+							'show_option_all' => __( 'View all categories', 'edit-flow' ),
 							'hide_empty' => 0,
 							'hierarchical' => 1,
 							'show_count' => 0,
@@ -288,7 +288,7 @@ class EF_Calendar {
 					}
 					
 					$user_dropdown_args = array(
-						'show_option_all' => __( 'View all users' ),
+						'show_option_all' => __( 'View all users', 'edit-flow' ),
 						'name'     => 'author',
 						'selected' => $filters['author']
 						);
@@ -305,7 +305,7 @@ class EF_Calendar {
 					<input type="hidden" name="post_status" value="" />
 					<input type="hidden" name="cat" value="" />
 					<input type="hidden" name="author" value="" />
-					<input type="submit" id="post-query-clear" class="button-secondary" value="Reset"/>
+					<input type="submit" id="post-query-clear" class="button-secondary" value="<?php _e( 'Reset', 'edit-flow' ); ?>"/>
 				</form>
 			</li>
 	  
