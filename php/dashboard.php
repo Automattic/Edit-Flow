@@ -76,12 +76,12 @@ class EF_Dashboard {
 				
 				<p><strong><?php _e('Title:', 'edit-flow') ?></strong> <?php echo $post['post_title']; ?></p>
 				<p><strong><?php _e('Author:', 'edit-flow') ?></strong> <?php the_author_meta('user_nicename', $post['post_author']); ?></p>
-				<p><strong><?php _e('Details:', 'edit-flow') ?></strong> <?php if ($description != "") { echo $description; } else { echo "<em>None specified</em>"; } ?></p>
-				<p><strong><?php _e('Location:', 'edit-flow') ?></strong> <?php if ($location != "") { echo $location; } else { echo "<em>None specified</em>"; } ?></p>
-				<!--<p><strong><?php _e('Due date:', 'edit-flow') ?></strong> <?php if ($duedate != "") { echo $duedate; } else { echo "<em>None specified</em>"; } ?></p>-->
+				<p><strong><?php _e('Details:', 'edit-flow') ?></strong> <?php if ($description != "") { echo $description; } else { echo "<em>" . __( 'None specified', 'edit-flow' ) . "</em>"; } ?></p>
+				<p><strong><?php _e('Location:', 'edit-flow') ?></strong> <?php if ($location != "") { echo $location; } else { echo "<em>" . __( 'None specified', 'edit-flow' ) . "</em>"; } ?></p>
+				<!--<p><strong><?php _e('Due date:', 'edit-flow') ?></strong> <?php if ($duedate != "") { echo $duedate; } else { echo "<em>" . __( 'None specified', 'edit-flow' ) . "</em>"; } ?></p>-->
 				
 				<div class="ef-submit">
-					<a href="<?php echo admin_url('post.php') ?>?action=edit&amp;post=<?php echo $post_id; ?>" class="button">Edit</a>&nbsp;&nbsp;
+					<a href="<?php echo admin_url('post.php') ?>?action=edit&amp;post=<?php echo $post_id; ?>" class="button"><?php _e( 'Edit', 'edit-flow' ); ?></a>&nbsp;&nbsp;
 					<a href="javascript:void(0);" onclick="jQuery('#quick-pitch-notification').hide();jQuery('#quick-pitch-form').slideDown(300);" class="button-primary"><?php _e('New Pitch', 'edit-flow') ?></a>
 				</div>
 			</div>
@@ -178,7 +178,7 @@ class EF_Dashboard {
 							</td>
 							<td>
 								<a href="<?php echo $filter_link; ?>"><?php esc_html_e($status->name) ?></a>
-								<span class="small"><a href="<?php echo ef_get_custom_status_edit_link($status->term_id) ?>">[edit]</a></span>
+								<span class="small"><a href="<?php echo ef_get_custom_status_edit_link($status->term_id) ?>"><?php _e( '[edit]', 'edit-flow' ); ?></a></span>
 							</td>
 						</tr>
 							
