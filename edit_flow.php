@@ -387,7 +387,7 @@ class edit_flow {
 			$post_type = $post->post_type;
 		elseif ( $typenow )
 			$post_type = $typenow;
-		elseif ( $current_screen && $current_screen->post_type )
+		elseif ( $current_screen && isset( $current_screen->post_type ) )
 			$post_type = $current_screen->post_type;
 		elseif ( isset( $_REQUEST['post_type'] ) )
 			$post_type = sanitize_key( $_REQUEST['post_type'] );
