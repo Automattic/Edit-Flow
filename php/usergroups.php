@@ -106,7 +106,7 @@ class EF_Usergroups_Admin {
 			$user_id = $user->ID;
 			
 			if ( !current_user_can('edit_user', $user_id) )
-				wp_die(__('Hey now, you don\'t have permission to edit this user.'));
+				wp_die( __( 'Hey now, you don\'t have permission to edit this user.', 'edit-flow' ) );
 				
 			if ( current_user_can( 'edit_usergroups' ) ) {
 				
@@ -135,7 +135,7 @@ class EF_Usergroups_Admin {
 		
 		// Only allow users with the proper caps
 		if ( !current_user_can('edit_usergroups') )
-			wp_die(__('Sorry, you do not have permission to edit usergroups.'));
+			wp_die( __( 'Sorry, you do not have permission to edit usergroups.', 'edit-flow' ) );
 		
 		// Global var that holds all the data needed on edit flow pages
 		$ef_page_data = array(
@@ -411,7 +411,7 @@ class EF_UserGroups {
 		
 		// name is empty 
 		if(!$data['name']) {
-			$errors->add('usergroup-empty-name', __('Name can\'t be empty, fool!', 'edit-flow'));
+			$errors->add('usergroup-empty-name', __('Sorry, the name of the usergroup cannot be empty!', 'edit-flow'));
 		}
 		
 		if( $errors->get_error_codes() ) return $errors;
