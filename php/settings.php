@@ -51,7 +51,7 @@ class EF_Settings {
 										<input type="checkbox" name="<?php  echo $edit_flow->get_plugin_option_fullname('pages_custom_statuses_enabled') ?>" value="1" <?php echo ($edit_flow->get_plugin_option('pages_custom_statuses_enabled')) ? 'checked="checked"' : ''; ?> id="pages_custom_statuses_enabled" /> 
 										<?php _e('Enable Custom Statuses for Pages', 'edit-flow') ?>
 									</label> <br />
-									<span class="description"><?php _e('Enabling this option allow you to assign custom statuses to your Pages.') ?></span>
+									<span class="description"><?php _e('Enabling this option allow you to assign custom statuses to your Pages.', 'edit-flow') ?></span>
 								</p>
 								<p>
 									<label for="custom_status_default_status">
@@ -63,8 +63,8 @@ class EF_Settings {
 										<?php foreach($statuses as $status) : ?>
 										
 											<?php $selected = ($edit_flow->get_plugin_option('custom_status_default_status')==$status->slug) ? 'selected="selected"' : ''; ?>
-											<option value="<?php esc_attr_e($status->slug) ?>" <?php echo $selected ?>>
-												<?php esc_html_e($status->name); ?>
+											<option value="<?php echo esc_attr($status->slug) ?>" <?php echo $selected ?>>
+												<?php echo esc_html($status->name); ?>
 											</option>
 											
 										<?php endforeach; ?>
@@ -161,7 +161,7 @@ class EF_Settings {
 								<p>
 									<label for="myposts_widget_enabled">
 										<input type="checkbox" name="<?php  echo $edit_flow->get_plugin_option_fullname('myposts_widget_enabled') ?>" value="1" <?php echo ($edit_flow->get_plugin_option('myposts_widget_enabled')) ? 'checked="checked"' : ''; ?> id="myposts_widget_enabled" />
-										<?php _e('Enable My Posts Dashboard Widget') ?>
+										<?php _e('Enable My Posts Dashboard Widget', 'edit-flow') ?>
 									</label> <br />
 									<span class="description"><?php _e('Gives you quick access to Posts that you are currently following.', 'edit-flow') ?></span>
 								</p>
