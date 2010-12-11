@@ -18,7 +18,7 @@
 		<div id="col-right">
 			<div class="col-wrap">
 				<div id="ef-usergroup-users" class="form-wrap">
-					<h4><?php _e('Users', 'edit-flow') ?></h4>
+					<h4><?php _e('Users', 'edit-flow'); ?></h4>
 					<?php 
 					$select_form_args = array (
 						'input_id' => 'usergroup_users'
