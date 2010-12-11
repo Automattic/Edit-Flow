@@ -1,7 +1,7 @@
 <?php global $edit_flow; ?>
 <div class="wrap">
 	<div id="icon-tools" class="icon32"><br /></div>
-	<h2><?php _e('Custom Post Statuses', 'edit-flow') ?></h2>
+	<h2><?php _e( 'Custom Post Statuses', 'edit-flow' ); ?></h2>
 			
 	<?php 
 		ef_the_message( $message );
@@ -11,8 +11,8 @@
 	
 			<?php if ( !$edit_flow->get_plugin_option( 'custom_statuses_enabled' ) ) : ?>
 				<div class="error" id="plugin-message">
-					<p><strong><?php _e('Note: Custom Statuses are currently disabled', 'edit-flow') ?></strong></p>
-					<p><em><?php _e('While you are free to add, edit and delete to your heart\'s content, please note that you will not be able to assign posts to custom statuses unless you <a href="'. EDIT_FLOW_SETTINGS_PAGE.'">enable them</a>.', 'edit-flow') ?></em></p>
+					<p><strong><?php _e( 'Note: Custom Statuses are currently disabled', 'edit-flow' ); ?></strong></p>
+					<p><em><?php _e( 'While you are free to add, edit and delete to your heart\'s content, please note that you will not be able to assign posts to custom statuses unless you <a href="'. EDIT_FLOW_SETTINGS_PAGE.'">enable them</a>.', 'edit-flow' ); ?></em></p>
 				</div>
 			<?php endif ?>
 			
@@ -31,17 +31,17 @@
 							<thead>
 								<tr>
 									<th class="manage-column column-cb check-column" id="cb" scope="col"></th>
-									<th style="" class="manage-column column-name" id="name" scope="col"><?php _e('Name', 'edit-flow') ?></th>
-									<th style="" class="manage-column column-description" id="description" scope="col"><?php _e('Description') ?></th>
-									<th style="" class="manage-column column-posts num" id="posts" scope="col"><?php _e('# of Posts', 'edit-flow') ?></th>
+									<th style="" class="manage-column column-name" id="name" scope="col"><?php _e( 'Name', 'edit-flow' ); ?></th>
+									<th style="" class="manage-column column-description" id="description" scope="col"><?php _e( 'Description', 'edit-flow' ); ?></th>
+									<th style="" class="manage-column column-posts num" id="posts" scope="col"><?php _e( '# of Posts', 'edit-flow' ); ?></th>
 								</tr>
 							</thead>
 							<tfoot>
 								<tr>
 									<th style="" class="manage-column column-cb check-column" scope="col"></th>
-									<th style="" class="manage-column column-name" scope="col"><?php _e('Name', 'edit-flow') ?></th>
-									<th style="" class="manage-column column-description" scope="col"><?php _e('Description', 'edit-flow') ?></th>
-									<th style="" class="manage-column column-posts num" scope="col"><?php _e('Posts', 'edit-flow') ?></th>
+									<th style="" class="manage-column column-name" scope="col"><?php _e( 'Name', 'edit-flow') ?></th>
+									<th style="" class="manage-column column-description" scope="col"><?php _e( 'Description', 'edit-flow' ); ?></th>
+									<th style="" class="manage-column column-posts num" scope="col"><?php _e( 'Posts', 'edit-flow' ); ?></th>
 								</tr>
 							</tfoot>
 							
@@ -79,7 +79,7 @@
 											<?php if ( !$edit_flow->custom_status->is_restricted_status( $status->slug ) ): ?>
 												<span class="edit">
 													<a href="<?php echo $edit_link ?>">
-														<?php _e('Edit', 'edit-flow') ?>
+														<?php _e( 'Edit', 'edit-flow' ); ?>
 													</a>
 													|
 												</span>
@@ -87,7 +87,7 @@
 													<?php $default_status = $this->ef_get_default_custom_status(); ?>
 													<?php $new_status = ($status->slug == $default_status->slug) ? 'Draft' : $default_status->name; ?>
 													<a href="<?php echo $delete_link ?>" class="delete:the-list:status-<?php echo $status->term_id ?> submitdelete" onclick="if(!confirm('Are you sure you want to delete this status?\n\nPosts with this status will be assigned to the following status upon deletion: <?php echo $new_status; ?>.')) return false;">
-														<?php _e('Delete', 'edit-flow') ?>
+														<?php _e( 'Delete', 'edit-flow' ); ?>
 													</a>
 												</span>
 											<?php else: ?>
@@ -132,9 +132,9 @@
 							</div>
 						
 							<div class="form-field">
-								<label for="status_description"><?php _e('Description', 'edit-flow') ?></label>
+								<label for="status_description"><?php _e( 'Description', 'edit-flow' ); ?></label>
 								<textarea cols="40" rows="5" id="status_description" name="status_description"><?php if ( !empty( $custom_status ) ) esc_attr_e($custom_status->description) ?></textarea>
-							    <p><?php _e('The description is mainly for administrative use, just to give you some context on what the custom status is to be used for or means.', 'edit-flow') ?></p>
+							    <p><?php _e( 'The description is mainly for administrative use, just to give you some context on what the custom status is to be used for or means.', 'edit-flow' ); ?></p>
 							</div>
 
 							<input type="hidden" name="action" value="<?php echo ( isset( $update ) && $update ) ? 'update' : 'add' ?>" />
