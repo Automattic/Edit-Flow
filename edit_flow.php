@@ -326,6 +326,56 @@ class edit_flow {
 	}
 	
 	/**
+	 * add_post_type_support()
+	 * For our use in registering post functionality with different post types
+	 * @since 0.6.1
+	 * @param string $post_type The post type we're adding the feature to
+	 * @param string
+	 */
+	function add_post_type_support( $post_type, $feature ) {
+		// Use the native method if we're 3.0+. Otherwise copy the method
+		if ( function_exists( 'add_post_type_support' ) ) {
+			add_post_type_support( $post_type, $feature );
+		} else {
+			global $_wp_post_type_features;
+			
+			$features = (array) $feature;
+			foreach ( $features as $feature ) {
+				if ( func_num_args() == 2 )
+					$_wp_post_type_features[$post_type][$feature] = true;
+				else
+					$_wp_post_type_features[$post_type][$feature] = array_slice( func_get_args(), 2 );
+			}
+		}
+	}
+	
+	/**
+	 * post_type_supports()
+	 * @since 0.6.1
+	 * @param string $post_type The post type being checked
+	 * @param string $feature The feature being checked
+	 * @return boolean
+	 */
+	function post_type_supports( $post_type, feature ) {
+		// Use the native method if we're 3.0+. Otherwise copy the method
+		if ( function_exists( 'post_type_supports' ) ) {
+			return post_type_supports( $post_type, $feature );
+		} else {
+			global $_wp_post_type_features;	
+
+			if ( !isset( $_wp_post_type_features[$post_type][$feature] ) )
+				return false;
+			
+				// If no args passed then no extra checks need be performed
+				if ( func_num_args() <= 2 )
+					return true;
+						
+				return true;
+			
+		}
+	}
+	
+	/**
 	 * Adds necessary Javascript to admin
 	 */
 	function add_admin_scripts() {
