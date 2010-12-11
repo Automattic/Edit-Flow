@@ -389,9 +389,10 @@ class EF_Calendar {
 	function get_calendar_posts( $date, $args = null ) {
 		global $wpdb, $edit_flow;
 		
-		$defaults = array( 'post_status' => null,
-						   'cat'         => null,
-						   'author'      => null
+		$defaults = array(	'post_status' => null,
+							'cat'         => null,
+						  	'author'      => null,
+							'post_type' => $this->supported_post_types,
 						  );
 						 
 		$args = array_merge( $defaults, $args );
@@ -406,7 +407,7 @@ class EF_Calendar {
 		$date_array = explode( '-', $date );
 		$args['year'] = $date_array[0];
 		$args['monthnum'] = $date_array[1];
-		$args['day'] = $date_array[2];	
+		$args['day'] = $date_array[2];
 		
 		$posts = new WP_Query( $args );
 		
