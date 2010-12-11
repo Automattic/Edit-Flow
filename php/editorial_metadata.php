@@ -44,6 +44,13 @@ class EF_Editorial_Metadata {
 		$this->metadata_postmeta_key = "_{$this->metadata_taxonomy}";
 		$this->metadata_string = __( 'Metadata Type', 'edit-flow' );
 		
+		// Allow users to add support for more post types by making all of our methods cascade off this array
+		$this->supported_post_types = array(
+			'post',
+			'page',
+		);
+		$this->supported_post_types = apply_filters( 'ef_editorial_metadata_post_types', $this->supported_post_types );
+		
 		add_action( 'init', array( &$this, 'register_taxonomy' ) );
 		add_action( 'admin_init', array( &$this, 'handle_post_metaboxes' ) );
 		add_action( 'admin_init', array( &$this, 'metadata_taxonomy_display_hooks' ) );
@@ -244,7 +251,7 @@ class EF_Editorial_Metadata {
 		global $current_screen;
 		
 		// Add the metabox date picker JS and CSS
-		if ( $current_screen->id == 'post' || $current_screen->id == 'page' ) {
+		if ( in_array( $current_screen->id, $this->supported_post_types ) ) {
 			// First add the datepicker JS
 			wp_enqueue_script('edit_flow-date-lib', EDIT_FLOW_URL . 'js/lib/date.js', array(), false, true);
 			wp_enqueue_script('edit_flow-date_picker-lib', EDIT_FLOW_URL . 'js/lib/jquery.datePicker.js', array( 'jquery' ), false, true);
@@ -363,7 +370,7 @@ class EF_Editorial_Metadata {
 	// -------------------------
 	
 	function register_taxonomy() {
-		register_taxonomy( $this->metadata_taxonomy, array( 'post', 'page' ),
+		register_taxonomy( $this->metadata_taxonomy, $this->supported_post_types,
 			array(
 				'public' => false,
 				'labels' => array(
@@ -387,9 +394,12 @@ class EF_Editorial_Metadata {
 	
 	function handle_post_metaboxes() {
 		if ( function_exists( 'add_meta_box' ) ) {
-			// TODO: Side or normal default placement for the meta_box? Looks good in either...
-			add_meta_box( $this->metadata_taxonomy, __( 'Editorial Metadata', 'edit-flow' ), array( &$this, 'display_meta_box' ), 'post', 'side' );
-			add_meta_box( $this->metadata_taxonomy, __( 'Editorial Metadata', 'edit-flow' ), array( &$this, 'display_meta_box' ), 'page', 'side' );
+			
+			// Add the editorial meta meta_box for all of the post types we want to support
+			foreach ( $this->supported_post_types as $key => $post_type ) {
+				add_meta_box( $this->metadata_taxonomy, __( 'Editorial Metadata', 'edit-flow' ), array( &$this, 'display_meta_box' ), $post_type, 'side' );
+			}
+			
 			add_action( 'save_post', array( &$this, 'save_meta_box' ), 10, 2 );
 		}
 	}
@@ -440,7 +450,7 @@ class EF_Editorial_Metadata {
 				case "user": 
 					echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
 					$user_dropdown_args = array( 
-							'show_option_all' => __( '-- Select a user below --', 'edit-flow' ), 
+							'show_option_all' => __( '-- Select a user --', 'edit-flow' ), 
 							'name'     => $postmeta_key,
 							'selected' => $current_metadata 
 						); 
@@ -462,7 +472,7 @@ class EF_Editorial_Metadata {
 			&& !wp_verify_nonce( $_POST[$this->metadata_taxonomy . "_nonce"], __FILE__ )
 			|| defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE
 			// Only support posts and pages for now
-			|| !in_array( $post->post_type, array( 'post', 'page' ) )
+			|| !in_array( $post->post_type, $this->supported_post_types )
 			|| $post->post_type == 'post' && !current_user_can( 'edit_posts', $id )
 			|| $post->post_type == 'page' && !current_user_can( 'edit_pages', $id ) ) {
 			return $id;
