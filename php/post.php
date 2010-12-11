@@ -31,7 +31,7 @@ class EF_Post_Metadata
 		global $pagenow;
 		
 		// Only add the script to Edit Post and Edit Page -- don't want to bog down the rest of the admin with unnecessary javascript
-		if($pagenow == 'post.php' || $pagenow == 'page.php') {
+		if ( $pagenow == 'post.php' || $pagenow == 'page.php' || $pagenow == 'post-new.php' ) {
 			wp_enqueue_script( 'edit_flow-post_comment', EDIT_FLOW_URL . 'js/post_comment.js', array( 'jquery','post' ), false, true );
 			
 			$thread_comments = (int) get_option('thread_comments');
