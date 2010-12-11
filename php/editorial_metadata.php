@@ -39,24 +39,26 @@ class EF_Editorial_Metadata {
 	const metadata_type_key = 'type';
 	
 	function __construct() {
+		global $edit_flow;
 		$this->metadata_taxonomy = 'ef_editorial_meta';
 		$this->screen_id = "edit-{$this->metadata_taxonomy}";
 		$this->metadata_postmeta_key = "_{$this->metadata_taxonomy}";
 		$this->metadata_string = __( 'Metadata Type', 'edit-flow' );
 		
-		// Allow users to add support for more post types by making all of our methods cascade off this array
-		$this->supported_post_types = array(
-			'post',
-			'page',
-		);
-		$this->supported_post_types = apply_filters( 'ef_editorial_metadata_post_types', $this->supported_post_types );
-		
+		add_action( 'init', array( &$this, 'init' ) );
 		add_action( 'init', array( &$this, 'register_taxonomy' ) );
-		add_action( 'admin_init', array( &$this, 'handle_post_metaboxes' ) );
 		add_action( 'admin_init', array( &$this, 'metadata_taxonomy_display_hooks' ) );
+		add_action( 'add_meta_boxes', array( &$this, 'handle_post_metaboxes' ) );
+		add_action( 'save_post', array( &$this, 'save_meta_box' ), 10, 2 );
 		
 		// Load necessary scripts and stylesheets
 		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );
+	}
+	
+	function init() {
+		global $edit_flow;
+		$edit_flow->add_post_type_support( 'post', 'ef_editorial_metadata' );
+		$edit_flow->add_post_type_support( 'page', 'ef_editorial_metadata' );
 	}
 	
 	function metadata_taxonomy_display_hooks() {
@@ -248,10 +250,11 @@ class EF_Editorial_Metadata {
 	}
 	
 	function add_admin_scripts() {
-		global $current_screen;
+		global $current_screen, $edit_flow;
 		
 		// Add the metabox date picker JS and CSS
-		if ( in_array( $current_screen->id, $this->supported_post_types ) ) {
+		$current_post_type = $edit_flow->get_current_post_type();
+		if ( $edit_flow->post_type_supports( $current_post_type, 'ef_editorial_metadata' ) ) {
 			// First add the datepicker JS
 			wp_enqueue_script('edit_flow-date-lib', EDIT_FLOW_URL . 'js/lib/date.js', array(), false, true);
 			wp_enqueue_script('edit_flow-date_picker-lib', EDIT_FLOW_URL . 'js/lib/jquery.datePicker.js', array( 'jquery' ), false, true);
@@ -370,7 +373,12 @@ class EF_Editorial_Metadata {
 	// -------------------------
 	
 	function register_taxonomy() {
-		register_taxonomy( $this->metadata_taxonomy, $this->supported_post_types,
+		global $edit_flow;
+
+		// We need to make sure taxonomy is registered for all of the post types that support it
+		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_editorial_metadata' );
+	
+		register_taxonomy( $this->metadata_taxonomy, $supported_post_types,
 			array(
 				'public' => false,
 				'labels' => array(
@@ -385,7 +393,7 @@ class EF_Editorial_Metadata {
 						'new_item_name' => __( 'New Editorial Metadata', 'edit-flow' ),
 					)
 			)
-		);		
+		);
 	}
 	
 	// -------------------------
@@ -393,14 +401,16 @@ class EF_Editorial_Metadata {
 	// -------------------------
 	
 	function handle_post_metaboxes() {
+		global $edit_flow;
 		if ( function_exists( 'add_meta_box' ) ) {
 			
 			// Add the editorial meta meta_box for all of the post types we want to support
-			foreach ( $this->supported_post_types as $key => $post_type ) {
+			$current_post_type = $edit_flow->get_current_post_type();
+			$post_types = $edit_flow->get_all_post_types_for_feature( 'ef_editorial_metadata' );
+			foreach ( $post_types as $post_type ) {
 				add_meta_box( $this->metadata_taxonomy, __( 'Editorial Metadata', 'edit-flow' ), array( &$this, 'display_meta_box' ), $post_type, 'side' );
 			}
-			
-			add_action( 'save_post', array( &$this, 'save_meta_box' ), 10, 2 );
+		
 		}
 	}
 	
@@ -466,13 +476,13 @@ class EF_Editorial_Metadata {
 	}
 	
 	function save_meta_box( $id, $post ) {
+		global $edit_flow;
 		// Authentication checks: make sure data came from our meta box and that the current user is allowed to edit the post
 		// TODO: switch to using check_admin_referrer? See core (e.g. edit.php) for usage
 		if ( isset( $_POST[$this->metadata_taxonomy . "_nonce"] )
 			&& !wp_verify_nonce( $_POST[$this->metadata_taxonomy . "_nonce"], __FILE__ )
 			|| defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE
-			// Only support posts and pages for now
-			|| !in_array( $post->post_type, $this->supported_post_types )
+			|| !in_array( $post->post_type, $edit_flow->get_all_post_types_for_feature( 'ef_editorial_metadata' ) )
 			|| $post->post_type == 'post' && !current_user_can( 'edit_posts', $id )
 			|| $post->post_type == 'page' && !current_user_can( 'edit_pages', $id ) ) {
 			return $id;
