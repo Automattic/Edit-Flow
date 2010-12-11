@@ -88,6 +88,9 @@ For replies to work properly, you need to enable threaded commenting in your blo
 
 == Upgrade Notice ==
 
+= 0.6.1 =
+@todo Upgrade notice
+
 = 0.6 =
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
@@ -95,10 +98,11 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 = 0.6.1 =
 * Added search and filtering tools for user and usergroup lists
-* Users without JavaScript no longer see the status dropdown.
+* Users without JavaScript no longer see the status dropdown
 * Users with JavaScript no longer see the respond button for editorial comments
 * Editorial Metadata support for Pages
 * Email notifications are now sent using queueing for improved performance
+* Bug fix: Proper i18n support (Thanks Beto Frega)
 * Bug fix: Editorial Comments issue in IE (Thanks [asecondwill](http://wordpress.org/support/profile/asecondwill) and James Skaggs!)
 
 = 0.6 (Nov. 9, 2010) =
