@@ -123,7 +123,7 @@ class EF_Editorial_Metadata {
 		<div class="form-field">
 			<label for="<?php echo $this->metadata_taxonomy . '_' . self::metadata_type_key;; ?>"><?php echo $this->metadata_string; ?></label>
 			<?php $this->get_select_html(0); ?>
-			<p>Choose which type of metadata you would like to create.</p>
+			<p><?php _e( 'Choose which type of metadata you would like to create.', 'edit-flow' ); ?></p>
 		</div>
 		
 		<script type="text/javascript">
@@ -168,7 +168,7 @@ class EF_Editorial_Metadata {
 					$description = preg_replace( "/(<br\s*\/?>\s*)/", "\r\n", $description );
 					echo $description;
 					?></textarea><br />
-				<span class="description">The description is not prominent by default, however some themes may show it.</span>
+				<span class="description"><?php _e( 'The description is not prominent by default, however some themes may show it.', 'edit-flow' ); ?></span>
 			</td>
 		</tr>
 		<?php
@@ -179,7 +179,7 @@ class EF_Editorial_Metadata {
 			<th scope="row" valign="top"><?php _e('Type', 'edit-flow'); ?></th>
 			<td>
 				<input type="text" disabled="disabled" value="<?php echo $metadata_types[$type]; ?>" /><br />
-				<span class="description">The metadata type cannot be changed once created.</span>
+				<span class="description"><?php _e( 'The metadata type cannot be changed once created.', 'edit-flow' ); ?></span>
 			</td>
 		</tr>
 		<input type="hidden" name="<?php echo $this->metadata_taxonomy . '_' . self::metadata_type_key; ?>" value="<?php echo $type; ?>" />
@@ -217,7 +217,7 @@ class EF_Editorial_Metadata {
 			if ( $column_name == 'description' ) {
 				// Put the new columns in the place of description
 				$new_headers[self::metadata_type_key] = $this->metadata_string;
-				$new_headers[self::description] = 'Description';
+				$new_headers[self::description] = __( 'Description', 'edit-flow' );
 			} else {
 				$new_headers[$column_name] = $column_display_name;
 			}
@@ -367,8 +367,8 @@ class EF_Editorial_Metadata {
 			array(
 				'public' => false,
 				'labels' => array(
-					'name' => _x( 'Editorial Metadata', 'taxonomy general name' ),
-					'singular_name' => _x( 'Editorial Metadata', 'taxonomy singular name' ),
+					'name' => _x( 'Editorial Metadata', 'taxonomy general name', 'edit-flow' ),
+					'singular_name' => _x( 'Editorial Metadata', 'taxonomy singular name', 'edit-flow' ),
 						'search_items' => __( 'Search Editorial Metadata', 'edit-flow' ),
 						'popular_items' => __( 'Popular Editorial Metadata', 'edit-flow' ),
 						'all_items' => __( 'All Editorial Metadata', 'edit-flow' ),
@@ -447,7 +447,7 @@ class EF_Editorial_Metadata {
 					wp_dropdown_users( $user_dropdown_args );
 					break;
 				default:
-					echo "<p>This editorial metadata type is not yet supported</p>";
+					echo "<p>" . __( 'This editorial metadata type is not yet supported.', 'edit-flow' ) . "</p>";
 			}
 			echo "</div>";
 			echo "<div class='clear'></div>";
