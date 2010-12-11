@@ -345,6 +345,15 @@ $edit_flow = new edit_flow();
 add_action('init', array(&$edit_flow,'init'));
 add_action('admin_init', array(&$edit_flow,'admin_init'));
 
+/**
+ * ef_loaded()
+ * Allow dependent plugins and core actions to attach themselves in a safe way
+ */
+function ef_loaded() {
+	do_action( 'ef_loaded' );
+}
+add_action( 'plugins_loaded', 'ef_loaded', 20 );
+
 // Hook to perform action when plugin activated
 register_activation_hook( EDIT_FLOW_FILE_PATH, array(&$edit_flow, 'activate_plugin'));
 register_deactivation_hook( EDIT_FLOW_FILE_PATH, array(&$edit_flow, 'deactivate_plugin'));
