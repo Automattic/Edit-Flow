@@ -35,7 +35,7 @@ class ef_story_budget {
 			$this->max_num_columns = apply_filters( 'ef_story_budget_max_num_columns', 3 );
 			
 			include_once('screen-options.php');
-			add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', 'Screen Layout', array( &$this, 'print_column_prefs' ), self::screen_id, array( &$this, 'save_column_prefs' ), true );
+			add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', __( 'Screen Layout', 'edit-flow' ), array( &$this, 'print_column_prefs' ), self::screen_id, array( &$this, 'save_column_prefs' ), true );
 			
 			// Load necessary scripts and stylesheets
 			add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
@@ -97,7 +97,7 @@ class ef_story_budget {
 	}
 	
 	function print_column_prefs() {
-		$return_val = 'Number of Columns: ';
+		$return_val = __( 'Number of Columns: ', 'edit-flow' );
 		for ( $i = 1; $i <= $this->max_num_columns; ++$i ) {
 			$return_val .= "<label><input type='radio' name='" . self::usermeta_key_prefix . "screen_columns' value='$i' " . checked($this->get_num_columns(), $i, false) . " /> $i</label>\n";
 		}
@@ -351,7 +351,7 @@ class ef_story_budget {
 		?>
 			<tr id='post-<?php echo $post->ID; ?>' class='alternate author-self status-publish iedit' valign="top">
 				<td class="post-title column-title">
-					<strong><a class="row-title" href="post.php?post=<?php echo $post->ID; ?>&action=edit" title="Edit &#8220;<?php echo $post->post_title; ?>&#8221;"><?php echo $post->post_title; ?></a></strong>
+					<strong><a class="row-title" href="post.php?post=<?php echo $post->ID; ?>&action=edit" title="<?php sprintf( __( 'Edit &#8220;%s&#8221', 'edit-flow' ), $post->post_title ); ?>"><?php echo $post->post_title; ?></a></strong>
 					<p><?php echo strip_tags( substr( $post->post_content, 0, 5 * $this->story_budget_excerpt_length(0) ) ); // TODO: just call the_excerpt once setup_postadata works ?></p>
 					<p><?php do_action('story_budget_post_details'); ?></p>
 					<div class="row-actions">
@@ -410,7 +410,7 @@ class ef_story_budget {
 			if ( isset( $_GET['trashed'] ) && (int) $_GET['trashed'] ) {
 				printf( _n( 'Item moved to the trash.', '%s items moved to the trash.', $_GET['trashed'] ), number_format_i18n( $_GET['trashed'] ) );
 				$ids = isset($_GET['ids']) ? $_GET['ids'] : 0;
-				echo ' <a href="' . esc_url( wp_nonce_url( "edit.php?post_type=post&doaction=undo&action=untrash&ids=$ids", "bulk-posts" ) ) . '">' . __('Undo') . '</a><br />';
+				echo ' <a href="' . esc_url( wp_nonce_url( "edit.php?post_type=post&doaction=undo&action=untrash&ids=$ids", "bulk-posts" ) ) . '">' . __( 'Undo', 'edit-flow' ) . '</a><br />';
 				unset($_GET['trashed']);
 			}
 
@@ -436,13 +436,13 @@ class ef_story_budget {
 			<form method="get" action="<?php echo admin_url() . EDIT_FLOW_STORY_BUDGET_PAGE; ?>" style="float: left;">
 				<input type="hidden" name="page" value="edit-flow/story_budget"/>
 				<select id="post_status" name="post_status"><!-- Status selectors -->
-					<option value="">View all statuses</option>
+					<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
 					<?php
 						foreach ( $custom_statuses as $custom_status ) {
 							echo "<option value='$custom_status->slug' " . selected($custom_status->slug, $user_filters['post_status']) . ">$custom_status->name</option>";
 						}
-						echo "<option value='future'" . selected('future', $filters['post_status']) . ">Scheduled</option>";
-						echo "<option value='publish'" . selected('publish', $user_filters['post_status']) . ">Published</option>";
+						echo "<option value='future'" . selected('future', $filters['post_status']) . ">" . __( 'Scheduled', 'edit-flow' ) . "</option>";
+						echo "<option value='publish'" . selected('publish', $user_filters['post_status']) . ">" . __( 'Published', 'edit-flow' ) . "</option>";
 					?>
 				</select>
 
@@ -450,7 +450,7 @@ class ef_story_budget {
 					// Borrowed from wp-admin/edit.php
 					if ( ef_taxonomy_exists('category') ) {
 						$category_dropdown_args = array(
-							'show_option_all' => __( 'View all categories' ),
+							'show_option_all' => __( 'View all categories', 'edit-flow' ),
 							'hide_empty' => 0,
 							'hierarchical' => 1,
 							'show_count' => 0,
@@ -462,7 +462,7 @@ class ef_story_budget {
 					
 					// TODO: Consider getting rid of this dropdown? The Edit Posts page doesn't have it and only allows filtering by user by clicking on their name. Should we do the same here?
 					$user_dropdown_args = array(
-						'show_option_all' => __( 'View all users' ),
+						'show_option_all' => __( 'View all users', 'edit-flow' ),
 						'name'     => 'post_author',
 						'selected' => $user_filters['post_author']
 						);
@@ -487,7 +487,7 @@ class ef_story_budget {
 		</div><!-- /alignleft actions -->
 		
 		<p class="print-box" style="float:right; margin-right: 30px;"><!-- Print link -->
-			<a href="#" id="toggle_details"><?php _e( 'Toggle Post Details', 'edit-flow' ); ?></a> | <a href="#" id="print_link">Print</a>
+			<a href="#" id="toggle_details"><?php _e( 'Toggle Post Details', 'edit-flow' ); ?></a> | <a href="#" id="print_link"><?php _e( 'Print', 'edit-flow' ); ?></a>
 		</p>
 		<div class="clear"></div>
 		
