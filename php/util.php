@@ -50,7 +50,7 @@ class EF_User_Query extends WP_User_Search {
 	function EF_User_Query ( $query_vars = array() ) {
 
 		if ( empty($query_vars) || !isset($query_vars) ) {
-			return new WP_Error('ef_user_query-empty-args', __('C\'mon! You need to pass at least some arguments for the query!'));
+			return new WP_Error('ef_user_query-empty-args', __( 'C\'mon! You need to pass at least some arguments for the query!', 'edit-flow' ));
 		}
 		
 		$defaults = array(
@@ -219,7 +219,7 @@ class EF_User_Query extends WP_User_Search {
 		if ( $this->results )
 			$this->total_users_for_query = $wpdb->get_var('SELECT COUNT(ID) ' . $query_from_join_where); // no limit
 		else
-			$this->search_errors = new WP_Error('no_matching_users_found', __('No matching users were found!'));
+			$this->search_errors = new WP_Error('no_matching_users_found', __( 'No matching users were found!', 'edit-flow' ));
     }
 	
 	function get_results( $fill_user = false ) {
