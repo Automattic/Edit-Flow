@@ -330,7 +330,7 @@ class edit_flow {
 	 * For our use in registering post functionality with different post types
 	 * @since 0.6.1
 	 * @param string $post_type The post type we're adding the feature to
-	 * @param string
+	 * @param string $feature The feature we want to add to the post type
 	 */
 	function add_post_type_support( $post_type, $feature ) {
 		// Use the native method if we're 3.0+. Otherwise copy the method
@@ -361,8 +361,7 @@ class edit_flow {
 		if ( function_exists( 'post_type_supports' ) ) {
 			return post_type_supports( $post_type, $feature );
 		} else {
-			global $_wp_post_type_features;	
-
+			global $_wp_post_type_features;
 			if ( !isset( $_wp_post_type_features[$post_type][$feature] ) )
 				return false;
 			
@@ -386,11 +385,11 @@ class edit_flow {
 
 		if ( $post && $post->post_type )
 			$post_type = $post->post_type;
-		else if ( $typenow )
+		elseif ( $typenow )
 			$post_type = $typenow;
-		else if( $current_screen && $current_screen->post_type )
+		elseif ( $current_screen && $current_screen->post_type )
 			$post_type = $current_screen->post_type;
-		else if( isset( $_REQUEST['post_type'] ) )
+		elseif ( isset( $_REQUEST['post_type'] ) )
 			$post_type = sanitize_key( $_REQUEST['post_type'] );
 		else
 			$post_type = null;
