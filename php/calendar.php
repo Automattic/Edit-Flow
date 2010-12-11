@@ -155,6 +155,7 @@ class EF_Calendar {
 			$date = date('Y-m-d', strtotime("-1 day", strtotime($date)));
 		}
 		
+		// We use this later to label posts if they need labeling
 		if ( count( $this->supported_post_types ) > 1 ) {
 			$all_post_types = get_post_types( null, 'objects' );
 		}
@@ -460,6 +461,9 @@ class EF_Calendar {
 		$url = EDIT_FLOW_CALENDAR_PAGE . '&amp;start_date=' . $p_date;
 		$url .= '&amp;post_status=' . $filters['post_status'] . '&amp;cat=' . $filters['cat'];
 		$url .= '&amp;author=' . $filters['author'];
+		if ( count( $this->supported_post_types ) > 1 ) {
+			$url .= '&amp;type=' . $filters['post_type'];
+		}
 		return $url;
 	}
 
@@ -474,6 +478,9 @@ class EF_Calendar {
 		$url = EDIT_FLOW_CALENDAR_PAGE . '&amp;start_date=' . $n_date;
 		$url .= '&amp;post_status=' . $filters['post_status'] . '&amp;cat=' . $filters['cat'];
 		$url .= '&amp;author=' . $filters['author'];
+		if ( count( $this->supported_post_types ) > 1 ) {
+			$url .= '&amp;type=' . $filters['post_type'];
+		}
 		return $url;
 	}
 	
