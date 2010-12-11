@@ -154,7 +154,11 @@ class EF_Calendar {
 			$dates[$i] = $date;
 			$date = date('Y-m-d', strtotime("-1 day", strtotime($date)));
 		}
-
+		
+		if ( count( $this->supported_post_types ) > 1 ) {
+			$all_post_types = get_post_types( null, 'objects' );
+		}
+		
 		?>
 		<div class="wrap">
 			<div id="ef-calendar-title"><!-- Calendar Title -->
@@ -200,7 +204,10 @@ class EF_Calendar {
 										<?php else: ?>
 										<strong><?php the_title(); ?></strong>
 										<?php endif; ?>
-										<span class="item-status">[<?php echo $edit_flow->custom_status->get_custom_status_friendly_name( get_post_status( $post_id ) ); ?>]</span>
+										<span class="item-status">[<?php if ( count( $this->supported_post_types ) > 1 ) {
+											$post_type = get_post_type( $post_id );
+											echo $all_post_types[$post_type]->labels->singular_name . ': ';
+										} ?><?php echo $edit_flow->custom_status->get_custom_status_friendly_name( get_post_status( $post_id ) ); ?>]</span>
 									</div>
 									<ul class="item-metadata">
 										<li class="item-author"><?php echo sprintf( __( 'By %s', 'edit-flow' ), get_the_author() ); ?></li>
