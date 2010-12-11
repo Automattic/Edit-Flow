@@ -15,6 +15,12 @@ class EF_Calendar {
 	
 	function __construct() {
 		
+		// Allow users to add support for more post types by making all of our methods cascade off this array
+		$this->supported_post_types = array(
+			'post',
+		);
+		$this->supported_post_types = apply_filters( 'ef_calendar_post_types', $this->supported_post_types );
+		
 		add_action( 'admin_enqueue_scripts', array(&$this, 'add_admin_scripts' ));
 		add_action( 'admin_print_styles', array(&$this, 'add_admin_styles' ));
 		
