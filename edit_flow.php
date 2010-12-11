@@ -398,6 +398,25 @@ class edit_flow {
 	}
 	
 	/**
+	 * get_all_post_types_for_feature()
+	 * Get all of the post types that support a specific bit of functionality
+	 * @since 0.6.1
+	 * @param string $feature The feature we're querying against
+	 * @return array $post_types All of the post types that support the feature
+	 */
+	function get_all_post_types_for_feature( $feature ) {
+		global $_wp_post_type_features;
+		
+		$post_types = array();
+		foreach ( $_wp_post_type_features as $post_type => $features ) {
+			if ( isset( $features[$feature] ) ) {
+				$post_types[] = $post_type;
+			}
+		}
+		return $post_types;
+	}
+	
+	/**
 	 * Adds necessary Javascript to admin
 	 */
 	function add_admin_scripts() {
