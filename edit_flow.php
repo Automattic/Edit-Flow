@@ -356,7 +356,7 @@ class edit_flow {
 	 * @param string $feature The feature being checked
 	 * @return boolean
 	 */
-	function post_type_supports( $post_type, feature ) {
+	function post_type_supports( $post_type, $feature ) {
 		// Use the native method if we're 3.0+. Otherwise copy the method
 		if ( function_exists( 'post_type_supports' ) ) {
 			return post_type_supports( $post_type, $feature );
@@ -373,6 +373,29 @@ class edit_flow {
 				return true;
 			
 		}
+	}
+	
+	/**
+	 * get_current_post_type()
+	 * Checks for the current post type
+	 * @since 0.6.1
+	 * @return string $post_type The post type we've found
+	 */
+	function get_current_post_type() {
+		global $post, $typenow, $current_screen;
+
+		if ( $post && $post->post_type )
+			$post_type = $post->post_type;
+		else if ( $typenow )
+			$post_type = $typenow;
+		else if( $current_screen && $current_screen->post_type )
+			$post_type = $current_screen->post_type;
+		else if( isset( $_REQUEST['post_type'] ) )
+			$post_type = sanitize_key( $_REQUEST['post_type'] );
+		else
+			$post_type = null;
+
+		return $post_type;
 	}
 	
 	/**
