@@ -15,12 +15,7 @@ class EF_Calendar {
 	
 	function __construct() {
 		
-		// Allow users to add support for more post types by making all of our methods cascade off this array
-		$this->supported_post_types = array(
-			'post',
-		);
-		$this->supported_post_types = apply_filters( 'ef_calendar_post_types', $this->supported_post_types );
-		
+		add_action( 'init', array( &$this, 'init' ) );
 		add_action( 'admin_enqueue_scripts', array(&$this, 'add_admin_scripts' ));
 		add_action( 'admin_print_styles', array(&$this, 'add_admin_styles' ));
 		
@@ -28,7 +23,8 @@ class EF_Calendar {
 	
 	function init() {
 		global $edit_flow;
-		
+		// Calendar supports the 'post' post type by default
+		$edit_flow->add_post_type_support( 'post', 'ef_calendar' );
 	}
 	
 	/**
@@ -58,6 +54,8 @@ class EF_Calendar {
 	 */
 	function get_filters() {
 		global $edit_flow;
+		
+		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
 		
 		$current_user = wp_get_current_user();
 		$filters = array();
@@ -91,7 +89,7 @@ class EF_Calendar {
 		}
 		
 		// Post type
-		if ( count( $this->supported_post_types ) > 1 && isset( $_GET['type'] ) ) {
+		if ( count( $supported_post_types ) > 1 && isset( $_GET['type'] ) ) {
 			$filters['post_type'] = $_GET['type'];
 		} else {
 			$filters['post_type'] = $old_filters['post_type'];
@@ -136,6 +134,8 @@ class EF_Calendar {
 	 */
 	function view_calendar() {
 		global $edit_flow;
+		
+		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
 
 		date_default_timezone_set('UTC');
 		
@@ -156,7 +156,7 @@ class EF_Calendar {
 		}
 		
 		// We use this later to label posts if they need labeling
-		if ( count( $this->supported_post_types ) > 1 ) {
+		if ( count( $supported_post_types ) > 1 ) {
 			$all_post_types = get_post_types( null, 'objects' );
 		}
 		
@@ -205,7 +205,7 @@ class EF_Calendar {
 										<?php else: ?>
 										<strong><?php the_title(); ?></strong>
 										<?php endif; ?>
-										<span class="item-status">[<?php if ( count( $this->supported_post_types ) > 1 ) {
+										<span class="item-status">[<?php if ( count( $supported_post_types ) > 1 ) {
 											$post_type = get_post_type( $post_id );
 											echo $all_post_types[$post_type]->labels->singular_name . ': ';
 										} ?><?php echo $edit_flow->custom_status->get_custom_status_friendly_name( get_post_status( $post_id ) ); ?>]</span>
@@ -278,6 +278,7 @@ class EF_Calendar {
 	function print_top_navigation( $filters, $dates ) {
 		global $edit_flow;
 		
+		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
 		$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
 		?>
 		<ul class="day-navigation">
@@ -319,12 +320,12 @@ class EF_Calendar {
 						);
 					wp_dropdown_users( $user_dropdown_args );
 			
-					if ( count( $this->supported_post_types ) > 1 ) {
+					if ( count( $supported_post_types ) > 1 ) {
 					?>
 					<select id="type" name="type">
 						<option value=""><?php _e( 'View all types', 'edit-flow' ); ?></option>
 					<?php
-						foreach ( $this->supported_post_types as $key => $post_type_name ) {
+						foreach ( $supported_post_types as $key => $post_type_name ) {
 							$all_post_types = get_post_types( null, 'objects' );
 							echo '<option value="' . $post_type_name . '"' . selected( $post_type_name, $filters['post_type']) . '>' . $all_post_types[$post_type_name]->labels->name . '</option>';
 						}
@@ -421,10 +422,11 @@ class EF_Calendar {
 	function get_calendar_posts( $date, $args = null ) {
 		global $wpdb, $edit_flow;
 		
+		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
 		$defaults = array(	'post_status' => null,
 							'cat'         => null,
 						  	'author'      => null,
-							'post_type' => $this->supported_post_types,
+							'post_type' => $supported_post_types,
 						  );
 						 
 		$args = array_merge( $defaults, $args );
@@ -441,8 +443,8 @@ class EF_Calendar {
 		$args['monthnum'] = $date_array[1];
 		$args['day'] = $date_array[2];
 		
-		if ( count( $this->supported_post_types ) > 1 && !$args['post_type'] ) {
-			$args['post_type'] = $this->supported_post_types;
+		if ( count( $supported_post_types ) > 1 && !$args['post_type'] ) {
+			$args['post_type'] = $supported_post_types;
 		}
 		
 		$posts = new WP_Query( $args );
@@ -457,11 +459,14 @@ class EF_Calendar {
 	 * @return string $url The URL for the next page
 	 */
 	function get_previous_link( $start_date, $filters ) {
+		global $edit_flow;
+		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
+		
 		$p_date = date('d-m-Y', strtotime("-1 day", strtotime($start_date)));
 		$url = EDIT_FLOW_CALENDAR_PAGE . '&amp;start_date=' . $p_date;
 		$url .= '&amp;post_status=' . $filters['post_status'] . '&amp;cat=' . $filters['cat'];
 		$url .= '&amp;author=' . $filters['author'];
-		if ( count( $this->supported_post_types ) > 1 ) {
+		if ( count( $supported_post_types ) > 1 ) {
 			$url .= '&amp;type=' . $filters['post_type'];
 		}
 		return $url;
@@ -474,11 +479,14 @@ class EF_Calendar {
 	 * @return string $url The URL for the next page
 	 */
 	function get_next_link( $start_date, $filters ) {
+		global $edit_flow;
+		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
+		
 		$n_date = date('d-m-Y', strtotime("+7 days", strtotime($start_date)));
 		$url = EDIT_FLOW_CALENDAR_PAGE . '&amp;start_date=' . $n_date;
 		$url .= '&amp;post_status=' . $filters['post_status'] . '&amp;cat=' . $filters['cat'];
 		$url .= '&amp;author=' . $filters['author'];
-		if ( count( $this->supported_post_types ) > 1 ) {
+		if ( count( $supported_post_types ) > 1 ) {
 			$url .= '&amp;type=' . $filters['post_type'];
 		}
 		return $url;
