@@ -44,9 +44,11 @@ class EF_Calendar {
 	 * Add any necessary CSS to the WordPress admin
 	 */
 	function add_admin_styles() {
-		
-		wp_enqueue_style( 'edit_flow-calendar-css', EDIT_FLOW_URL.'css/calendar.css', false, EDIT_FLOW_VERSION );
-		
+		global $pagenow;
+		// Only load calendar styles on the calendar page
+		if ( $pagenow == 'index.php' && isset( $_GET['page'] ) && $_GET['page'] == 'edit-flow/calendar' ) {
+			wp_enqueue_style( 'edit_flow-calendar-css', EDIT_FLOW_URL.'css/calendar.css', false, EDIT_FLOW_VERSION );
+		}
 	}
 	
 	/**
