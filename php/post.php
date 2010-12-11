@@ -129,7 +129,7 @@ class EF_Post_Metadata
 			<?php
 			else :
 			?>
-				<p><?php _e('You can\'t add comments yet because this is a new post. Come back once you\'ve saved it. Cool?', 'edit-flow') ?></p>
+				<p><?php _e( 'You can\'t add comments yet because this is a new post. Come back once you\'ve saved it. Cool?', 'edit-flow' ); ?></p>
 			<?php
 			endif;
 			?>
@@ -144,7 +144,7 @@ class EF_Post_Metadata
 		global $post;
 		
 		?>
-		<a href="#" id="ef-comment_respond" onclick="editorialCommentReply.open();return false;" class="button-primary alignright hide-if-no-js" title=" <?php _e('Respond to this post', 'edit-flow') ?>"><span><?php _e('Respond to this Post', 'edit-flow') ?></span></a>
+		<a href="#" id="ef-comment_respond" onclick="editorialCommentReply.open();return false;" class="button-primary alignright hide-if-no-js" title=" <?php _e( 'Respond to this post', 'edit-flow' ); ?>"><span><?php _e( 'Respond to this Post', 'edit-flow' ); ?></span></a>
 		
 		<!-- Reply form, hidden until reply clicked by user -->
 		<div id="ef-replyrow" style="display: none;">
@@ -156,7 +156,7 @@ class EF_Post_Metadata
 				<a class="ef-replysave button-primary alignright" href="#comments-form">
 					<span id="ef-replybtn"><?php _e('Submit Response', 'edit-flow') ?></span>
 				</a>
-				<a class="ef-replycancel button-secondary alignright" href="#comments-form"><?php _e('Cancel', 'edit-flow') ?></a>
+				<a class="ef-replycancel button-secondary alignright" href="#comments-form"><?php _e( 'Cancel', 'edit-flow' ); ?></a>
 				<img alt="Sending comment..." src="<?php echo admin_url('/images/wpspin_light.gif') ?>" class="alignright" style="display: none;" id="ef-comment_loading" />
 				<br class="clear" style="margin-bottom:35px;" />
 				<span style="display: none;" class="error"></span>
@@ -164,7 +164,7 @@ class EF_Post_Metadata
 		
 			<input type="hidden" value="" id="ef-comment_parent" name="ef-comment_parent" />
 			<input type="hidden" name="ef-post_id" id="ef-post_id" value="<?php echo $post->ID; ?>" />
-			<!--<input type="hidden" name="ef-comment_nonce" id="ef-comment_nonce" value="<?php echo wp_create_nonce('ef_comment_nonce'); ?>" />-->
+			
 			<?php wp_nonce_field('comment', 'ef_comment_nonce', false); ?>
 			
 			<br class="clear" />
@@ -191,7 +191,7 @@ class EF_Post_Metadata
 		$actions_string = '';
 		// Comments can only be added by users that can edit the post
 		if ( current_user_can('edit_post', $post_ID) ) {
-			$actions['reply'] = '<a onclick="editorialCommentReply.open(\''.$comment->comment_ID.'\',\''.$comment->comment_post_ID.'\');return false;" class="vim-r hide-if-no-js" title="'.__('Reply to this comment', 'edit-flow').'" href="#">' . __('Reply', 'edit-flow') . '</a>';
+			$actions['reply'] = '<a onclick="editorialCommentReply.open(\''.$comment->comment_ID.'\',\''.$comment->comment_post_ID.'\');return false;" class="vim-r hide-if-no-js" title="'.__( 'Reply to this comment', 'edit-flow' ).'" href="#">' . __( 'Reply', 'edit-flow' ) . '</a>';
 			
 			$sep = ' ';
 			$i = 0;
@@ -288,8 +288,8 @@ class EF_Post_Metadata
 			$comment = get_comment($comment_id);
 			
 			// Register actions -- will be used to set up notifications
-			if($comment_id) {
-				do_action('editflow_comment', $comment);
+			if ( $comment_id ) {
+				do_action( 'editflow_comment', $comment );
 				/*
 				if($parent) {
 					do_action('editflow_comment_reply', $comment, $parent);
@@ -333,7 +333,7 @@ class EF_Post_Metadata
 		// TODO: Remove this check when adding activity stream
 		if( !$edit_flow->get_plugin_option('notifications_enabled') ) {
 			?>
-			<p><?php _e('Aww, notifications aren\'t set up, so you can\'t add any subscriptions to this post.', 'edit-flow'); ?></p>
+			<p><?php _e( 'Aww, notifications aren\'t set up, so you can\'t add any subscriptions to this post.', 'edit-flow' ); ?></p>
 			<?php
 			return;
 		}
@@ -341,7 +341,7 @@ class EF_Post_Metadata
 		// Only show on posts that have been saved
 		if( in_array( $post->post_status, array( 'new', 'auto-draft' ) ) ) {
 			?>
-			<p><?php _e('You can\'t add subscribers yet since this is a new post. Come back once you\'ve saved it. Deal?', 'edit-flow') ?></p>
+			<p><?php _e( 'You can\'t add subscribers yet since this is a new post. Come back once you\'ve saved it. Deal?', 'edit-flow' ); ?></p>
 			<?php
 			return;
 		}
@@ -358,9 +358,9 @@ class EF_Post_Metadata
 		<div id="ef-post_following_box">
 			<a name="subscriptions"></a>
 
-			<p><?php _e('Select the users and usergroups that should receive notifications when the status of this post is updated or when an editorial comment is added.', 'edit-flow') ?></p>
+			<p><?php _e( 'Select the users and usergroups that should receive notifications when the status of this post is updated or when an editorial comment is added.', 'edit-flow' ); ?></p>
 			<div id="ef-post_following_users_box">
-				<h4><?php _e('Users', 'edit-flow') ?></h4>
+				<h4><?php _e( 'Users', 'edit-flow' ); ?></h4>
 				<?php //$this->select_all_button( "following_users" ); ?>
 				<?php ef_users_select_form($followers, $user_form_args); ?>
 			</div>
@@ -375,9 +375,9 @@ class EF_Post_Metadata
 		</div>
 		
 		<script>
-		jQuery(document).ready(function(){
-			jQuery('#ef-post_following_box ul').listFilterizer();
-		});
+			jQuery(document).ready(function(){
+				jQuery('#ef-post_following_box ul').listFilterizer();
+			});
 		</script>
 		
 		<?php
@@ -386,7 +386,7 @@ class EF_Post_Metadata
 	function select_all_button( $id ) {
 	?>
 		<label class="ef-select_all_box">
-			<span>Select All </span>
+			<span><?php _e( 'Select All', 'edit-flow' ); ?> </span>
 			<input type="checkbox" id="<?php echo $id;?>" class="follow_all" />
 		</label>
 	<?php
@@ -460,13 +460,13 @@ class EF_Post_Status
 			
 			// Add the "Publish" status if the post is published
 			if( $selected == 'publish' )
-				$status_array .= "{ name: '".__( 'Published' )."', slug: 'publish' }, ";
+				$status_array .= "{ name: '".__( 'Published', 'edit-flow' )."', slug: 'publish' }, ";
 				
 			elseif ( $selected == 'private' )
-				$status_array .= "{ name: '".__( 'Privately Published' )."', slug: 'publish' }, ";
+				$status_array .= "{ name: '".__( 'Privately Published', 'edit-flow' )."', slug: 'publish' }, ";
 				
 			elseif ( $selected == 'future' )
-				$status_array .= "{ name: '".__( 'Scheduled' )."', slug: 'future' }, ";
+				$status_array .= "{ name: '".__( 'Scheduled', 'edit-flow' )."', slug: 'future' }, ";
 			
 			// TODO: support for bulk editing
 			/*
