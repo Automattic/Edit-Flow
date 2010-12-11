@@ -71,9 +71,10 @@ class EF_Calendar {
 		// Set the proper keys to empty so we don't thr
 		if ( empty( $old_filters ) ) {
 			$old_filters['post_status'] = '';
+			$old_filters['post_type'] = '';		
 			$old_filters['cat'] = '';
 			$old_filters['author'] = '';
-			$old_filters['start_date'] = '';	
+			$old_filters['start_date'] = '';			
 		}
 		
 		// Post status
@@ -87,6 +88,13 @@ class EF_Calendar {
 			}
 		} else {
 			$filters['post_status'] = $old_filters['post_status'];
+		}
+		
+		// Post type
+		if ( count( $this->supported_post_types ) > 1 && isset( $_GET['type'] ) ) {
+			$filters['post_type'] = $_GET['type'];
+		} else {
+			$filters['post_type'] = $old_filters['post_type'];
 		}
 		
 		// Category
@@ -133,9 +141,10 @@ class EF_Calendar {
 		
 		// Get filters either from $_GET or from user settings
 		$filters = $this->get_filters();
-		$args = array( 'post_status' => $filters['post_status'],
-		 			   'cat'         => $filters['cat'],
-					   'author'      => $filters['author']
+		$args = array(	'post_status' => $filters['post_status'],
+						'post_type' => $filters['post_type'],
+						'cat'         => $filters['cat'],
+						'author'      => $filters['author']
 					  );
 
 		$date = $filters['start_date'];
@@ -301,6 +310,20 @@ class EF_Calendar {
 						'selected' => $filters['author']
 						);
 					wp_dropdown_users( $user_dropdown_args );
+			
+					if ( count( $this->supported_post_types ) > 1 ) {
+					?>
+					<select id="type" name="type">
+						<option value=""><?php _e( 'View all types', 'edit-flow' ); ?></option>
+					<?php
+						foreach ( $this->supported_post_types as $key => $post_type_name ) {
+							$all_post_types = get_post_types( null, 'objects' );
+							echo '<option value="' . $post_type_name . '"' . selected( $post_type_name, $filters['post_type']) . '>' . $all_post_types[$post_type_name]->labels->name . '</option>';
+						}
+					?>
+					</select>
+					<?php
+					}
 					?>
 					<input type="submit" id="post-query-submit" class="button-secondary" value="<?php _e( 'Filter', 'edit-flow' ); ?>"/>
 				</form>
@@ -311,6 +334,7 @@ class EF_Calendar {
 					<input type="hidden" name="page" value="edit-flow/calendar" />
 					<input type="hidden" name="start_date" value="<?php echo $filters['start_date']; ?>"/>
 					<input type="hidden" name="post_status" value="" />
+					<input type="hidden" name="type" value="" />					
 					<input type="hidden" name="cat" value="" />
 					<input type="hidden" name="author" value="" />
 					<input type="submit" id="post-query-clear" class="button-secondary" value="<?php _e( 'Reset', 'edit-flow' ); ?>"/>
@@ -408,6 +432,10 @@ class EF_Calendar {
 		$args['year'] = $date_array[0];
 		$args['monthnum'] = $date_array[1];
 		$args['day'] = $date_array[2];
+		
+		if ( count( $this->supported_post_types ) > 1 && !$args['post_type'] ) {
+			$args['post_type'] = $this->supported_post_types;
+		}
 		
 		$posts = new WP_Query( $args );
 		
