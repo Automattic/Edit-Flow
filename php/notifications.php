@@ -34,7 +34,7 @@ class EF_Notifications {
 			add_action( 'transition_post_status', array( &$this, 'notification_status_change' ), 10, 3 );
 			
 			// Notification for new comment
-			add_action( 'editflow_comment', array( &$this, 'notification_comment') );
+			add_action( 'ef_post_insert_editorial_comment', array( &$this, 'notification_comment') );
 			
 			add_action( 'save_post', array( &$this, 'save_post' ) );
 			

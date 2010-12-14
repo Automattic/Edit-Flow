@@ -301,19 +301,15 @@ class EF_Post_Metadata
 			    'comment_approved' => $this->comment_type,
 			);
 			
+			apply_filters( 'ef_pre_insert_editorial_comment', $data );
+			
 			// Insert Comment
 			$comment_id = wp_insert_comment($data);
 			$comment = get_comment($comment_id);
 			
 			// Register actions -- will be used to set up notifications
 			if ( $comment_id ) {
-				do_action( 'editflow_comment', $comment );
-				/*
-				if($parent) {
-					do_action('editflow_comment_reply', $comment, $parent);
-				} else {
-					do_action('editflow_comment_new', $comment);
-				}*/
+				do_action( 'ef_post_insert_editorial_comment', $comment );
 			}
 
 			// Prepare response
