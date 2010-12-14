@@ -197,7 +197,7 @@ class EF_Calendar {
 									$post_id = get_the_id();
 									$edit_post_link = get_edit_post_link( $post_id );
 								?>
-								<li class="week-item <?php echo get_post_status( $post_id ); ?>" id="post-<?php the_id(); ?>">
+								<li class="week-item <?php echo 'custom-status-'.get_post_status( $post_id ); ?>" id="post-<?php the_id(); ?>">
 								  <div class="item-handle">
 									<div class="item-headline post-title">
 										<?php if ( $edit_post_link ): ?>
