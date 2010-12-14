@@ -11,14 +11,23 @@ class EF_Post_Metadata
 	var $comment_type = 'editorial-comment';
 	
 	function __construct() {
+		add_action( 'init', array( &$this, 'init' ) );
+		
 		// Set up metabox and related actions
 		add_action('admin_menu', array(&$this, 'add_post_meta_box'));
-				
+		
 		// Load necessary scripts and stylesheets
 		add_action('admin_enqueue_scripts', array(&$this, 'add_admin_scripts'));
 		
 		// init all ajax actions
 		$this->add_ajax_actions();
+	}
+	
+	function init() {
+		global $edit_flow;
+		foreach( array( 'post', 'page' ) as $post_type ) {
+			$edit_flow->add_post_type_support( $post_type, 'ef_editorial_comments' );
+		}
 	}
 	
 	// Add necessary AJAX actions
@@ -28,24 +37,31 @@ class EF_Post_Metadata
 	
 	// Loads scripts 
 	function add_admin_scripts( ) {
-		global $pagenow;
+		global $pagenow, $edit_flow;
+		
+		wp_enqueue_style( 'edit_flow-styles', EDIT_FLOW_URL . 'css/editflow.css', false, false, 'all' );
+		
+		$post_type = $edit_flow->get_current_post_type();
 		
 		// Only add the script to Edit Post and Edit Page -- don't want to bog down the rest of the admin with unnecessary javascript
-		if ( $pagenow == 'post.php' || $pagenow == 'page.php' || $pagenow == 'post-new.php' ) {
-			wp_enqueue_script( 'edit_flow-post_comment', EDIT_FLOW_URL . 'js/post_comment.js', array( 'jquery','post' ), false, true );
+		if ( in_array( $pagenow, array( 'post.php', 'page.php', 'post-new.php', 'page-new.php' ) ) ) {
 			
-			$thread_comments = (int) get_option('thread_comments');
-			?>
-			<script type="text/javascript">
-				var ef_thread_comments = <?php echo ($thread_comments) ? $thread_comments : 0; ?>;
-			</script>
-			<?php
+			if( $edit_flow->post_type_supports( $post_type, 'ef_editorial_comments' ) ) {
+				wp_enqueue_script( 'edit_flow-post_comment', EDIT_FLOW_URL . 'js/post_comment.js', array( 'jquery','post' ), false, true );
+				
+				$thread_comments = (int) get_option('thread_comments');
+				?>
+				<script type="text/javascript">
+					var ef_thread_comments = <?php echo ($thread_comments) ? $thread_comments : 0; ?>;
+				</script>
+				<?php
+			}
 			
-			wp_enqueue_script( 'jquery-listfilterizer' );
-			wp_enqueue_style( 'jquery-listfilterizer' );
-			
+			if( $edit_flow->post_type_supports( $post_type, 'ef_notifications' ) ) {
+				wp_enqueue_script( 'jquery-listfilterizer' );
+				wp_enqueue_style( 'jquery-listfilterizer' );
+			}
 		}
-		wp_enqueue_style( 'edit_flow-styles', EDIT_FLOW_URL . 'css/editflow.css', false, false, 'all' );
 	}
 		
 	function get_post_meta( $post_id, $name, $single = true ) {
@@ -57,11 +73,9 @@ class EF_Post_Metadata
 	}
 		
 	function subscriptions_meta_box ( ) {
-		global $edit_flow;
-		
 		$post_subscriptions_cap = apply_filters( 'ef_edit_post_subscriptions_cap', 'edit_post_subscriptions' );
 		
-		if( $edit_flow->get_plugin_option('notifications_enabled') && current_user_can( $post_subscriptions_cap ) ) 
+		if( current_user_can( $post_subscriptions_cap ) ) 
 			$this->post_followers_box();
 	}
 	
@@ -72,12 +86,16 @@ class EF_Post_Metadata
 		global $edit_flow;
 		
 		if (function_exists('add_meta_box')) {
-			add_meta_box('edit-flow', __('Editorial Comments', 'edit-flow'), array(&$this, 'editorial_comments_meta_box'), 'post', 'normal', 'high');
-			add_meta_box('edit-flow', __('Editorial Comments', 'edit-flow'), array(&$this, 'editorial_comments_meta_box'), 'page', 'normal', 'high');
+			$comment_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_editorial_comments' );
+			foreach ( $comment_post_types as $post_type ) {
+				add_meta_box('edit-flow-editorial-comments', __('Editorial Comments', 'edit-flow'), array(&$this, 'editorial_comments_meta_box'), $post_type, 'normal', 'high');
+			}
 			
 			if( $edit_flow->get_plugin_option('notifications_enabled') ) {
-				add_meta_box('edit-flow-subscriptions', __('Notification Subscriptions', 'edit-flow'), array(&$this, 'subscriptions_meta_box'), 'post', 'advanced', 'high');
-				add_meta_box('edit-flow-subscriptions', __('Notification Subscriptions', 'edit-flow'), array(&$this, 'subscriptions_meta_box'), 'page', 'normal', 'high');
+				$notification_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_notifications' );
+				foreach ( $notification_post_types as $post_type ) {
+					add_meta_box('edit-flow-subscriptions', __('Notification Subscriptions', 'edit-flow'), array(&$this, 'subscriptions_meta_box'), $post_type, 'advanced', 'high');
+				}
 			}
 		}
 	}

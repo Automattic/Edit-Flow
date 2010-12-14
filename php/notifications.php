@@ -16,7 +16,7 @@ class EF_Notifications {
 	/**
 	 * Constructor
 	 */
-	function __construct ( $active = 1) {
+	function __construct ( $active = 1 ) {
 		global $edit_flow;
 		
 		// Register new taxonomy used to track which users are following posts 
@@ -27,6 +27,8 @@ class EF_Notifications {
 		if( !ef_taxonomy_exists( $this->following_usergroups_taxonomy ) ) register_taxonomy( $this->following_usergroups_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
 		
 		if( $active ) {
+			
+			add_action( 'init', array( &$this, 'init' ) );
 			
 			// Notification for post status change
 			add_action( 'transition_post_status', array( &$this, 'notification_status_change' ), 10, 3 );
@@ -45,11 +47,21 @@ class EF_Notifications {
 		
 	} // END: __construct()
 	
+	function init() {
+		global $edit_flow;
+		foreach( array( 'post', 'page' ) as $post_type ) {
+			$edit_flow->add_post_type_support( $post_type, 'ef_notifications' );
+		}
+	}
+	
 	/**
 	 *
 	 */
 	function notification_status_change ($new_status, $old_status, $post) {
 		global $edit_flow;
+		
+		if( ! $edit_flow->post_type_supports( $post->post_type, 'ef_notifications' ) )
+			return;
 		
 		// No need to notify if it's a revision, auto-draft, or if post status wasn't changed
 		$ignored_statuses = apply_filters( 'ef_notification_ignored_statuses', array( $old_status, 'inherit', 'auto-draft' ), $post->post_type );
