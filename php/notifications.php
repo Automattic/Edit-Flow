@@ -142,9 +142,12 @@ class EF_Notifications {
 			
 			$body .= sprintf( __( '== %s Details ==', 'edit-flow' ), $post_type ) . "\r\n";
 			$body .= sprintf( __( 'Title: %s', 'edit-flow' ), $post_title ) . "\r\n";
+			/* translators: 1: author name, 2: author email */
 			$body .= sprintf( __( 'Author: %1$s (%2$s)', 'edit-flow' ), $post_author->display_name, $post_author->user_email ) . "\r\n";
+			/* translators: 1: date, 2: time */
+			$body .= sprintf( __( 'Date Changed: %1$s at %2$s', 'edit-flow' ), date( get_option( 'date_format' ) ), date( get_option( 'time_format' ) ) ) . "\r\n";
 			
-			$edit_link = htmlspecialchars_decode(get_edit_post_link($post_id));
+			$edit_link = htmlspecialchars_decode( get_edit_post_link( $post_id ) );
 			if ( $new_status != 'publish' ) {
 				$preview_nonce = wp_create_nonce( 'post_preview_' . $post_id );
 				$view_link = add_query_arg( array( 'preview' => true, 'preview_id' => $post_id, 'preview_nonce' => $preview_nonce ), get_permalink($post_id) );
