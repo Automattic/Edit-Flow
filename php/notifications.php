@@ -129,6 +129,9 @@ class EF_Notifications {
 				$body .= sprintf( __( 'Status was changed for %1$s #%2$s "%3$s" by %4$s %5$s', 'edit-flow'), $post_type, $post_id, $post_title, $current_user_display_name, $current_user_email ) . "\r\n";
 			}
 			
+			/* translators: 1: date, 2: time */
+			$body .= sprintf( __( 'This action was taken on %1$s at %2$s', 'edit-flow' ), date( get_option( 'date_format' ) ), date( get_option( 'time_format' ) ) ) . "\r\n";
+			
 			$old_status_friendly_name = $edit_flow->custom_status->get_custom_status_friendly_name( $old_status );
 			$new_status_friendly_name = $edit_flow->custom_status->get_custom_status_friendly_name( $new_status );
 			
@@ -144,8 +147,6 @@ class EF_Notifications {
 			$body .= sprintf( __( 'Title: %s', 'edit-flow' ), $post_title ) . "\r\n";
 			/* translators: 1: author name, 2: author email */
 			$body .= sprintf( __( 'Author: %1$s (%2$s)', 'edit-flow' ), $post_author->display_name, $post_author->user_email ) . "\r\n";
-			/* translators: 1: date, 2: time */
-			$body .= sprintf( __( 'Date Changed: %1$s at %2$s', 'edit-flow' ), date( get_option( 'date_format' ) ), date( get_option( 'time_format' ) ) ) . "\r\n";
 			
 			$edit_link = htmlspecialchars_decode( get_edit_post_link( $post_id ) );
 			if ( $new_status != 'publish' ) {
@@ -227,8 +228,9 @@ class EF_Notifications {
 	function get_notification_footer( $post ) {
 		$body  = "";
 		$body .= "\r\n--------------------\r\n";
-		/* translators: 1: post title, 2: date */
-		$body .= sprintf( __( 'You are receiving this email because you are subscribed to "%1$s". This email was sent on %2$s', 'edit-flow' ), $post->post_title, date( 'r' ) );
+		$body .= sprintf( __( 'You are receiving this email because you are subscribed to "%s".', 'edit-flow' ), $post->post_title );
+		$body .= "\r\n";
+		$body .= sprintf( __( 'This email was sent %s.', date( 'r' ) );
 		$body .= "\r\n \r\n";
 		$body .= get_option('blogname') ." | ". get_bloginfo('url') . " | " . admin_url('/') . "\r\n";
 		return $body;
