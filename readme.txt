@@ -76,6 +76,49 @@ Contact us at [hello@editflow.org](mailto:hello@editflow.org) and we'll see what
 
 == Other Notes ==
 
+= Custom Post Type Support =
+
+As of v0.6.1, we have added custom post type support for almost all features in Edit Flow. By default, post and pages have most features enabled.
+
+You can add features to other post types one of two ways. (Note: the code below should be called in the init hook for best results.)
+
+* Option 1: supports arg in register_post_type
+
+`
+register_post_type( 'event', array( 
+	supports( 'title', 'ef_notifications' )
+) );
+`
+
+* Option 2: add_post_type_support **
+
+`
+remove_post_type_support( 'event', 'ef_notifications' ); 
+`
+
+You can remove support for features using the `remove_post_type_support` function.
+
+** Note for 2.9.x users **
+
+To add/remove features from either Posts or Pages, you can use the wrapper functions in the $edit_flow object, e.g.
+
+`
+global $edit_flow;
+$edit_flow->add_post_type_support( 'page', 'ef_story_budget' );
+$edit_flow->remove_post_type_support( 'post', 'ef_notifications' );
+`
+
+= List of Features =
+
+You can add / remove the following feautures:
+
+* ef_custom_statuses
+* ef_notifications
+* ef_editorial_comments
+* ef_calendar
+* ef_story_budget
+* ef_editorial_metadata
+
 = Editorial Comments =
 
 **Hiding comments from front-end**
@@ -94,8 +137,7 @@ For replies to work properly, you need to enable threaded commenting in your blo
 
 `
 function my_ef_remove_page_custom_statuses() {
-	global $edit_flow;
-	$edit_flow->remove_post_type_support( 'page', 'ef_custom_statuses' ); 
+	remove_post_type_support( 'page', 'ef_custom_statuses' ); 
 }
 add_action( 'init', 'my_ef_remove_page_custom_statuses', 11 );
 `
