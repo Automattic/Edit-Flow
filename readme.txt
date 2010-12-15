@@ -90,6 +90,15 @@ For replies to work properly, you need to enable threaded commenting in your blo
 
 = 0.6.1 =
 @todo Upgrade notice
+* We have removed the option to enable/disable Custom Statuses for Pages from the Settings page. Custom Statuses are enabled by default for Pages. To remove support for statuses, please add the following to your functions.php:
+
+`
+function my_ef_remove_page_custom_statuses() {
+	global $edit_flow;
+	$edit_flow->remove_post_type_support( 'page', 'ef_custom_statuses' ); 
+}
+add_action( 'init', 'my_ef_remove_page_custom_statuses', 11 );
+`
 
 = 0.6 =
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
