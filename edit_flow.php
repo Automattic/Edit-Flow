@@ -413,10 +413,10 @@ class edit_flow {
 		elseif ( isset( $_REQUEST['post_type'] ) )
 			$post_type = sanitize_key( $_REQUEST['post_type'] );
 		// 2.9 compat
-		elseif ( ! function_exists( 'add_post_type_support' ) && in_array( $pagenow, array( 'post.php', 'post-new.php', 'edit.php' ) )
+		elseif ( ! function_exists( 'add_post_type_support' ) && in_array( $pagenow, array( 'post.php', 'post-new.php', 'edit.php' ) ) )
 			$post_type = 'post';
 		// 2.9 compat
-		elseif ( ! function_exists( 'add_post_type_support' ) && in_array( $pagenow, array( 'page.php', 'page-new.php', 'edit-pages.php' ) )
+		elseif ( ! function_exists( 'add_post_type_support' ) && in_array( $pagenow, array( 'page.php', 'page-new.php', 'edit-pages.php' ) ) )
 			$post_type = 'page';
 		else
 			$post_type = null;
