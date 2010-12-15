@@ -47,13 +47,6 @@ class EF_Settings {
 									<span class="description"><?php printf( __('Enabling this option allow you to assign custom statuses to your Posts. <br />Custom Statuses can be created and managed here: <a href="%s">Edit Flow > Custom Status</a>', 'edit-flow'), EDIT_FLOW_CUSTOM_STATUS_PAGE) ?></span>
 								</p>
 								<p>
-									<label for="pages_custom_statuses_enabled">
-										<input type="checkbox" name="<?php  echo $edit_flow->get_plugin_option_fullname('pages_custom_statuses_enabled') ?>" value="1" <?php echo ($edit_flow->get_plugin_option('pages_custom_statuses_enabled')) ? 'checked="checked"' : ''; ?> id="pages_custom_statuses_enabled" /> 
-										<?php _e('Enable Custom Statuses for Pages', 'edit-flow') ?>
-									</label> <br />
-									<span class="description"><?php _e('Enabling this option allow you to assign custom statuses to your Pages.', 'edit-flow') ?></span>
-								</p>
-								<p>
 									<label for="custom_status_default_status">
 										<?php _e('Default Status for new posts', 'edit-flow') ?>
 									</label>

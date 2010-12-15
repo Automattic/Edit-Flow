@@ -29,21 +29,31 @@ class EF_Custom_Status {
 		}
 				
 		if( $active ) {
-			
-			// Register custom statuses
-			$this->register_custom_statuses();
-			
-			// Hooks to add "status" column to Edit Posts page
-			add_filter('manage_posts_columns', array(&$this, '_filter_manage_posts_columns'));
-			add_action('manage_posts_custom_column', array(&$this, '_filter_manage_posts_custom_column'));
-			
-			// Hooks to add "status" column to Edit Pages page, BUT, only add it if not being filtered by post_status
-			add_filter('manage_pages_columns', array(&$this, '_filter_manage_posts_columns'));
-			add_action('manage_pages_custom_column', array(&$this, '_filter_manage_posts_custom_column'));
-			
+			add_action( 'init', array( &$this, 'init' ) );
 		}
 	} // END: __construct()
 	
+	/**
+	 * Do initializy stuff
+	 */
+	function init() {
+		global $edit_flow;
+		
+		foreach( array( 'post', 'page' ) as $post_type ) 
+			$edit_flow->add_post_type_support( $post_type, 'ef_custom_statuses' );
+		
+		// Register custom statuses
+		$this->register_custom_statuses();
+		
+		// Hooks to add "status" column to Edit Posts page
+		add_filter('manage_posts_columns', array(&$this, '_filter_manage_posts_columns'));
+		add_action('manage_posts_custom_column', array(&$this, '_filter_manage_posts_custom_column'));
+		
+		// Hooks to add "status" column to Edit Pages page, BUT, only add it if not being filtered by post_status
+		add_filter('manage_pages_columns', array(&$this, '_filter_manage_posts_columns'));
+		add_action('manage_pages_custom_column', array(&$this, '_filter_manage_posts_custom_column'));
+		
+	}
 	
 	/**
 	 * Makes the call to register_post_status to register the user's custom statuses.

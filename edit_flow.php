@@ -61,7 +61,6 @@ class edit_flow {
 					'version' => 0,
 					'custom_statuses_enabled' => 1,
 					'status_dropdown_visible' => 1,
-					'pages_custom_statuses_enabled' => 1,
 					'custom_status_default_status' => 'draft',
 					'dashboard_widgets_enabled' => 1,
 					'post_status_widget_enabled' => 1,

@@ -428,8 +428,16 @@ class EF_Post_Status
 	function is_whitelisted_page() {
 		global $edit_flow, $pagenow;
 		
+		$post_type = $edit_flow->get_current_post_type();
+		
+		if( ! $edit_flow->get_plugin_option( 'custom_statuses_enabled' ) || ! $edit_flow->post_type_supports( $post_type, 'ef_custom_statuses' ) )
+			return;
+		
+		if( ! current_user_can('edit_posts') )
+			return;
+		
 		// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
-		return ( current_user_can('edit_posts') && ( $edit_flow->get_plugin_option( 'custom_statuses_enabled' ) && in_array( $pagenow, array( 'post.php', 'edit.php', 'post-new.php' ) ) ) || ( $edit_flow->get_plugin_option( 'pages_custom_statuses_enabled' ) && ( in_array( $pagenow, array( 'page.php', 'edit-pages.php', 'page-new.php' ) ) ) ) );
+		return in_array( $pagenow, array( 'post.php', 'edit.php', 'post-new.php', 'page.php', 'edit-pages.php', 'page-new.php' ) );
 	}
 	
 	/**
@@ -437,11 +445,19 @@ class EF_Post_Status
 	 */
 	function no_js_notice() {
 		if( $this->is_whitelisted_page() ) :
-		?>
-		<div class="update-nag hide-if-js">
-			<?php _e( '<strong>Note:</strong> Your browser does not support JavaScript or has JavaScript disabled. You will not be able to access or change the post status.', 'edit-flow' ); ?>
-		</div>
-		<?php
+			?>
+			<style type="text/css">
+			/* Hide post status dropdown by default in case of JS issues **/
+			label[for=post_status],
+			#post-status-display,
+			#post-status-select {
+				display: none;
+			}
+			</style>		
+			<div class="update-nag hide-if-js">
+				<?php _e( '<strong>Note:</strong> Your browser does not support JavaScript or has JavaScript disabled. You will not be able to access or change the post status.', 'edit-flow' ); ?>
+			</div>
+			<?php
 		endif;
 	}
 	
