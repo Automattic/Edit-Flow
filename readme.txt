@@ -148,13 +148,17 @@ New features, including story budget and editorial metadata, a completely rewrit
 == Changelog ==
 
 = 0.6.1 =
+* Custom Post Type support (Thanks to all who requested this!)
 * Added search and filtering tools for user and usergroup lists
 * Users without JavaScript no longer see the status dropdown
 * Users with JavaScript no longer see the respond button for editorial comments
-* Editorial Metadata support for Pages
-* Email notifications are now sent using queueing for improved performance
-* Bug fix: Proper i18n support (Thanks Beto Frega)
+* Email notifications are now queued to improve performance and avoid issues with spam
+* Posts in calendar now have a unique classname based on the status (Thanks [erikajurney](http://wordpress.org/support/profile/erikajurney)!)
+* The "Posts I'm Following" widget now has a cleaner and far superior look!
+* Bug fix: Proper i18n support (Thanks Beto Frega and others)
 * Bug fix: Editorial Comments issue in IE (Thanks [asecondwill](http://wordpress.org/support/profile/asecondwill) and James Skaggs!)
+* Bug fix: Always email admin feature was not working (Thanks [nicomollet](http://wordpress.org/support/profile/nicomollet)!)
+* Bug fix: Notifications for scheduled posts did not include links (Thanks [erikajurney](http://wordpress.org/support/profile/erikajurney)!)
 
 = 0.6 (Nov. 9, 2010) =
 * New feature: Editorial Metadata. Previously, Edit Flow had 'due date', 'location' and 'description', as available editorial metadata. We've expanded this functionality to be completely customizable; admins can add any number of editorial metadata with the following types: checkbox, date, location, paragraph, text, or user dropdown.
