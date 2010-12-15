@@ -157,8 +157,8 @@ class EF_Notifications {
 			$body .= "\r\n";
 			$body .= __( '== Actions ==', 'edit-flow' ) . "\r\n";
 			$body .= sprintf( __( 'Add editorial comment: %s', 'edit-flow' ), $edit_link . '#editorialcomments/add' ) . "\r\n";
-			$body .= sprintf( __( 'Edit: %2$s', 'edit-flow' ), $edit_link ) . "\r\n";
-			$body .= sprintf( __( 'View: %2$s', 'edit-flow' ), $view_link ) . "\r\n";
+			$body .= sprintf( __( 'Edit: %s', 'edit-flow' ), $edit_link ) . "\r\n";
+			$body .= sprintf( __( 'View: %s', 'edit-flow' ), $view_link ) . "\r\n";
 				
 			$body .= $this->get_notification_footer($post);
 			
