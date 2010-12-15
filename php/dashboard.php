@@ -205,7 +205,7 @@ class EF_Dashboard {
 					?>
 					<li>
 						<h4><a href="<?php echo $url ?>" title="<?php _e('Edit this post', 'edit-flow') ?>"><?php echo $title; ?></a></h4>
-						<?php _e('last updated:', 'edit-flow') ?> <?php echo get_the_time('Y/m/d g:i:s A', $post) ?>
+						<span class="ef-myposts-timestamp"><?php _e('This post was last updated on', 'edit-flow') ?> <?php echo get_the_time('F j, Y \\a\\t g:i a', $post) ?></span>
 					</li>
 					
 				<?php endforeach; ?>
