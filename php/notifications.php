@@ -126,7 +126,7 @@ class EF_Notifications {
 				/* translators: 1: site name, 2: post type, 3. post title */
 				$subject = sprintf( __( '[%1$s] %2$s Status Changed for "%3$s"', 'edit-flow' ), $blogname, $post_type, $post_title );
 				/* translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user email */
-				$body .= sprintf( __( 'Status was changed on %1$s #%2$s "%3$s" by %4$s %5$s', 'edit-flow'), $post_type, $post_id, $post_title, $current_user_display_name, $current_user_email ) . "\r\n";
+				$body .= sprintf( __( 'Status was changed for %1$s #%2$s "%3$s" by %4$s %5$s', 'edit-flow'), $post_type, $post_id, $post_title, $current_user_display_name, $current_user_email ) . "\r\n";
 			}
 			
 			$old_status_friendly_name = $edit_flow->custom_status->get_custom_status_friendly_name( $old_status );
