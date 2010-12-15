@@ -230,7 +230,7 @@ class EF_Notifications {
 		$body .= "\r\n--------------------\r\n";
 		$body .= sprintf( __( 'You are receiving this email because you are subscribed to "%s".', 'edit-flow' ), $post->post_title );
 		$body .= "\r\n";
-		$body .= sprintf( __( 'This email was sent %s.', date( 'r' ) );
+		$body .= sprintf( __( 'This email was sent %s.', date( 'r' ) ) );
 		$body .= "\r\n \r\n";
 		$body .= get_option('blogname') ." | ". get_bloginfo('url') . " | " . admin_url('/') . "\r\n";
 		return $body;
