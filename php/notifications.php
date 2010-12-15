@@ -55,7 +55,7 @@ class EF_Notifications {
 	}
 	
 	/**
-	 *
+	 * Set up and send post status change notification email
 	 */
 	function notification_status_change ($new_status, $old_status, $post) {
 		global $edit_flow;
@@ -79,8 +79,8 @@ class EF_Notifications {
 			$body  = '';
 			
 			$post_id = $post->ID;
-			$post_title = $post->post_title;
-			$post_type = ucwords($post->post_type);
+			$post_title = _draft_or_post_title( $post_id );;
+			$post_type = ucwords( $post->post_type );
 
 			if( 0 != $current_user->ID ) {
 				$current_user_display_name = $current_user->display_name;
@@ -93,42 +93,56 @@ class EF_Notifications {
 			// Email subject and first line of body 
 			// Set message subjects according to what action is being taken on the Post	
 			if ( $old_status == 'new' || $old_status == 'auto-draft' ) {
+				/* translators: 1: site name, 2: post type, 3. post title */
 				$subject = sprintf( __( '[%1$s] New %2$s Created: "%3$s"', 'edit-flow' ), $blogname, $post_type, $post_title );
+				/* translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user email */
 				$body .= sprintf( __( 'A new %1$s (#%2$s "%3$s") was created by %4$s %5$s', 'edit-flow' ), $post_type, $post_id, $post_title, $current_user->display_name, $current_user->user_email ) . "\r\n";
 			} else if ( $new_status == 'trash' ) {
+				/* translators: 1: site name, 2: post type, 3. post title */
 				$subject = sprintf( __( '[%1$s] %2$s Trashed: "%3$s"', 'edit-flow' ), $blogname, $post_type, $post_title );
+				/* translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user email */
 				$body .= sprintf( __( '%1$s #%2$s "%3$s" was moved to the trash by %4$s %5$s', 'edit-flow' ), $post_type, $post_id, $post_title, $current_user_display_name, $current_user_email ) . "\r\n";
 			} else if ( $old_status == 'trash' ) {
+				/* translators: 1: site name, 2: post type, 3. post title */
 				$subject = sprintf( __( '[%1$s] %2$s Restored (from Trash): "%3$s"', 'edit-flow' ), $blogname, $post_type, $post_title );
+				/* translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user email */
 				$body .= sprintf( __( '%1$s #%2$s "%3$s" was restored from trash by %4$s %5$s', 'edit-flow' ), $post_type, $post_id, $post_title, $current_user_display_name, $current_user_email ) . "\r\n";
 			} else if ( $new_status == 'future' ) {
+				/* translators: 1: site name, 2: post type, 3. post title */
 				$subject = sprintf( __('[%1$s] %2$s Scheduled: "%3$s"'), $blogname, $post_type, $post_title );
+				/* translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user email */
 				$body .= sprintf( __( '%1$s #%2$s "%3$s" was scheduled by %4$s %5$s' ), $post_type, $post_id, $post_title, $current_user_display_name, $current_user_email ) . "\r\n";
 			} else if ( $new_status == 'publish' ) {
+				/* translators: 1: site name, 2: post type, 3. post title */
 				$subject = sprintf( __( '[%1$s] %2$s Published: "%3$s"', 'edit-flow' ), $blogname, $post_type, $post_title );
+				/* translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user email */
 				$body .= sprintf( __( '%1$s #%2$s "%3$s" was published by %4$s %5$s', 'edit-flow' ), $post_type, $post_id, $post_title, $current_user_display_name, $current_user_email ) . "\r\n";
 			} else if ( $old_status == 'publish' ) {
+				/* translators: 1: site name, 2: post type, 3. post title */
 				$subject = sprintf( __( '[%1$s] %2$s Unpublished: "%3$s"', 'edit-flow' ), $blogname, $post_type, $post_title );
+				/* translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user email */
 				$body .= sprintf( __( '%1$s #%2$s "%3$s" was unpublished by %4$s %5$s', 'edit-flow' ), $post_type, $post_id, $post_title, $current_user_display_name, $current_user_email ) . "\r\n";
 			} else {
+				/* translators: 1: site name, 2: post type, 3. post title */
 				$subject = sprintf( __( '[%1$s] %2$s Status Changed for "%3$s"', 'edit-flow' ), $blogname, $post_type, $post_title );
+				/* translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user email */
 				$body .= sprintf( __( 'Status was changed on %1$s #%2$s "%3$s" by %4$s %5$s', 'edit-flow'), $post_type, $post_id, $post_title, $current_user_display_name, $current_user_email ) . "\r\n";
 			}
 			
-			$old_status_friend_name = $edit_flow->custom_status->get_custom_status_friendly_name( $old_status );
-			$new_status_friend_name = $edit_flow->custom_status->get_custom_status_friendly_name( $new_status );
+			$old_status_friendly_name = $edit_flow->custom_status->get_custom_status_friendly_name( $old_status );
+			$new_status_friendly_name = $edit_flow->custom_status->get_custom_status_friendly_name( $new_status );
 			
 			// Email body
 			$body .= "\r\n";
-			$body .= $old_status_friend_name  . ' => ' .  $new_status_friend_name;
+			/* translators: 1: old status, 2: new status */
+			$body .= sprintf( __( '%1$s => %2$s', 'edit-flow' ), $old_status_friendly_name, $new_status_friendly_name );
 			$body .= "\r\n\r\n";
 			
 			$body .= "--------------------\r\n\r\n";
 			
-			$body .= sprintf( __( '%s Details:', 'edit-flow' ), $post_type) . "\r\n";
+			$body .= sprintf( __( '== %s Details ==', 'edit-flow' ), $post_type ) . "\r\n";
 			$body .= sprintf( __( 'Title: %s', 'edit-flow' ), $post_title ) . "\r\n";
 			$body .= sprintf( __( 'Author: %1$s (%2$s)', 'edit-flow' ), $post_author->display_name, $post_author->user_email ) . "\r\n";
-			//$body .= sprintf( __('Due Date: %s'), ($duedate) ? date('M j, Y', $duedate) : __('Not assigned') ) . "\r\n";
 			
 			$edit_link = htmlspecialchars_decode(get_edit_post_link($post_id));
 			if ( $new_status != 'publish' ) {
@@ -138,10 +152,10 @@ class EF_Notifications {
 				$view_link = htmlspecialchars_decode( get_permalink( $post_id ) );
 			}
 			$body .= "\r\n";
-			$body .= __( 'Actions: ', 'edit-flow' ) . "\r\n";
+			$body .= __( '== Actions ==', 'edit-flow' ) . "\r\n";
 			$body .= sprintf( __( 'Add editorial comment: %s', 'edit-flow' ), $edit_link . '#editorialcomments/add' ) . "\r\n";
-			$body .= sprintf( __( 'Edit %1$s: %2$s', 'edit-flow' ), $post_type, $edit_link ) . "\r\n";
-			$body .= sprintf( __( 'View %1$s: %2$s', 'edit-flow' ), $post_type, $view_link ) . "\r\n";
+			$body .= sprintf( __( 'Edit: %2$s', 'edit-flow' ), $edit_link ) . "\r\n";
+			$body .= sprintf( __( 'View: %2$s', 'edit-flow' ), $view_link ) . "\r\n";
 				
 			$body .= $this->get_notification_footer($post);
 			
@@ -149,8 +163,8 @@ class EF_Notifications {
 		}
 	}
 	
-	/* 
-	 * 
+	/**
+	 * Set up and set editorial comment notification email
 	 */
 	function notification_comment ( $comment ) {
 
@@ -158,21 +172,26 @@ class EF_Notifications {
 		$user    = get_userdata( $post->post_author );
 		$current_user = wp_get_current_user();
 	
+		$post_id = $post->ID;
+		$post_type = ucwords( $post->post_type );
+		$post_title = _draft_or_post_title( $post_id );
+	
 		// Check if this a reply
 		$parent_ID = isset( $comment->comment_parent_ID ) ? $comment->comment_parent_ID : 0;
 		if($parent_ID) $parent = get_comment($parent_ID);
 		
 		// Set user to follow post
 		// @TODO: need option to opt-out
+		// TODO: This should not be in here... move to separate function
 		$this->follow_post_user($post, (int) $current_user->ID);
 	
 		$blogname = get_option('blogname');
 	
 		/* translators: 1: blog name, 2: post title */
-		$subject = sprintf( __( '[%1$s] New Editorial Comment: "%2$s"', 'edit-flow' ), $blogname, $post->post_title );
+		$subject = sprintf( __( '[%1$s] New Editorial Comment: "%2$s"', 'edit-flow' ), $blogname, $post_title );
 
-		/* translators: 1: post id, 2: post title */
-		$body  = sprintf( __( 'A new editorial comment was added to post #%1$s "%2$s"', 'edit-flow' ), $comment->comment_post_ID, $post->post_title ) . "\r\n\r\n";
+		/* translators: 1: post id, 2: post title, 3. post type */
+		$body  = sprintf( __( 'A new editorial comment was added to %3$s #%1$s "%2$s"', 'edit-flow' ), $post_id, $post_title, $post_type ) . "\r\n\r\n";
 		/* translators: 1: comment author, 2: author email, 3: date, 4: time */
 		$body .= sprintf( __( '%1$s (%2$s) said on %3$s at %4$s:', 'edit-flow' ), $current_user->display_name, $current_user->user_email, mysql2date(get_option('date_format'), $comment->comment_date), mysql2date(get_option('time_format'), $comment->comment_date) ) . "\r\n";
 		$body .= "\r\n" . $comment->comment_content . "\r\n";
@@ -184,17 +203,17 @@ class EF_Notifications {
 		
 		$body .= "\r\n--------------------\r\n";
 		
-		$edit_link = htmlspecialchars_decode(get_edit_post_link($post->ID));
-		$view_link = htmlspecialchars_decode(get_permalink($post->ID));
+		$edit_link = htmlspecialchars_decode( get_edit_post_link( $post_id ) );
+		$view_link = htmlspecialchars_decode( get_permalink( $post_id ) );
 		
 		$body .= "\r\n";
-		$body .= __( 'Actions: ', 'edit-flow' ) . "\r\n";
+		$body .= __( '== Actions ==', 'edit-flow' ) . "\r\n";
 		$body .= sprintf( __( 'Reply: %s', 'edit-flow' ), $edit_link . '#editorialcomments/reply/' . $comment->comment_ID ) . "\r\n";
-		$body .= sprintf( __( 'Add new comment: %s', 'edit-flow' ), $edit_link . '#editorialcomments/add' ) . "\r\n";
-		$body .= sprintf( __( 'Edit post: %s', 'edit-flow' ), $edit_link ) . "\r\n";
-		$body .= sprintf( __( 'View post: %s', 'edit-flow' ), $view_link ) . "\r\n";
+		$body .= sprintf( __( 'Add editorial comment: %s', 'edit-flow' ), $edit_link . '#editorialcomments/add' ) . "\r\n";
+		$body .= sprintf( __( 'Edit: %s', 'edit-flow' ), $edit_link ) . "\r\n";
+		$body .= sprintf( __( 'View: %s', 'edit-flow' ), $view_link ) . "\r\n";
 		
-		$body .= "\r\n" . __( 'You can see all editorial comments on this post here: ', 'edit-flow' ) . "\r\n";		
+		$body .= "\r\n" . sprintf( __( 'You can see all editorial comments on this %s here: ', 'edit-flow' ), $post_type ). "\r\n";		
 		$body .= $edit_link . "#editorialcomments" . "\r\n\r\n";
 		
 		$body .= $this->get_notification_footer($post);
@@ -205,7 +224,8 @@ class EF_Notifications {
 	function get_notification_footer( $post ) {
 		$body  = "";
 		$body .= "\r\n--------------------\r\n";
-		$body .= sprintf( __( 'The following email has been sent to you because you are following the post "%s"', 'edit-flow' ), $post->post_title );
+		/* translators: 1: post title, 2: date */
+		$body .= sprintf( __( 'You are receiving this email because you are subscribed to "%1$s". This email was sent on %2$s', 'edit-flow' ), $post->post_title, date( 'r' ) );
 		$body .= "\r\n \r\n";
 		$body .= get_option('blogname') ." | ". get_bloginfo('url') . " | " . admin_url('/') . "\r\n";
 		return $body;
