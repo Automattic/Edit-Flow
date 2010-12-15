@@ -349,6 +349,28 @@ class edit_flow {
 	}
 	
 	/**
+	 * Remove support for a feature from a post type. Stolen from core for backwards compat
+	 *
+	 * @since 0.6.1
+	 * @param string $post_type The post type for which to remove the feature
+	 * @param string $feature The feature being removed
+	 */
+	function remove_post_type_support( $post_type, $feature ) {
+		// Use the native method if we're 3.0+. Otherwise copy the method
+		if ( function_exists( 'remove_post_type_support' ) ) {
+			remove_post_type_support( $post_type, $feature );
+		} else {
+			global $_wp_post_type_features;
+			
+			if ( !isset($_wp_post_type_features[$post_type]) )
+				return;
+			
+			if ( isset($_wp_post_type_features[$post_type][$feature]) )
+				unset($_wp_post_type_features[$post_type][$feature]);
+		}
+	}
+	
+	/**
 	 * post_type_supports()
 	 * @since 0.6.1
 	 * @param string $post_type The post type being checked
