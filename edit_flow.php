@@ -155,8 +155,6 @@ class edit_flow {
 	function activate_plugin ( ) {
 		global $wpdb;
 		
-		// Run function to generate db tables	
-		$this->build_db_tables();
 		
 	} // END: activate_plugin
 	
@@ -166,27 +164,6 @@ class edit_flow {
 	function deactivate_plugin( ) {
 		
 	} // END: deactivate_plugin
-	
-	/**
-	 * Creates all necessary db tables for plugin, if they don't exist.
-	 * @return void
-	 */
-	function build_db_tables() {
-		global $wpdb;
-		
-		/*
-			NOTE: Make sure to add table name to the $this->table array (in the __construct() function). We can then access it plugin-wide by:
-				
-				global $edit_flow;
-				$edit_flow->tables['table_name']
-			
-				SQL code for table structure also goes in here
-			
-			WordPress wasn't letting me access the table via $wpdb->table_name, which is why I've set this up.
-		*/
-										
-	} // END: build_db_tables
-
 
 	/**
 	 * Loads options for the plugin.
