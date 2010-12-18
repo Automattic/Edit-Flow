@@ -32,7 +32,7 @@ class EF_Calendar {
 	 */
 	function add_admin_scripts() {
 		
-		//wp_enqueue_script('edit_flow-calendar-js', EDIT_FLOW_URL.'js/calendar.js', array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'), false, true);
+		//wp_enqueue_script('edit_flow-calendar-js', EDIT_FLOW_URL.'js/calendar.js', array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'), EDIT_FLOW_VERSION, true);
 		
 	}
 	

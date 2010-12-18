@@ -39,7 +39,7 @@ class EF_Post_Metadata
 	function add_admin_scripts( ) {
 		global $pagenow, $edit_flow;
 		
-		wp_enqueue_style( 'edit_flow-styles', EDIT_FLOW_URL . 'css/editflow.css', false, false, 'all' );
+		wp_enqueue_style( 'edit_flow-styles', EDIT_FLOW_URL . 'css/editflow.css', false, EDIT_FLOW_VERSION, 'all' );
 		
 		$post_type = $edit_flow->get_current_post_type();
 		
@@ -47,7 +47,7 @@ class EF_Post_Metadata
 		if ( in_array( $pagenow, array( 'post.php', 'page.php', 'post-new.php', 'page-new.php' ) ) ) {
 			
 			if( $edit_flow->post_type_supports( $post_type, 'ef_editorial_comments' ) ) {
-				wp_enqueue_script( 'edit_flow-post_comment', EDIT_FLOW_URL . 'js/post_comment.js', array( 'jquery','post' ), false, true );
+				wp_enqueue_script( 'edit_flow-post_comment', EDIT_FLOW_URL . 'js/post_comment.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
 				
 				$thread_comments = (int) get_option('thread_comments');
 				?>
@@ -521,7 +521,7 @@ class EF_Post_Status
 			
 			<?php
 			// Enqueue custom_status.js
-			wp_enqueue_script('edit_flow-custom_status', EDIT_FLOW_URL.'js/custom_status.js', array('jquery','post'), false, true);
+			wp_enqueue_script('edit_flow-custom_status', EDIT_FLOW_URL.'js/custom_status.js', array('jquery','post'), EDIT_FLOW_VERSION, true);
 		}
 	} // END: post_admin_header()
 } // END: class EF_Post_Status

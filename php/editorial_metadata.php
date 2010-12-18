@@ -256,8 +256,8 @@ class EF_Editorial_Metadata {
 		$current_post_type = $edit_flow->get_current_post_type();
 		if ( $edit_flow->post_type_supports( $current_post_type, 'ef_editorial_metadata' ) ) {
 			// First add the datepicker JS
-			wp_enqueue_script('edit_flow-date-lib', EDIT_FLOW_URL . 'js/lib/date.js', array(), false, true);
-			wp_enqueue_script('edit_flow-date_picker-lib', EDIT_FLOW_URL . 'js/lib/jquery.datePicker.js', array( 'jquery' ), false, true);
+			wp_enqueue_script('edit_flow-date-lib', EDIT_FLOW_URL . 'js/lib/date.js', false, EDIT_FLOW_VERSION, true);
+			wp_enqueue_script('edit_flow-date_picker-lib', EDIT_FLOW_URL . 'js/lib/jquery.datePicker.js', array( 'jquery' ), EDIT_FLOW_VERSION, true);
 			?>
 			<script type="text/javascript">
 				Date.firstDayOfWeek = <?php echo get_option( 'start_of_week' ); ?>;
@@ -266,13 +266,13 @@ class EF_Editorial_Metadata {
 			wp_enqueue_script('edit_flow-date_picker', EDIT_FLOW_URL . 'js/ef_date.js', array( 'edit_flow-date_picker-lib', 'edit_flow-date-lib' ), false, true);
 			
 			// Now add the rest of the metabox CSS
-			wp_enqueue_style('edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, false, 'all');
-			wp_enqueue_style('edit_flow-editorial_metadata-styles', EDIT_FLOW_URL . 'css/ef_editorial_metadata.css', false, false, 'all');
+			wp_enqueue_style('edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, EDIT_FLOW_VERSION, 'all');
+			wp_enqueue_style('edit_flow-editorial_metadata-styles', EDIT_FLOW_URL . 'css/ef_editorial_metadata.css', false, EDIT_FLOW_VERSION, 'all');
 		}
 		
 		// Either editing the taxonomy or a specific term
 		if ( $current_screen->id == $this->screen_id ) {
-			wp_enqueue_script('edit_flow-editorial_metadata', EDIT_FLOW_URL . 'js/ef_editorial_metadata.js', array( 'jquery' ), false, true);
+			wp_enqueue_script( 'edit_flow-editorial_metadata', EDIT_FLOW_URL . 'js/ef_editorial_metadata.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 		}
 	}
 	

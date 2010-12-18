@@ -426,7 +426,7 @@ class edit_flow {
 	function add_admin_scripts() {
 		global $pagenow, $plugin_page;
 		
-		wp_enqueue_script('edit_flow-js', EDIT_FLOW_URL.'js/edit_flow.js', array('jquery'), false, true);
+		wp_enqueue_script( 'edit_flow-js', EDIT_FLOW_URL.'js/edit_flow.js', array('jquery'), EDIT_FLOW_VERSION, true );
 		
 	}
 
