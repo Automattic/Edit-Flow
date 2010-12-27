@@ -326,8 +326,8 @@ class edit_flow {
 	}
 	
 	/**
-	 * Remove support for a feature from a post type. Stolen from core for backwards compat
-	 *
+	 * remove_post_type_support()
+	 * Remove support for a feature from a post type. Stolen from core for backwards compatibility to 2.9.2
 	 * @since 0.6.1
 	 * @param string $post_type The post type for which to remove the feature
 	 * @param string $feature The feature being removed
@@ -349,6 +349,7 @@ class edit_flow {
 	
 	/**
 	 * post_type_supports()
+	 * Check whether a post type supports a given feature. Stolen from core for backwards compatibility to 2.9.2
 	 * @since 0.6.1
 	 * @param string $post_type The post type being checked
 	 * @param string $feature The feature being checked
