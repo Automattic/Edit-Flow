@@ -74,9 +74,13 @@ class ef_story_budget {
 	 * Enqueue necessary admin styles
 	 */
 	function enqueue_admin_styles() {
+		global $current_screen;
+		
 		wp_enqueue_style('edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, EDIT_FLOW_VERSION, 'screen');
-		wp_enqueue_style('edit_flow-story_budget-styles', EDIT_FLOW_URL . 'css/ef_story_budget.css', false, EDIT_FLOW_VERSION, 'screen');
-		wp_enqueue_style('edit_flow-story_budget-print-styles', EDIT_FLOW_URL . 'css/ef_story_budget_print.css', false, EDIT_FLOW_VERSION, 'print');
+		if ( $current_screen->id == self::screen_id ) {		
+			wp_enqueue_style('edit_flow-story_budget-styles', EDIT_FLOW_URL . 'css/ef_story_budget.css', false, EDIT_FLOW_VERSION, 'screen');
+			wp_enqueue_style('edit_flow-story_budget-print-styles', EDIT_FLOW_URL . 'css/ef_story_budget_print.css', false, EDIT_FLOW_VERSION, 'print');
+		}
 	}
 	
 	function get_num_columns() {
