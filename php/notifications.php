@@ -79,7 +79,7 @@ class EF_Notifications {
 			$body  = '';
 			
 			$post_id = $post->ID;
-			$post_title = _draft_or_post_title( $post_id );;
+			$post_title = html_entity_decode( _draft_or_post_title( $post_id ) );
 			$post_type = ucwords( $post->post_type );
 
 			if( 0 != $current_user->ID ) {
