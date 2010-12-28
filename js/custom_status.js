@@ -18,7 +18,7 @@ jQuery(document).ready(function() {
 		append_to_dropdown('select[name="post_status"]');
 		
 		// Make status dropdown visible on load if enabled
-		if(status_dropdown_visible) {
+		if ( status_dropdown_visible ) {
 			jQuery('#post-status-select').show();
 			jQuery('.edit-post-status').hide();
 		}
@@ -29,7 +29,7 @@ jQuery(document).ready(function() {
 	}
 	
 	// Add custom statuses to quick-edit status dropdowns on edit.php
-	if(jQuery('select[name="_status"]')) {
+	if ( jQuery('select[name="_status"]') ) {
 		append_to_dropdown('select[name="_status"]');
 	}
 		
@@ -43,14 +43,14 @@ jQuery(document).ready(function() {
 		// Empty dropdown
 		jQuery(id).empty();
 
-		// Add "Published" status to quick-edit
-		if (id=='select[name="_status"]') {
+		// Add "Published" status to quick-edit for users that can publish
+		if ( id=='select[name="_status"]' && current_user_can_publish_posts ) {
 			jQuery(id).append(jQuery('<option></option')
 				.attr('value','publish')
 				.text('Published')
-			)
+			);
 		}
-
+		
 		// Add remaining statuses to dropdown
 		jQuery.each(custom_statuses, function() {
 			var $option = jQuery('<option></option>')
