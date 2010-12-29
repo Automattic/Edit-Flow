@@ -12,10 +12,12 @@
  * 7) Re-add the term (same slug) and the metadata returns!
  * 
  * A bunch of TODOs
- * TODO: Fully document this class.
- * TODO: Add ability for drag-drop of metadata terms?
- * TODO: Add ability to specify "due date" in settings based on one of the date metadata fields? Then the calendar could use that again.
+ * @todo Fully document this class.
+ * @todo Add ability for drag-drop of metadata terms?
+ * @todo Add ability to specify "due date" in settings based on one of the date metadata fields? Then the calendar could use that again.
  */
+if ( !class_exists('EF_Editorial_Metadata') ) {
+
 class EF_Editorial_Metadata {
 
 	/**
@@ -38,7 +40,12 @@ class EF_Editorial_Metadata {
 	const description = 'desc';
 	const metadata_type_key = 'type';
 	
+	/**
+	 * __construct()
+	 * Construct the EF_Editorial_Metadata class
+	 */
 	function __construct() {
+		
 		global $edit_flow;
 		$this->metadata_taxonomy = 'ef_editorial_meta';
 		$this->screen_id = "edit-{$this->metadata_taxonomy}";
@@ -53,14 +60,22 @@ class EF_Editorial_Metadata {
 		
 		// Load necessary scripts and stylesheets
 		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );
-	}
+		
+	} // END: __construct()
 	
+	/**
+	 * init()
+	 */
 	function init() {
 		global $edit_flow;
 		$edit_flow->add_post_type_support( 'post', 'ef_editorial_metadata' );
 		$edit_flow->add_post_type_support( 'page', 'ef_editorial_metadata' );
-	}
+	} // END: init()
 	
+	/**
+	 * metadata_taxonomy_display_hooks()
+	 * Manipulates WordPress' standard taxonomy view to add fields specific to editorial metadata
+	 */
 	function metadata_taxonomy_display_hooks() {
 		global $pagenow;
 		
@@ -90,9 +105,16 @@ class EF_Editorial_Metadata {
 			add_action( "edit_term_taxonomy", array( &$this, "pre_edit_term_taxonomy" ), 10, 2);
 			add_action( "edited_term_taxonomy", array( &$this, "edited_term_taxonomy" ), 10, 2);
 		}
-	}
+	} // END: metadata_taxonomy_display_hooks()
 	
+	/**
+	 * insert_metadata_into_description_field()
+	 *
+	 * @param string $description User-submitted description
+	 * @return string $encoded_description JSON-encoded array to insert into description field
+	 */
 	function insert_metadata_into_description_field( $description ) {
+		
 		$field_prefix = $this->metadata_taxonomy . '_';
 		$metadata_type = isset( $_POST[$field_prefix . self::metadata_type_key] ) ? $_POST[$field_prefix . self::metadata_type_key] : '';
 		if ( isset( $_POST[$field_prefix . self::description] ) ) {
@@ -105,9 +127,21 @@ class EF_Editorial_Metadata {
 			// This code path is executing when quick editing a term, in which case we have a slashed version of the current description
 			$metadata_description = $this->get_unencoded_value( $description, self::description );
 		}
-		return $this->get_encoded_description( $metadata_description, $metadata_type );
-	}
+		
+		$encoded_description = $this->get_encoded_description( $metadata_description, $metadata_type );
+		
+		return $encoded_description;
+		
+	} // END: insert_metadata_into_description_field()
 	
+	/**
+	 * get_encoded_description()
+	 * Encode a given description and type as JSON 
+	 *
+	 * @param string $metadata_description Metadata description
+	 * @param string $metadata_type Metadata type
+	 * @return string $encoded Type and description encoded as JSON
+	 */
 	function get_encoded_description( $metadata_description, $metadata_type ) {
 		// Damn pesky carriage returns...
 		$metadata_description = str_replace("\r\n", "\n", $metadata_description);
@@ -125,9 +159,12 @@ class EF_Editorial_Metadata {
 		                   );
 		
 		return $encoded;
-	}
+	} // END: get_encoded_description()
 	
-	function add_form_fields($taxonomy) {
+	/**
+	 * add_form_fields()
+	 */
+	function add_form_fields( $taxonomy ) {
 	?>
 		<div class="form-field">
 			<label for="<?php echo $this->metadata_taxonomy . '_' . self::metadata_type_key;; ?>"><?php echo $this->metadata_string; ?></label>
@@ -156,8 +193,11 @@ class EF_Editorial_Metadata {
 			});
 		</script>
 	<?php
-	}
+	} // END: add_form_fields()
 	
+	/**
+	 * edit_form_fields()
+	 */
 	function edit_form_fields( $term, $taxonomy ) {
 		// We need to add a new textarea for description that is just like the default one but that contains the right name, ID, and content
 		// The default one would have ugly serialized data in it.
@@ -193,8 +233,11 @@ class EF_Editorial_Metadata {
 		</tr>
 		<input type="hidden" name="<?php echo $this->metadata_taxonomy . '_' . self::metadata_type_key; ?>" value="<?php echo $type; ?>" />
 	<?php
-	}
+	} // END: edit_form_fields()
 	
+	/**
+	 * get_select_html()
+	 */
 	function get_select_html( $description ) {
 		$current_metadata_type = $this->get_metadata_type( $description );
 		$metadata_types = $this->get_supported_metadata_types();
@@ -205,20 +248,34 @@ class EF_Editorial_Metadata {
 		<?php endforeach; ?>
 		</select>
 	<?php
-	}
+	} // END: get_select_html()
 	
+	/**
+	 * get_supported_metadata_types()
+	 * Supported editorial metadata
+	 *
+	 * @return array $supported_metadata_types All of the supported metadata
+	 */
 	function get_supported_metadata_types() {
-		return array( 'checkbox'   => __('Checkbox', 'edit-flow'),
+		
+		$supported_metadata_types = array( 'checkbox'   => __('Checkbox', 'edit-flow'),
 		              'date'       => __('Date', 'edit-flow'),
 		              'location'   => __('Location', 'edit-flow'),
 		              'paragraph'  => __('Paragraph', 'edit-flow'),
 		              'text'       => __('Text', 'edit-flow'),
 		              'user'       => __('User', 'edit-flow'),
 		             );
-	}
+		return $supported_metadata_types;
+		
+	} // END: get_supported_metadata_types()
 	
+	/**
+	 * edit_column_headers()
+	 *
+	 * @param array $column_headers Original column headers
+	 * @return array $new_headers Modified column headers
+	 */
 	function edit_column_headers( $column_headers ) {
-		// TODO: implement this using array_diff or something better?
 		$new_headers = array();
 		// Don't display the 'slug' column
 		unset( $column_headers['slug'] );
@@ -233,8 +290,11 @@ class EF_Editorial_Metadata {
 		}
 		
 		return $new_headers;
-	}
+	} // END: edit_column_headers()
 	
+	/**
+	 * add_custom_columns()
+	 */
 	function add_custom_columns( $empty_string, $column_name, $term_id ) {
 		// Get the full description from the DB and unserialize into an array
 		$term = $this->get_editorial_metadata_term( (int) $term_id );
@@ -247,8 +307,12 @@ class EF_Editorial_Metadata {
 			$description = $this->get_unencoded_value( $term->description, self::description );;
 			return $description;
 		}
-	}
+	} // END: add_custom_columns()
 	
+	/**
+	 * add_admin_scripts()
+	 * Enqueue relevant admin Javascript
+	 */ 
 	function add_admin_scripts() {
 		global $current_screen, $edit_flow;
 		
@@ -274,12 +338,14 @@ class EF_Editorial_Metadata {
 		if ( $current_screen->id == $this->screen_id ) {
 			wp_enqueue_script( 'edit_flow-editorial_metadata', EDIT_FLOW_URL . 'js/ef_editorial_metadata.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 		}
-	}
+	} // END: add_admin_scripts()
 	
 	/**
+	 * get_metadata_type()
 	 * Gets the metadata type described by this term, stored in the term itself. Usually stored in $term->description.
 	 *
 	 * @param object|string|int term Term from which to get the metadata object (object or term_id) or the metadata type itself.
+	 * @return string $metadata_type Metadata type as a string
 	 */
 	function get_metadata_type( $term ) {
 		$metadata_type = '';
@@ -290,8 +356,9 @@ class EF_Editorial_Metadata {
 		} else {
 			$metadata_type = $term;
 		}
-		return $this->get_unencoded_value( $metadata_type, self::metadata_type_key );
-	}
+		$metadata_type = $this->get_unencoded_value( $metadata_type, self::metadata_type_key );
+		return $metadata_type;
+	} // END: get_metadata_type()
 	
 	function get_unencoded_value( $string_to_unencode, $key ) {
 		$string_to_unencode = stripslashes( htmlspecialchars_decode( $string_to_unencode ) );
@@ -368,10 +435,10 @@ class EF_Editorial_Metadata {
 		$this->metadata_type_cache = NULL;
 	}
 	
-	// -------------------------
-	// Register the post metadata taxonomy
-	// -------------------------
-	
+	/**
+	 * register_taxonomy()
+	 * Register the post metadata taxonomy
+	 */
 	function register_taxonomy() {
 		global $edit_flow;
 
@@ -394,7 +461,7 @@ class EF_Editorial_Metadata {
 					)
 			)
 		);
-	}
+	} // END: register_taxonomy()
 	
 	// -------------------------
 	// Post metabox stuff
@@ -475,6 +542,10 @@ class EF_Editorial_Metadata {
 		echo "</div>";
 	}
 	
+	/**
+	 * save_meta_box()
+	 * Save any values in the editorial metadata post meta box
+	 */
 	function save_meta_box( $id, $post ) {
 		global $edit_flow;
 		// Authentication checks: make sure data came from our meta box and that the current user is allowed to edit the post
@@ -526,15 +597,22 @@ class EF_Editorial_Metadata {
 		if ( $post->post_status === 'publish' ) {
 			wp_set_object_terms( $id, $term_slugs, $this->metadata_taxonomy );
 		}
-	}
+	} // END: save_meta_box()
 	
+	/**
+	 * get_postmeta_key()
+	 * Generate a unique key based on the term
+	 * 
+	 * @param object $term Term object
+	 * @return string $postmeta_key Unique key
+	 */
 	function get_postmeta_key( $term ) {
 		$key = $this->metadata_postmeta_key;
 		$type = $this->get_metadata_type( $term );
 		$prefix = "{$key}_{$type}";
-		return "{$prefix}_" . ( is_object( $term ) ? $term->slug : $term );
-	}
-	
+		$postmeta_key = "{$prefix}_" . ( is_object( $term ) ? $term->slug : $term );
+		return $postmeta_key;
+	} // END: get_postmeta_key()
 	
 	/**
 	 * Returns the value for the given metadata
@@ -558,21 +636,28 @@ class EF_Editorial_Metadata {
 	}
 	
 	/**
+	 * get_editorial_metadata_term()
 	 * Returns a term for single metadata field
 	 *
-	 * @param int|string field The slug or ID for the metadata field term to return 
+	 * @param int|string $field The slug or ID for the metadata field term to return 
+	 * @return object $term Term's object representation
 	 */
 	function get_editorial_metadata_term( $field ) {
-		if( is_int( $field ) ) {
+		
+		if ( is_int( $field ) ) {
 			$term = get_term_by( 'id', $field, $this->metadata_taxonomy );
 		} elseif( is_string( $field ) ) {
 			$term = get_term_by( 'slug', $field, $this->metadata_taxonomy );
 		}
 		
-		if( ! $term || is_wp_error( $term ) )
+		if ( ! $term || is_wp_error( $term ) ) {
 			return false;
+		}
 		
 		return $term;
-	}
+		
+	} // END: get_editorial_metadata_term()
 	
-} // END EF_Editorial_Metadata class
+} // END: class EF_Editorial_Metadata
+
+} // END: if ( !class_exists('EF_Editorial_Metadata') )
