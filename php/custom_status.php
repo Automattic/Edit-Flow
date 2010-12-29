@@ -12,35 +12,47 @@ class EF_Custom_Status {
 	/**
 	 * Constructor
 	 */
-	function __construct ($active = 1) {
+	function __construct( $active = 1 ) {
 		global $pagenow, $edit_flow;
 		
 		// Register new taxonomy so that we can store all our fancy new custom statuses (or is it stati?)
-		if( !ef_taxonomy_exists( $this->status_taxonomy ) ) register_taxonomy( $this->status_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
+		if ( !ef_taxonomy_exists( $this->status_taxonomy ) ) {
+			$args = array(	'hierarchical' => false, 
+							'update_count_callback' => '_update_post_term_count',
+							'label' => false,
+							'query_var' => false,
+							'rewrite' => false,
+							'show_ui' => false
+					);
+			register_taxonomy( $this->status_taxonomy, 'post', $args );
+		}
 		
 		
 		// Note: These hooks do not need to be called as of 3.0 since it supports built in post statuses
 		// Note: For pre-3.0, these actions should be called regardless of whether custom statuses are enabled or not
-		if( ! function_exists( 'register_post_status' ) ) {
+		if ( ! function_exists( 'register_post_status' ) ) {
 			// Add actions and filters for the Edit/Manage Posts page
 			add_action( 'load-edit.php', array( &$this, 'load_edit_hooks' ) );
 			// Add action and filter for the Edit/Manage Pages page
 			add_action( 'load-edit-pages.php', array( &$this, 'load_edit_hooks' ) );
 		}
 				
-		if( $active ) {
+		if ( $active ) {
 			add_action( 'init', array( &$this, 'init' ) );
 		}
 	} // END: __construct()
 	
 	/**
-	 * Do initializy stuff
+	 * init()
+	 * Initialize dependencies for the custom status class
 	 */
 	function init() {
 		global $edit_flow;
 		
-		foreach( array( 'post', 'page' ) as $post_type ) 
+		$supported_post_types = array( 'post', 'page' );
+		foreach ( $supported_post_types as $post_type ) {
 			$edit_flow->add_post_type_support( $post_type, 'ef_custom_statuses' );
+		}
 		
 		// Register custom statuses
 		$this->register_custom_statuses();
@@ -53,17 +65,17 @@ class EF_Custom_Status {
 		add_filter('manage_pages_columns', array(&$this, '_filter_manage_posts_columns'));
 		add_action('manage_pages_custom_column', array(&$this, '_filter_manage_posts_custom_column'));
 		
-	}
+	} // END: init()
 	
 	/**
+	 * register_custom_statuses()
 	 * Makes the call to register_post_status to register the user's custom statuses.
 	 * Also unregisters draft and pending, in case the user doesn't want them.
 	 */
 	function register_custom_statuses() {
 		global $wp_post_statuses;
 		
-		// @TODO: support for custom post types
-		if( function_exists( 'register_post_status' ) ) {
+		if ( function_exists( 'register_post_status' ) ) {
 			// Users can delete draft and pending statuses if they want, so let's get rid of them
 			// They'll get re-added if the user hasn't "deleted" them
 			unset( $wp_post_statuses[ 'draft' ] );
@@ -71,7 +83,7 @@ class EF_Custom_Status {
 			
 			$custom_statuses = $this->get_custom_statuses();
 			
-			foreach( $custom_statuses as $status ) {
+			foreach ( $custom_statuses as $status ) {
 				register_post_status( $status->slug, array(
 					'label'       => $status->name
 					, 'protected'   => true
@@ -80,45 +92,49 @@ class EF_Custom_Status {
 				) );
 			}
 		}
-	}
+	} // END: register_custom_statuses()
 	
 	/**
+	 * load_edit_hooks()
 	 * Hooks to make modifications to the Manage/Edit Posts
 	 * Only used for pre-3.0
 	 */
 	function load_edit_hooks() {
+		
 		// Add custom stati to Edit/Manage Posts
 		add_action('admin_notices',array(&$this, 'enable_custom_status_filters'));
 		// Modify the posts_where query to include custom stati
 		add_filter('posts_where', array(&$this, 'custom_status_where_filter'));
+		
 	} // END: load_edit_hooks()
 
 	/**
+	 * load_edit_pages_hooks()
 	 * Hooks to make modifications to the Manage/Edit Pages
 	 * Only used for pre-3.0
 	 */
 	function load_edit_pages_hooks() {
 		global $edit_flow;
 		
-		if($edit_flow->get_plugin_option('pages_custom_statuses_enabled')) {
+		if ( $edit_flow->get_plugin_option('pages_custom_statuses_enabled') ) {
 			// Add custom stati to Edit/Manage Pages
 			add_filter('apply_filters', array(&$this, 'enable_custom_status_filters_pages'));
 			// Modify the posts_where query to include custom stati
 			add_filter('posts_where', array(&$this, 'custom_status_where_filter'));
 		}
-	}
+	} // END: load_edit_pages_hooks()
 	
 	/**
+	 * enable_custom_status_filters()
 	 * Adds custom stati to the $post_stati array.
 	 * This is used to generate the list of statuses on the Edit/Manage Posts page.
-	 *
 	 */
 	function enable_custom_status_filters() {
 		// This is the array WP uses to store custom stati (really? stati?)
 		// The status list at the top of the Manage/Edit Posts page is generated using this array
 		global $post_stati;
 
-		if(is_array($post_stati)) {
+		if ( is_array( $post_stati ) ) {
 			
 			// @ TODO Don't return statuses that are empty (i.e. no posts)
 			// Get a list of ALL the custom statuses
@@ -142,12 +158,17 @@ class EF_Custom_Status {
 		}
 	} // END: enable_custom_status_filters()
 
-	/* Adds custom stati to the $post_stati array for pages
+	/**
+	 * enable_custom_status_filters_pages()
+	 * Adds custom stati to the $post_stati array for pages
 	 * This is used to generate the list of statuses on the Edit/Manage Pages page.
-	 *
+	 * 
+	 * @param object $post_stati All of the post statuses
+	 * @return object $post_stati Post statuses with Edit Flow custom statuses
 	 */
-	function enable_custom_status_filters_pages($post_stati) {
-		if(is_array($post_stati)) {
+	function enable_custom_status_filters_pages( $post_stati ) {
+		
+		if ( is_array( $post_stati ) ) {
 			
 			// @ TODO Don't return statuses that are empty (i.e. no posts)
 			// Get a list of ALL the custom statuses
@@ -173,11 +194,15 @@ class EF_Custom_Status {
 	} // END: enable_custom_status_filters_pages()
 
 	/**
+	 * custom_status_where_filter()
 	 * Edits the WHERE clause for the the get_post query.
 	 * This is used to show all the posts with custom statuses.
 	 * Why? Because WordPress automatically hides anything without an allowed status (e.g. "publish", "draft",, etc.)
+	 *
+	 * @param string $where Original SQL query
+	 * @return string $where Modified SQL query
 	 */	
-	function custom_status_where_filter($where){
+	function custom_status_where_filter( $where ){
 		global $wpdb, $user_ID;
 		
 		/** 
@@ -186,7 +211,7 @@ class EF_Custom_Status {
 		 *
 		 * Mad props to David Smith from Columbia U.
 		 **/
-		if(is_admin() ) {
+		if ( is_admin() ) {
 			if(!(isset($_GET['post_status'])) && !(isset($_POST['post_status']))) {			
 				$custom_statuses = $this->get_custom_statuses();
 				//insert custom post_status where statements into the existing the post_status where statements - "post_status = publish OR"
@@ -195,7 +220,7 @@ class EF_Custom_Status {
 	
 				//build up the replacement string
 				$replace_string = $search_string;
-				foreach($custom_statuses as $status) {
+				foreach ( $custom_statuses as $status ) {
 					$replace_string .= $wpdb->posts.".post_status = '".$status->slug."' OR "; 
 				}
 	
@@ -223,9 +248,11 @@ class EF_Custom_Status {
 	
 		}
 		return $where;
+		
 	} // END: custom_status_where_filter()
 	
 	/**
+	 * add_custom_status()
 	 * Adds a new custom status as a term in the wp_terms table.
 	 * Basically a wrapper for the wp_insert_term class.
 	 *
@@ -239,26 +266,28 @@ class EF_Custom_Status {
 	 *
 	 * @param int|string $term The status to add or update
 	 * @param array|string $args Change the values of the inserted term
-	 * @return array|WP_Error The Term ID and Term Taxonomy ID
-	 *
+	 * @return array|WP_Error $response The Term ID and Term Taxonomy ID
 	 */
-	function add_custom_status ( $term, $args = array() ) {
+	function add_custom_status( $term, $args = array() ) {
 		// $args = array( 'alias_of' => '', 'description' => '', 'parent' => 0, 'slug' => '');
-		return wp_insert_term( $term, $this->status_taxonomy, $args );
+		$response = wp_insert_term( $term, $this->status_taxonomy, $args );
+		return $response;
 		
-	} // END: add_custom_status
+	} // END: add_custom_status()
 	
 	/**
-	 * 
+	 * update_custom_status()
 	 * Basically a wrapper for the wp_update_term function
+	 *
+	 * @param int @status_id ID for the status
+	 * @param array $args Any arguments to be updated
+	 * @return object $updated_status Newly updated status object
 	 */
-	function update_custom_status ( $status_id, $args = array() ) {
+	function update_custom_status( $status_id, $args = array() ) {
 		global $edit_flow;
 		
 		$default_status = $this->ef_get_default_custom_status()->slug;
-		$defaults = array(
-				'slug' => $default_status
-		);
+		$defaults = array( 'slug' => $default_status );
 
 		// If new status not indicated, use default status
 		$args = wp_parse_args( $args, $defaults );
@@ -274,16 +303,20 @@ class EF_Custom_Status {
 				$edit_flow->update_plugin_option( 'custom_status_default_status', $new_status );
 		}
 
-		return wp_update_term( $status_id, $this->status_taxonomy, $args );
-	} // END: update_custom_status
+		$updated_status = wp_update_term( $status_id, $this->status_taxonomy, $args );
+
+		return $updated_status;
+		
+	} // END: update_custom_status()
 	
 	/**
+	 * delete_custom_status()
 	 * Deletes a custom status from the wp_terms table.
 	 * 
 	 * Partly a wrapper for the wp_delete_term function.
 	 * BUT, also reassigns posts that currently have the deleted status assigned.  
 	 */
-	function delete_custom_status ( $status_id, $args = array(), $reassign = '' ) {
+	function delete_custom_status( $status_id, $args = array(), $reassign = '' ) {
 		global $edit_flow;
 		// Reassign posts to alternate status
 
@@ -310,39 +343,56 @@ class EF_Custom_Status {
 			return wp_delete_term( $status_id, $this->status_taxonomy, $args );
 		} else
 			return new WP_Error( 'restricted', __( 'Restricted status ', 'edit-flow' ) . '(' . get_term($status_id, $this->status_taxonomy)->name . ')' );
+			
 	} // END: delete_custom_status
 
-	function get_custom_statuses ($statuses = '', $args ='' ) {
+	/**
+	 * get_custom_statuses()
+	 *
+	 * @param array|string $statuses
+	 * @param array $args
+	 * @return object $statuses All of the statuses
+	 */
+	function get_custom_statuses( $statuses = '', $args ='' ) {
 		
 		// @TODO: implement $args, to allow for pagination, etc. 
 
-		if(!$statuses) {
+		if ( !$statuses ) {
 			// return all stati			
 			$statuses = get_terms( $this->status_taxonomy, array( 'get' => 'all' ) );
-		} else if (!is_array($statuses)) {
+		} else if ( !is_array( $statuses ) ) {
 			// return a single status			
 		} else {
 			// return multiple stati 	
 		}
 		
-		return $statuses;		
-	}
+		return $statuses;
+				
+	} // END: get_custom_statuses()
 	
 	/**
+	 * get_custom_status()
 	 * Returns the a single status object based on ID or slug
-	 * @param 
+	 *
+	 * @param string|int $status The status to search for, either by slug or ID
+	 * @return object $status The object for the matching status
 	 */
 	function get_custom_status( $status ) {
-		if( is_int( $status ) ) {
+		
+		if ( is_int( $status ) ) {
 			return get_term_by( 'id', $status, $this->status_taxonomy );
 		} else {
 			return get_term_by( 'slug', $status, $this->status_taxonomy );
 		}
-	}
+		
+	} // END: get_custom_status()
 	
 	/**
+	 * get_custom_status_friendly_name()
 	 * Returns the friendly name for a given status
-	 * @param 
+	 *
+	 * @param string $status The status slug
+	 * @return string $status_friendly_name The friendly name for the status
 	 */
 	function get_custom_status_friendly_name( $status ) {
 		
@@ -367,16 +417,29 @@ class EF_Custom_Status {
 		}
 		
 		return $status_friendly_name;
-	}
+		
+	} // END: get_custom_status_friendly_name()
 
 	/**
-	 * Returns the term object from the database for the default custom status. Commonly used fields are name and slug.
+	 * ef_get_default_custom_status()
+	 * Get the term object for the default custom post status
+	 *
+	 * @return object $default_status Default post status object
 	 */
 	function ef_get_default_custom_status() {
 		global $edit_flow;
-		return get_term_by('slug', $edit_flow->get_plugin_option( 'custom_status_default_status' ), $this->status_taxonomy );
-	}
+		$default_status = get_term_by('slug', $edit_flow->get_plugin_option( 'custom_status_default_status' ), $this->status_taxonomy );
+		return $default_status;
+		
+	} // END: ef_get_default_custom_status()
 	
+	/**
+	 * reassign_post_status()
+	 * Assign new statuses to posts using value provided or the default
+	 *
+	 * @param string $old_status Slug for the old status
+	 * @param string $new_status Slug for the new status
+	 */
 	function reassign_post_status( $old_status, $new_status = '' ) {
 		global $wpdb;
 		
@@ -385,45 +448,53 @@ class EF_Custom_Status {
 		
 		// Make the database call
 		$result = $wpdb->update( $wpdb->posts, array( 'post_status' => $new_status ), array( 'post_status' => $old_status ), array( '%s' ));
-	}
+	} // END: reassign_post_status()
 	
 	/**
+	 * _filter_manage_posts_columns()
 	 * Insert new column header for post status
-	 * 
+	 *
 	 * @param array $post_columns
 	 **/
-	function _filter_manage_posts_columns($posts_columns) {
+	function _filter_manage_posts_columns( $posts_columns ) {
+		
 		$result = array();
-		foreach ($posts_columns as $key => $value) {
+		foreach ( $posts_columns as $key => $value ) {
 			if ($key == 'title') {
 				$result[$key] = $value;
 				$result['status'] = __('Status', 'edit-flow');
 			} else $result[$key] = $value;
 		}
 		return $result;
-	} // END: _filter_manage_posts_columns
+		
+	} // END: _filter_manage_posts_columns()
 	
 	/**
+	 * _filter_manage_posts_custom_column()
 	 * Adds a Post's status to its row on the Edit page
 	 * 
 	 * @param string $column_name
 	 **/
-	function _filter_manage_posts_custom_column($column_name) {
-		if ($column_name == 'status') {
+	function _filter_manage_posts_custom_column( $column_name ) {
+		
+		if ( $column_name == 'status' ) {
 			global $post, $custom_status;
 			echo $this->get_custom_status_friendly_name( $post->post_status );
 		}
-	}
+		
+	} // END: _filter_manage_posts_custom_column()
 	
 	
 	/**
+	 * is_restricted_status()
 	 * Determines whether the slug indicated belongs to a restricted status or not
-	 * @param string Slug of the status 
-	 * @return bool True if restricted, false if not
+	 *
+	 * @param string $slug Slug of the status 
+	 * @return bool $restricted True if restricted, false if not
 	 */
-	function is_restricted_status ( $slug ) {
+	function is_restricted_status( $slug ) {
 
-		switch($slug) {
+		switch( $slug ) {
 			case 'publish':
 			case 'draft':
 			case 'private':
@@ -433,23 +504,24 @@ class EF_Custom_Status {
 			case 'inherit':
 			case 'auto-draft':
 			case 'trash':
-				$return = true;
+				$restricted = true;
 				break;
 			
 			default:
-				$return = false;
+				$restricted = false;
 				break;
 		}
-		return $return;	
-	}
-
+		return $restricted;
+		
+	} // END: is_restricted_status()
 	
 	/**
+	 * admin_controller()
 	 * Main controller for Usergroups
 	 * Determines what actions to take, takes those actions, and sets up necessary data for views (handled by admin_page())
 	 * Sets up a var called $ef_page_data that the admin_page() function can use to pull data from
 	 */
-	function admin_controller ( ) {
+	function admin_controller() {
 		global $ef_page_data;
 		
 		// Only allow users with the proper caps
@@ -459,7 +531,7 @@ class EF_Custom_Status {
 		// Global var that holds all the data needed on edit flow pages
 		$ef_page_data = array();
 		
-		$nonce_fail_msg = __( 'There\'s something fishy going on! We don\'t like this type of nonce-sense. Hmph.', 'edit-flow' );
+		$nonce_fail_msg = __( 'Nonce check failed. Please make sure you have proper permissions to edit custom statuses.', 'edit-flow' );
 		$msg_class = 'updated';
 		
 		$action = $error_details = $msg = $edit_status = $update = null;
@@ -498,19 +570,19 @@ class EF_Custom_Status {
 					
 					// Check that the status name doesn't exceed 20 chars
 					if( count( $status_name ) > 20 ) {
-						$ef_page_data['errors'] = __( 'The status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' );
+						$ef_page_data['errors'] = __( 'Status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' );
 						break;
 					}
 					
 					// Check to make sure the name is not restricted
 					if($this->is_restricted_status( strtolower( $status_slug ) ) ) {
-						$ef_page_data['errors'] = __( 'That status name is restricted. Please use another name.', 'edit-flow' );
+						$ef_page_data['errors'] = __( 'Status name is restricted. Please use another name.', 'edit-flow' );
 						break;
 					}
 					
 					// Check to make sure the status doesn't already exist
 					if( ef_term_exists( $status_slug ) ) {
-						$ef_page_data['errors'] = __( 'That status already exists. Please use another name.', 'edit-flow' );
+						$ef_page_data['errors'] = __( 'Status already exists. Please use another name.', 'edit-flow' );
 						break;
 					}
 					
@@ -542,7 +614,7 @@ class EF_Custom_Status {
 					
 					// Stop users from editing restricted statuses
 					if($this->is_restricted_status($the_status->slug)) {
-						$message = __( 'The specified status is restricted and cannot be edited.', 'edit-flow' );
+						$message = __( 'Specified status is restricted and cannot be edited.', 'edit-flow' );
 						$redirect = EDIT_FLOW_CUSTOM_STATUS_PAGE .'&errors='. urlencode( $message );
 						wp_redirect( $redirect );
 					} else {
@@ -556,7 +628,6 @@ class EF_Custom_Status {
 			
 			case 'update':
 				
-				
 				// Verfiy nonce
 				if(wp_verify_nonce($_POST['custom-status-add-nonce'], 'custom-status-add-nonce')) {
 					$term_id = (int) $_POST['term_id'];
@@ -566,7 +637,7 @@ class EF_Custom_Status {
 					$status_description = esc_html($_POST['status_description']);
 					
 					// Check if name field was filled in
-					if(!$status_name || empty($status_name)) {
+					if (!$status_name || empty($status_name)) {
 						$ef_page_data['errors'] = __('Please enter a name for the status', 'edit-flow');
 						break;
 					}
@@ -578,19 +649,19 @@ class EF_Custom_Status {
 
 					// Check that the status name doesn't exceed 20 chars
 					if( count($status_name) > 20 ) {
-						$ef_page_data['errors'] = __('The status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow');
+						$ef_page_data['errors'] = __('Status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow');
 						break;
 					}
 					
 					// Check to make sure the name is not restricted
 					if($this->is_restricted_status(strtolower($status_slug))) {
-						$ef_page_data['errors'] = __('That status name is restricted. Please use another name.', 'edit-flow');
+						$ef_page_data['errors'] = __('Status name is restricted. Please use another name.', 'edit-flow');
 						break;
 					}
 					
 					// Check to make sure the status doesn't already exist
 					if( ef_term_exists( $status_slug ) && (get_term($term_id, $this->status_taxonomy)->slug != $status_slug)) {
-						$ef_page_data['errors'] = __('That status already exists. Please use another name.', 'edit-flow');
+						$ef_page_data['errors'] = __('Status already exists. Please use another name.', 'edit-flow');
 						break;
 					}
 					
@@ -616,12 +687,12 @@ class EF_Custom_Status {
 			case 'delete':
 				
 				// Verfiy nonce
-				if(wp_verify_nonce($_GET['_wpnonce'], 'custom-status-delete-nonce')) {
+				if (wp_verify_nonce($_GET['_wpnonce'], 'custom-status-delete-nonce')) {
 					$term_id = (int) $_GET['term_id'];
 
 					// Check to make sure the status isn't already deleted
 					if( !ef_term_exists( $term_id, $this->status_taxonomy ) ) {
-						$error_details = __('That status does not exist. Try again?', 'edit-flow');
+						$error_details = __('Status does not exist. Try again?', 'edit-flow');
 						break;
 					}
 					
@@ -647,18 +718,19 @@ class EF_Custom_Status {
 
 		$ef_page_data['custom_statuses'] = $this->get_custom_statuses();
 		
-	}
+	} // END: admin_controller()
 
 	/**
+	 * admin_page()
 	 * Handles the main admin page for Custom Statuses.
 	 */
-	function admin_page( ) {
+	function admin_page() {
 		global $ef_page_data;
 		
 		// Set up defaults
 		$page_defaults = array(
-			'title' => __( 'Custom Statuses', 'edit-flow' )
-			, 'view' => 'templates/custom_status_main.php',
+			'title' => __( 'Custom Statuses', 'edit-flow' ),
+			'view' => 'templates/custom_status_main.php',
 		);
 		
 		// extract all the args
@@ -667,28 +739,47 @@ class EF_Custom_Status {
 		
 		include_once( $ef_page_data['view'] );
 		
-	}	
+	} // END: admin_page()
 		
 } // END: class custom_status
 
 } // END: !class_exists('EF_Custom_Status')
 
-function ef_get_custom_status_filter_link ( $slug ) {
+/**
+ * ef_get_custom_status_filter_link()
+ */
+function ef_get_custom_status_filter_link( $slug ) {
+	
 	return 'edit.php?post_status='.$slug;
-}
+	
+} // END: ef_get_custom_status_filter_link()
 
+/**
+ * ef_get_custom_status_edit_link()
+ */
 function ef_get_custom_status_edit_link( $id ) {
+	
 	return EDIT_FLOW_CUSTOM_STATUS_PAGE.'&amp;action=edit&amp;term_id='.$id;
-}
+	
+} // END: ef_get_custom_status_edit_link()
 
-function ef_get_custom_status_post_count ( $status ) {
+/**
+ * ef_get_custom_status_post_count()
+ * Get the total number of posts for any given status
+ *
+ * @param string|int $status Slug or ID of the status to look up
+ * @return int $count
+ */
+function ef_get_custom_status_post_count( $status ) {
 	global $wpdb;
 	
-	if(is_int($status)) {
-		$status = get_term_by('term_id', $status, 'post_status')->slug;
+	// Look up the status object if passed an int ID
+	if ( is_int( $status ) ) {
+		$status = get_term_by( 'term_id', $status, 'post_status' )->slug;
 	}
 	
 	$query = $wpdb->prepare("SELECT count(ID) FROM $wpdb->posts WHERE post_status = %s", $status);
+	$count = $wpdb->get_var($query);
 	
-	return $wpdb->get_var($query);
-}
+	return $count;
+} // END: ef_get_custom_status_post_count()
