@@ -47,17 +47,21 @@ class EF_Notifications {
 		
 	} // END: __construct()
 	
+	/**
+	 * init()
+	 */
 	function init() {
 		global $edit_flow;
 		foreach( array( 'post', 'page' ) as $post_type ) {
 			$edit_flow->add_post_type_support( $post_type, 'ef_notifications' );
 		}
-	}
+	} // END: init()
 	
 	/**
+	 * notification_status_change()
 	 * Set up and send post status change notification email
 	 */
-	function notification_status_change ($new_status, $old_status, $post) {
+	function notification_status_change( $new_status, $old_status, $post ) {
 		global $edit_flow;
 		
 		if( ! $edit_flow->post_type_supports( $post->post_type, 'ef_notifications' ) )
@@ -165,12 +169,14 @@ class EF_Notifications {
 			
 			$this->send_email( 'status-change', $post, $subject, $body );
 		}
-	}
+		
+	} // END: notification_status_change()
 	
 	/**
+	 * notification_comment()
 	 * Set up and set editorial comment notification email
 	 */
-	function notification_comment ( $comment ) {
+	function notification_comment( $comment ) {
 
 		$post    = get_post($comment->comment_post_ID);
 		$user    = get_userdata( $post->post_author );
@@ -237,7 +243,7 @@ class EF_Notifications {
 	} 
 	
 	/**
-	 *
+	 * send_email()
 	 */
 	function send_email( $action, $post, $subject, $message, $message_headers = '' ) {
 	
@@ -248,9 +254,10 @@ class EF_Notifications {
 			$recipients = explode( ',', $recipients );
 		
 		$this->schedule_emails( $recipients, $subject, $message, $message_headers );
-	}
+	} // END: send_email()
 	
 	/**
+	 * schedule_emails()
 	 * Schedules emails to be sent in succession
 	 * 
 	 * @param mixed $recipients Individual email or array of emails
@@ -268,9 +275,11 @@ class EF_Notifications {
 			$send_time += $time_offset;
 			wp_schedule_single_event( $send_time, 'ef_send_scheduled_email', array( $recipient, $subject, $message, $message_headers ) );
 		}
-	}
+		
+	} // END: schedule_emails()
 	
 	/**
+	 * send_scheduled_email()
 	 * Callback for scheduled_email cron that does the actual sending
 	 * 
 	 * @param mixed $to Email to send to
@@ -280,9 +289,12 @@ class EF_Notifications {
 	 */
 	function send_scheduled_email( $to, $subject, $message, $message_headers = '' ) {
 		@wp_mail( $to, $subject, $message, $message_headers );
-	}
+	} // END: send_scheduled_email()
 	
-	/* Returns a list of recipients for a given post
+	/**
+	 * _get_notification_recipients()
+	 * Returns a list of recipients for a given post
+	 *
 	 * @param $post object
 	 * @param $string bool Whether to return recipients as comma-delimited string or array 
 	 * @return string or array of recipients to receive notification 
@@ -333,7 +345,7 @@ class EF_Notifications {
 		} else {
 			return $recipients;
 		}
-	}
+	} // END: _get_notification_recipients()
 	
 	/**
 	 * Personalized notification RSS feeds
@@ -349,10 +361,12 @@ class EF_Notifications {
 	*/
 		
 	/**
-	 * Function called when post is saved. Handles saving of user/usergroup followers
+	 * save_post()
+	 * Called when post is saved. Handles saving of user/usergroup followers
+	 *
 	 * @param int $post ID of the post
 	 */
-	function save_post ( $post ) {
+	function save_post( $post ) {
 				
 		// only if has edit_post_subscriptions cap
 		if( ( !wp_is_post_revision($post) && !wp_is_post_autosave($post) ) && isset($_POST['ef-save_followers']) && current_user_can('edit_post_subscriptions') ) {
@@ -362,13 +376,15 @@ class EF_Notifications {
 			$this->save_post_following_usergroups($post, $usergroups);
 		}
 		
-	}
+	} // END: save_post()
 	
 	/**
+	 * save_post_following_users()
 	 * Sets users to follow specified post
+	 *
 	 * @param int $post ID of the post
 	 */
-	function save_post_following_users ( $post, $users = null ) {
+	function save_post_following_users( $post, $users = null ) {
 		if( !is_array($users) ) $users = array();
 		
 		// Add current user to following users
@@ -379,22 +395,27 @@ class EF_Notifications {
 
 		$follow = $this->follow_post_user($post, $users, false);
 		
-	}
+	} // END: save_post_following_users()
 	
 	/**
+	 * save_post_following_usergroups()
 	 * Sets usergroups to follow specified post
+	 *
 	 * @param int $post ID of the post
+	 * @param array $usergroups Usergroups to follow posts
 	 */
-	function save_post_following_usergroups ( $post, $usergroups = null ) {
+	function save_post_following_usergroups( $post, $usergroups = null ) {
 		
 		if( !is_array($usergroups) ) $usergroups = array();
 		$usergroups = array_map( 'sanitize_title', $usergroups );
 
 		$follow = $this->follow_post_usergroups($post, $usergroups, false);
-	}
+	} // END: save_post_following_usergroups()
 	
 	/**
+	 * follow_post_user()
 	 * Set set user to follow posts
+	 *
 	 * @param $post Post object
 	 * @param $users array (optional) List of users to be added. If not included, the current user is added.
 	 * @param $append bool Whether users should be added to following_users list or replace existing list
@@ -433,11 +454,13 @@ class EF_Notifications {
 		$set = wp_set_object_terms( $post_id, $user_terms, $this->following_users_taxonomy, $append );
 		
 		return;
-	}
+	} // END: follow_post_user()
 
 	/**
+	 * unfollow_post_user()
 	 * Removes user from following_users taxonomy for the given Post, so they no longer receive future notifications
 	 * Called when delete_user action is fired
+	 *
 	 * @param $post Post object
 	 */
 	 function unfollow_post_user( $post, $user = 0 ) {
@@ -479,12 +502,13 @@ class EF_Notifications {
 		}
 		
 		return;
-	}
+	} // END: unfollow_post_user()
 
 	/** 
+	 * follow_post_usergroups()
 	 *
 	 */
-	function follow_post_usergroups ( $post, $usergroups = 0, $append = true ) {
+	function follow_post_usergroups( $post, $usergroups = 0, $append = true ) {
 		
 		$post_id = ( is_int($post) ) ? $post : $post->ID;
 		if( !is_array($usergroups) ) $usergroups = array($usergroups);
@@ -508,12 +532,12 @@ class EF_Notifications {
 		}
 		$set = wp_set_object_terms( $post_id, $usergroup_terms, $this->following_usergroups_taxonomy, $append );
 		return;
-	}
+	} // END: follow_post_usergroups()
 	
 	/** 
-	 *
+	 * unfollow_post_usergroups()
 	 */
-	function unfollow_post_usergroups ( $post_id, $users = 0 ) {
+	function unfollow_post_usergroups( $post_id, $users = 0 ) {
 		
 		// TODO: Allow opt-out of email
 		
@@ -522,6 +546,7 @@ class EF_Notifications {
 	
 	/**
 	 * Removes users that are deleted from receiving future notifications (i.e. makes them unfollow posts FOREVER!)
+	 *
 	 * @param $id int ID of the user
 	 */
 	function delete_user_action( $id ) {
@@ -560,10 +585,12 @@ class EF_Notifications {
 } // END: !class_exists('EF_Notifications')
 
 /**
+ * ef_get_following_users()
  * Gets a list of the users following the specified post
+ *
  * @param int $post_id The ID of the post 
  * @param string $return The field to return
- * @return array of users
+ * @return array $users Users following the specified posts
  */
 function ef_get_following_users ( $post_id, $return = 'user_login' ) {
 	global $edit_flow;
@@ -581,24 +608,30 @@ function ef_get_following_users ( $post_id, $return = 'user_login' ) {
 	if( !$users || is_wp_error($users) )
 		$users = array();
 	return $users;
-}
+	
+} // END: ef_get_following_users()
 
 /**
+ * ef_get_users_in_usergroup()
  * Returns an array of all users in the specified usergroup(s)
+ *
  * @param string|array $slug Slug of the usergroup(s)
+ * @return array $users Users in the specified usergroup
  */
-function ef_get_users_in_usergroup ( $slug, $return = 'ID' ) {
+function ef_get_users_in_usergroup( $slug, $return = 'ID' ) {
 	$users = ef_get_users_by_usermeta( EDIT_FLOW_USERGROUPS_USERMETA, $slug, $return );
 	if( !$users || is_wp_error( $users ) ) $users = array();
 	return $users;
-}
+} // END: ef_get_users_in_usergroup()
 
 /**
+ * ef_get_following_usergroups()
  * Gets a list of the usergroups that are following specified post
+ *
  * @param int $post_id 
- * @return array of usergroup slugs
+ * @return array $usergroups All of the usergroup slugs
  */
-function ef_get_following_usergroups ( $post_id, $return = 'all' ) {
+function ef_get_following_usergroups( $post_id, $return = 'all' ) {
 	global $edit_flow;
 	
 	// Workaround for the fact that get_object_terms doesn't return just slugs
@@ -617,13 +650,15 @@ function ef_get_following_usergroups ( $post_id, $return = 'all' ) {
 		$usergroups = $slugs;
 	}
 	return $usergroups;
-}
+} // END: ef_get_following_usergroups()
 
 /**
+ * ef_get_user_following_posts()
  * Gets a list of posts that a user is following
- * @param $user string|int user_login or id of user
- * @param $args  
- * @return array of posts
+ *
+ * @param string|int $user user_login or id of user
+ * @param array $args  
+ * @return array $posts Posts a user is following
  */
 function ef_get_user_following_posts ( $user = 0, $args = null ) {
 	global $edit_flow;
@@ -639,7 +674,7 @@ function ef_get_user_following_posts ( $user = 0, $args = null ) {
 	);
 	$posts = get_posts($post_args);
 	return $posts;
-}
+} // END: ef_get_user_following_posts()
 
 function ef_is_user_following_post( $post, $user ) {
 	/*
