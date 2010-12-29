@@ -147,7 +147,7 @@ class EF_Post_Metadata
 			<?php
 			else :
 			?>
-				<p><?php _e( 'You can\'t add comments yet because this is a new post. Come back once you\'ve saved it. Cool?', 'edit-flow' ); ?></p>
+				<p><?php _e( 'You can add editorial comments to a post once you\'ve saved it for the first time.', 'edit-flow' ); ?></p>
 			<?php
 			endif;
 			?>
@@ -254,7 +254,7 @@ class EF_Post_Metadata
 		
 		// Verify nonce
 		if ( !wp_verify_nonce( $_POST['_nonce'], 'comment')) {
-			die( __( "We detected some fishy nonce-sence. Knock it off.", 'edit-flow' ) );
+			die( __( "Nonce check failed. Please ensure you're supposed to be adding editorial comments.", 'edit-flow' ) );
 			return;
 		}
 		
@@ -330,7 +330,7 @@ class EF_Post_Metadata
 			$response->send();
 						
 		} else {
-			die( __('Uh oh, we ran into bit of a problem! Try again?', 'edit-flow') );
+			die( __('There was a problem of some sort. Try again or contact your administrator.', 'edit-flow') );
 		}
 	}
 
@@ -347,7 +347,7 @@ class EF_Post_Metadata
 		// TODO: Remove this check when adding activity stream
 		if( !$edit_flow->get_plugin_option('notifications_enabled') ) {
 			?>
-			<p><?php _e( 'Aww, notifications aren\'t set up, so you can\'t add any subscriptions to this post.', 'edit-flow' ); ?></p>
+			<p><?php _e( 'Notifications are disabled. You won\'t be able to add new subscriptions to this post.', 'edit-flow' ); ?></p>
 			<?php
 			return;
 		}
@@ -355,7 +355,7 @@ class EF_Post_Metadata
 		// Only show on posts that have been saved
 		if( in_array( $post->post_status, array( 'new', 'auto-draft' ) ) ) {
 			?>
-			<p><?php _e( 'You can\'t add subscribers yet since this is a new post. Come back once you\'ve saved it. Deal?', 'edit-flow' ); ?></p>
+			<p><?php _e( 'Subscribers can be added to a post after the post has been saved for the first time.', 'edit-flow' ); ?></p>
 			<?php
 			return;
 		}
