@@ -1,5 +1,5 @@
 === Edit Flow ===
-Contributors: batmoo, danielbachhuber, sbressler, andrewspittle, jboydston
+Contributors: batmoo, danielbachhuber, sbressler, andrewspittle
 Donate link: http://www.editflow.org/donate/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 2.9
@@ -90,13 +90,13 @@ register_post_type( 'event', array(
 ) );
 `
 
-* Option 2: add_post_type_support **
+* Option 2: add_post_type_support
 
 `
-remove_post_type_support( 'event', 'ef_notifications' ); 
+add_post_type_support( 'event', 'ef_notifications' ); 
 `
 
-You can remove support for features using the `remove_post_type_support` function.
+You can also remove support for features using the `remove_post_type_support` function.
 
 ** Note for 2.9.x users **
 
@@ -110,13 +110,12 @@ $edit_flow->remove_post_type_support( 'post', 'ef_notifications' );
 
 = List of Features =
 
-You can add / remove the following feautures:
+You can add / remove the following features to post types:
 
 * ef_custom_statuses
 * ef_notifications
 * ef_editorial_comments
 * ef_calendar
-* ef_story_budget
 * ef_editorial_metadata
 
 = Editorial Comments =
@@ -132,15 +131,7 @@ For replies to work properly, you need to enable threaded commenting in your blo
 == Upgrade Notice ==
 
 = 0.6.1 =
-@todo Upgrade notice
-* We have removed the option to enable/disable Custom Statuses for Pages from the Settings page. Custom Statuses are enabled by default for Pages. To remove support for statuses, please add the following to your functions.php:
-
-`
-function my_ef_remove_page_custom_statuses() {
-	remove_post_type_support( 'page', 'ef_custom_statuses' ); 
-}
-add_action( 'init', 'my_ef_remove_page_custom_statuses', 11 );
-`
+* Proper support for custom post types. We have removed the option to enable/disable Custom Statuses for Pages from the Settings page. Custom Statuses are enabled by default for Pages. To remove support for statuses, please see readme.
 
 = 0.6 =
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
@@ -148,17 +139,18 @@ New features, including story budget and editorial metadata, a completely rewrit
 == Changelog ==
 
 = 0.6.1 =
-* Custom Post Type support (Thanks to all who requested this!)
+* Custom Post Type support for custom post statuses, editorial metadata, editorial comments, notifications, (Thanks to all who requested this!)
 * Added search and filtering tools for user and usergroup lists
-* Users without JavaScript no longer see the status dropdown
-* Users with JavaScript no longer see the respond button for editorial comments
 * Email notifications are now queued to improve performance and avoid issues with spam
-* Posts in calendar now have a unique classname based on the status (Thanks [erikajurney](http://wordpress.org/support/profile/erikajurney)!)
-* The "Posts I'm Following" widget now has a cleaner and far superior look!
+* Posts in calendar now have a unique classname based on the status (Thanks [erikajurney](http://wordpress.org/support/profile/erikajurney))
+* The "Posts I'm Following" widget has a cleaner look
+* Bug fix: Users without JavaScript no longer see the status dropdown
+* Bug fix: Users with JavaScript no longer see the respond button for editorial comments
+* Bug fix: Contributors should not have the ability to publish through Quick Edit
 * Bug fix: Proper i18n support (Thanks Beto Frega and others)
-* Bug fix: Editorial Comments issue in IE (Thanks [asecondwill](http://wordpress.org/support/profile/asecondwill) and James Skaggs!)
-* Bug fix: Always email admin feature was not working (Thanks [nicomollet](http://wordpress.org/support/profile/nicomollet)!)
-* Bug fix: Notifications for scheduled posts did not include links (Thanks [erikajurney](http://wordpress.org/support/profile/erikajurney)!)
+* Bug fix: Editorial Comments issue in IE (Thanks [asecondwill](http://wordpress.org/support/profile/asecondwill) and James Skaggs)
+* Bug fix: Always email admin feature was not working (Thanks [nicomollet](http://wordpress.org/support/profile/nicomollet))
+* Bug fix: Notifications for scheduled posts did not include links (Thanks [erikajurney](http://wordpress.org/support/profile/erikajurney))
 
 = 0.6 (Nov. 9, 2010) =
 * New feature: Editorial Metadata. Previously, Edit Flow had 'due date', 'location' and 'description', as available editorial metadata. We've expanded this functionality to be completely customizable; admins can add any number of editorial metadata with the following types: checkbox, date, location, paragraph, text, or user dropdown.
