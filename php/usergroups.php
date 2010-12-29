@@ -106,7 +106,7 @@ class EF_Usergroups_Admin {
 			$user_id = $user->ID;
 			
 			if ( !current_user_can('edit_user', $user_id) )
-				wp_die( __( 'Hey now, you don\'t have permission to edit this user.', 'edit-flow' ) );
+				wp_die( __( 'Sorry, you don\'t have permission to edit this user.', 'edit-flow' ) );
 				
 			if ( current_user_can( 'edit_usergroups' ) ) {
 				
@@ -167,7 +167,7 @@ class EF_Usergroups_Admin {
 					
 					// If everything is hunky dory, then rock on.
 					if( !is_wp_error($result) ) {
-						$message = __('New usergroup succesfully created!', 'edit-flow');
+						$message = __('New usergroup created.', 'edit-flow');
 						$redirect = EDIT_FLOW_USERGROUPS_PAGE .'&message='. urlencode($message);
 						wp_redirect( $redirect );
 					} else {
@@ -200,7 +200,7 @@ class EF_Usergroups_Admin {
 					$result = ef_update_usergroup( $slug, $data );
 					
 					if( !is_wp_error($result) ) {
-						$message = __('Usergroup succesfully updated!', 'edit-flow');
+						$message = __('Usergroup updated.', 'edit-flow');
 						$redirect = EDIT_FLOW_USERGROUPS_EDIT_LINK .'&usergroup='. urlencode($result->slug) .'&message='. urlencode($message);
 						wp_redirect( $redirect );
 					} else {
@@ -222,7 +222,7 @@ class EF_Usergroups_Admin {
 					$ef_page_data['view'] = 'templates/usergroups_edit.php';
 				} else {
 					// Oh, well, we didn't find the usergroup!
-					$message = __('Hm, looks like that usergroup does not exist! How about you try again?', 'edit-flow');
+					$message = __('Usergroup doesn\'t exist.', 'edit-flow');
 					$redirect = EDIT_FLOW_USERGROUPS_PAGE .'&message='. urlencode($message);
 					wp_redirect( $redirect );
 				}
@@ -240,13 +240,13 @@ class EF_Usergroups_Admin {
 				$remove = ef_remove_usergroup($slug);
 				
 				if( !is_wp_error($remove) ) {
-					$message = __('Usergroup was successfully deleted.', 'edit-flow');
+					$message = __('Usergroup deleted.', 'edit-flow');
 					$redirect = EDIT_FLOW_USERGROUPS_PAGE .'&message='. urlencode($message);
 					wp_redirect( $redirect );
 				} else {
 					// @TODO: more decsriptive error message
 					$ef_page_data['usergroups'] = ef_get_usergroups();
-					$ef_page_data['errors'] = __('Looks like something went wrong with the delete.', 'edit-flow');
+					$ef_page_data['errors'] = __('An error occurred while trying to delete the usergroup.', 'edit-flow');
 				}
 				break;
 				
@@ -366,7 +366,7 @@ class EF_UserGroups {
 		
 		// name is empty 
 		if(!$data['name']) {
-			$errors->add('usergroup-empty-name', __('Sorry, the name of the usergroup cannot be empty!', 'edit-flow'));
+			$errors->add('usergroup-empty-name', __('Please enter a value for the usergroup name.', 'edit-flow'));
 		}
 		
 		// If unique_slug flag set and usergroup with slug already exists, append number to the end to make it unique
@@ -411,7 +411,7 @@ class EF_UserGroups {
 		
 		// name is empty 
 		if(!$data['name']) {
-			$errors->add('usergroup-empty-name', __('Sorry, the name of the usergroup cannot be empty!', 'edit-flow'));
+			$errors->add('usergroup-empty-name', __('Please enter a value for the usergroup name.', 'edit-flow'));
 		}
 		
 		if( $errors->get_error_codes() ) return $errors;
@@ -809,9 +809,9 @@ function ef_usergroups_select_form( $selected = array(), $args = null ) {
 		?>
 		
 		<p>
-			<?php __('Whoops! We didn\'t find any user groups.', 'edit-flow') ?> 
+			<?php __('No usergroups were found.', 'edit-flow') ?> 
 			<a href="<?php echo EF_USERGROUPS_ADD_LINK ?>" title="<?php _e('Add a new user group. Opens new window.', 'edit-flow') ?>" target="_blank">
-				<?php _e('How about adding one?', 'edit-flow') ?>
+				<?php _e('Add a usergroup', 'edit-flow') ?>
 			</a>
 		</p>
 		<?php
@@ -890,7 +890,7 @@ function ef_users_select_form ( $selected = null, $args = null ) {
 			<?php endforeach; ?>
 		</ul>
 	<?php else : ?>
-		<p><?php _e('No users are subscribed to this this post :(', 'edit-flow'); ?></p>
+		<p><?php _e('No users are subscribed to this post.', 'edit-flow'); ?></p>
 	<?php endif; ?>
 	-->
 	<?php
