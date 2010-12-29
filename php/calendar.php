@@ -13,44 +13,60 @@ class EF_Calendar {
 	
 	const usermeta_key_prefix = 'ef_calendar_';
 	
+	/**
+	 * __construct()
+	 * Construct the EF_Calendar class
+	 */
 	function __construct() {
 		
 		add_action( 'init', array( &$this, 'init' ) );
 		add_action( 'admin_enqueue_scripts', array(&$this, 'add_admin_scripts' ));
 		add_action( 'admin_print_styles', array(&$this, 'add_admin_styles' ));
 		
-	}
-	
-	function init() {
-		global $edit_flow;
-		// Calendar supports the 'post' post type by default
-		$edit_flow->add_post_type_support( 'post', 'ef_calendar' );
-	}
+	} // END: __construct()
 	
 	/**
+	 * init()
+	 */
+	function init() {
+		
+		global $edit_flow;
+		// Calendar supports the 'post' post type by default
+		// Other support can be added with the add_post_type_support method
+		$edit_flow->add_post_type_support( 'post', 'ef_calendar' );
+		
+	} // END: init()
+	
+	/**
+	 * add_admin_scripts()
 	 * Add any necessary Javascript to the WordPress admin
 	 */
 	function add_admin_scripts() {
 		
 		//wp_enqueue_script('edit_flow-calendar-js', EDIT_FLOW_URL.'js/calendar.js', array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'), EDIT_FLOW_VERSION, true);
 		
-	}
+	} // END: add_admin_scripts()
 	
 	/**
+	 * add_admin_styles()
 	 * Add any necessary CSS to the WordPress admin
 	 */
 	function add_admin_styles() {
+		
 		global $pagenow;
 		// Only load calendar styles on the calendar page
 		if ( $pagenow == 'index.php' && isset( $_GET['page'] ) && $_GET['page'] == 'edit-flow/calendar' ) {
 			wp_enqueue_style( 'edit_flow-calendar-css', EDIT_FLOW_URL.'css/calendar.css', false, EDIT_FLOW_VERSION );
 		}
-	}
+		
+	} // END: add_admin_styles()
 	
 	/**
+	 * get_filters()
 	 * Get the user's filters for calendar, either with $_GET or from saved
+	 *
 	 * @uses get_user_meta()
-	 * @return array $filters All of the set filters
+	 * @return array $filters All of the set or saved calendar filters
 	 */
 	function get_filters() {
 		global $edit_flow;
@@ -127,9 +143,10 @@ class EF_Calendar {
 		}
 		
 		return $filters;
-	}
+	} // END: get_filters()
 	
 	/**
+	 * view_calendar()
 	 * Build the calendar view
 	 */
 	function view_calendar() {
@@ -268,10 +285,12 @@ class EF_Calendar {
 
 		<?php 
 		
-	}
+	} // END: view_calendar()
 	
 	/**
+	 * print_top_navigation()
 	 * Generates the filtering and navigation options for the top of the calendar
+	 *
 	 * @param array $filters Any set filters
 	 * @param array $dates All of the days of the week. Used for generating navigation links
 	 */
@@ -359,8 +378,15 @@ class EF_Calendar {
 			</li>
 		</ul>
 	<?php
-	}
+	} // END: print_top_navigation()
 	
+	/**
+	 * get_time_period_header()
+	 * Generate the calendar header for a given range of dates
+	 *
+	 * @param array $dates Date range for the header
+	 * @return string $html Generated HTML for the header
+	 */
 	function get_time_period_header( $dates ) {
 		
 		$html = '';
@@ -394,10 +420,13 @@ class EF_Calendar {
 		$html .= '</div>';
 		
 		return $html;
-	}
+		
+	} // END: get_time_period_header()
 	
 	/**
+	 * viewable()
 	 * Helper method to determine whether the calendar is viewable or not
+	 *
 	 * @return bool $viewable Whether the calendar is viewable or not
 	 */
 	function viewable() {
@@ -411,10 +440,12 @@ class EF_Calendar {
 		}
 		return false;
 		
-	}
+	} // END: viewable()
 	
 	/**
-	 * Get all of the posts for a given day
+	 * get_calendar_posts()
+	 * Query to get all of the calendar posts for a given day
+	 *
 	 * @param string $date The date for which we want posts
 	 * @param array $args Any filter arguments we want to pass
 	 * @return object $posts All of the posts as an object
@@ -450,10 +481,13 @@ class EF_Calendar {
 		$posts = new WP_Query( $args );
 		
 		return $posts;
-	}
+		
+	} // END: get_calendar_posts()
 	
 	/**
+	 * get_previous_link()
 	 * Gets the link for the previous time period
+	 *
 	 * @param string $start_date The start date for the previous period
 	 * @param array $filters Any filters that need to be applied
 	 * @return string $url The URL for the next page
@@ -470,15 +504,19 @@ class EF_Calendar {
 			$url .= '&amp;type=' . $filters['post_type'];
 		}
 		return $url;
-	}
+		
+	} // END: get_previous_link()
 
 	/**
+	 * get_next_link()
 	 * Gets the link for the next time period
+	 *
 	 * @param string $start_date The start date for the next period
 	 * @param array $filters Any filters that need to be applied
 	 * @return string $url The URL for the next page
 	 */
 	function get_next_link( $start_date, $filters ) {
+		
 		global $edit_flow;
 		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
 		
@@ -490,25 +528,31 @@ class EF_Calendar {
 			$url .= '&amp;type=' . $filters['post_type'];
 		}
 		return $url;
-	}
+		
+	} // END: get_next_link()
 	
 	/**
+	 * get_end_of_week()
 	 * Given a day in string format, returns the day at the end of that week, which can be the given date.
 	 * The end of the week is determined by the blog option, 'start_of_week'.
 	 *
 	 * @param string $date String representing a date
 	 * @param string $format Date format in which the end of the week should be returned
+	 * @return string $formatted_end_of_week End of the week
 	 *
 	 * @see http://www.php.net/manual/en/datetime.formats.date.php for valid date formats
 	 */
-	function get_end_of_week($date, $format = 'Y-m-d') {
+	function get_end_of_week( $date, $format = 'Y-m-d' ) {
+		
 		$date = strtotime( $date );
 		$end_of_week = get_option('start_of_week') - 1;
 		$day_of_week = date('w', $date);
 		$date += ((7 + $end_of_week - $day_of_week) % 7) * 60 * 60 * 24;
-		return date($format, $date);
-	}
+		$formatted_end_of_week = date($format, $date);
+		return $formatted_end_of_week;
+		
+	} // END: get_end_of_week()
 	
-}
+} // END: class EF_Calendar
 	
-}
+} // END: if ( !class_exists('EF_Calendar') )
