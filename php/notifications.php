@@ -133,7 +133,7 @@ class EF_Notifications {
 				$body .= sprintf( __( 'Status was changed for %1$s #%2$s "%3$s" by %4$s %5$s', 'edit-flow'), $post_type, $post_id, $post_title, $current_user_display_name, $current_user_email ) . "\r\n";
 			}
 			
-			/* translators: 1: date, 2: time */
+			/* translators: 1: date, 2: time, 3: timezone */
 			$body .= sprintf( __( 'This action was taken on %1$s at %2$s %3$s', 'edit-flow' ), date_i18n( get_option( 'date_format' ) ), date_i18n( get_option( 'time_format' ) ), get_option( 'timezone_string' ) ) . "\r\n";
 			
 			$old_status_friendly_name = $edit_flow->custom_status->get_custom_status_friendly_name( $old_status );
