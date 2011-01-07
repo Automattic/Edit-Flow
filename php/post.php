@@ -420,10 +420,20 @@ class EF_Post_Status
 	
 	function __construct() {
 		
-		add_action( 'admin_enqueue_scripts', array( &$this, 'post_admin_header' ) );
+		add_action( 'admin_enqueue_scripts', array( &$this, 'admin_enqueue_scripts' ) );
+		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );
 		add_action( 'admin_notices', array( &$this, 'no_js_notice' ) );		
 		
 	} // END: __construct()
+	
+	/**
+	 * admin_enqueue_scripts()
+	 * Enqueue our admin scripts
+	 */
+	function admin_enqueue_scripts() {
+		// Enqueue custom_status.js
+		wp_enqueue_script('edit_flow-custom_status', EDIT_FLOW_URL.'js/custom_status.js', array('jquery','post'), EDIT_FLOW_VERSION, true);
+	}
 	
 	function is_whitelisted_page() {
 		global $edit_flow, $pagenow;
@@ -462,7 +472,10 @@ class EF_Post_Status
 	}
 	
 	/**
+	 * post_admin_header()
 	 * Adds all necessary javascripts to make custom statuses work
+	 *
+	 * @todo Support private and future posts on edit.php view
 	 */
 	function post_admin_header() {
 		global $post, $edit_flow, $pagenow, $current_user;
@@ -474,19 +487,20 @@ class EF_Post_Status
 		if( $this->is_whitelisted_page() ) {
 			
 			$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
-			$custom_statuses = apply_filters( 'ef_custom_status_list', $custom_statuses, $post );
+			$custom_statuses = apply_filters( 'ef_custom_status_list', $custom_statuses, $post );			
 	
 			// Get the status of the current post		
-			if( $post->ID == 0 || $post->post_status == 'auto-draft' ) {
+			if( $post->ID == 0 || $post->post_status == 'auto-draft' || $pagenow == 'edit.php' ) {
 				// TODO: check to make sure that the default exists
 				$selected = $edit_flow->get_plugin_option('custom_status_default_status');
 			} else {
 				$selected = $post->post_status;
 			}
+
 	
 			// Alright, we want to set up the JS var which contains all custom statuses
 			$count = 1;
-			$status_array = ''; // actually a JSON object
+			$status_array = ''; // actually a JSON object		
 			
 			// Add the "Publish" status if the post is published
 			if( $selected == 'publish' )
@@ -521,8 +535,7 @@ class EF_Post_Status
 			</script>
 			
 			<?php
-			// Enqueue custom_status.js
-			wp_enqueue_script('edit_flow-custom_status', EDIT_FLOW_URL.'js/custom_status.js', array('jquery','post'), EDIT_FLOW_VERSION, true);
+
 		}
 	} // END: post_admin_header()
 } // END: class EF_Post_Status
