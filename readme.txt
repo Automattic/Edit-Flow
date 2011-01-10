@@ -94,16 +94,6 @@ add_post_type_support( 'event', 'ef_notifications' );
 
 You can also remove support for features using the `remove_post_type_support` function.
 
-** Note for 2.9.x users **
-
-To add/remove features from either Posts or Pages, you can use the wrapper functions in the $edit_flow object, e.g.
-
-`
-global $edit_flow;
-$edit_flow->add_post_type_support( 'page', 'ef_story_budget' );
-$edit_flow->remove_post_type_support( 'post', 'ef_notifications' );
-`
-
 = List of Features =
 
 You can add / remove the following features to post types:
