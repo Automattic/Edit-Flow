@@ -112,8 +112,16 @@ class edit_flow {
 		$this->post_status = new EF_Post_Status( (int) $this->get_plugin_option('custom_statuses_enabled') );
 		$this->dashboard = new EF_Dashboard(); 
 		
+		// Core hooks to initialize the plugin
+		add_action( 'init', array( &$this,'init' ) );
+		add_action( 'admin_init', array( &$this, 'admin_init' ) );
+		
 		// The main controller for the plugin - redirects to child controllers where necessary
 		add_action( 'admin_init', array( &$this, 'global_admin_controller' ) );
+		
+		// Edit Flow inits in a bunch of places all at the default priority.
+		// This is run after all the init calls have been run.
+		add_action( 'init', array( &$this, 'do_init_hook' ), 11 );
 		
 		// Add any necessary javascript
 		add_action('admin_enqueue_scripts', array(&$this, 'add_admin_scripts'));
@@ -129,9 +137,16 @@ class edit_flow {
 			//Add the necessary pages for the plugin 
 			add_action('admin_menu', array(&$this, 'add_menu_items'));
 		}
-		
 	} // END: init()
-		
+	
+	/**
+	 * do_init_hook()
+	 * Call a custom hook for Edit Flow Extensions to hook into.
+	 */
+	function do_init_hook() {
+		do_action( 'ef_init' );
+	} // END: do_init_hook()	
+	
 	/**
 	 * Initialize the plugin for the admin 
 	 */
@@ -436,10 +451,6 @@ class edit_flow {
 // Create new instance of the edit_flow object
 global $edit_flow;
 $edit_flow = new edit_flow();
-
-// Core hooks to initialize the plugin
-add_action('init', array(&$edit_flow,'init'));
-add_action('admin_init', array(&$edit_flow,'admin_init'));
 
 /**
  * ef_loaded()
