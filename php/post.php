@@ -431,8 +431,10 @@ class EF_Post_Status
 	 * Enqueue our admin scripts
 	 */
 	function admin_enqueue_scripts() {
-		// Enqueue custom_status.js
-		wp_enqueue_script('edit_flow-custom_status', EDIT_FLOW_URL.'js/custom_status.js', array('jquery','post'), EDIT_FLOW_VERSION, true);
+		if( $this->is_whitelisted_page() ) {
+			// Enqueue custom_status.js
+			wp_enqueue_script( 'edit_flow-custom_status', EDIT_FLOW_URL.'js/custom_status.js', array('jquery','post'), EDIT_FLOW_VERSION, true );
+		}
 	}
 	
 	function is_whitelisted_page() {
