@@ -83,7 +83,7 @@ class EF_Notifications {
 			$body  = '';
 			
 			$post_id = $post->ID;
-			$post_title = html_entity_decode( _draft_or_post_title( $post_id ) );
+			$post_title = ef_draft_or_post_title( $post_id );
 			$post_type = ucwords( $post->post_type );
 
 			if( 0 != $current_user->ID ) {
@@ -184,7 +184,7 @@ class EF_Notifications {
 	
 		$post_id = $post->ID;
 		$post_type = ucwords( $post->post_type );
-		$post_title = _draft_or_post_title( $post_id );
+		$post_title = ef_draft_or_post_title( $post_id );
 	
 		// Check if this a reply
 		$parent_ID = isset( $comment->comment_parent_ID ) ? $comment->comment_parent_ID : 0;
@@ -234,7 +234,7 @@ class EF_Notifications {
 	function get_notification_footer( $post ) {
 		$body  = "";
 		$body .= "\r\n--------------------\r\n";
-		$body .= sprintf( __( 'You are receiving this email because you are subscribed to "%s".', 'edit-flow' ), $post->post_title );
+		$body .= sprintf( __( 'You are receiving this email because you are subscribed to "%s".', 'edit-flow' ), ef_draft_or_post_title ($post->ID ) );
 		$body .= "\r\n";
 		$body .= sprintf( __( 'This email was sent %s.', 'edit-flow' ), date( 'r' ) );
 		$body .= "\r\n \r\n";
