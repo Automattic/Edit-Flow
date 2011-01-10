@@ -272,8 +272,8 @@ class EF_Notifications {
 		$send_time = time();
 		
 		foreach( $recipients as $recipient ) {
-			$send_time += $time_offset;
 			wp_schedule_single_event( $send_time, 'ef_send_scheduled_email', array( $recipient, $subject, $message, $message_headers ) );
+			$send_time += $time_offset;
 		}
 		
 	} // END: schedule_emails()
