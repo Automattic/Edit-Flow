@@ -4,7 +4,7 @@ Donate link: http://www.editflow.org/donate/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 3.0
 Tested up to: 3.1-alpha
-Stable tag: 0.6
+Stable tag: 0.6.1
 
 Redefining your editorial workflow
 
@@ -124,7 +124,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
-= 0.6.1 =
+= 0.6.1 (Jan. 9, 2011) =
 * Custom Post Type support for custom post statuses, editorial metadata, editorial comments, notifications, (Thanks to all who requested this!)
 * Added search and filtering tools for user and usergroup lists
 * Email notifications are now queued to improve performance and avoid issues with spam
