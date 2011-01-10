@@ -66,10 +66,6 @@ This will allow anyone with the capability to edit posts to view the calendar. S
 
 The other option is to install a role management plugin, like Justin Tadlock's excellent [Members plugin](http://wordpress.org/extend/plugins/members/), and let the plugin do the heavy lifting of customizing the roles and capabilities to your heart's content.
 
-= I'm stuck at WordPress 2.8! How do I use v0.3 onwards? =
-
-Upgrade to WordPress 2.9 or later, peeps!
-
 = Edit Flow doesn't do X, Y, and Z. That makes me sad. =
 
 Contact us at [hello@editflow.org](mailto:hello@editflow.org) and we'll see what we can do.
