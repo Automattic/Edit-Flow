@@ -477,7 +477,7 @@ if( ! function_exists( 'ef_draft_or_post_title' ) ) :
 	 * @return string The post title if set
 	 */
 	function ef_draft_or_post_title( $post_id = 0 ) {
-		$post = &get_post( $id );
+		$post = get_post( $post_id );
 		return ! empty( $post->post_title ) ? $post->post_title : __( '(no title)', 'edit-flow' );
 	}
 endif;
