@@ -124,6 +124,9 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
+= 0.6.2 =
+* Bug fix: Post Titles were broken in email notifications. (Thanks kfawcett and madguy000!)
+
 = 0.6.1 (Jan. 9, 2011) =
 * Custom Post Type support for custom post statuses, editorial metadata, editorial comments, notifications, (Thanks to all who requested this!)
 * Added search and filtering tools for user and usergroup lists
