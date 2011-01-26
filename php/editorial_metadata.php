@@ -550,12 +550,15 @@ class EF_Editorial_Metadata {
 		global $edit_flow;
 		// Authentication checks: make sure data came from our meta box and that the current user is allowed to edit the post
 		// TODO: switch to using check_admin_referrer? See core (e.g. edit.php) for usage
-		if ( isset( $_POST[$this->metadata_taxonomy . "_nonce"] )
-			&& !wp_verify_nonce( $_POST[$this->metadata_taxonomy . "_nonce"], __FILE__ )
-			|| defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE
-			|| !in_array( $post->post_type, $edit_flow->get_all_post_types_for_feature( 'ef_editorial_metadata' ) )
-			|| $post->post_type == 'post' && !current_user_can( 'edit_posts', $id )
-			|| $post->post_type == 'page' && !current_user_can( 'edit_pages', $id ) ) {
+		if ( ! isset( $_POST[$this->metadata_taxonomy . "_nonce"] )
+			|| ! wp_verify_nonce( $_POST[$this->metadata_taxonomy . "_nonce"], __FILE__ ) ) {
+			return $id;
+		}
+		
+		if( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+			|| ! in_array( $post->post_type, $edit_flow->get_all_post_types_for_feature( 'ef_editorial_metadata' ) )
+			|| $post->post_type == 'post' && !current_user_can( 'edit_post', $id )
+			|| $post->post_type == 'page' && !current_user_can( 'edit_page', $id ) ) {
 			return $id;
 		}
 		
