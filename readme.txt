@@ -4,7 +4,7 @@ Donate link: http://www.editflow.org/donate/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 3.0
 Tested up to: 3.1-alpha
-Stable tag: 0.6.1
+Stable tag: 0.6.2
 
 Redefining your editorial workflow
 
@@ -116,16 +116,20 @@ For replies to work properly, you need to enable threaded commenting in your blo
 
 == Upgrade Notice ==
 
+= 0.6.2 =
+Two bug fixes: post titles should properly appear in email notifications, and bulk editing no longer deletes editorial metadata
+
 = 0.6.1 =
-* Proper support for custom post types. We have removed the option to enable/disable Custom Statuses for Pages from the Settings page. Custom Statuses are enabled by default for Pages. To remove support for statuses, please see readme.
+Proper support for custom post types. We removed the option to enable/disable Custom Statuses for Pages from the Settings page. Custom Statuses are enabled by default for Pages. To remove support for statuses, please see readme.
 
 = 0.6 =
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 == Changelog ==
 
-= 0.6.2 =
+= 0.6.2 (Jan. 26, 2011) =
 * Bug fix: Post Titles were broken in email notifications. (Thanks kfawcett and madguy000!)
+* Bug fix: Bulk editing any post types would cause editorial metadata to occasionally be deleted. (Thanks meganknight!)
 
 = 0.6.1 (Jan. 9, 2011) =
 * Custom Post Type support for custom post statuses, editorial metadata, editorial comments, notifications, (Thanks to all who requested this!)
