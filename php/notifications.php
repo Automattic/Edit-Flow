@@ -42,7 +42,7 @@ class EF_Notifications {
 			add_action( 'delete_user',  array(&$this, 'delete_user_action') );
 			
 			// Sends cron-scheduled emails
-			add_action( 'ef_send_scheduled_email', array( &$this, 'send_scheduled_email' ), 10, 4 );
+			add_action( 'ef_send_scheduled_email', array( &$this, 'send_single_email' ), 10, 4 );
 		}
 		
 	} // END: __construct()
@@ -264,7 +264,13 @@ class EF_Notifications {
 		if( $recipients && ! is_array( $recipients ) )
 			$recipients = explode( ',', $recipients );
 		
-		$this->schedule_emails( $recipients, $subject, $message, $message_headers );
+		if( defined( EF_NOTIFICATION_USE_CRON ) && EF_NOTIFICATION_USE_CRON ) {
+			$this->schedule_emails( $recipients, $subject, $message, $message_headers );
+		} else {
+			foreach( $recipients as $recipient ) {
+				$this->send_single_email( $recipient, $subject, $message, $message_headers )
+			}
+		}
 	} // END: send_email()
 	
 	/**
@@ -290,17 +296,17 @@ class EF_Notifications {
 	} // END: schedule_emails()
 	
 	/**
-	 * send_scheduled_email()
-	 * Callback for scheduled_email cron that does the actual sending
+	 * send_single_email()
+	 * Sends an individual email
 	 * 
 	 * @param mixed $to Email to send to
 	 * @param string $subject Subject of the email
 	 * @param string $message Body of the email
 	 * @param string $message_headers. (optional) Message headers
 	 */
-	function send_scheduled_email( $to, $subject, $message, $message_headers = '' ) {
+	function send_single_email( $to, $subject, $message, $message_headers = '' ) {
 		@wp_mail( $to, $subject, $message, $message_headers );
-	} // END: send_scheduled_email()
+	} // END: send_single_email()
 	
 	/**
 	 * _get_notification_recipients()
