@@ -65,7 +65,7 @@ class EF_Notifications {
 		global $edit_flow;
 		
 		// Kill switch for notification
-		if ( ! apply_filters( 'ef_notification_status_change', $new_status, $old_status, $post ) )
+		if ( ! apply_filters( 'ef_notification_status_change', $new_status, $old_status, $post ) || ! apply_filters( "ef_notification_{$post->post_type}_status_change", $new_status, $old_status, $post ) )
 			return false;
 		
 		if( ! $edit_flow->post_type_supports( $post->post_type, 'ef_notifications' ) )
