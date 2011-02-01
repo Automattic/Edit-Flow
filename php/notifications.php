@@ -64,6 +64,10 @@ class EF_Notifications {
 	function notification_status_change( $new_status, $old_status, $post ) {
 		global $edit_flow;
 		
+		// Kill switch for notification
+		if ( ! apply_filters( 'ef_notification_status_change', $new_status, $old_status, $post ) )
+			return false;
+		
 		if( ! $edit_flow->post_type_supports( $post->post_type, 'ef_notifications' ) )
 			return;
 		
@@ -177,9 +181,14 @@ class EF_Notifications {
 	 * Set up and set editorial comment notification email
 	 */
 	function notification_comment( $comment ) {
-
-		$post    = get_post($comment->comment_post_ID);
-		$user    = get_userdata( $post->post_author );
+		
+		$post = get_post($comment->comment_post_ID);
+		
+		// Kill switch for notification
+		if ( ! apply_filters( 'ef_notification_editorial_comment', $comment, $post ) )
+			return false;
+		
+		$user = get_userdata( $post->post_author );
 		$current_user = wp_get_current_user();
 	
 		$post_id = $post->ID;
@@ -187,8 +196,8 @@ class EF_Notifications {
 		$post_title = ef_draft_or_post_title( $post_id );
 	
 		// Check if this a reply
-		$parent_ID = isset( $comment->comment_parent_ID ) ? $comment->comment_parent_ID : 0;
-		if($parent_ID) $parent = get_comment($parent_ID);
+		//$parent_ID = isset( $comment->comment_parent_ID ) ? $comment->comment_parent_ID : 0;
+		//if($parent_ID) $parent = get_comment($parent_ID);
 		
 		// Set user to follow post
 		// @TODO: need option to opt-out
@@ -207,9 +216,11 @@ class EF_Notifications {
 		$body .= "\r\n" . $comment->comment_content . "\r\n";
 
 		// @TODO: mention if it was a reply
+		/*
 		if($parent) {
 			
 		}
+		*/
 		
 		$body .= "\r\n--------------------\r\n";
 		
