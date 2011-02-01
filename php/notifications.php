@@ -268,7 +268,7 @@ class EF_Notifications {
 			$this->schedule_emails( $recipients, $subject, $message, $message_headers );
 		} else {
 			foreach( $recipients as $recipient ) {
-				$this->send_single_email( $recipient, $subject, $message, $message_headers )
+				$this->send_single_email( $recipient, $subject, $message, $message_headers );
 			}
 		}
 	} // END: send_email()
