@@ -42,7 +42,7 @@ class EF_Notifications {
 			add_action( 'delete_user',  array(&$this, 'delete_user_action') );
 			
 			// Sends cron-scheduled emails
-			add_action( 'ef_send_scheduled_email', array( &$this, 'send_scheduled_email' ), 10, 4 );
+			add_action( 'ef_send_scheduled_email', array( &$this, 'send_single_email' ), 10, 4 );
 		}
 		
 	} // END: __construct()
@@ -63,6 +63,10 @@ class EF_Notifications {
 	 */
 	function notification_status_change( $new_status, $old_status, $post ) {
 		global $edit_flow;
+		
+		// Kill switch for notification
+		if ( ! apply_filters( 'ef_notification_status_change', $new_status, $old_status, $post ) || ! apply_filters( "ef_notification_{$post->post_type}_status_change", $new_status, $old_status, $post ) )
+			return false;
 		
 		if( ! $edit_flow->post_type_supports( $post->post_type, 'ef_notifications' ) )
 			return;
@@ -177,9 +181,14 @@ class EF_Notifications {
 	 * Set up and set editorial comment notification email
 	 */
 	function notification_comment( $comment ) {
-
-		$post    = get_post($comment->comment_post_ID);
-		$user    = get_userdata( $post->post_author );
+		
+		$post = get_post($comment->comment_post_ID);
+		
+		// Kill switch for notification
+		if ( ! apply_filters( 'ef_notification_editorial_comment', $comment, $post ) )
+			return false;
+		
+		$user = get_userdata( $post->post_author );
 		$current_user = wp_get_current_user();
 	
 		$post_id = $post->ID;
@@ -187,8 +196,8 @@ class EF_Notifications {
 		$post_title = ef_draft_or_post_title( $post_id );
 	
 		// Check if this a reply
-		$parent_ID = isset( $comment->comment_parent_ID ) ? $comment->comment_parent_ID : 0;
-		if($parent_ID) $parent = get_comment($parent_ID);
+		//$parent_ID = isset( $comment->comment_parent_ID ) ? $comment->comment_parent_ID : 0;
+		//if($parent_ID) $parent = get_comment($parent_ID);
 		
 		// Set user to follow post
 		// @TODO: need option to opt-out
@@ -207,9 +216,11 @@ class EF_Notifications {
 		$body .= "\r\n" . $comment->comment_content . "\r\n";
 
 		// @TODO: mention if it was a reply
+		/*
 		if($parent) {
 			
 		}
+		*/
 		
 		$body .= "\r\n--------------------\r\n";
 		
@@ -253,7 +264,13 @@ class EF_Notifications {
 		if( $recipients && ! is_array( $recipients ) )
 			$recipients = explode( ',', $recipients );
 		
-		$this->schedule_emails( $recipients, $subject, $message, $message_headers );
+		if( defined( EF_NOTIFICATION_USE_CRON ) && EF_NOTIFICATION_USE_CRON ) {
+			$this->schedule_emails( $recipients, $subject, $message, $message_headers );
+		} else {
+			foreach( $recipients as $recipient ) {
+				$this->send_single_email( $recipient, $subject, $message, $message_headers );
+			}
+		}
 	} // END: send_email()
 	
 	/**
@@ -279,17 +296,17 @@ class EF_Notifications {
 	} // END: schedule_emails()
 	
 	/**
-	 * send_scheduled_email()
-	 * Callback for scheduled_email cron that does the actual sending
+	 * send_single_email()
+	 * Sends an individual email
 	 * 
 	 * @param mixed $to Email to send to
 	 * @param string $subject Subject of the email
 	 * @param string $message Body of the email
 	 * @param string $message_headers. (optional) Message headers
 	 */
-	function send_scheduled_email( $to, $subject, $message, $message_headers = '' ) {
+	function send_single_email( $to, $subject, $message, $message_headers = '' ) {
 		@wp_mail( $to, $subject, $message, $message_headers );
-	} // END: send_scheduled_email()
+	} // END: send_single_email()
 	
 	/**
 	 * _get_notification_recipients()

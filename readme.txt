@@ -114,6 +114,19 @@ You can add / remove the following features to post types:
 
 For replies to work properly, you need to enable threaded commenting in your blog's settings. Find it under **Settings > Discussion** and enable the setting called **Enable threaded (nested) comments**.
 
+= Disabling Specific Notifications =
+
+You can disable different types of notifications. You might want to do this, for example, if you don't use custom statuses but rely heavily on editorial comments.
+
+The following code snippet disables post status change notifications but maintains editorial comment notifications:
+
+`add_filter( 'ef_notification_editorial_comment', '__return_false' );`
+
+Here's a full list of notification types that can be disabled:
+* ef_notification_status_change
+* ef_notification_{$post_type}_status_change (where `{$post_type}` is the type of post, e.g. ef_notification_newsletter_status_change)
+* ef_notification_editorial_comment
+
 == Upgrade Notice ==
 
 = 0.6.2 =
