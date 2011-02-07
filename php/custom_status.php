@@ -737,7 +737,7 @@ class EF_Custom_Status {
 		$ef_page_data = wp_parse_args( $ef_page_data, $page_defaults );
 		extract( $ef_page_data );
 		
-		include_once( $ef_page_data['view'] );
+		include_once( EDIT_FLOW_ROOT . '/php/' . $ef_page_data['view'] );
 		
 	} // END: admin_page()
 		

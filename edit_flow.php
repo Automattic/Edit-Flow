@@ -27,29 +27,30 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-// Include necessary files
-include_once('php/custom_status.php');
-include_once('php/dashboard.php');
-include_once('php/post.php');
-include_once('php/notifications.php');
-include_once('php/usergroups.php');
-include_once('php/templates/functions.php');
-include_once('php/upgrade.php');
-include_once('php/util.php');
-include_once('php/calendar.php');
-include_once('php/story_budget.php');
-include_once('php/settings.php');
-include_once('php/editorial_metadata.php');
-
 // Define contants
 define( 'EDIT_FLOW_VERSION' , '0.6.2');
-define( 'EDIT_FLOW_FILE_PATH' , dirname(__FILE__).'/'.basename(__FILE__) );
+define( 'EDIT_FLOW_ROOT' , dirname(__FILE__) );
+define( 'EDIT_FLOW_FILE_PATH' , EDIT_FLOW_ROOT . '/' . basename(__FILE__) );
 define( 'EDIT_FLOW_URL' , plugins_url(plugin_basename(dirname(__FILE__)).'/') );
 define( 'EDIT_FLOW_SETTINGS_PAGE' , 'admin.php?page=edit-flow/edit-flow' );
 define( 'EDIT_FLOW_CUSTOM_STATUS_PAGE' , 'admin.php?page=edit-flow/custom_status' );
 define( 'EDIT_FLOW_PREFIX' , 'ef_' );
 define( 'EDIT_FLOW_CALENDAR_PAGE', 'index.php?page=edit-flow/calendar');
 define( 'EDIT_FLOW_STORY_BUDGET_PAGE', 'index.php?page=edit-flow/story_budget');
+
+// Include necessary files, including the path in which to search to avoid conflicts
+include_once( EDIT_FLOW_ROOT . '/php/custom_status.php' );
+include_once( EDIT_FLOW_ROOT . '/php/dashboard.php' );
+include_once( EDIT_FLOW_ROOT . '/php/post.php' );
+include_once( EDIT_FLOW_ROOT . '/php/notifications.php' );
+include_once( EDIT_FLOW_ROOT . '/php/usergroups.php' );
+include_once( EDIT_FLOW_ROOT . '/php/templates/functions.php' );
+include_once( EDIT_FLOW_ROOT . '/php/upgrade.php' );
+include_once( EDIT_FLOW_ROOT . '/php/util.php' );
+include_once( EDIT_FLOW_ROOT . '/php/calendar.php' );
+include_once( EDIT_FLOW_ROOT . '/php/story_budget.php' );
+include_once( EDIT_FLOW_ROOT . '/php/settings.php' );
+include_once( EDIT_FLOW_ROOT . '/php/editorial_metadata.php' );
 
 // Core class
 class edit_flow {
