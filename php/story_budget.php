@@ -145,7 +145,7 @@ class ef_story_budget {
 			// TODO: Verify that hide_empty really should be true (1)
 			$terms = get_terms($this->taxonomy_used, 'orderby=name&order=asc&parent=0&hide_empty=1');
 		}
-		$this->terms = apply_filters( 'ef_story_budget_reorder_terms', $terms ); // allow for reordering or any other filtering of terms
+		$this->terms = apply_filters( 'ef_story_budget_filter_terms', $terms ); // allow for reordering or any other filtering of terms
 		
 		?>
 		<div class="wrap" id="ef-story-budget-wrap">
@@ -154,10 +154,7 @@ class ef_story_budget {
 			<div id="dashboard-widgets-wrap">
 				<div id="dashboard-widgets" class="metabox-holder">
 				<?php
-					// for ($i = 0; $i < $this->get_num_columns(); ++$i) {
-					//	$this->print_column($i, $terms);
-					// }
-					$this->print_column( $terms );
+					$this->print_column( $this->terms );
 				?>
 				</div>
 			</div><!-- /dashboard-widgets -->
