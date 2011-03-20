@@ -484,7 +484,7 @@ class ef_story_budget {
 				<input id='start_date' name='start_date' type='text' class="date-pick" value="<?php echo $user_filters['start_date']; ?>" autocomplete="off" />
 				<label for="end_date"><?php _e( 'To:', 'edit-flow' ); ?> </label>
 				<input id='end_date' name='end_date' type='text' size='20' class="date-pick" value="<?php echo $user_filters['end_date']; ?>" autocomplete="off" />
-				<input type="submit" id="post-query-submit" value="<?php _e( 'Filter', 'edit-flow' ); ?>" class="button-secondary" />
+				<input type="submit" id="post-query-submit" value="<?php _e( 'Filter', 'edit-flow' ); ?>" class="button-primary button" />
 			</form>
 			<form method="get" action="<?php echo admin_url() . EDIT_FLOW_STORY_BUDGET_PAGE; ?>" style="float: left;">
 				<input type="hidden" name="page" value="edit-flow/story_budget"/>
@@ -493,7 +493,7 @@ class ef_story_budget {
 				<input type="hidden" name="post_author" value=""/>
 				<input type="hidden" name="start_date" value=""/>
 				<input type="hidden" name="end_date" value=""/>
-				<input type="submit" id="post-query-clear" value="<?php _e( 'Reset', 'edit-flow' ); ?>" class="button-secondary" />
+				<input type="submit" id="post-query-clear" value="<?php _e( 'Reset', 'edit-flow' ); ?>" class="button-secondary button" />
 			</form>
 		</div><!-- /alignleft actions -->
 		
