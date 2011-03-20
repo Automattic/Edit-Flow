@@ -355,7 +355,7 @@ class EF_Calendar {
 					<?php
 					}
 					?>
-					<input type="submit" id="post-query-submit" class="button-secondary" value="<?php _e( 'Filter', 'edit-flow' ); ?>"/>
+					<input type="submit" id="post-query-submit" class="button-primary button" value="<?php _e( 'Filter', 'edit-flow' ); ?>"/>
 				</form>
 			</li>
 			<!-- Clear filters functionality (all of the fields, but empty) -->
