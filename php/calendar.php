@@ -75,12 +75,7 @@ class EF_Calendar {
 		
 		$current_user = wp_get_current_user();
 		$filters = array();
-		// Use the 3.0+ method if it exists to get any saved filters
-		if ( function_exists( 'get_user_meta' ) ) {
-			$old_filters = get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
-		} else {
-			$old_filters = get_usermeta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
-		}
+		$old_filters = get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
 	
 		// Set the proper keys to empty so we don't thr
 		if ( empty( $old_filters ) ) {
@@ -141,12 +136,7 @@ class EF_Calendar {
 
 		$filters['start_date'] = $this->get_end_of_week( $filters['start_date'] ); // don't just set the given date as the end of the week. use the blog's settings
 		
-		// Use the 3.0+ method if it exists to update our saved filters for a user
-		if ( function_exists( 'update_user_meta' ) ) {
-			update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $filters );
-		} else {
-			update_usermeta( $current_user->ID, self::usermeta_key_prefix . 'filters', $filters );
-		}
+		update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $filters );
 		
 		return $filters;
 	} // END: get_filters()
