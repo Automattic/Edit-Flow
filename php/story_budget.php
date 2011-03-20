@@ -451,8 +451,8 @@ class ef_story_budget {
 						foreach ( $custom_statuses as $custom_status ) {
 							echo "<option value='$custom_status->slug' " . selected($custom_status->slug, $user_filters['post_status']) . ">$custom_status->name</option>";
 						}
-						echo "<option value='future'" . selected('future', $filters['post_status']) . ">" . __( 'Scheduled', 'edit-flow' ) . "</option>";
-						echo "<option value='unpublish'" . selected('unpublish', $filters['post_status']) . ">" . __( 'Unpublished', 'edit-flow' ) . "</option>";
+						echo "<option value='future'" . selected('future', $user_filters['post_status']) . ">" . __( 'Scheduled', 'edit-flow' ) . "</option>";
+						echo "<option value='unpublish'" . selected('unpublish', $user_filters['post_status']) . ">" . __( 'Unpublished', 'edit-flow' ) . "</option>";
 						echo "<option value='publish'" . selected('publish', $user_filters['post_status']) . ">" . __( 'Published', 'edit-flow' ) . "</option>";
 					?>
 				</select>
