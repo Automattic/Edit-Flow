@@ -849,7 +849,7 @@ function ef_usergroups_select_form( $selected = array(), $args = null ) {
 function ef_users_select_form ( $selected = null, $args = null ) {
 	global $blog_id;
 	
-	// TODO: Add pagination support for blogs with billions of usrs
+	// TODO: Add pagination support for blogs with billions of users
 	
 	// Set up arguments
 	$defaults = array(
@@ -860,14 +860,22 @@ function ef_users_select_form ( $selected = null, $args = null ) {
 	extract($parsed_args, EXTR_SKIP);
 	
 	// Only get the contributors and above for the current blog
-	$users = get_editable_authors( wp_get_current_user()->ID );
+	// get_editable_authors was deprecated in WordPress 3.1, so let's avoid it unless we're running on a site with
+	// WordPress < 3.1.
+	if ( !function_exists ( 'get_users' ) ) {
+		$users = get_editable_authors( wp_get_current_user()->ID );
+	} else {
+		// use a similar call that's used in post_author_meta_box() to get a list of eligible users
+		$users = get_users( array(
+			'who' => 'authors',
+			'fields' => array( 'ID', 'display_name', 'user_email') // Only retrieve the fields we need
+		) );
+	}
 	
 	if( !is_array($selected) ) $selected = array();
 	?>
 		
 	<?php if( !empty($users) ) : ?>
-		<?php //TODO: Links to select All, None, etc. ?>
-		<!--<input type="text" class="ef-users_search" value="Search for a user" />-->
 		<ul id="ef-post_following_users" class="<?php echo $list_class ?>">
 			<?php foreach( $users as $user ) : ?>
 				<?php $checked = ( in_array($user->ID, $selected) ) ? 'checked="checked"' : ''; ?>
