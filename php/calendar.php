@@ -95,7 +95,11 @@ class EF_Calendar {
 		if ( isset( $_GET['post_status'] ) ) {
 			$filters['post_status'] = $_GET['post_status'];
 			// Check to ensure we've been passed a valid post status (either a built-in status or a custom status)
-			$all_valid_statuses = array( 'future', 'publish' );
+			$all_valid_statuses = array(
+				'future',
+				'unpublish',
+				'publish'
+			);
 			foreach ( $edit_flow->custom_status->get_custom_statuses() as $custom_status ) {
 				$all_valid_statuses[] = $custom_status->slug;
 			}
@@ -312,10 +316,11 @@ class EF_Calendar {
 						<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
 						<?php
 							foreach ( $custom_statuses as $custom_status ) {
-								echo "<option value='$custom_status->slug' " . selected($custom_status->slug, $filters['post_status']) . ">$custom_status->name</option>";
+								echo "<option value='$custom_status->slug' " . selected( $custom_status->slug, $filters['post_status'] ) . ">$custom_status->name</option>";
 							}
-							echo "<option value='future'" . selected('future', $filters['post_status']) . ">" . __( 'Scheduled', 'edit-flow' ) . "</option>";
-							echo "<option value='publish'" . selected('publish', $filters['post_status']) . ">" . __( 'Published', 'edit-flow' ) . "</option>";
+							echo "<option value='future'" . selected( 'future', $filters['post_status'] ) . ">" . __( 'Scheduled', 'edit-flow' ) . "</option>";
+							echo "<option value='unpublish'" . selected( 'unpublish', $filters['post_status'] ) . ">" . __( 'Unpublished', 'edit-flow' ) . "</option>";
+							echo "<option value='publish'" . selected( 'publish', $filters['post_status'] ) . ">" . __( 'Published', 'edit-flow' ) . "</option>";
 						?>
 					</select>
 					
@@ -367,7 +372,7 @@ class EF_Calendar {
 					<input type="hidden" name="type" value="" />					
 					<input type="hidden" name="cat" value="" />
 					<input type="hidden" name="author" value="" />
-					<input type="submit" id="post-query-clear" class="button-secondary" value="<?php _e( 'Reset', 'edit-flow' ); ?>"/>
+					<input type="submit" id="post-query-clear" class="button-secondary button" value="<?php _e( 'Reset', 'edit-flow' ); ?>"/>
 				</form>
 			</li>
 	  
@@ -463,6 +468,14 @@ class EF_Calendar {
 						  );
 						 
 		$args = array_merge( $defaults, $args );
+		
+		// Unpublished as a status is just an array of everything but 'publish'
+		if ( $args['post_status'] == 'unpublish' ) {
+			$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
+			foreach ( $custom_statuses as $custom_status ) {
+				$args['post_status'] .= $custom_status->slug . ', ';
+			}
+		} // END if ( $args['post_status'] == 'unpublish' )
 		
 		// The WP functions for printing the category and author assign a value of 0 to the default
 		// options, but passing this to the query is bad (trashed and auto-draft posts appear!), so
