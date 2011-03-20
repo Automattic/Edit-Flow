@@ -183,7 +183,16 @@ class ef_story_budget {
 		// Only show approved statuses if we aren't filtering (post_status isn't set or it's 0 or empty), otherwise filter to status
 		$post_status = $this->combine_get_with_user_filter( $user_filters, 'post_status' );
 		if ( !empty( $post_status ) ) {
-			$post_where .= $wpdb->prepare( "$wpdb->posts.post_status = %s ", $post_status );
+			if ( $post_status == 'unpublish' ) {
+				$post_where .= "($wpdb->posts.post_status IN ('future'";
+				$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
+				foreach( $custom_statuses as $status ) {
+					$post_where .= $wpdb->prepare( ", %s", $status->slug );
+				}
+				$post_where .= ')) ';
+			} else {
+				$post_where .= $wpdb->prepare( "$wpdb->posts.post_status = %s ", $post_status );
+			}
 		} else {
 			$post_where .= "($wpdb->posts.post_status IN ('publish', 'future'";
 			$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
@@ -443,6 +452,7 @@ class ef_story_budget {
 							echo "<option value='$custom_status->slug' " . selected($custom_status->slug, $user_filters['post_status']) . ">$custom_status->name</option>";
 						}
 						echo "<option value='future'" . selected('future', $filters['post_status']) . ">" . __( 'Scheduled', 'edit-flow' ) . "</option>";
+						echo "<option value='unpublish'" . selected('unpublish', $filters['post_status']) . ">" . __( 'Unpublished', 'edit-flow' ) . "</option>";
 						echo "<option value='publish'" . selected('publish', $user_filters['post_status']) . ">" . __( 'Published', 'edit-flow' ) . "</option>";
 					?>
 				</select>
