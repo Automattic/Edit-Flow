@@ -465,6 +465,9 @@ class EF_Calendar {
 			foreach ( $custom_statuses as $custom_status ) {
 				$args['post_status'] .= $custom_status->slug . ', ';
 			}
+			if ( apply_filters( 'ef_show_scheduled_as_unpublished', false ) ) {
+				$args['post_status'] .= 'future';
+			}
 		} // END if ( $args['post_status'] == 'unpublish' )
 		
 		// The WP functions for printing the category and author assign a value of 0 to the default

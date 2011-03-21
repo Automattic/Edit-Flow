@@ -184,10 +184,14 @@ class ef_story_budget {
 		$post_status = $this->combine_get_with_user_filter( $user_filters, 'post_status' );
 		if ( !empty( $post_status ) ) {
 			if ( $post_status == 'unpublish' ) {
-				$post_where .= "($wpdb->posts.post_status IN ('future'";
+				$post_where .= "($wpdb->posts.post_status IN (";
 				$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
 				foreach( $custom_statuses as $status ) {
-					$post_where .= $wpdb->prepare( ", %s", $status->slug );
+					$post_where .= $wpdb->prepare( "%s, ", $status->slug );
+				}
+				$post_where = rtrim( $post_where, ', ' );
+				if ( apply_filters( 'ef_show_scheduled_as_unpublished', false ) ) {
+					$post_where .= ", 'future'";
 				}
 				$post_where .= ')) ';
 			} else {
