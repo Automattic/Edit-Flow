@@ -1,9 +1,9 @@
 === Edit Flow ===
 Contributors: batmoo, danielbachhuber, sbressler, andrewspittle
-Donate link: http://www.editflow.org/donate/
+Donate link: http://editflow.org/donate/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 3.0
-Tested up to: 3.1-alpha
+Tested up to: 3.1
 Stable tag: 0.6.2
 
 Redefining your editorial workflow
@@ -108,7 +108,7 @@ You can add / remove the following features to post types:
 
 **Hiding comments from front-end**
 
-*UPDATE (2010-02-11):* You no longer have to worry about hiding editorial comments if Edit Flow is ever disabled. Edit Flow will automatically show (in the admin) and hide (in the front-end) editorial comments on activation/deactivation.
+*Update (2010-02-11):* You no longer have to worry about hiding editorial comments if Edit Flow is ever disabled. Edit Flow will automatically show (in the admin) and hide (in the front-end) editorial comments on activation/deactivation.
 
 **Threaded Commenting**
 
@@ -129,8 +129,11 @@ Here's a full list of notification types that can be disabled:
 
 == Upgrade Notice ==
 
+= 0.6.3 =
+Restored email notifications to old delivery method instead of queueing with WP cron because of reliability issues. Added option to see unpublished content on story budget and editorial calendar.
+
 = 0.6.2 =
-Two bug fixes: post titles should properly appear in email notifications, and bulk editing no longer deletes editorial metadata
+Two bug fixes: post titles should properly appear in email notifications, and bulk editing no longer deletes editorial metadata.
 
 = 0.6.1 =
 Proper support for custom post types. We removed the option to enable/disable Custom Statuses for Pages from the Settings page. Custom Statuses are enabled by default for Pages. To remove support for statuses, please see readme.
@@ -139,6 +142,11 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 == Changelog ==
+
+= 0.6.3 (Mar. 21, 2011) =
+* Restored email notifications to old delivery method instead of queueing with WP cron because of reliability issues.
+* Better approach to including files so Edit Flow works properly on Windows systems.
+* Option to see all unpublished content on story budget and editorial calendar with a filter to include scheduled posts as unpublished content.
 
 = 0.6.2 (Jan. 26, 2011) =
 * Bug fix: Post Titles were broken in email notifications. (Thanks kfawcett and madguy000!)
