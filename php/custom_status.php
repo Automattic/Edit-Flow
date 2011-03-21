@@ -51,7 +51,7 @@ class EF_Custom_Status {
 		
 		$supported_post_types = array( 'post', 'page' );
 		foreach ( $supported_post_types as $post_type ) {
-			$edit_flow->add_post_type_support( $post_type, 'ef_custom_statuses' );
+			add_post_type_support( $post_type, 'ef_custom_statuses' );
 		}
 		
 		// Register custom statuses

@@ -53,7 +53,7 @@ class EF_Notifications {
 	function init() {
 		global $edit_flow;
 		foreach( array( 'post', 'page' ) as $post_type ) {
-			$edit_flow->add_post_type_support( $post_type, 'ef_notifications' );
+			add_post_type_support( $post_type, 'ef_notifications' );
 		}
 	} // END: init()
 	
@@ -68,7 +68,7 @@ class EF_Notifications {
 		if ( ! apply_filters( 'ef_notification_status_change', $new_status, $old_status, $post ) || ! apply_filters( "ef_notification_{$post->post_type}_status_change", $new_status, $old_status, $post ) )
 			return false;
 		
-		if( ! $edit_flow->post_type_supports( $post->post_type, 'ef_notifications' ) )
+		if( ! post_type_supports( $post->post_type, 'ef_notifications' ) )
 			return;
 		
 		// No need to notify if it's a revision, auto-draft, or if post status wasn't changed

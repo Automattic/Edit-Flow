@@ -33,7 +33,7 @@ class EF_Calendar {
 		global $edit_flow;
 		// Calendar supports the 'post' post type by default
 		// Other support can be added with the add_post_type_support method
-		$edit_flow->add_post_type_support( 'post', 'ef_calendar' );
+		add_post_type_support( 'post', 'ef_calendar' );
 		
 	} // END: init()
 	

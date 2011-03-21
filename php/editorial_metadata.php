@@ -68,8 +68,8 @@ class EF_Editorial_Metadata {
 	 */
 	function init() {
 		global $edit_flow;
-		$edit_flow->add_post_type_support( 'post', 'ef_editorial_metadata' );
-		$edit_flow->add_post_type_support( 'page', 'ef_editorial_metadata' );
+		add_post_type_support( 'post', 'ef_editorial_metadata' );
+		add_post_type_support( 'page', 'ef_editorial_metadata' );
 	} // END: init()
 	
 	/**
@@ -318,7 +318,7 @@ class EF_Editorial_Metadata {
 		
 		// Add the metabox date picker JS and CSS
 		$current_post_type = $edit_flow->get_current_post_type();
-		if ( $edit_flow->post_type_supports( $current_post_type, 'ef_editorial_metadata' ) ) {
+		if ( post_type_supports( $current_post_type, 'ef_editorial_metadata' ) ) {
 			// First add the datepicker JS
 			wp_enqueue_script('edit_flow-date-lib', EDIT_FLOW_URL . 'js/lib/date.js', false, EDIT_FLOW_VERSION, true);
 			wp_enqueue_script('edit_flow-date_picker-lib', EDIT_FLOW_URL . 'js/lib/jquery.datePicker.js', array( 'jquery' ), EDIT_FLOW_VERSION, true);

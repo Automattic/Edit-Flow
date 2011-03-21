@@ -26,7 +26,7 @@ class EF_Post_Metadata
 	function init() {
 		global $edit_flow;
 		foreach( array( 'post', 'page' ) as $post_type ) {
-			$edit_flow->add_post_type_support( $post_type, 'ef_editorial_comments' );
+			add_post_type_support( $post_type, 'ef_editorial_comments' );
 		}
 	}
 	
@@ -46,7 +46,7 @@ class EF_Post_Metadata
 		// Only add the script to Edit Post and Edit Page -- don't want to bog down the rest of the admin with unnecessary javascript
 		if ( in_array( $pagenow, array( 'post.php', 'page.php', 'post-new.php', 'page-new.php' ) ) ) {
 			
-			if( $edit_flow->post_type_supports( $post_type, 'ef_editorial_comments' ) ) {
+			if( post_type_supports( $post_type, 'ef_editorial_comments' ) ) {
 				wp_enqueue_script( 'edit_flow-post_comment', EDIT_FLOW_URL . 'js/post_comment.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
 				
 				$thread_comments = (int) get_option('thread_comments');
@@ -57,7 +57,7 @@ class EF_Post_Metadata
 				<?php
 			}
 			
-			if( $edit_flow->post_type_supports( $post_type, 'ef_notifications' ) ) {
+			if( post_type_supports( $post_type, 'ef_notifications' ) ) {
 				wp_enqueue_script( 'jquery-listfilterizer' );
 				wp_enqueue_style( 'jquery-listfilterizer' );
 			}
@@ -442,7 +442,7 @@ class EF_Post_Status
 		
 		$post_type = $edit_flow->get_current_post_type();
 		
-		if( ! $edit_flow->get_plugin_option( 'custom_statuses_enabled' ) || ! $edit_flow->post_type_supports( $post_type, 'ef_custom_statuses' ) )
+		if( ! $edit_flow->get_plugin_option( 'custom_statuses_enabled' ) || ! post_type_supports( $post_type, 'ef_custom_statuses' ) )
 			return;
 		
 		if( ! current_user_can('edit_posts') )

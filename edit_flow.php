@@ -318,78 +318,6 @@ class edit_flow {
 	}
 	
 	/**
-	 * add_post_type_support()
-	 * For our use in registering post functionality with different post types
-	 * @since 0.6.1
-	 * @param string $post_type The post type we're adding the feature to
-	 * @param string $feature The feature we want to add to the post type
-	 */
-	function add_post_type_support( $post_type, $feature ) {
-		// Use the native method if we're 3.0+. Otherwise copy the method
-		if ( function_exists( 'add_post_type_support' ) ) {
-			add_post_type_support( $post_type, $feature );
-		} else {
-			global $_wp_post_type_features;
-			
-			$features = (array) $feature;
-			foreach ( $features as $feature ) {
-				if ( func_num_args() == 2 )
-					$_wp_post_type_features[$post_type][$feature] = true;
-				else
-					$_wp_post_type_features[$post_type][$feature] = array_slice( func_get_args(), 2 );
-			}
-		}
-	}
-	
-	/**
-	 * remove_post_type_support()
-	 * Remove support for a feature from a post type. Stolen from core for backwards compatibility to 2.9.2
-	 * @since 0.6.1
-	 * @param string $post_type The post type for which to remove the feature
-	 * @param string $feature The feature being removed
-	 */
-	function remove_post_type_support( $post_type, $feature ) {
-		// Use the native method if we're 3.0+. Otherwise copy the method
-		if ( function_exists( 'remove_post_type_support' ) ) {
-			remove_post_type_support( $post_type, $feature );
-		} else {
-			global $_wp_post_type_features;
-			
-			if ( !isset($_wp_post_type_features[$post_type]) )
-				return;
-			
-			if ( isset($_wp_post_type_features[$post_type][$feature]) )
-				unset($_wp_post_type_features[$post_type][$feature]);
-		}
-	}
-	
-	/**
-	 * post_type_supports()
-	 * Check whether a post type supports a given feature. Stolen from core for backwards compatibility to 2.9.2
-	 * @since 0.6.1
-	 * @param string $post_type The post type being checked
-	 * @param string $feature The feature being checked
-	 * @return boolean
-	 */
-	function post_type_supports( $post_type, $feature ) {
-		// Use the native method if we're 3.0+. Otherwise copy the method
-		if ( function_exists( 'post_type_supports' ) ) {
-			return post_type_supports( $post_type, $feature );
-		} else {
-			global $_wp_post_type_features;
-			if ( !isset( $_wp_post_type_features[$post_type][$feature] ) )
-				return false;
-			
-				// If no args passed then no extra checks need be performed
-				if ( func_num_args() <= 2 )
-					return true;
-						
-				return true;
-			
-		}
-	}
-	
-	/**
 	 * get_current_post_type()
 	 * Checks for the current post type
 	 * @since 0.6.1
@@ -406,12 +334,6 @@ class edit_flow {
 			$post_type = $current_screen->post_type;
 		elseif ( isset( $_REQUEST['post_type'] ) )
 			$post_type = sanitize_key( $_REQUEST['post_type'] );
-		// 2.9 compat
-		elseif ( ! function_exists( 'add_post_type_support' ) && in_array( $pagenow, array( 'post.php', 'post-new.php', 'edit.php' ) ) )
-			$post_type = 'post';
-		// 2.9 compat
-		elseif ( ! function_exists( 'add_post_type_support' ) && in_array( $pagenow, array( 'page.php', 'page-new.php', 'edit-pages.php' ) ) )
-			$post_type = 'page';
 		else
 			$post_type = null;
 
