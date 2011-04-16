@@ -525,7 +525,7 @@ class EF_Post_Status
 			{
 			
 			     
-                // have to encode em-dash in JSON's UTF-8 encoding format.
+                // have to encode em-dash in JSON's unicode encoding format.
                 $em_dash_char = "\u2014";
 				$status_array .= "{ \"name\": '$em_dash_char " . __( 'No Change', 'edit-flow' ) . " $em_dash_char', slug: '-1', description: \"Leave status as is.\" }, ";
 				// $status_array .= json_encode( array( 'name' => "$em_dash_char " . __( 'No Change', 'edit-flow' ) . " $em_dash_char", 'slug' => '-1' ) );
