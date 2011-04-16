@@ -482,6 +482,10 @@ class EF_Post_Status
 	function post_admin_header() {
 		global $post, $edit_flow, $pagenow, $current_user;
 		
+		// declare variables
+		$is_bulkable = false;
+		$em_dash_char = "";
+		
 		// Get current user
 		get_currentuserinfo() ;
 		
@@ -492,18 +496,46 @@ class EF_Post_Status
 			$custom_statuses = apply_filters( 'ef_custom_status_list', $custom_statuses, $post );			
 	
 			// Get the status of the current post		
-			if( $post->ID == 0 || $post->post_status == 'auto-draft' || $pagenow == 'edit.php' ) {
+			if ( $post->ID == 0 || $post->post_status == 'auto-draft' || $pagenow == 'edit.php' )
+			{
 				// TODO: check to make sure that the default exists
 				$selected = $edit_flow->get_plugin_option('custom_status_default_status');
+
+				// if we are on the edit.php page, set isBulkAble to true.
+				if ( $pagenow == 'edit.php' )
+				{
+					$is_bulkable = true;
+				}
+
 			} else {
 				$selected = $post->post_status;
 			}
 
 	
-			// Alright, we want to set up the JS var which contains all custom statuses
+			// All right, we want to set up the JS var which contains all custom statuses
 			$count = 1;
-			$status_array = ''; // actually a JSON object		
+			$status_array = ''; // actually a string representation of a JSON object		
 			
+			// TODO: support for bulk editing
+			// eventually, probably want to make this so we actually make an
+			//    array of status values, implode() with commas after foreach, so
+			//    we don't need to have a conditional in foreach below to figure 
+			//    out if we need a comma after each line or not.
+			if ( $is_bulkable == true )
+			{
+			
+			     
+                // have to encode em-dash in JSON's UTF-8 encoding format.
+                $em_dash_char = "\u2014";
+				$status_array .= "{ \"name\": '$em_dash_char " . __( 'No Change', 'edit-flow' ) . " $em_dash_char', slug: '-1', description: \"Leave status as is.\" }, ";
+				// $status_array .= json_encode( array( 'name' => "$em_dash_char " . __( 'No Change', 'edit-flow' ) . " $em_dash_char", 'slug' => '-1' ) );
+				
+				/*
+				// <option value="-1"><?php _e('&mdash; No Change &mdash;'); ?></option>
+				// <option value="private"><?php _e('Private') ?></option>
+				 */
+			}
+
 			// Add the "Publish" status if the post is published
 			if( $selected == 'publish' )
 				$status_array .= "{ name: '".__( 'Published', 'edit-flow' )."', slug: 'publish' }, ";
@@ -513,14 +545,7 @@ class EF_Post_Status
 				
 			elseif ( $selected == 'future' )
 				$status_array .= "{ name: '".__( 'Scheduled', 'edit-flow' )."', slug: 'future' }, ";
-			
-			// TODO: support for bulk editing
-			/*
-			//if ( $bulk )
-				//<option value="-1"><?php _e('&mdash; No Change &mdash;'); ?></option>
-				//<option value="private"><?php _e('Private') ?></option>
-			*/
-			
+
 			foreach($custom_statuses as $status) {
 				$status_array .= "{ name: '". esc_js($status->name) ."', slug: '". esc_js($status->slug) ."', description: '". esc_js($status->description) ."' }";
 				$status_array .= ($count == count($custom_statuses)) ? '' : ',';
