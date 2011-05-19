@@ -536,18 +536,18 @@ class EF_Post_Status
 			}
 
 			// Add the "Publish" status if the post is published
-			if( $selected == 'publish' )
+			if ( $selected == 'publish' ) {
 				$status_array .= "{ name: '".__( 'Published', 'edit-flow' )."', slug: 'publish' }, ";
-				
-			elseif ( $selected == 'private' )
-				$status_array .= "{ name: '".__( 'Privately Published', 'edit-flow' )."', slug: 'publish' }, ";
-				
-			elseif ( $selected == 'future' )
+			} else if ( $selected == 'private' ) {
+				$status_array .= "{ name: '".__( 'Published', 'edit-flow' )."', slug: 'publish' }, ";
+				$status_array .= "{ name: '".__( 'Privately Published', 'edit-flow' )."', slug: 'private' }, ";
+			} else if ( $selected == 'future' ) {
 				$status_array .= "{ name: '".__( 'Scheduled', 'edit-flow' )."', slug: 'future' }, ";
+			}
 
-			foreach($custom_statuses as $status) {
+			foreach( $custom_statuses as $status ) {
 				$status_array .= "{ name: '". esc_js($status->name) ."', slug: '". esc_js($status->slug) ."', description: '". esc_js($status->description) ."' }";
-				$status_array .= ($count == count($custom_statuses)) ? '' : ',';
+				$status_array .= ( $count == count( $custom_statuses ) ) ? '' : ',';
 				$count++;
 			}
 			

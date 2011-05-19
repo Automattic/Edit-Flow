@@ -53,6 +53,9 @@ jQuery(document).ready(function() {
 		
 		// Add remaining statuses to dropdown
 		jQuery.each(custom_statuses, function() {
+			if ( this.slug == 'private' ) {
+				return;
+			}
 			var $option = jQuery('<option></option>')
 							.text(this.name)
 							.attr('value', this.slug)
