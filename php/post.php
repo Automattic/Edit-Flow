@@ -490,14 +490,13 @@ class EF_Post_Status
 		get_currentuserinfo() ;
 		
 		// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
-		if( $this->is_whitelisted_page() ) {
+		if ( !empty( $post ) && $this->is_whitelisted_page() ) {
 			
 			$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
 			$custom_statuses = apply_filters( 'ef_custom_status_list', $custom_statuses, $post );			
 	
 			// Get the status of the current post		
-			if ( $post->ID == 0 || $post->post_status == 'auto-draft' || $pagenow == 'edit.php' )
-			{
+			if ( $post->ID == 0 || $post->post_status == 'auto-draft' || $pagenow == 'edit.php' ) {
 				// TODO: check to make sure that the default exists
 				$selected = $edit_flow->get_plugin_option('custom_status_default_status');
 
