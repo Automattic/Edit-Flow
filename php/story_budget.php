@@ -354,31 +354,36 @@ class ef_story_budget {
 			$status_filter_url .= '&end_date=' . $_GET['end_date'];
 		}
 		
+		$post_owner = ( get_current_user_id() == $post->post_author ? 'self' : 'other' );
+		$edit_link = get_edit_post_link( $post->ID );
+		$post_title = _draft_or_post_title();				
+		$post_type_object = get_post_type_object( $post->post_type );
+		$can_edit_post = current_user_can( $post_type_object->cap->edit_post, $post->ID );
+				
 		// TODO: use these two lines before and after calling the_excerpt() once setup_postdata works correctly
 		//add_filter( 'excerpt_length', array( &$this, 'story_budget_excerpt_length') );
 		//remove_filter( 'excerpt_length', array( &$this, 'story_budget_excerpt_length') );
 		
 		// Get the friendly name for the status (e.g. Pending Review for pending)
 		$status = $edit_flow->custom_status->get_custom_status_friendly_name( $post->post_status );
-		
-		$post_edit_url = esc_url( add_query_arg( array( 'post' => $post->ID, 'action' => 'edit' ), admin_url( 'post.php' ) ) );
 		?>
 			<tr id='post-<?php echo $post->ID; ?>' class='alternate author-self status-publish iedit' valign="top">
 				<td class="post-title column-title">
-					<strong><a class="row-title" href="post.php?post=<?php echo $post->ID; ?>&action=edit" title="<?php sprintf( __( 'Edit &#8220;%s&#8221', 'edit-flow' ), $post->post_title ); ?>"><?php echo $post->post_title; ?></a></strong>
+					<?php if ( $can_edit_post ): ?>
+						<strong><a class="row-title" href="<?php echo $edit_link; ?>" title="<?php sprintf( __( 'Edit &#8220;%s&#8221', 'edit-flow' ), $post->post_title ); ?>"><?php echo $post_title; ?></a></strong>
+					<?php else: ?>
+						<strong><?php echo $post_title; ?></strong>
+					<?php endif; ?>
 					<p><?php echo strip_tags( substr( $post->post_content, 0, 5 * $this->story_budget_excerpt_length(0) ) ); // TODO: just call the_excerpt once setup_postadata works ?></p>
 					<p><?php do_action('story_budget_post_details'); ?></p>
 					<div class="row-actions">
-						<?php if( current_user_can( 'edit_post', $post->ID ) ) : ?>
-							<span class='edit'><a href="<?php echo $post_edit_url; ?>"><?php _e( 'Edit', 'edit-flow' ); ?></a> | </span>
+						<?php if ( $can_edit_post ) : ?>
+							<span class='edit'><a href="<?php echo $edit_link; ?>"><?php _e( 'Edit', 'edit-flow' ); ?></a> | </span>
 						<?php endif; ?>
-						<!-- Perhaps get Quick Edit to work in a future release
-						<span class='inline hide-if-no-js'><a href="#" class="editinline" title="Edit this item inline">Quick&nbsp;Edit</a> | </span>
-						-->
-						<?php if ( EMPTY_TRASH_DAYS > 0 ) : ?>
+						<?php if ( EMPTY_TRASH_DAYS > 0 && current_user_can( $post_type_object->cap->delete_post, $post->ID ) ) : ?>
 						<span class='trash'><a class='submitdelete' title='<?php _e( 'Move this item to the Trash', 'edit-flow' ); ?>' href='<?php echo get_delete_post_link( $post->ID ); ?>'><?php _e( 'Trash', 'edit-flow' ); ?></a> | </span>
 						<?php endif; ?>
-						<span class='view'><a href="<?php the_permalink(); // TODO: preview link? ?>" title="<?php _e( 'View Post', 'edit-flow' ); ?>" rel="permalink"><?php _e( 'View', 'edit-flow' ); ?></a></span></div>
+						<span class='view'><a href="<?php get_permalink( $post->ID ); ?>" title="<?php esc_attr( sprintf( __( 'View &#8220;%s&#8221;' ), $post_status ) ); ?>" rel="permalink"><?php _e( 'View', 'edit-flow' ); ?></a></span></div>
 				</td>
 				<td class="author column-author"><a href="<?php echo $author_filter_url; ?>"><?php echo $authordata->display_name; ?></a></td>
 				<td class="status column-status"><a href="<?php echo $status_filter_url; ?>"><?php echo $status ?></a></td>

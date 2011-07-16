@@ -148,6 +148,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Display unpublished custom statuses inline with the post title, per WordPress standard UI
 * Dropped the admin option for disabling custom statuses on posts. It didn't work, and this is handled by post_type_supports()
 * Bug fix: Contributor saving a new post respects the default custom status, instead of reverting to 'draft' as the post status
+* Bug fix: Better respect for user roles in Story Budget
 
 = 0.6.3 (Mar. 21, 2011) =
 * Restored email notifications to old delivery method instead of queueing with WP cron because of reliability issues.
