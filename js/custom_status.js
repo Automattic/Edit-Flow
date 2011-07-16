@@ -7,15 +7,15 @@ jQuery(document).ready(function() {
 	if(jQuery('select[name="post_status"]')) {
 		
 		// Set the Save button to generic text by default
-		updateSaveButton('Save');
+		ef_update_save_button('Save');
 		
 		// Bind event when OK button is clicked
 		jQuery('.save-post-status').bind('click', function() {	
-			updateSaveButton();
+			ef_update_save_button();
 		});
 		
 		// Add custom statuses to Status dropdown
-		append_to_dropdown('select[name="post_status"]');
+		ef_append_to_dropdown('select[name="post_status"]');
 		
 		// Make status dropdown visible on load if enabled
 		if ( status_dropdown_visible ) {
@@ -24,23 +24,23 @@ jQuery(document).ready(function() {
 		}
 		
 		// If custom status set for post, then set is as #post-status-display
-		jQuery('#post-status-display').text(get_status_name(current_status));
+		jQuery('#post-status-display').text(ef_get_status_name(current_status));
 
 	}
 	
 	// Add custom statuses to quick-edit status dropdowns on edit.php
 	if ( jQuery('select[name="_status"]') ) {
-		append_to_dropdown('select[name="_status"]');
+		ef_append_to_dropdown('select[name="_status"]');
 		jQuery( '#bulk-edit.inline-edit-row' ).find( 'select[name="_status"]' ).prepend( '<option value="">' + ef_text_no_change + '</option>' );
 		jQuery( '#bulk-edit.inline-edit-row' ).find( 'select[name="_status"] option' ).removeAttr('selected');
 	}
 		
 	if (jQuery('ul.subsubsub')) {
-		add_tooltips_to_filter_links('ul.subsubsub li a');
+		ef_add_tooltips_to_filter_links('ul.subsubsub li a');
 	}
 	
 	// Add custom statuses to Status dropdown
-	function append_to_dropdown(id) {
+	function ef_append_to_dropdown(id) {
 	
 		// Empty dropdown
 		jQuery(id).empty();
@@ -70,7 +70,7 @@ jQuery(document).ready(function() {
 		});
 	}
 	
-	function add_tooltips_to_filter_links(selector) {	
+	function ef_add_tooltips_to_filter_links(selector) {	
 		jQuery.each(custom_statuses, function() {
 			jQuery(selector + ':contains("'+ this.name +'")')
 				.attr('title', this.description)
@@ -79,13 +79,13 @@ jQuery(document).ready(function() {
 	}
 	
 	// Update "Save" button text
-	function updateSaveButton( text ) {
+	function ef_update_save_button( text ) {
 		if(!text) text = 'Save as ' + jQuery('select[name="post_status"] :selected').text();
 		jQuery(':input#save-post').attr('value', text);
 	}
 	
 	// Returns the name of the status given a slug
-	function get_status_name (slug) {
+	function ef_get_status_name (slug) {
 		var name = '';
 		jQuery.each(custom_statuses, function() {
 			if(this.slug==slug) name = this.name;
