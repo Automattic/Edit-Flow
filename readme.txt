@@ -144,11 +144,12 @@ New features, including story budget and editorial metadata, a completely rewrit
 == Changelog ==
 
 = 0.6.4 (????) =
-* Proper support for bulk editing custom statuses
 * Display unpublished custom statuses inline with the post title, per WordPress standard UI
 * Dropped the admin option for disabling custom statuses on posts. It didn't work, and this is handled by post_type_supports()
+* Bug fix: Proper support for bulk editing custom statuses
 * Bug fix: Contributor saving a new post respects the default custom status, instead of reverting to 'draft' as the post status
 * Bug fix: Better respect for user roles and capabilities in Story Budget
+* Bug fix: Custom statuses in Quick Edit now work as you'd expect them
 
 = 0.6.3 (Mar. 21, 2011) =
 * Restored email notifications to old delivery method instead of queueing with WP cron because of reliability issues.
