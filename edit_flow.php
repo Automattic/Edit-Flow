@@ -60,7 +60,6 @@ class edit_flow {
 	// Initially stores default option values, but when load_options is run, it is populated with the options stored in the WP db
 	var $options = array(
 					'version' => 0,
-					'custom_statuses_enabled' => 1,
 					'status_dropdown_visible' => 1,
 					'custom_status_default_status' => 'draft',
 					'dashboard_widgets_enabled' => 1,
@@ -110,7 +109,7 @@ class edit_flow {
 		$this->story_budget = new EF_Story_Budget( (int) $this->get_plugin_option( 'story_budget_enabled' ) );
 		$this->settings = new EF_Settings();
 		$this->notifications = new EF_Notifications( (int) $this->get_plugin_option('notifications_enabled') );
-		$this->post_status = new EF_Post_Status( (int) $this->get_plugin_option('custom_statuses_enabled') );
+		$this->post_status = new EF_Post_Status();
 		$this->dashboard = new EF_Dashboard(); 
 		
 		// Core hooks to initialize the plugin

@@ -442,7 +442,7 @@ class EF_Post_Status
 		
 		$post_type = $edit_flow->get_current_post_type();
 		
-		if( ! $edit_flow->get_plugin_option( 'custom_statuses_enabled' ) || ! post_type_supports( $post_type, 'ef_custom_statuses' ) )
+		if( !post_type_supports( $post_type, 'ef_custom_statuses' ) )
 			return;
 		
 		if( ! current_user_can('edit_posts') )

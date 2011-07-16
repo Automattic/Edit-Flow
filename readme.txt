@@ -145,6 +145,8 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 = 0.6.4 (????) =
 * Proper support for bulk editing custom statuses
+* Display unpublished custom statuses inline with the post title, per WordPress standard UI
+* Dropped the admin option for disabling custom statuses on posts. It didn't work, and this is handled by post_type_supports()
 
 = 0.6.3 (Mar. 21, 2011) =
 * Restored email notifications to old delivery method instead of queueing with WP cron because of reliability issues.
