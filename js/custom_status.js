@@ -31,6 +31,8 @@ jQuery(document).ready(function() {
 	// Add custom statuses to quick-edit status dropdowns on edit.php
 	if ( jQuery('select[name="_status"]') ) {
 		append_to_dropdown('select[name="_status"]');
+		jQuery( '#bulk-edit.inline-edit-row' ).find( 'select[name="_status"]' ).prepend( '<option value="">' + ef_text_no_change + '</option>' );
+		jQuery( '#bulk-edit.inline-edit-row' ).find( 'select[name="_status"] option' ).removeAttr('selected');
 	}
 		
 	if (jQuery('ul.subsubsub')) {

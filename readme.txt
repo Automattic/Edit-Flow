@@ -143,6 +143,9 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
+= 0.6.4 (????) =
+* Proper support for bulk editing custom statuses
+
 = 0.6.3 (Mar. 21, 2011) =
 * Restored email notifications to old delivery method instead of queueing with WP cron because of reliability issues.
 * Better approach to including files so Edit Flow works properly on Windows systems.

@@ -500,11 +500,9 @@ class EF_Post_Status
 				// TODO: check to make sure that the default exists
 				$selected = $edit_flow->get_plugin_option('custom_status_default_status');
 
-				// if we are on the edit.php page, set isBulkAble to true.
+				// Bulk editing only happens on the edit.php view
 				if ( $pagenow == 'edit.php' )
-				{
 					$is_bulkable = true;
-				}
 
 			} else {
 				$selected = $post->post_status;
@@ -515,25 +513,10 @@ class EF_Post_Status
 			$count = 1;
 			$status_array = ''; // actually a string representation of a JSON object		
 			
-			// TODO: support for bulk editing
 			// eventually, probably want to make this so we actually make an
 			//    array of status values, implode() with commas after foreach, so
 			//    we don't need to have a conditional in foreach below to figure 
 			//    out if we need a comma after each line or not.
-			if ( $is_bulkable == true )
-			{
-			
-			     
-                // have to encode em-dash in JSON's unicode encoding format.
-                $em_dash_char = "\u2014";
-				$status_array .= "{ \"name\": '$em_dash_char " . __( 'No Change', 'edit-flow' ) . " $em_dash_char', slug: '-1', description: \"Leave status as is.\" }, ";
-				// $status_array .= json_encode( array( 'name' => "$em_dash_char " . __( 'No Change', 'edit-flow' ) . " $em_dash_char", 'slug' => '-1' ) );
-				
-				/*
-				// <option value="-1"><?php _e('&mdash; No Change &mdash;'); ?></option>
-				// <option value="private"><?php _e('Private') ?></option>
-				 */
-			}
 
 			// Add the "Publish" status if the post is published
 			if ( $selected == 'publish' ) {
@@ -555,6 +538,7 @@ class EF_Post_Status
 			?>
 			<script type="text/javascript">
 				var custom_statuses = [<?php echo $status_array ?>];
+				var ef_text_no_change = '<?php _e( "&mdash; No Change &mdash;" ); ?>';
 				var current_status = '<?php echo $selected ?>';
 				var status_dropdown_visible = <?php echo (int) $edit_flow->get_plugin_option('status_dropdown_visible') ?>;
 				var current_user_can_publish_posts = <?php if ( current_user_can('publish_posts') ) { echo 1; } else { echo 0; } ?>;
@@ -563,7 +547,9 @@ class EF_Post_Status
 			<?php
 
 		}
+		
 	} // END: post_admin_header()
+	
 } // END: class EF_Post_Status
 
 } // END: !class_exists('EF_Post_Status')
