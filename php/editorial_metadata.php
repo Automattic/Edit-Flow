@@ -489,62 +489,71 @@ class EF_Editorial_Metadata {
 		echo "<input type='hidden' name='{$this->metadata_taxonomy}_nonce' value='" . wp_create_nonce(__FILE__) . "' />";
 	
 		$terms = $this->get_editorial_metadata_terms();
-		foreach ( $terms as $term ) {
-			$postmeta_key = $this->get_postmeta_key( $term );
-			$current_metadata = esc_attr( $this->get_postmeta_value( $term, $post->ID ) );
-			$type = $this->get_metadata_type( $term );
-			$description = $this->get_unencoded_value( $term->description, self::description );
-			$description_span = "<span class='description'>$description</span>";
-			echo "<div class='{$this->metadata_taxonomy} {$this->metadata_taxonomy}_$type'>";
-			switch( $type ) {
-				case "date":
-					// TODO: Move this to a function
-					if ( !empty( $current_metadata ) ) {
-						// Turn timestamp into a human-readable date
-						$current_metadata = date( 'M d Y' , intval( $current_metadata ) );						
-					}
-					echo "<label for='$postmeta_key'>{$term->name}</label>";
-					echo "<label for='$postmeta_key'>$description_span</label>";
-					echo "<input id='$postmeta_key' name='$postmeta_key' type='text' class='date-pick' value='$current_metadata' />";
-					break;
-				case "location":
-					echo "<label for='$postmeta_key'>{$term->name}</label>";
-					echo "<label for='$postmeta_key'>$description_span</label>";
-					echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
-					if ( !empty( $current_metadata ) )
-						echo "<div><a href='http://maps.google.com/?q={$current_metadata}&t=m' target='_blank'>" . sprintf( __( 'View &#8220;%s&#8221; on Google Maps', 'edit-flow' ), $current_metadata ) . "</a></div>";
-					break;
-				case "text":
-					echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
-					echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
-					break;
-				case "paragraph":
-					echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
-					echo "<textarea id='$postmeta_key' name='$postmeta_key'>$current_metadata</textarea>";
-					break;
-				case "checkbox":
-					echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
-					echo "<input id='$postmeta_key' name='$postmeta_key' type='checkbox' value='1' " . checked($current_metadata, 1, false) . " />";
-					break;
-				case "user": 
-					echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
-					$user_dropdown_args = array( 
-							'show_option_all' => __( '-- Select a user --', 'edit-flow' ), 
-							'name'     => $postmeta_key,
-							'selected' => $current_metadata 
-						); 
-					wp_dropdown_users( $user_dropdown_args );
-					break;
-				case "number":
-					echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
-					echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
-					break;					
-				default:
-					echo "<p>" . __( 'This editorial metadata type is not yet supported.', 'edit-flow' ) . "</p>";
-			}
+		if ( !count( $terms ) ) {
+			$message = __( 'No editorial metadata available.' );
+			if ( current_user_can( 'manage_options' ) )
+				$message .= sprintf( __( ' <a href="%s">Add fields to get started</a>.' ), EDIT_FLOW_EDITORIAL_METADATA_PAGE );
+			else 
+				$message .= __( ' Encourage your site administrator to configure your editorial workflow.' );
+			echo '<p>' . $message . '</p>';
+		} else {
+			foreach ( $terms as $term ) {
+				$postmeta_key = $this->get_postmeta_key( $term );
+				$current_metadata = esc_attr( $this->get_postmeta_value( $term, $post->ID ) );
+				$type = $this->get_metadata_type( $term );
+				$description = $this->get_unencoded_value( $term->description, self::description );
+				$description_span = "<span class='description'>$description</span>";
+				echo "<div class='{$this->metadata_taxonomy} {$this->metadata_taxonomy}_$type'>";
+				switch( $type ) {
+					case "date":
+						// TODO: Move this to a function
+						if ( !empty( $current_metadata ) ) {
+							// Turn timestamp into a human-readable date
+							$current_metadata = date( 'M d Y' , intval( $current_metadata ) );						
+						}
+						echo "<label for='$postmeta_key'>{$term->name}</label>";
+						echo "<label for='$postmeta_key'>$description_span</label>";
+						echo "<input id='$postmeta_key' name='$postmeta_key' type='text' class='date-pick' value='$current_metadata' />";
+						break;
+					case "location":
+						echo "<label for='$postmeta_key'>{$term->name}</label>";
+						echo "<label for='$postmeta_key'>$description_span</label>";
+						echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
+						if ( !empty( $current_metadata ) )
+							echo "<div><a href='http://maps.google.com/?q={$current_metadata}&t=m' target='_blank'>" . sprintf( __( 'View &#8220;%s&#8221; on Google Maps', 'edit-flow' ), $current_metadata ) . "</a></div>";
+						break;
+					case "text":
+						echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
+						echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
+						break;
+					case "paragraph":
+						echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
+						echo "<textarea id='$postmeta_key' name='$postmeta_key'>$current_metadata</textarea>";
+						break;
+					case "checkbox":
+						echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
+						echo "<input id='$postmeta_key' name='$postmeta_key' type='checkbox' value='1' " . checked($current_metadata, 1, false) . " />";
+						break;
+					case "user": 
+						echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
+						$user_dropdown_args = array( 
+								'show_option_all' => __( '-- Select a user --', 'edit-flow' ), 
+								'name'     => $postmeta_key,
+								'selected' => $current_metadata 
+							); 
+						wp_dropdown_users( $user_dropdown_args );
+						break;
+					case "number":
+						echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
+						echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
+						break;					
+					default:
+						echo "<p>" . __( 'This editorial metadata type is not yet supported.', 'edit-flow' ) . "</p>";
+				}
 			echo "</div>";
 			echo "<div class='clear'></div>";
 		} // Done iterating through metadata terms
+		}		
 		echo "</div>";
 	}
 	

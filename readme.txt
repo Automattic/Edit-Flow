@@ -152,6 +152,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Bug fix: Better respect for user roles and capabilities in Story Budget
 * Bug fix: Custom statuses in Quick Edit now work as you'd expect them
 * Bug fix: Show all taxonomy terms (most likely categories) on the Story Budget, regardless of whether they include published content
+* Bug fix: If there are no editorial metadata fields available, a message will display instead of leaving an empty post meta box
 
 = 0.6.3 (Mar. 21, 2011) =
 * Restored email notifications to old delivery method instead of queueing with WP cron because of reliability issues.
