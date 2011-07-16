@@ -31,6 +31,7 @@ jQuery(document).ready(function() {
 	// Add custom statuses to quick-edit status dropdowns on edit.php
 	if ( jQuery('select[name="_status"]') ) {
 		ef_append_to_dropdown('select[name="_status"]');
+		ef_apply_post_state_to_titles();
 		jQuery( '#bulk-edit.inline-edit-row' ).find( 'select[name="_status"]' ).prepend( '<option value="">' + ef_text_no_change + '</option>' );
 		jQuery( '#bulk-edit.inline-edit-row' ).find( 'select[name="_status"] option' ).removeAttr('selected');
 	}
@@ -76,6 +77,19 @@ jQuery(document).ready(function() {
 				.attr('title', this.description)
 		})
 		
+	}
+	
+	/**
+	 * Add the post state to post titles on edit.php, mimicking the 'draft' and private that are already added
+	 */
+	function ef_apply_post_state_to_titles() {
+		var status_blacklist = new Array( 'Published', 'Scheduled' );
+		jQuery('#the-list tr').each( function() {
+			var status = jQuery(this).find('td.status').html();
+			if ( jQuery.inArray( status, status_blacklist ) == -1 && jQuery(this).find('.post-title strong .post-state').length == 0 )
+				jQuery(this).find('.post-title strong').append( ' - <span class="post-state">' + status + '</span>' );
+				
+		});
 	}
 	
 	// Update "Save" button text
