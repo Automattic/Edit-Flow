@@ -30,9 +30,16 @@ jQuery(document).ready(function() {
 
 	} else if ( jQuery('select[name="_status"]').length > 0 ) {
 		ef_append_to_dropdown('select[name="_status"]');
+		// Refresh the custom status dropdowns everytime Quick Edit is loaded
+		jQuery('#the-list a.editinline').bind( 'click', function() {
+			ef_append_to_dropdown('#the-list select[name="_status"]');
+		} );
+		// Apply the post state to post titles. Only works on initial load but not after inline edit
 		ef_apply_post_state_to_titles();
-		jQuery( '#bulk-edit.inline-edit-row' ).find( 'select[name="_status"]' ).prepend( '<option value="">' + ef_text_no_change + '</option>' );
-		jQuery( '#bulk-edit.inline-edit-row' ).find( 'select[name="_status"] option' ).removeAttr('selected');
+		// Clean up the bulk edit selector because it's non-standard
+		jQuery( '#bulk-edit' ).find( 'select[name="_status"]' ).prepend( '<option value="">' + ef_text_no_change + '</option>' );
+		jQuery( '#bulk-edit' ).find( 'select[name="_status"] option' ).removeAttr('selected');
+		jQuery( '#bulk-edit' ).find( 'select[name="_status"] option[value="future"]').remove();
 	} else {
 		if ( !jQuery('input[name="hidden_post_status"]').length ) {
 			jQuery('.misc-pub-section').append(jQuery('<input>')
@@ -53,11 +60,11 @@ jQuery(document).ready(function() {
 	}
 	
 	// Add custom statuses to Status dropdown
-	function ef_append_to_dropdown(id) {
+	function ef_append_to_dropdown( id ) {
 	
-		// Empty dropdown
-		jQuery(id).empty();
-
+		// Empty dropdown except for 'future' because we need to persist that
+		jQuery(id + ' option').not('[value="future"]').remove();
+		
 		// Add "Published" status to quick-edit for users that can publish
 		if ( id=='select[name="_status"]' && current_user_can_publish_posts ) {
 			jQuery(id).append(jQuery('<option></option')
@@ -66,11 +73,14 @@ jQuery(document).ready(function() {
 			);
 		}
 		
-		// Add remaining statuses to dropdown
+		// Add remaining statuses to dropdown. 'private' is always handled by a checkbox, and 'future' already exists if we need it
 		jQuery.each(custom_statuses, function() {
-			if ( this.slug == 'private' ) {
+			if ( this.slug == 'private' || this.slug == 'future' )
 				return;
-			}
+			
+			if ( current_status != 'publish' && this.slug == 'publish' )
+				return;
+				
 			var $option = jQuery('<option></option>')
 							.text(this.name)
 							.attr('value', this.slug)
@@ -100,7 +110,7 @@ jQuery(document).ready(function() {
 			var status = jQuery(this).find('td.status').html();
 			if ( jQuery.inArray( status, status_blacklist ) == -1 && jQuery(this).find('.post-title strong .post-state').length == 0 )
 				jQuery(this).find('.post-title strong').append( ' - <span class="post-state">' + status + '</span>' );
-				
+					
 		});
 	}
 	
