@@ -258,13 +258,15 @@ class EF_Editorial_Metadata {
 	 */
 	function get_supported_metadata_types() {
 		
-		$supported_metadata_types = array( 'checkbox'   => __('Checkbox', 'edit-flow'),
-		              'date'       => __('Date', 'edit-flow'),
-		              'location'   => __('Location', 'edit-flow'),
-		              'paragraph'  => __('Paragraph', 'edit-flow'),
-		              'text'       => __('Text', 'edit-flow'),
-		              'user'       => __('User', 'edit-flow'),
-		             );
+		$supported_metadata_types = array(
+			'checkbox'		=> __('Checkbox', 'edit-flow'),
+			'date'			=> __('Date', 'edit-flow'),
+			'location'		=> __('Location', 'edit-flow'),
+			'paragraph'		=> __('Paragraph', 'edit-flow'),
+			'text'			=> __('Text', 'edit-flow'),
+			'user'			=> __('User', 'edit-flow'),
+			'number'		=> __('Number', 'edit-flow'),			
+		);
 		return $supported_metadata_types;
 		
 	} // END: get_supported_metadata_types()
@@ -533,6 +535,10 @@ class EF_Editorial_Metadata {
 						); 
 					wp_dropdown_users( $user_dropdown_args );
 					break;
+				case "number":
+					echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
+					echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
+					break;					
 				default:
 					echo "<p>" . __( 'This editorial metadata type is not yet supported.', 'edit-flow' ) . "</p>";
 			}
@@ -582,8 +588,11 @@ class EF_Editorial_Metadata {
 				
 				$type = $this->get_metadata_type( $term );
 				// TODO: Move this to a function
-				if( $type == 'date' ) {
+				if ( $type == 'date' ) {
 					$new_metadata = strtotime( $new_metadata );
+				}
+				if ( $type == 'number' ) {
+					$new_metadata = (int)$new_metadata;
 				}
 				
 				$new_metadata = strip_tags( $new_metadata );
