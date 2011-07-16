@@ -142,8 +142,14 @@ class ef_story_budget {
 			$terms = array();
 			$terms[] = get_term( $cat, $this->taxonomy_used );
 		} else {
-			// TODO: Verify that hide_empty really should be true (1)
-			$terms = get_terms($this->taxonomy_used, 'orderby=name&order=asc&parent=0&hide_empty=1');
+			// Get all of the terms from the taxonomy, regardless whether there are published posts
+			$args = array(
+				'orderby' => 'name',
+				'order' => 'asc',
+				'hide_empty' => 0,
+				'parent' => 0,
+			);
+			$terms = get_terms( $this->taxonomy_used, $args );
 		}
 		$this->terms = apply_filters( 'ef_story_budget_filter_terms', $terms ); // allow for reordering or any other filtering of terms
 		
