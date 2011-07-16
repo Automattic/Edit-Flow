@@ -539,6 +539,7 @@ class EF_Post_Status
 			<script type="text/javascript">
 				var custom_statuses = [<?php echo $status_array ?>];
 				var ef_text_no_change = '<?php _e( "&mdash; No Change &mdash;" ); ?>';
+				var ef_default_custom_status = '<?php $edit_flow->get_plugin_option("custom_status_default_status"); ?>';
 				var current_status = '<?php echo $selected ?>';
 				var status_dropdown_visible = <?php echo (int) $edit_flow->get_plugin_option('status_dropdown_visible') ?>;
 				var current_user_can_publish_posts = <?php if ( current_user_can('publish_posts') ) { echo 1; } else { echo 0; } ?>;

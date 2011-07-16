@@ -3,8 +3,10 @@ jQuery(document).ready(function() {
 	jQuery('label[for=post_status]').show();
 	jQuery('#post-status-display').show();
 
-	// Add custom statuses to post.php Status dropdown
-	if(jQuery('select[name="post_status"]')) {
+	// 1. Add custom statuses to post.php Status dropdown
+	// Or 2. Add custom statuses to quick-edit status dropdowns on edit.php
+	// Or 3. Hide two inputs with the default workflow status to override 'Draft' as the default contributor status
+	if ( jQuery('select[name="post_status"]').length > 0 ) {
 		
 		// Set the Save button to generic text by default
 		ef_update_save_button('Save');
@@ -26,14 +28,24 @@ jQuery(document).ready(function() {
 		// If custom status set for post, then set is as #post-status-display
 		jQuery('#post-status-display').text(ef_get_status_name(current_status));
 
-	}
-	
-	// Add custom statuses to quick-edit status dropdowns on edit.php
-	if ( jQuery('select[name="_status"]') ) {
+	} else if ( jQuery('select[name="_status"]').length > 0 ) {
 		ef_append_to_dropdown('select[name="_status"]');
 		ef_apply_post_state_to_titles();
 		jQuery( '#bulk-edit.inline-edit-row' ).find( 'select[name="_status"]' ).prepend( '<option value="">' + ef_text_no_change + '</option>' );
 		jQuery( '#bulk-edit.inline-edit-row' ).find( 'select[name="_status"] option' ).removeAttr('selected');
+	} else {
+		if ( !jQuery('input[name="hidden_post_status"]').length ) {
+			jQuery('.misc-pub-section').append(jQuery('<input>')
+				.attr('type', 'hidden')
+				.attr('id', 'hidden_post_status')
+				.attr('name', 'hidden_post_status')
+				.attr('value', ef_default_custom_status));
+			jQuery('.misc-pub-section').append(jQuery('<input>')
+				.attr('type', 'hidden')
+				.attr('id', 'post_status')
+				.attr('name', 'post_status')
+				.attr('value', ef_default_custom_status ));
+		}
 	}
 		
 	if (jQuery('ul.subsubsub')) {
