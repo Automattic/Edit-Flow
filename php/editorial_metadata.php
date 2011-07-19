@@ -504,7 +504,10 @@ class EF_Editorial_Metadata {
 				$current_metadata = esc_attr( $this->get_postmeta_value( $term, $post->ID ) );
 				$type = $this->get_metadata_type( $term );
 				$description = $this->get_unencoded_value( $term->description, self::description );
-				$description_span = "<span class='description'>$description</span>";
+				if ( $description )
+					$description_span = "<span class='description'>$description</span>";
+				else
+					$description_span = '';
 				echo "<div class='{$this->metadata_taxonomy} {$this->metadata_taxonomy}_$type'>";
 				switch( $type ) {
 					case "date":
@@ -513,13 +516,19 @@ class EF_Editorial_Metadata {
 							// Turn timestamp into a human-readable date
 							$current_metadata = date( 'M d Y' , intval( $current_metadata ) );						
 						}
+						echo "<div class'{$this->metadata_taxonomy}'-item>";
 						echo "<label for='$postmeta_key'>{$term->name}</label>";
-						echo "<label for='$postmeta_key'>$description_span</label>";
+						echo "<span class='description'>";
+						if ( $description )
+							echo "$description&nbsp;&nbsp;&nbsp;";
+						echo "<a class='clear-date' href='#'>Clear</a></span>";
 						echo "<input id='$postmeta_key' name='$postmeta_key' type='text' class='date-pick' value='$current_metadata' />";
+						echo "</div>";
 						break;
 					case "location":
 						echo "<label for='$postmeta_key'>{$term->name}</label>";
-						echo "<label for='$postmeta_key'>$description_span</label>";
+						if ( $description_span )
+							echo "<label for='$postmeta_key'>$description_span</label>";
 						echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
 						if ( !empty( $current_metadata ) )
 							echo "<div><a href='http://maps.google.com/?q={$current_metadata}&t=m' target='_blank'>" . sprintf( __( 'View &#8220;%s&#8221; on Google Maps', 'edit-flow' ), $current_metadata ) . "</a></div>";
