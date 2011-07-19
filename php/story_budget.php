@@ -384,12 +384,12 @@ class ef_story_budget {
 					<p><?php do_action('story_budget_post_details'); ?></p>
 					<div class="row-actions">
 						<?php if ( $can_edit_post ) : ?>
-							<span class='edit'><a href="<?php echo $edit_link; ?>"><?php _e( 'Edit', 'edit-flow' ); ?></a> | </span>
+							<span class='edit'><a title='<?php _e( 'Edit this item', 'edit-flow' ); ?>' href="<?php echo $edit_link; ?>"><?php _e( 'Edit', 'edit-flow' ); ?></a> | </span>
 						<?php endif; ?>
 						<?php if ( EMPTY_TRASH_DAYS > 0 && current_user_can( $post_type_object->cap->delete_post, $post->ID ) ) : ?>
 						<span class='trash'><a class='submitdelete' title='<?php _e( 'Move this item to the Trash', 'edit-flow' ); ?>' href='<?php echo get_delete_post_link( $post->ID ); ?>'><?php _e( 'Trash', 'edit-flow' ); ?></a> | </span>
 						<?php endif; ?>
-						<span class='view'><a href="<?php get_permalink( $post->ID ); ?>" title="<?php esc_attr( sprintf( __( 'View &#8220;%s&#8221;' ), $post_status ) ); ?>" rel="permalink"><?php _e( 'View', 'edit-flow' ); ?></a></span></div>
+						<span class='view'><a href="<?php get_permalink( $post->ID ); ?>" title="<?php echo esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'edit-flow' ), $post_title ) ); ?>" rel="permalink"><?php _e( 'View', 'edit-flow' ); ?></a></span></div>
 				</td>
 				<td class="author column-author"><a href="<?php echo $author_filter_url; ?>"><?php echo $authordata->display_name; ?></a></td>
 				<td class="status column-status"><a href="<?php echo $status_filter_url; ?>"><?php echo $status ?></a></td>
