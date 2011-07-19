@@ -516,7 +516,7 @@ class EF_Editorial_Metadata {
 							// Turn timestamp into a human-readable date
 							$current_metadata = date( 'M d Y' , intval( $current_metadata ) );						
 						}
-						echo "<div class'{$this->metadata_taxonomy}'-item>";
+						echo "<div class='{$this->metadata_taxonomy}-item'>";
 						echo "<label for='$postmeta_key'>{$term->name}</label>";
 						echo "<span class='description'>";
 						if ( $description )
