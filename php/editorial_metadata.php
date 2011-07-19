@@ -279,8 +279,10 @@ class EF_Editorial_Metadata {
 	 */
 	function edit_column_headers( $column_headers ) {
 		$new_headers = array();
-		// Don't display the 'slug' column
+		// Don't display the 'slug' column or the 'posts' column
 		unset( $column_headers['slug'] );
+		unset( $column_headers['posts'] );
+		
 		foreach ( $column_headers as $column_name => $column_display_name ) {
 			if ( $column_name == 'description' ) {
 				// Put the new columns in the place of description
