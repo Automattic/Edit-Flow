@@ -147,6 +147,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Display unpublished custom statuses inline with the post title, per WordPress standard UI
 * New number type for editorial metadata, so you can have fields like "Word Count"
 * Dropped the admin option for disabling custom statuses on posts. It didn't work, and this is handled by post_type_supports()
+* Add a 'Clear' link to editorial metadata date fields to allow user to easily clear the input
 * Bug fix: Proper support for bulk editing custom statuses
 * Bug fix: Contributor saving a new post respects the default custom status, instead of reverting to 'draft' as the post status
 * Bug fix: Better respect for user roles and capabilities in Story Budget
