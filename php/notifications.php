@@ -2,6 +2,9 @@
  
 // Functions related to hooking into custom statuses will go here
 
+if( ! defined( 'EF_NOTIFICATION_USE_CRON' ) )
+	define( 'EF_NOTIFICATION_USE_CRON', false );
+
 if ( !class_exists('EF_Notifications') ) {
 
 class EF_Notifications {
@@ -264,7 +267,7 @@ class EF_Notifications {
 		if( $recipients && ! is_array( $recipients ) )
 			$recipients = explode( ',', $recipients );
 		
-		if( defined( EF_NOTIFICATION_USE_CRON ) && EF_NOTIFICATION_USE_CRON ) {
+		if( EF_NOTIFICATION_USE_CRON ) {
 			$this->schedule_emails( $recipients, $subject, $message, $message_headers );
 		} else {
 			foreach( $recipients as $recipient ) {
