@@ -74,7 +74,7 @@ jQuery(document).ready(function() {
 		}
 		
 		// Add remaining statuses to dropdown. 'private' is always handled by a checkbox, and 'future' already exists if we need it
-		jQuery.each(custom_statuses, function() {
+		jQuery.each( custom_statuses, function() {
 			if ( this.slug == 'private' || this.slug == 'future' )
 				return;
 			

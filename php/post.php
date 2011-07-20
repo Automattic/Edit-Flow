@@ -500,38 +500,43 @@ class EF_Post_Status
 				// TODO: check to make sure that the default exists
 				$selected = $edit_flow->get_plugin_option('custom_status_default_status');
 
-				// Bulk editing only happens on the edit.php view
-				if ( $pagenow == 'edit.php' )
-					$is_bulkable = true;
-
 			} else {
 				$selected = $post->post_status;
 			}
 
-	
 			// All right, we want to set up the JS var which contains all custom statuses
-			$count = 1;
-			$status_array = ''; // actually a string representation of a JSON object		
+			$all_statuses = array(); 
 			
-			// eventually, probably want to make this so we actually make an
-			//    array of status values, implode() with commas after foreach, so
-			//    we don't need to have a conditional in foreach below to figure 
-			//    out if we need a comma after each line or not.
-			
-			$status_array .= "{ name: '".__( 'Published', 'edit-flow' )."', slug: 'publish' }, ";
-			$status_array .= "{ name: '".__( 'Privately Published', 'edit-flow' )."', slug: 'private' }, ";			
-			$status_array .= "{ name: '".__( 'Scheduled', 'edit-flow' )."', slug: 'future' }, ";
+			// The default statuses from WordPress
+			$all_statuses[] = array(
+				'name' => __( 'Published', 'edit-flow' ),
+				'slug' => 'publish',
+				'description' => '',
+			);
+			$all_statuses[] = array(
+				'name' => __( 'Privately Published', 'edit-flow' ),
+				'slug' => 'private',
+				'description' => '',
+			);
+			$all_statuses[] = array(
+				'name' => __( 'Scheduled', 'edit-flow' ),
+				'slug' => 'future',
+				'description' => '',
+			);
 
+			// Load the custom statuses
 			foreach( $custom_statuses as $status ) {
-				$status_array .= "{ name: '". esc_js($status->name) ."', slug: '". esc_js($status->slug) ."', description: '". esc_js($status->description) ."' }";
-				$status_array .= ( $count == count( $custom_statuses ) ) ? '' : ',';
-				$count++;
+				$all_statuses[] = array(
+					'name' => esc_js( $status->name ),
+					'slug' => esc_js( $status->slug ),
+					'description' => esc_js( $status->description ),
+				);
 			}
 			
 			// Now, let's print the JS vars
 			?>
 			<script type="text/javascript">
-				var custom_statuses = [<?php echo $status_array ?>];
+				var custom_statuses = <?php echo json_encode( $all_statuses ); ?>;
 				var ef_text_no_change = '<?php _e( "&mdash; No Change &mdash;" ); ?>';
 				var ef_default_custom_status = '<?php $edit_flow->get_plugin_option("custom_status_default_status"); ?>';
 				var current_status = '<?php echo $selected ?>';
