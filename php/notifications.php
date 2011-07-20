@@ -692,7 +692,7 @@ function ef_get_user_following_posts ( $user = 0, $args = null ) {
 		'orderby' => 'modified',
 		'order' => 'DESC',
 	);
-	$post_args = apply_filters( 'ef_user_following_posts_args', $post_args );
+	$post_args = apply_filters( 'ef_user_following_posts_query_args', $post_args );
 	$posts = get_posts( $post_args );
 	return $posts;
 	
