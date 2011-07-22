@@ -2,6 +2,9 @@
  
 // Functions related to hooking into custom statuses will go here
 
+if( ! defined( 'EF_NOTIFICATION_USE_CRON' ) )
+	define( 'EF_NOTIFICATION_USE_CRON', false );
+
 if ( !class_exists('EF_Notifications') ) {
 
 class EF_Notifications {
@@ -264,7 +267,7 @@ class EF_Notifications {
 		if( $recipients && ! is_array( $recipients ) )
 			$recipients = explode( ',', $recipients );
 		
-		if( defined( EF_NOTIFICATION_USE_CRON ) && EF_NOTIFICATION_USE_CRON ) {
+		if( EF_NOTIFICATION_USE_CRON ) {
 			$this->schedule_emails( $recipients, $subject, $message, $message_headers );
 		} else {
 			foreach( $recipients as $recipient ) {
@@ -689,7 +692,7 @@ function ef_get_user_following_posts ( $user = 0, $args = null ) {
 		'orderby' => 'modified',
 		'order' => 'DESC',
 	);
-	$post_args = apply_filters( 'ef_user_following_posts_args', $post_args );
+	$post_args = apply_filters( 'ef_user_following_posts_query_args', $post_args );
 	$posts = get_posts( $post_args );
 	return $posts;
 	
