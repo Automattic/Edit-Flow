@@ -3,10 +3,10 @@ Contributors: batmoo, danielbachhuber, sbressler, andrewspittle
 Donate link: http://editflow.org/donate/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 3.0
-Tested up to: 3.1
-Stable tag: 0.6.3
+Tested up to: 3.2.1
+Stable tag: 0.6.4
 
-Redefining your editorial workflow
+Redefining your editorial workflow.
 
 == Description ==
 
@@ -129,6 +129,9 @@ Here's a full list of notification types that can be disabled:
 
 == Upgrade Notice ==
 
+= 0.6.4 =
+Number of minor fixes and improvements, including proper support for bulk editing custom statuses, a 'Clear' link for clearing date editorial metadata, and better respect for user roles and capabilities in Story Budget.
+
 = 0.6.3 =
 Restored email notifications to old delivery method instead of queueing with WP cron because of reliability issues. Added option to see unpublished content on story budget and editorial calendar.
 
@@ -142,6 +145,18 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 == Changelog ==
+
+= 0.6.4 (Jul. 22, 2011) =
+* Display unpublished custom statuses inline with the post title, per WordPress standard UI
+* New number type for editorial metadata, so you can have fields like "Word Count"
+* Dropped the admin option for disabling custom statuses on posts. It didn't work, and this is handled by post_type_supports()
+* Add a 'Clear' link to editorial metadata date fields to allow user to easily clear the input
+* Bug fix: Proper support for bulk editing custom statuses
+* Bug fix: Contributor saving a new post respects the default custom status, instead of reverting to 'draft' as the post status
+* Bug fix: Better respect for user roles and capabilities in Story Budget
+* Bug fix: Custom statuses in Quick Edit now work as you'd expect them
+* Bug fix: Show all taxonomy terms (most likely categories) on the Story Budget, regardless of whether they include published content
+* Bug fix: If there are no editorial metadata fields available, a message will display instead of leaving an empty post meta box
 
 = 0.6.3 (Mar. 21, 2011) =
 * Restored email notifications to old delivery method instead of queueing with WP cron because of reliability issues.

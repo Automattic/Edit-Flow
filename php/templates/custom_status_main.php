@@ -7,14 +7,6 @@
 		ef_the_message( $message );
 		ef_the_errors( $errors );
 	?>
-
-	
-			<?php if ( !$edit_flow->get_plugin_option( 'custom_statuses_enabled' ) ) : ?>
-				<div class="error" id="plugin-message">
-					<p><strong><?php _e( 'Note: Custom Statuses are currently disabled', 'edit-flow' ); ?></strong></p>
-					<p><em><?php _e( 'While you are free to add, edit and delete to your heart\'s content, please note that you will not be able to assign posts to custom statuses unless you <a href="'. EDIT_FLOW_SETTINGS_PAGE.'">enable them</a>.', 'edit-flow' ); ?></em></p>
-				</div>
-			<?php endif ?>
 			
 			<?php if ( isset( $msg ) && $msg ) : ?>
 				<div id="message" class="<?php echo $msg_class ?> fade below-h2">

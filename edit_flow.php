@@ -4,10 +4,10 @@ Plugin Name: Edit Flow
 Plugin URI: http://editflow.org/
 Description: Remixing the WordPress admin for better editorial workflow options.
 Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Andrew Spittle, et al.
-Version: 0.6.3
+Version: 0.6.4
 Author URI: http://editflow.org/
 
-Copyright 2009-2010 Mohammad Jangda, Daniel Bachhuber, et al.
+Copyright 2009-2011 Mohammad Jangda, Daniel Bachhuber, et al.
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
 
@@ -28,12 +28,13 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 // Define contants
-define( 'EDIT_FLOW_VERSION' , '0.6.3' );
+define( 'EDIT_FLOW_VERSION' , '0.6.4' );
 define( 'EDIT_FLOW_ROOT' , dirname(__FILE__) );
 define( 'EDIT_FLOW_FILE_PATH' , EDIT_FLOW_ROOT . '/' . basename(__FILE__) );
 define( 'EDIT_FLOW_URL' , plugins_url(plugin_basename(dirname(__FILE__)).'/') );
 define( 'EDIT_FLOW_SETTINGS_PAGE' , 'admin.php?page=edit-flow/edit-flow' );
 define( 'EDIT_FLOW_CUSTOM_STATUS_PAGE' , 'admin.php?page=edit-flow/custom_status' );
+define( 'EDIT_FLOW_EDITORIAL_METADATA_PAGE' , add_query_arg( 'taxonomy', 'ef_editorial_meta', get_admin_url( null, 'edit-tags.php' ) ) );
 define( 'EDIT_FLOW_PREFIX' , 'ef_' );
 define( 'EDIT_FLOW_CALENDAR_PAGE', 'index.php?page=edit-flow/calendar');
 define( 'EDIT_FLOW_STORY_BUDGET_PAGE', 'index.php?page=edit-flow/story_budget');
@@ -60,7 +61,6 @@ class edit_flow {
 	// Initially stores default option values, but when load_options is run, it is populated with the options stored in the WP db
 	var $options = array(
 					'version' => 0,
-					'custom_statuses_enabled' => 1,
 					'status_dropdown_visible' => 1,
 					'custom_status_default_status' => 'draft',
 					'dashboard_widgets_enabled' => 1,
@@ -110,7 +110,7 @@ class edit_flow {
 		$this->story_budget = new EF_Story_Budget( (int) $this->get_plugin_option( 'story_budget_enabled' ) );
 		$this->settings = new EF_Settings();
 		$this->notifications = new EF_Notifications( (int) $this->get_plugin_option('notifications_enabled') );
-		$this->post_status = new EF_Post_Status( (int) $this->get_plugin_option('custom_statuses_enabled') );
+		$this->post_status = new EF_Post_Status();
 		$this->dashboard = new EF_Dashboard(); 
 		
 		// Core hooks to initialize the plugin

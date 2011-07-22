@@ -486,6 +486,9 @@ class EF_Calendar {
 			$args['post_type'] = $supported_post_types;
 		}
 		
+		// Filter for an end user to implement
+		$args = apply_filters( 'ef_calendar_posts_query_args', $args );
+		
 		$posts = new WP_Query( $args );
 		
 		return $posts;

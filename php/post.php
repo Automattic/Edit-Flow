@@ -442,7 +442,7 @@ class EF_Post_Status
 		
 		$post_type = $edit_flow->get_current_post_type();
 		
-		if( ! $edit_flow->get_plugin_option( 'custom_statuses_enabled' ) || ! post_type_supports( $post_type, 'ef_custom_statuses' ) )
+		if( !post_type_supports( $post_type, 'ef_custom_statuses' ) )
 			return;
 		
 		if( ! current_user_can('edit_posts') )
@@ -482,48 +482,49 @@ class EF_Post_Status
 	function post_admin_header() {
 		global $post, $edit_flow, $pagenow, $current_user;
 		
+		// declare variables
+		$is_bulkable = false;
+		$em_dash_char = "";
+		
 		// Get current user
 		get_currentuserinfo() ;
 		
 		// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
-		if( $this->is_whitelisted_page() ) {
+		if ( !empty( $post ) && $this->is_whitelisted_page() ) {
 			
 			$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
 			$custom_statuses = apply_filters( 'ef_custom_status_list', $custom_statuses, $post );			
 	
 			// Get the status of the current post		
-			if( $post->ID == 0 || $post->post_status == 'auto-draft' || $pagenow == 'edit.php' ) {
+			if ( $post->ID == 0 || $post->post_status == 'auto-draft' || $pagenow == 'edit.php' ) {
 				// TODO: check to make sure that the default exists
 				$selected = $edit_flow->get_plugin_option('custom_status_default_status');
+
+				// Bulk editing only happens on the edit.php view
+				if ( $pagenow == 'edit.php' )
+					$is_bulkable = true;
+
 			} else {
 				$selected = $post->post_status;
 			}
 
 	
-			// Alright, we want to set up the JS var which contains all custom statuses
+			// All right, we want to set up the JS var which contains all custom statuses
 			$count = 1;
-			$status_array = ''; // actually a JSON object		
+			$status_array = ''; // actually a string representation of a JSON object		
 			
-			// Add the "Publish" status if the post is published
-			if( $selected == 'publish' )
-				$status_array .= "{ name: '".__( 'Published', 'edit-flow' )."', slug: 'publish' }, ";
-				
-			elseif ( $selected == 'private' )
-				$status_array .= "{ name: '".__( 'Privately Published', 'edit-flow' )."', slug: 'publish' }, ";
-				
-			elseif ( $selected == 'future' )
-				$status_array .= "{ name: '".__( 'Scheduled', 'edit-flow' )."', slug: 'future' }, ";
+			// eventually, probably want to make this so we actually make an
+			//    array of status values, implode() with commas after foreach, so
+			//    we don't need to have a conditional in foreach below to figure 
+			//    out if we need a comma after each line or not.
 			
-			// TODO: support for bulk editing
-			/*
-			//if ( $bulk )
-				//<option value="-1"><?php _e('&mdash; No Change &mdash;'); ?></option>
-				//<option value="private"><?php _e('Private') ?></option>
-			*/
-			
-			foreach($custom_statuses as $status) {
+			$status_array .= "{ name: '".__( 'Published', 'edit-flow' )."', slug: 'publish' }, ";
+			$status_array .= "{ name: '".__( 'Privately Published', 'edit-flow' )."', slug: 'private' }, ";			
+			$status_array .= "{ name: '".__( 'Scheduled', 'edit-flow' )."', slug: 'future' }, ";
+
+			foreach( $custom_statuses as $status ) {
 				$status_array .= "{ name: '". esc_js($status->name) ."', slug: '". esc_js($status->slug) ."', description: '". esc_js($status->description) ."' }";
-				$status_array .= ($count == count($custom_statuses)) ? '' : ',';
+				$status_array .= ( $count == count( $custom_statuses ) ) ? '' : ',';
 				$count++;
 			}
 			
@@ -531,6 +532,8 @@ class EF_Post_Status
 			?>
 			<script type="text/javascript">
 				var custom_statuses = [<?php echo $status_array ?>];
+				var ef_text_no_change = '<?php _e( "&mdash; No Change &mdash;" ); ?>';
+				var ef_default_custom_status = '<?php $edit_flow->get_plugin_option("custom_status_default_status"); ?>';
 				var current_status = '<?php echo $selected ?>';
 				var status_dropdown_visible = <?php echo (int) $edit_flow->get_plugin_option('status_dropdown_visible') ?>;
 				var current_user_can_publish_posts = <?php if ( current_user_can('publish_posts') ) { echo 1; } else { echo 0; } ?>;
@@ -539,7 +542,9 @@ class EF_Post_Status
 			<?php
 
 		}
+		
 	} // END: post_admin_header()
+	
 } // END: class EF_Post_Status
 
 } // END: !class_exists('EF_Post_Status')

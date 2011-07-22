@@ -96,62 +96,84 @@ function edit_flow_upgrade_06() {
 	// Editorial comments should have comment_approved set a given key instead of just 1 
 	$wpdb->update( $wpdb->comments, array( 'comment_approved' => $edit_flow->ef_post_metadata->comment_type ), array( 'comment_type' => $edit_flow->ef_post_metadata->comment_type ), array( '%s' ), array( '%s' ) );
 
-	// Add new metadata fields 
-	$default_metadata = array(
+		// Add new metadata fields 
+		$default_metadata = array(
 			array(
 				'term' => 'Photographer',
-				'args' => array( 'slug' => 'photographer',
-								 'description' => json_encode( array( 'type' => 'user',
-																	'desc' => 'The photographer assigned to this article',
-																   )
-															),
-								)
+				'args' => array(
+					'slug' => 'photographer',
+					'description' => json_encode( array(
+						'type' => 'user',
+						'desc' => 'The photographer assigned to this post',
+						) ),
+					)
 			),
 			array(
 				'term' => 'Due Date',
-				'args' => array( 'slug' => 'duedate',
-								 'description' => json_encode( array( 'type' => 'date',
-																	'desc' => 'The deadline for this article',
-																   )
-															)
+				'args' => array(
+					'slug' => 'duedate',
+					'description' => json_encode( array(
+						'type' => 'date',
+						'desc' => 'The deadline for this post',
+						)
+					)
 															
-								)
+				)
 			),
 			array(
 				'term' => 'Description',
-				'args' => array( 'slug' => 'description',
-								 'description' => json_encode( array( 'type' => 'paragraph',
-																	'desc' => 'A short description of what this post will be about.',
-																   )
-															)
-								)
+				'args' => array( 
+					'slug' => 'description',
+					'description' => json_encode( array(
+						'type' => 'paragraph',
+						'desc' => 'A short description of what this post will be about.',
+						)
+					)
+				)
 			),
 			array(
 				'term' => 'Contact information',
-				'args' => array( 'slug' => 'contact-information',
-								 'description' => json_encode( array( 'type' => 'paragraph',
-																	'desc' => 'Information on how to contact the writer of this article',
-																   )
-															)
-								)
+				'args' => array(
+					'slug' => 'contact-information',
+					'description' => json_encode( array(
+						'type' => 'paragraph',
+						'desc' => 'Information on how to contact the writer of this post',
+						)
+					)
+				)
 			),
 			array(
 				'term' => 'Location',
-				'args' => array( 'slug' => 'location',
-								 'description' => json_encode( array( 'type' => 'location',
-																	'desc' => 'The location covered by this article',
-																   )
-															)
-								)
+				'args' => array(
+					'slug' => 'location',
+					'description' => json_encode( array(
+						'type' => 'location',
+						'desc' => 'The location covered by this post',
+						)
+					)
+				)
 			),
 			array(
-				'term' => 'Needs photo',
-				'args' => array( 'slug' => 'needs-photo',
-								 'description' => json_encode( array( 'type' => 'checkbox',
-																	'desc' => 'Checked if this article needs a photo',
-																   )
-															)
-								)
+				'term' => 'Needs Photo',
+				'args' => array(
+					'slug' => 'needs-photo',
+					'description' => json_encode( array(
+						'type' => 'checkbox',
+						'desc' => 'Checked if this post needs a photo',
+						)
+					)
+				)
+			),
+			array(
+				'term' => 'Word Count',
+				'args' => array(
+					'slug' => 'word-count',
+					'description' => json_encode( array(
+						'type' => 'number',
+						'desc' => 'Required length for this post',
+						)
+					)
+				)
 			),
 		);
 		

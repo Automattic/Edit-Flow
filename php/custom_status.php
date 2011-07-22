@@ -26,16 +26,6 @@ class EF_Custom_Status {
 					);
 			register_taxonomy( $this->status_taxonomy, 'post', $args );
 		}
-		
-		
-		// Note: These hooks do not need to be called as of 3.0 since it supports built in post statuses
-		// Note: For pre-3.0, these actions should be called regardless of whether custom statuses are enabled or not
-		if ( ! function_exists( 'register_post_status' ) ) {
-			// Add actions and filters for the Edit/Manage Posts page
-			add_action( 'load-edit.php', array( &$this, 'load_edit_hooks' ) );
-			// Add action and filter for the Edit/Manage Pages page
-			add_action( 'load-edit-pages.php', array( &$this, 'load_edit_hooks' ) );
-		}
 				
 		if ( $active ) {
 			add_action( 'init', array( &$this, 'init' ) );
@@ -58,12 +48,12 @@ class EF_Custom_Status {
 		$this->register_custom_statuses();
 		
 		// Hooks to add "status" column to Edit Posts page
-		add_filter('manage_posts_columns', array(&$this, '_filter_manage_posts_columns'));
-		add_action('manage_posts_custom_column', array(&$this, '_filter_manage_posts_custom_column'));
+		add_filter( 'manage_posts_columns', array( &$this, '_filter_manage_posts_columns') );
+		add_action( 'manage_posts_custom_column', array( &$this, '_filter_manage_posts_custom_column') );
 		
 		// Hooks to add "status" column to Edit Pages page, BUT, only add it if not being filtered by post_status
-		add_filter('manage_pages_columns', array(&$this, '_filter_manage_posts_columns'));
-		add_action('manage_pages_custom_column', array(&$this, '_filter_manage_posts_custom_column'));
+		add_filter( 'manage_pages_columns', array( &$this, '_filter_manage_posts_columns' ) );
+		add_action( 'manage_pages_custom_column', array( &$this, '_filter_manage_posts_custom_column' ) );
 		
 	} // END: init()
 	
@@ -93,36 +83,6 @@ class EF_Custom_Status {
 			}
 		}
 	} // END: register_custom_statuses()
-	
-	/**
-	 * load_edit_hooks()
-	 * Hooks to make modifications to the Manage/Edit Posts
-	 * Only used for pre-3.0
-	 */
-	function load_edit_hooks() {
-		
-		// Add custom stati to Edit/Manage Posts
-		add_action('admin_notices',array(&$this, 'enable_custom_status_filters'));
-		// Modify the posts_where query to include custom stati
-		add_filter('posts_where', array(&$this, 'custom_status_where_filter'));
-		
-	} // END: load_edit_hooks()
-
-	/**
-	 * load_edit_pages_hooks()
-	 * Hooks to make modifications to the Manage/Edit Pages
-	 * Only used for pre-3.0
-	 */
-	function load_edit_pages_hooks() {
-		global $edit_flow;
-		
-		if ( $edit_flow->get_plugin_option('pages_custom_statuses_enabled') ) {
-			// Add custom stati to Edit/Manage Pages
-			add_filter('apply_filters', array(&$this, 'enable_custom_status_filters_pages'));
-			// Modify the posts_where query to include custom stati
-			add_filter('posts_where', array(&$this, 'custom_status_where_filter'));
-		}
-	} // END: load_edit_pages_hooks()
 	
 	/**
 	 * enable_custom_status_filters()
