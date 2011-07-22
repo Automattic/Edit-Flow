@@ -3,8 +3,8 @@ Contributors: batmoo, danielbachhuber, sbressler, andrewspittle
 Donate link: http://editflow.org/donate/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 3.0
-Tested up to: 3.1
-Stable tag: 0.6.3
+Tested up to: 3.2.1
+Stable tag: 0.6.4
 
 Redefining your editorial workflow.
 
@@ -129,6 +129,9 @@ Here's a full list of notification types that can be disabled:
 
 == Upgrade Notice ==
 
+= 0.6.4 =
+Number of minor fixes and improvements, including proper support for bulk editing custom statuses, a 'Clear' link for clearing date editorial metadata, and better respect for user roles and capabilities in Story Budget.
+
 = 0.6.3 =
 Restored email notifications to old delivery method instead of queueing with WP cron because of reliability issues. Added option to see unpublished content on story budget and editorial calendar.
 
@@ -143,7 +146,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
-= 0.6.4 (????) =
+= 0.6.4 (Jul. 22, 2011) =
 * Display unpublished custom statuses inline with the post title, per WordPress standard UI
 * New number type for editorial metadata, so you can have fields like "Word Count"
 * Dropped the admin option for disabling custom statuses on posts. It didn't work, and this is handled by post_type_supports()
