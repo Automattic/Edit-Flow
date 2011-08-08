@@ -184,89 +184,91 @@ class EF_Calendar {
 					
 			<?php $this->print_top_navigation( $filters, $dates ); ?>
 
-			<div id="week-wrap"><!-- Week Wrapper -->
-						<div class="week-heading"><!-- New HTML begins with this week-heading div. Adds a WP-style dark grey heading to the calendar. Styles were added inline here to save having 7 different divs for this. -->
-							<?php echo $this->get_time_period_header( $dates ); ?>
-						</div>
+			<table id="ef-calendar-view">				
+				<thead>
+				<tr class="calendar-heading">
+					<?php echo $this->get_time_period_header( $dates ); ?>
+				</tr>
+				</thead>
+				<tbody>				
 
+				<tr class="ef-calendar-week-unit">
+				<?php
+				foreach( array_reverse( $dates ) as $key => $date ) :
+					
+					$posts = $this->get_calendar_posts( $date, $args );
+					
+					$date_format = 'Y-m-d';
+					$today_css = '';
+					// If we're currently outputting posts for today, give it some special CSS treatment
+					if ( date( $date_format, strtotime( $date ) ) == date( $date_format ) ) {
+						$today_css = ' today';
+					}
+				?>
+				<td class="ef-calendar-day-unit<?php if ( $key == 0 ) echo ' left-column'; echo $today_css; ?>">
+					<ul id="<?php echo date( $date_format, strtotime($date)); ?>" class="week-list">
 						<?php
-						foreach (array_reverse($dates) as $key => $date) :
-							
-							$posts = $this->get_calendar_posts( $date, $args );
-							
-							$date_format = 'Y-m-d';
-							$today_css = '';
-							// If we're currently outputting posts for today, give it some special CSS treatment
-							if ( date( $date_format, strtotime( $date ) ) == date( $date_format ) ) {
-								$today_css = ' today';
-							}
+						// We're using The Loop!
+						if ( $posts->have_posts() ) : 
+						while ( $posts->have_posts()) : $posts->the_post();
+							$post_id = get_the_id();
+							$edit_post_link = get_edit_post_link( $post_id );
 						?>
-						<div class="week-unit<?php if ( $key == 0 ) echo ' left-column'; echo $today_css; ?>"><!-- Week Unit 1 -->
-							<ul id="<?php echo date( $date_format, strtotime($date)); ?>" class="week-list connectedSortable">
-								<?php
-								// We're using The Loop!
-								if ( $posts->have_posts() ) : 
-								while ( $posts->have_posts()) : $posts->the_post();
-									$post_id = get_the_id();
-									$edit_post_link = get_edit_post_link( $post_id );
-								?>
-								<li class="week-item <?php echo 'custom-status-'.get_post_status( $post_id ); ?>" id="post-<?php the_id(); ?>">
-								  <div class="item-handle">
-									<div class="item-headline post-title">
-										<?php if ( $edit_post_link ): ?>
-										<strong><?php edit_post_link( get_the_title(), '', '', $post_id ); ?></strong>
-										<?php else: ?>
-										<strong><?php the_title(); ?></strong>
-										<?php endif; ?>
-										<span class="item-status">[<?php if ( count( $supported_post_types ) > 1 ) {
-											$post_type = get_post_type( $post_id );
-											echo $all_post_types[$post_type]->labels->singular_name . ': ';
-										} ?><?php echo $edit_flow->custom_status->get_custom_status_friendly_name( get_post_status( $post_id ) ); ?>]</span>
-									</div>
-									<ul class="item-metadata">
-										<li class="item-author"><?php echo sprintf( __( 'By %s', 'edit-flow' ), get_the_author() ); ?></li>
-										<li class="item-time"><?php the_time( get_option('time_format') ); ?>
-										<li class="item-category">
-											<?php
-												// Listing of all the categories
-												$categories_html = '';
-												$categories = get_the_category( $post_id );
-												foreach ( $categories as $category ) {
-													$categories_html .= $category->name . ', ';
-												}
-												echo rtrim( $categories_html, ', ' );
-											?>
-										</li>
-									</ul>
-									</div>
-									<div class="item-actions">
-										<?php if ( $edit_post_link ): ?>
-									  <span class="edit">
-										<?php edit_post_link( __( 'Edit', 'edit-flow' ), '', '', $post_id ); ?>
-									  </span> | 
-										<?php endif; ?>
-									  <span class="view">
-										<a href="<?php echo the_permalink(); ?>"><?php _e( 'View', 'edit-flow' ); ?></a>
-									  </span>
-									</div>
-									<div style="clear:left;"></div>
+						<li class="week-item <?php echo 'custom-status-'.get_post_status( $post_id ); ?>" id="post-<?php the_id(); ?>">
+						  <div class="item-handle">
+							<div class="item-headline post-title">
+								<?php if ( $edit_post_link ): ?>
+								<strong><?php edit_post_link( get_the_title(), '', '', $post_id ); ?></strong>
+								<?php else: ?>
+								<strong><?php the_title(); ?></strong>
+								<?php endif; ?>
+								<span class="item-status">[<?php if ( count( $supported_post_types ) > 1 ) {
+									$post_type = get_post_type( $post_id );
+									echo $all_post_types[$post_type]->labels->singular_name . ': ';
+								} ?><?php echo $edit_flow->custom_status->get_custom_status_friendly_name( get_post_status( $post_id ) ); ?>]</span>
+							</div>
+							<ul class="item-metadata">
+								<li class="item-author"><?php echo sprintf( __( 'By %s', 'edit-flow' ), get_the_author() ); ?></li>
+								<li class="item-time"><?php the_time( get_option('time_format') ); ?>
+								<li class="item-category">
+									<?php
+										// Listing of all the categories
+										$categories_html = '';
+										$categories = get_the_category( $post_id );
+										foreach ( $categories as $category ) {
+											$categories_html .= $category->name . ', ';
+										}
+										echo rtrim( $categories_html, ', ' );
+									?>
 								</li>
-								<?php
-								endwhile; endif; // END if ( $posts->have_posts() )
-								?>
 							</ul>
-						</div><!-- /Week Unit 1 -->
+							</div>
+							<div class="item-actions">
+								<?php if ( $edit_post_link ): ?>
+							  <span class="edit">
+								<?php edit_post_link( __( 'Edit', 'edit-flow' ), '', '', $post_id ); ?>
+							  </span> | 
+								<?php endif; ?>
+							  <span class="view">
+								<a href="<?php echo the_permalink(); ?>"><?php _e( 'View', 'edit-flow' ); ?></a>
+							  </span>
+							</div>
+							<div style="clear:left;"></div>
+						</li>
+						<?php
+						endwhile; endif; // END if ( $posts->have_posts() )
+						?>
+					</ul>
+					</td>
 						<?php
 						endforeach;
 						?>
-
-						<div class="clear"></div>
-						<div class="week-footing">
-						<?php echo $this->get_time_period_header( $dates ); ?>
-						</div>
-
-					</div><!-- /Week Wrapper -->
-					<ul class="day-navigation">
+					</tr>
+					
+					</tbody>		
+					</table><!-- /Week Wrapper -->
+					
+					<ul class="ef-calendar-navigation">
 					  <li class="next-week">
 							<a href="<?php echo $this->get_next_link( $dates[0], $filters ); ?>"><?php _e( 'Next &raquo;', 'edit-flow' ); ?></a>
 						</li>
@@ -296,7 +298,7 @@ class EF_Calendar {
 		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
 		$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
 		?>
-		<ul class="day-navigation">
+		<ul class="ef-calendar-navigation">
 			<li id="calendar-filter">
 				<form method="GET">
 					<input type="hidden" name="page" value="edit-flow/calendar" />
@@ -387,34 +389,12 @@ class EF_Calendar {
 	function get_time_period_header( $dates ) {
 		
 		$html = '';
-		// Day 1
-		$html .= '<div class="day-heading first-heading" style="width: 13.8%; height: 100%; position: absolute; left: 0%; top: 0%; ">';
-		$html .= date('l', strtotime($dates[6])) . ', ' . date('M d', strtotime($dates[6]));
-		$html .= '</div>';
-		// Day 2
-		$html .= '<div class="day-heading" style="left: 15.6%; top: 0%; ">';
-		$html .= date('l', strtotime($dates[5])) . ', ' . date('M d', strtotime($dates[5]));
-		$html .= '</div>';
-		// Day 3
-		$html .= '<div class="day-heading" style="left: 30%; top: 0%; ">';
-		$html .= date('l', strtotime($dates[4])) . ', ' . date('M d', strtotime($dates[4]));
-		$html .= '</div>';
-		// Day 4
-		$html .= '<div class="day-heading" style="left: 44.1%; top: 0%; ">';
-		$html .= date('l', strtotime($dates[3])) . ', ' . date('M d', strtotime($dates[3]));
-		$html .= '</div>';
-		// Day 5
-		$html .= '<div class="day-heading" style="left: 58.4%; top: 0%; ">';
-		$html .= date('l', strtotime($dates[2])) . ', ' . date('M d', strtotime($dates[2]));
-		$html .= '</div>';
-		// Day 6
-		$html .= '<div class="day-heading" style="left: 72.2%; top: 0%; ">';
-		$html .= date('l', strtotime($dates[1])) . ', ' . date('M d', strtotime($dates[1]));
-		$html .= '</div>';
-		// Day 7
-		$html .= '<div class="day-heading last-heading" style="left: 87%; top: 0%; ">';
-		$html .= date('l', strtotime($dates[0])) . ', ' . date('M d', strtotime($dates[0]));
-		$html .= '</div>';
+		$dates = array_reverse( $dates );
+		foreach( $dates as $date ) {
+			$html .= '<th class="column-heading" >';
+			$html .= date('l', strtotime( $date ) );
+			$html .= '</th>';
+		}
 		
 		return $html;
 		

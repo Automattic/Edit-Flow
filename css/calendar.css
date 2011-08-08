@@ -1,65 +1,37 @@
-/*
-Edit Flow Calendar CSS
-Version 1.1
-*/
-
-#main-content {
-	width:85%;
-}
-
-/*** Calendar Styles ***/
-
 #ef-calendar-wrap {
 	min-width:900px;
-}
-
-#ef-calendar-title {
-}
-
-#week-wrap {
-	margin-bottom:5px;
 	width: 100%;
-	overflow: hidden;
+	position: relative;
 }
 
-.week-heading, .week-footing {
-	background: #DFDFDF url('../img/menu-bits.gif') repeat-x scroll left top;
+table#ef-calendar-view {
+	border: 1px solid #e1e1e1;
+	border-collapse: collapse;
 }
 
-.week-unit {
-	width:13.37%;
-	padding-left:5px;
-	padding-right: 5px;
-	padding-top: 5px;
-	float:left;
+#ef-calendar-view .ef-calendar-day-unit {
 	border-right: 1px solid #e1e1e1;
-	padding-bottom:9010px;
-	margin-bottom:-9000px;	
+	vertical-align: top;
 }
 
-.week-unit.left-column {
+#ef-calendar-view .ef-calendar-day-unit.left-column {
 	border-left: 1px solid #e1e1e1;
-}
-
-.week-list {
-	padding:0;
-	min-height:115px; /*** Hack for when a list is empty. ***/
 }
 
 div#week-wrap div.today { /*** Different background color for today ***/
 	background-color: #FFFFE0; /*** Light yellow: this is the same color as message notifications ***/
 }
 
-.week-list li {
+#ef-calendar-view .week-list li {
 	list-style-type:none;
 	margin-left:0;
 	margin-bottom:10px;
 	word-wrap: break-word;
 }
 
-.week-heading {
-	position: relative;
+#ef-calendar-view .calendar-heading {
 	height: 28px;
+	background: #DFDFDF url('../img/menu-bits.gif') repeat-x scroll left top;
 	-webkit-border-top-left-radius: 6px;	/*** Adds the rounded effect to fit with WP styles ***/
 	-webkit-border-top-right-radius: 6px;
 	-moz-border-radius-topleft: 6px;
@@ -69,31 +41,15 @@ div#week-wrap div.today { /*** Different background color for today ***/
 	margin-top:5px;
 }
 
-.week-footing {
-	position: relative;
-	height: 28px;
-	-webkit-border-bottom-left-radius: 6px;	/*** Adds the rounded effect to fit with WP styles ***/
-	-webkit-border-bottom-right-radius: 6px;
-	-moz-border-radius-bottomleft: 6px;
-	-moz-border-radius-bottomright: 6px;
-	border-radius-bottomleft: 6px;
-	border-radius-bottomright: 6px;
-}
-
-.day-heading {
-	margin-right:5px;
-	margin-top: 0.6em;
+#ef-calendar-view tr th.column-heading {
+	width: 12%;
 	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
 	color: #333333;
 	line-height: 1.3em;
 	font-size: 11px;
-	font-weight: bold;
-	width: 13.8%;
-	height: 100%;
-	position: absolute;
 }
 
-.day-heading span {
+#ef-calendar-view  .day-heading span {
 	font-weight: normal;
 }
 
@@ -187,15 +143,15 @@ div.item-actions a {
 
 /*** Week Navigation Links ***/
 
-.day-navigation {
+.ef-calendar-navigation {
 	padding:0;
 	display:block;
 	height:20px;
 	margin-top:10px;
-	margin-bottom:5px;
+	margin-bottom:15px;
 }
 
-.day-navigation a {
+.ef-calendar-navigation a {
 	text-decoration:none;
 	-moz-border-radius:5px 5px 5px 5px;
 	-webkit-border-radius:5px 5px 5px 5px;
@@ -209,38 +165,38 @@ div.item-actions a {
 	background: url("../img/menu-bits.gif") repeat-x scroll left -379px #EEEEEE;
 }
 
-.day-navigation a:hover {
+.ef-calendar-navigation a:hover {
 	text-decoration:none;
 	border-color: #D54321;
 	color: #D54E21;
 }
 
-.day-navigation li {
+.ef-calendar-navigation li {
 	list-style-type:none;
 	margin-bottom: 0;
 	display: inline-block;
 }
 
-.day-navigation li#calendar-filter {
+.ef-calendar-navigation li#calendar-filter {
 	margin-top: 2px;
 }
 
-.day-navigation li.performing-ajax {
+.ef-calendar-navigation li.performing-ajax {
 	position: relative;
 	display:none;
 }
 
-.day-navigation li.performing-ajax img {
+.ef-calendar-navigation li.performing-ajax img {
 	position: absolute;
 	top: -12px;
 	margin-left: 5px;
 }
 
-.day-navigation li.previous-week {
+.ef-calendar-navigation li.previous-week {
 	float:right;
 	margin-right: 15px;
 }
 
-.day-navigation li.next-week {
+.ef-calendar-navigation li.next-week {
 	float:right;
 }
