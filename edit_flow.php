@@ -60,21 +60,18 @@ class edit_flow {
 	var $options_group = 'edit_flow_';
 	// Initially stores default option values, but when load_options is run, it is populated with the options stored in the WP db
 	var $options = array(
-					'version' => 0,
-					'status_dropdown_visible' => 1,
-					'custom_status_default_status' => 'draft',
-					'dashboard_widgets_enabled' => 1,
-					'post_status_widget_enabled' => 1,
-					'quickpitch_widget_enabled' => 1,
-					'myposts_widget_enabled' => 1,
-					'notifications_enabled' => 1,
-					'always_notify_admin' => 0,
-					'calendar_enabled' => 1,
-					'story_budget_enabled' => 1,
-				);
-	
-	// Used to store the names for any custom tables used by the plugin
-	var $tables = array();
+		'version' => 0,
+		'status_dropdown_visible' => 1,
+		'custom_status_default_status' => 'draft',
+		'dashboard_widgets_enabled' => 1,
+		'post_status_widget_enabled' => 1,
+		'quickpitch_widget_enabled' => 1,
+		'myposts_widget_enabled' => 1,
+		'notifications_enabled' => 1,
+		'always_notify_admin' => 0,
+		'calendar_enabled' => 1,
+		'story_budget_enabled' => 1,
+	);
 	
 	// used to create an instance of the various classes 
 	var $custom_status 		= null;
@@ -93,10 +90,6 @@ class edit_flow {
 		global $wpdb;
 		
 		load_plugin_textdomain( 'edit-flow', null, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
-
-		// Define custom tables used here
-		// Sample array entry: 'table_name' => $wpdb->prefix.'table_name' 
-		$this->tables = array();
 
 		// Load plugin options
 		$this->load_options();
