@@ -153,8 +153,15 @@ class EF_Calendar {
 		
 		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
 		
+		// Total number of weeks to display on the calendar
 		$total_weeks = 4;
 		$total_weeks = apply_filters( 'ef_calendar_total_weeks', $total_weeks );
+		
+		$dotw = array(
+			'Sat',
+			'Sun',
+		);
+		$dotw = apply_filters( 'ef_calendar_weekend_days', $dotw );		
 
 		date_default_timezone_set('UTC');
 		
@@ -212,7 +219,15 @@ class EF_Calendar {
 
 				<tr class="week-unit">
 				<?php foreach( $week_dates as $week_single_date ): ?>
-				<td class="day-unit" id="day-<?php echo $week_single_date; ?>">
+				<?php
+					$td_classes = array(
+						'day-unit',
+					);
+					$day_name = date( 'D', strtotime( $week_single_date ) );
+					if ( in_array( $day_name, $dotw ) )
+						$td_classes[] = 'weekend-day';
+				?>
+				<td class="<?php echo implode( ' ', $td_classes ); ?>" id="day-<?php echo $week_single_date; ?>">
 					<div class="day-unit-label"><?php echo date( 'j', strtotime( $week_single_date ) ); ?></div>
 					<?php if ( !empty( $week_posts[$week_single_date] ) ): ?>
 					<ul class="post-list">

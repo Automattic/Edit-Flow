@@ -15,6 +15,10 @@ table#ef-calendar-view {
 	height: 100px;
 }
 
+#ef-calendar-view .day-unit.weekend-day {
+	background-color: #F9F9F9;
+}
+
 #ef-calendar-view .day-unit .day-unit-label {
 	text-align: right;
 	color: #666666;
