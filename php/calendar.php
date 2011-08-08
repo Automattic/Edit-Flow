@@ -13,6 +13,9 @@ class EF_Calendar {
 	
 	const usermeta_key_prefix = 'ef_calendar_';
 	
+	var $start_date = '';
+	var $current_week = 1;
+	
 	/**
 	 * __construct()
 	 * Construct the EF_Calendar class
@@ -131,10 +134,10 @@ class EF_Calendar {
 			$time = strtotime( $_GET['start_date'] );
 			$filters['start_date'] = date('Y-m-d', $time);
 		} else {
-			$filters['start_date'] = date('Y-m-d');
+			$filters['start_date'] = date( 'Y-m-d' );
 		}
 
-		$filters['start_date'] = $this->get_end_of_week( $filters['start_date'] ); // don't just set the given date as the end of the week. use the blog's settings
+		$filters['start_date'] = $this->get_beginning_of_week( $filters['start_date'] ); // don't just set the given date as the end of the week. use the blog's settings
 		
 		update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $filters );
 		
@@ -149,6 +152,9 @@ class EF_Calendar {
 		global $edit_flow;
 		
 		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
+		
+		$total_weeks = 4;
+		$total_weeks = apply_filters( 'ef_calendar_total_weeks', $total_weeks );
 
 		date_default_timezone_set('UTC');
 		
@@ -159,18 +165,17 @@ class EF_Calendar {
 						'cat'         => $filters['cat'],
 						'author'      => $filters['author']
 					  );
-
-		$date = $filters['start_date'];
-		// All of the days of the week
-		$dates = array();
-		for ($i=0; $i<7; $i++) {
-			$dates[$i] = $date;
-			$date = date('Y-m-d', strtotime("-1 day", strtotime($date)));
-		}
+		$edit_flow->start_date = $filters['start_date'];
 		
 		// We use this later to label posts if they need labeling
 		if ( count( $supported_post_types ) > 1 ) {
 			$all_post_types = get_post_types( null, 'objects' );
+		}
+		$dates = array();
+		$heading_date = $filters['start_date'];
+		for ( $i=0; $i<7; $i++ ) {
+			$dates[$i] = $heading_date;
+			$heading_date = date( 'Y-m-d', strtotime( "+1 day", strtotime( $heading_date ) ) );
 		}
 		
 		?>
@@ -190,46 +195,46 @@ class EF_Calendar {
 					<?php echo $this->get_time_period_header( $dates ); ?>
 				</tr>
 				</thead>
-				<tbody>				
-
-				<tr class="ef-calendar-week-unit">
-				<?php
-				foreach( array_reverse( $dates ) as $key => $date ) :
-					
-					$posts = $this->get_calendar_posts( $date, $args );
-					
+				<tbody>
+				
+				<?php for( $current_week = 1; $current_week <= $total_weeks; $current_week++ ):
+					// We need to set the global variable for our posts_where filter
+					$edit_flow->current_week = $current_week;
+					$week_posts = $this->get_calendar_posts_for_week( $args );
 					$date_format = 'Y-m-d';
-					$today_css = '';
-					// If we're currently outputting posts for today, give it some special CSS treatment
-					if ( date( $date_format, strtotime( $date ) ) == date( $date_format ) ) {
-						$today_css = ' today';
-					}
+					$week_single_date = $this->get_beginning_of_week( $filters['start_date'], $date_format, $current_week );
+					$week_dates = array();
+					for ( $i = 0 ; $i < 7; $i++ ) {
+						$week_dates[$i] = $week_single_date;
+						$week_single_date = date( 'Y-m-d', strtotime( "+1 day", strtotime( $week_single_date ) ) );
+					}			
 				?>
-				<td class="ef-calendar-day-unit<?php if ( $key == 0 ) echo ' left-column'; echo $today_css; ?>">
-					<ul id="<?php echo date( $date_format, strtotime($date)); ?>" class="week-list">
+
+				<tr class="week-unit">
+				<?php foreach( $week_dates as $week_single_date ): ?>
+				<td class="day-unit" id="day-<?php echo $week_single_date; ?>">
+					<div class="day-unit-label"><?php echo date( 'j', strtotime( $week_single_date ) ); ?></div>
+					<?php if ( !empty( $week_posts[$week_single_date] ) ): ?>
+					<ul class="post-list">
 						<?php
-						// We're using The Loop!
-						if ( $posts->have_posts() ) : 
-						while ( $posts->have_posts()) : $posts->the_post();
-							$post_id = get_the_id();
+						foreach ( $week_posts[$week_single_date] as $post ) :
+							$post_id = $post->ID;
 							$edit_post_link = get_edit_post_link( $post_id );
 						?>
-						<li class="week-item <?php echo 'custom-status-'.get_post_status( $post_id ); ?>" id="post-<?php the_id(); ?>">
-						  <div class="item-handle">
+						<li class="day-item <?php echo 'custom-status-'. $post->post_status; ?>" id="post-<?php echo $post->ID; ?>">
 							<div class="item-headline post-title">
 								<?php if ( $edit_post_link ): ?>
-								<strong><?php edit_post_link( get_the_title(), '', '', $post_id ); ?></strong>
+								<strong><?php edit_post_link( $post->post_title, '', '', $post_id ); ?></strong>
 								<?php else: ?>
-								<strong><?php the_title(); ?></strong>
+								<strong><?php echo $post->post_title; ?></strong>
 								<?php endif; ?>
 								<span class="item-status">[<?php if ( count( $supported_post_types ) > 1 ) {
-									$post_type = get_post_type( $post_id );
+									$post_type = $post->post_type;
 									echo $all_post_types[$post_type]->labels->singular_name . ': ';
 								} ?><?php echo $edit_flow->custom_status->get_custom_status_friendly_name( get_post_status( $post_id ) ); ?>]</span>
 							</div>
 							<ul class="item-metadata">
-								<li class="item-author"><?php echo sprintf( __( 'By %s', 'edit-flow' ), get_the_author() ); ?></li>
-								<li class="item-time"><?php the_time( get_option('time_format') ); ?>
+								<li class="item-time"><?php echo date( get_option('time_format'), strtotime( $post->post_date ) ); ?>
 								<li class="item-category">
 									<?php
 										// Listing of all the categories
@@ -250,20 +255,19 @@ class EF_Calendar {
 							  </span> | 
 								<?php endif; ?>
 							  <span class="view">
-								<a href="<?php echo the_permalink(); ?>"><?php _e( 'View', 'edit-flow' ); ?></a>
+								<a href="#"><?php _e( 'View', 'edit-flow' ); ?></a>
 							  </span>
 							</div>
 							<div style="clear:left;"></div>
 						</li>
-						<?php
-						endwhile; endif; // END if ( $posts->have_posts() )
-						?>
+						<?php endforeach; ?>
 					</ul>
+					<?php endif; ?>
 					</td>
-						<?php
-						endforeach;
-						?>
+					<?php endforeach; ?>
 					</tr>
+					
+					<?php endfor; ?>
 					
 					</tbody>		
 					</table><!-- /Week Wrapper -->
@@ -389,7 +393,6 @@ class EF_Calendar {
 	function get_time_period_header( $dates ) {
 		
 		$html = '';
-		$dates = array_reverse( $dates );
 		foreach( $dates as $date ) {
 			$html .= '<th class="column-heading" >';
 			$html .= date('l', strtotime( $date ) );
@@ -420,14 +423,14 @@ class EF_Calendar {
 	} // END: viewable()
 	
 	/**
-	 * get_calendar_posts()
+	 * get_calendar_posts_for_week()
 	 * Query to get all of the calendar posts for a given day
 	 *
 	 * @param string $date The date for which we want posts
 	 * @param array $args Any filter arguments we want to pass
 	 * @return object $posts All of the posts as an object
 	 */
-	function get_calendar_posts( $date, $args = null ) {
+	function get_calendar_posts_for_week( $args = null ) {
 		global $wpdb, $edit_flow;
 		
 		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
@@ -456,11 +459,6 @@ class EF_Calendar {
 		// dropdowns with a regex on the wp_dropdown_cats and wp_dropdown_users filters.
 		if ( $args['cat'] === '0' ) unset( $args['cat'] );
 		if ( $args['author'] === '0' ) unset( $args['author'] );
-				
-		$date_array = explode( '-', $date );
-		$args['year'] = $date_array[0];
-		$args['monthnum'] = $date_array[1];
-		$args['day'] = $date_array[2];
 		
 		if ( count( $supported_post_types ) > 1 && !$args['post_type'] ) {
 			$args['post_type'] = $supported_post_types;
@@ -469,11 +467,32 @@ class EF_Calendar {
 		// Filter for an end user to implement
 		$args = apply_filters( 'ef_calendar_posts_query_args', $args );
 		
-		$posts = new WP_Query( $args );
+		add_filter( 'posts_where', array( &$this, 'posts_where_week_range' ) );
+		$post_results = new WP_Query( $args );
+		remove_filter( 'posts_where', array( &$this, 'posts_where_week_range' ) );
+		
+		$posts = array();
+		while ( $post_results->have_posts() ) {
+			$post_results->the_post();
+			global $post;
+			$key_date = date( 'Y-m-d', strtotime( $post->post_date ) );
+			// @todo Sort within a day by whatever field we're sorting by
+			$posts[$key_date][] = $post;
+		}
 		
 		return $posts;
 		
-	} // END: get_calendar_posts()
+	} // END: get_calendar_posts_for_week()
+	
+	function posts_where_week_range( $where = '' ) {
+		global $edit_flow;
+	
+		$beginning_date = $this->get_beginning_of_week( $edit_flow->start_date, 'Y-m-d', $edit_flow->current_week );
+		$ending_date = $this->get_ending_of_week( $edit_flow->start_date, 'Y-m-d', $edit_flow->current_week );
+		$where .= " AND post_date >= '$beginning_date' AND post_date <= '$ending_date'";
+	
+		return $where;
+	} 
 	
 	/**
 	 * get_previous_link()
@@ -523,7 +542,30 @@ class EF_Calendar {
 	} // END: get_next_link()
 	
 	/**
-	 * get_end_of_week()
+	 * get_beginning_of_week()
+	 * Given a day in string format, returns the day at the beginning of that week, which can be the given date.
+	 * The end of the week is determined by the blog option, 'start_of_week'.
+	 *
+	 * @param string $date String representing a date
+	 * @param string $format Date format in which the end of the week should be returned
+	 * @return string $formatted_start_of_week End of the week
+	 *
+	 * @see http://www.php.net/manual/en/datetime.formats.date.php for valid date formats
+	 */
+	function get_beginning_of_week( $date, $format = 'Y-m-d', $week = 1 ) {
+		
+		$date = strtotime( $date );
+		$start_of_week = get_option( 'start_of_week' );
+		$day_of_week = date( 'w', $date );
+		$date += (( $start_of_week - $day_of_week - 7 ) % 7) * 60 * 60 * 24 * $week;
+		$additional = 3600 * 24 * 7 * ( $week - 1 );
+		$formatted_start_of_week = date( $format, $date + $additional );
+		return $formatted_start_of_week;
+		
+	} // END: get_beginning_of_week()
+	
+	/**
+	 * get_ending_of_week()
 	 * Given a day in string format, returns the day at the end of that week, which can be the given date.
 	 * The end of the week is determined by the blog option, 'start_of_week'.
 	 *
@@ -533,16 +575,17 @@ class EF_Calendar {
 	 *
 	 * @see http://www.php.net/manual/en/datetime.formats.date.php for valid date formats
 	 */
-	function get_end_of_week( $date, $format = 'Y-m-d' ) {
+	function get_ending_of_week( $date, $format = 'Y-m-d', $week = 1  ) {
 		
 		$date = strtotime( $date );
-		$end_of_week = get_option('start_of_week') - 1;
-		$day_of_week = date('w', $date);
-		$date += ((7 + $end_of_week - $day_of_week) % 7) * 60 * 60 * 24;
-		$formatted_end_of_week = date($format, $date);
+		$end_of_week = get_option( 'start_of_week' ) - 1;
+		$day_of_week = date( 'w', $date );
+		$date += (( $end_of_week - $day_of_week + 7 ) % 7) * 60 * 60 * 24;
+		$additional = 3600 * 24 * 7 * ( $week - 1 );		
+		$formatted_end_of_week = date( $format, $date + $additional );
 		return $formatted_end_of_week;
 		
-	} // END: get_end_of_week()
+	} // END: get_ending_of_week()
 	
 } // END: class EF_Calendar
 	

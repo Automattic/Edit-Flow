@@ -9,13 +9,17 @@ table#ef-calendar-view {
 	border-collapse: collapse;
 }
 
-#ef-calendar-view .ef-calendar-day-unit {
+#ef-calendar-view .day-unit {
 	border-right: 1px solid #e1e1e1;
 	vertical-align: top;
+	height: 100px;
 }
 
-#ef-calendar-view .ef-calendar-day-unit.left-column {
-	border-left: 1px solid #e1e1e1;
+#ef-calendar-view .day-unit .day-unit-label {
+	text-align: right;
+	color: #666666;
+	padding-right: 3px;
+	padding-top: 3px;
 }
 
 div#week-wrap div.today { /*** Different background color for today ***/
@@ -49,7 +53,7 @@ div#week-wrap div.today { /*** Different background color for today ***/
 	font-size: 11px;
 }
 
-#ef-calendar-view  .day-heading span {
+#ef-calendar-view .day-heading span {
 	font-weight: normal;
 }
 
@@ -57,7 +61,11 @@ div#week-wrap div.today { /*** Different background color for today ***/
 	margin-left:10px;
 }
 
-.week-list .item-metadata {
+#ef-calendar-view .week-unit {
+	border-bottom: 1px solid #E1E1E1;
+}
+
+#ef-calendar-view .week-unit .item-metadata {
 	padding-left:15px;
 	font-size: 12px;
 	font-family: Helvetica, Arial, sans-serif;
