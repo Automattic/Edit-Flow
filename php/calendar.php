@@ -15,6 +15,7 @@ class EF_Calendar {
 	
 	var $start_date = '';
 	var $current_week = 1;
+	var $total_weeks = 4;	
 	
 	/**
 	 * __construct()
@@ -131,8 +132,7 @@ class EF_Calendar {
 		
 		// Start date
 		if ( isset( $_GET['start_date'] ) && !empty( $_GET['start_date'] ) ) {
-			$time = strtotime( $_GET['start_date'] );
-			$filters['start_date'] = date('Y-m-d', $time);
+			$filters['start_date'] = date( 'Y-m-d', strtotime( $_GET['start_date'] ) );
 		} else {
 			$filters['start_date'] = date( 'Y-m-d' );
 		}
@@ -154,8 +154,7 @@ class EF_Calendar {
 		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
 		
 		// Total number of weeks to display on the calendar
-		$total_weeks = 4;
-		$total_weeks = apply_filters( 'ef_calendar_total_weeks', $total_weeks );
+		$this->total_weeks = apply_filters( 'ef_calendar_total_weeks', $this->total_weeks );
 		
 		$dotw = array(
 			'Sat',
@@ -167,12 +166,13 @@ class EF_Calendar {
 		
 		// Get filters either from $_GET or from user settings
 		$filters = $this->get_filters();
+		// For generating the WP Query objects later on
 		$args = array(	'post_status' => $filters['post_status'],
 						'post_type' => $filters['post_type'],
 						'cat'         => $filters['cat'],
 						'author'      => $filters['author']
 					  );
-		$edit_flow->start_date = $filters['start_date'];
+		$this->start_date = $filters['start_date'];
 		
 		// We use this later to label posts if they need labeling
 		if ( count( $supported_post_types ) > 1 ) {
@@ -204,9 +204,9 @@ class EF_Calendar {
 				</thead>
 				<tbody>
 				
-				<?php for( $current_week = 1; $current_week <= $total_weeks; $current_week++ ):
+				<?php for( $current_week = 1; $current_week <= $this->total_weeks; $current_week++ ):
 					// We need to set the global variable for our posts_where filter
-					$edit_flow->current_week = $current_week;
+					$this->current_week = $current_week;
 					$week_posts = $this->get_calendar_posts_for_week( $args );
 					$date_format = 'Y-m-d';
 					$week_single_date = $this->get_beginning_of_week( $filters['start_date'], $date_format, $current_week );
@@ -287,14 +287,6 @@ class EF_Calendar {
 					</tbody>		
 					</table><!-- /Week Wrapper -->
 					
-					<ul class="ef-calendar-navigation">
-					  <li class="next-week">
-							<a href="<?php echo $this->get_next_link( $dates[0], $filters ); ?>"><?php _e( 'Next &raquo;', 'edit-flow' ); ?></a>
-						</li>
-						<li class="previous-week">
-							<a href="<?php echo $this->get_previous_link( $dates[count($dates)-1], $filters ); ?>"><?php _e( '&laquo; Previous', 'edit-flow' ); ?></a>
-						</li>
-					</ul>
 					<div class="clear"></div>
 				</div><!-- /Calendar Wrapper -->
 
@@ -386,13 +378,13 @@ class EF_Calendar {
 					<input type="submit" id="post-query-clear" class="button-secondary button" value="<?php _e( 'Reset', 'edit-flow' ); ?>"/>
 				</form>
 			</li>
-	  
+
 			<!-- Previous and next navigation items -->
 			<li class="next-week">
-				<a id="trigger-left" href="<?php echo $this->get_next_link( $dates[0], $filters ); ?>"><?php _e( 'Next &raquo;', 'edit-flow' ); ?></a>
+				<a id="trigger-left" href="<?php echo $this->get_next_link( $filters ); ?>"><?php _e( 'Next &raquo;', 'edit-flow' ); ?></a>
 			</li>
 			<li class="previous-week">
-				<a id="trigger-right" href="<?php echo $this->get_previous_link( $dates[count($dates)-1], $filters ); ?>"><?php _e( '&laquo; Previous', 'edit-flow' ); ?></a>
+				<a id="trigger-right" href="<?php echo $this->get_previous_link( $filters ); ?>"><?php _e( '&laquo; Previous', 'edit-flow' ); ?></a>
 			</li>
 		</ul>
 	<?php
@@ -502,8 +494,8 @@ class EF_Calendar {
 	function posts_where_week_range( $where = '' ) {
 		global $edit_flow;
 	
-		$beginning_date = $this->get_beginning_of_week( $edit_flow->start_date, 'Y-m-d', $edit_flow->current_week );
-		$ending_date = $this->get_ending_of_week( $edit_flow->start_date, 'Y-m-d', $edit_flow->current_week );
+		$beginning_date = $this->get_beginning_of_week( $this->start_date, 'Y-m-d', $this->current_week );
+		$ending_date = $this->get_ending_of_week( $this->start_date, 'Y-m-d', $this->current_week );
 		$where .= " AND post_date >= '$beginning_date' AND post_date <= '$ending_date'";
 	
 		return $where;
@@ -517,17 +509,18 @@ class EF_Calendar {
 	 * @param array $filters Any filters that need to be applied
 	 * @return string $url The URL for the next page
 	 */
-	function get_previous_link( $start_date, $filters ) {
+	function get_previous_link( $filters = array() ) {
 		global $edit_flow;
 		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
 		
-		$p_date = date('d-m-Y', strtotime("-1 day", strtotime($start_date)));
-		$url = EDIT_FLOW_CALENDAR_PAGE . '&amp;start_date=' . $p_date;
-		$url .= '&amp;post_status=' . $filters['post_status'] . '&amp;cat=' . $filters['cat'];
-		$url .= '&amp;author=' . $filters['author'];
-		if ( count( $supported_post_types ) > 1 ) {
-			$url .= '&amp;type=' . $filters['post_type'];
-		}
+		$filters['start_date'] = date( 'Y-m-d', strtotime( "-" . $this->total_weeks . " weeks", strtotime( $filters['start_date'] ) ) );
+		$url = EDIT_FLOW_CALENDAR_PAGE;
+		foreach( $filters as $label => $value )
+			$url = add_query_arg( $label, $value, $url );
+
+		if ( count( $supported_post_types ) > 1 )
+			$url = add_query_arg( 'post_type', $filters['post_type'] , $url );
+		
 		return $url;
 		
 	} // END: get_previous_link()
@@ -540,18 +533,18 @@ class EF_Calendar {
 	 * @param array $filters Any filters that need to be applied
 	 * @return string $url The URL for the next page
 	 */
-	function get_next_link( $start_date, $filters ) {
-		
+	function get_next_link( $filters = array() ) {
 		global $edit_flow;
 		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
 		
-		$n_date = date('d-m-Y', strtotime("+7 days", strtotime($start_date)));
-		$url = EDIT_FLOW_CALENDAR_PAGE . '&amp;start_date=' . $n_date;
-		$url .= '&amp;post_status=' . $filters['post_status'] . '&amp;cat=' . $filters['cat'];
-		$url .= '&amp;author=' . $filters['author'];
-		if ( count( $supported_post_types ) > 1 ) {
-			$url .= '&amp;type=' . $filters['post_type'];
-		}
+		$filters['start_date'] = date( 'Y-m-d', strtotime( $this->total_weeks . " weeks", strtotime( $filters['start_date'] ) ) );
+		$url = EDIT_FLOW_CALENDAR_PAGE;
+		foreach( $filters as $label => $value )
+			$url = add_query_arg( $label, $value, $url );
+
+		if ( count( $supported_post_types ) > 1 )
+			$url = add_query_arg( 'post_type', $filters['post_type'] , $url );
+		
 		return $url;
 		
 	} // END: get_next_link()
