@@ -707,7 +707,7 @@ class EF_Custom_Status {
 	 * Normalize post_date_gmt if it isn't set to the past or the future, and bump timestamp if it's set to a nonsense date
 	 * This is a hack! hack! hack! until core is fixed/better supports custom statuses
 	 * Original thread: http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem
-	 * Core ticket: http://core.trac.wordpress.org/ticket/18361
+	 * Core ticket: http://core.trac.wordpress.org/ticket/18362
 	 */
 	function fix_custom_status_timestamp( $data ) {
 		global $edit_flow, $ef_normalize_post_date_gmt, $pagenow;
