@@ -204,7 +204,9 @@ class EF_Calendar {
 				</thead>
 				<tbody>
 				
-				<?php for( $current_week = 1; $current_week <= $this->total_weeks; $current_week++ ):
+				<?php
+				$current_month = null;
+				for( $current_week = 1; $current_week <= $this->total_weeks; $current_week++ ):
 					// We need to set the global variable for our posts_where filter
 					$this->current_week = $current_week;
 					$week_posts = $this->get_calendar_posts_for_week( $args );
@@ -226,9 +228,16 @@ class EF_Calendar {
 					$day_name = date( 'D', strtotime( $week_single_date ) );
 					if ( in_array( $day_name, $dotw ) )
 						$td_classes[] = 'weekend-day';
+					$month_name = date( 'F', strtotime( $week_single_date ) );
+					if ( $month_name != $current_month ) {
+						$month_label = '<span class="month-label">' . esc_html( $month_name ) . '</span>';
+						$current_month = $month_name;
+					} else {
+						$month_label = '';
+					}
 				?>
 				<td class="<?php echo implode( ' ', $td_classes ); ?>" id="day-<?php echo $week_single_date; ?>">
-					<div class="day-unit-label"><?php echo date( 'j', strtotime( $week_single_date ) ); ?></div>
+					<div class="day-unit-label"><?php echo $month_label; ?><?php echo date( 'j', strtotime( $week_single_date ) ); ?></div>
 					<?php if ( !empty( $week_posts[$week_single_date] ) ): ?>
 					<ul class="post-list">
 						<?php
@@ -387,7 +396,9 @@ class EF_Calendar {
 				<?php endif; ?>
 			</li>
 			<li class="previous-week">
+				<?php if ( $this->total_weeks > 1): ?>				
 				<a id="trigger-right" href="<?php echo $this->get_previous_link( $filters ); ?>"><?php _e( '&laquo; ' . $this->total_weeks . ' Weeks', 'edit-flow' ); ?></a>
+				<?php endif; ?>
 				<a id="trigger-right" href="<?php echo $this->get_previous_link( $filters, 1 ); ?>"><?php _e( '&laquo; Previous Week', 'edit-flow' ); ?></a>
 			</li>
 		</ul>

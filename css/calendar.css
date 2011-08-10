@@ -27,6 +27,19 @@ table#ef-calendar-view {
 	padding-top: 3px;
 }
 
+#ef-calendar-view .day-unit .month-label {
+	float: left;
+	color: #999999;
+	display: block;
+	border-right: 1px solid #E1E1E1;
+	border-bottom: 1px solid #E1E1E1;	
+	padding-left: 4px;
+	padding-bottom: 1px;
+	padding-top: 1px;
+	padding-right: 4px;
+	font-size: 11px;
+}
+
 div#week-wrap div.today { /*** Different background color for today ***/
 	background-color: #FFFFE0; /*** Light yellow: this is the same color as message notifications ***/
 }
