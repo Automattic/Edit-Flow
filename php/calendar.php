@@ -381,10 +381,14 @@ class EF_Calendar {
 
 			<!-- Previous and next navigation items -->
 			<li class="next-week">
-				<a id="trigger-left" href="<?php echo $this->get_next_link( $filters ); ?>"><?php _e( 'Next &raquo;', 'edit-flow' ); ?></a>
+				<a id="trigger-left" href="<?php echo $this->get_next_link( $filters, 1 ); ?>"><?php _e( 'Next Week &raquo;', 'edit-flow' ); ?></a>
+				<?php if ( $this->total_weeks > 1): ?>			
+				<a id="trigger-left" href="<?php echo $this->get_next_link( $filters ); ?>"><?php _e( $this->total_weeks . ' Weeks &raquo;', 'edit-flow' ); ?></a>
+				<?php endif; ?>
 			</li>
 			<li class="previous-week">
-				<a id="trigger-right" href="<?php echo $this->get_previous_link( $filters ); ?>"><?php _e( '&laquo; Previous', 'edit-flow' ); ?></a>
+				<a id="trigger-right" href="<?php echo $this->get_previous_link( $filters ); ?>"><?php _e( '&laquo; ' . $this->total_weeks . ' Weeks', 'edit-flow' ); ?></a>
+				<a id="trigger-right" href="<?php echo $this->get_previous_link( $filters, 1 ); ?>"><?php _e( '&laquo; Previous Week', 'edit-flow' ); ?></a>
 			</li>
 		</ul>
 	<?php
@@ -509,11 +513,14 @@ class EF_Calendar {
 	 * @param array $filters Any filters that need to be applied
 	 * @return string $url The URL for the next page
 	 */
-	function get_previous_link( $filters = array() ) {
+	function get_previous_link( $filters = array(), $weeks_offset = null ) {
 		global $edit_flow;
 		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
 		
-		$filters['start_date'] = date( 'Y-m-d', strtotime( "-" . $this->total_weeks . " weeks", strtotime( $filters['start_date'] ) ) );
+		if ( !$weeks_offset )
+			$weeks_offset = $this->total_weeks;
+			
+		$filters['start_date'] = date( 'Y-m-d', strtotime( "-" . $weeks_offset . " weeks", strtotime( $filters['start_date'] ) ) );	
 		$url = EDIT_FLOW_CALENDAR_PAGE;
 		foreach( $filters as $label => $value )
 			$url = add_query_arg( $label, $value, $url );
@@ -533,11 +540,14 @@ class EF_Calendar {
 	 * @param array $filters Any filters that need to be applied
 	 * @return string $url The URL for the next page
 	 */
-	function get_next_link( $filters = array() ) {
+	function get_next_link( $filters = array(), $weeks_offset = null ) {
 		global $edit_flow;
 		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
 		
-		$filters['start_date'] = date( 'Y-m-d', strtotime( $this->total_weeks . " weeks", strtotime( $filters['start_date'] ) ) );
+		if ( !$weeks_offset )
+			$weeks_offset = $this->total_weeks;
+		
+		$filters['start_date'] = date( 'Y-m-d', strtotime( $weeks_offset . " weeks", strtotime( $filters['start_date'] ) ) );
 		$url = EDIT_FLOW_CALENDAR_PAGE;
 		foreach( $filters as $label => $value )
 			$url = add_query_arg( $label, $value, $url );
