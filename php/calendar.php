@@ -449,6 +449,7 @@ class EF_Calendar {
 							'cat'         => null,
 						  	'author'      => null,
 							'post_type' => $supported_post_types,
+							'posts_per_page' => -1,
 						  );
 						 
 		$args = array_merge( $defaults, $args );
