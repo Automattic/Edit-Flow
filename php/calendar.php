@@ -160,7 +160,7 @@ class EF_Calendar {
 			'Sat',
 			'Sun',
 		);
-		$dotw = apply_filters( 'ef_calendar_weekend_days', $dotw );		
+		$dotw = apply_filters( 'ef_calendar_weekend_days', $dotw );
 
 		date_default_timezone_set('UTC');
 		
@@ -189,7 +189,7 @@ class EF_Calendar {
 		<div class="wrap">
 			<div id="ef-calendar-title"><!-- Calendar Title -->
 				<div class="icon32" id="icon-edit"></div>
-				<h2><?php _e( 'Calendar', 'edit-flow' ); ?></h2>
+				<h2><?php _e( 'Calendar', 'edit-flow' ); ?>&nbsp;<span class="time-range"><?php $this->calendar_time_range( $filters ); ?></span></h2>
 			</div><!-- /Calendar Title -->
 
 			<div id="ef-calendar-wrap"><!-- Calendar Wrapper -->
@@ -615,7 +615,32 @@ class EF_Calendar {
 		$formatted_end_of_week = date( $format, $date + $additional );
 		return $formatted_end_of_week;
 		
-	} // END: get_ending_of_week()
+	}
+	
+	/**
+	 * Human-readable time range for the calendar
+	 */
+	function calendar_time_range( $filters ) {
+		$numbers_to_words = array(
+			__( 'zero' ),
+			__( 'one' ),
+			__( 'two' ),
+			__( 'three' ),
+			__( 'four' ),
+			__( 'five' ),
+			__( 'six' ),
+			__( 'seven' ),
+			__( 'eight' ),
+			__( 'nine' ),
+			__( 'ten' ),
+		);
+		$numbers_to_words = apply_filters( 'ef_calendar_numbers_to_words', $numbers_to_words );
+		
+		if ( $this->total_weeks == 1 )
+			echo sprintf( __( 'is showing %s days starting %s'), 7, date( 'F jS', strtotime( $_GET['start_date'] ) ) );
+		else if ( $this->total_weeks > 1 )
+			echo sprintf( __( 'is showing %s weeks starting %s'), $numbers_to_words[$this->total_weeks], date( 'F jS', strtotime( $_GET['start_date'] ) ) );
+	}
 	
 } // END: class EF_Calendar
 	

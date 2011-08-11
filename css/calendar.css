@@ -1,3 +1,7 @@
+#ef-calendar-title h2 span {
+	color: #999999;
+}
+
 #ef-calendar-wrap {
 	min-width:900px;
 	width: 100%;
@@ -29,16 +33,22 @@ table#ef-calendar-view {
 
 #ef-calendar-view .day-unit .month-label {
 	float: left;
-	color: #999999;
+	color: #666666;
 	display: block;
 	border-right: 1px solid #E1E1E1;
 	border-bottom: 1px solid #E1E1E1;	
-	padding-left: 4px;
+	padding-left: 5px;
 	padding-bottom: 1px;
 	padding-top: 1px;
-	padding-right: 4px;
+	padding-right: 5px;
 	font-size: 11px;
 }
+
+#ef-calendar-view .day-unit.weekend-day .day-unit-label,
+#ef-calendar-view .day-unit.weekend-day .month-label {
+	color: #999999;
+}
+
 
 div#week-wrap div.today { /*** Different background color for today ***/
 	background-color: #FFFFE0; /*** Light yellow: this is the same color as message notifications ***/
