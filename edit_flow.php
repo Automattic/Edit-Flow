@@ -281,7 +281,7 @@ class edit_flow {
 		add_menu_page(__('Edit Flow', 'edit-flow'), __('Edit Flow', 'edit-flow'), 'manage_options', $this->get_page('edit-flow'), array(&$this->settings, 'settings_page'));
 		
 		// Add sub-menu page for Custom statuses		
-		add_submenu_page( $this->get_page('edit-flow'), __('Custom Status', 'edit-flow'), __('Custom Status', 'edit-flow'), 'manage_options', $this->get_page('custom_status'), array(&$this->custom_status,'admin_page'));
+		add_submenu_page( $this->get_page('edit-flow'), __('Custom Statuses', 'edit-flow'), __('Custom Statuses', 'edit-flow'), 'manage_options', $this->get_page('custom_status'), array(&$this->custom_status,'admin_page'));
 		
 		add_submenu_page( $this->get_page('edit-flow'), __('Editorial Metadata', 'edit-flow'),
                         __('Editorial Metadata', 'edit-flow'), 'manage_options',
