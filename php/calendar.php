@@ -184,7 +184,7 @@ class EF_Calendar {
 		<div class="wrap">
 			<div id="ef-calendar-title"><!-- Calendar Title -->
 				<div class="icon32" id="icon-edit"></div>
-				<h2><?php _e( 'Calendar', 'edit-flow' ); ?>&nbsp;<span class="time-range"><?php $this->calendar_time_range( $filters ); ?></span></h2>
+				<h2><?php _e( 'Calendar', 'edit-flow' ); ?>&nbsp;<span class="time-range"><?php $this->calendar_time_range(); ?></span></h2>
 			</div><!-- /Calendar Title -->
 
 			<div id="ef-calendar-wrap"><!-- Calendar Wrapper -->
@@ -616,7 +616,7 @@ class EF_Calendar {
 	 *
 	 * @param array $filters The filters in use on the calendar
 	 */
-	function calendar_time_range( $filters ) {
+	function calendar_time_range() {
 		$numbers_to_words = array(
 			__( 'zero' ),
 			__( 'one' ),
@@ -633,9 +633,9 @@ class EF_Calendar {
 		$numbers_to_words = apply_filters( 'ef_calendar_numbers_to_words', $numbers_to_words );
 		
 		if ( $this->total_weeks == 1 )
-			echo sprintf( __( 'is showing %1s days starting %2s'), 7, date( 'F jS', strtotime( $filters['start_date'] ) ) );
+			echo sprintf( __( 'is showing %1$s days starting %2$s'), 7, date( 'F jS', strtotime( $this->start_date ) ) );
 		else if ( $this->total_weeks > 1 )
-			echo sprintf( __( 'is showing %1s weeks starting %2s'), $numbers_to_words[$this->total_weeks], date( 'F jS', strtotime( $filters['start_date'] ) ) );
+			echo sprintf( __( 'is showing %1$s weeks starting %2$s'), $numbers_to_words[$this->total_weeks], date( 'F jS', strtotime( $this->start_date ) ) );
 	}
 	
 }
