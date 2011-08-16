@@ -18,7 +18,6 @@ class EF_Calendar {
 	var $total_weeks = 4;	
 	
 	/**
-	 * __construct()
 	 * Construct the EF_Calendar class
 	 */
 	function __construct() {
@@ -27,7 +26,7 @@ class EF_Calendar {
 		add_action( 'admin_enqueue_scripts', array(&$this, 'add_admin_scripts' ));
 		add_action( 'admin_print_styles', array(&$this, 'add_admin_styles' ));
 		
-	} // END: __construct()
+	}
 	
 	/**
 	 * init()
@@ -39,20 +38,18 @@ class EF_Calendar {
 		// Other support can be added with the add_post_type_support method
 		add_post_type_support( 'post', 'ef_calendar' );
 		
-	} // END: init()
+	}
 	
 	/**
-	 * add_admin_scripts()
 	 * Add any necessary Javascript to the WordPress admin
 	 */
 	function add_admin_scripts() {
 		
 		//wp_enqueue_script('edit_flow-calendar-js', EDIT_FLOW_URL.'js/calendar.js', array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'), EDIT_FLOW_VERSION, true);
 		
-	} // END: add_admin_scripts()
+	}
 	
 	/**
-	 * add_admin_styles()
 	 * Add any necessary CSS to the WordPress admin
 	 */
 	function add_admin_styles() {
@@ -63,10 +60,9 @@ class EF_Calendar {
 			wp_enqueue_style( 'edit_flow-calendar-css', EDIT_FLOW_URL.'css/calendar.css', false, EDIT_FLOW_VERSION );
 		}
 		
-	} // END: add_admin_styles()
+	}
 	
 	/**
-	 * get_filters()
 	 * Get the user's filters for calendar, either with $_GET or from saved
 	 *
 	 * @uses get_user_meta()
@@ -142,11 +138,10 @@ class EF_Calendar {
 		update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $filters );
 		
 		return $filters;
-	} // END: get_filters()
+	}
 	
 	/**
-	 * view_calendar()
-	 * Build the calendar view
+	 * Build all of the HTML for the calendar view
 	 */
 	function view_calendar() {
 		global $edit_flow;
@@ -306,7 +301,6 @@ class EF_Calendar {
 	} // END: view_calendar()
 	
 	/**
-	 * print_top_navigation()
 	 * Generates the filtering and navigation options for the top of the calendar
 	 *
 	 * @param array $filters Any set filters
@@ -403,10 +397,9 @@ class EF_Calendar {
 			</li>
 		</ul>
 	<?php
-	} // END: print_top_navigation()
+	}
 	
 	/**
-	 * get_time_period_header()
 	 * Generate the calendar header for a given range of dates
 	 *
 	 * @param array $dates Date range for the header
@@ -426,7 +419,6 @@ class EF_Calendar {
 	} // END: get_time_period_header()
 	
 	/**
-	 * viewable()
 	 * Helper method to determine whether the calendar is viewable or not
 	 *
 	 * @return bool $viewable Whether the calendar is viewable or not
@@ -442,15 +434,13 @@ class EF_Calendar {
 		}
 		return false;
 		
-	} // END: viewable()
+	}
 	
 	/**
-	 * get_calendar_posts_for_week()
 	 * Query to get all of the calendar posts for a given day
 	 *
-	 * @param string $date The date for which we want posts
 	 * @param array $args Any filter arguments we want to pass
-	 * @return object $posts All of the posts as an object
+	 * @return array $posts All of the posts as an array sorted by date
 	 */
 	function get_calendar_posts_for_week( $args = null ) {
 		global $wpdb, $edit_flow;
@@ -505,8 +495,14 @@ class EF_Calendar {
 		
 		return $posts;
 		
-	} // END: get_calendar_posts_for_week()
+	}
 	
+	/**
+	 * Filter the WP_Query so we can get a week range of posts
+	 *
+	 * @param string $where The original WHERE SQL query string
+	 * @return string $where Our modified WHERE query string
+	 */
 	function posts_where_week_range( $where = '' ) {
 		global $edit_flow;
 	
@@ -518,11 +514,10 @@ class EF_Calendar {
 	} 
 	
 	/**
-	 * get_previous_link()
 	 * Gets the link for the previous time period
 	 *
-	 * @param string $start_date The start date for the previous period
 	 * @param array $filters Any filters that need to be applied
+	 * @param int $weeks_offset Number of weeks we're offsetting the range
 	 * @return string $url The URL for the next page
 	 */
 	function get_previous_link( $filters = array(), $weeks_offset = null ) {
@@ -542,14 +537,13 @@ class EF_Calendar {
 		
 		return $url;
 		
-	} // END: get_previous_link()
+	}
 
 	/**
-	 * get_next_link()
 	 * Gets the link for the next time period
 	 *
-	 * @param string $start_date The start date for the next period
 	 * @param array $filters Any filters that need to be applied
+	 * @param int $weeks_offset Number of weeks we're offsetting the range	
 	 * @return string $url The URL for the next page
 	 */
 	function get_next_link( $filters = array(), $weeks_offset = null ) {
@@ -569,15 +563,15 @@ class EF_Calendar {
 		
 		return $url;
 		
-	} // END: get_next_link()
+	}
 	
 	/**
-	 * get_beginning_of_week()
 	 * Given a day in string format, returns the day at the beginning of that week, which can be the given date.
 	 * The end of the week is determined by the blog option, 'start_of_week'.
 	 *
 	 * @param string $date String representing a date
 	 * @param string $format Date format in which the end of the week should be returned
+	 * @param int $week Number of weeks we're offsetting the range	
 	 * @return string $formatted_start_of_week End of the week
 	 *
 	 * @see http://www.php.net/manual/en/datetime.formats.date.php for valid date formats
@@ -595,12 +589,12 @@ class EF_Calendar {
 	} // END: get_beginning_of_week()
 	
 	/**
-	 * get_ending_of_week()
 	 * Given a day in string format, returns the day at the end of that week, which can be the given date.
 	 * The end of the week is determined by the blog option, 'start_of_week'.
 	 *
 	 * @param string $date String representing a date
 	 * @param string $format Date format in which the end of the week should be returned
+	 * @param int $week Number of weeks we're offsetting the range		
 	 * @return string $formatted_end_of_week End of the week
 	 *
 	 * @see http://www.php.net/manual/en/datetime.formats.date.php for valid date formats
@@ -619,6 +613,8 @@ class EF_Calendar {
 	
 	/**
 	 * Human-readable time range for the calendar
+	 *
+	 * @param array $filters The filters in use on the calendar
 	 */
 	function calendar_time_range( $filters ) {
 		$numbers_to_words = array(
@@ -637,11 +633,11 @@ class EF_Calendar {
 		$numbers_to_words = apply_filters( 'ef_calendar_numbers_to_words', $numbers_to_words );
 		
 		if ( $this->total_weeks == 1 )
-			echo sprintf( __( 'is showing %s days starting %s'), 7, date( 'F jS', strtotime( $_GET['start_date'] ) ) );
+			echo sprintf( __( 'is showing %1s days starting %2s'), 7, date( 'F jS', strtotime( $filters['start_date'] ) ) );
 		else if ( $this->total_weeks > 1 )
-			echo sprintf( __( 'is showing %s weeks starting %s'), $numbers_to_words[$this->total_weeks], date( 'F jS', strtotime( $_GET['start_date'] ) ) );
+			echo sprintf( __( 'is showing %1s weeks starting %2s'), $numbers_to_words[$this->total_weeks], date( 'F jS', strtotime( $filters['start_date'] ) ) );
 	}
 	
-} // END: class EF_Calendar
+}
 	
 } // END: if ( !class_exists('EF_Calendar') )
