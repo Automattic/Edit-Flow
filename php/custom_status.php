@@ -55,6 +55,7 @@ class EF_Custom_Status {
 		add_filter( 'manage_pages_columns', array( &$this, '_filter_manage_posts_columns' ) );
 		add_action( 'manage_pages_custom_column', array( &$this, '_filter_manage_posts_custom_column' ) );
 		
+		add_filter( 'admin_init', array( &$this, 'check_timestamp_on_publish' ) );
 		add_filter( 'wp_insert_post_data', array( &$this, 'fix_custom_status_timestamp' ) );		
 		
 	} // END: init()
@@ -680,10 +681,9 @@ class EF_Custom_Status {
 
 		$ef_page_data['custom_statuses'] = $this->get_custom_statuses();
 		
-	} // END: admin_controller()
+	}
 
 	/**
-	 * admin_page()
 	 * Handles the main admin page for Custom Statuses.
 	 */
 	function admin_page() {
@@ -701,16 +701,39 @@ class EF_Custom_Status {
 		
 		include_once( EDIT_FLOW_ROOT . '/php/' . $ef_page_data['view'] );
 		
-	} // END: admin_page()
+	}
 	
 	/**
-	 * Normalize post_date_gmt if it isn't set to the past or the future, and bump timestamp if it's set to a nonsense date
 	 * This is a hack! hack! hack! until core is fixed/better supports custom statuses
+	 *	
+	 * When publishing a post with a custom status, set the status to 'pending' temporarily
+	 * Works around this limitation: http://core.trac.wordpress.org/browser/tags/3.2.1/wp-includes/post.php#L2694
 	 * Original thread: http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem
 	 * Core ticket: http://core.trac.wordpress.org/ticket/18362
 	 */
+	function check_timestamp_on_publish() {
+		global $edit_flow, $pagenow, $wpdb;
+		
+		if ( !isset( $edit_flow ) || $pagenow != 'post.php' || !isset( $_POST['publish'] ) )
+			return false;
+
+		// Set the post_status as 'pending' only when there's no timestamp set for $post_date_gmt
+		if ( isset( $_POST['post_ID'] ) ) {
+			$post_id = (int) $_POST['post_ID'];
+			$wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array( 'ID' => $post_id, 'post_date_gmt' => '0000-00-00 00:00:00' ) );
+		}
+		
+	}
+	/**
+	 * This is a hack! hack! hack! until core is fixed/better supports custom statuses
+	 *	
+	 * Normalize post_date_gmt if it isn't set to the past or the future
+	 * Works around this limitation: http://core.trac.wordpress.org/browser/tags/3.2.1/wp-includes/post.php#L2506	
+	 * Original thread: http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem
+	 * Core ticket: http://core.trac.wordpress.org/ticket/18362	
+	 */
 	function fix_custom_status_timestamp( $data ) {
-		global $edit_flow, $ef_normalize_post_date_gmt, $pagenow;
+		global $edit_flow, $pagenow;
 		// Don't run this if Edit Flow isn't active, or we're on some other page
 		if ( !isset( $edit_flow ) || $pagenow != 'post.php' || !isset( $_POST ) )
 			return $data;
@@ -719,7 +742,8 @@ class EF_Custom_Status {
 		foreach( $custom_statuses as $custom_status )
 		    $status_slugs[] = $custom_status->slug;
 		$ef_normalize_post_date_gmt = true;
-		// We're only going to normalize the post_date_gmt if the user hasn't set a custom date in the metabox and the current post_date_gmt isn't already future or past-ized
+		// We're only going to normalize the post_date_gmt if the user hasn't set a custom date in the metabox
+		// and the current post_date_gmt isn't already future or past-ized
 		foreach ( array('aa', 'mm', 'jj', 'hh', 'mn') as $timeunit ) {
 			if ( !empty( $_POST['hidden_' . $timeunit] ) && (($_POST['hidden_' . $timeunit] != $_POST[$timeunit] ) || ( $_POST['hidden_' . $timeunit] != $_POST['cur_' . $timeunit] )) ) {
 				$ef_normalize_post_date_gmt = false;
@@ -729,10 +753,6 @@ class EF_Custom_Status {
 		if ( $ef_normalize_post_date_gmt )
 			if ( in_array( $data['post_status'], $status_slugs ) )
 				$data['post_date_gmt'] = '0000-00-00 00:00:00';
-		$status_slugs[] = 'auto-draft';
-		// On publish, update the post_date timestamp if post_date_gmt is set to a nonsense date
-		if ( in_array( $data['post_status'], $status_slugs ) && ( '0000-00-00 00:00:00' == $data['post_date_gmt'] ) && isset( $_POST['publish'] ) )
-			$data['post_date'] = current_time('mysql');
 		return $data;
 	}
 		
