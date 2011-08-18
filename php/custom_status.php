@@ -55,7 +55,7 @@ class EF_Custom_Status {
 		add_filter( 'manage_pages_columns', array( &$this, '_filter_manage_posts_columns' ) );
 		add_action( 'manage_pages_custom_column', array( &$this, '_filter_manage_posts_custom_column' ) );
 		
-		add_filter( 'admin_init', array( &$this, 'check_timestamp_on_publish' ) );
+		add_action( 'admin_init', array( &$this, 'check_timestamp_on_publish' ) );
 		add_filter( 'wp_insert_post_data', array( &$this, 'fix_custom_status_timestamp' ) );		
 		
 	} // END: init()
