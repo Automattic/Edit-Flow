@@ -714,13 +714,24 @@ class EF_Custom_Status {
 	function check_timestamp_on_publish() {
 		global $edit_flow, $pagenow, $wpdb;
 		
-		if ( !isset( $edit_flow ) || $pagenow != 'post.php' || !isset( $_POST['publish'] ) )
-			return false;
-
-		// Set the post_status as 'pending' only when there's no timestamp set for $post_date_gmt
-		if ( isset( $_POST['post_ID'] ) ) {
-			$post_id = (int) $_POST['post_ID'];
-			$wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array( 'ID' => $post_id, 'post_date_gmt' => '0000-00-00 00:00:00' ) );
+		// Handles the transition to 'publish' on edit.php
+		if ( isset( $edit_flow ) && $pagenow == 'edit.php' && isset( $_REQUEST['bulk_edit'] ) ) {
+			// For every post_id, set the post_status as 'pending' only when there's no timestamp set for $post_date_gmt			
+			if ( $_REQUEST['_status'] == 'publish' ) {
+				$post_ids = array_map( 'intval', (array) $_REQUEST['post'] );
+				foreach ( $post_ids as $post_id ) {		
+					$wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array( 'ID' => $post_id, 'post_date_gmt' => '0000-00-00 00:00:00' ) );
+				}
+			}
+		}
+			
+		// Handles the transition to 'publish' on post.php
+		if ( isset( $edit_flow ) && $pagenow == 'post.php' && isset( $_POST['publish'] ) ) {
+			// Set the post_status as 'pending' only when there's no timestamp set for $post_date_gmt
+			if ( isset( $_POST['post_ID'] ) ) {
+				$post_id = (int) $_POST['post_ID'];
+				$wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array( 'ID' => $post_id, 'post_date_gmt' => '0000-00-00 00:00:00' ) );
+			}
 		}
 		
 	}
@@ -777,6 +788,15 @@ function ef_get_custom_status_edit_link( $id ) {
 	return EDIT_FLOW_CUSTOM_STATUS_PAGE.'&amp;action=edit&amp;term_id='.$id;
 	
 } // END: ef_get_custom_status_edit_link()
+
+/**
+ * ef_get_custom_status_make_default_link()
+ */
+function ef_get_custom_status_make_default_link( $id ) {
+	
+	return EDIT_FLOW_CUSTOM_STATUS_PAGE.'&amp;action=make_default&amp;term_id='.$id;
+	
+} // END: ef_get_custom_status_make_default_link()
 
 /**
  * ef_get_custom_status_post_count()
