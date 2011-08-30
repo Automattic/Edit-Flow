@@ -49,13 +49,13 @@ function edit_flow_upgrade_03 () {
 	}
 	
 	$default_usergroups = array( 
-		array( 'slug' => 'ef_copy-editors', 'args' => array( 'name' => 'Copy Editors', 'description' => 'The ones who correct stuff.' ) ),
-		array( 'slug' => 'ef_photographers', 'args' => array( 'name' => 'Photographers', 'description' => 'The ones who take pretty pictures.' ) ),
+		array( 'slug' => 'ef_copy-editors', 'args' => array( 'name' => 'Copy Editors', 'description' => 'The ones who correct stuff.', 'users' => '' ) ),
+		array( 'slug' => 'ef_photographers', 'args' => array( 'name' => 'Photographers', 'description' => 'The ones who take pretty pictures.', 'users' => '' ) ),
 		
-		array( 'slug' => 'ef_reporters', 'args' => array( 'name' => 'Reporters', 'description' => 'The ones who write stuff.' ) ),
-		array( 'slug' => 'ef_section-editors', 'args' => array( 'name' => 'Section Editors', 'description' => 'The ones who tell others what to do and generally just boss them around.' ) ),
-		array( 'slug' => 'ef_web-team', 'args' => array( 'name' => 'Web Team', 'description' => 'The ones you call when your computer starts doing that weird thing.' ) ),
-		array( 'slug' => 'ef_sales-team', 'args' => array( 'name' => 'Sales Team', 'description' => 'Yeah, they technically pay our salaries. But we still don\'t like them.' ) ),
+		array( 'slug' => 'ef_reporters', 'args' => array( 'name' => 'Reporters', 'description' => 'The ones who write stuff.', 'users' => '' ) ),
+		array( 'slug' => 'ef_section-editors', 'args' => array( 'name' => 'Section Editors', 'description' => 'The ones who tell others what to do and generally just boss them around.', 'users' => '' ) ),
+		array( 'slug' => 'ef_web-team', 'args' => array( 'name' => 'Web Team', 'description' => 'The ones you call when your computer starts doing that weird thing.', 'users' => '' ) ),
+		array( 'slug' => 'ef_sales-team', 'args' => array( 'name' => 'Sales Team', 'description' => 'Yeah, they technically pay our salaries. But we still don\'t like them.', 'users' => '' ) ),
 	);
 	
 	// Okay, now add the default statuses to the db if they don't already exist 
