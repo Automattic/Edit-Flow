@@ -128,9 +128,10 @@ class edit_flow {
 	 */
 	function init() {
 		
-		// Load all of the modules that are enabled
+		// Load all of the modules that are enabled.
+		// Modules won't have an options value if they aren't enabled
 		foreach ( $this->modules as $mod_name => $mod_data )
-			if ( $mod_data->options->enabled == 'on' )
+			if ( isset( $mod_data->options ) && $mod_data->options->enabled == 'on' )
 				$this->$mod_name->init();
 		
 	} // END: init()
@@ -177,6 +178,7 @@ class edit_flow {
 			'configure_page_cb' => false,
 			'configure_link_text' => 'Configure',
 			'autoload' => false,
+			'load_frontend' => false,
 		);
 		$args = array_merge( $defaults, $args );
 		$args['name'] = $name;
@@ -191,6 +193,9 @@ class edit_flow {
 	 */
 	function load_module_options() {
 		foreach ( $this->modules as $mod_name => $mod_data ) {
+			// Don't load modules on the frontend unless they're explictly defined as such
+			if ( !is_admin() && !$mod_data->load_frontend )
+				continue;
 			$this->modules->$mod_name->options = get_option( $this->options_group . $mod_name . '_options' );
 			foreach ( $mod_data->default_options as $default_key => $default_value ) {
 				if ( !isset( $this->modules->$mod_name->options->$default_key ) )
