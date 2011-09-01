@@ -10,18 +10,45 @@ define( 'EDIT_FLOW_USERGROUPS_USERMETA' , $wpdb->prefix . 'ef_usergroups' ); // 
 if ( !class_exists( 'EF_Usergroups_Admin' ) ) {
 
 class EF_Usergroups_Admin {
+	
+	var $module;
 
 	/**
-	 * Constructor
+	 * Register the module with Edit Flow but don't do anything else
 	 */
 	function __construct( ) {
+		global $edit_flow;
 		
-		add_action('show_user_profile', array(&$this, 'user_profile_page'));
-		add_action('edit_user_profile', array(&$this, 'user_profile_page'));
-		add_action('user_profile_update_errors', array(&$this, 'user_profile_update'), 10, 3);
+		// Register the module with Edit Flow
+		// @todo default options for registering the statuses
+		$args = array(
+			'title' => __( 'Usergroups', 'edit-flow' ),
+			'short_description' => __( 'Usergroups allow you to manage the people in your workflow. tk', 'edit-flow' ),
+			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
+			'img_url' => false,
+			'slug' => 'usergroups',
+			'default_options' => array(
+				'enabled' => 'on',
+			),
+			'configure_page_cb' => false,
+			'autoload' => false,
+		);
+		$this->module = $edit_flow->register_module( 'usergroups', $args );
 		
+	}
+	
+	/**
+	 * Initialize the rest of the stuff in the class if the module is active
+	 */	
+	function init() {
+	
+		add_action( 'show_user_profile', array( &$this, 'user_profile_page' ) );
+		add_action( 'edit_user_profile', array( &$this, 'user_profile_page' ) );
+		add_action( 'user_profile_update_errors', array( &$this, 'user_profile_update' ), 10, 3);
+
 		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
-		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_styles' ) );	
+		
 	}
 	
 	/**
@@ -39,9 +66,8 @@ class EF_Usergroups_Admin {
 	 * Enqueue necessary admin styles
 	 */
 	function enqueue_admin_styles() {
-		if( $this->is_whitelisted_page() ) {
+		if ( $this->is_whitelisted_page() )
 			wp_enqueue_style( 'jquery-listfilterizer' );
-		}
 	}
 	
 	function is_whitelisted_page() {
@@ -286,9 +312,9 @@ class EF_Usergroups_Admin {
 		<?php
 	}
 	
-} // END: class EF_Usergroups_Admin
+} // END: class EF_Usergroups
 
-} // END: !class_exists('EF_Usergroups_Admin')
+} // END: !class_exists('EF_Usergroups')
 
 class EF_UserGroups {
 

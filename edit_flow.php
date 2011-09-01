@@ -32,8 +32,7 @@ define( 'EDIT_FLOW_VERSION' , '0.6.4' );
 define( 'EDIT_FLOW_ROOT' , dirname(__FILE__) );
 define( 'EDIT_FLOW_FILE_PATH' , EDIT_FLOW_ROOT . '/' . basename(__FILE__) );
 define( 'EDIT_FLOW_URL' , plugins_url(plugin_basename(dirname(__FILE__)).'/') );
-define( 'EDIT_FLOW_SETTINGS_PAGE' , 'admin.php?page=edit-flow/edit-flow' );
-define( 'EDIT_FLOW_CUSTOM_STATUS_PAGE' , 'admin.php?page=edit-flow/custom_status' );
+define( 'EDIT_FLOW_SETTINGS_PAGE' , add_query_arg( 'page', 'edit-flow', get_admin_url( null, 'options-general.php' ) ) );
 define( 'EDIT_FLOW_EDITORIAL_METADATA_PAGE' , add_query_arg( 'taxonomy', 'ef_editorial_meta', get_admin_url( null, 'edit-tags.php' ) ) );
 define( 'EDIT_FLOW_PREFIX' , 'ef_' );
 define( 'EDIT_FLOW_CALENDAR_PAGE', 'index.php?page=edit-flow/calendar');
@@ -58,6 +57,7 @@ class edit_flow {
 
 	// Unique identified added as a prefix to all options
 	var $options_group = 'edit_flow_';
+	var $options_group_name = 'edit_flow_options';	
 	// Initially stores default option values, but when load_options is run, it is populated with the options stored in the WP db
 	var $options = array(
 		'version' => 0,
@@ -74,80 +74,81 @@ class edit_flow {
 	);
 	
 	// used to create an instance of the various classes 
-	var $custom_status 		= null;
-	var $ef_post_metadata	= null;
-	var $editorial_metadata = null;
-	var $dashboard			= null;
-	var $post_status 		= null;
-	var $notifications		= null;
-	var $usergroups			= null;
-	var $story_budget		= null;
+	var $custom_status;
+	var $ef_post_metadata;
+	var $editorial_metadata;
+	var $dashboard;
+	var $post_status;
+	var $notifications;
+	var $usergroups;
+	var $story_budget;
+	var $modules;
 
 	/**
 	 * Constructor
 	 */
 	function __construct() {
-		global $wpdb;
 		
 		load_plugin_textdomain( 'edit-flow', null, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 
-		// Load plugin options
-		$this->load_options();
-				
-		// Create all of our objects
-		$this->custom_status = new EF_Custom_Status();
-		$this->usergroups = new EF_Usergroups_Admin();
-		$this->ef_post_metadata = new EF_Post_Metadata();
-		$this->editorial_metadata = new EF_Editorial_Metadata();
-		$this->calendar = new EF_Calendar();
-		$this->story_budget = new EF_Story_Budget( (int) $this->get_plugin_option( 'story_budget_enabled' ) );
-		$this->settings = new EF_Settings();
-		$this->notifications = new EF_Notifications( (int) $this->get_plugin_option('notifications_enabled') );
-		$this->post_status = new EF_Post_Status();
-		$this->dashboard = new EF_Dashboard(); 
+		$this->modules = (object)array();			
 		
-		// Core hooks to initialize the plugin
+		// Load all of our modules, and the load their options after we've confirmed they're loaded
+		add_action( 'plugins_loaded', array( &$this, 'register_modules' ) );
+		add_action( 'plugins_loaded', array( &$this, 'load_module_options' ), 100 );
+		
+		// Initialize all of the modules
 		add_action( 'init', array( &$this,'init' ) );
 		add_action( 'admin_init', array( &$this, 'admin_init' ) );
-		
-		// The main controller for the plugin - redirects to child controllers where necessary
-		add_action( 'admin_init', array( &$this, 'global_admin_controller' ) );
 		
 		// Edit Flow inits in a bunch of places all at the default priority.
 		// This is run after all the init calls have been run.
 		add_action( 'init', array( &$this, 'do_init_hook' ), 11 );
 		
-		// Add any necessary javascript
-		add_action('admin_enqueue_scripts', array(&$this, 'add_admin_scripts'));
-		
-		
 	} // END __construct()
 	
+	function register_modules() {
+		
+		// Register all of our classes as Edit Flow modules
+		$this->custom_status = new EF_Custom_Status();
+		$this->calendar = new EF_Calendar();		
+		$this->usergroups = new EF_Usergroups_Admin();
+		$this->ef_post_metadata = new EF_Post_Metadata();
+		$this->editorial_metadata = new EF_Editorial_Metadata();
+		$this->story_budget = new EF_Story_Budget();
+		$this->notifications = new EF_Notifications();
+		$this->dashboard = new EF_Dashboard();
+		
+		$this->settings = new EF_Settings();
+		
+	}
+	
 	/**
-	 * Inititalizes the plugin
+	 * Inititalizes the Edit Flows!
 	 */
 	function init() {
-		if(is_admin()) {
-			//Add the necessary pages for the plugin 
-			add_action('admin_menu', array(&$this, 'add_menu_items'));
-		}
+		
+		// Load all of the modules that are enabled
+		foreach ( $this->modules as $mod_name => $mod_data )
+			if ( $mod_data->options->enabled == 'on' )
+				$this->$mod_name->init();
+		
 	} // END: init()
 	
 	/**
-	 * do_init_hook()
 	 * Call a custom hook for Edit Flow Extensions to hook into.
 	 */
 	function do_init_hook() {
 		do_action( 'ef_init' );
-	} // END: do_init_hook()	
+	}	
 	
 	/**
 	 * Initialize the plugin for the admin 
 	 */
 	function admin_init() {
 		// Register all plugin settings so that we can change them and such
-		foreach($this->options as $option => $value) {
-	    	register_setting($this->options_group, $this->get_plugin_option_fullname($option));
+		foreach( $this->options as $option => $value ) {
+	    	register_setting( $this->options_group, $this->get_plugin_option_fullname($option));
 	    }
 	    	    
 		// Upgrade if need be
@@ -159,20 +160,80 @@ class edit_flow {
 	} // END: admin_init()
 	
 	/**
-	 * This function is called when plugin is activated.
+	 * Register a new module with Edit Flow
 	 */
-	function activate_plugin ( ) {
-		global $wpdb;
+	public function register_module( $name, $args = array() ) {
 		
+		if ( !isset( $args['title'], $name ) )
+			return false;
 		
-	} // END: activate_plugin
+		$defaults = array(
+			'title' => '',
+			'short_description' => '',
+			'extended_description' => '',
+			'img_url' => false,
+			'slug' => '',
+			'default_options' => array(),
+			'configure_page_cb' => false,
+			'autoload' => false,
+		);
+		$args = array_merge( $defaults, $args );
+		$args['name'] = $name;
+		$this->modules->$name = (object) $args;
+		do_action( 'ef_module_registered', $name );
+		return $this->modules->$name;
+	}
 	
 	/**
-	 * This function is called when plugin is activated.
+	 * Load all of the module options from the database
+	 * If a given option isn't yet set, then set it to the module's default (upgrades, etc.)
 	 */
-	function deactivate_plugin( ) {
-		
-	} // END: deactivate_plugin
+	function load_module_options() {
+		foreach ( $this->modules as $mod_name => $mod_data ) {
+			$this->modules->$mod_name->options = get_option( $this->options_group . $mod_name . '_options' );
+			foreach ( $mod_data->default_options as $default_key => $default_value ) {
+				if ( !isset( $this->modules->$mod_name->options->$default_key ) )
+					$this->modules->$mod_name->options->$default_key = $default_value;
+			}
+		}
+		do_action( 'ef_module_options_loaded' );
+	}
+	
+	/**
+	 * Get a module by one of its descriptive values
+	 */
+	function get_module_by( $key, $value ) {
+		$module = false;
+		foreach ( $this->modules as $mod_name => $mod_data ) {
+			
+			if ( $key == 'name' && $value == $mod_name ) {
+				$module =  $this->modules->$mod_name;
+			} else {
+				foreach( $mod_data as $mod_data_key => $mod_data_value ) {
+					if ( $mod_data_key == $key && $mod_data_value == $value )
+						$module = $this->modules->$mod_name;
+				}
+			}
+		}
+		return $module;
+	}
+	
+	/**
+	 * Update the $edit_flow object with new value and save to the database
+	 */
+	function update_module_option( $mod_name, $key, $value ) {
+		$this->modules->$mod_name->options->$key = $value;
+		$this->$mod_name->module = $this->modules->$mod_name;
+		return update_option( $this->options_group . $mod_name . '_options', $this->modules->$mod_name->options );
+	}
+	
+	function update_all_module_options( $mod_name, $new_options ) {
+		if ( is_array( $new_options ) )
+			$new_options = (object)$new_options;
+		$this->modules->$mod_name->options = $new_options;
+		$this->$mod_name->module = $this->modules->$mod_name;
+		return update_option( $this->options_group . $mod_name . '_options', $this->modules->$mod_name->options );
+	}
 
 	/**
 	 * Loads options for the plugin.
@@ -245,62 +306,6 @@ class edit_flow {
 		wp_register_style( 'jquery-listfilterizer', EDIT_FLOW_URL . 'css/jquery.listfilterizer.css', false, EDIT_FLOW_VERSION, 'all' );
 	}
 	
-	function global_admin_controller ( ) {
-		$page = null;
-		if ( array_key_exists( 'page', $_REQUEST) )
-			$page = esc_html( $_REQUEST['page'] );
-		
-		// Only check if we have page query string and it's for edit-flow
-		if ( !empty( $page ) && strstr( $page, 'edit-flow' ) ) {
-			$component = substr( $page, ( strrpos( $page, '/' ) + 1 ) );
-			
-			switch( $component ) {
-				case 'usergroups':
-					$this->usergroups->admin_controller();
-					break;
-				
-				case 'custom_status':
-					$this->custom_status->admin_controller();
-					break;
-				
-				default:
-					break;
-			}
-		}
-		return;
-	}
-	
-	/**
-	 * Adds menu items for the plugin
-	 */
-	function add_menu_items ( ) {
-		
-		/**
-		 * Add Top-level Admin Menu
-		 */
-		add_menu_page(__('Edit Flow', 'edit-flow'), __('Edit Flow', 'edit-flow'), 'manage_options', $this->get_page('edit-flow'), array(&$this->settings, 'settings_page'));
-		
-		// Add sub-menu page for Custom statuses		
-		add_submenu_page( $this->get_page('edit-flow'), __('Custom Statuses', 'edit-flow'), __('Custom Statuses', 'edit-flow'), 'manage_options', $this->get_page('custom_status'), array(&$this->custom_status,'admin_page'));
-		
-		add_submenu_page( $this->get_page('edit-flow'), __('Editorial Metadata', 'edit-flow'),
-                        __('Editorial Metadata', 'edit-flow'), 'manage_options',
-                        'edit-tags.php?taxonomy='.$this->editorial_metadata->metadata_taxonomy);
-		
-		// Add sub-menu page for User Groups
-		add_submenu_page($this->get_page('edit-flow'), __('Usergroups', 'edit-flow'), __('Usergroups', 'edit-flow'), 'manage_options', $this->get_page('usergroups'), array(&$this->usergroups,'admin_page'));
-		
-		// Add sub-menu page for Calendar
-		if ( (int) $this->get_plugin_option( 'calendar_enabled' ) ) {
-			add_submenu_page('index.php', __('Calendar', 'edit-flow'), __('Calendar', 'edit-flow'), apply_filters( 'ef_view_calendar_cap', 'ef_view_calendar' ), $this->get_page('calendar'), array(&$this->calendar, 'view_calendar'));
-		}
-		
-		if( (int) $this->get_plugin_option( 'story_budget_enabled' ) ) {
-			add_submenu_page( 'index.php', __('Story Budget', 'edit-flow'), __('Story Budget', 'edit-flow'), apply_filters( 'ef_view_story_budget_cap', 'ef_view_story_budget' ), $this->get_page('story_budget'), array(&$this->story_budget, 'story_budget') );
-		}
-		
-	} // END: add_menu_items() 
-	
 	/**
 	 * Gets the page string/path
 	 * @param string $page
@@ -351,16 +356,6 @@ class edit_flow {
 		}
 		return $post_types;
 	}
-	
-	/**
-	 * Adds necessary Javascript to admin
-	 */
-	function add_admin_scripts() {
-		global $pagenow, $plugin_page;
-		
-		wp_enqueue_script( 'edit_flow-js', EDIT_FLOW_URL.'js/edit_flow.js', array('jquery'), EDIT_FLOW_VERSION, true );
-		
-	}
 
 } // END: class edit_flow
 
@@ -376,9 +371,5 @@ function ef_loaded() {
 	do_action( 'ef_loaded' );
 }
 add_action( 'plugins_loaded', 'ef_loaded', 20 );
-
-// Hook to perform action when plugin activated
-register_activation_hook( EDIT_FLOW_FILE_PATH, array(&$edit_flow, 'activate_plugin'));
-register_deactivation_hook( EDIT_FLOW_FILE_PATH, array(&$edit_flow, 'deactivate_plugin'));
 
 ?>

@@ -13,6 +13,8 @@ class EF_Calendar {
 	
 	const usermeta_key_prefix = 'ef_calendar_';
 	
+	var $module;
+	
 	var $start_date = '';
 	var $current_week = 1;
 	var $total_weeks = 4;	
@@ -21,10 +23,21 @@ class EF_Calendar {
 	 * Construct the EF_Calendar class
 	 */
 	function __construct() {
-		
-		add_action( 'init', array( &$this, 'init' ) );
-		add_action( 'admin_enqueue_scripts', array(&$this, 'add_admin_scripts' ));
-		add_action( 'admin_print_styles', array(&$this, 'add_admin_styles' ));
+		global $edit_flow;
+	
+		// Register the module with Edit Flow
+		// @todo default options for registering the statuses
+		$args = array(
+			'title' => __( 'Calendar', 'edit-flow' ),
+			'short_description' => __( 'See all of your content on a calendar tk', 'edit-flow' ),
+			'img_url' => false,
+			'slug' => 'calendar',
+			'default_options' => array(
+				'enabled' => 'on',
+			),
+			'configure_page_cb' => false,
+		);
+		$this->module = $edit_flow->register_module( 'calendar', $args );		
 		
 	}
 	
@@ -38,6 +51,14 @@ class EF_Calendar {
 		// Other support can be added with the add_post_type_support method
 		add_post_type_support( 'post', 'ef_calendar' );
 		
+		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );		
+		add_action( 'admin_enqueue_scripts', array(&$this, 'add_admin_scripts' ));
+		add_action( 'admin_print_styles', array( &$this, 'add_admin_styles' ) );
+		
+	}
+	
+	function action_admin_menu() {
+		add_submenu_page('index.php', __('Calendar', 'edit-flow'), __('Calendar', 'edit-flow'), apply_filters( 'ef_view_calendar_cap', 'ef_view_calendar' ), $this->module->slug, array( &$this, 'view_calendar' ) );
 	}
 	
 	/**

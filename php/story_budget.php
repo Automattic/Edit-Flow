@@ -8,7 +8,10 @@
  * TODO: Fix any bugs with collapsing postbox divs and floating columns
  */
 class ef_story_budget {
+	
 	var $taxonomy_used = 'category';
+	
+	var $module;
 	
 	var $num_columns = 0;
 	
@@ -27,21 +30,50 @@ class ef_story_budget {
 	const default_num_columns = 1;
 	
 	/**
-	 * Construct a story_budget class and adds screen options.
+	 * Register the module with Edit Flow but don't do anything else
 	 */
-	function __construct( $active = 1 ) {
+	function __construct() {
 	
-		if( $active ) {
-			$this->max_num_columns = apply_filters( 'ef_story_budget_max_num_columns', 3 );
-			
-			include_once( EDIT_FLOW_ROOT . '/php/' . 'screen-options.php' );
-			add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', __( 'Screen Layout', 'edit-flow' ), array( &$this, 'print_column_prefs' ), self::screen_id, array( &$this, 'save_column_prefs' ), true );
-			
-			// Load necessary scripts and stylesheets
-			add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
-			add_action( 'admin_print_scripts', array( &$this, 'print_admin_scripts' ) );
-			add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_styles' ) );		
-		}
+		global $edit_flow;
+		
+		// Register the module with Edit Flow
+		// @todo default options for the story budget
+		$args = array(
+			'title' => __( 'Story Budget', 'edit-flow' ),
+			'short_description' => __( 'Story budget gives you all of your content at a glance. tk', 'edit-flow' ),
+			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
+			'img_url' => false,
+			'slug' => 'story-budget',
+			'default_options' => array(
+				'enabled' => 'on',
+			),
+			'configure_page_cb' => false,
+			'autoload' => false,
+		);
+		$this->module = $edit_flow->register_module( 'story_budget', $args );
+	
+	}
+	
+	/**
+	 * Initialize the rest of the stuff in the class if the module is active
+	 */
+	function init() {
+	
+		$this->max_num_columns = apply_filters( 'ef_story_budget_max_num_columns', 3 );
+		
+		include_once( EDIT_FLOW_ROOT . '/php/' . 'screen-options.php' );
+		add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', __( 'Screen Layout', 'edit-flow' ), array( &$this, 'print_column_prefs' ), self::screen_id, array( &$this, 'save_column_prefs' ), true );
+		
+		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );
+		// Load necessary scripts and stylesheets
+		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
+		add_action( 'admin_print_scripts', array( &$this, 'print_admin_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( &$this, 'action_enqueue_admin_styles' ) );
+		
+	}
+	
+	function action_admin_menu() {
+		add_submenu_page( 'index.php', __('Story Budget', 'edit-flow'), __('Story Budget', 'edit-flow'), apply_filters( 'ef_view_story_budget_cap', 'ef_view_story_budget' ), $this->module->slug, array(&$this->story_budget, 'story_budget') );
 	}
 	
 	/**
@@ -73,7 +105,7 @@ class ef_story_budget {
 	/**
 	 * Enqueue necessary admin styles
 	 */
-	function enqueue_admin_styles() {
+	function action_enqueue_admin_styles() {
 		global $current_screen;
 		
 		wp_enqueue_style('edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, EDIT_FLOW_VERSION, 'screen');

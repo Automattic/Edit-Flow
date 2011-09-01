@@ -24,10 +24,11 @@ class EF_Editorial_Metadata {
 	 * The name of the taxonomy we're going to register for editorial metadata. This could be a
 	 * const, but then it would be harder to use in PHP strings, so we'll keep it as a variable.
 	 */
-	var $metadata_taxonomy;
-	var $metadata_postmeta_key;
+	var $metadata_taxonomy = 'ef_editorial_meta';
+	var $metadata_postmeta_key = "_ef_editorial_meta";
 	var $metadata_string;
-	var $screen_id;
+	var $screen_id = "edit-ef_editorial_meta";
+	var $module_name = 'editorial_metadata';
 	
 	/**
 	 * A cache of the last metadata type that was seen or used. This is used to persist state between the
@@ -45,21 +46,25 @@ class EF_Editorial_Metadata {
 	 * Construct the EF_Editorial_Metadata class
 	 */
 	function __construct() {
-		
 		global $edit_flow;
-		$this->metadata_taxonomy = 'ef_editorial_meta';
-		$this->screen_id = "edit-{$this->metadata_taxonomy}";
-		$this->metadata_postmeta_key = "_{$this->metadata_taxonomy}";
-		$this->metadata_string = __( 'Metadata Type', 'edit-flow' );
 		
-		add_action( 'init', array( &$this, 'init' ) );
-		add_action( 'init', array( &$this, 'register_taxonomy' ) );
-		add_action( 'admin_init', array( &$this, 'metadata_taxonomy_display_hooks' ) );
-		add_action( 'add_meta_boxes', array( &$this, 'handle_post_metaboxes' ) );
-		add_action( 'save_post', array( &$this, 'save_meta_box' ), 10, 2 );
+		$metadata_string = __( 'Metadata Type', 'edit-flow' );
 		
-		// Load necessary scripts and stylesheets
-		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );
+		// Register the module with Edit Flow
+		// @todo default options for registering the statuses
+		$args = array(
+			'title' => __( 'Editorial Metadata', 'edit-flow' ),
+			'short_description' => __( 'Editorial Metadata make it possible to keep track of the details. tk', 'edit-flow' ),
+			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
+			'img_url' => false,
+			'slug' => 'editorial-metadata',
+			'default_options' => array(
+				'enabled' => 'on',
+			),
+			'configure_page_cb' => 'configure_page',
+		);
+		$edit_flow->register_module( $this->module_name, $args );		
+		
 		
 	} // END: __construct()
 	
@@ -67,9 +72,21 @@ class EF_Editorial_Metadata {
 	 * init()
 	 */
 	function init() {
-		global $edit_flow;
+
 		add_post_type_support( 'post', 'ef_editorial_metadata' );
 		add_post_type_support( 'page', 'ef_editorial_metadata' );
+		
+		$this->register_taxonomy();
+		
+		add_action( 'admin_init', array( &$this, 'metadata_taxonomy_display_hooks' ) );
+		
+		add_action( 'add_meta_boxes', array( &$this, 'handle_post_metaboxes' ) );
+		add_action( 'save_post', array( &$this, 'save_meta_box' ), 10, 2 );
+		
+		// Load necessary scripts and stylesheets
+		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( &$this, 'action_enqueue_admin_styles' ) );		
+		
 	} // END: init()
 	
 	/**
@@ -313,8 +330,19 @@ class EF_Editorial_Metadata {
 		}
 	} // END: add_custom_columns()
 	
+	
 	/**
-	 * add_admin_scripts()
+	 * Enqueue necessary admin styles
+	 */
+	function action_enqueue_admin_styles() {
+		global $pagenow;
+		
+		if ( $pagenow == 'post.php' )
+			wp_enqueue_style('edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, EDIT_FLOW_VERSION, 'screen');
+		
+	}
+	
+	/**
 	 * Enqueue relevant admin Javascript
 	 */ 
 	function add_admin_scripts() {

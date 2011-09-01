@@ -14,51 +14,64 @@ class EF_Notifications {
 	// Taxonomy name used to store users that have opted out of notifications
 	var $unfollowing_users_taxonomy = 'unfollowing_users';
 	// Taxonomy name used to store user groups following posts
-	var $following_usergroups_taxonomy = 'following_usergroups';	
+	var $following_usergroups_taxonomy = 'following_usergroups';
+	
+	var $module;
+	var $options_group_name;
 	
 	/**
-	 * Constructor
+	 * Register the module with Edit Flow but don't do anything else
 	 */
-	function __construct ( $active = 1 ) {
+	function __construct () {
 		global $edit_flow;
 		
-		// Register new taxonomy used to track which users are following posts 
-		if( !ef_taxonomy_exists( $this->following_users_taxonomy ) ) register_taxonomy( $this->following_users_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
-		// Register new taxonomy used to track which users are UNfollowing posts 
-		if( !ef_taxonomy_exists( $this->unfollowing_users_taxonomy ) ) register_taxonomy( $this->unfollowing_users_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
-		// Register new taxonomy used to track which usergroups are following posts 
-		if( !ef_taxonomy_exists( $this->following_usergroups_taxonomy ) ) register_taxonomy( $this->following_usergroups_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
+		// Register the module with Edit Flow
+		// @todo default options for registering the statuses
+		$args = array(
+			'title' => __( 'Notifications', 'edit-flow' ),
+			'short_description' => __( 'Notifications ensure the right people get notified at the right time. tk', 'edit-flow' ),
+			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
+			'img_url' => false,
+			'slug' => 'notifications',
+			'default_options' => array(
+				'enabled' => 'on',
+				'always_notify_admin' => 'on',
+			),
+			'configure_page_cb' => 'print_configure_view',
+			'autoload' => false,
+		);
+		$this->module = $edit_flow->register_module( 'notifications', $args );
 		
-		if( $active ) {
-			
-			add_action( 'init', array( &$this, 'init' ) );
-			
-			// Notification for post status change
-			add_action( 'transition_post_status', array( &$this, 'notification_status_change' ), 10, 3 );
-			
-			// Notification for new comment
-			add_action( 'ef_post_insert_editorial_comment', array( &$this, 'notification_comment') );
-			
-			add_action( 'save_post', array( &$this, 'save_post' ) );
-			
-			// Action to reassign posts when a user is deleted
-			add_action( 'delete_user',  array(&$this, 'delete_user_action') );
-			
-			// Sends cron-scheduled emails
-			add_action( 'ef_send_scheduled_email', array( &$this, 'send_single_email' ), 10, 4 );
-		}
-		
-	} // END: __construct()
+	}
 	
 	/**
 	 * init()
 	 */
 	function init() {
 		global $edit_flow;
+		
+		$this->options_group_name = $edit_flow->options_group . $this->module->name . '_options';
+
+		// Register new taxonomy used to track which users are following posts 
+		if( !ef_taxonomy_exists( $this->following_users_taxonomy ) ) register_taxonomy( $this->following_users_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
+		// Register new taxonomy used to track which users are UNfollowing posts 
+		if( !ef_taxonomy_exists( $this->unfollowing_users_taxonomy ) ) register_taxonomy( $this->unfollowing_users_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
+		// Register new taxonomy used to track which usergroups are following posts 
+		if( !ef_taxonomy_exists( $this->following_usergroups_taxonomy ) ) register_taxonomy( $this->following_usergroups_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
+	
+		add_action( 'transition_post_status', array( &$this, 'notification_status_change' ), 10, 3 );
+		add_action( 'ef_post_insert_editorial_comment', array( &$this, 'notification_comment') );
+		add_action( 'save_post', array( &$this, 'save_post' ) );
+		add_action( 'delete_user',  array(&$this, 'delete_user_action') );
+		add_action( 'ef_send_scheduled_email', array( &$this, 'send_single_email' ), 10, 4 );
+		
+		add_action( 'admin_init', array( &$this, 'register_settings' ) );
+		add_action( 'admin_init', array( &$this, 'settings_validate_and_save' ), 100 );
+		
 		foreach( array( 'post', 'page' ) as $post_type ) {
 			add_post_type_support( $post_type, 'ef_notifications' );
 		}
-	} // END: init()
+	}
 	
 	/**
 	 * notification_status_change()
@@ -333,8 +346,7 @@ class EF_Notifications {
 		$authors[] = get_userdata($post->post_author)->user_email;
 		
 		// Email all admins, if enabled
-		$notify_admins = $edit_flow->get_plugin_option('always_notify_admin');
-		if( $notify_admins ) $admins[] = get_option('admin_email');
+		if( 'on' == $this->module->options->always_notify_admin ) $admins[] = get_option('admin_email');
 		
 		// Get following users and usergroups
 		$usergroups = ef_get_following_usergroups( $post_id, 'slugs' );
@@ -599,6 +611,92 @@ class EF_Notifications {
     }
 		return true;
 	}
+	
+	/**
+	 * Register settings for notifications so we can partially use the Settings API
+	 * (We use the Settings API for form generation, but not saving)
+	 */
+	function register_settings() {
+		
+			add_settings_section( $this->options_group_name . '_general', false, array( &$this, 'settings_general_section'), $this->options_group_name );
+			add_settings_field( 'always_notify_admin', 'Always notify blog admin', array( &$this, 'settings_always_notify_admin_option'), $this->options_group_name, $this->options_group_name . '_general' );
+		
+
+	}
+	
+	function settings_general_section() {
+		
+	}
+	
+	/**
+	 * Option for whether the blog admin email address should be always notified or not
+	 */
+	function settings_always_notify_admin_option() {
+		
+		echo '<input id="always_notify_admin" name="' . $this->options_group_name . '[always_notify_admin]"';
+		echo checked( $this->module->options->always_notify_admin, 'on' );
+		echo ' type="checkbox" />';
+		
+	}
+
+	/**
+	 * Validation and sanitization on the settings field
+	 */
+	function settings_validate_and_save() {
+
+		if ( !is_admin() )
+			return false;
+					
+		if ( !isset( $_POST['action'], $_POST['_wpnonce'], $_POST['option_page'], $_POST['_wp_http_referer'], $_POST['submit'] ) )
+			return false;
+				
+		if ( $_POST['action'] != 'update' || !wp_verify_nonce( $_POST['_wpnonce'], $this->options_group_name . '-options' ) 
+			|| $_POST['option_page'] != $this->options_group_name )
+			return false;
+
+		if ( !current_user_can( 'manage_options' ) )
+			wp_die( __( 'Cheatin&#8217; uh?' ) );
+			
+			
+		global $edit_flow;
+		$new_options = $_POST[$this->options_group_name];
+
+		// Validation for the fields on the page
+		if ( !isset( $new_options['always_notify_admin'] ) || $new_options['always_notify_admin'] != 'on' )
+			$new_options['always_notify_admin'] = 'off';
+		
+		$new_options = (object)array_merge( (array)$this->module->options, $new_options );
+		$edit_flow = $edit_flow->update_all_module_options( $this->module->name, $new_options );
+		
+		// Redirect back to the settings page that was submitted
+		$goback = add_query_arg( 'settings-updated', 'true',  wp_get_referer() );
+		wp_redirect( $goback );
+		exit;	
+
+	}	
+
+	/**
+	 * Settings page for notifications
+	 */
+	function print_configure_view() {
+		global $edit_flow;
+		?>
+
+		<form class="basic-settings" action="<?php echo add_query_arg( 'configure', $this->module->slug, EDIT_FLOW_SETTINGS_PAGE ); ?>" method="post">
+
+			<?php settings_fields( $this->options_group_name ); ?>
+			<?php do_settings_sections( $this->options_group_name ); ?>
+			
+			<?php
+				echo '<input id="enabled" name="' . $this->options_group_name . '[enabled]"';
+				echo ' value="' . $this->module->options->enabled . '" type="hidden" />';
+			?>
+
+			<p class="submit"><input name="submit" type="submit" class="button-primary" value="<?php esc_attr_e('Save Changes'); ?>" /><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Cancel Without Saving' ); ?></a></p>
+
+		</form>
+		<?php
+	}	
 	
 } // END: class ef_notifications
 

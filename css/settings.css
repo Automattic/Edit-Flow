@@ -1,0 +1,77 @@
+.edit-flow-modules {
+	min-width: 740px;
+	width: 100%;
+	overflow: hidden;
+	margin-top: 20px;
+}
+
+.edit-flow-modules .edit-flow-module {
+	width: 210px;
+	min-height: 150px;
+	position: relative;
+	float: left;
+	border: 1px solid #BBBBBB;
+	padding-left: 10px;
+	padding-right: 10px;
+	background-color: #F6F6F6;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	margin-right: 10px;
+	margin-bottom: 10px;
+}
+
+.edit-flow-modules .edit-flow-module h4 {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+.edit-flow-modules .edit-flow-module .edit-flow-module-actions {
+	position: absolute;
+	bottom: 0px;
+	left: 10px;
+}
+
+.edit-flow-modules .edit-flow-module img.waiting {
+	position: absolute;
+	bottom: 15px;
+	right: 10px;
+}
+
+.edit-flow-modules .edit-flow-module .edit-flow-module-actions .button {
+	display: inline-block;
+}
+
+.edit-flow-modules .edit-flow-module .edit-flow-module-actions .configure-edit-flow-module {
+	margin-left: 10px;
+}
+
+.edit-flow-admin a.cancel-settings-link {
+	margin-left: 10px;
+}
+
+.edit-flow-admin .inline-edit-row fieldset label span.title {
+	width: 6em;
+}
+
+.edit-flow-admin .inline-edit-row fieldset label span.input-text-wrap {
+	margin-left: 6em;
+}
+
+.edit-flow-admin .explanation,
+.edit-flow-admin .explanation p {
+	font-size: 16px;
+	line-height: 22px;
+}
+
+.edit-flow-admin .explanation {
+	margin-bottom: 1em;
+}
+
+.edit-flow-admin .explanation p {
+	margin: 0.5em 0;
+}
+
+.edit-flow-admin .tablenav {
+	display: none;
+}
