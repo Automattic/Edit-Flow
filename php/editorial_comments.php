@@ -36,7 +36,7 @@ class EF_Editorial_Comments
 	function init() {
 		
 		// Set up metabox and related actions
-		add_action( 'admin_menu', array ( &$this, 'add_post_meta_box' ) );
+		add_action( 'admin_init', array ( &$this, 'add_post_meta_box' ) );
 		
 		// Load necessary scripts and stylesheets
 		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );
@@ -83,13 +83,6 @@ class EF_Editorial_Comments
 		if($single)	return $meta[0];
 		else return $meta;
 	}
-		
-	function subscriptions_meta_box ( ) {
-		$post_subscriptions_cap = apply_filters( 'ef_edit_post_subscriptions_cap', 'edit_post_subscriptions' );
-		
-		if( current_user_can( $post_subscriptions_cap ) ) 
-			$this->post_followers_box();
-	}
 	
 	/**
 	 * Adds Edit Flow meta_box to Post/Page edit pages 
@@ -97,20 +90,13 @@ class EF_Editorial_Comments
 	function add_post_meta_box() {
 		global $edit_flow;
 		
-		if (function_exists('add_meta_box')) {
-			$comment_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_editorial_comments' );
-			foreach ( $comment_post_types as $post_type ) {
-				add_meta_box('edit-flow-editorial-comments', __('Editorial Comments', 'edit-flow'), array(&$this, 'editorial_comments_meta_box'), $post_type, 'normal', 'high');
-			}
-			
-			if( $edit_flow->get_plugin_option('notifications_enabled') ) {
-				$notification_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_notifications' );
-				foreach ( $notification_post_types as $post_type ) {
-					add_meta_box('edit-flow-subscriptions', __('Notification Subscriptions', 'edit-flow'), array(&$this, 'subscriptions_meta_box'), $post_type, 'advanced', 'high');
-				}
-			}
+		$comment_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_editorial_comments' );
+		foreach ( $comment_post_types as $post_type ) {
+			add_meta_box('edit-flow-editorial-comments', __('Editorial Comments', 'edit-flow'), array(&$this, 'editorial_comments_meta_box'), $post_type, 'normal', 'high');
 		}
+			
 	}
+	
 	function get_editorial_comment_count( $id ) {
 		global $wpdb; 
 		$comment_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $wpdb->comments WHERE comment_post_ID = %d AND comment_type = %s", $id, $this->comment_type));
@@ -346,77 +332,6 @@ class EF_Editorial_Comments
 		}
 	}
 
-	/**
-	 * Outputs box used to subscribe users and usergroups to Posts
-	 * @param $followers array|user 
-	 */	
-	function post_followers_box ( $args = null ) {
-		global $post, $post_ID, $edit_flow;
-		
-		// TODO: add_cap to set subscribers for posts; default to Admin and editors
-		
-		// Show subscriptions box if notifications enabled
-		// TODO: Remove this check when adding activity stream
-		if( !$edit_flow->get_plugin_option('notifications_enabled') ) {
-			?>
-			<p><?php _e( 'Notifications are disabled. You won\'t be able to add new subscriptions to this post.', 'edit-flow' ); ?></p>
-			<?php
-			return;
-		}
-		
-		// Only show on posts that have been saved
-		if( in_array( $post->post_status, array( 'new', 'auto-draft' ) ) ) {
-			?>
-			<p><?php _e( 'Subscribers can be added to a post after the post has been saved for the first time.', 'edit-flow' ); ?></p>
-			<?php
-			return;
-		}
-		
-		$followers = ef_get_following_users( $post->ID, 'id' );
-		
-		if( !is_array($followers) ) $followers = (array) $followers;
-		$following_usergroups = ef_get_following_usergroups($post->ID, 'slugs');
-		
-		$user_form_args = array();
-		
-		$usergroups_form_args = array();
-		?>
-		<div id="ef-post_following_box">
-			<a name="subscriptions"></a>
-
-			<p><?php _e( 'Select the users and usergroups that should receive notifications when the status of this post is updated or when an editorial comment is added.', 'edit-flow' ); ?></p>
-			<div id="ef-post_following_users_box">
-				<h4><?php _e( 'Users', 'edit-flow' ); ?></h4>
-				<?php //$this->select_all_button( "following_users" ); ?>
-				<?php ef_users_select_form($followers, $user_form_args); ?>
-			</div>
-			
-			<div id="ef-post_following_usergroups_box">
-				<h4><?php _e('User Groups', 'edit-flow') ?></h4>
-				<?php //$this->select_all_button( "following_usergroups" ); ?>
-				<?php ef_usergroups_select_form($following_usergroups, $usergroups_form_args); ?>
-			</div>
-			<div class="clear"></div>
-			<input type="hidden" name="ef-save_followers" value="1" /> <?php // Extra protection against autosaves ?>
-		</div>
-		
-		<script>
-			jQuery(document).ready(function(){
-				jQuery('#ef-post_following_box ul').listFilterizer();
-			});
-		</script>
-		
-		<?php
-	}
-
-	function select_all_button( $id ) {
-	?>
-		<label class="ef-select_all_box">
-			<span><?php _e( 'Select All', 'edit-flow' ); ?> </span>
-			<input type="checkbox" id="<?php echo $id;?>" class="follow_all" />
-		</label>
-	<?php
-	}
 }
 
 } // END: !class_exists('EF_Editorial_Comments')
