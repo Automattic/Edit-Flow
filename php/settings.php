@@ -192,7 +192,7 @@ class EF_Settings {
 					$configure_url = add_query_arg( 'configure', $mod_data->slug, EDIT_FLOW_SETTINGS_PAGE );
 					echo '<a href="' . $configure_url . '" class="configure-edit-flow-module"';
 					if ( $mod_data->options->enabled == 'off' ) echo ' style="display:none;"';
-					echo '>' . __( 'Configure', 'edit-flow' ) . '</a>';
+					echo '>' . $mod_data->configure_link_text . '</a>';
 				}
 				echo '</p>';
 				wp_nonce_field( 'change-edit-flow-module-nonce', 'change-module-nonce', false );

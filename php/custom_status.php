@@ -29,6 +29,7 @@ class EF_Custom_Status {
 				'default_status' => 'draft',
 			),
 			'configure_page_cb' => 'configure_page',
+			'configure_link_text' => __( 'Edit Statuses' ),			
 			'autoload' => false,
 		);
 		$this->module = $edit_flow->register_module( 'custom_status', $args );		

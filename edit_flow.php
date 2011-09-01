@@ -175,6 +175,7 @@ class edit_flow {
 			'slug' => '',
 			'default_options' => array(),
 			'configure_page_cb' => false,
+			'configure_link_text' => 'Configure',
 			'autoload' => false,
 		);
 		$args = array_merge( $defaults, $args );
