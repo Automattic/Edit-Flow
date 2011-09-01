@@ -41,7 +41,7 @@ define( 'EDIT_FLOW_STORY_BUDGET_PAGE', 'index.php?page=edit-flow/story_budget');
 // Include necessary files, including the path in which to search to avoid conflicts
 include_once( EDIT_FLOW_ROOT . '/php/custom_status.php' );
 include_once( EDIT_FLOW_ROOT . '/php/dashboard.php' );
-include_once( EDIT_FLOW_ROOT . '/php/post.php' );
+include_once( EDIT_FLOW_ROOT . '/php/editorial_comments.php' );
 include_once( EDIT_FLOW_ROOT . '/php/notifications.php' );
 include_once( EDIT_FLOW_ROOT . '/php/usergroups.php' );
 include_once( EDIT_FLOW_ROOT . '/php/templates/functions.php' );
@@ -113,7 +113,7 @@ class edit_flow {
 		$this->custom_status = new EF_Custom_Status();
 		$this->calendar = new EF_Calendar();		
 		$this->usergroups = new EF_Usergroups_Admin();
-		$this->ef_post_metadata = new EF_Post_Metadata();
+		$this->editorial_comments = new EF_Editorial_Comments();
 		$this->editorial_metadata = new EF_Editorial_Metadata();
 		$this->story_budget = new EF_Story_Budget();
 		$this->notifications = new EF_Notifications();

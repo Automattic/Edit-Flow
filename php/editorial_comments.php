@@ -3,43 +3,57 @@
 // Functions that hook into or modify post.php
 define( 'EDIT_FLOW_META_PREFIX', '_ef_' );
 
-if ( !class_exists('EF_Post_Metadata') ) {
+if ( !class_exists('EF_Editorial_Comments') ) {
 
-class EF_Post_Metadata
+class EF_Editorial_Comments
 {
 	// This is comment type used to differentiate editorial comments
 	var $comment_type = 'editorial-comment';
 	
 	function __construct() {
-		add_action( 'init', array( &$this, 'init' ) );
+		global $edit_flow;
+		
+		// Register the module with Edit Flow
+		// @todo default options for registering the statuses
+		$args = array(
+			'title' => __( 'Editorial Comments', 'edit-flow' ),
+			'short_description' => __( 'Leave comments on posts in progress to share notes with your collaborators. tk', 'edit-flow' ),
+			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
+			'img_url' => false,
+			'slug' => 'editorial-comments',
+			'default_options' => array(
+				'enabled' => 'on',
+			),
+			'configure_page_cb' => false,
+			'autoload' => false,
+		);
+		$this->module = $edit_flow->register_module( 'editorial_comments', $args );
+	}
+
+	/**
+	 * Initialize the rest of the stuff in the class if the module is active
+	 */	
+	function init() {
 		
 		// Set up metabox and related actions
-		add_action('admin_menu', array(&$this, 'add_post_meta_box'));
+		add_action( 'admin_menu', array ( &$this, 'add_post_meta_box' ) );
 		
 		// Load necessary scripts and stylesheets
-		add_action('admin_enqueue_scripts', array(&$this, 'add_admin_scripts'));
+		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );
 		
-		// init all ajax actions
-		$this->add_ajax_actions();
-	}
-	
-	function init() {
+		add_action( 'wp_ajax_editflow_ajax_insert_comment', array( &$this, 'ajax_insert_comment' ) );
+			
 		global $edit_flow;
 		foreach( array( 'post', 'page' ) as $post_type ) {
 			add_post_type_support( $post_type, 'ef_editorial_comments' );
 		}
 	}
 	
-	// Add necessary AJAX actions
-	function add_ajax_actions( ) {
-		add_action( 'wp_ajax_editflow_ajax_insert_comment', array( &$this, 'ajax_insert_comment' ) );
-	}
-	
-	// Loads scripts 
+	/**
+	 * Load any of the admin scripts we need
+	 */
 	function add_admin_scripts( ) {
 		global $pagenow, $edit_flow;
-		
-		wp_enqueue_style( 'edit_flow-styles', EDIT_FLOW_URL . 'css/editflow.css', false, EDIT_FLOW_VERSION, 'all' );
 		
 		$post_type = $edit_flow->get_current_post_type();
 		
@@ -49,6 +63,8 @@ class EF_Post_Metadata
 			if( post_type_supports( $post_type, 'ef_editorial_comments' ) ) {
 				wp_enqueue_script( 'edit_flow-post_comment', EDIT_FLOW_URL . 'js/post_comment.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
 				
+				wp_enqueue_style( 'edit-flow-editorial-comments-css', EDIT_FLOW_URL . 'css/editorial_comments.css', false, EDIT_FLOW_VERSION, 'all' );				
+				
 				$thread_comments = (int) get_option('thread_comments');
 				?>
 				<script type="text/javascript">
@@ -57,10 +73,6 @@ class EF_Post_Metadata
 				<?php
 			}
 			
-			if( post_type_supports( $post_type, 'ef_notifications' ) ) {
-				wp_enqueue_script( 'jquery-listfilterizer' );
-				wp_enqueue_style( 'jquery-listfilterizer' );
-			}
 		}
 	}
 		
@@ -407,7 +419,7 @@ class EF_Post_Metadata
 	}
 }
 
-} // END: !class_exists('EF_Post_Metadata')
+} // END: !class_exists('EF_Editorial_Comments')
 
 /**
  * Retrieve a list of comments -- overloaded from get_comments and with mods by filosofo (SVN Ticket #10668)

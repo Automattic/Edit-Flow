@@ -94,7 +94,7 @@ function edit_flow_upgrade_06() {
 		$wp_roles = new WP_Roles();
 	
 	// Editorial comments should have comment_approved set a given key instead of just 1 
-	$wpdb->update( $wpdb->comments, array( 'comment_approved' => $edit_flow->ef_post_metadata->comment_type ), array( 'comment_type' => $edit_flow->ef_post_metadata->comment_type ), array( '%s' ), array( '%s' ) );
+	$wpdb->update( $wpdb->comments, array( 'comment_approved' => $edit_flow->editorial_comments->comment_type ), array( 'comment_type' => $edit_flow->editorial_comments->comment_type ), array( '%s' ), array( '%s' ) );
 
 		// Add new metadata fields 
 		$default_metadata = array(
