@@ -77,7 +77,7 @@ class EF_Calendar {
 		
 		global $pagenow;
 		// Only load calendar styles on the calendar page
-		if ( $pagenow == 'index.php' && isset( $_GET['page'] ) && $_GET['page'] == 'edit-flow/calendar' ) {
+		if ( $pagenow == 'index.php' && isset( $_GET['page'] ) && $_GET['page'] == 'calendar' ) {
 			wp_enqueue_style( 'edit_flow-calendar-css', EDIT_FLOW_URL.'css/calendar.css', false, EDIT_FLOW_VERSION );
 		}
 		
