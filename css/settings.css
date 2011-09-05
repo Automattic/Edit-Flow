@@ -1,3 +1,5 @@
+/* @override http://localhost:8888/wpplugindev/wp-content/plugins/edit-flow/css/settings.css?ver=0.6.4 */
+
 .edit-flow-modules {
 	min-width: 740px;
 	width: 100%;
@@ -10,26 +12,39 @@
 	min-height: 150px;
 	position: relative;
 	float: left;
-	border: 1px solid #BBBBBB;
-	padding-left: 10px;
-	padding-right: 10px;
-	background-color: #F6F6F6;
+	border: 1px solid #e1e1e1;
+	padding: 10px;
+	background-color: #f1f1f1;
 	-webkit-border-radius: 3px;
 	-moz-border-radius: 3px;
 	border-radius: 3px;
-	margin-right: 10px;
-	margin-bottom: 10px;
+	margin-right: 15px;
+	margin-bottom: 15px;
+}
+
+.edit-flow-modules .edit-flow-module p {
+	font-size: 12px;
+	color: #3d3d3d;
+	line-height: 150%;
+	font-family: "Helvetica Neue",Helvetica,Arial,"Lucida Grande",Verdana,"Bitstream Vera Sans",sans-serif;
 }
 
 .edit-flow-modules .edit-flow-module h4 {
-	margin-top: 0.5em;
-	margin-bottom: 0.5em;
+	color: #000000;
+    font-family: "Helvetica Neue",Helvetica,Arial,"Lucida Grande",Verdana,"Bitstream Vera Sans",sans-serif;
+    font-size: 17px;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1.1;
+    margin: 0;
+    padding: 0;
 }
 
 .edit-flow-modules .edit-flow-module .edit-flow-module-actions {
 	position: absolute;
 	bottom: 0px;
 	left: 10px;
+	width: 210px;
 }
 
 .edit-flow-modules .edit-flow-module img.waiting {
@@ -38,12 +53,10 @@
 	right: 10px;
 }
 
-.edit-flow-modules .edit-flow-module .edit-flow-module-actions .button {
-	display: inline-block;
-}
-
 .edit-flow-modules .edit-flow-module .edit-flow-module-actions .configure-edit-flow-module {
-	margin-left: 10px;
+	font-weight: normal;
+	position: relative;
+	top: 3px;
 }
 
 .edit-flow-admin a.cancel-settings-link {
@@ -74,4 +87,71 @@
 
 .edit-flow-admin .tablenav {
 	display: none;
+}
+
+.edit-flow-modules .edit-flow-module input {
+	float: right;
+	zoom: 1; /* zoom and *display = ie7 hack for display:inline-block */
+	*display: inline;
+	vertical-align: baseline;
+	margin: 0 2px;
+	outline: none;
+	cursor: pointer;
+	text-align: center;
+	text-decoration: none;
+	font: bold 13px/100% "Helvetica Neue",Helvetica,Arial,"Lucida Grande",Verdana,"Bitstream Vera Sans",sans-serif;
+	text-shadow: #2d2d2d 0 1px 1px;
+	-webkit-border-radius: 3px; 
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	padding: .4em 1em .55em;
+}
+.edit-flow-modules .edit-flow-module input.button:hover {
+	text-decoration: none;
+}
+.edit-flow-modules .edit-flow-module input.button:active {
+	position: relative;
+	top: 1px;
+}
+
+.edit-flow-modules .edit-flow-module input.button-primary {
+	color: #f1f1f1;
+	border: solid 1px #538312;
+	background: #64991e;
+	background: -webkit-gradient(linear, left top, left bottom, from(#86C67C), to(#3D8B37));
+	background: -moz-linear-gradient(top,  #86C67C,  #3D8B37);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#86C67C', endColorstr='#3D8B37');
+}
+.edit-flow-modules .edit-flow-module input.button-primary:hover {
+	background: #538018;
+	background: -webkit-gradient(linear, left top, left bottom, from(#629632), to(#436b0c));
+	background: -moz-linear-gradient(top,  #629632,  #436b0c);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#629632', endColorstr='#436b0c');
+}
+.edit-flow-modules .edit-flow-module input.button-primary:active {
+	color: #a9c08c;
+	background: -webkit-gradient(linear, left top, left bottom, from(#4e7d0e), to(#7db72f));
+	background: -moz-linear-gradient(top,  #4e7d0e,  #7db72f);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#4e7d0e', endColorstr='#7db72f');
+}
+
+.edit-flow-modules .edit-flow-module input.button-remove {
+	color: #f1f1f1;
+	border: solid 1px #980c10;
+	background: #d81b21;
+	background: -webkit-gradient(linear, left top, left bottom, from(#EE6363), to(#CD0000));
+	background: -moz-linear-gradient(top,  #ed1c24,  #aa1317);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#ed1c24', endColorstr='#aa1317');
+}
+.edit-flow-modules .edit-flow-module input.button-remove:hover {
+	background: #b61318;
+	background: -webkit-gradient(linear, left top, left bottom, from(#CD5C5C), to(#a11115));
+	background: -moz-linear-gradient(top,  #CD5C5C,  #a11115);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#CD5C5C', endColorstr='#a11115');
+}
+.edit-flow-modules .edit-flow-module input.button-remove:active {
+	color: #de898c;
+	background: -webkit-gradient(linear, left top, left bottom, from(#aa1317), to(#ed1c24));
+	background: -moz-linear-gradient(top,  #aa1317,  #ed1c24);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#aa1317', endColorstr='#ed1c24');
 }
