@@ -155,3 +155,20 @@
 	background: -moz-linear-gradient(top,  #aa1317,  #ed1c24);
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#aa1317', endColorstr='#ed1c24');
 }
+
+/* Module specific image styles */
+.edit-flow-modules #calendar form {
+	background: url(../img/ef-settings-calendar.png) no-repeat right top;
+}
+
+.edit-flow-modules #custom-status form {
+	background: url(../img/ef-settings-status.png) no-repeat right top;
+}
+
+.edit-flow-modules #notifications form {
+	background: url(../img/ef-settings-notifications.png) no-repeat right top;
+}
+
+.edit-flow-modules #story-budget form {
+	background: url(../img/ef-settings-budget.png) no-repeat right -4px;
+}
