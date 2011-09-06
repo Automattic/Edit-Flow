@@ -613,13 +613,13 @@ class EF_Notifications {
 	/**
 	 * Register settings for notifications so we can partially use the Settings API
 	 * (We use the Settings API for form generation, but not saving)
+	 * 
+	 * @since 0.7
 	 */
 	function register_settings() {
-		
 			add_settings_section( $this->module->options_group_name . '_general', false, array( &$this, 'settings_general_section'), $this->module->options_group_name );
-			add_settings_field( 'always_notify_admin', 'Always notify blog admin', array( &$this, 'settings_always_notify_admin_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 			add_settings_field( 'post_types', 'Post types to show', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-
+			add_settings_field( 'always_notify_admin', 'Always notify blog admin', array( &$this, 'settings_always_notify_admin_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 	}
 	
 	function settings_general_section() {
