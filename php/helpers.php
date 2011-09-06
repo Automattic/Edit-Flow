@@ -60,6 +60,11 @@ class EF_Helpers
 	
 	/**
 	 * Get all of the currently available post statuses
+	 * This should be used in favor of calling $edit_flow->custom_status->get_custom_statuses() directly
+	 *
+	 * @return object $post_statuses All of the post statuses that aren't a published state
+	 *
+	 * @since 0.7
 	 */
 	function get_post_statuses() {
 		global $edit_flow;
