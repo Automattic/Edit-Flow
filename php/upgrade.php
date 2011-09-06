@@ -13,11 +13,11 @@ function edit_flow_upgrade_01() {
 	
 	// Create default statuses
 	$default_terms = array( 
-		array( 'term' => 'Draft', 'args' => array( 'slug' => 'draft', 'description' => 'Post is simply a draft', ) ),
-		array( 'term' => 'Pending Review', 'args' => array( 'slug' => 'pending', 'description' => 'The post needs to be reviewed by an Editor', ) ),
-		array( 'term' => 'Pitch', 'args' => array( 'slug' => 'pitch', 'description' => 'Post idea proposed', ) ),
-		array( 'term' => 'Assigned', 'args' => array( 'slug' => 'assigned', 'description' => 'The post has been assigned to a writer' ) ),
-		array( 'term' => 'Waiting for Feedback', 'args' => array( 'slug' => 'waiting-for-feedback', 'description' => 'The post has been sent to the editor, and is waiting on feedback' ) ) 
+		array( 'term' => __( 'Draft' ), 'args' => array( 'slug' => 'draft', 'description' => __( 'Post is simply a draft', 'edit-flow' ), ) ),
+		array( 'term' => __( 'Pending Review' ), 'args' => array( 'slug' => 'pending', 'description' => __( 'The post needs to be reviewed by an Editor', 'edit-flow' ), ) ),
+		array( 'term' => __( 'Pitch', 'edit-flow' ), 'args' => array( 'slug' => 'pitch', 'description' => __( 'Post idea proposed', 'edit-flow' ), ) ),
+		array( 'term' => __( 'Assigned', 'edit-flow' ), 'args' => array( 'slug' => 'assigned', 'description' => __( 'The post has been assigned to a writer', 'edit-flow' ), ) ),
+		array( 'term' => __( 'Waiting for Feedback', 'edit-flow' ), 'args' => array( 'slug' => 'waiting-for-feedback', 'description' => __( 'The post has been sent to the editor, and is waiting on feedback', 'edit-flow' ) ) ) 
 	);
 	
 	// Okay, now add the default statuses to the db if they don't already exist 
@@ -49,13 +49,13 @@ function edit_flow_upgrade_03 () {
 	}
 	
 	$default_usergroups = array( 
-		array( 'slug' => 'ef_copy-editors', 'args' => array( 'name' => 'Copy Editors', 'description' => 'The ones who correct stuff.', 'users' => '' ) ),
-		array( 'slug' => 'ef_photographers', 'args' => array( 'name' => 'Photographers', 'description' => 'The ones who take pretty pictures.', 'users' => '' ) ),
+		array( 'slug' => 'ef_copy-editors', 'args' => array( 'name' => __( 'Copy Editors', 'edit-flow' ), 'description' => __( 'The ones who correct stuff.', 'edit-flow' ), 'users' => '' ) ),
+		array( 'slug' => 'ef_photographers', 'args' => array( 'name' => __( 'Photographers', 'edit-flow' ), 'description' => __( 'The ones who take pretty pictures.', 'edit-flow' ), 'users' => '' ) ),
 		
-		array( 'slug' => 'ef_reporters', 'args' => array( 'name' => 'Reporters', 'description' => 'The ones who write stuff.', 'users' => '' ) ),
-		array( 'slug' => 'ef_section-editors', 'args' => array( 'name' => 'Section Editors', 'description' => 'The ones who tell others what to do and generally just boss them around.', 'users' => '' ) ),
-		array( 'slug' => 'ef_web-team', 'args' => array( 'name' => 'Web Team', 'description' => 'The ones you call when your computer starts doing that weird thing.', 'users' => '' ) ),
-		array( 'slug' => 'ef_sales-team', 'args' => array( 'name' => 'Sales Team', 'description' => 'Yeah, they technically pay our salaries. But we still don\'t like them.', 'users' => '' ) ),
+		array( 'slug' => 'ef_reporters', 'args' => array( 'name' => __( 'Reporters', 'edit-flow' ), 'description' => __( 'The ones who write stuff.', 'edit-flow' ), 'users' => '' ) ),
+		array( 'slug' => 'ef_section-editors', 'args' => array( 'name' => __( 'Section Editors', 'edit-flow' ), 'description' => __( 'The ones who tell others what to do and generally just boss them around.', 'edit-flow' ), 'users' => '' ) ),
+		array( 'slug' => 'ef_web-team', 'args' => array( 'name' => __( 'Web Team', 'edit-flow' ), 'description' => __( 'The ones you call when your computer starts doing that weird thing.', 'edit-flow' ), 'users' => '' ) ),
+		array( 'slug' => 'ef_sales-team', 'args' => array( 'name' => __( 'Sales Team', 'edit-flow' ), 'description' => __( 'Yeah, they technically pay our salaries. But we still don\'t like them.', 'edit-flow' ), 'users' => '' ) ),
 	);
 	
 	// Okay, now add the default statuses to the db if they don't already exist 
@@ -99,78 +99,78 @@ function edit_flow_upgrade_06() {
 		// Add new metadata fields 
 		$default_metadata = array(
 			array(
-				'term' => 'Photographer',
+				'term' => __( 'Photographer', 'edit-flow' ),
 				'args' => array(
 					'slug' => 'photographer',
 					'description' => json_encode( array(
 						'type' => 'user',
-						'desc' => 'The photographer assigned to this post',
+						'desc' => __( 'The photographer assigned to this post', 'edit-flow' ),
 						) ),
 					)
 			),
 			array(
-				'term' => 'Due Date',
+				'term' => __( 'Due Date', 'edit-flow' ),
 				'args' => array(
 					'slug' => 'duedate',
 					'description' => json_encode( array(
 						'type' => 'date',
-						'desc' => 'The deadline for this post',
+						'desc' => __( 'The deadline for this post', 'edit-flow' ),
 						)
 					)
 															
 				)
 			),
 			array(
-				'term' => 'Description',
+				'term' => __( 'Description', 'edit-flow' ),
 				'args' => array( 
 					'slug' => 'description',
 					'description' => json_encode( array(
 						'type' => 'paragraph',
-						'desc' => 'A short description of what this post will be about.',
+						'desc' => __( 'A short description of what this post will be about.', 'edit-flow' ),
 						)
 					)
 				)
 			),
 			array(
-				'term' => 'Contact information',
+				'term' => __( 'Contact information', 'edit-flow' ),
 				'args' => array(
 					'slug' => 'contact-information',
 					'description' => json_encode( array(
 						'type' => 'paragraph',
-						'desc' => 'Information on how to contact the writer of this post',
+						'desc' => __( 'Information on how to contact the writer of this post', 'edit-flow' ),
 						)
 					)
 				)
 			),
 			array(
-				'term' => 'Location',
+				'term' => __( 'Location', 'edit-flow' ),
 				'args' => array(
 					'slug' => 'location',
 					'description' => json_encode( array(
 						'type' => 'location',
-						'desc' => 'The location covered by this post',
+						'desc' => __( 'The location covered by this post', 'edit-flow' ),
 						)
 					)
 				)
 			),
 			array(
-				'term' => 'Needs Photo',
+				'term' => __( 'Needs Photo', 'edit-flow' ),
 				'args' => array(
 					'slug' => 'needs-photo',
 					'description' => json_encode( array(
 						'type' => 'checkbox',
-						'desc' => 'Checked if this post needs a photo',
+						'desc' => __( 'Checked if this post needs a photo', 'edit-flow' ),
 						)
 					)
 				)
 			),
 			array(
-				'term' => 'Word Count',
+				'term' => __( 'Word Count', 'edit-flow' ),
 				'args' => array(
 					'slug' => 'word-count',
 					'description' => json_encode( array(
 						'type' => 'number',
-						'desc' => 'Required length for this post',
+						'desc' => __( 'Required length for this post', 'edit-flow' ),
 						)
 					)
 				)
