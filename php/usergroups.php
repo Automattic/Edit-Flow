@@ -31,7 +31,7 @@ class EF_Usergroups_Admin {
 				'enabled' => 'on',
 			),
 			'configure_page_cb' => 'usergroups',
-			'configure_link_text' => __( 'Manage Usergroups' ),
+			'configure_link_text' => __( 'Manage Usergroups', 'edit-flow' ),
 			'autoload' => false,
 		);
 		$this->module = $edit_flow->register_module( 'usergroups', $args );

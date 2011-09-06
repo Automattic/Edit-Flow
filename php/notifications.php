@@ -17,7 +17,6 @@ class EF_Notifications {
 	var $following_usergroups_taxonomy = 'following_usergroups';
 	
 	var $module;
-	var $options_group_name;
 	
 	/**
 	 * Register the module with Edit Flow but don't do anything else
@@ -35,9 +34,14 @@ class EF_Notifications {
 			'slug' => 'notifications',
 			'default_options' => array(
 				'enabled' => 'on',
+				'post_types' => array(
+					'post' => 'on',
+					'page' => 'on',
+				),
 				'always_notify_admin' => 'on',
 			),
 			'configure_page_cb' => 'print_configure_view',
+			'post_type_support' => 'ef_notification',
 			'autoload' => false,
 		);
 		$this->module = $edit_flow->register_module( 'notifications', $args );
@@ -45,12 +49,10 @@ class EF_Notifications {
 	}
 	
 	/**
-	 * init()
+	 * Initialize the notifications class if the plugin is enabled
 	 */
 	function init() {
 		global $edit_flow;
-		
-		$this->options_group_name = $edit_flow->options_group . $this->module->name . '_options';
 
 		// Register new taxonomy used to track which users are following posts 
 		if( !ef_taxonomy_exists( $this->following_users_taxonomy ) ) register_taxonomy( $this->following_users_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
@@ -66,11 +68,7 @@ class EF_Notifications {
 		add_action( 'ef_send_scheduled_email', array( &$this, 'send_single_email' ), 10, 4 );
 		
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );
-		add_action( 'admin_init', array( &$this, 'settings_validate_and_save' ), 100 );
 		
-		foreach( array( 'post', 'page' ) as $post_type ) {
-			add_post_type_support( $post_type, 'ef_notifications' );
-		}
 	}
 	
 	/**
@@ -618,9 +616,9 @@ class EF_Notifications {
 	 */
 	function register_settings() {
 		
-			add_settings_section( $this->options_group_name . '_general', false, array( &$this, 'settings_general_section'), $this->options_group_name );
-			add_settings_field( 'always_notify_admin', 'Always notify blog admin', array( &$this, 'settings_always_notify_admin_option'), $this->options_group_name, $this->options_group_name . '_general' );
-		
+			add_settings_section( $this->module->options_group_name . '_general', false, array( &$this, 'settings_general_section'), $this->module->options_group_name );
+			add_settings_field( 'always_notify_admin', 'Always notify blog admin', array( &$this, 'settings_always_notify_admin_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', 'Post types to show', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 
 	}
 	
@@ -629,54 +627,51 @@ class EF_Notifications {
 	}
 	
 	/**
+	 * Chose the post types for notifications
+	 *
+	 * @since 0.7
+	 */
+	function settings_post_types_option() {
+		global $edit_flow;
+		$edit_flow->settings->helper_option_custom_post_type( $this->module );	
+	}
+	
+	/**
 	 * Option for whether the blog admin email address should be always notified or not
+	 *
+	 * @since 0.7
 	 */
 	function settings_always_notify_admin_option() {
-		
-		echo '<input id="always_notify_admin" name="' . $this->options_group_name . '[always_notify_admin]"';
+		echo '<input id="always_notify_admin" name="' . $this->module->options_group_name . '[always_notify_admin]"';
 		echo checked( $this->module->options->always_notify_admin, 'on' );
 		echo ' type="checkbox" />';
-		
 	}
 
 	/**
-	 * Validation and sanitization on the settings field
+	 * Validate our user input as the settings are being saved
+	 *
+	 * @since 0.7
 	 */
-	function settings_validate_and_save() {
-
-		if ( !is_admin() )
-			return false;
-					
-		if ( !isset( $_POST['action'], $_POST['_wpnonce'], $_POST['option_page'], $_POST['_wp_http_referer'], $_POST['submit'] ) )
-			return false;
-				
-		if ( $_POST['action'] != 'update' || !wp_verify_nonce( $_POST['_wpnonce'], $this->options_group_name . '-options' ) 
-			|| $_POST['option_page'] != $this->options_group_name )
-			return false;
-
-		if ( !current_user_can( 'manage_options' ) )
-			wp_die( __( 'Cheatin&#8217; uh?' ) );
-			
-			
+	function settings_validate( $new_options ) {
 		global $edit_flow;
-		$new_options = $_POST[$this->options_group_name];
+		
+		// Whitelist validation for the post type options
+		if ( !isset( $new_options['post_types'] ) )
+			$new_options['post_types'] = array();
+		$new_options['post_types'] = $edit_flow->helpers->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
 
-		// Validation for the fields on the page
+		// Whitelist validation for the 'always_notify_admin' optoins
 		if ( !isset( $new_options['always_notify_admin'] ) || $new_options['always_notify_admin'] != 'on' )
 			$new_options['always_notify_admin'] = 'off';
 		
-		$new_options = (object)array_merge( (array)$this->module->options, $new_options );
-		$edit_flow = $edit_flow->update_all_module_options( $this->module->name, $new_options );
-		
-		// Redirect back to the settings page that was submitted
-		$goback = add_query_arg( 'settings-updated', 'true',  wp_get_referer() );
-		wp_redirect( $goback );
-		exit;	
+		return $new_options;
 
 	}	
 
 	/**
 	 * Settings page for notifications
+	 *
+	 * @since 0.7	
 	 */
 	function print_configure_view() {
 		global $edit_flow;
@@ -684,12 +679,14 @@ class EF_Notifications {
 
 		<form class="basic-settings" action="<?php echo add_query_arg( 'configure', $this->module->slug, EDIT_FLOW_SETTINGS_PAGE ); ?>" method="post">
 
-			<?php settings_fields( $this->options_group_name ); ?>
-			<?php do_settings_sections( $this->options_group_name ); ?>
+			<?php settings_fields( $this->module->options_group_name ); ?>
+			<?php do_settings_sections( $this->module->options_group_name ); ?>
 			
 			<?php
-				echo '<input id="enabled" name="' . $this->options_group_name . '[enabled]"';
-				echo ' value="' . $this->module->options->enabled . '" type="hidden" />';
+				echo '<input id="enabled" name="' . $this->module->options_group_name . '[enabled]"';
+				echo ' value="' . esc_attr( $this->module->options->enabled ) . '" type="hidden" />';
+				
+				echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';				
 			?>
 
 			<p class="submit"><input name="submit" type="submit" class="button-primary" value="<?php esc_attr_e('Save Changes'); ?>" /><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Cancel Without Saving' ); ?></a></p>

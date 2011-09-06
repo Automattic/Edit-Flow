@@ -34,6 +34,8 @@ class EF_Settings {
 	 */
 	function init() {
 		
+		add_action( 'admin_init', array( &$this, 'helper_settings_validate_and_save' ), 100 );		
+		
 		add_action( 'admin_print_styles', array( &$this, 'action_admin_print_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'action_admin_enqueue_scripts' ) );
 		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );
@@ -202,6 +204,84 @@ class EF_Settings {
 			
 		}
 		
+	}
+	
+	/**
+	 * Generate an option field to turn post type support on/off for a given module
+	 *
+	 * @param object $module Edit Flow module we're generating the option field for
+	 * @param {missing}
+	 *
+	 * @since 0.7
+	 */
+	function helper_option_custom_post_type( $module, $args = array() ) {
+		
+		$all_post_types = array(
+			'post' => __( 'Posts' ),
+			'page' => __( 'Pages' ),
+		);
+		
+		// Don't load any of the default post types because we've already created an array of the two we use
+		$pt_args = array(
+			'_builtin' => false,
+		);
+		$custom_post_types = get_post_types( $pt_args, 'objects' );		
+		if ( count( $custom_post_types ) )
+			foreach( $custom_post_types as $custom_post_type => $args )
+				$all_post_types[$custom_post_type] = $args->name;
+		
+		foreach( $all_post_types as $post_type => $title ) {
+			echo '<input id="' . esc_attr( $post_type ) . '" name="'
+				. $module->options_group_name . '[post_types][' . esc_attr( $post_type ) . ']"';				
+			checked( $module->options->post_types[$post_type], 'on' );
+			// Defining post_type_supports in the functions.php file or similar should disable the checkbox
+			if ( post_type_supports( $post_type, $module->post_type_support ) )
+				echo ' disabled="disabled"';
+			echo ' type="checkbox" />&nbsp;&nbsp;&nbsp;' . esc_html( $title );
+			// Leave a note to the admin as a reminder that add_post_type_support has been used somewhere in their code
+			if ( post_type_supports( $post_type, $module->post_type_support ) )
+				echo '&nbsp&nbsp;&nbsp;<span class="description">' . sprintf( __( 'Disabled because add_post_type_support( \'%1$s\', \'%2$s\' ) is in use.' ), $post_type, $module->post_type_support ) . '</span>';
+			echo '<br />';
+		}
+		
+	}
+	
+	/**
+	 * Validation and sanitization on the settings field
+	 * This method is called automatically/ doesn't need to be registered anywhere
+	 *
+	 * @since 0.7	
+	 */
+	function helper_settings_validate_and_save() {
+					
+		if ( !isset( $_POST['action'], $_POST['_wpnonce'], $_POST['option_page'], $_POST['_wp_http_referer'], $_POST['edit_flow_module_name'], $_POST['submit'] ) || !is_admin() )
+			return false;
+
+		if ( !current_user_can( 'manage_options' ) )
+			wp_die( __( 'Cheatin&#8217; uh?' ) );
+			
+		global $edit_flow;			
+		$module_name = sanitize_key( $_POST['edit_flow_module_name'] );
+				
+		if ( $_POST['action'] != 'update' || !wp_verify_nonce( $_POST['_wpnonce'], $edit_flow->$module_name->module->options_group_name . '-options' ) 
+			|| $_POST['option_page'] != $edit_flow->$module_name->module->options_group_name )
+			return false;
+	
+		$new_options = $_POST[$edit_flow->$module_name->module->options_group_name];
+
+		// Only call the validation callback if it exists?
+		if ( method_exists( $edit_flow->$module_name, 'settings_validate' ) )
+			$new_options = $edit_flow->$module_name->settings_validate( $new_options );
+		
+		// Cast our object and save the data.
+		$new_options = (object)array_merge( (array)$edit_flow->$module_name->module->options, $new_options );
+		$edit_flow->update_all_module_options( $edit_flow->$module_name->module->name, $new_options );
+		
+		// Redirect back to the settings page that was submitted
+		$goback = add_query_arg( 'settings-updated', 'true',  wp_get_referer() );
+		wp_redirect( $goback );
+		exit;	
+
 	}
 	
 }

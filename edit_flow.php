@@ -39,6 +39,7 @@ define( 'EDIT_FLOW_CALENDAR_PAGE', 'index.php?page=edit-flow/calendar');
 define( 'EDIT_FLOW_STORY_BUDGET_PAGE', 'index.php?page=edit-flow/story_budget');
 
 // Include necessary files, including the path in which to search to avoid conflicts
+include_once( EDIT_FLOW_ROOT . '/php/helpers.php' );
 include_once( EDIT_FLOW_ROOT . '/php/custom_status.php' );
 include_once( EDIT_FLOW_ROOT . '/php/dashboard.php' );
 include_once( EDIT_FLOW_ROOT . '/php/editorial_comments.php' );
@@ -95,7 +96,6 @@ class edit_flow {
 		
 		// Load all of our modules, and the load their options after we've confirmed they're loaded
 		add_action( 'plugins_loaded', array( &$this, 'register_modules' ) );
-		add_action( 'plugins_loaded', array( &$this, 'load_module_options' ), 100 );
 		
 		// Initialize all of the modules
 		add_action( 'init', array( &$this,'init' ) );
@@ -108,6 +108,8 @@ class edit_flow {
 	} // END __construct()
 	
 	function register_modules() {
+		
+		$this->helpers = new EF_Helpers();
 		
 		// Register all of our classes as Edit Flow modules
 		$this->custom_status = new EF_Custom_Status();
@@ -127,6 +129,9 @@ class edit_flow {
 	 * Inititalizes the Edit Flows!
 	 */
 	function init() {
+		
+		// Load all of the module options
+		$this->load_module_options();
 		
 		// Load all of the modules that are enabled.
 		// Modules won't have an options value if they aren't enabled
@@ -165,6 +170,7 @@ class edit_flow {
 	 */
 	public function register_module( $name, $args = array() ) {
 		
+		// A title and name is required for every module
 		if ( !isset( $args['title'], $name ) )
 			return false;
 		
@@ -174,14 +180,17 @@ class edit_flow {
 			'extended_description' => '',
 			'img_url' => false,
 			'slug' => '',
+			'post_type_support' => '',
 			'default_options' => array(),
+			'options' => false,
 			'configure_page_cb' => false,
-			'configure_link_text' => 'Configure',
+			'configure_link_text' => __( 'Configure' ),
 			'autoload' => false,
 			'load_frontend' => false,
 		);
 		$args = array_merge( $defaults, $args );
 		$args['name'] = $name;
+		$args['options_group_name'] = $this->options_group . $name . '_options';
 		$this->modules->$name = (object) $args;
 		do_action( 'ef_module_registered', $name );
 		return $this->modules->$name;
@@ -196,11 +205,17 @@ class edit_flow {
 			// Don't load modules on the frontend unless they're explictly defined as such
 			if ( !is_admin() && !$mod_data->load_frontend )
 				continue;
+			
 			$this->modules->$mod_name->options = get_option( $this->options_group . $mod_name . '_options' );
 			foreach ( $mod_data->default_options as $default_key => $default_value ) {
 				if ( !isset( $this->modules->$mod_name->options->$default_key ) )
 					$this->modules->$mod_name->options->$default_key = $default_value;
 			}
+
+			if ( isset( $this->modules->$mod_name->options->post_types ) )
+				$this->modules->$mod_name->options->post_types = $this->helpers->clean_post_type_options( $this->modules->$mod_name->options->post_types, $mod_data->post_type_support );	
+			
+			$this->$mod_name->module = $this->modules->$mod_name;
 		}
 		do_action( 'ef_module_options_loaded' );
 	}

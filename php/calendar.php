@@ -26,35 +26,35 @@ class EF_Calendar {
 		global $edit_flow;
 	
 		// Register the module with Edit Flow
-		// @todo default options for registering the statuses
+		// @todo default options for registering the statuses		
 		$args = array(
 			'title' => __( 'Calendar', 'edit-flow' ),
 			'short_description' => __( 'See all of your content on a calendar tk', 'edit-flow' ),
+			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
 			'img_url' => false,
 			'slug' => 'calendar',
+			'post_type_support' => 'ef_calendar',
 			'default_options' => array(
 				'enabled' => 'on',
+				'post_types' => array(
+					'post' => 'on',
+				),
 			),
-			'configure_page_cb' => false,
+			'configure_page_cb' => 'print_configure_view',
+			'configure_link_text' => __( 'Calendar Options', 'edit-flow' ),
 		);
 		$this->module = $edit_flow->register_module( 'calendar', $args );		
 		
 	}
 	
 	/**
-	 * init()
+	 * Initialize all of our methods and such
 	 */
 	function init() {
-		
-		global $edit_flow;
-		// Calendar supports the 'post' post type by default
-		// Other support can be added with the add_post_type_support method
-		add_post_type_support( 'post', 'ef_calendar' );
-		
+		add_action( 'admin_init', array( &$this, 'register_settings' ) );
 		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );		
 		add_action( 'admin_enqueue_scripts', array(&$this, 'add_admin_scripts' ));
 		add_action( 'admin_print_styles', array( &$this, 'add_admin_styles' ) );
-		
 	}
 	
 	function action_admin_menu() {
@@ -66,7 +66,6 @@ class EF_Calendar {
 	 */
 	function add_admin_scripts() {
 		
-		//wp_enqueue_script('edit_flow-calendar-js', EDIT_FLOW_URL.'js/calendar.js', array('jquery', 'jquery-ui-core', 'jquery-ui-sortable'), EDIT_FLOW_VERSION, true);
 		
 	}
 	
@@ -77,9 +76,8 @@ class EF_Calendar {
 		
 		global $pagenow;
 		// Only load calendar styles on the calendar page
-		if ( $pagenow == 'index.php' && isset( $_GET['page'] ) && $_GET['page'] == 'calendar' ) {
-			wp_enqueue_style( 'edit_flow-calendar-css', EDIT_FLOW_URL.'css/calendar.css', false, EDIT_FLOW_VERSION );
-		}
+		if ( $pagenow == 'index.php' && isset( $_GET['page'] ) && $_GET['page'] == 'calendar' )
+			wp_enqueue_style( 'edit-flow-calendar-css', EDIT_FLOW_URL.'css/calendar.css', false, EDIT_FLOW_VERSION );
 		
 	}
 	
@@ -657,6 +655,69 @@ class EF_Calendar {
 			echo sprintf( __( 'is showing %1$s days starting %2$s'), 7, date( 'F jS', strtotime( $this->start_date ) ) );
 		else if ( $this->total_weeks > 1 )
 			echo sprintf( __( 'is showing %1$s weeks starting %2$s'), $numbers_to_words[$this->total_weeks], date( 'F jS', strtotime( $this->start_date ) ) );
+	}
+	
+	/**
+	 * Register settings for notifications so we can partially use the Settings API
+	 * (We use the Settings API for form generation, but not saving)
+	 * 
+	 * @since 0.7
+	 */
+	function register_settings() {
+		
+			add_settings_section( $this->module->options_group_name . '_general', false, array( &$this, 'settings_general_section'), $this->module->options_group_name );
+			add_settings_field( 'post_types', 'Post types to show', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+
+	}
+	
+	function settings_general_section() {
+		
+	}
+	
+	/**
+	 * Choose the post types that should be displayed on the calendar
+	 */
+	function settings_post_types_option() {
+		global $edit_flow;
+		
+		$edit_flow->settings->helper_option_custom_post_type( $this->module );
+				
+	}
+	
+	function settings_validate( $new_options ) {
+		global $edit_flow;
+		
+		// Whitelist validation for the post type options
+		if ( !isset( $new_options['post_types'] ) )
+			$new_options['post_types'] = array();
+		$new_options['post_types'] = $edit_flow->helpers->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
+		
+		return $new_options;
+	}
+	
+	/**
+	 * Settings page for notifications
+	 */
+	function print_configure_view() {
+		global $edit_flow;
+		?>
+
+		<form class="basic-settings" action="<?php echo add_query_arg( 'configure', $this->module->slug, EDIT_FLOW_SETTINGS_PAGE ); ?>" method="post">
+
+			<?php settings_fields( $this->module->options_group_name ); ?>
+			<?php do_settings_sections( $this->module->options_group_name ); ?>
+			
+			<?php
+				echo '<input id="enabled" name="' . esc_attr( $this->module->options_group_name ) . '[enabled]"';
+				echo ' value="' . esc_attr( $this->module->options->enabled ) . '" type="hidden" />';
+				
+				echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';
+			?>
+
+			<p class="submit"><input name="submit" type="submit" class="button-primary" value="<?php esc_attr_e('Save Changes'); ?>" /><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Cancel Without Saving' ); ?></a></p>
+
+		</form>
+		<?php
 	}
 	
 }
