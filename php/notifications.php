@@ -642,9 +642,17 @@ class EF_Notifications {
 	 * @since 0.7
 	 */
 	function settings_always_notify_admin_option() {
-		echo '<input id="always_notify_admin" name="' . $this->module->options_group_name . '[always_notify_admin]"';
-		echo checked( $this->module->options->always_notify_admin, 'on' );
-		echo ' type="checkbox" />';
+		$options = array(
+			'off' => __( 'Disabled', 'edit-flow' ),			
+			'on' => __( 'Enabled', 'edit-flow' ),
+		);
+		echo '<select id="always_notify_admin" name="' . $this->module->options_group_name . '[always_notify_admin]">';
+		foreach ( $options as $value => $label ) {
+			echo '<option value="' . esc_attr( $value ) . '"';
+			echo selected( $this->module->options->always_notify_admin, $value );			
+			echo '>' . esc_html( $label ) . '</option>';
+		}
+		echo '</select>';
 	}
 
 	/**
