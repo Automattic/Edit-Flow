@@ -48,9 +48,17 @@ class EF_Calendar {
 	}
 	
 	/**
-	 * Initialize all of our methods and such
+	 * Initialize all of our methods and such. Only runs if the module is active
+	 *
+	 * @uses add_action()
 	 */
 	function init() {
+		
+		// Check whether the user should have the ability to view the calendar
+		$view_calendar_cap = 'ef_view_calendar';
+		$view_calendar_cap = apply_filters( 'ef_view_calendar_cap', $view_calendar_cap );
+		if ( !current_user_can( $view_calendar_cap ) ) return false;
+		
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );
 		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );		
 		add_action( 'admin_print_styles', array( &$this, 'add_admin_styles' ) );
@@ -104,7 +112,7 @@ class EF_Calendar {
 		// Post status
 		if ( isset( $_GET['post_status'] ) ) {
 			$filters['post_status'] = $_GET['post_status'];
-			// Check to ensure we've been passed a valid post status (either a built-in status or a custom status)
+			// Whitelist-based validation for this parameter
 			$all_valid_statuses = array(
 				'future',
 				'unpublish',
@@ -121,32 +129,19 @@ class EF_Calendar {
 		}
 		
 		// Post type
-		if ( count( $supported_post_types ) > 1 && isset( $_GET['type'] ) ) {
-			$filters['post_type'] = $_GET['type'];
-		} else {
-			$filters['post_type'] = $old_filters['post_type'];
-		}
+		$filters['post_type'] = sanitize_key( ( count( $supported_post_types ) > 1 && isset( $_GET['type'] ) ) ? $_GET['type'] : $old_filters['post_type'] );
 		
 		// Category
-		if ( isset( $_GET['cat'] ) ) {
-			$filters['cat'] = $_GET['cat'];
-		} else {
-			$filters['cat'] = $old_filters['cat'];
-		}
+		 $filters['cat'] = (int)( isset( $_GET['cat'] ) ) ? $_GET['cat'] : $old_filters['cat'];
 		
 		// Author
-		if ( isset( $_GET['author'] ) ) {
-			$filters['author'] = $_GET['author'];
-		} else {
-			$filters['author'] = $old_filters['author'];
-		}
+		 $filters['author'] = (int)( isset( $_GET['author'] ) ) ? $_GET['author'] : $old_filters['author'];
 		
 		// Start date
-		if ( isset( $_GET['start_date'] ) && !empty( $_GET['start_date'] ) ) {
+		if ( isset( $_GET['start_date'] ) && !empty( $_GET['start_date'] ) )
 			$filters['start_date'] = date( 'Y-m-d', strtotime( $_GET['start_date'] ) );
-		} else {
+		else
 			$filters['start_date'] = date( 'Y-m-d' );
-		}
 
 		$filters['start_date'] = $this->get_beginning_of_week( $filters['start_date'] ); // don't just set the given date as the end of the week. use the blog's settings
 		
@@ -246,7 +241,7 @@ class EF_Calendar {
 						$month_label = '';
 					}
 				?>
-				<td class="<?php echo implode( ' ', $td_classes ); ?>" id="day-<?php echo $week_single_date; ?>">
+				<td class="<?php echo implode( ' ', $td_classes ); ?>" id="day-<?php esc_attr_e( $week_single_date ); ?>">
 					<div class="day-unit-label"><?php echo $month_label; ?><?php echo date( 'j', strtotime( $week_single_date ) ); ?></div>
 					<?php if ( !empty( $week_posts[$week_single_date] ) ): ?>
 					<ul class="post-list">
@@ -255,12 +250,12 @@ class EF_Calendar {
 							$post_id = $post->ID;
 							$edit_post_link = get_edit_post_link( $post_id );
 						?>
-						<li class="day-item <?php echo 'custom-status-'. $post->post_status; ?>" id="post-<?php echo $post->ID; ?>">
+						<li class="day-item <?php echo 'custom-status-'. esc_attr( $post->post_status ); ?>" id="post-<?php esc_attr_e( $post->ID ); ?>">
 							<div class="item-headline post-title">
 								<?php if ( $edit_post_link ): ?>
 								<strong><?php edit_post_link( $post->post_title, '', '', $post_id ); ?></strong>
 								<?php else: ?>
-								<strong><?php echo $post->post_title; ?></strong>
+								<strong><?php esc_html_e( $post->post_title ); ?></strong>
 								<?php endif; ?>
 								<span class="item-status">[<?php if ( count( $supported_post_types ) > 1 ) {
 									$post_type = $post->post_type;
@@ -331,7 +326,7 @@ class EF_Calendar {
 			<li id="calendar-filter">
 				<form method="GET">
 					<input type="hidden" name="page" value="calendar" />
-					<input type="hidden" name="start_date" value="<?php echo $filters['start_date'] ?>"/>
+					<input type="hidden" name="start_date" value="<?php esc_attr_e( $filters['start_date'] ); ?>"/>
 					<!-- Filter by status -->
 					<select id="post_status" name="post_status">
 						<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
@@ -374,7 +369,7 @@ class EF_Calendar {
 					<?php
 						foreach ( $supported_post_types as $key => $post_type_name ) {
 							$all_post_types = get_post_types( null, 'objects' );
-							echo '<option value="' . $post_type_name . '"' . selected( $post_type_name, $filters['post_type']) . '>' . $all_post_types[$post_type_name]->labels->name . '</option>';
+							echo '<option value="' . esc_attr( $post_type_name ) . '"' . selected( $post_type_name, $filters['post_type']) . '>' . esc_html( $all_post_types[$post_type_name]->labels->name ) . '</option>';
 						}
 					?>
 					</select>
@@ -388,7 +383,7 @@ class EF_Calendar {
 			<li>
 				<form method="GET">
 					<input type="hidden" name="page" value="calendar" />
-					<input type="hidden" name="start_date" value="<?php echo $filters['start_date']; ?>"/>
+					<input type="hidden" name="start_date" value="<?php esc_attr_e( $filters['start_date'] ); ?>"/>
 					<input type="hidden" name="post_status" value="" />
 					<input type="hidden" name="type" value="" />					
 					<input type="hidden" name="cat" value="" />
@@ -399,16 +394,16 @@ class EF_Calendar {
 
 			<!-- Previous and next navigation items -->
 			<li class="next-week">
-				<a id="trigger-left" href="<?php echo $this->get_next_link( $filters, 1 ); ?>"><?php _e( 'Next Week &raquo;', 'edit-flow' ); ?></a>
+				<a id="trigger-left" href="<?php echo esc_url( $this->get_next_link( $filters, 1 ) ); ?>"><?php _e( 'Next Week &raquo;', 'edit-flow' ); ?></a>
 				<?php if ( $this->total_weeks > 1): ?>			
-				<a id="trigger-left" href="<?php echo $this->get_next_link( $filters ); ?>"><?php _e( $this->total_weeks . ' Weeks &raquo;', 'edit-flow' ); ?></a>
+				<a id="trigger-left" href="<?php echo esc_url( $this->get_next_link( $filters ) ); ?>"><?php _e( $this->total_weeks . ' Weeks &raquo;', 'edit-flow' ); ?></a>
 				<?php endif; ?>
 			</li>
 			<li class="previous-week">
 				<?php if ( $this->total_weeks > 1): ?>				
-				<a id="trigger-right" href="<?php echo $this->get_previous_link( $filters ); ?>"><?php _e( '&laquo; ' . $this->total_weeks . ' Weeks', 'edit-flow' ); ?></a>
+				<a id="trigger-right" href="<?php echo esc_url( $this->get_previous_link( $filters ) ); ?>"><?php _e( '&laquo; ' . $this->total_weeks . ' Weeks', 'edit-flow' ); ?></a>
 				<?php endif; ?>
-				<a id="trigger-right" href="<?php echo $this->get_previous_link( $filters, 1 ); ?>"><?php _e( '&laquo; Previous Week', 'edit-flow' ); ?></a>
+				<a id="trigger-right" href="<?php echo esc_url( $this->get_previous_link( $filters, 1 ) ); ?>"><?php _e( '&laquo; Previous Week', 'edit-flow' ); ?></a>
 			</li>
 		</ul>
 	<?php
@@ -425,32 +420,14 @@ class EF_Calendar {
 		$html = '';
 		foreach( $dates as $date ) {
 			$html .= '<th class="column-heading" >';
-			$html .= date('l', strtotime( $date ) );
+			$html .= esc_html( date('l', strtotime( $date ) ) );
 			$html .= '</th>';
 		}
 		
 		return $html;
 		
-	} // END: get_time_period_header()
-	
-	/**
-	 * Helper method to determine whether the calendar is viewable or not
-	 *
-	 * @return bool $viewable Whether the calendar is viewable or not
-	 */
-	function viewable() {
-		global $edit_flow;
-		
-		$calendar_enabled = (int)$edit_flow->get_plugin_option('calendar_enabled');
-		if ( $calendar_enabled ) {
-			$view_calendar_cap = 'ef_view_calendar';
-			$view_calendar_cap = apply_filters( 'ef_view_calendar_cap', $view_calendar_cap );
-			if ( current_user_can( $view_calendar_cap ) ) return true;
-		}
-		return false;
-		
 	}
-	
+		
 	/**
 	 * Query to get all of the calendar posts for a given day
 	 *
@@ -543,8 +520,7 @@ class EF_Calendar {
 			
 		$filters['start_date'] = date( 'Y-m-d', strtotime( "-" . $weeks_offset . " weeks", strtotime( $filters['start_date'] ) ) );	
 		$url = EDIT_FLOW_CALENDAR_PAGE;
-		foreach( $filters as $label => $value )
-			$url = add_query_arg( $label, $value, $url );
+		$url = add_query_arg( $filters, EDIT_FLOW_CALENDAR_PAGE );
 
 		if ( count( $supported_post_types ) > 1 )
 			$url = add_query_arg( 'post_type', $filters['post_type'] , $url );
@@ -568,9 +544,7 @@ class EF_Calendar {
 			$weeks_offset = $this->total_weeks;
 		
 		$filters['start_date'] = date( 'Y-m-d', strtotime( $weeks_offset . " weeks", strtotime( $filters['start_date'] ) ) );
-		$url = EDIT_FLOW_CALENDAR_PAGE;
-		foreach( $filters as $label => $value )
-			$url = add_query_arg( $label, $value, $url );
+		$url = add_query_arg( $filters, EDIT_FLOW_CALENDAR_PAGE );
 
 		if ( count( $supported_post_types ) > 1 )
 			$url = add_query_arg( 'post_type', $filters['post_type'] , $url );
@@ -711,7 +685,7 @@ class EF_Calendar {
 				echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';
 			?>
 
-			<p class="submit"><input name="submit" type="submit" class="button-primary" value="<?php esc_attr_e('Save Changes'); ?>" /><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Cancel Without Saving' ); ?></a></p>
+			<p class="submit"><input name="submit" type="submit" class="button-primary" value="<?php esc_attr_e('Save Changes'); ?>" /><a class="cancel-settings-link" href="<?php echo esc_url( EDIT_FLOW_SETTINGS_PAGE ); ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
 
 		</form>
 		<?php
