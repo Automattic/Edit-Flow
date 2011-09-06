@@ -37,7 +37,51 @@ class EF_Helpers
 				$normalized_post_type_options[$post_type] = 'off';
 		}
 		return $normalized_post_type_options;
-	}	
+	}
+	
+	/**
+	 * Collect all of the active post types for a given module
+	 *
+	 * @param object $module Module's data
+	 * @return array $post_types All of the post types that are 'on'
+	 *
+	 * @since 0.7
+	 */
+	function get_post_types_for_module( $module ) {
+		
+		$post_types = array();
+		if ( isset( $module->options->post_types ) && is_array( $module->options->post_types ) ) {
+			foreach( $module->options->post_types as $post_type => $value )
+				if ( 'on' == $value )
+					$post_types[] = $post_type;
+		}
+		return $post_types;
+	}
+	
+	/**
+	 * Get all of the currently available post statuses
+	 */
+	function get_post_statuses() {
+		global $edit_flow;
+		
+		if ( isset( $edit_flow->custom_status ) && $edit_flow->custom_status->module->options->enabled == 'on' ) {
+		 	return $edit_flow->custom_status->get_custom_statuses();
+		} else {
+			$post_statuses = array(
+				(object)array(
+					'name' => __( 'Draft' ),
+					'description' => '',
+					'slug' => 'draft',
+				),
+				(object)array(
+					'name' => __( 'Pending Review' ),
+					'description' => '',
+					'slug' => 'pending',
+				),				
+			);
+			return (object)$post_statuses;
+		}
+	}
 	
 }	
 	

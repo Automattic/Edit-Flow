@@ -25,8 +25,7 @@ class EF_Calendar {
 	function __construct() {
 		global $edit_flow;
 	
-		// Register the module with Edit Flow
-		// @todo default options for registering the statuses		
+		// Register the module with Edit Flow	
 		$args = array(
 			'title' => __( 'Calendar', 'edit-flow' ),
 			'short_description' => __( 'See all of your content on a calendar tk', 'edit-flow' ),
@@ -38,6 +37,7 @@ class EF_Calendar {
 				'enabled' => 'on',
 				'post_types' => array(
 					'post' => 'on',
+					'page' => 'off',
 				),
 			),
 			'configure_page_cb' => 'print_configure_view',
@@ -53,32 +53,28 @@ class EF_Calendar {
 	function init() {
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );
 		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );		
-		add_action( 'admin_enqueue_scripts', array(&$this, 'add_admin_scripts' ));
 		add_action( 'admin_print_styles', array( &$this, 'add_admin_styles' ) );
 	}
 	
+	/**
+	 * Add the calendar link underneath the "Dashboard"
+	 *
+	 * @uses add_submenu_page
+	 */
 	function action_admin_menu() {
 		add_submenu_page('index.php', __('Calendar', 'edit-flow'), __('Calendar', 'edit-flow'), apply_filters( 'ef_view_calendar_cap', 'ef_view_calendar' ), $this->module->slug, array( &$this, 'view_calendar' ) );
 	}
 	
 	/**
-	 * Add any necessary Javascript to the WordPress admin
-	 */
-	function add_admin_scripts() {
-		
-		
-	}
-	
-	/**
 	 * Add any necessary CSS to the WordPress admin
+	 *
+	 * @uses wp_enqueue_style()
 	 */
 	function add_admin_styles() {
-		
 		global $pagenow;
 		// Only load calendar styles on the calendar page
 		if ( $pagenow == 'index.php' && isset( $_GET['page'] ) && $_GET['page'] == 'calendar' )
 			wp_enqueue_style( 'edit-flow-calendar-css', EDIT_FLOW_URL.'css/calendar.css', false, EDIT_FLOW_VERSION );
-		
 	}
 	
 	/**
@@ -90,7 +86,7 @@ class EF_Calendar {
 	function get_filters() {
 		global $edit_flow;
 		
-		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
+		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
 		
 		$current_user = wp_get_current_user();
 		$filters = array();
@@ -114,8 +110,8 @@ class EF_Calendar {
 				'unpublish',
 				'publish'
 			);
-			foreach ( $edit_flow->custom_status->get_custom_statuses() as $custom_status ) {
-				$all_valid_statuses[] = $custom_status->slug;
+			foreach ( $edit_flow->helpers->get_post_statuses() as $post_status ) {
+				$all_valid_statuses[] = $post_status->slug;
 			}
 			if ( !in_array( $filters['post_status'], $all_valid_statuses ) ) {
 				$filters['post_status'] = '';
@@ -165,7 +161,7 @@ class EF_Calendar {
 	function view_calendar() {
 		global $edit_flow;
 		
-		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
+		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
 		
 		// Total number of weeks to display on the calendar
 		$this->total_weeks = apply_filters( 'ef_calendar_total_weeks', $this->total_weeks );
@@ -328,20 +324,20 @@ class EF_Calendar {
 	function print_top_navigation( $filters, $dates ) {
 		global $edit_flow;
 		
-		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
-		$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
+		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		$post_statuses = $edit_flow->helpers->get_post_statuses();
 		?>
 		<ul class="ef-calendar-navigation">
 			<li id="calendar-filter">
 				<form method="GET">
-					<input type="hidden" name="page" value="edit-flow/calendar" />
+					<input type="hidden" name="page" value="calendar" />
 					<input type="hidden" name="start_date" value="<?php echo $filters['start_date'] ?>"/>
 					<!-- Filter by status -->
 					<select id="post_status" name="post_status">
 						<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
 						<?php
-							foreach ( $custom_statuses as $custom_status ) {
-								echo "<option value='$custom_status->slug' " . selected( $custom_status->slug, $filters['post_status'] ) . ">$custom_status->name</option>";
+							foreach ( $post_statuses as $post_status ) {
+								echo "<option value='$post_status->slug' " . selected( $post_status->slug, $filters['post_status'] ) . ">" . esc_html( $post_status->name ) . "</option>";
 							}
 							echo "<option value='future'" . selected( 'future', $filters['post_status'] ) . ">" . __( 'Scheduled', 'edit-flow' ) . "</option>";
 							echo "<option value='unpublish'" . selected( 'unpublish', $filters['post_status'] ) . ">" . __( 'Unpublished', 'edit-flow' ) . "</option>";
@@ -391,7 +387,7 @@ class EF_Calendar {
 			<!-- Clear filters functionality (all of the fields, but empty) -->
 			<li>
 				<form method="GET">
-					<input type="hidden" name="page" value="edit-flow/calendar" />
+					<input type="hidden" name="page" value="calendar" />
 					<input type="hidden" name="start_date" value="<?php echo $filters['start_date']; ?>"/>
 					<input type="hidden" name="post_status" value="" />
 					<input type="hidden" name="type" value="" />					
@@ -464,7 +460,7 @@ class EF_Calendar {
 	function get_calendar_posts_for_week( $args = null ) {
 		global $wpdb, $edit_flow;
 		
-		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
+		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
 		$defaults = array(	'post_status' => null,
 							'cat'         => null,
 						  	'author'      => null,
@@ -476,13 +472,12 @@ class EF_Calendar {
 		
 		// Unpublished as a status is just an array of everything but 'publish'
 		if ( $args['post_status'] == 'unpublish' ) {
-			$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
-			foreach ( $custom_statuses as $custom_status ) {
-				$args['post_status'] .= $custom_status->slug . ', ';
+			$post_statuses = $edit_flow->helpers->get_post_statuses();
+			foreach ( $post_statuses as $post_status ) {
+				$args['post_status'] .= $post_status->slug . ', ';
 			}
-			if ( apply_filters( 'ef_show_scheduled_as_unpublished', false ) ) {
+			if ( apply_filters( 'ef_show_scheduled_as_unpublished', false ) )
 				$args['post_status'] .= 'future';
-			}
 		} // END if ( $args['post_status'] == 'unpublish' )
 		
 		// The WP functions for printing the category and author assign a value of 0 to the default
@@ -541,7 +536,7 @@ class EF_Calendar {
 	 */
 	function get_previous_link( $filters = array(), $weeks_offset = null ) {
 		global $edit_flow;
-		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
+		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
 		
 		if ( !$weeks_offset )
 			$weeks_offset = $this->total_weeks;
@@ -567,7 +562,7 @@ class EF_Calendar {
 	 */
 	function get_next_link( $filters = array(), $weeks_offset = null ) {
 		global $edit_flow;
-		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_calendar' );
+		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
 		
 		if ( !$weeks_offset )
 			$weeks_offset = $this->total_weeks;
@@ -676,6 +671,8 @@ class EF_Calendar {
 	
 	/**
 	 * Choose the post types that should be displayed on the calendar
+	 *
+	 * @since 0.7
 	 */
 	function settings_post_types_option() {
 		global $edit_flow;
