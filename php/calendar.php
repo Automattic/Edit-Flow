@@ -650,9 +650,7 @@ class EF_Calendar {
 	 */
 	function settings_post_types_option() {
 		global $edit_flow;
-		
 		$edit_flow->settings->helper_option_custom_post_type( $this->module );
-				
 	}
 	
 	function settings_validate( $new_options ) {
@@ -667,26 +665,21 @@ class EF_Calendar {
 	}
 	
 	/**
-	 * Settings page for notifications
+	 * Settings page for calendar
 	 */
 	function print_configure_view() {
 		global $edit_flow;
 		?>
-
-		<form class="basic-settings" action="<?php echo add_query_arg( 'configure', $this->module->slug, EDIT_FLOW_SETTINGS_PAGE ); ?>" method="post">
-
+		<form class="basic-settings" action="<?php echo esc_url( add_query_arg( 'configure', $this->module->slug, EDIT_FLOW_SETTINGS_PAGE ) ); ?>" method="post">
 			<?php settings_fields( $this->module->options_group_name ); ?>
-			<?php do_settings_sections( $this->module->options_group_name ); ?>
-			
+			<?php do_settings_sections( $this->module->options_group_name ); ?>	
 			<?php
 				echo '<input id="enabled" name="' . esc_attr( $this->module->options_group_name ) . '[enabled]"';
 				echo ' value="' . esc_attr( $this->module->options->enabled ) . '" type="hidden" />';
 				
 				echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';
 			?>
-
 			<p class="submit"><input name="submit" type="submit" class="button-primary" value="<?php esc_attr_e('Save Changes'); ?>" /><a class="cancel-settings-link" href="<?php echo esc_url( EDIT_FLOW_SETTINGS_PAGE ); ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
-
 		</form>
 		<?php
 	}
