@@ -235,8 +235,7 @@ class EF_Settings {
 				. $module->options_group_name . '[post_types][' . esc_attr( $post_type ) . ']"';				
 			checked( $module->options->post_types[$post_type], 'on' );
 			// Defining post_type_supports in the functions.php file or similar should disable the checkbox
-			if ( post_type_supports( $post_type, $module->post_type_support ) )
-				echo ' disabled="disabled"';
+			disabled( post_type_supports( $post_type, $module->post_type_support ), true );
 			echo ' type="checkbox" />&nbsp;&nbsp;&nbsp;' . esc_html( $title );
 			// Leave a note to the admin as a reminder that add_post_type_support has been used somewhere in their code
 			if ( post_type_supports( $post_type, $module->post_type_support ) )
@@ -267,7 +266,7 @@ class EF_Settings {
 			|| $_POST['option_page'] != $edit_flow->$module_name->module->options_group_name )
 			return false;
 	
-		$new_options = $_POST[$edit_flow->$module_name->module->options_group_name];
+		$new_options = ( isset( $_POST[$edit_flow->$module_name->module->options_group_name] ) ) ? $_POST[$edit_flow->$module_name->module->options_group_name] : array();
 
 		// Only call the validation callback if it exists?
 		if ( method_exists( $edit_flow->$module_name, 'settings_validate' ) )

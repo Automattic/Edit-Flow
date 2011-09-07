@@ -668,7 +668,7 @@ class EF_Notifications {
 			$new_options['post_types'] = array();
 		$new_options['post_types'] = $edit_flow->helpers->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
 
-		// Whitelist validation for the 'always_notify_admin' optoins
+		// Whitelist validation for the 'always_notify_admin' options
 		if ( !isset( $new_options['always_notify_admin'] ) || $new_options['always_notify_admin'] != 'on' )
 			$new_options['always_notify_admin'] = 'off';
 		
@@ -686,18 +686,12 @@ class EF_Notifications {
 		?>
 
 		<form class="basic-settings" action="<?php echo add_query_arg( 'configure', $this->module->slug, EDIT_FLOW_SETTINGS_PAGE ); ?>" method="post">
-
 			<?php settings_fields( $this->module->options_group_name ); ?>
 			<?php do_settings_sections( $this->module->options_group_name ); ?>
-			
 			<?php
-				echo '<input id="enabled" name="' . $this->module->options_group_name . '[enabled]"';
-				echo ' value="' . esc_attr( $this->module->options->enabled ) . '" type="hidden" />';
-				
 				echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';				
 			?>
-
-			<p class="submit"><input name="submit" type="submit" class="button-primary" value="<?php esc_attr_e('Save Changes'); ?>" /><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Cancel Without Saving' ); ?></a></p>
+			<p class="submit"><?php submit_button( null, 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow' ); ?></a></p>
 
 		</form>
 		<?php
