@@ -136,7 +136,7 @@ class edit_flow {
 		// Load all of the modules that are enabled.
 		// Modules won't have an options value if they aren't enabled
 		foreach ( $this->modules as $mod_name => $mod_data )
-			if ( isset( $mod_data->options ) && $mod_data->options->enabled == 'on' )
+			if ( isset( $mod_data->options->enabled ) && $mod_data->options->enabled == 'on' )
 				$this->$mod_name->init();
 		
 	} // END: init()
