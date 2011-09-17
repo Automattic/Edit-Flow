@@ -88,6 +88,52 @@ class EF_Helpers
 		}
 	}
 	
+	/**
+	 * get_post_status_friendly_name()
+	 * Returns the friendly name for a given status
+	 *
+	 * @since 0.7
+	 *
+	 * @param string $status The status slug
+	 * @return string $status_friendly_name The friendly name for the status
+	 */
+	function get_post_status_friendly_name( $status ) {
+		global $edit_flow;
+		
+		$status_friendly_name = '';
+		
+		$builtin_stati = array(
+			'publish' => __( 'Published', 'edit-flow' ),
+			'draft' => __( 'Draft', 'edit-flow' ),
+			'future' => __( 'Scheduled', 'edit-flow' ),
+			'private' => __( 'Private', 'edit-flow' ),
+			'pending' => __( 'Pending Review', 'edit-flow' ),
+			'trash' => __( 'Trash', 'edit-flow' ),
+		);
+		
+		if ( array_key_exists( $status, $builtin_stati ) ) {
+			$status_friendly_name = $builtin_stati[$status];
+		} else if ( isset( $edit_flow->custom_status ) && $edit_flow->custom_status->module->options->enabled == 'on' ) {
+			$status_object = $edit_flow->custom_status->get_custom_status( $status );
+			if( $status_object && !is_wp_error( $status_object ) ) {
+				$status_friendly_name = $status_object->name;
+			}
+		}
+		
+		return $status_friendly_name;
+	}
+	
+	/**
+	 * Enqueue any resources (CSS or JS) associated with datepicker functionality
+	 *
+	 * @since 0.7
+	 */
+	function enqueue_datepicker_resources() {
+		wp_enqueue_style( 'edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, EDIT_FLOW_VERSION, 'screen' );
+		wp_enqueue_script( 'edit_flow-date-lib', EDIT_FLOW_URL . 'js/lib/date.js', false, EDIT_FLOW_VERSION, true );
+		wp_enqueue_script( 'edit_flow-date_picker-lib', EDIT_FLOW_URL . 'js/lib/jquery.datePicker.js', array( 'jquery', 'edit_flow-date-lib' ), EDIT_FLOW_VERSION, true );		
+	}
+	
 }	
 	
 }

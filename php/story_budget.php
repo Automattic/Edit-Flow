@@ -1,9 +1,8 @@
 <?php
-
 /**
  * This class displays a budgeting system for an editorial desk's publishing workflow.
  *
- * Somewhat prioritized TODOs:
+ * @author sbressler
  * TODO: Review inline TODOs
  * TODO: Fix any bugs with collapsing postbox divs and floating columns
  */
@@ -23,7 +22,7 @@ class ef_story_budget {
 	
 	const screen_width_percent = 98;
 	
-	const screen_id = 'dashboard_page_edit-flow/story_budget';
+	const screen_id = 'dashboard_page_story-budget';
 	
 	const usermeta_key_prefix = 'ef_story_budget_';
 	
@@ -72,26 +71,34 @@ class ef_story_budget {
 		
 	}
 	
+	/**
+	 * Include the story budget link in the admin menu.
+	 *
+	 * @uses add_submenu_page()
+	 */
 	function action_admin_menu() {
-		add_submenu_page( 'index.php', __('Story Budget', 'edit-flow'), __('Story Budget', 'edit-flow'), apply_filters( 'ef_view_story_budget_cap', 'ef_view_story_budget' ), $this->module->slug, array(&$this->story_budget, 'story_budget') );
+		global $edit_flow;
+		add_submenu_page( 'index.php', __('Story Budget', 'edit-flow'), __('Story Budget', 'edit-flow'), apply_filters( 'ef_view_story_budget_cap', 'ef_view_story_budget' ), $this->module->slug, array( &$edit_flow->story_budget, 'story_budget') );
 	}
 	
 	/**
-	 * Enqueue necessary admin scripts
+	 * Enqueue necessary admin scripts only on the story budget page.
+	 *
+	 * @uses enqueue_admin_script()
 	 */
 	function enqueue_admin_scripts() {
-		global $current_screen;
+		global $current_screen, $edit_flow;
 		
-		if ( $current_screen->id == self::screen_id ) {
-			wp_enqueue_script('edit_flow-date-lib', EDIT_FLOW_URL . 'js/lib/date.js', false, EDIT_FLOW_VERSION, true);
-			wp_enqueue_script('edit_flow-date_picker-lib', EDIT_FLOW_URL . 'js/lib/jquery.datePicker.js', array( 'jquery' ), EDIT_FLOW_VERSION, true);
-			wp_enqueue_script('edit_flow-date_picker', EDIT_FLOW_URL . 'js/ef_date.js', array( 'edit_flow-date_picker-lib', 'edit_flow-date-lib' ), EDIT_FLOW_VERSION, true);
-			wp_enqueue_script('edit_flow-story_budget', EDIT_FLOW_URL . 'js/ef_story_budget.js', array( 'edit_flow-date_picker' ), EDIT_FLOW_VERSION, true);
-		}
+		if ( $current_screen->id != self::screen_id )
+			return;
+		
+		$edit_flow->helpers->enqueue_datepicker_resources();
+		wp_enqueue_script( 'edit_flow-date_picker', EDIT_FLOW_URL . 'js/ef_date.js', array( 'edit_flow-date_picker-lib', 'edit_flow-date-lib' ), EDIT_FLOW_VERSION, true );
+		wp_enqueue_script( 'edit_flow-story_budget', EDIT_FLOW_URL . 'js/ef_story_budget.js', array( 'edit_flow-date_picker' ), EDIT_FLOW_VERSION, true );
 	}
 	
 	/**
-	 * Print admin scripts
+	 * Print conditional variables needed for the display of the story budget.
 	 */
 	function print_admin_scripts() {
 		?>
@@ -103,26 +110,25 @@ class ef_story_budget {
 	}
 	
 	/**
-	 * Enqueue necessary admin styles
+	 * Enqueue a screen and print stylesheet for the story budget.
 	 */
 	function action_enqueue_admin_styles() {
 		global $current_screen;
 		
-		wp_enqueue_style('edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, EDIT_FLOW_VERSION, 'screen');
-		if ( $current_screen->id == self::screen_id ) {		
-			wp_enqueue_style('edit_flow-story_budget-styles', EDIT_FLOW_URL . 'css/ef_story_budget.css', false, EDIT_FLOW_VERSION, 'screen');
-			wp_enqueue_style('edit_flow-story_budget-print-styles', EDIT_FLOW_URL . 'css/ef_story_budget_print.css', false, EDIT_FLOW_VERSION, 'print');
-		}
+		if ( $current_screen->id != self::screen_id )
+			return;
+		
+		wp_enqueue_style( 'edit_flow-story_budget-styles', EDIT_FLOW_URL . 'css/ef_story_budget.css', false, EDIT_FLOW_VERSION, 'screen' );
+		wp_enqueue_style( 'edit_flow-story_budget-print-styles', EDIT_FLOW_URL . 'css/ef_story_budget_print.css', false, EDIT_FLOW_VERSION, 'print' );
 	}
 	
+	/**
+	 * ??
+	 */
 	function get_num_columns() {
 		if ( empty( $this->num_columns ) ) {
 			$current_user = wp_get_current_user();
-			if ( function_exists( 'get_user_meta' ) ) {
-				$this->num_columns = get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'screen_columns', true );
-			} else {
-				$this->num_columns = get_usermeta( $current_user->ID, self::usermeta_key_prefix . 'screen_columns' );
-			}
+			$this->num_columns = get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'screen_columns', true );
 			// If usermeta didn't have a value already, use a default value and insert into DB
 			if ( empty( $this->num_columns ) ) {
 				$this->num_columns = self::default_num_columns;
@@ -148,11 +154,7 @@ class ef_story_budget {
 		$this->num_columns = (int) $posted_fields[ $key ];
 		
 		$current_user = wp_get_current_user();
-		if ( function_exists( 'update_user_meta' ) ) { // Let's try to avoid using the deprecated API
-			update_user_meta( $current_user->ID, $key, $this->num_columns );
-		} else {
-			update_usermeta( $current_user->ID, $key, $this->num_columns );
-		}
+		update_user_meta( $current_user->ID, $key, $this->num_columns );
 	}
 
 	/**
@@ -161,10 +163,6 @@ class ef_story_budget {
 	 * get_num_columns(), which will in turn print the stories themselves.
 	 */
 	function story_budget() {
-		global $current_screen;
-		if ( !strpos( $current_screen->id, 'story_budget' ) ) {
-			return;
-		}
 		
 		// Update the current user's filters with the variables set in $_GET
 		$user_filters = $this->update_user_filters();
@@ -220,11 +218,11 @@ class ef_story_budget {
 		
 		// Only show approved statuses if we aren't filtering (post_status isn't set or it's 0 or empty), otherwise filter to status
 		$post_status = $this->combine_get_with_user_filter( $user_filters, 'post_status' );
+		$post_statuses = $edit_flow->helpers->get_post_statuses();
 		if ( !empty( $post_status ) ) {
 			if ( $post_status == 'unpublish' ) {
 				$post_where .= "($wpdb->posts.post_status IN (";
-				$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
-				foreach( $custom_statuses as $status ) {
+				foreach( $post_statuses as $status ) {
 					$post_where .= $wpdb->prepare( "%s, ", $status->slug );
 				}
 				$post_where = rtrim( $post_where, ', ' );
@@ -237,8 +235,7 @@ class ef_story_budget {
 			}
 		} else {
 			$post_where .= "($wpdb->posts.post_status IN ('publish', 'future'";
-			$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
-			foreach( $custom_statuses as $status ) {
+			foreach( $post_statuses as $status ) {
 				$post_where .= $wpdb->prepare( ", %s", $status->slug );
 			}
 			$post_where .= ')) ';
@@ -301,7 +298,6 @@ class ef_story_budget {
 	 * @param int $col_num The column which we're going to print.
 	 * @param array $terms The terms to print in this column.
 	 */
-	// function print_column($col_num, $terms) {
 	function print_column( $terms ) {
 		// If printing fewer than get_num_columns() terms, only print that many columns
 		$num_columns = $this->get_num_columns();
@@ -403,7 +399,7 @@ class ef_story_budget {
 		//remove_filter( 'excerpt_length', array( &$this, 'story_budget_excerpt_length') );
 		
 		// Get the friendly name for the status (e.g. Pending Review for pending)
-		$status = $edit_flow->custom_status->get_custom_status_friendly_name( $post->post_status );
+		$status = $edit_flow->helpers->get_post_status_friendly_name( $post->post_status );
 		?>
 			<tr id='post-<?php echo $post->ID; ?>' class='alternate author-self status-publish iedit' valign="top">
 				<td class="post-title column-title">
@@ -433,10 +429,11 @@ class ef_story_budget {
 	/**
 	 * Prints the subcategories of a single post in the story budget.
 	 *
+	 * @todo Add this as an optional field
+	 *
 	 * @param int $id The post id whose subcategories should be printed.
 	 * @param object $parent_term The top-level term to which the post with given ID belongs.
 	 */
-	// TODO: Add this as an optional field
 	function print_subcategories( $id, $parent_term ) {
 		// Display the subcategories of the post
 		$subterms = get_the_category( $id );
@@ -485,7 +482,7 @@ class ef_story_budget {
 	 */
 	function table_navigation() {
 		global $edit_flow;
-		$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
+		$post_statuses = $edit_flow->helpers->get_post_statuses();
 		$user_filters = $this->get_user_filters();
 	?>
 	<div class="tablenav" id="ef-story-budget-tablenav">
@@ -495,8 +492,8 @@ class ef_story_budget {
 				<select id="post_status" name="post_status"><!-- Status selectors -->
 					<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
 					<?php
-						foreach ( $custom_statuses as $custom_status ) {
-							echo "<option value='$custom_status->slug' " . selected($custom_status->slug, $user_filters['post_status']) . ">$custom_status->name</option>";
+						foreach ( $post_statuses as $post_status ) {
+							echo "<option value='$post_status->slug' " . selected( $post_status->slug, $user_filters['post_status'] ) . ">$post_status->name</option>";
 						}
 						echo "<option value='future'" . selected('future', $user_filters['post_status']) . ">" . __( 'Scheduled', 'edit-flow' ) . "</option>";
 						echo "<option value='unpublish'" . selected('unpublish', $user_filters['post_status']) . ">" . __( 'Unpublished', 'edit-flow' ) . "</option>";
@@ -589,11 +586,7 @@ class ef_story_budget {
 							  );
 		
 		$current_user_filters = array();
-		if ( function_exists( 'get_user_meta' ) ) { // Let's try to avoid using the deprecated API
-			$current_user_filters = get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
-		} else {
-			$current_user_filters = get_usermeta( $current_user->ID, self::usermeta_key_prefix . 'filters' );
-		}
+		$current_user_filters = get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
 		
 		// If any of the $_GET vars are missing, then use the current user filter
 		foreach ( $user_filters as $key => $value ) {
@@ -602,11 +595,7 @@ class ef_story_budget {
 			}
 		}
 		
-		if ( function_exists( 'update_user_meta' ) ) { // Let's try to avoid using the deprecated API
-			update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $user_filters );
-		} else {
-			update_usermeta( $current_user->ID, self::usermeta_key_prefix . 'filters', $user_filters );
-		}
+		update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $user_filters );
 		return $user_filters;
 	}
 	
@@ -619,16 +608,11 @@ class ef_story_budget {
 	function get_user_filters() {
 		$current_user = wp_get_current_user();
 		$user_filters = array();
-		if ( function_exists( 'get_user_meta' ) ) { // Let's try to avoid using the deprecated API
-			$user_filters = get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
-		} else {
-			$user_filters = get_usermeta( $current_user->ID, self::usermeta_key_prefix . 'filters' );
-		}
+		$user_filters = get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
 		
 		// If usermeta didn't have filters already, insert defaults into DB
-		if ( empty( $user_filters ) ) {
+		if ( empty( $user_filters ) )
 			$user_filters = $this->update_user_filters();
-		}
 		return $user_filters;
 	}
 	
