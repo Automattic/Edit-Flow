@@ -1,7 +1,7 @@
 <?php if( current_user_can('edit_usergroups')) : ?>
 
-	<?php ef_the_message( $message ) ?>
-	<?php ef_the_errors( $errors ) ?>
+	<?php global $ef_page_data; ef_the_message( $ef_page_data['message'] ); ?>
+	<?php global $ef_page_data; ef_the_errors( $ef_page_data['errors'] ); ?>
 
 	<p><a href="<?php echo EDIT_FLOW_USERGROUPS_ADD_LINK ?>" class="button"><?php _e('+ Add Usergroup', 'edit-flow') ?></a></p>
 

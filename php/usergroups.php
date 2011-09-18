@@ -2,7 +2,7 @@
 
 // CONSTANTS!
 global $wpdb;
-define( 'EDIT_FLOW_USERGROUPS_PAGE' , 'admin.php?page=edit-flow/usergroups' );
+define( 'EDIT_FLOW_USERGROUPS_PAGE' , 'options-general.php?page=edit-flow&configure=usergroups' );
 define( 'EDIT_FLOW_USERGROUPS_ADD_LINK' , EDIT_FLOW_USERGROUPS_PAGE . '&action=add' );
 define( 'EDIT_FLOW_USERGROUPS_EDIT_LINK' , EDIT_FLOW_USERGROUPS_PAGE . '&action=edit' );
 define( 'EDIT_FLOW_USERGROUPS_USERMETA' , $wpdb->prefix . 'ef_usergroups' ); // prefix added for MU compatibility
@@ -30,7 +30,9 @@ class EF_Usergroups_Admin {
 			'default_options' => array(
 				'enabled' => 'on',
 			),
-			'configure_page_cb' => 'usergroups',
+			// TODO/FIXME: The following callback need to be admin_controller when $_GET['action'] is set.
+			// But it's not that simple, of course. admin_controller() needs changes as well.
+			'configure_page_cb' => 'admin_page',
 			'configure_link_text' => __( 'Manage Usergroups', 'edit-flow' ),
 			'autoload' => false,
 		);
@@ -255,14 +257,13 @@ class EF_Usergroups_Admin {
 		);
 		
 		$action = isset( $_GET['action'] ) ? sanitize_key( $_GET['action'] ) : '';
-		
+
 		switch($action) {
 			
 			case 'add':
 			
 				// If "do" set to "insert" then let's add it as a usergroup
 				if( isset($_POST['do']) && 'insert' == $_POST['do'] ) {
-					
 					// Check nonce!
 					check_admin_referer('add', 'usergroups-add-nonce');
 					
@@ -291,7 +292,7 @@ class EF_Usergroups_Admin {
 				$ef_page_data['usergroup_users'] = array();
 				$ef_page_data['update'] = false;
 				$ef_page_data['backlink'] = true;
-				$ef_page_data['view'] = 'templates/usergroups_edit.php';
+				$ef_page_data['view'] = EDIT_FLOW_ROOT . '/php/templates/usergroups_edit.php';
 				break;
 			
 			case 'edit':
@@ -330,7 +331,7 @@ class EF_Usergroups_Admin {
 					$ef_page_data['usergroup_users'] = $usergroup->get_users();
 					$ef_page_data['update'] = true;
 					$ef_page_data['backlink'] = true;
-					$ef_page_data['view'] = 'templates/usergroups_edit.php';
+					$ef_page_data['view'] = EDIT_FLOW_ROOT . '/php/templates/usergroups_edit.php';
 				} else {
 					// Oh, well, we didn't find the usergroup!
 					$message = __('Usergroup doesn\'t exist.', 'edit-flow');
@@ -364,7 +365,7 @@ class EF_Usergroups_Admin {
 			case 'view':
 			default:
 				$ef_page_data['usergroups'] = ef_get_usergroups();
-				$ef_page_data['view'] = 'templates/usergroups_view.php';
+				$ef_page_data['view'] = EDIT_FLOW_ROOT . '/php/templates/usergroups_view.php';
 				break;
 		}
 		
@@ -379,7 +380,7 @@ class EF_Usergroups_Admin {
 		// Set up defaults
 		$page_defaults = array(
 			'title' => __('Usergroups', 'edit-flow'),
-			'view' => 'templates/usergroups_view.php',
+			'view' => EDIT_FLOW_ROOT . '/php/templates/usergroups_view.php',
 			'backlink' => false,
 			);
 		
@@ -391,7 +392,6 @@ class EF_Usergroups_Admin {
 		<div class="wrap usergroups-page">
 			<div id="icon-users" class="icon32"><br /></div>
 			<h2><?php echo $title ?> <?php if($backlink) { ?><a href="<?php echo EDIT_FLOW_USERGROUPS_PAGE ?>" class="backlink">&larr; <?php _e('Back to Usergroups', 'edit-flow') ?></a><?php } ?></h2>
-			
 			<?php require_once($view); ?>
 			
 		</div>
