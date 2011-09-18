@@ -355,7 +355,7 @@ class ef_story_budget {
 		$authordata = get_userdata($post->post_author); // get the author data so we can use the author's display name
 		
 		// Build filtering URLs for post_author and post_status
-		$filter_url = admin_url() . EDIT_FLOW_STORY_BUDGET_PAGE;	
+		$filter_url = EDIT_FLOW_STORY_BUDGET_PAGE;	
 		$author_filter_url = $filter_url . '&post_author=' . $post->post_author;
 		$status_filter_url = $filter_url . '&post_status=' . $post->post_status;
 		// Add any existing $_GET parameters to filter links in printed post
@@ -473,8 +473,8 @@ class ef_story_budget {
 	?>
 	<div class="tablenav" id="ef-story-budget-tablenav">
 		<div class="alignleft actions">
-			<form method="get" action="<?php echo admin_url() . EDIT_FLOW_STORY_BUDGET_PAGE; ?>" style="float: left;">
-				<input type="hidden" name="page" value="edit-flow/story_budget"/>
+			<form method="GET" style="float: left;">
+				<input type="hidden" name="page" value="story-budget"/>
 				<select id="post_status" name="post_status"><!-- Status selectors -->
 					<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
 					<?php
@@ -516,8 +516,8 @@ class ef_story_budget {
 				<input id='end_date' name='end_date' type='text' size='20' class="date-pick" value="<?php echo $user_filters['end_date']; ?>" autocomplete="off" />
 				<input type="submit" id="post-query-submit" value="<?php _e( 'Filter', 'edit-flow' ); ?>" class="button-primary button" />
 			</form>
-			<form method="get" action="<?php echo admin_url() . EDIT_FLOW_STORY_BUDGET_PAGE; ?>" style="float: left;">
-				<input type="hidden" name="page" value="edit-flow/story_budget"/>
+			<form method="GET" style="float: left;">
+				<input type="hidden" name="page" value="story-budget"/>
 				<input type="hidden" name="post_status" value=""/>
 				<input type="hidden" name="cat" value=""/>
 				<input type="hidden" name="post_author" value=""/>

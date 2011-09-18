@@ -36,7 +36,7 @@ define( 'EDIT_FLOW_SETTINGS_PAGE' , add_query_arg( 'page', 'edit-flow', get_admi
 define( 'EDIT_FLOW_EDITORIAL_METADATA_PAGE' , add_query_arg( 'taxonomy', 'ef_editorial_meta', get_admin_url( null, 'edit-tags.php' ) ) );
 define( 'EDIT_FLOW_PREFIX' , 'ef_' );
 define( 'EDIT_FLOW_CALENDAR_PAGE', add_query_arg( 'page', 'calendar', get_admin_url( null, 'index.php' ) ) );
-define( 'EDIT_FLOW_STORY_BUDGET_PAGE', 'index.php?page=edit-flow/story_budget');
+define( 'EDIT_FLOW_STORY_BUDGET_PAGE', add_query_arg( 'page', 'story-budget', get_admin_url( null, 'index.php' ) ) );
 
 // Include necessary files, including the path in which to search to avoid conflicts
 include_once( EDIT_FLOW_ROOT . '/php/helpers.php' );

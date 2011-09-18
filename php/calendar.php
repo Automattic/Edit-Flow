@@ -519,7 +519,6 @@ class EF_Calendar {
 			$weeks_offset = $this->total_weeks;
 			
 		$filters['start_date'] = date( 'Y-m-d', strtotime( "-" . $weeks_offset . " weeks", strtotime( $filters['start_date'] ) ) );	
-		$url = EDIT_FLOW_CALENDAR_PAGE;
 		$url = add_query_arg( $filters, EDIT_FLOW_CALENDAR_PAGE );
 
 		if ( count( $supported_post_types ) > 1 )
