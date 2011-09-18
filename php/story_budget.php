@@ -66,7 +66,6 @@ class ef_story_budget {
 		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );
 		// Load necessary scripts and stylesheets
 		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
-		add_action( 'admin_print_scripts', array( &$this, 'print_admin_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'action_enqueue_admin_styles' ) );
 		
 	}
@@ -93,20 +92,7 @@ class ef_story_budget {
 			return;
 		
 		$edit_flow->helpers->enqueue_datepicker_resources();
-		wp_enqueue_script( 'edit_flow-date_picker', EDIT_FLOW_URL . 'js/ef_date.js', array( 'edit_flow-date_picker-lib', 'edit_flow-date-lib' ), EDIT_FLOW_VERSION, true );
 		wp_enqueue_script( 'edit_flow-story_budget', EDIT_FLOW_URL . 'js/ef_story_budget.js', array( 'edit_flow-date_picker' ), EDIT_FLOW_VERSION, true );
-	}
-	
-	/**
-	 * Print conditional variables needed for the display of the story budget.
-	 */
-	function print_admin_scripts() {
-		?>
-		<script type="text/javascript">
-			Date.firstDayOfWeek = <?php echo get_option( 'start_of_week' ); ?>;
-			editFlowStoryBudgetColumnsWidth = <?php echo self::screen_width_percent ?>;
-		</script>
-		<?php
 	}
 	
 	/**

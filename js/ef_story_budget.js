@@ -28,25 +28,4 @@ jQuery(document).ready(function($) {
 		// Set the width of each column based on the new number of columns
 		jQuery(".postbox").css('width', totalWidth / numColumns + '%');
 	});
-	
-	$('#start_date').bind(
-		'dpClosed',
-		function(e, selectedDates) {
-			var d = selectedDates[0];
-			if (d) {
-				d = new Date(d);
-				$('#end_date').dpSetStartDate(d.addDays(1).asString());
-			}
-		}
-	);
-	$('#end_date').bind(
-		'dpClosed',
-		function(e, selectedDates) {
-			var d = selectedDates[0];
-			if (d) {
-				d = new Date(d);
-				$('#start_date').dpSetEndDate(d.addDays(-1).asString());
-			}
-		}
-	);
 });

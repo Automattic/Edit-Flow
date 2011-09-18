@@ -84,8 +84,7 @@ class EF_Editorial_Metadata {
 		add_action( 'save_post', array( &$this, 'save_meta_box' ), 10, 2 );
 		
 		// Load necessary scripts and stylesheets
-		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );
-		add_action( 'admin_enqueue_scripts', array( &$this, 'action_enqueue_admin_styles' ) );		
+		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );	
 		
 	} // END: init()
 	
@@ -330,18 +329,6 @@ class EF_Editorial_Metadata {
 		}
 	} // END: add_custom_columns()
 	
-	
-	/**
-	 * Enqueue necessary admin styles
-	 */
-	function action_enqueue_admin_styles() {
-		global $pagenow;
-		
-		if ( $pagenow == 'post.php' )
-			wp_enqueue_style('edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, EDIT_FLOW_VERSION, 'screen');
-		
-	}
-	
 	/**
 	 * Enqueue relevant admin Javascript
 	 */ 
@@ -351,18 +338,9 @@ class EF_Editorial_Metadata {
 		// Add the metabox date picker JS and CSS
 		$current_post_type = $edit_flow->get_current_post_type();
 		if ( post_type_supports( $current_post_type, 'ef_editorial_metadata' ) ) {
-			// First add the datepicker JS
-			wp_enqueue_script('edit_flow-date-lib', EDIT_FLOW_URL . 'js/lib/date.js', false, EDIT_FLOW_VERSION, true);
-			wp_enqueue_script('edit_flow-date_picker-lib', EDIT_FLOW_URL . 'js/lib/jquery.datePicker.js', array( 'jquery' ), EDIT_FLOW_VERSION, true);
-			?>
-			<script type="text/javascript">
-				Date.firstDayOfWeek = <?php echo get_option( 'start_of_week' ); ?>;
-			</script>
-			<?php
-			wp_enqueue_script('edit_flow-date_picker', EDIT_FLOW_URL . 'js/ef_date.js', array( 'edit_flow-date_picker-lib', 'edit_flow-date-lib' ), false, true);
-			
+			$edit_flow->helpers->enqueue_datepicker_resources();
+
 			// Now add the rest of the metabox CSS
-			wp_enqueue_style('edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, EDIT_FLOW_VERSION, 'all');
 			wp_enqueue_style('edit_flow-editorial_metadata-styles', EDIT_FLOW_URL . 'css/ef_editorial_metadata.css', false, EDIT_FLOW_VERSION, 'all');
 		}
 		

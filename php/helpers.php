@@ -5,8 +5,7 @@
 
 if ( !class_exists( 'EF_Helpers' ) ) {
 	
-class EF_Helpers
-{
+class EF_Helpers {
 	
 	function __construct() {
 		
@@ -129,11 +128,13 @@ class EF_Helpers
 	 * @since 0.7
 	 */
 	function enqueue_datepicker_resources() {
-		wp_enqueue_style( 'edit_flow-datepicker-styles', EDIT_FLOW_URL . 'css/datepicker-editflow.css', false, EDIT_FLOW_VERSION, 'screen' );
-		wp_enqueue_script( 'edit_flow-date-lib', EDIT_FLOW_URL . 'js/lib/date.js', false, EDIT_FLOW_VERSION, true );
-		wp_enqueue_script( 'edit_flow-date_picker-lib', EDIT_FLOW_URL . 'js/lib/jquery.datePicker.js', array( 'jquery', 'edit_flow-date-lib' ), EDIT_FLOW_VERSION, true );		
+		// First scripts
+		wp_enqueue_script('jquery-ui-datepicker', EDIT_FLOW_URL . 'js/lib/jquery.ui.datepicker.min.js', array( 'jquery', 'jquery-ui-core'), EDIT_FLOW_VERSION, true );
+		wp_enqueue_script('edit_flow-date_picker', EDIT_FLOW_URL . 'js/ef_date.js', array( 'jquery-ui-datepicker' ), EDIT_FLOW_VERSION, true);
+
+		// Now styles
+		wp_enqueue_style( 'jquery-ui-datepicker', EDIT_FLOW_URL . 'css/lib/jquery.ui.datepicker.css', array( 'wp-jquery-ui-dialog' ), EDIT_FLOW_VERSION, 'screen' );
+		wp_enqueue_style( 'jquery-ui-theme', EDIT_FLOW_URL . 'css/lib/jquery.ui.theme.css', false, EDIT_FLOW_VERSION, 'screen' );
 	}
-	
-}	
-	
+}
 }
