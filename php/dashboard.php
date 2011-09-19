@@ -37,6 +37,9 @@ class EF_Dashboard {
 			if ($edit_flow->get_plugin_option('myposts_widget_enabled')) {
 				wp_add_dashboard_widget('myposts_widget', __('Posts I\'m Following', 'edit-flow'), array(&$this, 'myposts_widget'));
 			}
+
+			// Add the dashboard styles
+			wp_enqueue_style( 'edit_flow-styles', EDIT_FLOW_URL . 'css/editflow.css', false, EDIT_FLOW_VERSION, 'all' );
 		}
 		
 	}
@@ -160,7 +163,10 @@ class EF_Dashboard {
 	function post_status_widget () {
 		global $edit_flow;
 		
-		$statuses = $edit_flow->custom_status->get_custom_statuses();
+		$statuses = $edit_flow->helpers->get_post_statuses();
+		// If custom statuses are enabled, we'll output a link to edit the terms just below the post counts
+		if ( $edit_flow->helpers->module_enabled( 'custom_status' ) )
+			$edit_custom_status_url = add_query_arg( 'configure', 'custom-status', EDIT_FLOW_SETTINGS_PAGE );
 		
 		?>
 		<p class="sub"><?php _e('Posts at a Glance', 'edit-flow') ?></p>
@@ -169,7 +175,7 @@ class EF_Dashboard {
 			<table>
 				<tbody>
 					<?php foreach($statuses as $status) : ?>
-						<?php $filter_link = esc_url(ef_get_custom_status_filter_link($status->slug)) ?>
+						<?php $filter_link = esc_url($edit_flow->helpers->filter_posts_link($status->slug)) ?>
 						<tr>
 							<td class="b">
 								<a href="<?php echo $filter_link; ?>">
@@ -178,13 +184,15 @@ class EF_Dashboard {
 							</td>
 							<td>
 								<a href="<?php echo $filter_link; ?>"><?php esc_html_e($status->name) ?></a>
-								<span class="small"><a href="<?php echo ef_get_custom_status_edit_link($status->term_id) ?>"><?php _e( '[edit]', 'edit-flow' ); ?></a></span>
 							</td>
 						</tr>
 							
 					<?php endforeach; ?>
 				</tbody>
 			</table>
+			<?php if ( isset( $edit_custom_status_url ) ) : ?>
+				<span class="small"><a href="<?php echo $edit_custom_status_url; ?>"><?php _e( 'Edit Custom Statuses', 'edit-flow' ); ?></a></span>
+			<?php endif; ?>
 		</div>
 		<?php
 	}

@@ -10,7 +10,7 @@
 
 #post_status_widget td.b a {color:#ba2000;margin-right:10px; font-family: Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif; font-size: 18px; padding-right: 6px; text-align: right;}
 
-#post_status_widget span.small a {color:#989898;font-weight:normal;font-style:normal;}
+#post_status_widget span.small a {color:#989898;font-weight:normal;font-style:normal;line-height:22px;}
 
 #post_status_widget span.small a:hover {border-bottom:1px dotted #989898;}
 
