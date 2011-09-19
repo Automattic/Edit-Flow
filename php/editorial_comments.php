@@ -193,20 +193,23 @@ class EF_Editorial_Comments
 	 * Displays a single comment
 	 */
 	function the_comment($comment, $args, $depth) {
-		global $current_user, $userdata, $post_ID;
+		global $current_user, $userdata;
 		
 		// Get current user
 		get_currentuserinfo() ;
 		
 		$GLOBALS['comment'] = $comment;
-		
+
+		// Deleting editorial comments is not enabled for now for the sake of transparency. However, we could consider
+		// EF comment edits (with history, if possible). P2 already allows for edits without history, so even that might work.
+		// Pivotal ticket: https://www.pivotaltracker.com/story/show/18483757
 		//$delete_url = esc_url( wp_nonce_url( "comment.php?action=deletecomment&p=$comment->comment_post_ID&c=$comment->comment_ID", "delete-comment_$comment->comment_ID" ) );
 	
 		$actions = array();
 	
 		$actions_string = '';
 		// Comments can only be added by users that can edit the post
-		if ( current_user_can('edit_post', $post_ID) ) {
+		if ( current_user_can('edit_post', $comment->comment_post_ID) ) {
 			$actions['reply'] = '<a onclick="editorialCommentReply.open(\''.$comment->comment_ID.'\',\''.$comment->comment_post_ID.'\');return false;" class="vim-r hide-if-no-js" title="'.__( 'Reply to this comment', 'edit-flow' ).'" href="#">' . __( 'Reply', 'edit-flow' ) . '</a>';
 			
 			$sep = ' ';
