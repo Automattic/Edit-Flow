@@ -937,16 +937,6 @@ class EF_Custom_Status {
 	}
 	
 	/**
-	 * Filter to all posts with a given custom status
-	 */
-	function filter_link( $slug, $post_type = 'post' ) {
-		$filter_link = add_query_arg( 'post_status', $slug, get_admin_url( null, 'edit.php' ) );
-		if ( $post_type != 'post' && in_array( $post_type, get_post_types( '', 'names' ) ) )
-			$filter_link = add_query_arg( 'post_type', $post_type, $filter_link );
-		return $filter_link;
-	}
-	
-	/**
 	 * Generate a link to make the custom status the default
 	 */
 	function make_status_default_link( $id ) {
@@ -1061,7 +1051,7 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 				// @todo Cachify this
 				//wp_cache_set( "ef_custom_status_count_$column_name", $post_count );
 			}
-			$output = sprintf( '<a href="%1$s">%2$s</a>', $edit_flow->custom_status->filter_link( $item->slug, $column_name ), $post_count );
+			$output = sprintf( '<a href="%1$s">%2$s</a>', $edit_flow->helpers->filter_posts_link( $item->slug, $column_name ), $post_count );
 			return $output;
 		}
 		

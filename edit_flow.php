@@ -78,12 +78,14 @@ class edit_flow {
 	var $custom_status;
 	var $ef_post_metadata;
 	var $editorial_metadata;
+	var $calendar;
 	var $dashboard;
 	var $post_status;
 	var $notifications;
 	var $usergroups;
 	var $story_budget;
 	var $modules;
+	var $helpers;
 
 	/**
 	 * Constructor

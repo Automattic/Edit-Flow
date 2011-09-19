@@ -78,6 +78,7 @@ class EF_Usergroups_Admin {
 	
 	function is_whitelisted_page() {
 		global $pagenow, $plugin_page;
+		// TODO: Fix the below since the URLs changed
 		return $plugin_page == 'edit-flow/usergroups' || in_array( $pagenow, array( 'user-edit.php', 'profile.php', 'post.php', 'page.php', 'post-new.php', 'page-new.php' ) );
 	}
 	
@@ -87,7 +88,7 @@ class EF_Usergroups_Admin {
 	function add_post_meta_box() {
 		global $edit_flow;
 			
-		if ( $this->module->options->enabled ) {
+		if ( $edit_flow->helpers->module_enabled( $this->module->slug ) ) {
 			$notification_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_notifications' );
 			foreach ( $notification_post_types as $post_type ) {
 				add_meta_box('edit-flow-subscriptions', __('Notification Subscriptions', 'edit-flow'), array(&$this, 'subscriptions_meta_box'), $post_type, 'advanced', 'high');

@@ -10,7 +10,21 @@ class EF_Helpers {
 	function __construct() {
 		
 	}
-	
+
+	/**
+	 * Returns whether the module with the given name is enabled.
+	 *
+	 * @since 0.7
+	 *
+	 * @param string module Slug of the module to check
+	 * @return <code>true</code> if the module is enabled, <code>false</code> otherwise
+	 */
+	function module_enabled( $slug ) {
+		global $edit_flow;
+
+		return isset( $edit_flow->$slug ) && $edit_flow->$slug->module->options->enabled == 'on';
+	}
+
 	/**
 	 * Cleans up the 'on' and 'off' for post types on a given module (so we don't get warnings all over)
 	 * For every post type that doesn't explicitly have the 'on' value, turn it 'off'
@@ -68,7 +82,7 @@ class EF_Helpers {
 	function get_post_statuses() {
 		global $edit_flow;
 		
-		if ( isset( $edit_flow->custom_status ) && $edit_flow->custom_status->module->options->enabled == 'on' ) {
+		if ( $this->module_enabled('custom_status') ) {
 		 	return $edit_flow->custom_status->get_custom_statuses();
 		} else {
 			$post_statuses = array(
@@ -85,6 +99,22 @@ class EF_Helpers {
 			);
 			return (object)$post_statuses;
 		}
+	}
+
+	/**
+	 * Filter to all posts with a given post status (can be a custom status or a built-in status) and optional custom post type.
+	 *
+	 * @since 0.7
+	 *
+	 * @param string $slug The slug for the post status to which to filter
+	 * @param string $post_type Optional post type to which to filter
+	 * @return an edit.php link to all posts with the given post status and, optionally, the given post type
+	 */
+	function filter_posts_link( $slug, $post_type = 'post' ) {
+		$filter_link = add_query_arg( 'post_status', $slug, get_admin_url( null, 'edit.php' ) );
+		if ( $post_type != 'post' && in_array( $post_type, get_post_types( '', 'names' ) ) )
+			$filter_link = add_query_arg( 'post_type', $post_type, $filter_link );
+		return $filter_link;
 	}
 	
 	/**
