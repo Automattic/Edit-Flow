@@ -336,7 +336,7 @@ class EF_Editorial_Metadata {
 		global $current_screen, $edit_flow;
 		
 		// Add the metabox date picker JS and CSS
-		$current_post_type = $edit_flow->get_current_post_type();
+		$current_post_type = $edit_flow->helpers->get_current_post_type();
 		if ( post_type_supports( $current_post_type, 'ef_editorial_metadata' ) ) {
 			$edit_flow->helpers->enqueue_datepicker_resources();
 
@@ -482,7 +482,7 @@ class EF_Editorial_Metadata {
 		if ( function_exists( 'add_meta_box' ) ) {
 			
 			// Add the editorial meta meta_box for all of the post types we want to support
-			$current_post_type = $edit_flow->get_current_post_type();
+			$current_post_type = $edit_flow->helpers->get_current_post_type();
 			$post_types = $edit_flow->get_all_post_types_for_feature( 'ef_editorial_metadata' );
 			foreach ( $post_types as $post_type ) {
 				add_meta_box( $this->metadata_taxonomy, __( 'Editorial Metadata', 'edit-flow' ), array( &$this, 'display_meta_box' ), $post_type, 'side' );

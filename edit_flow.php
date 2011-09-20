@@ -334,31 +334,8 @@ class edit_flow {
 	 * @param string $page
 	 * @return string
 	 */
-	function get_page ( $page = '' ) {
+	function get_page( $page = '' ) {
 		return 'edit-flow'. (($page) ? '/' . $page : '');
-	}
-	
-	/**
-	 * get_current_post_type()
-	 * Checks for the current post type
-	 * @since 0.6.1
-	 * @return string $post_type The post type we've found
-	 */
-	function get_current_post_type() {
-		global $post, $typenow, $pagenow, $current_screen;
-
-		if ( $post && $post->post_type )
-			$post_type = $post->post_type;
-		elseif ( $typenow )
-			$post_type = $typenow;
-		elseif ( $current_screen && isset( $current_screen->post_type ) )
-			$post_type = $current_screen->post_type;
-		elseif ( isset( $_REQUEST['post_type'] ) )
-			$post_type = sanitize_key( $_REQUEST['post_type'] );
-		else
-			$post_type = null;
-
-		return $post_type;
 	}
 	
 	/**

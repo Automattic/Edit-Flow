@@ -221,7 +221,7 @@ class EF_Custom_Status {
 	function is_whitelisted_page() {
 		global $edit_flow, $pagenow;
 		
-		$post_type = $edit_flow->get_current_post_type();
+		$post_type = $edit_flow->helpers->get_current_post_type();
 		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
 		if ( !in_array( $post_type, $supported_post_types ) )
 			return;

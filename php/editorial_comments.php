@@ -8,13 +8,12 @@ if ( !class_exists('EF_Editorial_Comments') ) {
 class EF_Editorial_Comments
 {
 	// This is comment type used to differentiate editorial comments
-	var $comment_type = 'editorial-comment';
+	const comment_type = 'editorial-comment';
 	
 	function __construct() {
 		global $edit_flow;
 		
 		// Register the module with Edit Flow
-		// @todo default options for registering the statuses
 		$args = array(
 			'title' => __( 'Editorial Comments', 'edit-flow' ),
 			'short_description' => __( 'Leave comments on posts in progress to share notes with your collaborators. tk', 'edit-flow' ),
@@ -23,8 +22,13 @@ class EF_Editorial_Comments
 			'slug' => 'editorial-comments',
 			'default_options' => array(
 				'enabled' => 'on',
+				'post_types' => array(
+					'post' => 'on',
+					'page' => 'on',
+				),
 			),
-			'configure_page_cb' => false,
+			'configure_page_cb' => 'print_configure_view',
+			'configure_link_text' => __( 'Choose Post Types' ),				
 			'autoload' => false,
 		);
 		$this->module = $edit_flow->register_module( 'editorial_comments', $args );
@@ -34,72 +38,69 @@ class EF_Editorial_Comments
 	 * Initialize the rest of the stuff in the class if the module is active
 	 */	
 	function init() {
-		
-		// Set up metabox and related actions
 		add_action( 'admin_init', array ( &$this, 'add_post_meta_box' ) );
-		
-		// Load necessary scripts and stylesheets
+		add_action( 'admin_init', array( &$this, 'register_settings' ) );		
 		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );
-		
 		add_action( 'wp_ajax_editflow_ajax_insert_comment', array( &$this, 'ajax_insert_comment' ) );
-			
-		global $edit_flow;
-		foreach( array( 'post', 'page' ) as $post_type ) {
-			add_post_type_support( $post_type, 'ef_editorial_comments' );
-		}
 	}
 	
 	/**
-	 * Load any of the admin scripts we need
+	 * Load any of the admin scripts we need but only on the pages we need them
 	 */
 	function add_admin_scripts( ) {
 		global $pagenow, $edit_flow;
 		
-		$post_type = $edit_flow->get_current_post_type();
+		$post_type = $edit_flow->helpers->get_current_post_type();
+		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		if ( !in_array( $post_type, $supported_post_types ) )
+			return;
+			
+		if ( !in_array( $pagenow, array( 'post.php', 'page.php', 'post-new.php', 'page-new.php' ) ) )
+			return;
 		
-		// Only add the script to Edit Post and Edit Page -- don't want to bog down the rest of the admin with unnecessary javascript
-		if ( in_array( $pagenow, array( 'post.php', 'page.php', 'post-new.php', 'page-new.php' ) ) ) {
-			
-			if( post_type_supports( $post_type, 'ef_editorial_comments' ) ) {
-				wp_enqueue_script( 'edit_flow-post_comment', EDIT_FLOW_URL . 'js/post_comment.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
+		wp_enqueue_script( 'edit_flow-post_comment', EDIT_FLOW_URL . 'js/post_comment.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );		
+		wp_enqueue_style( 'edit-flow-editorial-comments-css', EDIT_FLOW_URL . 'css/editorial_comments.css', false, EDIT_FLOW_VERSION, 'all' );				
 				
-				wp_enqueue_style( 'edit-flow-editorial-comments-css', EDIT_FLOW_URL . 'css/editorial_comments.css', false, EDIT_FLOW_VERSION, 'all' );				
-				
-				$thread_comments = (int) get_option('thread_comments');
-				?>
-				<script type="text/javascript">
-					var ef_thread_comments = <?php echo ($thread_comments) ? $thread_comments : 0; ?>;
-				</script>
-				<?php
-			}
-			
-		}
+		$thread_comments = (int) get_option('thread_comments');
+		?>
+		<script type="text/javascript">
+			var ef_thread_comments = <?php echo ($thread_comments) ? $thread_comments : 0; ?>;
+		</script>
+		<?php
+		
 	}
 		
+	/**
+	 *
+	 * @since ???
+	 */
 	function get_post_meta( $post_id, $name, $single = true ) {
 	
-		$meta = get_post_meta($post_id, EDIT_FLOW_META_PREFIX . $name);
+		$meta = get_post_meta( $post_id, EDIT_FLOW_META_PREFIX . $name );
 		
 		if($single)	return $meta[0];
 		else return $meta;
 	}
 	
 	/**
-	 * Adds Edit Flow meta_box to Post/Page edit pages 
+	 * Add the editorial comments metabox to enabled post types
+	 *
+	 * @since ???
+	 * 
+	 * @uses add_meta_box()
 	 */
 	function add_post_meta_box() {
 		global $edit_flow;
 		
-		$comment_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_editorial_comments' );
-		foreach ( $comment_post_types as $post_type ) {
+		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		foreach ( $supported_post_types as $post_type )
 			add_meta_box('edit-flow-editorial-comments', __('Editorial Comments', 'edit-flow'), array(&$this, 'editorial_comments_meta_box'), $post_type, 'normal', 'high');
-		}
 			
 	}
 	
 	function get_editorial_comment_count( $id ) {
 		global $wpdb; 
-		$comment_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $wpdb->comments WHERE comment_post_ID = %d AND comment_type = %s", $id, $this->comment_type));
+		$comment_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $wpdb->comments WHERE comment_post_ID = %d AND comment_type = %s", $id, self::comment_type));
 		if(!$comment_count) $comment_count = 0;
 		return $comment_count;
 	}
@@ -118,10 +119,10 @@ class EF_Editorial_Comments
 				$editorial_comments = ef_get_comments_plus (
 								array(
 									'post_id' => $post->ID,
-									'comment_type' => $this->comment_type,
+									'comment_type' => self::comment_type,
 									'orderby' => 'comment_date',
 									'order' => 'ASC',
-									'status' => $this->comment_type
+									'status' => self::comment_type
 								)
 							);
 				?>
@@ -132,7 +133,7 @@ class EF_Editorial_Comments
 						
 						wp_list_comments(
 							array(
-								'type' => $this->comment_type,
+								'type' => self::comment_type,
 								'callback' => array($this, 'the_comment'),
 							), 
 							$editorial_comments
@@ -254,29 +255,25 @@ class EF_Editorial_Comments
 		global $current_user, $user_ID, $wpdb;
 		
 		// Verify nonce
-		if ( !wp_verify_nonce( $_POST['_nonce'], 'comment')) {
+		if ( !wp_verify_nonce( $_POST['_nonce'], 'comment') )
 			die( __( "Nonce check failed. Please ensure you're supposed to be adding editorial comments.", 'edit-flow' ) );
-			return;
-		}
 		
 		// Get user info
       	get_currentuserinfo();
       	
       	// Set up comment data
-		$post_id = absint($_POST['post_id']);
-		$parent = absint($_POST['parent']);
+		$post_id = absint( $_POST['post_id'] );
+		$parent = absint( $_POST['parent'] );
       	
       	// Only allow the comment if user can edit post
       	// @TODO: allow contributers to add comments as well (?)
-		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+		if ( ! current_user_can( 'edit_post', $post_id ) )
 			die( __('Sorry, you don\'t have the privileges to add editorial comments. Please talk to your Administrator.', 'edit-flow' ) );
-		}
 		
 		// Verify that comment was actually entered
 		$comment_content = trim($_POST['content']);
-		if(!$comment_content) {
-			die( __( "Please enter a comment.", 'edit-flow' ) ); 
-		}
+		if( !$comment_content )
+			die( __( "Please enter a comment.", 'edit-flow' ) );
 		
 		// Check that we have a post_id and user logged in
 		if( $post_id && $current_user ) {
@@ -291,7 +288,7 @@ class EF_Editorial_Comments
 			    'comment_author_email' => esc_sql($current_user->user_email),
 			    'comment_author_url' => esc_sql($current_user->user_url),
 			    'comment_content' => wp_kses($comment_content, array('a' => array('href' => array(),'title' => array()),'b' => array(),'i' => array(),'strong' => array(),'em' => array(),'u' => array(),'del' => array(), 'blockquote' => array(), 'sub' => array(), 'sup' => array() )),
-			    'comment_type' => $this->comment_type,
+			    'comment_type' => self::comment_type,
 			    'comment_parent' => (int) $parent,
 			    'user_ID' => (int) $user_ID,
 			    'comment_author_IP' => esc_sql($_SERVER['REMOTE_ADDR']),
@@ -299,7 +296,7 @@ class EF_Editorial_Comments
 			    'comment_date' => $time,
 			    'comment_date_gmt' => $time,
 				// Set to -1?
-			    'comment_approved' => $this->comment_type,
+			    'comment_approved' => self::comment_type,
 			);
 			
 			apply_filters( 'ef_pre_insert_editorial_comment', $data );
@@ -308,10 +305,9 @@ class EF_Editorial_Comments
 			$comment_id = wp_insert_comment($data);
 			$comment = get_comment($comment_id);
 			
-			// Register actions -- will be used to set up notifications
-			if ( $comment_id ) {
+			// Register actions -- will be used to set up notifications and other modules can hook into this
+			if ( $comment_id )
 				do_action( 'ef_post_insert_editorial_comment', $comment );
-			}
 
 			// Prepare response
 			$response = new WP_Ajax_Response();
@@ -333,6 +329,69 @@ class EF_Editorial_Comments
 		} else {
 			die( __('There was a problem of some sort. Try again or contact your administrator.', 'edit-flow') );
 		}
+	}
+	
+	/**
+	 * Register settings for editorial comments so we can partially use the Settings API
+	 * (We use the Settings API for form generation, but not saving)
+	 * 
+	 * @since 0.7
+	 */
+	function register_settings() {
+			add_settings_section( $this->module->options_group_name . '_general', false, array( &$this, 'settings_general_section'), $this->module->options_group_name );
+			add_settings_field( 'post_types', 'Enable for these post types:', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+	}
+	
+	function settings_general_section() {
+		
+	}
+	
+	/**
+	 * Chose the post types for editorial comments
+	 *
+	 * @since 0.7
+	 */
+	function settings_post_types_option() {
+		global $edit_flow;
+		$edit_flow->settings->helper_option_custom_post_type( $this->module );	
+	}
+
+	/**
+	 * Validate our user input as the settings are being saved
+	 *
+	 * @since 0.7
+	 */
+	function settings_validate( $new_options ) {
+		global $edit_flow;
+		
+		// Whitelist validation for the post type options
+		if ( !isset( $new_options['post_types'] ) )
+			$new_options['post_types'] = array();
+		$new_options['post_types'] = $edit_flow->helpers->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
+		
+		return $new_options;
+
+	}	
+
+	/**
+	 * Settings page for editorial comments
+	 *
+	 * @since 0.7	
+	 */
+	function print_configure_view() {
+		global $edit_flow;
+		?>
+
+		<form class="basic-settings" action="<?php echo add_query_arg( 'configure', $this->module->slug, EDIT_FLOW_SETTINGS_PAGE ); ?>" method="post">
+			<?php settings_fields( $this->module->options_group_name ); ?>
+			<?php do_settings_sections( $this->module->options_group_name ); ?>
+			<?php
+				echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';				
+			?>
+			<p class="submit"><?php submit_button( null, 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow' ); ?></a></p>
+
+		</form>
+		<?php
 	}
 
 }
