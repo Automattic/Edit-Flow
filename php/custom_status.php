@@ -931,9 +931,9 @@ class EF_Custom_Status {
 	 * This is a hack! hack! hack! until core is fixed/better supports custom statuses
 	 *	
 	 * When publishing a post with a custom status, set the status to 'pending' temporarily
-	 * Works around this limitation: http://core.trac.wordpress.org/browser/tags/3.2.1/wp-includes/post.php#L2694
-	 * Original thread: http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem
-	 * Core ticket: http://core.trac.wordpress.org/ticket/18362
+	 * @see Works around this limitation: http://core.trac.wordpress.org/browser/tags/3.2.1/wp-includes/post.php#L2694
+	 * @see Original thread: http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem
+	 * @see Core ticket: http://core.trac.wordpress.org/ticket/18362
 	 */
 	function check_timestamp_on_publish() {
 		global $edit_flow, $pagenow, $wpdb;
@@ -963,9 +963,9 @@ class EF_Custom_Status {
 	 * This is a hack! hack! hack! until core is fixed/better supports custom statuses
 	 *	
 	 * Normalize post_date_gmt if it isn't set to the past or the future
-	 * Works around this limitation: http://core.trac.wordpress.org/browser/tags/3.2.1/wp-includes/post.php#L2506	
-	 * Original thread: http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem
-	 * Core ticket: http://core.trac.wordpress.org/ticket/18362	
+	 * @see Works around this limitation: http://core.trac.wordpress.org/browser/tags/3.2.1/wp-includes/post.php#L2506	
+	 * @see Original thread: http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem
+	 * @see Core ticket: http://core.trac.wordpress.org/ticket/18362	
 	 */
 	function fix_custom_status_timestamp( $data ) {
 		global $edit_flow, $pagenow;
