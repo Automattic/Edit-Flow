@@ -260,7 +260,7 @@ class EF_Calendar {
 								<span class="item-status">[<?php if ( count( $supported_post_types ) > 1 ) {
 									$post_type = $post->post_type;
 									echo $all_post_types[$post_type]->labels->singular_name . ': ';
-								} ?><?php echo $edit_flow->custom_status->get_custom_status_friendly_name( get_post_status( $post_id ) ); ?>]</span>
+								} ?><?php echo $edit_flow->helpers->get_post_status_friendly_name( get_post_status( $post_id ) ); ?>]</span>
 							</div>
 							<ul class="item-metadata">
 								<li class="item-time"><?php echo date( get_option('time_format'), strtotime( $post->post_date ) ); ?>
