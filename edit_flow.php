@@ -160,8 +160,9 @@ class edit_flow {
 	    }
 	    	    
 		// Upgrade if need be
-		$ef_prev_version = $this->get_plugin_option('version');
-		if ( version_compare( $ef_prev_version, EDIT_FLOW_VERSION, '<' ) ) edit_flow_upgrade($ef_prev_version);
+		$previous_version = get_option( $this->options_group . 'version' );
+		if ( version_compare( $previous_version, EDIT_FLOW_VERSION, '<' ) )
+			edit_flow_upgrade( $previous_version );
 
 		$this->register_scripts_and_styles();
 		
