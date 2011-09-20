@@ -116,7 +116,7 @@ class EF_Settings {
 		
 		// Don't show the settings page for the module if the module isn't activated
 		if ( !$edit_flow->helpers->module_enabled( $requested_module_name ) ) {
-			echo '<div class="message error"><p>' . sprintf( __( 'Module not enabled. Please enable it from the <a href="%1$s">Edit Flow settings page</a>.', 'edit-flow' ), EDIT_FLOW_SETTINGS_PAGE ) . '</p></div';
+			echo '<div class="message error"><p>' . sprintf( __( 'Module not enabled. Please enable it from the <a href="%1$s">Edit Flow settings page</a>.', 'edit-flow' ), EDIT_FLOW_SETTINGS_PAGE ) . '</p></div>';
 			return;
 		}
 		
