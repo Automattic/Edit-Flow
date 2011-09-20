@@ -114,6 +114,12 @@ class EF_Settings {
 		}
 		$requested_module_name = $requested_module->name;	
 		
+		// Don't show the settings page for the module if the module isn't activated
+		if ( !$edit_flow->helpers->module_enabled( $requested_module_name ) ) {
+			echo '<p>' . sprintf( __( 'Module not enabled. Please enable it from the <a href="%1$s">Edit Flow settings page</a>.', 'edit-flow' ), EDIT_FLOW_SETTINGS_PAGE ) . '</p>';
+			return;
+		}
+		
 		$this->print_default_header( $requested_module );
 		switch( $requested_module_name ) {
 			case 'settings':
