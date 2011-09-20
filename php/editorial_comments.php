@@ -338,14 +338,10 @@ class EF_Editorial_Comments
 	 * @since 0.7
 	 */
 	function register_settings() {
-			add_settings_section( $this->module->options_group_name . '_general', false, array( &$this, 'settings_general_section'), $this->module->options_group_name );
+			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
 			add_settings_field( 'post_types', 'Enable for these post types:', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 	}
-	
-	function settings_general_section() {
-		
-	}
-	
+
 	/**
 	 * Chose the post types for editorial comments
 	 *

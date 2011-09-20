@@ -756,14 +756,10 @@ class EF_Custom_Status {
 	 */
 	function register_settings() {
 		
-			add_settings_section( $this->module->options_group_name . '_general', false, array( &$this, 'settings_general_section'), $this->module->options_group_name );
+			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
 			add_settings_field( 'post_types', 'Use on these post types:', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 			add_settings_field( 'always_show_dropdown', 'Always show dropdown:', array( &$this, 'settings_always_show_dropdown_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 
-	}
-	
-	function settings_general_section() {
-		
 	}
 	
 	/**
@@ -824,7 +820,6 @@ class EF_Custom_Status {
 			<div id="col-left">
 				<div class="col-wrap">
 					<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'add' ) : ?>
-					<div class="form-wrap">
 						<h3><?php _e( 'Add Custom Status', 'edit-flow' ); ?></h3>
 						<form class="add:the-list:" action="<?php echo esc_url( 'configure', $this->module->slug, EDIT_FLOW_SETTINGS_PAGE ); ?>" method="post" id="addstatus" name="addstatus">
 						<div class="form-field form-required">
@@ -841,9 +836,7 @@ class EF_Custom_Status {
 						<input type="hidden" name="custom-status-add-nonce" id="custom-status-add-nonce" value="<?php echo wp_create_nonce('custom-status-add-nonce') ?>" />
 						<p class="submit"><input type="submit" value="<?php _e( 'Add Custom Status', 'edit-flow' ) ?>" name="submit" class="button"/></p>
 						</form>
-					</div>
 					<?php else: ?>
-					<div class="form-wrap">
 						<h3><?php _e( 'Custom Status Settings', 'edit-flow' ); ?></h3>
 					<form class="basic-settings" action="<?php echo esc_url( add_query_arg( 'configure', $this->module->slug, EDIT_FLOW_SETTINGS_PAGE ) ); ?>" method="post">
 						<?php settings_fields( $this->module->options_group_name ); ?>
@@ -853,7 +846,6 @@ class EF_Custom_Status {
 						?>
 						<p class="submit"><input name="submit" type="submit" class="button-primary" value="<?php esc_attr_e('Save Changes'); ?>" /><a class="cancel-settings-link" href="<?php echo esc_url( EDIT_FLOW_SETTINGS_PAGE ); ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
 					</form>
-					</div>
 					<?php endif; ?>
 				</div>
 			</div>
