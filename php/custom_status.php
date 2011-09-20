@@ -29,6 +29,8 @@ class EF_Custom_Status {
 				
 		if ( $active ) {
 			add_action( 'init', array( &$this, 'init' ) );
+			add_action( 'admin_init', array( &$this, 'check_timestamp_on_publish' ) );
+			add_filter( 'wp_insert_post_data', array( &$this, 'fix_custom_status_timestamp' ) );
 		}
 	} // END: __construct()
 	
@@ -700,6 +702,71 @@ class EF_Custom_Status {
 		include_once( EDIT_FLOW_ROOT . '/php/' . $ef_page_data['view'] );
 		
 	} // END: admin_page()
+	
+	/**
+	 * This is a hack! hack! hack! until core is fixed/better supports custom statuses
+	 *
+	 * When publishing a post with a custom status, set the status to 'pending' temporarily
+	 * @see Works around this limitation: http://core.trac.wordpress.org/browser/tags/3.2.1/wp-includes/post.php#L2694
+	 * @see Original thread: http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem
+	 * @see Core ticket: http://core.trac.wordpress.org/ticket/18362
+	 */
+	function check_timestamp_on_publish() {
+		global $edit_flow, $pagenow, $wpdb;
+		
+		$current_post_type = get_post_type_object( get_post_type() );
+
+		// Handles the transition to 'publish' on edit.php
+		if ( isset( $edit_flow ) && $pagenow == 'edit.php' && isset( $_REQUEST['bulk_edit'] ) ) {
+			// For every post_id, set the post_status as 'pending' only when there's no timestamp set for $post_date_gmt
+			if ( $_REQUEST['_status'] == 'publish' ) {
+				$post_ids = array_map( 'intval', (array) $_REQUEST['post'] );
+				foreach ( $post_ids as $post_id )
+					$wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array( 'ID' => $post_id, 'post_date_gmt' => '0000-00-00 00:00:00' ) );
+			}
+		}
+
+		// Handles the transition to 'publish' on post.php
+		if ( isset( $edit_flow ) && $pagenow == 'post.php' && isset( $_POST['publish'] ) ) {
+			// Set the post_status as 'pending' only when there's no timestamp set for $post_date_gmt
+			if ( isset( $_POST['post_ID'] ) ) {
+				$post_id = (int) $_POST['post_ID'];
+				$wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array( 'ID' => $post_id, 'post_date_gmt' => '0000-00-00 00:00:00' ) );
+			}
+		}
+
+	}
+	/**
+	 * This is a hack! hack! hack! until core is fixed/better supports custom statuses
+	 *
+	 * Normalize post_date_gmt if it isn't set to the past or the future
+	 * @see Works around this limitation: http://core.trac.wordpress.org/browser/tags/3.2.1/wp-includes/post.php#L2506
+	 * @see Original thread: http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem
+	 * @see Core ticket: http://core.trac.wordpress.org/ticket/18362
+	 */
+	function fix_custom_status_timestamp( $data ) {
+		global $edit_flow, $pagenow;
+		// Don't run this if Edit Flow isn't active, or we're on some other page. Method we're hooking into handles caps
+		if ( !isset( $edit_flow ) || $pagenow != 'post.php' || !isset( $_POST ) )
+			return $data;
+		$custom_statuses = get_terms( 'post_status', array( 'get' => 'all' ) );
+		$status_slugs = array();
+		foreach( $custom_statuses as $custom_status )
+		    $status_slugs[] = $custom_status->slug;
+		$ef_normalize_post_date_gmt = true;
+		// We're only going to normalize the post_date_gmt if the user hasn't set a custom date in the metabox
+		// and the current post_date_gmt isn't already future or past-ized
+		foreach ( array('aa', 'mm', 'jj', 'hh', 'mn') as $timeunit ) {
+			if ( !empty( $_POST['hidden_' . $timeunit] ) && (($_POST['hidden_' . $timeunit] != $_POST[$timeunit] ) || ( $_POST['hidden_' . $timeunit] != $_POST['cur_' . $timeunit] )) ) {
+				$ef_normalize_post_date_gmt = false;
+				break;
+			}
+		}
+		if ( $ef_normalize_post_date_gmt )
+			if ( in_array( $data['post_status'], $status_slugs ) )
+				$data['post_date_gmt'] = '0000-00-00 00:00:00';
+		return $data;
+	}
 		
 } // END: class custom_status
 

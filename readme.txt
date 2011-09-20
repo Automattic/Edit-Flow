@@ -4,7 +4,7 @@ Donate link: http://editflow.org/donate/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 3.0
 Tested up to: 3.2.1
-Stable tag: 0.6.4
+Stable tag: 0.6.5
 
 Redefining your editorial workflow.
 
@@ -129,6 +129,9 @@ Here's a full list of notification types that can be disabled:
 
 == Upgrade Notice ==
 
+= 0.6.5 = 
+Fixes an issue where the post timestamp would be set as soon as a custom status was used.
+
 = 0.6.4 =
 Number of minor fixes and improvements, including proper support for bulk editing custom statuses, a 'Clear' link for clearing date editorial metadata, and better respect for user roles and capabilities in Story Budget.
 
@@ -145,6 +148,9 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 == Changelog ==
+
+= 0.6.5 (Sept. 19, 2011) =
+* Bug fix: Workaround for a bug in core where the timestamp is set when a post is saved with a custom status. Instead, we update the timestamp on publish to current time if a custom post date hasn't been set. Thanks saomay for [help tracking the bug down](http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem/).
 
 = 0.6.4 (Jul. 22, 2011) =
 * Display unpublished custom statuses inline with the post title, per WordPress standard UI
