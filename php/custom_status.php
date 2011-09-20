@@ -27,6 +27,11 @@ class EF_Custom_Status {
 			'default_options' => array(
 				'enabled' => 'on',
 				'default_status' => 'draft',
+				'always_show_dropdown' => 'off',
+				'post_types' => array(
+					'post' => 'on',
+					'page' => 'on',
+				),
 			),
 			'configure_page_cb' => 'configure_page',
 			'configure_link_text' => __( 'Edit Statuses' ),			
@@ -42,13 +47,12 @@ class EF_Custom_Status {
 	function init() {
 		global $edit_flow;
 		
-		$supported_post_types = array( 'post', 'page' );
-		foreach ( $supported_post_types as $post_type ) {
-			add_post_type_support( $post_type, 'ef_custom_statuses' );
-		}
-		
 		// Register custom statuses
 		$this->register_custom_statuses();
+		
+		// Register our settings
+		add_action( 'admin_init', array( &$this, 'register_settings' ) );
+		add_action( 'admin_init', array( &$this, 'handle_settings_and_creation' ) );
 		
 		// Hooks to add "status" column to Edit Posts page
 		add_filter( 'manage_posts_columns', array( &$this, '_filter_manage_posts_columns') );
@@ -218,8 +222,8 @@ class EF_Custom_Status {
 		global $edit_flow, $pagenow;
 		
 		$post_type = $edit_flow->get_current_post_type();
-		
-		if( !post_type_supports( $post_type, 'ef_custom_statuses' ) )
+		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		if ( !in_array( $post_type, $supported_post_types ) )
 			return;
 		
 		if( ! current_user_can('edit_posts') )
@@ -284,6 +288,8 @@ class EF_Custom_Status {
 				);
 			}
 			
+ 			$always_show_dropdown = ( $this->module->options->always_show_dropdown == 'on' ) ? 1 : 0;
+			
 			// Now, let's print the JS vars
 			?>
 			<script type="text/javascript">
@@ -291,7 +297,7 @@ class EF_Custom_Status {
 				var ef_text_no_change = '<?php _e( "&mdash; No Change &mdash;" ); ?>';
 				var ef_default_custom_status = '<?php $edit_flow->get_plugin_option("custom_status_default_status"); ?>';
 				var current_status = '<?php echo $selected ?>';
-				var status_dropdown_visible = <?php echo (int) $edit_flow->get_plugin_option('status_dropdown_visible') ?>;
+				var status_dropdown_visible = <?php echo $always_show_dropdown ?>;
 				var current_user_can_publish_posts = <?php if ( current_user_can('publish_posts') ) { echo 1; } else { echo 0; } ?>;
 			</script>
 			
@@ -495,39 +501,6 @@ class EF_Custom_Status {
 		}
 		
 	} // END: get_custom_status()
-	
-	/**
-	 * get_custom_status_friendly_name()
-	 * Returns the friendly name for a given status
-	 *
-	 * @param string $status The status slug
-	 * @return string $status_friendly_name The friendly name for the status
-	 */
-	function get_custom_status_friendly_name( $status ) {
-		
-		$status_friendly_name = '';
-		
-		$builtin_stati = array(
-			'publish' => __( 'Published', 'edit-flow' ),
-			'draft' => __( 'Draft', 'edit-flow' ),
-			'future' => __( 'Scheduled', 'edit-flow' ),
-			'private' => __( 'Private', 'edit-flow' ),
-			'pending' => __( 'Pending Review', 'edit-flow' ),
-			'trash' => __( 'Trash', 'edit-flow' ),
-		);
-		
-		if( array_key_exists( $status, $builtin_stati ) ) {
-			$status_friendly_name = $builtin_stati[$status];
-		} else {
-			$status_object = $this->get_custom_status( $status );
-			if( $status_object && !is_wp_error( $status_object ) ) {
-				$status_friendly_name = $status_object->name;
-			}
-		}
-		
-		return $status_friendly_name;
-		
-	} // END: get_custom_status_friendly_name()
 
 	/**
 	 * ef_get_default_custom_status()
@@ -770,26 +743,72 @@ class EF_Custom_Status {
 		$ef_page_data['custom_statuses'] = $this->get_custom_statuses();
 		
 	}
-
-	/**
-	 * Handles the main admin page for Custom Statuses.
-	 */
-	function admin_page() {
-		global $ef_page_data;
-		
-		// Set up defaults
-		$page_defaults = array(
-			'title' => __( 'Custom Statuses', 'edit-flow' ),
-			'view' => 'templates/custom_status_main.php',
-		);
-		
-		// extract all the args
-		$ef_page_data = wp_parse_args( $ef_page_data, $page_defaults );
-		extract( $ef_page_data );
-		
-		include_once( EDIT_FLOW_ROOT . '/php/' . $ef_page_data['view'] );
+	
+	function handle_settings_and_creation() {
 		
 	}
+	
+	/**
+	 * Register settings for notifications so we can partially use the Settings API
+	 * (We use the Settings API for form generation, but not saving)
+	 * 
+	 * @since 0.7
+	 */
+	function register_settings() {
+		
+			add_settings_section( $this->module->options_group_name . '_general', false, array( &$this, 'settings_general_section'), $this->module->options_group_name );
+			add_settings_field( 'post_types', 'Use on these post types:', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'always_show_dropdown', 'Always show dropdown:', array( &$this, 'settings_always_show_dropdown_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+
+	}
+	
+	function settings_general_section() {
+		
+	}
+	
+	/**
+	 * Choose the post types that should be displayed on the calendar
+	 *
+	 * @since 0.7
+	 */
+	function settings_post_types_option() {
+		global $edit_flow;
+		$edit_flow->settings->helper_option_custom_post_type( $this->module );
+	}
+	
+	/**
+	 * Option for whether the blog admin email address should be always notified or not
+	 *
+	 * @since 0.7
+	 */
+	function settings_always_show_dropdown_option() {
+		$options = array(
+			'off' => __( 'Disabled', 'edit-flow' ),			
+			'on' => __( 'Enabled', 'edit-flow' ),
+		);
+		echo '<select id="always_show_dropdown" name="' . $this->module->options_group_name . '[always_show_dropdown]">';
+		foreach ( $options as $value => $label ) {
+			echo '<option value="' . esc_attr( $value ) . '"';
+			echo selected( $this->module->options->always_show_dropdown, $value );			
+			echo '>' . esc_html( $label ) . '</option>';
+		}
+		echo '</select>';
+	}
+	
+	function settings_validate( $new_options ) {
+		global $edit_flow;
+		
+		// Whitelist validation for the post type options
+		if ( !isset( $new_options['post_types'] ) )
+			$new_options['post_types'] = array();
+		$new_options['post_types'] = $edit_flow->helpers->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
+		
+		// Whitelist validation for the 'always_show_dropdown' optoins
+		if ( !isset( $new_options['always_show_dropdown'] ) || $new_options['always_show_dropdown'] != 'on' )
+			$new_options['always_show_dropdown'] = 'off';		
+		
+		return $new_options;
+	}	
 	
 	function configure_page() {
 		global $edit_flow;
@@ -800,6 +819,42 @@ class EF_Custom_Status {
 			<div id="col-right">
 				<div class="col-wrap">
 					<?php $wp_list_table->display(); ?>
+				</div>
+			</div>
+			<div id="col-left">
+				<div class="col-wrap">
+					<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'add' ) : ?>
+					<div class="form-wrap">
+						<h3><?php _e( 'Add Custom Status', 'edit-flow' ); ?></h3>
+						<form class="add:the-list:" action="<?php echo esc_url( 'configure', $this->module->slug, EDIT_FLOW_SETTINGS_PAGE ); ?>" method="post" id="addstatus" name="addstatus">
+						<div class="form-field form-required">
+							<label for="status_name"><?php _e( 'Name', 'edit-flow' ); ?></label>
+							<input type="text" aria-required="true" size="20" maxlength="20" id="status_name" name="status_name" value="<?php if ( !empty( $custom_status ) ) esc_attr_e($custom_status->name) ?>" />
+							<p><?php _e('The name is used to identify the status. (Max: 20 characters)', 'edit-flow') ?></p>
+						</div>
+						<div class="form-field">
+							<label for="status_description"><?php _e( 'Description', 'edit-flow' ); ?></label>
+							<textarea cols="40" rows="5" id="status_description" name="status_description"></textarea>
+ 							<p><?php _e( 'The description is primarily for administrative use, to give you some context on what the custom status is to be used for.', 'edit-flow' ); ?></p>
+						</div>
+						<input type="hidden" name="page" value="edit-flow/php/custom_status" />
+						<input type="hidden" name="custom-status-add-nonce" id="custom-status-add-nonce" value="<?php echo wp_create_nonce('custom-status-add-nonce') ?>" />
+						<p class="submit"><input type="submit" value="<?php _e( 'Add Custom Status', 'edit-flow' ) ?>" name="submit" class="button"/></p>
+						</form>
+					</div>
+					<?php else: ?>
+					<div class="form-wrap">
+						<h3><?php _e( 'Custom Status Settings', 'edit-flow' ); ?></h3>
+					<form class="basic-settings" action="<?php echo esc_url( add_query_arg( 'configure', $this->module->slug, EDIT_FLOW_SETTINGS_PAGE ) ); ?>" method="post">
+						<?php settings_fields( $this->module->options_group_name ); ?>
+						<?php do_settings_sections( $this->module->options_group_name ); ?>	
+						<?php
+							echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';
+						?>
+						<p class="submit"><input name="submit" type="submit" class="button-primary" value="<?php esc_attr_e('Save Changes'); ?>" /><a class="cancel-settings-link" href="<?php echo esc_url( EDIT_FLOW_SETTINGS_PAGE ); ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
+					</form>
+					</div>
+					<?php endif; ?>
 				</div>
 			</div>
 		
@@ -944,6 +999,7 @@ class EF_Custom_Status {
 			'configure' => 'custom-status',
 			'action' => 'make_default',
 			'term_id' => (int) $id,
+			'nonce' => wp_create_nonce( 'custom-status-make-default' ),
 		);
  		return add_query_arg( $args, EDIT_FLOW_SETTINGS_PAGE );
 	}
