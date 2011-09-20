@@ -170,7 +170,7 @@ class EF_Helpers {
 	 * Checks for the current post type
 	 *
 	 * @since 0.7
-	 * @return string $post_type The post type we've found
+	 * @return string|null $post_type The post type we've found, or null if no post type
 	 */
 	function get_current_post_type() {
 		global $post, $typenow, $pagenow, $current_screen;
