@@ -560,8 +560,8 @@ class EF_Custom_Status {
 	function _filter_manage_posts_custom_column( $column_name ) {
 		
 		if ( $column_name == 'status' ) {
-			global $post, $custom_status;
-			echo $this->get_custom_status_friendly_name( $post->post_status );
+			global $post, $custom_status, $edit_flow;
+			echo $edit_flow->helpers->get_post_status_friendly_name( $post->post_status );
 		}
 		
 	} // END: _filter_manage_posts_custom_column()
