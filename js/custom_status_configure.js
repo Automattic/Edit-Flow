@@ -114,3 +114,12 @@ inlineEditCustomStatus = {
 
 $(document).ready(function(){inlineEditCustomStatus.init();});
 })(jQuery);
+
+jQuery(document).ready(function(){
+	
+	jQuery('.delete-status a').click(function(){
+		if ( !confirm( ef_confirm_delete_status_string ) )
+			return false;
+	});
+	
+});

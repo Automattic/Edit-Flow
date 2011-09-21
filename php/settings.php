@@ -119,6 +119,30 @@ class EF_Settings {
 			echo '<div class="message error"><p>' . sprintf( __( 'Module not enabled. Please enable it from the <a href="%1$s">Edit Flow settings page</a>.', 'edit-flow' ), EDIT_FLOW_SETTINGS_PAGE ) . '</p></div>';
 			return;
 		}
+			
+		// If there's been a message, let's display it
+		if ( isset( $_GET['message'] ) )
+			$message = $_GET['message'];
+		else if ( isset( $_REQUEST['message'] ) )
+			$message = $_REQUEST['message'];
+		else if ( isset( $_POST['message'] ) )
+			$message = $_POST['message'];
+		else
+			$message = false;
+		if ( $message && isset( $requested_module->messages[$message] ) )
+			echo '<div class="updated message"><p>' . esc_html( $requested_module->messages[$message] ) . '</p></div>';
+			
+		// If there's been an error, let's display it
+		if ( isset( $_GET['error'] ) )
+			$error = $_GET['error'];
+		else if ( isset( $_REQUEST['error'] ) )
+			$error = $_REQUEST['error'];
+		else if ( isset( $_POST['error'] ) )
+			$error = $_POST['error'];
+		else
+			$error = false;
+		if ( $error && isset( $requested_module->messages[$error] ) )
+			echo '<div class="error message"><p>' . esc_html( $requested_module->messages[$error] ) . '</p></div>';			
 		
 		$this->print_default_header( $requested_module );
 		switch( $requested_module_name ) {
@@ -261,16 +285,16 @@ class EF_Settings {
 					
 		if ( !isset( $_POST['action'], $_POST['_wpnonce'], $_POST['option_page'], $_POST['_wp_http_referer'], $_POST['edit_flow_module_name'], $_POST['submit'] ) || !is_admin() )
 			return false;
-
-		if ( !current_user_can( 'manage_options' ) )
-			wp_die( __( 'Cheatin&#8217; uh?' ) );
 			
 		global $edit_flow;			
 		$module_name = sanitize_key( $_POST['edit_flow_module_name'] );
 				
-		if ( $_POST['action'] != 'update' || !wp_verify_nonce( $_POST['_wpnonce'], $edit_flow->$module_name->module->options_group_name . '-options' ) 
+		if ( $_POST['action'] != 'update' 
 			|| $_POST['option_page'] != $edit_flow->$module_name->module->options_group_name )
 			return false;
+		
+		if ( !current_user_can( 'manage_options' ) || !wp_verify_nonce( $_POST['_wpnonce'], $edit_flow->$module_name->module->options_group_name . '-options' ) )
+			wp_die( __( 'Cheatin&#8217; uh?' ) );			
 	
 		$new_options = ( isset( $_POST[$edit_flow->$module_name->module->options_group_name] ) ) ? $_POST[$edit_flow->$module_name->module->options_group_name] : array();
 
@@ -282,8 +306,8 @@ class EF_Settings {
 		$new_options = (object)array_merge( (array)$edit_flow->$module_name->module->options, $new_options );
 		$edit_flow->update_all_module_options( $edit_flow->$module_name->module->name, $new_options );
 		
-		// Redirect back to the settings page that was submitted
-		$goback = add_query_arg( 'settings-updated', 'true',  wp_get_referer() );
+		// Redirect back to the settings page that was submitted without any previous messages
+		$goback = add_query_arg( 'message', 'settings-updated',  remove_query_arg( array( 'message'), wp_get_referer() ) );
 		wp_redirect( $goback );
 		exit;	
 

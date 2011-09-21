@@ -172,3 +172,12 @@
 .edit-flow-modules #story-budget form {
 	background: url(../img/ef-settings-budget.png) no-repeat right -4px;
 }
+
+.button-inline-block {
+	display: inline-block;
+}
+
+.form-error {
+	font-weight:bold;
+	color: #CC0000;
+}

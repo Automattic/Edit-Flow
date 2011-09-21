@@ -187,9 +187,12 @@ class edit_flow {
 			'default_options' => array(),
 			'options' => false,
 			'configure_page_cb' => false,
-			'configure_link_text' => __( 'Configure' ),
-			'autoload' => false,
-			'load_frontend' => false,
+			'configure_link_text' => __( 'Configure', 'edit-flow' ),
+			'messages' => array(
+				'settings-updated' => __( 'Settings updated.', 'edit-flow' ),
+			),
+			'autoload' => false, // autoloading a module will remove the ability to enable or disable it
+			'load_frontend' => false, // Whether or not the module should be loaded on the frontend too
 		);
 		$args = array_merge( $defaults, $args );
 		$args['name'] = $name;
