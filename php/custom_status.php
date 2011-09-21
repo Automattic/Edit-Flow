@@ -756,7 +756,7 @@ class EF_Custom_Status {
 		}
 
 		// Check that the status name doesn't exceed 20 chars
-		if ( count( $status_name ) > 20 ) {
+		if ( strlen( $status_name ) > 20 ) {
 			$change_error = new WP_Error( 'invalid', __( 'Status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );			
 		}
@@ -884,7 +884,7 @@ class EF_Custom_Status {
 			$_REQUEST['form-errors']['name'] = __( 'Please enter a valid, non-numeric name for the status.', 'edit-flow' );
 		
 		// Check that the status name doesn't exceed 20 chars
-		if ( count( $status_name ) > 20 )
+		if ( strlen( $status_name ) > 20 )
 			$_REQUEST['form-errors']['name'] = __( 'Status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' );
 
 		// Check to make sure the status doesn't already exist
