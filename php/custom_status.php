@@ -750,7 +750,7 @@ class EF_Custom_Status {
 		}
 
 		// Check that the name isn't numeric
-		if( (int)$status_name != 0 ) {
+		if( is_numeric( $status_name) ) {
 			$change_error = new WP_Error( 'invalid', __( 'Please enter a valid, non-numeric name for the status.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );
 		}
@@ -787,7 +787,7 @@ class EF_Custom_Status {
 			echo $wp_list_table->single_row( $return );
 			die();
 		} else {
-			$change_error = new WP_Error( 'invalid', __( 'Could not update the status:' . $status_name, 'edit-flow' ) );
+			$change_error = new WP_Error( 'invalid', sprintf( __( 'Could not update the status: <strong>%s</strong>', 'edit-flow' ), $status_name ) );
 			die( $change_error->get_error_message() );
 		}
 	
@@ -1174,7 +1174,7 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 				<h4><?php _e( 'Quick Edit' ); ?></h4>
 				<label>
 					<span class="title"><?php _ex( 'Name', 'edit-flow' ); ?></span>
-					<span class="input-text-wrap"><input type="text" name="name" class="ptitle" value="" /></span>
+					<span class="input-text-wrap"><input type="text" name="name" class="ptitle" value="" maxlength="20" /></span>
 				</label>
 				<label>
 					<span class="title"><?php _ex( 'Description', 'edit-flow' ); ?></span>
