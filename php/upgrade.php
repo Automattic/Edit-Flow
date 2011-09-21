@@ -1,15 +1,21 @@
 <?php
 // Handles all current and future upgrades for edit_flow
 function edit_flow_upgrade( $from ) {
-	if ( !$from || version_compare( $from, '0.1', '<' ) ) edit_flow_upgrade_01();
-	if ( version_compare( $from, '0.3', '<' ) ) edit_flow_upgrade_03();
-	if ( version_compare( $from, '0.5.1', '<' ) ) edit_flow_upgrade_051();
-	if ( version_compare( $from, '0.6', '<' ) ) edit_flow_upgrade_06();
+	global $edit_flow;
+	if ( !$from || version_compare( $from, '0.1', '<' ) )
+		edit_flow_upgrade_01();
+	if ( version_compare( $from, '0.3', '<' ) )
+		edit_flow_upgrade_03();
+	if ( version_compare( $from, '0.5.1', '<' ) )
+		edit_flow_upgrade_051();
+	if ( version_compare( $from, '0.6', '<' ) )
+		edit_flow_upgrade_06();
+	update_option( $edit_flow->options_group . 'version', EDIT_FLOW_VERSION );
 }
 
 // Upgrade to 0.1
 function edit_flow_upgrade_01() {
-	global $edit_flow;
+	global $edit_flow;	
 	
 	// Create default statuses
 	$default_terms = array( 
@@ -21,11 +27,10 @@ function edit_flow_upgrade_01() {
 	);
 	
 	// Okay, now add the default statuses to the db if they don't already exist 
-	foreach($default_terms as $term) {
-		if( !ef_term_exists( $term['term'] ) ) $edit_flow->custom_status->add_custom_status( $term['term'], $term['args'] );
-	}
+	foreach($default_terms as $term)
+		if( !ef_term_exists( $term['term'] ) )
+			$edit_flow->custom_status->add_custom_status( $term['term'], $term['args'] );
 	
-	$edit_flow->update_plugin_option( 'version', '0.1' );
 }
 
 // Upgrade to 0.3
@@ -64,7 +69,6 @@ function edit_flow_upgrade_03 () {
 			ef_add_usergroup( $usergroup['slug'], $usergroup['args'] );
 		}
 	}
-	$edit_flow->update_plugin_option( 'version', '0.3' );
 }
 
 function edit_flow_upgrade_051() {
@@ -83,8 +87,6 @@ function edit_flow_upgrade_051() {
 	foreach ($calendar_roles as $role => $caps) {
 		ef_add_caps_to_role( $role, $caps );
 	}
-	
-	$edit_flow->update_plugin_option( 'version', '0.5.1' );
 }
 
 function edit_flow_upgrade_06() {
@@ -218,6 +220,4 @@ function edit_flow_upgrade_06() {
 	
 	// @todo Remove all of the prior calendar state save data (being stored in user meta now)
 	// ..options: 'custom_status_filter', 'custom_category_filter', 'custom_author_filter'
-	
-	$edit_flow->update_plugin_option( 'version', '0.6' );
 }

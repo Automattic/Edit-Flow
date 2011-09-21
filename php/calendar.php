@@ -41,7 +41,7 @@ class EF_Calendar {
 				),
 			),
 			'configure_page_cb' => 'print_configure_view',
-			'configure_link_text' => __( 'Calendar Options', 'edit-flow' ),
+			'configure_link_text' => __( 'Calendar Options', 'edit-flow' ),		
 		);
 		$this->module = $edit_flow->register_module( 'calendar', $args );		
 		
