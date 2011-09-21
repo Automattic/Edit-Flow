@@ -90,7 +90,6 @@
 }
 
 .edit-flow-modules .edit-flow-module input {
-	float: right;
 	zoom: 1; /* zoom and *display = ie7 hack for display:inline-block */
 	*display: inline;
 	vertical-align: baseline;
@@ -154,6 +153,10 @@
 	background: -webkit-gradient(linear, left top, left bottom, from(#aa1317), to(#ed1c24));
 	background: -moz-linear-gradient(top,  #aa1317,  #ed1c24);
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#aa1317', endColorstr='#ed1c24');
+}
+
+.edit-flow-modules .edit-flow-module a.configure-edit-flow-module {
+	margin-left: 8px;
 }
 
 /* Module specific image styles */
