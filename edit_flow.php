@@ -334,7 +334,7 @@ class edit_flow {
 		
 		global $wp_scripts;
 		// Register jQuery datepicker plugin if it doesn't already exist. Datepicker plugin was added in WordPress 3.3
-		if ( !isset( $wp_scripts['registered']['jquery-ui-datepicker'] ) )
+		if ( !isset( $wp_scripts->registered['jquery-ui-datepicker'] ) )
 			wp_register_script( 'jquery-ui-datepicker', EDIT_FLOW_URL . 'js/lib/jquery.ui.datepicker.min.js', array( 'jquery', 'jquery-ui-core'), '1.8.16', true );		
 	}
 	
