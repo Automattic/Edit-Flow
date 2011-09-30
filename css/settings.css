@@ -180,7 +180,7 @@
 	display: inline-block;
 }
 
-.form-error {
+.form-error p {
 	font-weight:bold;
 	color: #CC0000;
 }

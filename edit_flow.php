@@ -188,12 +188,18 @@ class edit_flow {
 			'options' => false,
 			'configure_page_cb' => false,
 			'configure_link_text' => __( 'Configure', 'edit-flow' ),
+			// These messages are applied to modules and can be overridden if custom messages are needed
 			'messages' => array(
 				'settings-updated' => __( 'Settings updated.', 'edit-flow' ),
+				'form-error' => __( 'Please correct your form errors below and try again.', 'edit-flow' ),
+				'nonce-failed' => __( 'Cheatin&#8217; uh?' ),
+				'invalid-permissions' => __( 'You do not have necessary permissions to complete this action.' ),											
 			),
 			'autoload' => false, // autoloading a module will remove the ability to enable or disable it
 			'load_frontend' => false, // Whether or not the module should be loaded on the frontend too
 		);
+		if ( isset( $args['messages'] ) )
+			$args['messages'] = array_merge( (array)$args['messages'], $defaults['messages'] );
 		$args = array_merge( $defaults, $args );
 		$args['name'] = $name;
 		$args['options_group_name'] = $this->options_group . $name . '_options';

@@ -1,6 +1,4 @@
 jQuery(document).ready(function($) {
-	// Hide the default description textarea when editing a term. Kind of ugly but no hook to do this in PHP
-	$("textarea#description").parent().parent().hide();
 	
 	// Disable all the slug input fields in Quick Edit
 	$(".inline-edit-col label:nth-child(3) input").attr('disabled', 'disabled');
