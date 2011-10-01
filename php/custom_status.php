@@ -39,9 +39,6 @@ class EF_Custom_Status {
 				'status-added' => __( 'Post status created.', 'edit-flow' ),
 				'default-status-changed' => __( 'Default post status has been changed.', 'edit-flow'),
 				'status-deleted' => __( 'Post status deleted.', 'edit-flow' ),
-				'form-error' => __( 'Please correct your form errors below and try again.', 'edit-flow' ),
-				'nonce-failed' => __( 'Cheatin&#8217; uh?' ),
-				'settings-updated' => __( 'Settings updated.', 'edit-flow' ),
 			),					
 			'autoload' => false,
 		);
