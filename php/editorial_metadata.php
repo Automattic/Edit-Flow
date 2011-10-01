@@ -138,10 +138,10 @@ class EF_Editorial_Metadata {
 			'checkbox'		=> __('Checkbox', 'edit-flow'),
 			'date'			=> __('Date', 'edit-flow'),
 			'location'		=> __('Location', 'edit-flow'),
+			'number'		=> __('Number', 'edit-flow'),
 			'paragraph'		=> __('Paragraph', 'edit-flow'),
 			'text'			=> __('Text', 'edit-flow'),
 			'user'			=> __('User', 'edit-flow'),
-			'number'		=> __('Number', 'edit-flow'),			
 		);
 		return $supported_metadata_types;
 	}
