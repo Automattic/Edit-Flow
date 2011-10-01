@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Ways to test and play with this class:
  * 1) Create a new term at by selecting Editorial Metadata from the Edit Flow settings
@@ -40,7 +39,6 @@ class EF_Editorial_Metadata {
 	const metadata_type_key = 'type';
 	
 	/**
-	 * __construct()
 	 * Construct the EF_Editorial_Metadata class
 	 */
 	function __construct() {
@@ -69,10 +67,10 @@ class EF_Editorial_Metadata {
 		$edit_flow->register_module( $this->module_name, $args );		
 		
 		
-	} // END: __construct()
+	}
 	
 	/**
-	 * init()
+	 * Initialize the module. Conditionally loads if the module is enabled
 	 */
 	function init() {
 		
@@ -88,10 +86,9 @@ class EF_Editorial_Metadata {
 		// Load necessary scripts and stylesheets
 		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );	
 		
-	} // END: init()
+	}
 	
 	/**
-	 * get_encoded_description()
 	 * Encode a given description and type as JSON 
 	 *
 	 * @param string $metadata_description Metadata description
@@ -115,10 +112,10 @@ class EF_Editorial_Metadata {
 		                   );
 		
 		return $encoded;
-	} // END: get_encoded_description()
+	}
 	
 	/**
-	 * get_select_html()
+	 * Generate <select> HTML for all of the metadata types
 	 */
 	function get_select_html( $description ) {
 		$current_metadata_type = $this->get_metadata_type( $description );
@@ -130,11 +127,10 @@ class EF_Editorial_Metadata {
 		<?php endforeach; ?>
 		</select>
 	<?php
-	} // END: get_select_html()
+	}
 	
 	/**
-	 * get_supported_metadata_types()
-	 * Supported editorial metadata
+	 * Prepare an array of supported editorial metadata types
 	 *
 	 * @return array $supported_metadata_types All of the supported metadata
 	 */
@@ -151,7 +147,7 @@ class EF_Editorial_Metadata {
 		);
 		return $supported_metadata_types;
 		
-	} // END: get_supported_metadata_types()
+	}
 	
 	/**
 	 * Enqueue relevant admin Javascript
@@ -173,10 +169,9 @@ class EF_Editorial_Metadata {
 		if ( $current_screen->id == $this->screen_id ) {
 			wp_enqueue_script( 'edit_flow-editorial_metadata', EDIT_FLOW_URL . 'js/ef_editorial_metadata.js', array( 'jquery',  ), EDIT_FLOW_VERSION, true );
 		}
-	} // END: add_admin_scripts()
+	}
 	
 	/**
-	 * get_metadata_type()
 	 * Gets the metadata type described by this term, stored in the term itself. Usually stored in $term->description.
 	 *
 	 * @param object|string|int term Term from which to get the metadata object (object or term_id) or the metadata type itself.
@@ -193,8 +188,15 @@ class EF_Editorial_Metadata {
 		}
 		$metadata_type = $this->get_unencoded_value( $metadata_type, self::metadata_type_key );
 		return $metadata_type;
-	} // END: get_metadata_type()
+	}
 	
+	/**
+	 * Get the unencoded value of a key that's been stored in term's description field
+	 *
+	 * @param string $string_to_unencode String we need to produce the value from
+	 * @param string $key Key we're searching for (either 'desc' or 'type' probably)
+	 * @return string The unencoded value for the key if we had an encoded string, or the string
+	 */
 	function get_unencoded_value( $string_to_unencode, $key ) {
 		$string_to_unencode = stripslashes( htmlspecialchars_decode( $string_to_unencode ) );
 		$unencoded_array = json_decode( $string_to_unencode, true );
@@ -207,7 +209,6 @@ class EF_Editorial_Metadata {
 	}
 	
 	/**
-	 * register_taxonomy()
 	 * Register the post metadata taxonomy
 	 */
 	function register_taxonomy() {
@@ -232,12 +233,15 @@ class EF_Editorial_Metadata {
 					)
 			)
 		);
-	} // END: register_taxonomy()
+	}
 	
-	// -------------------------
-	// Post metabox stuff
-	// -------------------------
+	/**
+	 * Post meta box generation and processing
+	 */
 	
+	/**
+	 * Load the post metaboxes for all of the post types that are supported
+	 */
 	function handle_post_metaboxes() {
 		global $edit_flow;
 			
@@ -249,6 +253,11 @@ class EF_Editorial_Metadata {
 		}
 	}
 	
+	/**
+	 * Displays HTML output for Editorial Metadata post meta box
+	 *
+	 * @param object $post Current post
+	 */
 	function display_meta_box( $post ) {
 		echo "<div id='{$this->metadata_taxonomy}_meta_box'>";
 		// Add nonce for verification upon save
@@ -333,8 +342,10 @@ class EF_Editorial_Metadata {
 	}
 	
 	/**
-	 * save_meta_box()
 	 * Save any values in the editorial metadata post meta box
+	 * 
+	 * @param int $id Unique ID for the post being saved
+	 * @param object $post Post object
 	 */
 	function save_meta_box( $id, $post ) {
 		global $edit_flow;
@@ -393,10 +404,9 @@ class EF_Editorial_Metadata {
 		if ( $post->post_status === 'publish' ) {
 			wp_set_object_terms( $id, $term_slugs, $this->metadata_taxonomy );
 		}
-	} // END: save_meta_box()
+	}
 	
 	/**
-	 * get_postmeta_key()
 	 * Generate a unique key based on the term
 	 * 
 	 * @param object $term Term object
@@ -408,7 +418,7 @@ class EF_Editorial_Metadata {
 		$prefix = "{$key}_{$type}";
 		$postmeta_key = "{$prefix}_" . ( is_object( $term ) ? $term->slug : $term );
 		return $postmeta_key;
-	} // END: get_postmeta_key()
+	}
 	
 	/**
 	 * Returns the value for the given metadata
@@ -432,7 +442,6 @@ class EF_Editorial_Metadata {
 	}
 	
 	/**
-	 * get_editorial_metadata_term()
 	 * Returns a term for single metadata field
 	 *
 	 * @param int|string $field The slug or ID for the metadata field term to return 
@@ -452,7 +461,7 @@ class EF_Editorial_Metadata {
 		
 		return $term;
 		
-	} // END: get_editorial_metadata_term()
+	}
 	
 	/**
 	 * Update an existing editorial metadata term if the term_id exists
@@ -505,6 +514,10 @@ class EF_Editorial_Metadata {
 		$inserted_term = wp_insert_term( $term_name, $this->metadata_taxonomy, $args );
 		return $inserted_term;
 	}
+	
+	/**
+	 * Settings and other management code
+	 */
 	
 	/**
 	 * Delete an existing editorial metadata term
@@ -887,15 +900,17 @@ class EF_Editorial_Metadata {
 		
 	}
 	
-} // END: class EF_Editorial_Metadata
-
-} // END: if ( !class_exists('EF_Editorial_Metadata') )
-
-
-if ( !class_exists( 'WP_List_Table' ) ) {
-	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 }
 
+}
+
+
+if ( !class_exists( 'WP_List_Table' ) )
+	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
+
+/**
+ * Management interface for Editorial Metadata. Extends WP_List_Table class
+ */
 class EF_Editorial_Metadata_List_Table extends WP_List_Table
 {
 	
@@ -949,7 +964,10 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table
 		else
 			return false;
 	}
-
+	
+	/**
+	 * Register the columns to appear in the table
+	 */
 	function get_columns() {
 		global $edit_flow;
 		$columns = array(
@@ -967,6 +985,9 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table
 		return $columns;
 	}
 	
+	/**
+	 * Prepare a single row of Editorial Metadata
+	 */
 	function single_row( $term, $level = 0 ) {
 		static $row_class = '';
 		$row_class = ( $row_class == '' ? ' class="alternate"' : '' );
@@ -1010,71 +1031,13 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table
 		return esc_html( $edit_flow->editorial_metadata->get_unencoded_value( $item->description, 'type' ) );
 	}
 
+	/**
+	 * Column for displaying the description of the term
+	 */
 	function column_description( $item ) {
 		global $edit_flow;
 		
 		return esc_html( $edit_flow->editorial_metadata->get_unencoded_value( $item->description, 'desc' ) );
-	}
-
-	function column_default( $tag, $column_name ) {
-		$screen = get_current_screen();
-		
-		var_dump( $tag );
-
-		return apply_filters( "manage_{$screen->taxonomy}_custom_column", '', $column_name, $tag->term_id );
-	}
-	function inline_edit() {
-		global $tax;
-
-		if ( ! current_user_can( $tax->cap->edit_terms ) )
-			return;
-?>
-
-	<form method="get" action=""><table style="display: none"><tbody id="inlineedit">
-		<tr id="inline-edit" class="inline-edit-row" style="display: none"><td colspan="<?php echo $this->get_column_count(); ?>" class="colspanchange">
-
-			<fieldset><div class="inline-edit-col">
-				<h4><?php _e( 'Quick Edit' ); ?></h4>
-
-				<label>
-					<span class="title"><?php _ex( 'Name', 'term name' ); ?></span>
-					<span class="input-text-wrap"><input type="text" name="name" class="ptitle" value="" /></span>
-				</label>
-	<?php if ( !global_terms_enabled() ) { ?>
-				<label>
-					<span class="title"><?php _e( 'Slug' ); ?></span>
-					<span class="input-text-wrap"><input type="text" name="slug" class="ptitle" value="" /></span>
-				</label>
-	<?php } ?>
-			</div></fieldset>
-	<?php
-
-		$core_columns = array( 'cb' => true, 'description' => true, 'name' => true, 'slug' => true, 'posts' => true );
-
-		list( $columns ) = $this->get_column_info();
-
-		foreach ( $columns as $column_name => $column_display_name ) {
-			if ( isset( $core_columns[$column_name] ) )
-				continue;
-
-			do_action( 'quick_edit_custom_box', $column_name, 'edit-tags', $tax->name );
-		}
-
-	?>
-
-		<p class="inline-edit-save submit">
-			<a accesskey="c" href="#inline-edit" title="<?php _e( 'Cancel' ); ?>" class="cancel button-secondary alignleft"><?php _e( 'Cancel' ); ?></a>
-			<?php $update_text = $tax->labels->update_item; ?>
-			<a accesskey="s" href="#inline-edit" title="<?php echo esc_attr( $update_text ); ?>" class="save button-primary alignright"><?php echo $update_text; ?></a>
-			<img class="waiting" style="display:none;" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
-			<span class="error" style="display:none;"></span>
-			<?php wp_nonce_field( 'taxinlineeditnonce', '_inline_edit', false ); ?>
-			<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $tax->name ); ?>" />
-			<br class="clear" />
-		</p>
-		</td></tr>
-		</tbody></table></form>
-	<?php
 	}
 		
 }
