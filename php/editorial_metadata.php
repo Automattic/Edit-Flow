@@ -780,7 +780,7 @@ class EF_Editorial_Metadata {
 				<th scope="row" valign="top"><?php _e( 'Slug', 'edit-flow' ); ?></th>
 				<td>
 					<input type="text" disabled="disabled" value="<?php echo esc_attr( $term->slug ); ?>" /><br />
-					<span class="description"><?php _e( 'The "slug" is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens. It cannot be changed once the term has been created.', 'edit-flow' ); ?></span>
+					<span class="description"><?php _e( 'The slug cannot be changed once the term has been created.', 'edit-flow' ); ?></span>
 				</td>
 			</tr>			
 			<tr class="form-field">
