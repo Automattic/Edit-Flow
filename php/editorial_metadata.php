@@ -1,7 +1,7 @@
 <?php
 /**
  * Ways to test and play with this class:
- * 1) Create a new term at by selecting Editorial Metadata from the Edit Flow settings
+ * 1) Create a new term by selecting Editorial Metadata from the Edit Flow settings
  * 2) Edit an existing term (slug, description, etc.)
  * 3) Create a post and assign metadata to it
  * 4) Look at the list of terms again - the count should go up!
@@ -73,7 +73,6 @@ class EF_Editorial_Metadata {
 	 * Initialize the module. Conditionally loads if the module is enabled
 	 */
 	function init() {
-		
 		$this->register_taxonomy();
 		
 		add_action( 'admin_init', array( &$this, 'handle_add_editorial_metadata' ) );		
@@ -135,7 +134,6 @@ class EF_Editorial_Metadata {
 	 * @return array $supported_metadata_types All of the supported metadata
 	 */
 	function get_supported_metadata_types() {
-		
 		$supported_metadata_types = array(
 			'checkbox'		=> __('Checkbox', 'edit-flow'),
 			'date'			=> __('Date', 'edit-flow'),
@@ -146,7 +144,6 @@ class EF_Editorial_Metadata {
 			'number'		=> __('Number', 'edit-flow'),			
 		);
 		return $supported_metadata_types;
-		
 	}
 	
 	/**
@@ -460,7 +457,6 @@ class EF_Editorial_Metadata {
 		}
 		
 		return $term;
-		
 	}
 	
 	/**
@@ -473,7 +469,6 @@ class EF_Editorial_Metadata {
 	 * @return object|WP_Error $updated_term The updated term or a WP_Error object if something disastrous happened
 	 */
 	function update_editorial_metadata_term( $term_id, $args ) {
-		
 		$new_args = array();
 		$old_term = get_term_by( 'id', $term_id, $this->metadata_taxonomy );
 		if ( $old_term )
@@ -499,7 +494,6 @@ class EF_Editorial_Metadata {
 	 * @since 0.7
 	 */
 	function insert_editorial_metadata_term( $args ) {
-		
 		$defaults = array(
 			'name' => '',
 			'slug' => '',
@@ -571,7 +565,6 @@ class EF_Editorial_Metadata {
 	 * Handles a request to add a new piece of editorial metadata
 	 */
 	function handle_add_editorial_metadata() {
-		
 		if ( !isset( $_POST['submit'], $_POST['form-action'], $_GET['configure'] ) 
 			|| $_GET['configure'] != 'editorial-metadata' || $_POST['form-action'] != 'add-term' )
 				return;	
@@ -633,15 +626,12 @@ class EF_Editorial_Metadata {
 		$redirect_url = add_query_arg( array( 'configure' => $this->module->slug, 'message' => 'term-added' ), EDIT_FLOW_SETTINGS_PAGE );
 		wp_redirect( $redirect_url );
 		exit;
-		
-		
 	}
 	
 	/**
 	 * Handles a request to edit an editorial metadata
 	 */
 	function handle_edit_editorial_metadata() {
-		
 		if ( !isset( $_POST['submit'], $_GET['configure'], $_GET['action'], $_GET['term-id'] ) 
 			|| $_GET['configure'] != 'editorial-metadata' || $_GET['action'] != 'edit' )
 				return; 
@@ -705,14 +695,12 @@ class EF_Editorial_Metadata {
 		$redirect_url = add_query_arg( array( 'configure' => $this->module->slug, 'message' => 'term-updated' ), EDIT_FLOW_SETTINGS_PAGE );
 		wp_redirect( $redirect_url );
 		exit;
-		
 	}
 	
 	/**
 	 * Handles a request to delete an editorial metadata term
 	 */
 	function handle_delete_editorial_metadata() {
-		
 		if ( !isset( $_GET['configure'], $_GET['action'], $_GET['term-id'] ) 
 			|| $_GET['configure'] != 'editorial-metadata' || $_GET['action'] != 'delete' )
 				return;
@@ -897,9 +885,7 @@ class EF_Editorial_Metadata {
 		
 		<?php
 		endif;
-		
 	}
-	
 }
 
 }
@@ -911,8 +897,7 @@ if ( !class_exists( 'WP_List_Table' ) )
 /**
  * Management interface for Editorial Metadata. Extends WP_List_Table class
  */
-class EF_Editorial_Metadata_List_Table extends WP_List_Table
-{
+class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 	
 	var $callback_args;
 	var $taxonomy;
@@ -942,7 +927,6 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table
 	}
 
 	function prepare_items() {
-		
 		$args = array(
 			'hide_empty' => false,
 		);
@@ -1039,5 +1023,4 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table
 		
 		return esc_html( $edit_flow->editorial_metadata->get_unencoded_value( $item->description, 'desc' ) );
 	}
-		
 }
