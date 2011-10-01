@@ -774,31 +774,21 @@ class EF_Editorial_Metadata {
 			<tr class="form-field form-required">
 				<th scope="row" valign="top"><label for="name"><?php _e( 'Editorial Metadata', 'edit-flow' ); ?></label></th>
 				<td><input name="name" id="name" type="text" value="<?php echo esc_attr( $name ); ?>" size="40" aria-required="true" />
-				<?php if ( isset( $_REQUEST['form-errors']['name'] ) ): ?>
-				<div class="form-error">
-				<p><?php echo $_REQUEST['form-errors']['name']; ?></p>	
-				</div>
-				<?php else: ?>					
-				<p class="description"><?php _e( 'The name is for labeling the metadata field.', 'edit-flow' ); ?></p></td>
-				<?php endif; ?>
+				<?php $this->print_error_or_description( 'name', 'The name is for labeling the metadata field.' ); ?>
 			</tr>
 			<tr class="form-field">
 				<th scope="row" valign="top"><?php _e( 'Slug', 'edit-flow' ); ?></th>
 				<td>
 					<input type="text" disabled="disabled" value="<?php echo esc_attr( $term->slug ); ?>" /><br />
-					<span class="description"><?php _e( 'The slug cannot be changed once the term has been created.', 'edit-flow' ); ?></span>
+					<span class="description"><?php _e( 'The "slug" is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens. It cannot be changed once the term has been created.', 'edit-flow' ); ?></span>
 				</td>
 			</tr>			
 			<tr class="form-field">
 				<th scope="row" valign="top"><label for="description"><?php _e( 'Description', 'edit-flow' ); ?></label></th>
-				<td><textarea name="description" id="description" rows="5" cols="50" style="width: 97%;"><?php echo esc_html( $description ); ?></textarea><br />
-				<?php if ( isset( $_REQUEST['form-errors']['description'] ) ): ?>
-				<div class="form-error">
-				<p><?php echo $_REQUEST['form-errors']['description']; ?></p>	
-				</div>
-				<?php else: ?>					
-				<span class="description"><?php _e( 'The description can be used to communicate with your team about what the metadata is for.', 'edit-flow' ); ?></span></td>
-				<?php endif; ?>
+				<td>
+					<textarea name="description" id="description" rows="5" cols="50" style="width: 97%;"><?php echo esc_html( $description ); ?></textarea><br />
+					<span class="description"><?php _e( 'The description can be used to communicate with your team about what the metadata is for.', 'edit-flow' ); ?></span>
+				</td>
 			</tr>
 			<tr class="form-field">
 				<th scope="row" valign="top"><?php _e( 'Type', 'edit-flow' ); ?></th>
@@ -829,24 +819,12 @@ class EF_Editorial_Metadata {
 			<div class="form-field form-required">
 				<label for="name"><?php _e( 'Name', 'edit-flow' ); ?></label>
 				<input type="text" aria-required="true" size="20" maxlength="20" id="name" name="name" value="<?php if ( !empty( $_POST['name'] ) ) esc_attr_e( stripslashes( $_POST['name'] ) ) ?>" />
-				<?php if ( isset( $_REQUEST['form-errors']['name'] ) ): ?>
-				<div class="form-error">
-				<p><?php echo $_REQUEST['form-errors']['name']; ?></p>	
-				</div>
-				<?php else: ?>
-				<p class="description"><?php _e( 'The name is for labeling the metadata field.', 'edit-flow') ?></p>
-				<?php endif; ?>
+				<?php $this->print_error_or_description( 'name', 'The name is for labeling the metadata field.' ); ?>
 			</div>
 			<div class="form-field form-required">
 				<label for="name"><?php _e( 'Slug', 'edit-flow' ); ?></label>
 				<input type="text" aria-required="true" size="20" maxlength="20" id="slug" name="slug" value="<?php if ( !empty( $_POST['slug'] ) ) esc_attr_e( $_POST['slug'] ) ?>" />
-				<?php if ( isset( $_REQUEST['form-errors']['slug'] ) ): ?>
-				<div class="form-error">
-				<p><?php echo $_REQUEST['form-errors']['slug']; ?></p>	
-				</div>
-				<?php else: ?>
-				<p class="description"><?php _e( 'The "slug" is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.', 'edit-flow') ?></p>
-				<?php endif; ?>
+				<?php $this->print_error_or_description( 'slug', 'The "slug" is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.' ); ?>
 			</div>
 			<div class="form-field">
 				<label for="description"><?php _e( 'Description', 'edit-flow' ); ?></label>
@@ -864,13 +842,7 @@ class EF_Editorial_Metadata {
 					<option value="<?php echo esc_attr( $metadata_type ); ?>" <?php selected( $metadata_type, $current_metadata_type ); ?>><?php echo esc_attr( $metadata_type_name ); ?></option>
 				<?php endforeach; ?>
 				</select>
-				<?php if ( isset( $_REQUEST['form-errors']['type'] ) ): ?>
-				<div class="form-error">
-				<p><?php echo $_REQUEST['form-errors']['type']; ?></p>	
-				</div>
-				<?php else: ?>
-				<p class="description"><?php _e( 'Indicate the type of editorial metadata.', 'edit-flow') ?></p>
-				<?php endif; ?>
+				<?php $this->print_error_or_description( 'type', 'Indicate the type of editorial metadata.' ); ?>
 			</div>			
 			<?php wp_nonce_field( 'editorial-metadata-add-nonce' );?>
 			<input type="hidden" id="form-action" name="form-action" value="add-term" />
@@ -885,6 +857,24 @@ class EF_Editorial_Metadata {
 		
 		<?php
 		endif;
+	}
+
+	/**
+	 * Given a form field and a description, prints either the error associated with the field or the description.
+	 *
+	 * @since 0.7
+	 *
+	 * @param string $field The form field for which to check for an error
+	 * @param string $description Unlocalized string to display if there was no error with the given field
+	 */
+	function print_error_or_description( $field, $description ) {
+		if ( isset( $_REQUEST['form-errors'][$field] ) ): ?>
+			<div class="form-error">
+				<p><?php echo $_REQUEST['form-errors'][$field]; ?></p>	
+			</div>
+		<?php else: ?>
+			<p class="description"><?php _e( $description, 'edit-flow') ?></p>
+		<?php endif;
 	}
 }
 
