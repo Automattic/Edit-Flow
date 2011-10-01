@@ -90,7 +90,7 @@
 }
 
 /* Display disabled inputs with a very light gray background */
-.edit-flow-admin input[disabled=disabled] {
+.edit-flow-admin input[disabled] {
 	background-color: #eee;
 }
 
