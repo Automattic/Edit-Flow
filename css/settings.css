@@ -89,6 +89,11 @@
 	display: none;
 }
 
+/* Display disabled inputs with a very light gray background */
+.edit-flow-admin input[disabled=disabled] {
+	background-color: #eee;
+}
+
 .edit-flow-modules .edit-flow-module input {
 	zoom: 1; /* zoom and *display = ie7 hack for display:inline-block */
 	*display: inline;
