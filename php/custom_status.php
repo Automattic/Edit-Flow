@@ -540,13 +540,17 @@ class EF_Custom_Status {
 	} // END: reassign_post_status()
 	
 	/**
-	 * _filter_manage_posts_columns()
-	 * Insert new column header for post status
+	 * Insert new column header for post status after the title column
 	 *
-	 * @param array $post_columns
-	 **/
+	 * @param array $posts_columns Columns currently shown on the Edit Posts screen
+	 * @return array Same array as the input array with a "status" column added after the "title" column
+	 */
 	function _filter_manage_posts_columns( $posts_columns ) {
-		
+		// Return immediately if the supplied parameter isn't an array (which shouldn't happen in practice?)
+		// http://wordpress.org/support/topic/plugin-edit-flow-bug-shows-2-drafts-when-there-are-none-leads-to-error-messages
+		if ( !is_array( $posts_columns ) )
+			return $posts_columns;
+
 		$result = array();
 		foreach ( $posts_columns as $key => $value ) {
 			if ($key == 'title') {
@@ -556,7 +560,7 @@ class EF_Custom_Status {
 		}
 		return $result;
 		
-	} // END: _filter_manage_posts_columns()
+	}
 	
 	/**
 	 * _filter_manage_posts_custom_column()
