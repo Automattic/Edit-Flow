@@ -84,9 +84,11 @@ class EF_Editorial_Metadata {
 		// Register our settings
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );		
 		
+		// Actions relevant to the configuration view (adding or editing existing Editorial Metadata)
 		add_action( 'admin_init', array( &$this, 'handle_add_editorial_metadata' ) );		
 		add_action( 'admin_init', array( &$this, 'handle_edit_editorial_metadata' ) );
-		add_action( 'admin_init', array( &$this, 'handle_delete_editorial_metadata' ) );		
+		add_action( 'admin_init', array( &$this, 'handle_delete_editorial_metadata' ) );
+		add_action( 'wp_ajax_inline_save_term', array( &$this, 'handle_ajax_inline_save_term' ) );					
 		
 		add_action( 'add_meta_boxes', array( &$this, 'handle_post_metaboxes' ) );
 		add_action( 'save_post', array( &$this, 'save_meta_box' ), 10, 2 );
@@ -159,7 +161,7 @@ class EF_Editorial_Metadata {
 	 * Enqueue relevant admin Javascript
 	 */ 
 	function add_admin_scripts() {
-		global $current_screen, $edit_flow;
+		global $current_screen, $edit_flow, $pagenow;
 		
 		// Add the metabox date picker JS and CSS
 		$current_post_type = $edit_flow->helpers->get_current_post_type();
@@ -175,6 +177,11 @@ class EF_Editorial_Metadata {
 		if ( $current_screen->id == $this->screen_id ) {
 			wp_enqueue_script( 'edit_flow-editorial_metadata', EDIT_FLOW_URL . 'js/editorial_metadata.js', array( 'jquery',  ), EDIT_FLOW_VERSION, true );
 		}
+		
+		// Load Javascript specific to the editorial metadata configuration view
+		if ( $pagenow == 'options-general.php' && isset( $_GET['page'], $_GET['configure'] )
+		 	&& $_GET['page'] == 'edit-flow' && $_GET['configure'] == 'editorial-metadata' )
+			wp_enqueue_script( 'edit-flow-editorial-metadata-configure', EDIT_FLOW_URL . 'js/editorial_metadata_configure.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 	}
 	
 	/**
@@ -491,6 +498,7 @@ class EF_Editorial_Metadata {
 			$new_args['description'] = $this->get_encoded_description( $new_args['description'], $new_args['type'] );
 		}
 		$updated_term = wp_update_term( $term_id, $this->metadata_taxonomy, $new_args );
+		$updated_term = get_term_by( 'id', $updated_term['term_id'], $this->metadata_taxonomy );
 		return $updated_term;
 	}
 	
@@ -689,7 +697,7 @@ class EF_Editorial_Metadata {
 			return;
 		}
 		
-		// Try to add the status
+		// Try to add the metadata term
 		$args = array(
 			'name' => $new_name,			
 			'description' => $new_description,
@@ -701,6 +709,79 @@ class EF_Editorial_Metadata {
 		$redirect_url = add_query_arg( array( 'configure' => $this->module->slug, 'message' => 'term-updated' ), EDIT_FLOW_SETTINGS_PAGE );
 		wp_redirect( $redirect_url );
 		exit;
+	}
+	
+	/**
+	 * Handle the request to update a given Editorial Metadata term via inline edit
+	 *
+	 * @since 0.7
+	 */
+	function handle_ajax_inline_save_term() {
+		
+		if ( !wp_verify_nonce( $_POST['inline_edit'], 'editorial-metadata-inline-edit-nonce' ) )
+			die( $this->module->messages['nonce-failed'] );
+			
+		if ( !current_user_can( 'manage_options') )
+			die( $this->module->messages['invalid-permissions'] );		
+		
+		$term_id = (int) $_POST['term_id'];
+		if ( !$existing_term = $this->get_editorial_metadata_term( $term_id ) )
+			die( $this->module->messsage['term-error'] );
+		
+		$metadata_name = strip_tags( trim( $_POST['name'] ) );
+		$metadata_description = strip_tags( trim( $_POST['description'] ) );
+		
+		/**
+		 * Form validation for editing editorial metadata term
+		 */	
+		// Check if name field was filled in
+		if ( empty( $metadata_name ) ) {
+			$change_error = new WP_Error( 'invalid', __( 'Please enter a name for the editorial metadata', 'edit-flow' ) );
+			die( $change_error->get_error_message() );
+		}
+
+		// Check that the name isn't numeric
+		if( is_numeric( $metadata_name) ) {
+			$change_error = new WP_Error( 'invalid', __( 'Please enter a valid, non-numeric name for the editorial metadata.', 'edit-flow' ) );
+			die( $change_error->get_error_message() );
+		}
+		
+		// Check that the term name doesn't exceed 20 chars
+		if ( strlen( $metadata_name ) > 20 ) {
+			$change_error = new WP_Error( 'invalid', __( 'Name cannot exceed 20 characters. Please try a shorter name.' ) );
+			die( $change_error->get_error_message() );
+		}
+		
+		// Check to ensure a term with the same name doesn't exist,
+		$search_term = get_term_by( 'name', $metadata_name, $this->metadata_taxonomy );
+		if ( is_object( $search_term ) && $search_term->term_id != $existing_term->term_id ) {
+			$change_error = new WP_Error( 'invalid', __( 'Name already in use. Please choose another.', 'edit-flow' ) );
+			die( $change_error->get_error_message() );
+		}
+		// or that the term name doesn't map to an existing term's slug			
+		$search_term = get_term_by( 'slug', sanitize_title( $metadata_name ), $this->metadata_taxonomy );
+		if ( is_object( $search_term ) && $search_term->term_id != $existing_term->term_id ) {
+			$change_error = new WP_Error( 'invalid', __( 'Name conflicts with slug for another term. Please choose again.', 'edit-flow' ) );
+			die( $change_error->get_error_message() );			
+		}
+		
+		// get status_name & status_description
+		$args = array(
+			'name' => $metadata_name,			
+			'description' => $metadata_description,
+		);
+		$return = $this->update_editorial_metadata_term( $existing_term->term_id, $args );
+		if( !is_wp_error( $return ) ) {	
+			set_current_screen( 'edit-editorial-metadata' );					
+			$wp_list_table = new EF_Editorial_Metadata_List_Table();
+			$wp_list_table->prepare_items();
+			echo $wp_list_table->single_row( $return );
+			die();
+		} else {
+			$change_error = new WP_Error( 'invalid', sprintf( __( 'Could not update the term: <strong>%s</strong>', 'edit-flow' ), $status_name ) );
+			die( $change_error->get_error_message() );
+		}
+		
 	}
 	
 	/**
@@ -771,14 +852,23 @@ class EF_Editorial_Metadata {
 	}
 	
 	/**
-	 * Prepare and display the configuration view for editorial metadata
+	 * Prepare and display the configuration view for editorial metadata.
+	 * There are four primary components:
+	 * - Form to add a new Editorial Metadata term
+	 * - Form generated by the settings API for managing Editorial Metadata options
+	 * - Table of existing Editorial Metadata terms with ability to take actions on each
+	 * - Full page width view for editing a single Editorial Metadata term
+	 *
+	 * @since 0.7
 	 */ 
 	function print_configure_view() {
 		global $edit_flow;
 		$wp_list_table = new EF_Editorial_Metadata_List_Table();
 		$wp_list_table->prepare_items();
 		?>
-		
+		<script type="text/javascript">
+			var ef_confirm_delete_term_string = "<?php _e( 'Are you sure you want to delete this term? Any metadata for this term will remain but will not be visible unless this term is re-added.', 'edit-flow' ); ?>";
+		</script>
 		<?php if ( !isset( $_GET['action'] ) || ( isset( $_GET['action'] ) && $_GET['action'] != 'edit' ) ): ?>
 		<div id="col-right">
 		<div class="col-wrap">
@@ -788,6 +878,7 @@ class EF_Editorial_Metadata {
 
 		</div>
 		</div><!-- /col-right -->
+		<?php $wp_list_table->inline_edit(); ?>
 		<?php endif; ?>	
 		
 		<?php if ( isset( $_GET['action'], $_GET['term-id'] ) && $_GET['action'] == 'edit' ): ?>
@@ -904,7 +995,7 @@ class EF_Editorial_Metadata {
 			</div>
 			<?php wp_nonce_field( 'editorial-metadata-add-nonce' );?>
 			<input type="hidden" id="form-action" name="form-action" value="add-term" />
-			<?php submit_button( __( 'Add New Metadata', 'edit-flow' ) ); ?>
+			<?php submit_button( __( 'Add New Metadata Term', 'edit-flow' ) ); ?>
 			</form>
 		<?php endif; ?>
 			</div>
@@ -1032,12 +1123,13 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		
 		$actions = array();
 		$actions['edit'] = sprintf( __( '<a href="%s">Edit</a>', 'edit-flow' ), $item_edit_link );
+		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';		
 		$actions['delete delete-status'] = sprintf( __( '<a href="%s">Delete</a>', 'edit-flow' ), $item_delete_link );
 		
 		$out .= $this->row_actions( $actions, false );
 		$out .= '<div class="hidden" id="inline_' . $item->term_id . '">';
 		$out .= '<div class="name">' . $item->name . '</div>';
-		$out .= '<div class="description">' . $item->description . '</div>';	
+		$out .= '<div class="description">' . $edit_flow->editorial_metadata->get_unencoded_value( $item->description, 'desc' ) . '</div>';	
 		$out .= '</div>';
 		
 		return $out;
@@ -1058,5 +1150,35 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		global $edit_flow;
 		
 		return esc_html( $edit_flow->editorial_metadata->get_unencoded_value( $item->description, 'desc' ) );
+	}
+	
+	function inline_edit() {
+		global $edit_flow;
+?>
+	<form method="get" action=""><table style="display: none"><tbody id="inlineedit">
+		<tr id="inline-edit" class="inline-edit-row" style="display: none"><td colspan="<?php echo $this->get_column_count(); ?>" class="colspanchange">
+			<fieldset><div class="inline-edit-col">
+				<h4><?php _e( 'Quick Edit' ); ?></h4>
+				<label>
+					<span class="title"><?php _ex( 'Name', 'edit-flow' ); ?></span>
+					<span class="input-text-wrap"><input type="text" name="name" class="ptitle" value="" maxlength="20" /></span>
+				</label>
+				<label>
+					<span class="title"><?php _ex( 'Description', 'edit-flow' ); ?></span>
+					<span class="input-text-wrap"><input type="text" name="description" class="pdescription" value="" /></span>
+				</label>
+			</div></fieldset>
+		<p class="inline-edit-save submit">
+			<a accesskey="c" href="#inline-edit" title="<?php _e( 'Cancel' ); ?>" class="cancel button-secondary alignleft"><?php _e( 'Cancel' ); ?></a>
+			<?php $update_text = __( 'Update Metadata Term', 'edit-flow' ); ?>
+			<a accesskey="s" href="#inline-edit" title="<?php echo esc_attr( $update_text ); ?>" class="save button-primary alignright"><?php echo $update_text; ?></a>
+			<img class="waiting" style="display:none;" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
+			<span class="error" style="display:none;"></span>
+			<?php wp_nonce_field( 'editorial-metadata-inline-edit-nonce', 'inline_edit', false ); ?>
+			<br class="clear" />
+		</p>
+		</td></tr>
+		</tbody></table></form>
+	<?php
 	}
 }
