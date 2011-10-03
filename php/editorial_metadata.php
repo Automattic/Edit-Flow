@@ -55,6 +55,10 @@ class EF_Editorial_Metadata {
 			'slug' => 'editorial-metadata',
 			'default_options' => array(
 				'enabled' => 'on',
+				'post_types' => array(
+					'post' => 'on',
+					'page' => 'off',
+				),
 			),
 			'messages' => array(
 				'term-added' => __( "Metadata term added.", 'edit-flow' ),			
@@ -73,7 +77,12 @@ class EF_Editorial_Metadata {
 	 * Initialize the module. Conditionally loads if the module is enabled
 	 */
 	function init() {
+		
+		// Register the taxonomy we use for Editorial Metadata with WordPress core
 		$this->register_taxonomy();
+		
+		// Register our settings
+		add_action( 'admin_init', array( &$this, 'register_settings' ) );		
 		
 		add_action( 'admin_init', array( &$this, 'handle_add_editorial_metadata' ) );		
 		add_action( 'admin_init', array( &$this, 'handle_edit_editorial_metadata' ) );
@@ -212,7 +221,7 @@ class EF_Editorial_Metadata {
 		global $edit_flow;
 
 		// We need to make sure taxonomy is registered for all of the post types that support it
-		$supported_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_editorial_metadata' );
+		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $edit_flow->custom_status->module );
 	
 		register_taxonomy( $this->metadata_taxonomy, $supported_post_types,
 			array(
@@ -241,11 +250,8 @@ class EF_Editorial_Metadata {
 	 */
 	function handle_post_metaboxes() {
 		global $edit_flow;
-			
-		// Add the editorial meta meta_box for all of the post types we want to support
-		$current_post_type = $edit_flow->helpers->get_current_post_type();
-		$post_types = $edit_flow->get_all_post_types_for_feature( 'ef_editorial_metadata' );
-		foreach ( $post_types as $post_type ) {
+		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $edit_flow->custom_status->module );
+		foreach ( $supported_post_types as $post_type ) {
 			add_meta_box( $this->metadata_taxonomy, __( 'Editorial Metadata', 'edit-flow' ), array( &$this, 'display_meta_box' ), $post_type, 'side' );
 		}
 	}
@@ -354,7 +360,7 @@ class EF_Editorial_Metadata {
 		}
 		
 		if( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
-			|| ! in_array( $post->post_type, $edit_flow->get_all_post_types_for_feature( 'ef_editorial_metadata' ) )
+			|| ! in_array( $post->post_type, $edit_flow->helpers->get_post_types_for_module( $edit_flow->custom_status->module ) )
 			|| $post->post_type == 'post' && !current_user_can( 'edit_post', $id )
 			|| $post->post_type == 'page' && !current_user_can( 'edit_page', $id ) ) {
 			return $id;
@@ -724,6 +730,47 @@ class EF_Editorial_Metadata {
 	}
 	
 	/**
+	 * Register settings for notifications so we can partially use the Settings API
+	 * (We use the Settings API for form generation, but not saving)
+	 * 
+	 * @since 0.7
+	 * @uses add_settings_section(), add_settings_field()
+	 */
+	function register_settings() {
+			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
+			add_settings_field( 'post_types', 'Add to these post types:', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+	}	
+
+	/**
+	 * Choose the post types for editorial metadata
+	 *
+	 * @since 0.7
+	 */
+	function settings_post_types_option() {
+		global $edit_flow;
+		$edit_flow->settings->helper_option_custom_post_type( $this->module );
+	}
+
+	/**
+	 * Validate data entered by the user
+	 *
+	 * @since 0.7
+	 *
+	 * @param array $new_options New values that have been entered by the user
+	 * @return array $new_options Form values after they've been sanitized
+	 */
+	function settings_validate( $new_options ) {
+		global $edit_flow;
+		
+		// Whitelist validation for the post type options
+		if ( !isset( $new_options['post_types'] ) )
+			$new_options['post_types'] = array();
+		$new_options['post_types'] = $edit_flow->helpers->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );		
+		
+		return $new_options;
+	}
+	
+	/**
 	 * Prepare and display the configuration view for editorial metadata
 	 */ 
 	function print_configure_view() {
@@ -744,7 +791,7 @@ class EF_Editorial_Metadata {
 		<?php endif; ?>	
 		
 		<?php if ( isset( $_GET['action'], $_GET['term-id'] ) && $_GET['action'] == 'edit' ): ?>
-	
+		<?php /** Full page width view for editing a given editorial metadata term **/ ?>
 		<?php
 			// Check whether the term exists
 			$term_id = (int)$_GET['term-id'];
@@ -807,14 +854,25 @@ class EF_Editorial_Metadata {
 		</div>
 		
 		<?php else: ?>
-		
+		<?php /** If not in full-screen edit term mode, we can create new terms or change options **/ ?>
 		<div id="col-left">
-			<div class="col-wrap">		
-		<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'change-options' ): ?>
-			
-		<?php else: ?>
+			<div class="col-wrap">	
 			<div class="form-wrap">
-			<h3><?php _e( 'Add Editorial Metadata', 'edit-flow' ); ?></h3>
+			<h3 class="nav-tab-wrapper">
+				<a href="<?php echo esc_url( add_query_arg( array( 'configure' => $this->module->slug ), EDIT_FLOW_SETTINGS_PAGE ) ); ?>" class="nav-tab<?php if ( !isset( $_GET['action'] ) || $_GET['action'] != 'change-options' ) echo ' nav-tab-active'; ?>"><?php _e( 'Add New', 'edit-flow' ); ?></a>
+				<a href="<?php echo esc_url( add_query_arg( array( 'configure' => $this->module->slug, 'action' => 'change-options' ), EDIT_FLOW_SETTINGS_PAGE ) ); ?>" class="nav-tab<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'change-options' ) echo ' nav-tab-active'; ?>"><?php _e( 'Options', 'edit-flow' ); ?></a>
+			</h3>
+			
+		<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'change-options' ): ?>
+		<?php /** Basic form built on WP Settings API for outputting Editorial Metadata options **/ ?>
+		<form class="basic-settings" action="<?php echo esc_url( add_query_arg( array( 'configure' => $this->module->slug, 'action' => 'change-options' ), EDIT_FLOW_SETTINGS_PAGE ) ); ?>" method="post">
+			<?php settings_fields( $this->module->options_group_name ); ?>
+			<?php do_settings_sections( $this->module->options_group_name ); ?>	
+			<?php echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />'; ?>
+			<?php submit_button(); ?>
+		</form>
+		<?php else: ?>
+		<?php /** Custom form for adding a new Editorial Metadata term **/ ?>
 			<form class="add:the-list:" action="<?php echo esc_url( add_query_arg( array( 'configure' => $this->module->slug ), EDIT_FLOW_SETTINGS_PAGE ) ); ?>" method="post" id="addmetadata" name="addmetadata">
 			<div class="form-field form-required">
 				<label for="name"><?php _e( 'Name', 'edit-flow' ); ?></label>
@@ -843,13 +901,13 @@ class EF_Editorial_Metadata {
 				<?php endforeach; ?>
 				</select>
 				<?php $edit_flow->settings->helper_print_error_or_description( 'type', __( 'Indicate the type of editorial metadata.', 'edit-flow' ) ); ?>
-			</div>			
+			</div>
 			<?php wp_nonce_field( 'editorial-metadata-add-nonce' );?>
 			<input type="hidden" id="form-action" name="form-action" value="add-term" />
 			<?php submit_button( __( 'Add New Metadata', 'edit-flow' ) ); ?>
-			</form>		
-			</div>
+			</form>
 		<?php endif; ?>
+			</div>
 			</div>
 		</div>
 		
@@ -930,12 +988,6 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 			'type'		  => __( 'Metadata Type', 'edit-flow' ),
 			'description' => __( 'Description' ),
 		);
-		
-		$post_types = get_post_types( '', 'objects' );
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $edit_flow->editorial_metadata->module );		
-		foreach ( $post_types as $post_type )
-			if ( in_array( $post_type->name, $supported_post_types ) )
-				$columns[$post_type->name] = $post_type->label;
 				
 		return $columns;
 	}
@@ -952,6 +1004,19 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
  		echo '<tr id="term-' . $term->term_id . '"' . $row_class . '>';
  		echo $this->single_row_columns( $term );
  		echo '</tr>';
+	}
+	
+	/**
+	 * Handle the column output when there's no method for it
+	 *
+	 * @since 0.7
+	 *
+	 * @param object $item Editorial Metadata term as an object
+	 * @param string $column_name How the column was registered at birth
+	 */
+	function column_default( $item, $column_name ) {
+
+		
 	}
 
 	/**
