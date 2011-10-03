@@ -589,10 +589,8 @@ class EF_Custom_Status {
 
 		switch( $slug ) {
 			case 'publish':
-			case 'draft':
 			case 'private':
 			case 'future':
-			case 'pending':
 			case 'new':
 			case 'inherit':
 			case 'auto-draft':
@@ -724,8 +722,11 @@ class EF_Custom_Status {
 	function ajax_inline_save_status() {
 		global $edit_flow;
 		
-		if ( !wp_verify_nonce( $_POST['inline_edit'], 'custom-status-inline-edit-nonce' ) || !current_user_can( 'manage_options') )
-			wp_die( $this->module->messages['nonce-failed'] );
+		if ( !wp_verify_nonce( $_POST['inline_edit'], 'custom-status-inline-edit-nonce' ) )
+			die( $this->module->messages['nonce-failed'] );
+			
+		if ( !current_user_can( 'manage_options') )
+			die( $this->module->messages['invalid-permissions'] );		
 		
 		$term_id = (int) $_POST['status_id'];
 		$status_name = esc_html( trim( $_POST['name'] ) );
@@ -985,6 +986,10 @@ class EF_Custom_Status {
 		$term = $this->get_custom_status( $term_id );		
 		if( !$term )
  			wp_die( __( 'Status does not exist.', 'edit-flow' ) );
+
+		// Don't allow deletion of default status
+		if ( $term->slug == $this->get_default_custom_status()->slug )
+			wp_die( __( 'Cannot delete default status.', 'edit-flow' ) );
 		
 		$return = $this->delete_custom_status( $term_id );
 		if ( is_wp_error( $return ) )
@@ -1073,8 +1078,8 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		global $edit_flow;
 
 		$columns = array(
-			'custom_status'        => __( 'Custom Status', 'edit flow' ),
-			'description' => __( 'Description', 'edit flow' ),
+			'custom_status'		=> __( 'Custom Status', 'edit flow' ),
+			'description' 		=> __( 'Description', 'edit flow' ),
 		);
 		
 		$post_types = get_post_types( '', 'objects' );
@@ -1097,7 +1102,11 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 			if ( false === $post_count ) {
 				$posts = wp_count_posts( $column_name );
 				$post_status = $item->slug;
-				$post_count = $posts->$post_status;
+				// To avoid error notices when changing the name of non-standard statuses
+				if ( isset( $posts->$post_status ) )
+					$post_count = $posts->$post_status;
+				else
+					$post_count = 0;
 				// @todo Cachify this
 				//wp_cache_set( "ef_custom_status_count_$column_name", $post_count );
 			}
@@ -1128,9 +1137,10 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		if ( $item->slug != $this->default_status )
 			$actions['make_default'] = sprintf( '<a href="%1$s">' . __( 'Make&nbsp;Default', 'edit-flow' ) . '</a>', $edit_flow->custom_status->make_status_default_link( $item->term_id ) );
 		else
-			$actions['make_default'] = __( 'Default', 'edit-flow' );
+			$actions['make_default'] = __( 'Default Status', 'edit-flow' );
 		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';
-		if ( !$edit_flow->custom_status->is_restricted_status( $item->slug ) )
+		
+		if ( $item->slug != $this->default_status )
 			$actions['delete delete-status'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->custom_status->delete_status_link( $item->term_id ) );
 		
 		$output .= $this->row_actions( $actions, true );
