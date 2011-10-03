@@ -682,42 +682,39 @@ class EF_Custom_Status {
 				</div>
 			</div>
 			<div id="col-left">
-				<div class="col-wrap">
-					<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'add' ) : ?>
-						<h3><?php _e( 'Add Custom Status', 'edit-flow' ); ?></h3>
-						<form class="add:the-list:" action="<?php echo esc_url( add_query_arg( array( 'configure' => $this->module->slug, 'action' => 'add' ), EDIT_FLOW_SETTINGS_PAGE ) ); ?>" method="post" id="addstatus" name="addstatus">
-						<div class="form-field form-required">
-							<label for="status_name"><?php _e( 'Name', 'edit-flow' ); ?></label>
-							<input type="text" aria-required="true" size="20" maxlength="20" id="status_name" name="status_name" value="<?php if ( !empty( $_POST['status_name'] ) ) esc_attr_e( $_POST['status_name'] ) ?>" />
-							<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the status. (Max: 20 characters)', 'edit-flow' ) ); ?>
-						</div>
-						<div class="form-field">
-							<label for="status_description"><?php _e( 'Description', 'edit-flow' ); ?></label>
-							<textarea cols="40" rows="5" id="status_description" name="status_description"><?php if ( !empty( $_POST['status_description'] ) ) echo esc_html( $_POST['status_description'] ) ?></textarea>
-							<?php $edit_flow->settings->helper_print_error_or_description( 'description', __( 'The description is primarily for administrative use, to give you some context on what the custom status is to be used for.', 'edit-flow' ) ); ?>
-						</div>
-						<input type="hidden" name="custom-status-add-nonce" id="custom-status-add-nonce" value="<?php echo wp_create_nonce('custom-status-add-nonce') ?>" />
-						<p class="submit">
-							<?php submit_button( __( 'Add New Status', 'edit-flow' ), 'primary', 'submit', false ); ?>
-							<a class="cancel-settings-link" href="<?php echo esc_url( add_query_arg( 'configure', $this->module->slug, EDIT_FLOW_SETTINGS_PAGE ) ); ?>"><?php _e( 'Cancel', 'edit-flow' ); ?></a>
-						</p>
-						</form>
-					<?php else: ?>
-						<h3><?php _e( 'Custom Status Settings', 'edit-flow' ); ?></h3>
-					<form class="basic-settings" action="<?php echo esc_url( add_query_arg( 'configure', $this->module->slug, EDIT_FLOW_SETTINGS_PAGE ) ); ?>" method="post">
-						<?php settings_fields( $this->module->options_group_name ); ?>
-						<?php do_settings_sections( $this->module->options_group_name ); ?>	
-						<?php
-							echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';
-						?>
-						<p class="submit">
-							<?php submit_button( null, 'primary', 'submit', false ); ?>&nbsp;&nbsp;
-							<a class="add-new-status button-secondary button-inline-block" href="<?php echo esc_url( add_query_arg( array( 'configure' => $this->module->slug, 'action' => 'add' ), EDIT_FLOW_SETTINGS_PAGE ) ); ?>"><?php _e( 'Add New Status', 'edit-flow' ); ?></a>
-							<a class="cancel-settings-link" href="<?php echo esc_url( EDIT_FLOW_SETTINGS_PAGE ); ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a>
-						</p>
+				<div class="col-wrap">	
+				<div class="form-wrap">
+				<h3 class="nav-tab-wrapper">
+					<a href="<?php echo esc_url( add_query_arg( array( 'configure' => $this->module->slug ), EDIT_FLOW_SETTINGS_PAGE ) ); ?>" class="nav-tab<?php if ( !isset( $_GET['action'] ) || $_GET['action'] != 'change-options' ) echo ' nav-tab-active'; ?>"><?php _e( 'Add New', 'edit-flow' ); ?></a>
+					<a href="<?php echo esc_url( add_query_arg( array( 'configure' => $this->module->slug, 'action' => 'change-options' ), EDIT_FLOW_SETTINGS_PAGE ) ); ?>" class="nav-tab<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'change-options' ) echo ' nav-tab-active'; ?>"><?php _e( 'Options', 'edit-flow' ); ?></a>
+				</h3>
+				<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'change-options' ): ?>
+				<form class="basic-settings" action="<?php echo esc_url( add_query_arg( array( 'configure' => $this->module->slug, 'action' => 'change-options' ), EDIT_FLOW_SETTINGS_PAGE ) ); ?>" method="post">
+					<?php settings_fields( $this->module->options_group_name ); ?>
+					<?php do_settings_sections( $this->module->options_group_name ); ?>	
+					<?php echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />'; ?>
+					<?php submit_button(); ?>
+				</form>
+				<?php else: ?>
+				<?php /** Custom form for adding a new Custom Status term **/ ?>
+					<form class="add:the-list:" action="<?php echo esc_url( add_query_arg( array( 'configure' => $this->module->slug ), EDIT_FLOW_SETTINGS_PAGE ) ); ?>" method="post" id="addstatus" name="addstatus">
+					<div class="form-field form-required">
+						<label for="status_name"><?php _e( 'Name', 'edit-flow' ); ?></label>
+						<input type="text" aria-required="true" size="20" maxlength="20" id="status_name" name="status_name" value="<?php if ( !empty( $_POST['status_name'] ) ) esc_attr_e( $_POST['status_name'] ) ?>" />
+						<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the status. (Max: 20 characters)', 'edit-flow' ) ); ?>
+					</div>
+					<div class="form-field">
+						<label for="status_description"><?php _e( 'Description', 'edit-flow' ); ?></label>
+						<textarea cols="40" rows="5" id="status_description" name="status_description"><?php if ( !empty( $_POST['status_description'] ) ) echo esc_html( $_POST['status_description'] ) ?></textarea>
+						<?php $edit_flow->settings->helper_print_error_or_description( 'description', __( 'The description is primarily for administrative use, to give you some context on what the custom status is to be used for.', 'edit-flow' ) ); ?>
+					</div>
+					<?php wp_nonce_field( 'custom-status-add-nonce' ); ?>
+					<?php echo '<input id="action" name="action" type="hidden" value="add-new" />'; ?>					
+					<?php submit_button( __( 'Add New Status', 'edit-flow' ) ); ?>
 					</form>
-					<?php endif; ?>
+				<?php endif; ?>
 				</div>
+			</div>
 			</div>
 		
 			<?php $wp_list_table->inline_edit(); ?>
@@ -729,9 +726,6 @@ class EF_Custom_Status {
 		
 		if ( !wp_verify_nonce( $_POST['inline_edit'], 'custom-status-inline-edit-nonce' ) || !current_user_can( 'manage_options') )
 			wp_die( $this->module->messages['nonce-failed'] );
-	
-		if ( !$_POST['name'] || !$_POST['status_id'] )
-			die('-1');
 		
 		$term_id = (int) $_POST['status_id'];
 		$status_name = esc_html( trim( $_POST['name'] ) );
@@ -739,7 +733,7 @@ class EF_Custom_Status {
 		$status_description = esc_html( $_POST['description'] );		
 		
 		// Check if name field was filled in
-		if ( !$status_name ) {
+		if ( empty( $status_name ) ) {
 			$change_error = new WP_Error( 'invalid', __( 'Please enter a name for the status.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );
 		}
@@ -857,11 +851,11 @@ class EF_Custom_Status {
 	 */
 	function handle_add_custom_status() {
 		
-		if ( !isset( $_POST['submit'], $_GET['configure'], $_GET['action'] ) 
-			|| $_GET['configure'] != 'custom-status' || $_GET['action'] != 'add' )
+		if ( !isset( $_POST['submit'], $_GET['configure'], $_POST['action'] ) 
+			|| $_GET['configure'] != 'custom-status' || $_POST['action'] != 'add-new' )
 				return; 
 				
-		if ( !wp_verify_nonce( $_POST['custom-status-add-nonce'], 'custom-status-add-nonce' ) )
+		if ( !wp_verify_nonce( $_POST['_wpnonce'], 'custom-status-add-nonce' ) )
 			wp_die( $this->module->messages['nonce-failed'] );
 			
 		$status_name = esc_html( trim( $_POST['status_name'] ) );
@@ -871,7 +865,7 @@ class EF_Custom_Status {
 		// Sucky WP form validation
 		$_REQUEST['form-errors'] = array();	
 		// Check if name field was filled in
-		if( ! $status_name || empty( $status_name ) )
+		if( empty( $status_name ) )
 			$_REQUEST['form-errors']['name'] = __( 'Please enter a name for the status', 'edit-flow' );
 			
 		// Check that the name isn't numeric
