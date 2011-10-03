@@ -168,12 +168,12 @@ class EF_Editorial_Metadata {
 			$edit_flow->helpers->enqueue_datepicker_resources();
 
 			// Now add the rest of the metabox CSS
-			wp_enqueue_style('edit_flow-editorial_metadata-styles', EDIT_FLOW_URL . 'css/ef_editorial_metadata.css', false, EDIT_FLOW_VERSION, 'all');
+			wp_enqueue_style('edit_flow-editorial_metadata-styles', EDIT_FLOW_URL . 'css/editorial_metadata.css', false, EDIT_FLOW_VERSION, 'all');
 		}
 		
 		// Either editing the taxonomy or a specific term
 		if ( $current_screen->id == $this->screen_id ) {
-			wp_enqueue_script( 'edit_flow-editorial_metadata', EDIT_FLOW_URL . 'js/ef_editorial_metadata.js', array( 'jquery',  ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit_flow-editorial_metadata', EDIT_FLOW_URL . 'js/editorial_metadata.js', array( 'jquery',  ), EDIT_FLOW_VERSION, true );
 		}
 	}
 	
