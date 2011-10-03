@@ -35,6 +35,7 @@ class EF_Editorial_Metadata {
 	
 	var $metadata_slug_cache;
 
+	const position_key = 'position';
 	const description = 'desc';
 	const metadata_type_key = 'type';
 	
@@ -84,11 +85,12 @@ class EF_Editorial_Metadata {
 		// Register our settings
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );		
 		
-		// Actions relevant to the configuration view (adding or editing existing Editorial Metadata)
-		add_action( 'admin_init', array( &$this, 'handle_add_editorial_metadata' ) );		
+		// Actions relevant to the configuration view (adding, editing, or sorting existing Editorial Metadata)
+		add_action( 'admin_init', array( &$this, 'handle_add_editorial_metadata' ) );
 		add_action( 'admin_init', array( &$this, 'handle_edit_editorial_metadata' ) );
 		add_action( 'admin_init', array( &$this, 'handle_delete_editorial_metadata' ) );
-		add_action( 'wp_ajax_inline_save_term', array( &$this, 'handle_ajax_inline_save_term' ) );					
+		add_action( 'wp_ajax_inline_save_term', array( &$this, 'handle_ajax_inline_save_term' ) );
+		add_action( 'wp_ajax_update_term_positions', array( &$this, 'handle_ajax_update_term_positions' ) );
 		
 		add_action( 'add_meta_boxes', array( &$this, 'handle_post_metaboxes' ) );
 		add_action( 'save_post', array( &$this, 'save_meta_box' ), 10, 2 );
@@ -105,7 +107,7 @@ class EF_Editorial_Metadata {
 	 * @param string $metadata_type Metadata type
 	 * @return string $encoded Type and description encoded as JSON
 	 */
-	function get_encoded_description( $metadata_description, $metadata_type ) {
+	function get_encoded_description( $metadata_position, $metadata_description, $metadata_type ) {
 		// Damn pesky carriage returns...
 		$metadata_description = str_replace("\r\n", "\n", $metadata_description);
 		$metadata_description = str_replace("\r", "\n", $metadata_description);
@@ -116,10 +118,12 @@ class EF_Editorial_Metadata {
 		// Escape any special characters (', ", <, >, &)
 		$metadata_description = esc_attr( $metadata_description );
 		$metadata_description = htmlentities( $metadata_description, ENT_QUOTES );
-		$encoded = json_encode( array( self::description        => $metadata_description,
-		                           self::metadata_type_key  => $metadata_type,
-		                          )
-		                   );
+		$encoded = json_encode( array(
+				self::position_key 		 => (int)$metadata_position,
+				self::description		 => $metadata_description,
+				self::metadata_type_key  => $metadata_type,
+				)
+			);
 		
 		return $encoded;
 	}
@@ -180,8 +184,10 @@ class EF_Editorial_Metadata {
 		
 		// Load Javascript specific to the editorial metadata configuration view
 		if ( $pagenow == 'options-general.php' && isset( $_GET['page'], $_GET['configure'] )
-		 	&& $_GET['page'] == 'edit-flow' && $_GET['configure'] == 'editorial-metadata' )
-			wp_enqueue_script( 'edit-flow-editorial-metadata-configure', EDIT_FLOW_URL . 'js/editorial_metadata_configure.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
+		 	&& $_GET['page'] == 'edit-flow' && $_GET['configure'] == 'editorial-metadata' ) {
+			wp_enqueue_script( 'jquery-ui-sortable' );			
+			wp_enqueue_script( 'edit-flow-editorial-metadata-configure', EDIT_FLOW_URL . 'js/editorial_metadata_configure.js', array( 'jquery', 'jquery-ui-sortable' ), EDIT_FLOW_VERSION, true );
+		}
 	}
 	
 	/**
@@ -214,8 +220,12 @@ class EF_Editorial_Metadata {
 		$string_to_unencode = stripslashes( htmlspecialchars_decode( $string_to_unencode ) );
 		$unencoded_array = json_decode( $string_to_unencode, true );
 		if ( is_array( $unencoded_array ) ) {
-			$unencoded_array[$key] = html_entity_decode( $unencoded_array[$key], ENT_QUOTES );			
-			return $unencoded_array[$key];
+			if ( isset( $unencoded_array[$key] ) ) {
+				$unencoded_array[$key] = html_entity_decode( $unencoded_array[$key], ENT_QUOTES );
+				return $unencoded_array[$key];
+			} else {
+				return '';
+			}
 		} else {
 			return $string_to_unencode;
 		}
@@ -443,12 +453,36 @@ class EF_Editorial_Metadata {
 		return get_metadata( 'post', $post_id, $postmeta_key, true );
 	}
 	
+	/**
+	 * Get all of the editorial metadata terms as objects and sort by position
+	 * @todo Figure out what we should do with the filter...
+	 * 
+	 * @return array $ordered_terms The terms as they should be ordered
+	 */ 
 	function get_editorial_metadata_terms() {
-		return get_terms( $this->metadata_taxonomy, array(
+		$args = array(
 		        'orderby'    => apply_filters( 'ef_editorial_metadata_term_order', 'name' ),
 		        'hide_empty' => false
-			)
-		);
+			);
+		$terms = get_terms( $this->metadata_taxonomy, $args );
+		$ordered_terms = array();
+		$hold_to_end = array();
+		// Order the terms
+		foreach ( $terms as $key => $term ) {
+			// Only add the term to the ordered array if it has a set position and doesn't conflict with another key
+			// Otherwise, hold it for later
+			$position = $this->get_unencoded_value( $term->description, self::position_key );
+			if ( $position && !array_key_exists( $position, $ordered_terms ) )
+				$ordered_terms[(int)$position] = $term;
+			else 
+				$hold_to_end[] = $term;
+		}
+		// Append all of the terms that didn't have an existing position
+		if ( count( $hold_to_end ) )
+			array_push( $ordered_terms, $hold_to_end );
+		// Sort the items numerically by key
+		ksort( $ordered_terms, SORT_NUMERIC );
+		return $ordered_terms;
 	}
 	
 	/**
@@ -486,16 +520,17 @@ class EF_Editorial_Metadata {
 		$old_term = get_term_by( 'id', $term_id, $this->metadata_taxonomy );
 		if ( $old_term )
 			$new_args = array(
+				'position' => $this->get_unencoded_value( $old_term->description, self::position_key ),
 				'name' => $old_term->name,
-				'description' => $this->get_unencoded_value( $old_term->description, 'desc' ),
-				'type' => $this->get_unencoded_value( $old_term->description, 'type' ),				
+				'description' => $this->get_unencoded_value( $old_term->description, self::description ),
+				'type' => $this->get_unencoded_value( $old_term->description, 'type' ),
 			);
 		$new_args = array_merge( $new_args, $args );
 		if ( $old_term )
 			$new_args['slug'] = sanitize_title( $new_args['name'] );
 		// These fields have to be encoded into one if they exist
-		if ( isset( $new_args['description'] ) || isset( $new_args['type'] ) ) {
-			$new_args['description'] = $this->get_encoded_description( $new_args['description'], $new_args['type'] );
+		if ( isset( $new_args['position'] ) || isset( $new_args['description'] ) || isset( $new_args['type'] ) ) {
+			$new_args['description'] = $this->get_encoded_description( $new_args['position'], $new_args['description'], $new_args['type'] );
 		}
 		$updated_term = wp_update_term( $term_id, $this->metadata_taxonomy, $new_args );
 		$updated_term = get_term_by( 'id', $updated_term['term_id'], $this->metadata_taxonomy );
@@ -504,11 +539,14 @@ class EF_Editorial_Metadata {
 	
 	/**
 	 * Insert a new editorial metadata term
+	 * @todo Handle conflicts with existing terms at that position (if relevant)
 	 *
 	 * @since 0.7
 	 */
 	function insert_editorial_metadata_term( $args ) {
+		$default_position = count( $this->get_editorial_metadata_terms() ) + 1;
 		$defaults = array(
+			'position' => $default_position,
 			'name' => '',
 			'slug' => '',
 			'description' => '',
@@ -518,7 +556,7 @@ class EF_Editorial_Metadata {
 		$term_name = $args['name'];
 		unset( $args['name'] );
 		if ( isset( $args['description'] ) || isset( $args['type'] ) )
-			$args['description'] = $this->get_encoded_description( $args['description'], $args['type'] );
+			$args['description'] = $this->get_encoded_description( $args['position'], $args['description'], $args['type'] );
 		$inserted_term = wp_insert_term( $term_name, $this->metadata_taxonomy, $args );
 		return $inserted_term;
 	}
@@ -785,6 +823,28 @@ class EF_Editorial_Metadata {
 	}
 	
 	/**
+	 * Handle the ajax request to update all of the term positions
+	 */
+	function handle_ajax_update_term_positions() {
+		
+		// @todo nonce check, permissions check
+		
+		if ( !isset( $_POST['term_positions'] ) || !is_array( $_POST['term_positions'] ) )
+			die( '-1' );
+			
+		foreach ( $_POST['term_positions'] as $position => $term_id ) {
+			
+			// Have to add 1 to the position because the index started with zero
+			$args = array(
+				'position' => (int)$position + 1,
+			);
+			$return = $this->update_editorial_metadata_term( (int)$term_id, $args );
+			// @todo check that this was a valid return
+		}
+		die( '1' );	
+	}
+	
+	/**
 	 * Handles a request to delete an editorial metadata term
 	 */
 	function handle_delete_editorial_metadata() {
@@ -1031,7 +1091,9 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		$this->tax = get_taxonomy( $this->taxonomy );
 		
 		$columns = $this->get_columns();
-		$hidden = array();
+		$hidden = array(
+			'position',
+		);
 		$sortable = array();
 		
 		$this->_column_headers = array( $columns, $hidden, $sortable );		
@@ -1047,10 +1109,8 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 	}
 
 	function prepare_items() {
-		$args = array(
-			'hide_empty' => false,
-		);
-		$this->items = get_terms( $this->taxonomy, $args );
+		global $edit_flow;
+		$this->items = $edit_flow->editorial_metadata->get_editorial_metadata_terms();
 
 		$this->set_pagination_args( array(
 			'total_items' => count( $this->items ),
@@ -1075,6 +1135,7 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 	function get_columns() {
 		global $edit_flow;
 		$columns = array(
+			'position'	  => __( 'Position', 'edit-flow' ),
 			'name'        => __( 'Editorial Metadata', 'edit-flow' ),
 			'type'		  => __( 'Metadata Type', 'edit-flow' ),
 			'description' => __( 'Description' ),
@@ -1108,6 +1169,18 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 	function column_default( $item, $column_name ) {
 
 		
+	}
+	
+	/**
+	 * Hidden column for storing the term position
+	 *
+	 * @since 0.7
+	 *
+	 * @param object $item Editorial Metadata term as an object
+	 */
+	function column_position( $item ) {
+		global $edit_flow;
+		return esc_html( $edit_flow->editorial_metadata->get_unencoded_value( $item->description, 'position' ) );
 	}
 
 	/**

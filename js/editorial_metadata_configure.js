@@ -122,4 +122,26 @@ jQuery(document).ready(function(){
 			return false;
 	});
 	
+	jQuery( "#the-list" ).sortable({
+		update: function(event, ui) {
+			// Reset the position indicies for all terms
+			var terms = new Array();
+			jQuery('#the-list tr').each(function(index, value){
+				var term_id = jQuery(this).attr('id').replace('term-','');				
+				terms[index] = term_id;				
+				jQuery( 'td.position', this ).html( index + 1 );
+			});
+			
+			params = {
+				action: 'update_term_positions',
+				term_positions: terms,
+			};
+			jQuery.post( ajaxurl, params, function( retval ){
+				// @todo Should we do something useful with the return?
+				console.log( retval );
+			});
+		},
+	});
+	jQuery( "#the-list" ).disableSelection();
+	
 });
