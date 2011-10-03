@@ -689,18 +689,12 @@ class EF_Custom_Status {
 						<div class="form-field form-required">
 							<label for="status_name"><?php _e( 'Name', 'edit-flow' ); ?></label>
 							<input type="text" aria-required="true" size="20" maxlength="20" id="status_name" name="status_name" value="<?php if ( !empty( $_POST['status_name'] ) ) esc_attr_e( $_POST['status_name'] ) ?>" />
-							<?php if ( isset( $_REQUEST['form-errors']['name'] ) ): ?>
-							<div class="form-error">
-							<p><?php echo $_REQUEST['form-errors']['name']; ?></p>	
-							</div>
-							<?php else: ?>
-							<p class="description"><?php _e('The name is used to identify the status. (Max: 20 characters)', 'edit-flow') ?></p>
-							<?php endif; ?>
+							<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the status. (Max: 20 characters)', 'edit-flow' ) ); ?>
 						</div>
 						<div class="form-field">
 							<label for="status_description"><?php _e( 'Description', 'edit-flow' ); ?></label>
 							<textarea cols="40" rows="5" id="status_description" name="status_description"><?php if ( !empty( $_POST['status_description'] ) ) echo esc_html( $_POST['status_description'] ) ?></textarea>
- 							<p class="description"><?php _e( 'The description is primarily for administrative use, to give you some context on what the custom status is to be used for.', 'edit-flow' ); ?></p>
+							<?php $edit_flow->settings->helper_print_error_or_description( 'description', __( 'The description is primarily for administrative use, to give you some context on what the custom status is to be used for.', 'edit-flow' ) ); ?>
 						</div>
 						<input type="hidden" name="custom-status-add-nonce" id="custom-status-add-nonce" value="<?php echo wp_create_nonce('custom-status-add-nonce') ?>" />
 						<p class="submit">

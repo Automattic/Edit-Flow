@@ -237,6 +237,24 @@ class EF_Settings {
 	}
 	
 	/**
+	 * Given a form field and a description, prints either the error associated with the field or the description.
+	 *
+	 * @since 0.7
+	 *
+	 * @param string $field The form field for which to check for an error
+	 * @param string $description Unlocalized string to display if there was no error with the given field
+	 */
+	function helper_print_error_or_description( $field, $description ) {
+		if ( isset( $_REQUEST['form-errors'][$field] ) ): ?>
+			<div class="form-error">
+				<p><?php esc_html_e( $_REQUEST['form-errors'][$field] ); ?></p>	
+			</div>
+		<?php else: ?>
+			<p class="description"><?php esc_html_e( $description ); ?></p>
+		<?php endif;
+	}	
+	
+	/**
 	 * Generate an option field to turn post type support on/off for a given module
 	 *
 	 * @param object $module Edit Flow module we're generating the option field for
