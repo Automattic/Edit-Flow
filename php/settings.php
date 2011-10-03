@@ -249,10 +249,10 @@ class EF_Settings {
 	function helper_print_error_or_description( $field, $description ) {
 		if ( isset( $_REQUEST['form-errors'][$field] ) ): ?>
 			<div class="form-error">
-				<p><?php esc_html_e( $_REQUEST['form-errors'][$field] ); ?></p>	
+				<p><?php echo esc_html( $_REQUEST['form-errors'][$field] ); ?></p>	
 			</div>
 		<?php else: ?>
-			<p class="description"><?php esc_html_e( $description ); ?></p>
+			<p class="description"><?php echo esc_html( $description ); ?></p>
 		<?php endif;
 	}	
 	
