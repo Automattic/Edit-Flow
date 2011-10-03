@@ -765,9 +765,9 @@ class EF_Editorial_Metadata {
 			die( $change_error->get_error_message() );			
 		}
 		
-		// get status_name & status_description
+		// Prepare the term name and description for saving
 		$args = array(
-			'name' => $metadata_name,			
+			'name' => $metadata_name,
 			'description' => $metadata_description,
 		);
 		$return = $this->update_editorial_metadata_term( $existing_term->term_id, $args );
