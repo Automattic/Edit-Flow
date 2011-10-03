@@ -169,6 +169,7 @@ class EF_Settings {
 			<h2><?php _e('Edit Flow', 'edit-flow') ?></h2>
 			<?php endif; ?>
 			
+			<?php if ( empty( $_GET['message'] ) && empty( $_GET['error'] ) && empty( $_REQUEST['error'] ) ): ?>
 			<div class="explanation">
 				<?php if ( $current_module->short_description ): ?>
 				<p><?php echo $current_module->short_description; ?></p>
@@ -177,6 +178,7 @@ class EF_Settings {
 				<p><?php echo $current_module->extended_description; ?></p>
 				<?php endif; ?>				
 			</div>
+			<?php endif; ?>
 		<?php
 	}
 	
