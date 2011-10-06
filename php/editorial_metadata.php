@@ -522,12 +522,11 @@ class EF_Editorial_Metadata {
 			$new_args = array(
 				'position' => $this->get_unencoded_value( $old_term->description, self::position_key ),
 				'name' => $old_term->name,
+				'slug' => $old_term->slug,
 				'description' => $this->get_unencoded_value( $old_term->description, self::description ),
 				'type' => $this->get_unencoded_value( $old_term->description, 'type' ),
 			);
 		$new_args = array_merge( $new_args, $args );
-		if ( $old_term )
-			$new_args['slug'] = sanitize_title( $new_args['name'] );
 		// These fields have to be encoded into one if they exist
 		if ( isset( $new_args['position'] ) || isset( $new_args['description'] ) || isset( $new_args['type'] ) ) {
 			$new_args['description'] = $this->get_encoded_description( $new_args['position'], $new_args['description'], $new_args['type'] );
