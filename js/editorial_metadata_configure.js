@@ -125,14 +125,17 @@ jQuery(document).ready(function(){
 	jQuery( "#the-list" ).sortable({
 		update: function(event, ui) {
 			// Reset the position indicies for all terms
+			jQuery('#the-list tr').removeClass('alternate');
 			var terms = new Array();
 			jQuery('#the-list tr').each(function(index, value){
-				var term_id = jQuery(this).attr('id').replace('term-','');				
-				terms[index] = term_id;				
+				var term_id = jQuery(this).attr('id').replace('term-','');
+				terms[index] = term_id;
 				jQuery( 'td.position', this ).html( index + 1 );
+				// Update the WP core design for alternating rows
+				if ( index%2 == 0 )
+					jQuery(this).addClass('alternate');
 			});
-			
-			params = {
+			var params = {
 				action: 'update_term_positions',
 				term_positions: terms,
 			};
