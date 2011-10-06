@@ -123,11 +123,12 @@ jQuery(document).ready(function(){
 	});
 	
 	jQuery( "#the-list" ).sortable({
+		items: 'tr.term-static',
 		update: function(event, ui) {
 			// Reset the position indicies for all terms
 			jQuery('#the-list tr').removeClass('alternate');
 			var terms = new Array();
-			jQuery('#the-list tr').each(function(index, value){
+			jQuery('#the-list tr.term-static').each(function(index, value){
 				var term_id = jQuery(this).attr('id').replace('term-','');
 				terms[index] = term_id;
 				jQuery( 'td.position', this ).html( index + 1 );
@@ -145,6 +146,6 @@ jQuery(document).ready(function(){
 			});
 		},
 	});
-	jQuery( "#the-list" ).disableSelection();
+	jQuery( "#the-list tr.term-static" ).disableSelection();
 	
 });
