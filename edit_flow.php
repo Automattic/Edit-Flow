@@ -337,9 +337,10 @@ class edit_flow {
 	function register_scripts_and_styles() {
 		wp_register_script( 'jquery-listfilterizer', EDIT_FLOW_URL . 'js/jquery.listfilterizer.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 		wp_register_style( 'jquery-listfilterizer', EDIT_FLOW_URL . 'css/jquery.listfilterizer.css', false, EDIT_FLOW_VERSION, 'all' );
-		
-		global $wp_scripts;
+
+		// @compat 3.3
 		// Register jQuery datepicker plugin if it doesn't already exist. Datepicker plugin was added in WordPress 3.3
+		global $wp_scripts;
 		if ( !isset( $wp_scripts->registered['jquery-ui-datepicker'] ) )
 			wp_register_script( 'jquery-ui-datepicker', EDIT_FLOW_URL . 'js/lib/jquery.ui.datepicker.min.js', array( 'jquery', 'jquery-ui-core'), '1.8.16', true );		
 	}
