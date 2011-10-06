@@ -89,6 +89,11 @@
 	display: none;
 }
 
+/* Display drag handles for the cursor on sortable list tables for our custom taxonomies */
+.edit-flow-admin table.wp-list-table tbody.ui-sortable td {
+	cursor: move;
+}
+
 /* Display disabled inputs with a very light gray background */
 .edit-flow-admin input[disabled] {
 	background-color: #eee;
