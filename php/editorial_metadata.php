@@ -477,11 +477,11 @@ class EF_Editorial_Metadata {
 			else 
 				$hold_to_end[] = $term;
 		}
-		// Append all of the terms that didn't have an existing position
-		if ( count( $hold_to_end ) )
-			array_push( $ordered_terms, $hold_to_end );
 		// Sort the items numerically by key
 		ksort( $ordered_terms, SORT_NUMERIC );
+		// Append all of the terms that didn't have an existing position
+		foreach( $hold_to_end as $unpositioned_term )
+			$ordered_terms[] = $unpositioned_term;
 		return $ordered_terms;
 	}
 	
@@ -1188,9 +1188,8 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 	 */
 	function column_name( $item ) {
 		global $edit_flow;
-		
 		$item_edit_link = esc_url( $edit_flow->editorial_metadata->get_edit_term_link( $item ) );
-		$item_delete_link = esc_url( $edit_flow->editorial_metadata->get_delete_term_link( $item ) );		
+		$item_delete_link = esc_url( $edit_flow->editorial_metadata->get_delete_term_link( $item ) );
 		
 		$out = '<strong><a class="row-title" href="' . $item_edit_link . '">' . esc_html( $item->name ) . '</a></strong>';
 		
