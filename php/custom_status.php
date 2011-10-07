@@ -1078,8 +1078,8 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		global $edit_flow;
 
 		$columns = array(
-			'custom_status'		=> __( 'Custom Status', 'edit flow' ),
-			'description' 		=> __( 'Description', 'edit flow' ),
+			'custom_status'		=> __( 'Custom Status', 'edit-flow' ),
+			'description' 		=> __( 'Description', 'edit-flow' ),
 		);
 		
 		$post_types = get_post_types( '', 'objects' );
