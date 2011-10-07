@@ -90,8 +90,22 @@
 }
 
 /* Display drag handles for the cursor on sortable list tables for our custom taxonomies */
-.edit-flow-admin table.wp-list-table tbody.ui-sortable td {
+.edit-flow-admin table.wp-list-table tbody.ui-sortable tr {
 	cursor: move;
+}
+
+.edit-flow-admin table.wp-list-table tbody.ui-sortable tr.ui-sortable-helper td,
+.edit-flow-admin table.wp-list-table tbody.ui-sortable tr.ui-sortable-helper .row-actions {
+	visibility: hidden;
+}
+
+.edit-flow-admin table.wp-list-table tbody.ui-sortable tr.ui-sortable-helper {
+	border: 1px solid #DFDFDF;
+}
+
+.edit-flow-admin table.wp-list-table tbody.ui-sortable tr.ui-sortable-helper td.column-name {
+	visibility: visible;
+	border-bottom: none;
 }
 
 /* Display disabled inputs with a very light gray background */

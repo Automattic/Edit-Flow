@@ -122,9 +122,13 @@ jQuery(document).ready(function(){
 			return false;
 	});
 	
+	/**
+	 * Instantiate the drag and drop sorting functionality
+	 */
 	jQuery( "#the-list" ).sortable({
 		items: 'tr.term-static',
 		update: function(event, ui) {
+			var affected_item = ui.item;
 			// Reset the position indicies for all terms
 			jQuery('#the-list tr').removeClass('alternate');
 			var terms = new Array();
@@ -136,13 +140,23 @@ jQuery(document).ready(function(){
 				if ( index%2 == 0 )
 					jQuery(this).addClass('alternate');
 			});
+			// Prepare the POST
 			var params = {
 				action: 'update_term_positions',
 				term_positions: terms,
+				editorial_metadata_sortable_nonce: jQuery('#editorial-metadata-sortable').val(),
 			};
+			// Inform WordPress of our updated positions
 			jQuery.post( ajaxurl, params, function( retval ){
-				// @todo Should we do something useful with the return?
-				console.log( retval );
+				jQuery('.edit-flow-admin .message').remove();
+				jQuery('.edit-flow-admin .explanation').remove();
+				// If there's a success message, print it. Otherwise we assume we received an error message
+				if ( retval.status == 'success' ) {
+					var message = '<div class="updated message"><p>' + retval.message + '</p></div>';
+				} else {
+					var message = '<div class="error message"><p>' + retval.message + '</p></div>';
+				}
+				jQuery('.edit-flow-admin h2').after( message );
 			});
 		},
 	});

@@ -62,10 +62,11 @@ class EF_Editorial_Metadata {
 				),
 			),
 			'messages' => array(
-				'term-added' => __( "Metadata term added.", 'edit-flow' ),			
+				'term-added' => __( "Metadata term added.", 'edit-flow' ),
 				'term-updated' => __( "Metadata term updated.", 'edit-flow' ),
 				'term-missing' => __( "Metadata term doesn't exist.", 'edit-flow' ),
 				'term-deleted' => __( "Metadata term deleted.", 'edit-flow' ),
+				'term-position-updated' => __( "Term order updated", 'edit-flow' ),
 			),
 			'configure_page_cb' => 'print_configure_view',
 		);
@@ -759,7 +760,7 @@ class EF_Editorial_Metadata {
 			die( $this->module->messages['nonce-failed'] );
 			
 		if ( !current_user_can( 'manage_options') )
-			die( $this->module->messages['invalid-permissions'] );		
+			die( $this->module->messages['invalid-permissions'] );
 		
 		$term_id = (int) $_POST['term_id'];
 		if ( !$existing_term = $this->get_editorial_metadata_term( $term_id ) )
@@ -823,13 +824,20 @@ class EF_Editorial_Metadata {
 	
 	/**
 	 * Handle the ajax request to update all of the term positions
+	 *
+	 * @since 0.7
 	 */
 	function handle_ajax_update_term_positions() {
+		global $edit_flow;
 		
-		// @todo nonce check, permissions check
+		if ( !wp_verify_nonce( $_POST['editorial_metadata_sortable_nonce'], 'editorial-metadata-sortable' ) )
+			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
+		
+		if ( !current_user_can( 'manage_options') )
+			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
 		
 		if ( !isset( $_POST['term_positions'] ) || !is_array( $_POST['term_positions'] ) )
-			die( '-1' );
+			$edit_flow->helpers->print_ajax_response( 'error', __( 'Terms not set.', 'edit-flow' ) );
 			
 		foreach ( $_POST['term_positions'] as $position => $term_id ) {
 			
@@ -840,7 +848,7 @@ class EF_Editorial_Metadata {
 			$return = $this->update_editorial_metadata_term( (int)$term_id, $args );
 			// @todo check that this was a valid return
 		}
-		die( '1' );	
+		$edit_flow->helpers->print_ajax_response( 'success', $this->module->messages['term-position-updated'] );	
 	}
 	
 	/**
@@ -933,6 +941,7 @@ class EF_Editorial_Metadata {
 		<div class="col-wrap">
 		<form id="posts-filter" action="" method="post">
 			<?php $wp_list_table->display(); ?>
+			<?php wp_nonce_field( 'editorial-metadata-sortable', 'editorial-metadata-sortable' ); ?>
 		</form>
 
 		</div>

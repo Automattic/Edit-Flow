@@ -188,5 +188,18 @@ class EF_Helpers {
 
 		return $post_type;
 	}
+	
+	/**
+	 * Take a status and a message, JSON encode and print
+	 *
+	 * @since 0.7
+	 *
+	 * @param string $status Whether it was a 'success' or an 'error'
+	 */
+	function print_ajax_response( $status, $message = '' ) {
+		header( 'Content-type: application/json;' );
+		echo json_encode( array( 'status' => $status, 'message' => $message ) );
+		exit;
+	}
 }
 }
