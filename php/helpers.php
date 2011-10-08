@@ -201,5 +201,37 @@ class EF_Helpers {
 		echo json_encode( array( 'status' => $status, 'message' => $message ) );
 		exit;
 	}
+	
+	/**
+	 * Whether or not the current page is an Edit Flow settings view (either main or module)
+	 *
+	 * @since 0.7
+	 *
+	 * @param string $module_name (Optional) Module name to check against
+	 * @return bool $is_settings_view Return true if it is
+	 */
+	function is_whitelisted_settings_view( $module_name = null ) {
+		global $pagenow, $edit_flow;
+		
+		// All of the settings views are based on admin.php and a $_GET['page'] parameter
+		if ( $pagenow != 'admin.php' || !isset( $_GET['page'] ) )
+			return false;
+		
+		// Load all of the modules that have a settings slug/ callback for the settings page
+		foreach ( $edit_flow->modules as $mod_name => $mod_data ) {
+			if ( isset( $mod_data->options->enabled ) && $mod_data->options->enabled == 'on' && $mod_data->configure_page_cb )
+				$settings_view_slugs[] = $mod_data->settings_slug;
+		}
+	
+		// The current page better be in the array of registered settings view slugs
+		if ( !in_array( $_GET['page'], $settings_view_slugs ) )
+			return false;
+		
+		if ( $module_name && $edit_flow->modules->$module_name->settings_slug != $_GET['page'] )
+			return false;
+			
+		return true;
+	}
+	
 }
 }

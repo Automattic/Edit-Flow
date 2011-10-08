@@ -19,11 +19,12 @@ class EF_Settings {
 			'short_description' => __( 'Introduction to Edit Flow. tk', 'edit-flow' ),
 			'extended_description' => __( 'Longer description of what Edit Flow does. tk', 'edit-flow' ),
 			'img_url' => false,
-			'slug' => 'edit-flow',
+			'slug' => 'settings',
+			'settings_slug' => 'ef-settings',
 			'default_options' => array(
 				'enabled' => 'on',
 			),
-			'configure_page_cb' => false,
+			'configure_page_cb' => 'print_default_settings',
 			'autoload' => true,
 		);
 		$this->module = $edit_flow->register_module( 'settings', $args );
@@ -48,13 +49,21 @@ class EF_Settings {
 	 * Add necessary things to the admin menu
 	 */
 	function action_admin_menu() {
-		add_submenu_page( 'options-general.php', __('Edit Flow', 'edit-flow'), __('Edit Flow', 'edit-flow'), 'manage_options', $this->module->slug, array( &$this, 'settings_page_controller' ) ) ;
+		global $edit_flow;
+		
+		add_menu_page( $this->module->title, $this->module->title, 'manage_options', $this->module->settings_slug, array( &$this, 'settings_page_controller' ) ) ;
+		
+		foreach ( $edit_flow->modules as $mod_name => $mod_data ) {
+			if ( isset( $mod_data->options->enabled ) && $mod_data->options->enabled == 'on'
+				&& $mod_data->configure_page_cb && $mod_name != $this->module->name )
+				add_submenu_page( $this->module->settings_slug, $mod_data->title, $mod_data->title, 'manage_options', $mod_data->settings_slug, array( &$this, 'settings_page_controller' ) ) ;
+		}
 	}
 	
 	function action_admin_enqueue_scripts() {
-		global $pagenow;
+		global $edit_flow;
 		
-		if ( $pagenow == 'options-general.php' && isset( $_GET['page'] ) && $_GET['page'] == 'edit-flow' )
+		if ( $edit_flow->helpers->is_whitelisted_settings_view() )
 			wp_enqueue_script( 'edit-flow-settings-js', EDIT_FLOW_URL . 'js/settings.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 			
 	}
@@ -63,10 +72,10 @@ class EF_Settings {
 	 * Add settings styles to the settings page
 	 */
 	function action_admin_print_styles() {		
-		global $pagenow;
+		global $edit_flow;
 		
-		if ( $pagenow == 'options-general.php' && isset( $_GET['page'] ) && $_GET['page'] == 'edit-flow' )
-			wp_enqueue_style( 'edit_flow-calendar-css', EDIT_FLOW_URL.'css/settings.css', false, EDIT_FLOW_VERSION );
+		if ( $edit_flow->helpers->is_whitelisted_settings_view() )
+			wp_enqueue_style( 'edit_flow-settings-css', EDIT_FLOW_URL.'css/settings.css', false, EDIT_FLOW_VERSION );
 		
 		
 	}
@@ -105,13 +114,10 @@ class EF_Settings {
 	function settings_page_controller() {
 		global $edit_flow;
 		
-		$requested_module = $this->module;
-		if ( $_GET['page'] == 'edit-flow' && isset( $_GET['configure'] ) ) {
-			$requested_module = $edit_flow->get_module_by( 'slug', $_GET['configure'] );
-			if ( !$requested_module )
-				wp_die( __( 'Not a registered Edit Flow module', 'edit-flow' ) );
-			$configure_callback = $requested_module->configure_page_cb;
-		}
+		$requested_module = $edit_flow->get_module_by( 'settings_slug', $_GET['page'] );
+		if ( !$requested_module )
+			wp_die( __( 'Not a registered Edit Flow module', 'edit-flow' ) );
+		$configure_callback = $requested_module->configure_page_cb;
 		$requested_module_name = $requested_module->name;	
 		
 		// Don't show the settings page for the module if the module isn't activated
@@ -145,14 +151,8 @@ class EF_Settings {
 			echo '<div class="error message"><p>' . esc_html( $requested_module->messages[$error] ) . '</p></div>';			
 		
 		$this->print_default_header( $requested_module );
-		switch( $requested_module_name ) {
-			case 'settings':
-				$this->print_default_settings();
-				break;
-			default:
-				$edit_flow->$requested_module_name->$configure_callback();
-				break;
-		}
+		$edit_flow->$requested_module_name->$configure_callback();
+		$this->print_default_footer();
 		
 	}
 	

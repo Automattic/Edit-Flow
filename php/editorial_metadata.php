@@ -184,8 +184,7 @@ class EF_Editorial_Metadata {
 		}
 		
 		// Load Javascript specific to the editorial metadata configuration view
-		if ( $pagenow == 'options-general.php' && isset( $_GET['page'], $_GET['configure'] )
-		 	&& $_GET['page'] == 'edit-flow' && $_GET['configure'] == 'editorial-metadata' ) {
+		if ( $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-ui-sortable' );			
 			wp_enqueue_script( 'edit-flow-editorial-metadata-configure', EDIT_FLOW_URL . 'js/editorial_metadata_configure.js', array( 'jquery', 'jquery-ui-sortable' ), EDIT_FLOW_VERSION, true );
 		}
@@ -588,11 +587,11 @@ class EF_Editorial_Metadata {
 	 */
 	function get_edit_term_link( $term ) {
 		$args = array(
-			'configure' => 'editorial-metadata',
+			'page' => $this->module->settings_slug,
 			'action' => 'edit',
 			'term-id' => $term->term_id,
 		);
-		return add_query_arg( $args, EDIT_FLOW_SETTINGS_PAGE );
+		return add_query_arg( $args, get_admin_url( null, 'admin.php' ) );
 	}
 	
 	/**
@@ -605,20 +604,20 @@ class EF_Editorial_Metadata {
 	 */
 	function get_delete_term_link( $term ) {
 		$args = array(
-			'configure' => 'editorial-metadata',
+			'page' => $this->module->settings_slug,
 			'action' => 'delete',
 			'term-id' => $term->term_id,
 			'nonce' => wp_create_nonce( 'editorial-metadata-delete-nonce' ),
 		);
-		return add_query_arg( $args, EDIT_FLOW_SETTINGS_PAGE );
+		return add_query_arg( $args, get_admin_url( 'admin.php' ) );
 	}
 	
 	/**
 	 * Handles a request to add a new piece of editorial metadata
 	 */
 	function handle_add_editorial_metadata() {
-		if ( !isset( $_POST['submit'], $_POST['form-action'], $_GET['configure'] ) 
-			|| $_GET['configure'] != 'editorial-metadata' || $_POST['form-action'] != 'add-term' )
+		if ( !isset( $_POST['submit'], $_POST['form-action'], $_GET['page'] ) 
+			|| $_GET['page'] != $this->module->settings_slug || $_POST['form-action'] != 'add-term' )
 				return;	
 				
 		if ( !wp_verify_nonce( $_POST['_wpnonce'], 'editorial-metadata-add-nonce' ) )
@@ -675,7 +674,7 @@ class EF_Editorial_Metadata {
 		if ( is_wp_error( $return ) )
 			wp_die( __( 'Error adding term.', 'edit-flow' ) );
 
-		$redirect_url = add_query_arg( array( 'configure' => $this->module->slug, 'message' => 'term-added' ), EDIT_FLOW_SETTINGS_PAGE );
+		$redirect_url = add_query_arg( array( 'page' => $this->module->settings_slug, 'message' => 'term-added' ), get_admin_url( null, 'admin.php' ) );
 		wp_redirect( $redirect_url );
 		exit;
 	}
@@ -684,8 +683,8 @@ class EF_Editorial_Metadata {
 	 * Handles a request to edit an editorial metadata
 	 */
 	function handle_edit_editorial_metadata() {
-		if ( !isset( $_POST['submit'], $_GET['configure'], $_GET['action'], $_GET['term-id'] ) 
-			|| $_GET['configure'] != 'editorial-metadata' || $_GET['action'] != 'edit' )
+		if ( !isset( $_POST['submit'], $_GET['page'], $_GET['action'], $_GET['term-id'] ) 
+			|| $_GET['page'] != $this->module->settings_slug || $_GET['action'] != 'edit' )
 				return; 
 				
 		if ( !wp_verify_nonce( $_POST['_wpnonce'], 'editorial-metadata-edit-nonce' ) )
@@ -744,7 +743,7 @@ class EF_Editorial_Metadata {
 		if ( is_wp_error( $return ) )
 			wp_die( __( 'Error updating term.', 'edit-flow' ) );
 		
-		$redirect_url = add_query_arg( array( 'configure' => $this->module->slug, 'message' => 'term-updated' ), EDIT_FLOW_SETTINGS_PAGE );
+		$redirect_url = add_query_arg( array( 'page' => $this->module->settings_slug, 'message' => 'term-updated' ), get_admin_url( null, 'admin.php' ) );
 		wp_redirect( $redirect_url );
 		exit;
 	}
@@ -855,8 +854,8 @@ class EF_Editorial_Metadata {
 	 * Handles a request to delete an editorial metadata term
 	 */
 	function handle_delete_editorial_metadata() {
-		if ( !isset( $_GET['configure'], $_GET['action'], $_GET['term-id'] ) 
-			|| $_GET['configure'] != 'editorial-metadata' || $_GET['action'] != 'delete' )
+		if ( !isset( $_GET['page'], $_GET['action'], $_GET['term-id'] ) 
+			|| $_GET['page'] != $this->module->settings_slug || $_GET['action'] != 'delete' )
 				return;
 				
 		if ( !wp_verify_nonce( $_GET['nonce'], 'editorial-metadata-delete-nonce' ) )
@@ -872,7 +871,7 @@ class EF_Editorial_Metadata {
 		if ( !$result || is_wp_error( $result ) )
 			wp_die( __( 'Error deleting term.', 'edit-flow' ) );
 			
-		$redirect_url = add_query_arg( array( 'configure' => $this->module->slug, 'message' => 'term-deleted' ), EDIT_FLOW_SETTINGS_PAGE );
+		$redirect_url = add_query_arg( array( 'page' => $this->module->settings_slug, 'message' => 'term-deleted' ), get_admin_url( null, 'admin.php' ) );
 		wp_redirect( $redirect_url );
 		exit;		
 	}
@@ -1007,7 +1006,7 @@ class EF_Editorial_Metadata {
 		</table>
 		<p class="submit">
 		<?php submit_button( __( 'Update Metadata', 'edit-flow' ), 'primary', 'submit', false ); ?>
-		<a class="cancel-settings-link" href="<?php echo esc_url( add_query_arg( 'configure', $this->module->slug, EDIT_FLOW_SETTINGS_PAGE ) ); ?>"><?php _e( 'Cancel', 'edit-flow' ); ?></a>
+		<a class="cancel-settings-link" href="<?php echo esc_url( add_query_arg( 'page', $this->module->settings_slug, get_admin_url( null, 'admin.php' ) ) ); ?>"><?php _e( 'Cancel', 'edit-flow' ); ?></a>
 		</p>
 		</form>
 		</div>
@@ -1018,13 +1017,13 @@ class EF_Editorial_Metadata {
 			<div class="col-wrap">	
 			<div class="form-wrap">
 			<h3 class="nav-tab-wrapper">
-				<a href="<?php echo esc_url( add_query_arg( array( 'configure' => $this->module->slug ), EDIT_FLOW_SETTINGS_PAGE ) ); ?>" class="nav-tab<?php if ( !isset( $_GET['action'] ) || $_GET['action'] != 'change-options' ) echo ' nav-tab-active'; ?>"><?php _e( 'Add New', 'edit-flow' ); ?></a>
-				<a href="<?php echo esc_url( add_query_arg( array( 'configure' => $this->module->slug, 'action' => 'change-options' ), EDIT_FLOW_SETTINGS_PAGE ) ); ?>" class="nav-tab<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'change-options' ) echo ' nav-tab-active'; ?>"><?php _e( 'Options', 'edit-flow' ); ?></a>
+				<a href="<?php echo esc_url( add_query_arg( array( 'page' => $this->module->settings_slug ), get_admin_url( null, 'admin.php' ) ) ); ?>" class="nav-tab<?php if ( !isset( $_GET['action'] ) || $_GET['action'] != 'change-options' ) echo ' nav-tab-active'; ?>"><?php _e( 'Add New', 'edit-flow' ); ?></a>
+				<a href="<?php echo esc_url( add_query_arg( array( 'page' => $this->module->settings_slug, 'action' => 'change-options' ), get_admin_url( null, 'admin.php' ) ) ); ?>" class="nav-tab<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'change-options' ) echo ' nav-tab-active'; ?>"><?php _e( 'Options', 'edit-flow' ); ?></a>
 			</h3>
 			
 		<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'change-options' ): ?>
 		<?php /** Basic form built on WP Settings API for outputting Editorial Metadata options **/ ?>
-		<form class="basic-settings" action="<?php echo esc_url( add_query_arg( array( 'configure' => $this->module->slug, 'action' => 'change-options' ), EDIT_FLOW_SETTINGS_PAGE ) ); ?>" method="post">
+		<form class="basic-settings" action="<?php echo esc_url( add_query_arg( array( 'page' => $this->module->settings_slug, 'action' => 'change-options' ), get_admin_url( null, 'admin.php' ) ) ); ?>" method="post">
 			<?php settings_fields( $this->module->options_group_name ); ?>
 			<?php do_settings_sections( $this->module->options_group_name ); ?>	
 			<?php echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />'; ?>
@@ -1032,7 +1031,7 @@ class EF_Editorial_Metadata {
 		</form>
 		<?php else: ?>
 		<?php /** Custom form for adding a new Editorial Metadata term **/ ?>
-			<form class="add:the-list:" action="<?php echo esc_url( add_query_arg( array( 'configure' => $this->module->slug ), EDIT_FLOW_SETTINGS_PAGE ) ); ?>" method="post" id="addmetadata" name="addmetadata">
+			<form class="add:the-list:" action="<?php echo esc_url( add_query_arg( array( 'page' => $this->module->settings_slug ), get_admin_url( null, 'admin.php' ) ) ); ?>" method="post" id="addmetadata" name="addmetadata">
 			<div class="form-field form-required">
 				<label for="name"><?php _e( 'Name', 'edit-flow' ); ?></label>
 				<input type="text" aria-required="true" size="20" maxlength="20" id="name" name="name" value="<?php if ( !empty( $_POST['name'] ) ) esc_attr_e( stripslashes( $_POST['name'] ) ) ?>" />

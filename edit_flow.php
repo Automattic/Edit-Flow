@@ -32,7 +32,7 @@ define( 'EDIT_FLOW_VERSION' , '0.6.5' );
 define( 'EDIT_FLOW_ROOT' , dirname(__FILE__) );
 define( 'EDIT_FLOW_FILE_PATH' , EDIT_FLOW_ROOT . '/' . basename(__FILE__) );
 define( 'EDIT_FLOW_URL' , plugins_url(plugin_basename(dirname(__FILE__)).'/') );
-define( 'EDIT_FLOW_SETTINGS_PAGE' , add_query_arg( 'page', 'edit-flow', get_admin_url( null, 'options-general.php' ) ) );
+define( 'EDIT_FLOW_SETTINGS_PAGE' , add_query_arg( 'page', 'ef-settings', get_admin_url( null, 'admin.php' ) ) );
 define( 'EDIT_FLOW_EDITORIAL_METADATA_PAGE' , add_query_arg( 'taxonomy', 'ef_editorial_meta', get_admin_url( null, 'edit-tags.php' ) ) );
 define( 'EDIT_FLOW_PREFIX' , 'ef_' );
 define( 'EDIT_FLOW_CALENDAR_PAGE', add_query_arg( 'page', 'calendar', get_admin_url( null, 'index.php' ) ) );
@@ -199,6 +199,8 @@ class edit_flow {
 		$args = array_merge( $defaults, $args );
 		$args['name'] = $name;
 		$args['options_group_name'] = $this->options_group . $name . '_options';
+		if ( !isset( $args['settings_slug'] ) )
+			$args['settings_slug'] = 'ef-' . $args['slug'] . '-settings';
 		$this->modules->$name = (object) $args;
 		do_action( 'ef_module_registered', $name );
 		return $this->modules->$name;

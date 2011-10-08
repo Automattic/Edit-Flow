@@ -378,7 +378,7 @@ class EF_Editorial_Comments
 		global $edit_flow;
 		?>
 
-		<form class="basic-settings" action="<?php echo add_query_arg( 'configure', $this->module->slug, EDIT_FLOW_SETTINGS_PAGE ); ?>" method="post">
+		<form class="basic-settings" action="<?php echo add_query_arg( 'page', $this->module->settings_slug, get_admin_url( null, 'admin.php' ) ); ?>" method="post">
 			<?php settings_fields( $this->module->options_group_name ); ?>
 			<?php do_settings_sections( $this->module->options_group_name ); ?>
 			<?php
