@@ -1172,11 +1172,11 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 			<fieldset><div class="inline-edit-col">
 				<h4><?php _e( 'Quick Edit' ); ?></h4>
 				<label>
-					<span class="title"><?php _ex( 'Name', 'edit-flow' ); ?></span>
+					<span class="title"><?php _e( 'Name', 'edit-flow' ); ?></span>
 					<span class="input-text-wrap"><input type="text" name="name" class="ptitle" value="" maxlength="20" /></span>
 				</label>
 				<label>
-					<span class="title"><?php _ex( 'Description', 'edit-flow' ); ?></span>
+					<span class="title"><?php _e( 'Description', 'edit-flow' ); ?></span>
 					<span class="input-text-wrap"><input type="text" name="description" class="pdescription" value="" /></span>
 				</label>
 			</div></fieldset>
