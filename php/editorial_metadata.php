@@ -25,14 +25,6 @@ class EF_Editorial_Metadata {
 	var $metadata_postmeta_key = "_ef_editorial_meta";
 	var $screen_id = "edit-ef_editorial_meta";
 	var $module_name = 'editorial_metadata';
-	
-	/**
-	 * A cache of the last metadata type that was seen or used. This is used to persist state between the
-	 * pre_edit_term and edited_term methods below.
-	 */
-	var $metadata_type_cache;
-	
-	var $metadata_slug_cache;
 
 	const position_key = 'position';
 	const description = 'desc';
