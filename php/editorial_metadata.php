@@ -609,7 +609,7 @@ class EF_Editorial_Metadata {
 			'term-id' => $term->term_id,
 			'nonce' => wp_create_nonce( 'editorial-metadata-delete-nonce' ),
 		);
-		return add_query_arg( $args, get_admin_url( 'admin.php' ) );
+		return add_query_arg( $args, get_admin_url( null, 'admin.php' ) );
 	}
 	
 	/**
