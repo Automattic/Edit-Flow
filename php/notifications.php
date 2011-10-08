@@ -280,7 +280,7 @@ class EF_Notifications {
 		
 		if( EF_NOTIFICATION_USE_CRON ) {
 			$this->schedule_emails( $recipients, $subject, $message, $message_headers );
-		} else {
+		} else if ( !empty( $recipients ) ) {
 			foreach( $recipients as $recipient ) {
 				$this->send_single_email( $recipient, $subject, $message, $message_headers );
 			}

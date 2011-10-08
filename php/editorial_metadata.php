@@ -616,9 +616,10 @@ class EF_Editorial_Metadata {
 	 * Handles a request to add a new piece of editorial metadata
 	 */
 	function handle_add_editorial_metadata() {
+
 		if ( !isset( $_POST['submit'], $_POST['form-action'], $_GET['page'] ) 
 			|| $_GET['page'] != $this->module->settings_slug || $_POST['form-action'] != 'add-term' )
-				return;	
+				return;
 				
 		if ( !wp_verify_nonce( $_POST['_wpnonce'], 'editorial-metadata-add-nonce' ) )
 			wp_die( $this->module->messages['nonce-failed'] );
@@ -627,10 +628,10 @@ class EF_Editorial_Metadata {
 			wp_die( $this->module->messages['invalid-permissions'] );			
 		
 		// Sanitize all of the user-entered values
-		$term_name = strip_tags( trim( $_POST['name'] ) );
-		$term_slug = ( !empty( $_POST['slug'] ) ) ? sanitize_title( $_POST['slug'] ) : sanitize_title( $term_name );
-		$term_description = strip_tags( trim( $_POST['description'] ) );
-		$term_type = sanitize_key( $_POST['type'] );
+		$term_name = strip_tags( trim( $_POST['metadata_name'] ) );
+		$term_slug = ( !empty( $_POST['metadata_slug'] ) ) ? sanitize_title( $_POST['metadata_slug'] ) : sanitize_title( $term_name );
+		$term_description = strip_tags( trim( $_POST['metadata_description'] ) );
+		$term_type = sanitize_key( $_POST['metadata_type'] );
 		
 		$_REQUEST['form-errors'] = array();
 		
@@ -646,16 +647,19 @@ class EF_Editorial_Metadata {
 			$_REQUEST['form-errors']['name'] = __( 'Please enter a name for the editorial metadata.', 'edit-flow' );
 		// Field is required
 		if ( empty( $term_slug ) )
-			$_REQUEST['form-errors']['slug'] = __( 'Please enter a slug for the editorial metadata.', 'edit-flow' );			
+			$_REQUEST['form-errors']['slug'] = __( 'Please enter a slug for the editorial metadata.', 'edit-flow' );
 		// Check to ensure a term with the same name doesn't exist
 		if ( get_term_by( 'name', $term_name, $this->metadata_taxonomy ) )
 			$_REQUEST['form-errors']['name'] = __( 'Name already in use. Please choose another.', 'edit-flow' );
 		// Check to ensure a term with the same slug doesn't exist
 		if ( get_term_by( 'slug', $term_slug, $this->metadata_taxonomy ) )
 			$_REQUEST['form-errors']['slug'] = __( 'Slug already in use. Please choose another.', 'edit-flow' );
+		// Check that the term name doesn't exceed 20 chars
+		if ( strlen( $term_name ) > 20 )
+			$_REQUEST['form-errors']['name'] = __( 'Name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' );
 		// Metadata type needs to pass our whitelist check
 		$metadata_types = $this->get_supported_metadata_types();
-		if ( empty( $_POST['type'] ) || !isset( $metadata_types[$_POST['type'] ] ) )
+		if ( empty( $_POST['metadata_type'] ) || !isset( $metadata_types[$_POST['metadata_type'] ] ) )
 			$_REQUEST['form-errors']['type'] = __( 'Please select a valid metadata type.', 'edit-flow' );
 		// Kick out if there are any errors
 		if ( count( $_REQUEST['form-errors'] ) ) {
@@ -665,7 +669,7 @@ class EF_Editorial_Metadata {
 
 		// Try to add the status
 		$args = array(
-			'name' => $term_name,			
+			'name' => $term_name,
 			'description' => $term_description,
 			'slug' => $term_slug,
 			'type' => $term_type,
@@ -712,7 +716,7 @@ class EF_Editorial_Metadata {
 			$_REQUEST['form-errors']['name'] = __( 'Please enter a name for the editorial metadata', 'edit-flow' );
 			
 		// Check that the name isn't numeric
-		if ( (int)$new_name != 0 )
+		if ( is_numeric( $new_name ) )
 			$_REQUEST['form-errors']['name'] = __( 'Please enter a valid, non-numeric name for the editorial metadata.', 'edit-flow' );
 			
 		// Check to ensure a term with the same name doesn't exist,
@@ -962,8 +966,8 @@ class EF_Editorial_Metadata {
 			$type = $this->get_metadata_type( $term );
 			$edit_term_link = $this->get_edit_term_link( $term );
 			
-			$name = ( isset( $_POST['name'] ) ) ? stripslashes( $_POST['name'] ) : $term->name;
-			$description = ( isset( $_POST['description'] ) ) ? stripslashes( $_POST['description'] ) : $this->get_unencoded_value( $term->description, 'desc' );
+			$name = ( isset( $_POST['metadata_name'] ) ) ? stripslashes( $_POST['metadata_name'] ) : $term->name;
+			$description = ( isset( $_POST['metadata_description'] ) ) ? stripslashes( $_POST['metadata_description'] ) : $this->get_unencoded_value( $term->description, 'desc' );
 		?>
 		
 		<div id="ajax-response"></div>
@@ -1033,27 +1037,28 @@ class EF_Editorial_Metadata {
 		<?php /** Custom form for adding a new Editorial Metadata term **/ ?>
 			<form class="add:the-list:" action="<?php echo esc_url( add_query_arg( array( 'page' => $this->module->settings_slug ), get_admin_url( null, 'admin.php' ) ) ); ?>" method="post" id="addmetadata" name="addmetadata">
 			<div class="form-field form-required">
-				<label for="name"><?php _e( 'Name', 'edit-flow' ); ?></label>
-				<input type="text" aria-required="true" size="20" maxlength="20" id="name" name="name" value="<?php if ( !empty( $_POST['name'] ) ) esc_attr_e( stripslashes( $_POST['name'] ) ) ?>" />
+				<label for="metadata_name"><?php _e( 'Name', 'edit-flow' ); ?></label>
+				<input type="text" aria-required="true" size="20" maxlength="20" id="metadata_name" name="metadata_name" value="<?php if ( !empty( $_POST['metadata_name'] ) ) echo esc_attr( stripslashes( $_POST['metadata_name'] ) ) ?>" />
 				<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is for labeling the metadata field.', 'edit-flow' ) ); ?>
 			</div>
 			<div class="form-field form-required">
-				<label for="name"><?php _e( 'Slug', 'edit-flow' ); ?></label>
-				<input type="text" aria-required="true" size="20" maxlength="20" id="slug" name="slug" value="<?php if ( !empty( $_POST['slug'] ) ) esc_attr_e( $_POST['slug'] ) ?>" />
+				<label for="metadata_slug"><?php _e( 'Slug', 'edit-flow' ); ?></label>
+				<input type="text" aria-required="true" size="20" maxlength="20" id="metadata_slug" name="metadata_slug" value="<?php if ( !empty( $_POST['metadata_slug'] ) ) echo esc_attr( $_POST['metadata_slug'] ) ?>" />
 				<?php $edit_flow->settings->helper_print_error_or_description( 'slug', __( 'The "slug" is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.', 'edit-flow' ) ); ?>
 			</div>
 			<div class="form-field">
-				<label for="description"><?php _e( 'Description', 'edit-flow' ); ?></label>
-				<textarea cols="40" rows="5" id="description" name="description"><?php if ( !empty( $_POST['description'] ) ) echo esc_html( stripslashes( $_POST['description'] ) ) ?></textarea>
+				<label for="metadata_description"><?php _e( 'Description', 'edit-flow' ); ?></label>
+				<textarea cols="40" rows="5" id="metadata_description" name="metadata_description"><?php if ( !empty( $_POST['metadata_description'] ) ) echo esc_html( stripslashes( $_POST['metadata_description'] ) ) ?></textarea>
 				<?php $edit_flow->settings->helper_print_error_or_description( 'description', __( 'The description can be used to communicate with your team about what the metadata is for.', 'edit-flow' ) ); ?>
 			</div>
 			<div class="form-field form-required">
-				<label for="name"><?php _e( 'Type', 'edit-flow' ); ?></label>
+				<label for="metadata_type"><?php _e( 'Type', 'edit-flow' ); ?></label>
 				<?php
-					$current_metadata_type = ( isset( $_POST['type'] ) ) ? $_POST['type'] : false;
 					$metadata_types = $this->get_supported_metadata_types();
+					// Select the previously selected metadata type if a valid one exists
+					$current_metadata_type = ( isset( $_POST['metadata_type'] ) && in_array( $_POST['metadata_type'], array_keys( $metadata_types ) ) ) ? $_POST['metadata_type'] : false;
 				?>
-				<select id="type" name="type">
+				<select id="metadata_type" name="metadata_type">
 				<?php foreach ( $metadata_types as $metadata_type => $metadata_type_name ) : ?>
 					<option value="<?php echo esc_attr( $metadata_type ); ?>" <?php selected( $metadata_type, $current_metadata_type ); ?>><?php echo esc_attr( $metadata_type_name ); ?></option>
 				<?php endforeach; ?>
@@ -1200,9 +1205,9 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		$out = '<strong><a class="row-title" href="' . $item_edit_link . '">' . esc_html( $item->name ) . '</a></strong>';
 		
 		$actions = array();
-		$actions['edit'] = sprintf( __( '<a href="%s">Edit</a>', 'edit-flow' ), $item_edit_link );
+		$actions['edit'] = "<a href='$item_edit_link'>" . __( 'Edit', 'edit-flow' ) . "</a>";
 		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';		
-		$actions['delete delete-status'] = sprintf( __( '<a href="%s">Delete</a>', 'edit-flow' ), $item_delete_link );
+		$actions['delete delete-status'] = "<a href='$item_delete_link'>" . __( 'Delete', 'edit-flow' ) . "</a>";
 		
 		$out .= $this->row_actions( $actions, false );
 		$out .= '<div class="hidden" id="inline_' . $item->term_id . '">';
@@ -1238,11 +1243,11 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 			<fieldset><div class="inline-edit-col">
 				<h4><?php _e( 'Quick Edit' ); ?></h4>
 				<label>
-					<span class="title"><?php _ex( 'Name', 'edit-flow' ); ?></span>
+					<span class="title"><?php _e( 'Name', 'edit-flow' ); ?></span>
 					<span class="input-text-wrap"><input type="text" name="name" class="ptitle" value="" maxlength="20" /></span>
 				</label>
 				<label>
-					<span class="title"><?php _ex( 'Description', 'edit-flow' ); ?></span>
+					<span class="title"><?php _e( 'Description', 'edit-flow' ); ?></span>
 					<span class="input-text-wrap"><input type="text" name="description" class="pdescription" value="" /></span>
 				</label>
 			</div></fieldset>

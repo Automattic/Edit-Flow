@@ -90,7 +90,7 @@
 }
 
 /* Display drag handles for the cursor on sortable list tables for our custom taxonomies */
-.edit-flow-admin table.wp-list-table tbody.ui-sortable tr {
+.edit-flow-admin table.wp-list-table tbody.ui-sortable tr.term-static {
 	cursor: move;
 }
 
