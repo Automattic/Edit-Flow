@@ -1201,9 +1201,9 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		$out = '<strong><a class="row-title" href="' . $item_edit_link . '">' . esc_html( $item->name ) . '</a></strong>';
 		
 		$actions = array();
-		$actions['edit'] = sprintf( __( '<a href="%s">Edit</a>', 'edit-flow' ), $item_edit_link );
+		$actions['edit'] = "<a href='$item_edit_link'>" . __( 'Edit', 'edit-flow' ) . "</a>";
 		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';		
-		$actions['delete delete-status'] = sprintf( __( '<a href="%s">Delete</a>', 'edit-flow' ), $item_delete_link );
+		$actions['delete delete-status'] = "<a href='$item_delete_link'>" . __( 'Delete', 'edit-flow' ) . "</a>";
 		
 		$out .= $this->row_actions( $actions, false );
 		$out .= '<div class="hidden" id="inline_' . $item->term_id . '">';
