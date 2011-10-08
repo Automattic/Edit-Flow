@@ -269,69 +269,6 @@ class edit_flow {
 	}
 
 	/**
-	 * Loads options for the plugin.
-	 * If option doesn't exist in database, it is added
-	 *
-	 * Note: default values are stored in the $this->options array
-	 * Note: a prefix unique to the plugin is appended to all options. Prefix is stored in $this->options_group 
-	 */
-	function load_options ( ) {
-
-		$new_options = array();
-		
-		foreach($this->options as $option => $value) {
-			$name = $this->get_plugin_option_fullname($option);
-			$return = get_option($name);
-			if($return === false) {
-				add_option($name, $value);
-				$new_array[$option] = $value;
-			} else {
-				$new_array[$option] = $return;
-			}
-		}
-		$this->options = $new_array;
-		
-	} // END: load_options
-
-
-	/**
-	 * Returns option for the plugin specified by $name, e.g. custom_stati_enabled
-	 *
-	 * Note: The plugin option prefix does not need to be included in $name 
-	 * 
-	 * @param string name of the option
-	 * @return option|null if not found
-	 *
-	 */
-	function get_plugin_option ( $name ) {
-		if(is_array($this->options) && $option = $this->options[$name])
-			return $option;
-		else 
-			return null;
-	} // END: get_option
-	
-	// Utility function: appends the option prefix and returns the full name of the option as it is stored in the wp_options db
-	function get_plugin_option_fullname ( $name ) {
-		return $this->options_group . $name;
-	}
-	
-	/**
-	 * Updates option for the plugin specified by $name, e.g. custom_stati_enabled
-	 *
-	 * Note: The plugin option prefix does not need to be included in $name 
-	 * 
-	 * @param string name of the option
-	 * @param string value to be set
-	 *
-	 */
-	function update_plugin_option( $name, $new_value ) {
-		if( is_array($this->options) /* && !empty( $this->options[$name] ) */ ) {
-			$this->options[$name] = $new_value;
-			update_option( $this->get_plugin_option_fullname( $name ), $new_value );
-		}
-	}
-
-	/**
 	 * Registers commonly used scripts + styles for easy enqueueing
 	 */	
 	function register_scripts_and_styles() {
@@ -343,35 +280,6 @@ class edit_flow {
 		global $wp_scripts;
 		if ( !isset( $wp_scripts->registered['jquery-ui-datepicker'] ) )
 			wp_register_script( 'jquery-ui-datepicker', EDIT_FLOW_URL . 'js/lib/jquery.ui.datepicker.min.js', array( 'jquery', 'jquery-ui-core'), '1.8.16', true );		
-	}
-	
-	
-	/**
-	 * Gets the page string/path
-	 * @param string $page
-	 * @return string
-	 */
-	function get_page( $page = '' ) {
-		return 'edit-flow'. (($page) ? '/' . $page : '');
-	}
-	
-	/**
-	 * get_all_post_types_for_feature()
-	 * Get all of the post types that support a specific bit of functionality
-	 * @since 0.6.1
-	 * @param string $feature The feature we're querying against
-	 * @return array $post_types All of the post types that support the feature
-	 */
-	function get_all_post_types_for_feature( $feature ) {
-		global $_wp_post_type_features;
-		
-		$post_types = array();
-		foreach ( $_wp_post_type_features as $post_type => $features ) {
-			if ( isset( $features[$feature] ) ) {
-				$post_types[] = $post_type;
-			}
-		}
-		return $post_types;
 	}
 
 } // END: class edit_flow

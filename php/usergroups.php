@@ -89,7 +89,8 @@ class EF_Usergroups_Admin {
 		global $edit_flow;
 			
 		if ( $edit_flow->helpers->module_enabled( $this->module->slug ) ) {
-			$notification_post_types = $edit_flow->get_all_post_types_for_feature( 'ef_notifications' );
+			// @todo manage post types for usergroups
+			$notification_post_types = array();
 			foreach ( $notification_post_types as $post_type ) {
 				add_meta_box('edit-flow-subscriptions', __('Notification Subscriptions', 'edit-flow'), array(&$this, 'subscriptions_meta_box'), $post_type, 'advanced', 'high');
 			}

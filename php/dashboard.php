@@ -21,9 +21,9 @@ class EF_Dashboard {
 		if ($current_user->has_cap('edit_posts')) {
 			
 			// Set up Post Status widget but, first, check to see if it's enabled
-			if ($edit_flow->get_plugin_option('post_status_widget_enabled')) {
+			/* if ($edit_flow->get_plugin_option('post_status_widget_enabled')) {
 				wp_add_dashboard_widget('post_status_widget', __('Unpublished Content', 'edit-flow'), array(&$this, 'post_status_widget'));
-			}
+			} */
 			
 			/* 
 			QuickPitch widget is disabled as of v0.6 because we need to refactor editorial metadata handling ^DB
@@ -34,9 +34,9 @@ class EF_Dashboard {
 			*/
 			
 			// Add the MyPosts widget, if enabled
-			if ($edit_flow->get_plugin_option('myposts_widget_enabled')) {
+			/* if ($edit_flow->get_plugin_option('myposts_widget_enabled')) {
 				wp_add_dashboard_widget('myposts_widget', __('Posts I\'m Following', 'edit-flow'), array(&$this, 'myposts_widget'));
-			}
+			} */
 
 			// Add the dashboard styles
 			wp_enqueue_style( 'edit_flow-styles', EDIT_FLOW_URL . 'css/editflow.css', false, EDIT_FLOW_VERSION, 'all' );
