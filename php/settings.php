@@ -223,7 +223,7 @@ class EF_Settings {
 				if ( $mod_data->options->enabled == 'off' ) echo ' style="display:none;"';				
 				echo ' value="' . __( 'Disable', 'edit-flow' ) . '" />';
 				if ( $mod_data->configure_page_cb ) {
-					$configure_url = add_query_arg( 'configure', $mod_data->slug, EDIT_FLOW_SETTINGS_PAGE );
+					$configure_url = add_query_arg( 'page', $mod_data->settings_slug, get_admin_url( null, 'admin.php' ) );
 					echo '<a href="' . $configure_url . '" class="configure-edit-flow-module"';
 					if ( $mod_data->options->enabled == 'off' ) echo ' style="display:none;"';
 					echo '>' . $mod_data->configure_link_text . '</a>';
