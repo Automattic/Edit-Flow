@@ -154,10 +154,6 @@ class edit_flow {
 	 * Initialize the plugin for the admin 
 	 */
 	function admin_init() {
-		// Register all plugin settings so that we can change them and such
-		foreach( $this->options as $option => $value ) {
-	    	register_setting( $this->options_group, $this->get_plugin_option_fullname($option));
-	    }
 	    	    
 		// Upgrade if need be
 		$previous_version = get_option( $this->options_group . 'version' );
