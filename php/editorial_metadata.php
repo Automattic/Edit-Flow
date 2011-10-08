@@ -23,7 +23,6 @@ class EF_Editorial_Metadata {
 	 */
 	var $metadata_taxonomy = 'ef_editorial_meta';
 	var $metadata_postmeta_key = "_ef_editorial_meta";
-	var $metadata_string;
 	var $screen_id = "edit-ef_editorial_meta";
 	var $module_name = 'editorial_metadata';
 	
@@ -44,8 +43,6 @@ class EF_Editorial_Metadata {
 	 */
 	function __construct() {
 		global $edit_flow;
-		
-		$metadata_string = __( 'Metadata Type', 'edit-flow' );
 		
 		// Register the module with Edit Flow
 		$args = array(
