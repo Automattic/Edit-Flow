@@ -1049,12 +1049,9 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 	function prepare_items() {
 		global $edit_flow;		
 		
-		$per_page = 20;
-		
 		$columns = $this->get_columns();
 		$hidden = array();
 		$sortable = array();
-		
 		$this->_column_headers = array($columns, $hidden, $sortable);
 		
 		$this->items = $edit_flow->custom_status->get_custom_statuses();
@@ -1063,7 +1060,7 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		
 		$this->set_pagination_args( array(
 			'total_items' => $total_items,
-			'per_page' => $per_page,
+			'per_page' => $total_items,
 		) );		
 		
 	}
@@ -1121,7 +1118,10 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 	function column_custom_status( $item ) {
 		global $edit_flow;
 		
-		$output = '<strong>' . $item->name . '</strong>';
+		$output = '<strong>' . esc_html( $item->name );
+		if ( $item->slug == $this->default_status )
+			$output .= ' - ' . __( 'Default', 'edit-flow' );
+		$output .= '</strong>';
 		
 		// Don't allow for any of these status actions when adding a new custom status
 		if ( isset( $_GET['action'] ) && $_GET['action'] == 'add' )
@@ -1130,14 +1130,12 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		$actions = array();
 		if ( $item->slug != $this->default_status )
 			$actions['make_default'] = sprintf( '<a href="%1$s">' . __( 'Make&nbsp;Default', 'edit-flow' ) . '</a>', $edit_flow->custom_status->make_status_default_link( $item->term_id ) );
-		else
-			$actions['make_default'] = __( 'Default Status', 'edit-flow' );
 		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';
 		
 		if ( $item->slug != $this->default_status )
 			$actions['delete delete-status'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->custom_status->delete_status_link( $item->term_id ) );
 		
-		$output .= $this->row_actions( $actions, true );
+		$output .= $this->row_actions( $actions, false );
 		$output .= '<div class="hidden" id="inline_' . $item->term_id . '">';
 		$output .= '<div class="name">' . $item->name . '</div>';
 		$output .= '<div class="description">' . $item->description . '</div>';	
