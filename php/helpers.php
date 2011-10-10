@@ -1,6 +1,8 @@
 <?php
 /**
  * class EF_Helpers
+ *
+ * @desc A number of Edit Flow helpers any module can use
  */
 
 if ( !class_exists( 'EF_Helpers' ) ) {
@@ -203,7 +205,24 @@ class EF_Helpers {
 	}
 	
 	/**
+	 * Whether or not the current page is a user-facing Edit Flow View
+	 * @todo Think of a creative way to make this work
+	 *
+	 * @since 0.7
+	 *
+	 * @param string $module_name (Optional) Module name to check against
+	 */
+	function is_whitelisted_functional_view( $module_name = null ) {
+		
+		// @todo complete this method
+		
+		return true;
+	}
+	
+	/**
 	 * Whether or not the current page is an Edit Flow settings view (either main or module)
+	 * Determination is based on $pagenow, $_GET['page'], and the module's $settings_slug
+	 * If there's no module name specified, it will return true against all Edit Flow settings views
 	 *
 	 * @since 0.7
 	 *
@@ -231,6 +250,108 @@ class EF_Helpers {
 			return false;
 			
 		return true;
+	}
+	
+	/**
+	 * Remove term(s) associated with a given object(s). Core doesn't have this as of 3.2
+	 * @see http://core.trac.wordpress.org/ticket/15475
+	 * 
+	 * @author ericmann
+	 * @compat 3.3?
+	 *
+	 * @param int|array $object_ids The ID(s) of the object(s) to retrieve.
+	 * @param int|array $terms The ids of the terms to remove.
+	 * @param string|array $taxonomies The taxonomies to retrieve terms from.
+	 * @return bool|WP_Error Affected Term IDs
+	 */
+	function remove_object_terms( $object_id, $terms, $taxonomy ) {
+		global $wpdb;
+
+		if ( !taxonomy_exists( $taxonomy ) )
+			return new WP_Error( 'invalid_taxonomy', __( 'Invalid Taxonomy' ) );
+
+		if ( !is_array( $object_id ) )
+			$object_id = array( $object_id );
+
+		if ( !is_array($terms) )
+			$terms = array( $terms );
+			
+		$delete_objects = array_map( 'intval', $object_id );
+		$delete_terms = array_map( 'intval', $terms );	
+
+		if ( $delete_terms ) {
+			$in_delete_terms = "'" . implode( "', '", $delete_terms ) . "'";
+			$in_delete_objects = "'" . implode( "', '", $delete_objects ) . "'";
+			$return = $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->term_relationships WHERE object_id IN ($in_delete_objects) AND term_taxonomy_id IN ($in_delete_terms)", $object_id ) );
+			wp_update_term_count( $delete_terms, $taxonomy );
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * This is a hack, Hack, HACK!!!
+	 * Encode all of the given arguments as JSON.
+	 * Used to store extra data in a term's description field
+	 * @todo This is ghetto ghetto because so so brittle. Base64 the description instead?
+	 *
+	 * @since 0.7
+	 *
+	 * @param array $args The arguments to encode
+	 * @param string $metadata_type Metadata type
+	 * @return string $encoded Type and description encoded as JSON
+	 */
+	function get_encoded_description( $args = array() ) {
+		
+		$sanitized_args = array();
+		foreach( $args as $key => $value ) {
+			// Arrays make it through scot-free because we assume its just a set of integers
+			if ( is_array( $value ) ) {
+				$sanitized_args[$key] = $value;
+				continue;
+			}
+			// Damn pesky carriage returns...
+			$sanitized_args[$key] = str_replace( "\r\n", "\n", $value );
+			$sanitized_args[$key] = str_replace( "\r", "\n", $sanitized_args[$key] );
+			// Convert all newlines to <br /> for storage (and because it's the proper way to present them)
+			$sanitized_args[$key] = str_replace("\n", "<br />", $sanitized_args[$key]);		
+			$allowed_tags = '<b><a><strong><i><ul><li><ol><blockquote><em><br>';
+			$sanitized_args[$key] = strip_tags( $sanitized_args[$key], $allowed_tags );
+			// Escape any special characters (', ", <, >, &)
+			$sanitized_args[$key] = esc_attr( $sanitized_args[$key] );
+			$sanitized_args[$key] = htmlentities( $sanitized_args[$key], ENT_QUOTES );
+		}
+		$encoded = json_encode( $args );
+		
+		return $encoded;
+	}
+	
+	/**
+	 * If given an encoded string from a term's description field,
+	 * return an array of values. Otherwise, return the original string
+	 *
+	 * @since 0.7
+	 *
+	 * @param string $string_to_unencode Possibly encoded string
+	 * @return array $string_or_unencoded_array Array if string was encoded, otherwise the string as the 'description' field
+	 */
+	function get_unencoded_description( $string_to_unencode ) {
+		$string_to_unencode = stripslashes( htmlspecialchars_decode( $string_to_unencode ) );
+		$unencoded_array = json_decode( $string_to_unencode, true );
+		$string_or_unencoded_array = array();
+		// Only continue processing if it actually was an array. Otherwise, set to the original string
+		if ( is_array( $unencoded_array ) ) {
+			foreach( $unencoded_array as $key => $value ) {
+				// html_entity_decode only works on strings but sometimes we store nested arrays
+				if ( !is_array( $value ) )
+					$string_or_unencoded_array[$key] = html_entity_decode( $value, ENT_QUOTES );
+				else
+					$string_or_unencoded_array[$key] = $value;
+			}
+		} else {
+			$string_or_unencoded_array['description'] = $string_to_unencode;
+		}
+		return $string_or_unencoded_array;
 	}
 	
 }

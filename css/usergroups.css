@@ -73,23 +73,11 @@
 	width: 300px;
 }
 
-
-.usergroups-page {	
+#ef-usergroup-users form.quicksearch,
+#ef-post_following_users_box form.quicksearch {
+	display: none;
 }
-	.usergroups-page h2 .backlink {
-		font-size: 11px;	
-	}
 
-.form-usergroups .submit a,
-.form-usergroups .submit a:visited {	
-	font-style: normal;
-	font-size: 11px;
+#ef-usergroup-users h4 {
+	margin-top: 0;
 }
-	.form-usergroups .submit a.delete,
-	.form-usergroups .submit a.delete:visited {
-		color: #BC0B0B;	
-	}
-		.form-usergroups .submit a.delete:hover,
-		.form-usergroups .submit a.delete:active {
-			color: red;
-		}

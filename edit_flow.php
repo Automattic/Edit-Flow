@@ -45,7 +45,6 @@ include_once( EDIT_FLOW_ROOT . '/php/dashboard.php' );
 include_once( EDIT_FLOW_ROOT . '/php/editorial_comments.php' );
 include_once( EDIT_FLOW_ROOT . '/php/notifications.php' );
 include_once( EDIT_FLOW_ROOT . '/php/usergroups.php' );
-include_once( EDIT_FLOW_ROOT . '/php/templates/functions.php' );
 include_once( EDIT_FLOW_ROOT . '/php/upgrade.php' );
 include_once( EDIT_FLOW_ROOT . '/php/util.php' );
 include_once( EDIT_FLOW_ROOT . '/php/calendar.php' );
@@ -116,7 +115,7 @@ class edit_flow {
 		// Register all of our classes as Edit Flow modules
 		$this->custom_status = new EF_Custom_Status();
 		$this->calendar = new EF_Calendar();		
-		$this->usergroups = new EF_Usergroups_Admin();
+		$this->usergroups = new EF_Usergroups();
 		$this->editorial_comments = new EF_Editorial_Comments();
 		$this->editorial_metadata = new EF_Editorial_Metadata();
 		$this->story_budget = new EF_Story_Budget();
@@ -272,6 +271,8 @@ class edit_flow {
 	function register_scripts_and_styles() {
 		wp_register_script( 'jquery-listfilterizer', EDIT_FLOW_URL . 'js/jquery.listfilterizer.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 		wp_register_style( 'jquery-listfilterizer', EDIT_FLOW_URL . 'css/jquery.listfilterizer.css', false, EDIT_FLOW_VERSION, 'all' );
+
+		wp_register_script( 'jquery-quicksearch', EDIT_FLOW_URL . 'js/lib/jquery.quicksearch.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 
 		// @compat 3.3
 		// Register jQuery datepicker plugin if it doesn't already exist. Datepicker plugin was added in WordPress 3.3

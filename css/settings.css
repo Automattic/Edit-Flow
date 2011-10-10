@@ -220,3 +220,7 @@ h3.nav-tab-wrapper {
 	font-weight:bold;
 	color: #CC0000;
 }
+
+.form-wrap p.submit a {
+	font-style: normal;
+}
