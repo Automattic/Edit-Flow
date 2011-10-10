@@ -39,6 +39,7 @@ class EF_Custom_Status {
 				'status-added' => __( 'Post status created.', 'edit-flow' ),
 				'default-status-changed' => __( 'Default post status has been changed.', 'edit-flow'),
 				'status-deleted' => __( 'Post status deleted.', 'edit-flow' ),
+				'status-position-updated' => __( "Status order updated", 'edit-flow' ),				
 			),					
 			'autoload' => false,
 		);
@@ -62,6 +63,7 @@ class EF_Custom_Status {
 		add_action( 'admin_init', array( &$this, 'handle_add_custom_status' ) );
 		add_action( 'admin_init', array( &$this, 'handle_make_default_custom_status' ) );
 		add_action( 'admin_init', array( &$this, 'handle_delete_custom_status' ) );
+		add_action( 'wp_ajax_update_status_positions', array( &$this, 'handle_ajax_update_status_positions' ) );		
 		
 		// Hooks to add "status" column to Edit Posts page
 		add_filter( 'manage_posts_columns', array( &$this, '_filter_manage_posts_columns') );
@@ -194,8 +196,10 @@ class EF_Custom_Status {
 	function action_admin_enqueue_scripts() {
 		global $edit_flow;
 		
-		if ( $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) )
-			wp_enqueue_script( 'edit-flow-custom-status-configure', EDIT_FLOW_URL . 'js/custom_status_configure.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
+		if ( $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) ) {
+			wp_enqueue_script( 'jquery-ui-sortable' );			
+			wp_enqueue_script( 'edit-flow-custom-status-configure', EDIT_FLOW_URL . 'js/custom_status_configure.js', array( 'jquery', 'jquery-ui-sortable' ), EDIT_FLOW_VERSION, true );
+		}
 			
 		if ( $this->is_whitelisted_page() )
 			wp_enqueue_script( 'edit_flow-custom_status', EDIT_FLOW_URL.'js/custom_status.js', array('jquery','post'), EDIT_FLOW_VERSION, true );
@@ -391,14 +395,14 @@ class EF_Custom_Status {
 	 * @return array|WP_Error $response The Term ID and Term Taxonomy ID
 	 */
 	function add_custom_status( $term, $args = array() ) {
-		// $args = array( 'alias_of' => '', 'description' => '', 'parent' => 0, 'slug' => '');
+		// Don't reallly need to encode the description here because our helper method handles plain strings
 		$response = wp_insert_term( $term, $this->status_taxonomy, $args );
 		return $response;
 		
 	} // END: add_custom_status()
 	
 	/**
-	 * Basically a wrapper for the wp_update_term function
+	 * Update an existing custom status 
 	 *
 	 * @param int @status_id ID for the status
 	 * @param array $args Any arguments to be updated
@@ -407,25 +411,32 @@ class EF_Custom_Status {
 	function update_custom_status( $status_id, $args = array() ) {
 		global $edit_flow;
 		
-		$default_status = $this->get_default_custom_status()->slug;
-		$defaults = array( 'slug' => $default_status );
+		$old_status = $this->get_custom_status_by( 'id', $status_id );
+		if ( !$old_status || is_wp_error( $old_status ) )
+			return new WP_Error( 'invalid', __( "Custom status doesn't exist.", 'edit-flow' ) );		
+		
+		// If the name was changed, we need to change the slug
+		if ( isset( $args['name'] ) && $args['name'] != $old_status->name )
+			$args['slug'] = sanitize_title( $args['name'] );
 
-		// If new status not indicated, use default status
-		$args = wp_parse_args( $args, $defaults );
-	
-		// Reassign posts to new status slug
-		$old_status = get_term( $status_id, $this->status_taxonomy )->slug;
-
-		if( !$this->is_restricted_status( $old_status ) ) {
+		// Reassign posts to new status slug if the slug changed and isn't restricted
+		if ( isset( $args['slug'] ) && $args['slug'] != $old_status->slug && !$this->is_restricted_status( $old_status->slug ) ) {
 			$new_status = $args['slug'];
-			$this->reassign_post_status( $old_status, $new_status );
+			$this->reassign_post_status( $old_status->slug, $new_status );
 			
-			if ( $old_status == $default_status )
+			$default_status = $this->get_default_custom_status()->slug;			
+			if ( $old_status->slug == $default_status )
 				$edit_flow->update_module_option( $this->module->name, 'default_status', $new_status );
 		}
+		
+		$args_to_encode = array();
+		$args_to_encode['description'] = ( isset( $args['description'] ) ) ? $args['description'] : $old_status->description;
+		$args_to_encode['position'] = ( isset( $args['position'] ) ) ? $args['position'] : $old_status->position;
+		$encoded_description = $edit_flow->helpers->get_encoded_description( $args_to_encode );
+		$args['description'] = $encoded_description;
 
 		$updated_status_array = wp_update_term( $status_id, $this->status_taxonomy, $args );
-		$updated_status = $this->get_custom_status( $updated_status_array['term_id'] );
+		$updated_status = $this->get_custom_status_by( 'id', $updated_status_array['term_id'] );
 
 		return $updated_status;
 		
@@ -469,45 +480,73 @@ class EF_Custom_Status {
 	} // END: delete_custom_status
 
 	/**
-	 * get_custom_statuses()
+	 * Get all custom statuses
 	 *
 	 * @param array|string $statuses
 	 * @param array $args
 	 * @return object $statuses All of the statuses
 	 */
-	function get_custom_statuses( $statuses = '', $args ='' ) {
+	function get_custom_statuses( $args = array() ) {
+		global $edit_flow;
 		
-		// @TODO: implement $args, to allow for pagination, etc. 
-
-		if ( !$statuses ) {
-			// return all stati			
-			$statuses = get_terms( $this->status_taxonomy, array( 'get' => 'all' ) );
-		} else if ( !is_array( $statuses ) ) {
-			// return a single status			
-		} else {
-			// return multiple stati 	
+		$default = array(
+			'hide_empty' => false,
+		);
+		$args = array_merge( $default, $args );
+		$statuses = get_terms( $this->status_taxonomy, $args );
+		// Expand and order the statuses		
+		$ordered_statuses = array();
+		$hold_to_end = array();
+		foreach ( $statuses as $key => $status ) {
+			// Unencode and set all of our psuedo term meta because we need the position if it exists
+			$unencoded_description = $edit_flow->helpers->get_unencoded_description( $status->description );
+			if ( is_array( $unencoded_description ) ) {
+				foreach( $unencoded_description as $key => $value ) {
+					$status->$key = $value;
+				}
+			}
+			// We require the position key later on (e.g. management table)
+			if ( !isset( $status->position ) )
+				$status->position = false;
+			// Only add the status to the ordered array if it has a set position and doesn't conflict with another key
+			// Otherwise, hold it for later	
+			if ( $status->position && !array_key_exists( $status->position, $ordered_statuses ) ) {
+				$ordered_statuses[(int)$status->position] = $status;
+			} else {
+				$hold_to_end[] = $status;
+			}
 		}
-		
-		return $statuses;
-				
-	} // END: get_custom_statuses()
+		// Sort the items numerically by key
+		ksort( $ordered_statuses, SORT_NUMERIC );
+		// Append all of the statuses that didn't have an existing position
+		foreach( $hold_to_end as $unpositioned_status )
+			$ordered_statuses[] = $unpositioned_status;
+		return $ordered_statuses;
+	}
 	
 	/**
-	 * get_custom_status()
-	 * Returns the a single status object based on ID or slug
+	 * Returns the a single status object based on ID, title, or slug
 	 *
-	 * @param string|int $status The status to search for, either by slug or ID
-	 * @return object $status The object for the matching status
+	 * @param string|int $string_or_int The status to search for, either by slug or ID
+	 * @return object|WP_Error $status The object for the matching status
 	 */
-	function get_custom_status( $status ) {
+	function get_custom_status_by( $field, $value ) {
+		global $edit_flow;
 		
-		if ( is_int( $status ) ) {
-			return get_term_by( 'id', $status, $this->status_taxonomy );
-		} else {
-			return get_term_by( 'slug', $status, $this->status_taxonomy );
+		$status = get_term_by( $field, $value, $this->status_taxonomy );
+		if ( !$status || is_wp_error( $status ) )
+			return $status;
+		// Unencode and set all of our psuedo term meta because we need the position if it exists
+		$status->position = false;
+		$unencoded_description = $edit_flow->helpers->get_unencoded_description( $status->description );
+		if ( is_array( $unencoded_description ) ) {
+			foreach( $unencoded_description as $key => $value ) {
+				$status->$key = $value;
+			}
 		}
+		return $status;
 		
-	} // END: get_custom_status()
+	}
 
 	/**
 	 * Get the term object for the default custom post status
@@ -516,7 +555,7 @@ class EF_Custom_Status {
 	 */
 	function get_default_custom_status() {
 		global $edit_flow;
-		$default_status = get_term_by( 'slug', $this->module->options->default_status, $this->status_taxonomy );
+		$default_status = $this->get_custom_status_by( 'slug', $this->module->options->default_status );
 		return $default_status;
 		
 	}
@@ -606,6 +645,35 @@ class EF_Custom_Status {
 	} // END: is_restricted_status()
 	
 	/**
+	 * Handle the ajax request to update all of the status positions
+	 *
+	 * @since 0.7
+	 */
+	function handle_ajax_update_status_positions() {
+		global $edit_flow;
+		
+		if ( !wp_verify_nonce( $_POST['custom_status_sortable_nonce'], 'custom-status-sortable' ) )
+			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
+		
+		if ( !current_user_can( 'manage_options') )
+			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
+		
+		if ( !isset( $_POST['status_positions'] ) || !is_array( $_POST['status_positions'] ) )
+			$edit_flow->helpers->print_ajax_response( 'error', __( 'Terms not set.', 'edit-flow' ) );
+			
+		foreach ( $_POST['status_positions'] as $position => $term_id ) {
+			
+			// Have to add 1 to the position because the index started with zero
+			$args = array(
+				'position' => (int)$position + 1,
+			);
+			$return = $this->update_custom_status( (int)$term_id, $args );
+			// @todo check that this was a valid return
+		}
+		$edit_flow->helpers->print_ajax_response( 'success', $this->module->messages['status-position-updated'] );	
+	}
+	
+	/**
 	 * Register settings for notifications so we can partially use the Settings API
 	 * (We use the Settings API for form generation, but not saving)
 	 * 
@@ -675,6 +743,7 @@ class EF_Custom_Status {
 			<div id="col-right">
 				<div class="col-wrap">
 					<?php $wp_list_table->display(); ?>
+					<?php wp_nonce_field( 'custom-status-sortable', 'custom-status-sortable' ); ?>
 					<p class="description" style="padding-top:10px;"><?php _e( 'Deleting a post status will assign all posts to the default post status.', 'edit-flow' ); ?></p>
 				</div>
 			</div>
@@ -936,7 +1005,7 @@ class EF_Custom_Status {
 			wp_die( __( 'Sorry, you do not have permission to edit custom statuses.', 'edit-flow' ) );
 		
 		$term_id = (int)$_GET['term_id'];		
-		$term = $this->get_custom_status( $term_id );
+		$term = $this->get_custom_status_by( 'id', $term_id );
 		if ( is_object( $term ) ) {
 			$edit_flow->update_module_option( $this->module->name, 'default_status', $term->slug );
 			// @todo How do we want to handle users who click the link from "Add New Status"
@@ -982,7 +1051,7 @@ class EF_Custom_Status {
 		
 		// Check to make sure the status isn't already deleted
 		$term_id = (int)$_GET['term_id'];
-		$term = $this->get_custom_status( $term_id );		
+		$term = $this->get_custom_status_by( 'id', $term_id );		
 		if( !$term )
  			wp_die( __( 'Status does not exist.', 'edit-flow' ) );
 
@@ -1050,7 +1119,9 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		global $edit_flow;		
 		
 		$columns = $this->get_columns();
-		$hidden = array();
+		$hidden = array(
+			'position',
+		);
 		$sortable = array();
 		$this->_column_headers = array($columns, $hidden, $sortable);
 		
@@ -1069,7 +1140,8 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		global $edit_flow;
 
 		$columns = array(
-			'custom_status'		=> __( 'Custom Status', 'edit-flow' ),
+			'position'			=> __( 'Position', 'edit-flow' ),
+			'name'			    => __( 'Name', 'edit-flow' ),
 			'description' 		=> __( 'Description', 'edit-flow' ),
 		);
 		
@@ -1089,6 +1161,7 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		$post_types = get_post_types( '', 'names' );
 		if ( in_array( $column_name, $post_types ) ) {
 		
+			// @todo Cachify this
 			$post_count = wp_cache_get( "ef_custom_status_count_$column_name" );
 			if ( false === $post_count ) {
 				$posts = wp_count_posts( $column_name );
@@ -1098,24 +1171,26 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 					$post_count = $posts->$post_status;
 				else
 					$post_count = 0;
-				// @todo Cachify this
 				//wp_cache_set( "ef_custom_status_count_$column_name", $post_count );
 			}
-			$output = sprintf( '<a href="%1$s">%2$s</a>', $edit_flow->helpers->filter_posts_link( $item->slug, $column_name ), $post_count );
+			$output = sprintf( '<a title="See all %1$ss saved as \'%2$s\'" href="%3$s">%4$s</a>', $column_name, $item->name, $edit_flow->helpers->filter_posts_link( $item->slug, $column_name ), $post_count );
 			return $output;
 		}
 		
 	}
 	
 	/**
-	 * Handle the 'description' column for the table of custom statuses
+	 * Hidden column for storing the status position
+	 *
+	 * @since 0.7
+	 *
+	 * @param object $item Custom status as an object
 	 */
-	function column_description( $item ) {
-		return esc_html( $item->description );
+	function column_position( $item ) {
+		return esc_html( $item->position );
 	}
 	
-	
-	function column_custom_status( $item ) {
+	function column_name( $item ) {
 		global $edit_flow;
 		
 		$output = '<strong>' . esc_html( $item->name );
@@ -1143,15 +1218,21 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		
 		return $output;
 			
+	}	
+	
+	/**
+	 * Handle the 'description' column for the table of custom statuses
+	 */
+	function column_description( $item ) {
+		return esc_html( $item->description );
 	}
 	
-	function single_row( $item, $level = 0 ) {
-		static $row_class = '';
-		$row_class = ( $row_class == '' ? ' class="alternate"' : '' );
+	function single_row( $item ) {
+		static $alternate_class = '';
+		$alternate_class = ( $alternate_class == '' ? ' alternate' : '' );
+		$row_class = ' class="term-static' . $alternate_class . '"';
 
-		$this->level = $level;
-
-		echo '<tr id="status-' . $item->term_id . '"' . $row_class . '>';
+		echo '<tr id="term-' . $item->term_id . '"' . $row_class . '>';
 		echo $this->single_row_columns( $item );
 		echo '</tr>';
 	}

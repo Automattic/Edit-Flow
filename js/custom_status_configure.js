@@ -5,7 +5,7 @@ inlineEditCustomStatus = {
 	init : function() {
 		var t = this, row = $('#inline-edit');
 
-		t.what = '#status-';
+		t.what = '#term-';
 
 		$('.editinline').live('click', function(){
 			inlineEditCustomStatus.edit(this);
@@ -121,5 +121,45 @@ jQuery(document).ready(function(){
 		if ( !confirm( ef_confirm_delete_status_string ) )
 			return false;
 	});
+	
+	/**
+	 * Instantiate the drag and drop sorting functionality
+	 */
+	jQuery( "#the-list" ).sortable({
+		items: 'tr.term-static',
+		update: function(event, ui) {
+			var affected_item = ui.item;
+			// Reset the position indicies for all terms
+			jQuery('#the-list tr').removeClass('alternate');
+			var terms = new Array();
+			jQuery('#the-list tr.term-static').each(function(index, value){
+				var term_id = jQuery(this).attr('id').replace('term-','');
+				terms[index] = term_id;
+				jQuery( 'td.position', this ).html( index + 1 );
+				// Update the WP core design for alternating rows
+				if ( index%2 == 0 )
+					jQuery(this).addClass('alternate');
+			});
+			// Prepare the POST
+			var params = {
+				action: 'update_status_positions',
+				status_positions: terms,
+				custom_status_sortable_nonce: jQuery('#custom-status-sortable').val(),
+			};
+			// Inform WordPress of our updated positions
+			jQuery.post( ajaxurl, params, function( retval ){
+				jQuery('.edit-flow-admin .message').remove();
+				jQuery('.edit-flow-admin .explanation').remove();
+				// If there's a success message, print it. Otherwise we assume we received an error message
+				if ( retval.status == 'success' ) {
+					var message = '<div class="updated message"><p>' + retval.message + '</p></div>';
+				} else {
+					var message = '<div class="error message"><p>' + retval.message + '</p></div>';
+				}
+				jQuery('.edit-flow-admin h2').after( message );
+			});
+		},
+	});
+	jQuery( "#the-list tr.term-static" ).disableSelection();
 	
 });
