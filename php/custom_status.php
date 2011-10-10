@@ -1066,11 +1066,6 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 			'per_page' => $per_page,
 		) );		
 		
-	}	
-	
-	function current_action() {
-		
-		return parent::current_action();
 	}
 	
 	function get_columns() {
