@@ -140,15 +140,14 @@ class EF_Helpers {
 			'trash' => __( 'Trash', 'edit-flow' ),
 		);
 		
-		if ( array_key_exists( $status, $builtin_stati ) ) {
-			$status_friendly_name = $builtin_stati[$status];
-		} else if ( isset( $edit_flow->custom_status ) && $edit_flow->custom_status->module->options->enabled == 'on' ) {
-			$status_object = $edit_flow->custom_status->get_custom_status( $status );
+		if ( $this->module_enabled( 'custom_status' ) ) {
+			$status_object = $edit_flow->custom_status->get_custom_status_by( 'slug', $status );
 			if( $status_object && !is_wp_error( $status_object ) ) {
 				$status_friendly_name = $status_object->name;
 			}
+		} else if ( array_key_exists( $status, $builtin_stati ) ) {
+			$status_friendly_name = $builtin_stati[$status];
 		}
-		
 		return $status_friendly_name;
 	}
 	
