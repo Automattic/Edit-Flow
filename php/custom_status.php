@@ -14,9 +14,10 @@ if ( !class_exists( 'EF_Custom_Status' ) ) {
 
 class EF_Custom_Status {
 
-	// This is taxonomy name used to store all our custom statuses
-	var $status_taxonomy = 'post_status';
 	var $module;
+	
+	// This is taxonomy name used to store all our custom statuses
+	const taxonomy_key = 'post_status';	
 	
 	/**
 	 * Register the module with Edit Flow but don't do anything else
@@ -100,7 +101,7 @@ class EF_Custom_Status {
 		global $wp_post_statuses;
 		
 		// Register new taxonomy so that we can store all our fancy new custom statuses (or is it stati?)
-		if ( !taxonomy_exists( $this->status_taxonomy ) ) {
+		if ( !taxonomy_exists( self::taxonomy_key ) ) {
 			$args = array(	'hierarchical' => false, 
 							'update_count_callback' => '_update_post_term_count',
 							'label' => false,
@@ -108,7 +109,7 @@ class EF_Custom_Status {
 							'rewrite' => false,
 							'show_ui' => false
 					);
-			register_taxonomy( $this->status_taxonomy, 'post', $args );
+			register_taxonomy( self::taxonomy_key, 'post', $args );
 		}		
 		
 		if ( function_exists( 'register_post_status' ) ) {
@@ -408,7 +409,7 @@ class EF_Custom_Status {
 	 */
 	function add_custom_status( $term, $args = array() ) {
 		// Don't reallly need to encode the description here because our helper method handles plain strings
-		$response = wp_insert_term( $term, $this->status_taxonomy, $args );
+		$response = wp_insert_term( $term, self::taxonomy_key, $args );
 		return $response;
 		
 	}
@@ -447,7 +448,7 @@ class EF_Custom_Status {
 		$encoded_description = $edit_flow->helpers->get_encoded_description( $args_to_encode );
 		$args['description'] = $encoded_description;
 
-		$updated_status_array = wp_update_term( $status_id, $this->status_taxonomy, $args );
+		$updated_status_array = wp_update_term( $status_id, self::taxonomy_key, $args );
 		$updated_status = $this->get_custom_status_by( 'id', $updated_status_array['term_id'] );
 
 		return $updated_status;
@@ -474,7 +475,7 @@ class EF_Custom_Status {
 			$default_status = $this->get_default_custom_status()->slug;
 			// If new status in $reassign, use that for all posts of the old_status
 			if( !empty( $reassign ) )
-				$new_status = get_term($reassign, $this->status_taxonomy)->slug;
+				$new_status = get_term($reassign, self::taxonomy_key)->slug;
 			else
 				$new_status = $default_status;
 			if ( $old_status == $default_status && $this->get_custom_status_by( 'slug', 'draft' ) ) { // Deleting default status
@@ -484,9 +485,9 @@ class EF_Custom_Status {
 			
 			$this->reassign_post_status( $old_status, $new_status );
 			
-			return wp_delete_term( $status_id, $this->status_taxonomy, $args );
+			return wp_delete_term( $status_id, self::taxonomy_key, $args );
 		} else
-			return new WP_Error( 'restricted', __( 'Restricted status ', 'edit-flow' ) . '(' . get_term($status_id, $this->status_taxonomy)->name . ')' );
+			return new WP_Error( 'restricted', __( 'Restricted status ', 'edit-flow' ) . '(' . get_term($status_id, self::taxonomy_key)->name . ')' );
 			
 	}
 
@@ -504,7 +505,7 @@ class EF_Custom_Status {
 			'hide_empty' => false,
 		);
 		$args = array_merge( $default, $args );
-		$statuses = get_terms( $this->status_taxonomy, $args );
+		$statuses = get_terms( self::taxonomy_key, $args );
 		// Expand and order the statuses		
 		$ordered_statuses = array();
 		$hold_to_end = array();
@@ -544,7 +545,7 @@ class EF_Custom_Status {
 	function get_custom_status_by( $field, $value ) {
 		global $edit_flow;
 		
-		$status = get_term_by( $field, $value, $this->status_taxonomy );
+		$status = get_term_by( $field, $value, self::taxonomy_key );
 		if ( !$status || is_wp_error( $status ) )
 			return $status;
 		// Unencode and set all of our psuedo term meta because we need the position if it exists
