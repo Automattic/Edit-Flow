@@ -388,15 +388,6 @@ function ef_add_caps_to_role( $role, $caps ) {
 	}
 }
 
-// Wrapper for taxonomy_exists / is_taxonomy functions
-// Needed for 2.9 compatibility
-function ef_taxonomy_exists( $taxonomy ) {
-	if( function_exists( 'taxonomy_exists' ) )
-		return taxonomy_exists( $taxonomy );
-	else
-		return is_taxonomy( $taxonomy );
-}
-
 // Lifted fromhttp://stackoverflow.com/questions/11/how-do-i-calculate-relative-time/18393#18393
 // We can probably do better and customize further
 function ef_timesince( $original ) {

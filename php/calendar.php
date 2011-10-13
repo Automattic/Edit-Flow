@@ -343,7 +343,7 @@ class EF_Calendar {
 					<?php
 								
 					// Filter by categories, borrowed from wp-admin/edit.php
-					if ( ef_taxonomy_exists('category') ) {
+					if ( taxonomy_exists('category') ) {
 						$category_dropdown_args = array(
 							'show_option_all' => __( 'View all categories', 'edit-flow' ),
 							'hide_empty' => 0,

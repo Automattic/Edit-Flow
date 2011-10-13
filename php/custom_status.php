@@ -100,7 +100,7 @@ class EF_Custom_Status {
 		global $wp_post_statuses;
 		
 		// Register new taxonomy so that we can store all our fancy new custom statuses (or is it stati?)
-		if ( !ef_taxonomy_exists( $this->status_taxonomy ) ) {
+		if ( !taxonomy_exists( $this->status_taxonomy ) ) {
 			$args = array(	'hierarchical' => false, 
 							'update_count_callback' => '_update_post_term_count',
 							'label' => false,
