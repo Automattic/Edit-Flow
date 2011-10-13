@@ -751,11 +751,11 @@ class EF_Custom_Status {
 				<div class="col-wrap">	
 				<div class="form-wrap">
 				<h3 class="nav-tab-wrapper">
-					<a href="<?php echo esc_url( add_query_arg( array( 'page' => $this->module->settings_slug ), get_admin_url( null, 'admin.php' ) ) ); ?>" class="nav-tab<?php if ( !isset( $_GET['action'] ) || $_GET['action'] != 'change-options' ) echo ' nav-tab-active'; ?>"><?php _e( 'Add New', 'edit-flow' ); ?></a>
-					<a href="<?php echo esc_url( add_query_arg( array( 'page' => $this->module->settings_slug, 'action' => 'change-options' ), get_admin_url( null, 'admin.php' ) ) ); ?>" class="nav-tab<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'change-options' ) echo ' nav-tab-active'; ?>"><?php _e( 'Options', 'edit-flow' ); ?></a>
+					<a href="<?php echo esc_url( $this->get_link() ); ?>" class="nav-tab<?php if ( !isset( $_GET['action'] ) || $_GET['action'] != 'change-options' ) echo ' nav-tab-active'; ?>"><?php _e( 'Add New', 'edit-flow' ); ?></a>
+					<a href="<?php echo esc_url( $this->get_link( array( 'action' => 'change-options' ) ) ); ?>" class="nav-tab<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'change-options' ) echo ' nav-tab-active'; ?>"><?php _e( 'Options', 'edit-flow' ); ?></a>
 				</h3>
 				<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'change-options' ): ?>
-				<form class="basic-settings" action="<?php echo esc_url( add_query_arg( array( 'page' => $this->module->settings_slug, 'action' => 'change-options' ), get_admin_url( null, 'admin.php' ) ) ); ?>" method="post">
+				<form class="basic-settings" action="<?php echo esc_url( $this->get_link( array( 'action' => 'change-options' ) ) ); ?>" method="post">
 					<?php settings_fields( $this->module->options_group_name ); ?>
 					<?php do_settings_sections( $this->module->options_group_name ); ?>	
 					<?php echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />'; ?>
@@ -763,7 +763,7 @@ class EF_Custom_Status {
 				</form>
 				<?php else: ?>
 				<?php /** Custom form for adding a new Custom Status term **/ ?>
-					<form class="add:the-list:" action="<?php echo esc_url( add_query_arg( array( 'page' => $this->module->settings_slug ), get_admin_url( null, 'admin.php' ) ) ); ?>" method="post" id="addstatus" name="addstatus">
+					<form class="add:the-list:" action="<?php echo esc_url( $this->get_link() ); ?>" method="post" id="addstatus" name="addstatus">
 					<div class="form-field form-required">
 						<label for="status_name"><?php _e( 'Name', 'edit-flow' ); ?></label>
 						<input type="text" aria-required="true" size="20" maxlength="20" id="status_name" name="status_name" value="<?php if ( !empty( $_POST['status_name'] ) ) esc_attr_e( $_POST['status_name'] ) ?>" />
@@ -967,49 +967,38 @@ class EF_Custom_Status {
 		if ( is_wp_error( $return ) )
 			wp_die( __( 'Could not add status: ', 'edit-flow' ) . $return->get_error_message() );
 		
-		$redirect_url = add_query_arg( array( 'page' => $this->module->settings_slug, 'message' => 'status-added' ), get_admin_url( null, 'admin.php' ) );
+		$redirect_url = $this->get_link( array( 'message' => 'status-added' ) );
 		wp_redirect( $redirect_url );
 		exit;
 		
 	}
 	
 	/**
-	 * Generate a link to make the custom status the default
-	 */
-	function make_status_default_link( $id ) {
-		$args = array(
-			'page' => $this->module->settings_slug,
-			'action' => 'make-default',
-			'term_id' => (int) $id,
-			'nonce' => wp_create_nonce( 'custom-status-make-default' ),
-		);
- 		return add_query_arg( $args, get_admin_url( null, 'admin.php' ) );
-	}
-	
-	/**
 	 * Handles a request to make a default status
+	 *
+	 * @since 0.7
 	 */
 	function handle_make_default_custom_status() {
 		global $edit_flow;
 		
-		if ( !isset( $_GET['page'], $_GET['action'], $_GET['term_id'], $_GET['nonce'] )
+		if ( !isset( $_GET['page'], $_GET['action'], $_GET['term-id'], $_GET['nonce'] )
 			|| $_GET['page'] != $this->module->settings_slug || $_GET['action'] != 'make-default' )
 			return;
 		
 		// Check for proper nonce
-		if ( !wp_verify_nonce( $_GET['nonce'], 'custom-status-make-default' ) )
+		if ( !wp_verify_nonce( $_GET['nonce'], 'make-default' ) )
 			wp_die( __( 'Invalid nonce for submission.', 'edit-flow' ) );
 		
 		// Only allow users with the proper caps
 		if ( !current_user_can( 'manage_options' ) )
 			wp_die( __( 'Sorry, you do not have permission to edit custom statuses.', 'edit-flow' ) );
 		
-		$term_id = (int)$_GET['term_id'];		
+		$term_id = (int)$_GET['term-id'];		
 		$term = $this->get_custom_status_by( 'id', $term_id );
 		if ( is_object( $term ) ) {
 			$edit_flow->update_module_option( $this->module->name, 'default_status', $term->slug );
 			// @todo How do we want to handle users who click the link from "Add New Status"
-			$redirect_url = add_query_arg( array( 'page' => $this->module->settings_slug, 'message' => 'default-status-changed' ), get_admin_url( null, 'admin.php' ) );
+			$redirect_url = $this->get_link( array( 'message' => 'default-status-changed' ) );
 			wp_redirect( $redirect_url );
 			exit;
 		} else {
@@ -1019,30 +1008,17 @@ class EF_Custom_Status {
 	}
 	
 	/**
-	 * Generate a link to delete the status
-	 */
-	function delete_status_link( $id ) {
-		$args = array(
-			'page' => $this->module->settings_slug,
-			'action' => 'delete-status',
-			'term_id' => (int) $id,
-			'nonce' => wp_create_nonce( 'custom-status-delete' ),
-		);
- 		return add_query_arg( $args, get_admin_url( null, 'admin.php' ) );
-	}
-	
-	/**
 	 * Handles a request to make a default status
 	 */
 	function handle_delete_custom_status() {
 		global $edit_flow;
 		
-		if ( !isset( $_GET['page'], $_GET['action'], $_GET['term_id'], $_GET['nonce'] )
+		if ( !isset( $_GET['page'], $_GET['action'], $_GET['term-id'], $_GET['nonce'] )
 			|| $_GET['page'] != $this->module->settings_slug || $_GET['action'] != 'delete-status' )
 			return;
 		
 		// Check for proper nonce
-		if ( !wp_verify_nonce( $_GET['nonce'], 'custom-status-delete' ) )
+		if ( !wp_verify_nonce( $_GET['nonce'], 'delete-status' ) )
 			wp_die( __( 'Invalid nonce for submission.', 'edit-flow' ) );
 		
 		// Only allow users with the proper caps
@@ -1050,7 +1026,7 @@ class EF_Custom_Status {
 			wp_die( __( 'Sorry, you do not have permission to edit custom statuses.', 'edit-flow' ) );
 		
 		// Check to make sure the status isn't already deleted
-		$term_id = (int)$_GET['term_id'];
+		$term_id = (int)$_GET['term-id'];
 		$term = $this->get_custom_status_by( 'id', $term_id );		
 		if( !$term )
  			wp_die( __( 'Status does not exist.', 'edit-flow' ) );
@@ -1063,10 +1039,35 @@ class EF_Custom_Status {
 		if ( is_wp_error( $return ) )
 			wp_die( __( 'Could not delete the status: ', 'edit-flow' ) . $return->get_error_message() );
 		
-		$redirect_url = add_query_arg( array( 'page' => $this->module->settings_slug, 'message' => 'status-deleted' ), get_admin_url( null, 'admin.php' ) );
+		$redirect_url = $this->get_link( array( 'message' => 'status-deleted' ) );
 		wp_redirect( $redirect_url );
 		exit;
 		
+	}
+	
+	/**
+	 * Generate a link to one of the custom status actions
+	 *
+	 * @since 0.7
+	 *
+	 * @param array $args (optional) Action and any query args to add to the URL
+	 * @return string $link Direct link to complete the action
+	 */
+	function get_link( $args = array() ) {
+		if ( !isset( $args['action'] ) )
+			$args['action'] = '';
+		if ( !isset( $args['page'] ) )
+			$args['page'] = $this->module->settings_slug;
+		// Add other things we may need depending on the action
+		switch( $args['action'] ) {
+			case 'make-default':
+			case 'delete-status':
+				$args['nonce'] = wp_create_nonce( $args['action'] );
+				break;
+			default:
+				break;
+		}
+		return add_query_arg( $args, get_admin_url( null, 'admin.php' ) );
 	}
 		
 } // END: class custom_status
@@ -1183,11 +1184,11 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		
 		$actions = array();
 		if ( $item->slug != $this->default_status )
-			$actions['make_default'] = sprintf( '<a href="%1$s">' . __( 'Make&nbsp;Default', 'edit-flow' ) . '</a>', $edit_flow->custom_status->make_status_default_link( $item->term_id ) );
+			$actions['make_default'] = sprintf( '<a href="%1$s">' . __( 'Make&nbsp;Default', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'make-default', 'term-id' => $item->term_id ) ) );
 		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';
 		
 		if ( $item->slug != $this->default_status )
-			$actions['delete delete-status'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->custom_status->delete_status_link( $item->term_id ) );
+			$actions['delete delete-status'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'delete-status', 'term-id' => $item->term_id ) ) );
 		
 		$output .= $this->row_actions( $actions, false );
 		$output .= '<div class="hidden" id="inline_' . $item->term_id . '">';
