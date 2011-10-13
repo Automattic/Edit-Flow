@@ -1,164 +1,85 @@
 <?php
-
-// Code for all dashboard widgets will go here
+/**
+ * class EF_Dashboard
+ * All of the code for the dashboard widgets from Edit Flow
+ *
+ * Dashboard widgets currently:
+ * - Post Status Widget - Shows numbers for all (custom|post) statuses
+ * - Posts I'm Following Widget - Show the headlines with edit links for posts I'm following
+ *
+ * @todo for 0.7
+ * - Update the Posts I'm Following widget to use new activity class
+ */
 
 if ( !class_exists('EF_Dashboard') ) {
 
 class EF_Dashboard {
 	
+	/**
+	 * Load the EF_Dashboard class as an Edit Flow module
+	 */
 	function __construct () {
-		add_action('wp_dashboard_setup', array(&$this, 'add_dashboard_widgets'));
+		global $edit_flow;
+		
+		// Register the module with Edit Flow	
+		$args = array(
+			'title' => __( 'Dashboard Widgets', 'edit-flow' ),
+			'short_description' => __( 'Quickly access an overview of your content.', 'edit-flow' ),
+			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
+			'img_url' => false,
+			'slug' => 'dashboard',
+			'post_type_support' => 'ef_dashboard',
+			'default_options' => array(
+				'enabled' => 'on',
+				'post_status_widget' => 'on',
+				'my_posts_widget' => 'on',
+			),
+			'configure_page_cb' => 'print_configure_view',
+			'configure_link_text' => __( 'Widget Options', 'edit-flow' ),		
+		);
+		$this->module = $edit_flow->register_module( 'dashboard', $args );
 	}
 	
-	function add_dashboard_widgets () {
+	/**
+	 * Initialize all of the class' functionality if its enabled
+	 */
+	function init() {
+		
+		// Add the widgets to the dashboard
+		add_action( 'wp_dashboard_setup', array( &$this, 'add_dashboard_widgets') );
+		
+		// Register our settings
+		add_action( 'admin_init', array( &$this, 'register_settings' ) );		
+		
+	}
+	
+	/**
+	 * Add Edit Flow dashboard widgets to the WordPress admin dashboard
+	 */
+	function add_dashboard_widgets() {
 		global $edit_flow, $current_user;
 		
-		//if (!$edit_flow->get_plugin_option('dashboard_widgets_enabled')) {
+		// Only show dashboard widgets for Contributor or higher
+		if ( !$current_user->has_cap('edit_posts') ) 
 			return;
-		//}
 		
-		// If the current user is a Contributor or greater, show the dashboard widgets
-		if ($current_user->has_cap('edit_posts')) {
+		wp_enqueue_style( 'edit-flow-dashboard-css', EDIT_FLOW_URL . 'css/dashboard.css', false, EDIT_FLOW_VERSION, 'all' );			
 			
-			// Set up Post Status widget but, first, check to see if it's enabled
-			/* if ($edit_flow->get_plugin_option('post_status_widget_enabled')) {
-				wp_add_dashboard_widget('post_status_widget', __('Unpublished Content', 'edit-flow'), array(&$this, 'post_status_widget'));
-			} */
+		// Set up Post Status widget but, first, check to see if it's enabled
+		if ( $this->module->options->post_status_widget == 'on')
+			wp_add_dashboard_widget( 'post_status_widget', __( 'Unpublished Content', 'edit-flow' ), array( &$this, 'post_status_widget' ) );
 			
-			/* 
-			QuickPitch widget is disabled as of v0.6 because we need to refactor editorial metadata handling ^DB
-			// Add the QuickPitch widget, if enabled
-			if ($edit_flow->get_plugin_option('quickpitch_widget_enabled')) {
-				wp_add_dashboard_widget('quick_pitch_widget', __('QuickPitch', 'edit-flow'), array(&$this, 'quick_pitch_widget'));
-			}
-			*/
-			
-			// Add the MyPosts widget, if enabled
-			/* if ($edit_flow->get_plugin_option('myposts_widget_enabled')) {
-				wp_add_dashboard_widget('myposts_widget', __('Posts I\'m Following', 'edit-flow'), array(&$this, 'myposts_widget'));
-			} */
+		// Add the MyPosts widget, if enabled
+		if ( $this->module->options->my_posts_widget == 'on')			
+			wp_add_dashboard_widget( 'myposts_widget', __( 'Posts I\'m Following', 'edit-flow' ), array( &$this, 'myposts_widget' ) );
 
-			// Add the dashboard styles
-			wp_enqueue_style( 'edit_flow-styles', EDIT_FLOW_URL . 'css/editflow.css', false, EDIT_FLOW_VERSION, 'all' );
-		}
-		
-	}
-	
-	function quick_pitch_widget() {
-		global $post, $edit_flow, $current_user;
-		
-		if( isset($_POST['ef_submit']) && trim($_POST['ef_title']) != '') {
-			
-			check_admin_referer( 'quickpitch-submit', 'ef-quickpitch_nonce' );
-			
-			//$pitch_status = ef_term_exists( 'pitch', $edit_flow->custom_status->status_taxonomy ) ? 'pitch' : $edit_flow->get_plugin_option('custom_status_default_status');
-			
-			// Get WordPress-specific post data
-			$post['post_title'] = esc_sql($_POST['ef_title']);
-			$post['post_author'] = esc_sql($_POST['ef_author']);
-			$post['post_status'] = $pitch_status;
-			
-			$post_id = wp_insert_post($post);
-			
-			// Get metadata specific to Edit Flow and save it in custom fields
-			$description = esc_sql($_POST['ef_description']);
-			update_post_meta($post_id, '_ef_description', $description);
-			//$duedate = esc_sql($_POST['ef_duedate']);
-			//$duedate_unix = strtotime($duedate);
-			//update_post_meta($post_id, '_ef_duedate', $duedate_unix);
-			$location = esc_sql($_POST['ef_location']);
-			update_post_meta($post_id, '_ef_location', $location);
-			//$workflow = esc_sql($_POST['ef_workflow']);
-			//update_post_meta($post_id, '_ef_workflow', $workflow);
-			
-			?>
-			
-			<div id="quick-pitch-notification" onload="jQuery('#quick-pitch-form').hide();">
-				
-				<h3><?php _e('Pitch Saved', 'edit-flow') ?></h3>
-				
-				<p><strong><?php _e('Title:', 'edit-flow') ?></strong> <?php echo $post['post_title']; ?></p>
-				<p><strong><?php _e('Author:', 'edit-flow') ?></strong> <?php the_author_meta('user_nicename', $post['post_author']); ?></p>
-				<p><strong><?php _e('Details:', 'edit-flow') ?></strong> <?php if ($description != "") { echo $description; } else { echo "<em>" . __( 'None specified', 'edit-flow' ) . "</em>"; } ?></p>
-				<p><strong><?php _e('Location:', 'edit-flow') ?></strong> <?php if ($location != "") { echo $location; } else { echo "<em>" . __( 'None specified', 'edit-flow' ) . "</em>"; } ?></p>
-				<!--<p><strong><?php _e('Due date:', 'edit-flow') ?></strong> <?php if ($duedate != "") { echo $duedate; } else { echo "<em>" . __( 'None specified', 'edit-flow' ) . "</em>"; } ?></p>-->
-				
-				<div class="ef-submit">
-					<a href="<?php echo admin_url('post.php') ?>?action=edit&amp;post=<?php echo $post_id; ?>" class="button"><?php _e( 'Edit', 'edit-flow' ); ?></a>&nbsp;&nbsp;
-					<a href="javascript:void(0);" onclick="jQuery('#quick-pitch-notification').hide();jQuery('#quick-pitch-form').slideDown(300);" class="button-primary"><?php _e('New Pitch', 'edit-flow') ?></a>
-				</div>
-			</div>
-			
-			<?php
-			
-		}
-		
-		$authors = get_editable_user_ids( $current_user->id );
-		if ( $post->post_author && !in_array($post->post_author, $authors) )
-			$authors[] = $post->post_author;
-			
-		?>
-		
-		<div id="quick-pitch-form" <?php if (isset($_POST['ef_submit']) && $_POST['ef_title'] != "") { echo 'style="display:none;"'; } ?>>
-		<?php if (isset($_POST['ef_submit']) && $_POST['ef_title'] == "") { ?>
-			<div class="quick-pitch-notice"><?php _e('Missing title. Title is required.', 'edit-flow') ?></div>
-		<?php } ?>
-		
-		<form name="pitch" id="quick-pitch" method="post">
-			
-			<p><?php _e('Got an idea for a new post or have some lingering thoughts you want to stash somewhere? Use the form below to flesh out the idea and we\'ll save it for you!', 'edit-flow') ?></p>
-			
-			<h4><label for="ef_title"><?php _e('Title', 'edit-flow') ?></label></h4>
-			<div class="input-text-wrap">
-				<input type="text" name="ef_title" id="ef_title" autocomplete="off" value="" />
-			</div>
-			
-			
-			<?php if ($current_user->has_cap('edit_others_posts')) : ?>
-				<div id="ef_author_div">
-					<h4><label for="ef_author"><?php _e('Author', 'edit-flow') ?></label></h4>
-					<?php wp_dropdown_users(array('name' => 'ef_author')); ?>
-				</div>
-			<?php else : ?>
-				<input type="hidden" name="ef_author" value="<?php echo $current_user->ID ?>" />
-			<?php endif; ?>
-			
-			<h4><label for="ef_description"><?php _e('Details', 'edit-flow') ?></label></h4>
-			<div class="textarea-wrap">
-				<textarea name="ef_description" id="ef_description" rows="3" cols="15" maxlength="255"></textarea>
-			</div>
-			
-			<h4><label for="ef_location"><?php _e('Location', 'edit-flow') ?></label></h4>
-			<div class="input-text-wrap">
-				<input type="text" id="ef_location" name="ef_location" maxlength="50" />
-			</div>
-			
-			<!--
-			<h4><label for="ef_duedate"><?php _e('Due date', 'edit-flow') ?></label></h4>
-			<div class="input-text-wrap">
-				<input type="text" id="ef_duedate" name="ef_duedate" maxlength="25" />
-			</div>
-			-->
-			
-			<div class="ef-submit">
-				<a href="javascript:void(0);" class="button" onclick="jQuery('#ef_title').val('');
-						jQuery('#ef_description').val('');
-						jQuery('#ef_location').val('');
-						jQuery('#ef_duedate').val('');"><?php _e('Reset', 'edit-flow') ?></a>&nbsp;&nbsp;
-				<input type="submit" name="ef_submit" id="ef_submit" class="button-primary" value="<?php _e('Save Pitch', 'edit-flow') ?>" />
-			</div>
-			<?php wp_nonce_field( 'quickpitch-submit', 'ef-quickpitch_nonce' ) ?>
-			
-		</form>
-		
-		</div>
-		
-		<?php
 	}
 	
 	/**
 	 * Creates Post Status widget
-	 * Display an at-a-glance view of post counts for all custom statuses in the system
+	 * Display an at-a-glance view of post counts for all (post|custom) statuses in the system
+	 *
+	 * @todo Support custom post types
 	 */
 	function post_status_widget () {
 		global $edit_flow;
@@ -197,7 +118,11 @@ class EF_Dashboard {
 		<?php
 	}
 	
-	function myposts_widget ( ) {
+	/**
+	 * Creates My Posts widget
+	 * Shows a list of the "posts you're following" sorted by most recent activity.
+	 */ 
+	function myposts_widget() {
 		global $edit_flow;
 		
 		$myposts = ef_get_user_following_posts();
@@ -214,13 +139,101 @@ class EF_Dashboard {
 					<li>
 						<h4><a href="<?php echo $url ?>" title="<?php _e('Edit this post', 'edit-flow') ?>"><?php echo $title; ?></a></h4>
 						<span class="ef-myposts-timestamp"><?php _e('This post was last updated on', 'edit-flow') ?> <?php echo get_the_time('F j, Y \\a\\t g:i a', $post) ?></span>
-					</li>
-					
+					</li>	
 				<?php endforeach; ?>
 			<?php else : ?>
 				<p><?php _e('Sorry! You\'re not subscribed to any posts!', 'edit-flow') ?></p>
 			<?php endif; ?>
 		</div>
+		<?php
+	}
+	
+	/**
+	 * Register settings for notifications so we can partially use the Settings API
+	 * (We use the Settings API for form generation, but not saving)
+	 * 
+	 * @since 0.7
+	 */
+	function register_settings() {
+		
+			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
+			add_settings_field( 'post_status_widget', __( 'Post Status Widget', 'edit-flow' ), array( &$this, 'settings_post_status_widget_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'my_posts_widget',__( 'Posts I\'m Following', 'edit-flow' ), array( &$this, 'settings_my_posts_widget_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+
+	}
+	
+	/**
+	 * Enable or disable the Post Status Widget for the WP dashboard
+	 *
+	 * @since 0.7
+	 */
+	function settings_post_status_widget_option() {
+		$options = array(
+			'off' => __( 'Disabled', 'edit-flow' ),			
+			'on' => __( 'Enabled', 'edit-flow' ),
+		);
+		echo '<select id="post_status_widget" name="' . $this->module->options_group_name . '[post_status_widget]">';
+		foreach ( $options as $value => $label ) {
+			echo '<option value="' . esc_attr( $value ) . '"';
+			echo selected( $this->module->options->post_status_widget, $value );			
+			echo '>' . esc_html( $label ) . '</option>';
+		}
+		echo '</select>';
+	}
+	
+	/**
+	 * Enable or disable the Posts I'm Following Widget for the WP dashboard
+	 *
+	 * @since 0.7
+	 */
+	function settings_my_posts_widget_option() {
+		$options = array(
+			'off' => __( 'Disabled', 'edit-flow' ),			
+			'on' => __( 'Enabled', 'edit-flow' ),
+		);
+		echo '<select id="my_posts_widget" name="' . $this->module->options_group_name . '[my_posts_widget]">';
+		foreach ( $options as $value => $label ) {
+			echo '<option value="' . esc_attr( $value ) . '"';
+			echo selected( $this->module->options->my_posts_widget, $value );			
+			echo '>' . esc_html( $label ) . '</option>';
+		}
+		echo '</select>';		
+	}
+	
+	/**
+	 * Validate the field submitted by the user
+	 *
+	 * @since 0.7
+	 */
+	function settings_validate( $new_options ) {
+		global $edit_flow;
+		
+		// Follow whitelist validation for modules
+		if ( $new_options['post_status_widget'] != 'on' )
+			$new_options['post_status_widget'] = 'off';
+			
+		if ( $new_options['my_posts_widget'] != 'on' )
+			$new_options['my_posts_widget'] = 'off';
+		
+		return $new_options;
+	}	
+	
+	/**
+	 * Settings page for the dashboard
+	 *
+	 * @since 0.7
+	 */
+	function print_configure_view() {
+		global $edit_flow;
+		?>
+		<form class="basic-settings" action="<?php echo esc_url( add_query_arg( 'page', $this->module->settings_slug, get_admin_url( null, 'admin.php' ) ) ); ?>" method="post">
+			<?php settings_fields( $this->module->options_group_name ); ?>
+			<?php do_settings_sections( $this->module->options_group_name ); ?>	
+			<?php				
+				echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';
+				submit_button();
+			?>
+		</form>
 		<?php
 	}
 }
