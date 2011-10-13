@@ -373,7 +373,7 @@ class EF_Custom_Status {
 				// if not one of inbuilt custom statuses, delete query where AND (wp_posts.post_status = 'publish' OR wp_posts.post_status = 'future' OR wp_posts.post_status = 'draft' OR wp_posts.post_status = 'pending' OR wp_posts.post_status = 'private')
 				// append status to where
 				
-				if( ef_term_exists( $status, $this->status_taxonomy ) ) {
+				if( $this->get_custom_status_by( 'slug', $status ) ) {
 					//delete only the offending query --- not the entire query
 					 $search_string = "AND (".$wpdb->posts.".post_status = 'publish' OR ".$wpdb->posts.".post_status = 'future' OR ".$wpdb->posts.".post_status = 'draft' OR ".$wpdb->posts.".post_status = 'pending'";
 					if ( is_user_logged_in() ) {
@@ -478,7 +478,7 @@ class EF_Custom_Status {
 				$new_status = get_term($reassign, $this->status_taxonomy)->slug;
 			else
 				$new_status = $default_status;
-			if ( $old_status == $default_status && ef_term_exists( 'draft', $this->status_taxonomy ) ) { // Deleting default status
+			if ( $old_status == $default_status && $this->get_custom_status_by( 'slug', 'draft' ) ) { // Deleting default status
 				$new_status = 'draft';
 				$edit_flow->update_module_option( $this->module->name, 'default_status', $new_status );
 			}
@@ -689,8 +689,8 @@ class EF_Custom_Status {
 		if ( strlen( $status_name ) > 20 )
 			$_REQUEST['form-errors']['name'] = __( 'Status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' );
 		// Check to make sure the status doesn't already exist
-		if ( ef_term_exists( $status_slug ) )
-			$_REQUEST['form-errors']['name'] = __( 'Status name already exists. Please use another name.', 'edit-flow' );
+		if ( $this->get_custom_status_by( 'slug', $status_slug ) )
+			$_REQUEST['form-errors']['name'] = __( 'Status name or slug conflicts with existing status. Please use another.', 'edit-flow' );
 		// Check to make sure the name is not restricted
 		if ( $this->is_restricted_status( strtolower( $status_slug ) ) )
 			$_REQUEST['form-errors']['name'] = __( 'Status name is restricted. Please use another name.', 'edit-flow' );
@@ -891,7 +891,7 @@ class EF_Custom_Status {
 		}
 		
 		// Check to make sure the status doesn't already exist
-		if ( ef_term_exists( $status_slug ) && ( get_term($term_id, $this->status_taxonomy)->slug != $status_slug ) ) {
+		if ( $this->get_custom_status_by( 'slug', $status_slug ) && ( $this->get_custom_status_by( 'id', $term_id )->slug != $status_slug ) ) {
 			$change_error = new WP_Error( 'invalid', __( 'Status already exists. Please use another name.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );
 		}

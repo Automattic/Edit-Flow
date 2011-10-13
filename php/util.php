@@ -397,16 +397,6 @@ function ef_taxonomy_exists( $taxonomy ) {
 		return is_taxonomy( $taxonomy );
 }
 
-// Wrapper for term_exists / is_term functions
-// Needed for 2.9 compatibility
-function ef_term_exists( $term, $taxonomy = '', $parent = 0 ) {
-	if( function_exists( 'term_exists' ) )
-		return term_exists( $term, $taxonomy, $parent );
-	else
-		return is_term( $term, $taxonomy, $parent );
-	
-}
-
 // Lifted fromhttp://stackoverflow.com/questions/11/how-do-i-calculate-relative-time/18393#18393
 // We can probably do better and customize further
 function ef_timesince( $original ) {
