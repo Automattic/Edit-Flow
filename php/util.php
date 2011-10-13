@@ -430,24 +430,6 @@ function ef_timesince( $original ) {
 	return sprintf( _n( "1 $name ago", "$count ${name}s ago", $count), $count);
 }
 
-if( ! function_exists( 'sanitize_key' ) ) :
-	function sanitize_key( $str ) {
-		$raw_key = $key;
-		$key = wp_strip_all_tags($key);
-		// Kill octets
-		$key = preg_replace('|%([a-fA-F0-9][a-fA-F0-9])|', '', $key);
-		$key = preg_replace('/&.+?;/', '', $key); // Kill entities
-
-		$key = preg_replace('|[^a-z0-9 _.\-@]|i', '', $key);
-
-		// Consolidate contiguous whitespace
-		$key = preg_replace('|\s+|', ' ', $key);
-
-		return apply_filters('sanitize_key', $key, $raw_key);
-	}
-endif;
-
-
 if( ! function_exists( 'ef_draft_or_post_title' ) ) :
 	/**
 	 * Copy of core's _draft_or_post_title without the filters
