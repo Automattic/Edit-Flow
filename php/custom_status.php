@@ -475,7 +475,7 @@ class EF_Custom_Status {
 			$default_status = $this->get_default_custom_status()->slug;
 			// If new status in $reassign, use that for all posts of the old_status
 			if( !empty( $reassign ) )
-				$new_status = get_term($reassign, self::taxonomy_key)->slug;
+				$new_status = $this->get_custom_status_by( 'id', $reassign )->slug;
 			else
 				$new_status = $default_status;
 			if ( $old_status == $default_status && $this->get_custom_status_by( 'slug', 'draft' ) ) { // Deleting default status
@@ -487,7 +487,7 @@ class EF_Custom_Status {
 			
 			return wp_delete_term( $status_id, self::taxonomy_key, $args );
 		} else
-			return new WP_Error( 'restricted', __( 'Restricted status ', 'edit-flow' ) . '(' . get_term($status_id, self::taxonomy_key)->name . ')' );
+			return new WP_Error( 'restricted', __( 'Restricted status ', 'edit-flow' ) . '(' . $this->get_custom_status_by( 'id', $status_id )->name . ')' );
 			
 	}
 
