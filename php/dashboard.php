@@ -100,11 +100,14 @@ class EF_Dashboard {
 						<tr>
 							<td class="b">
 								<a href="<?php echo $filter_link; ?>">
-									<?php esc_html_e(ef_get_custom_status_post_count($status->slug)) ?>
+									<?php
+									$post_count = wp_count_posts( 'post' );
+									$slug = $status->slug;
+									echo esc_html( $post_count->$slug ); ?>
 								</a>
 							</td>
 							<td>
-								<a href="<?php echo $filter_link; ?>"><?php esc_html_e($status->name) ?></a>
+								<a href="<?php echo $filter_link; ?>"><?php echo esc_html( $status->name ); ?></a>
 							</td>
 						</tr>
 							

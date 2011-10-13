@@ -1073,27 +1073,6 @@ class EF_Custom_Status {
 
 } // END: !class_exists('EF_Custom_Status')
 
-/**
- * ef_get_custom_status_post_count()
- * Get the total number of posts for any given status
- *
- * @param string|int $status Slug or ID of the status to look up
- * @return int $count
- */
-function ef_get_custom_status_post_count( $status ) {
-	global $wpdb;
-	
-	// Look up the status object if passed an int ID
-	if ( is_int( $status ) ) {
-		$status = get_term_by( 'term_id', $status, 'post_status' )->slug;
-	}
-	
-	$query = $wpdb->prepare("SELECT count(ID) FROM $wpdb->posts WHERE post_status = %s", $status);
-	$count = $wpdb->get_var($query);
-	
-	return $count;
-} // END: ef_get_custom_status_post_count()
-
 
 if ( !class_exists( 'WP_List_Table' ) ) {
 	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
