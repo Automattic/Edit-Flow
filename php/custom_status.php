@@ -1,7 +1,16 @@
 <?php
- 
-// Functions related to hooking into custom statuses will go here
-
+/**
+ * class EF_Custom_Status
+ * Custom statuses allow you to
+ *
+ * @todo for v0.7
+ * - Full screen edit view for a status
+ * - Allow users to set slugs when creating a status
+ * - Improve the copy
+ * - Thoroughly test what happens when the default post statuses 'Draft' and 'Pending Review' no longer exist
+ * - Deprecate ef_term_exists() and other non-class functions
+ * - Ensure all of the form processing uses our messages functionality
+ */
 if ( !class_exists( 'EF_Custom_Status' ) ) {
 
 class EF_Custom_Status {
@@ -17,7 +26,6 @@ class EF_Custom_Status {
 		global $edit_flow;
 		
 		// Register the module with Edit Flow
-		// @todo default options for registering the statuses
 		$args = array(
 			'title' => __( 'Custom Statuses', 'edit-flow' ),
 			'short_description' => __( 'Custom statuses allow you to do many awesome things with your workflow. tk', 'edit-flow' ),
@@ -33,7 +41,7 @@ class EF_Custom_Status {
 					'page' => 'on',
 				),
 			),
-			'configure_page_cb' => 'configure_page',
+			'configure_page_cb' => 'print_configure_view',
 			'configure_link_text' => __( 'Edit Statuses' ),
 			'messages' => array(
 				'status-added' => __( 'Post status created.', 'edit-flow' ),
@@ -48,22 +56,28 @@ class EF_Custom_Status {
 	}
 		
 	/**
-	 * Initialize the rest of the stuff in the class if the module is active
+	 * Initialize the EF_Custom_Status class if the module is active
 	 */
 	function init() {
 		global $edit_flow;
 		
-		// Register custom statuses
+		// Register custom statuses as a taxonomy
 		$this->register_custom_statuses();
 		
 		// Register our settings
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );
 		
+		// Load CSS and JS resources that we probably need
+		add_action( 'admin_enqueue_scripts', array( &$this, 'action_admin_enqueue_scripts' ) );
+		add_action( 'admin_notices', array( &$this, 'no_js_notice' ) );
+		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );
+		
 		// Methods for handling the actions of creating, making default, and deleting post stati
 		add_action( 'admin_init', array( &$this, 'handle_add_custom_status' ) );
 		add_action( 'admin_init', array( &$this, 'handle_make_default_custom_status' ) );
 		add_action( 'admin_init', array( &$this, 'handle_delete_custom_status' ) );
-		add_action( 'wp_ajax_update_status_positions', array( &$this, 'handle_ajax_update_status_positions' ) );		
+		add_action( 'wp_ajax_update_status_positions', array( &$this, 'handle_ajax_update_status_positions' ) );
+		add_action( 'wp_ajax_inline_save_status', array( &$this, 'ajax_inline_save_status' ) );
 		
 		// Hooks to add "status" column to Edit Posts page
 		add_filter( 'manage_posts_columns', array( &$this, '_filter_manage_posts_columns') );
@@ -73,13 +87,9 @@ class EF_Custom_Status {
 		add_filter( 'manage_pages_columns', array( &$this, '_filter_manage_posts_columns' ) );
 		add_action( 'manage_pages_custom_column', array( &$this, '_filter_manage_posts_custom_column' ) );
 		
-		add_action( 'wp_ajax_inline_save_status', array( &$this, 'ajax_inline_save_status' ) );		
-		add_action( 'admin_enqueue_scripts', array( &$this, 'action_admin_enqueue_scripts' ) );
-		add_action( 'admin_notices', array( &$this, 'no_js_notice' ) );
-		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );		
-		
+		// These two methods are hacks for fixing bugs in WordPress core
 		add_action( 'admin_init', array( &$this, 'check_timestamp_on_publish' ) );
-		add_filter( 'wp_insert_post_data', array( &$this, 'fix_custom_status_timestamp' ) );		
+		add_filter( 'wp_insert_post_data', array( &$this, 'fix_custom_status_timestamp' ) );
 		
 	}
 	
@@ -122,9 +132,10 @@ class EF_Custom_Status {
 	}
 	
 	/**
-	 * enable_custom_status_filters()
 	 * Adds custom stati to the $post_stati array.
 	 * This is used to generate the list of statuses on the Edit/Manage Posts page.
+	 *
+	 * @todo Don't return statuses that are empty (i.e. no posts)
 	 */
 	function enable_custom_status_filters() {
 		// This is the array WP uses to store custom stati (really? stati?)
@@ -132,14 +143,12 @@ class EF_Custom_Status {
 		global $post_stati;
 
 		if ( is_array( $post_stati ) ) {
-			
-			// @ TODO Don't return statuses that are empty (i.e. no posts)
 			// Get a list of ALL the custom statuses
 			$custom_statuses = $this->get_custom_statuses();
 			
 			// Alright, now append them to the $post_stati array
-			foreach($custom_statuses as $status) {
-				if(!$this->is_restricted_status($status->slug)) {
+			foreach( $custom_statuses as $status ) {
+				if ( !$this->is_restricted_status( $status->slug ) ) {
 					$slug = $status->slug;
 					$post_stati[$slug] = array(
 						$status->name,
@@ -148,17 +157,17 @@ class EF_Custom_Status {
 							$status->name.' <span class="count">(%s)</span>',
 							$status->name.' <span class="count">(%s)</span>'
 						)
-					);
-						
+					);	
 				}
 			}
 		}
-	} // END: enable_custom_status_filters()
+	}
 
 	/**
-	 * enable_custom_status_filters_pages()
 	 * Adds custom stati to the $post_stati array for pages
 	 * This is used to generate the list of statuses on the Edit/Manage Pages page.
+	 *
+	 * @todo Don't return statuses that are empty (i.e. no posts)
 	 * 
 	 * @param object $post_stati All of the post statuses
 	 * @return object $post_stati Post statuses with Edit Flow custom statuses
@@ -167,13 +176,12 @@ class EF_Custom_Status {
 		
 		if ( is_array( $post_stati ) ) {
 			
-			// @ TODO Don't return statuses that are empty (i.e. no posts)
 			// Get a list of ALL the custom statuses
 			$custom_statuses = $this->get_custom_statuses();
 			
 			// Alright, now append them to the $post_stati array
-			foreach($custom_statuses as $status) {
-				if(!$this->is_restricted_status($status->slug)) {
+			foreach( $custom_statuses as $status ) {
+				if( !$this->is_restricted_status( $status->slug ) ) {
 					$slug = $status->slug;
 					$post_stati[$slug] = array(
 						$status->name,
@@ -183,31 +191,36 @@ class EF_Custom_Status {
 							$status->name.' <span class="count">(%s)</span>'
 						)
 					);
-						
 				}
 			}
 		}
 		return $post_stati;
-	} // END: enable_custom_status_filters_pages()
+	}
 	
 	/**
-	 * 
+	 * Enqueue Javascript resources that we need in the admin:
+	 * - Primary use of Javascript is to manipulate the post status dropdown on Edit Post and Manage Posts
+	 * - jQuery Sortable plugin is used for drag and dropping custom statuses
+	 * - We have other custom code for Quick Edit and JS niceties
 	 */
 	function action_admin_enqueue_scripts() {
 		global $edit_flow;
 		
+		// Load Javascript we need to use on the configuration views (jQuery Sortable and Quick Edit)
 		if ( $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-ui-sortable' );			
 			wp_enqueue_script( 'edit-flow-custom-status-configure', EDIT_FLOW_URL . 'js/custom_status_configure.js', array( 'jquery', 'jquery-ui-sortable' ), EDIT_FLOW_VERSION, true );
 		}
-			
+		
+		// Custom javascript to modify the post status dropdown where it shows up
 		if ( $this->is_whitelisted_page() )
-			wp_enqueue_script( 'edit_flow-custom_status', EDIT_FLOW_URL.'js/custom_status.js', array('jquery','post'), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit_flow-custom_status', EDIT_FLOW_URL.'js/custom_status.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
 			
 	}
 	
 	/**
 	 * Displays a notice to users if they have JS disabled
+	 * Javascript is needed for custom statuses to be fully functional
 	 */
 	function no_js_notice() {
 		if( $this->is_whitelisted_page() ) :
@@ -229,6 +242,8 @@ class EF_Custom_Status {
 	
 	/**
 	 * Check whether custom status stuff should be loaded on this page
+	 *
+	 * @todo migrate this to an Edit Flow helper class method
 	 */
 	function is_whitelisted_page() {
 		global $edit_flow, $pagenow;
@@ -320,10 +335,11 @@ class EF_Custom_Status {
 	}
 
 	/**
-	 * custom_status_where_filter()
 	 * Edits the WHERE clause for the the get_post query.
 	 * This is used to show all the posts with custom statuses.
 	 * Why? Because WordPress automatically hides anything without an allowed status (e.g. "publish", "draft",, etc.)
+	 *
+	 * @todo This needs to be sanitized
 	 *
 	 * @param string $where Original SQL query
 	 * @return string $where Modified SQL query
@@ -375,10 +391,9 @@ class EF_Custom_Status {
 		}
 		return $where;
 		
-	} // END: custom_status_where_filter()
+	}
 	
 	/**
-	 * add_custom_status()
 	 * Adds a new custom status as a term in the wp_terms table.
 	 * Basically a wrapper for the wp_insert_term class.
 	 *
@@ -399,7 +414,7 @@ class EF_Custom_Status {
 		$response = wp_insert_term( $term, $this->status_taxonomy, $args );
 		return $response;
 		
-	} // END: add_custom_status()
+	}
 	
 	/**
 	 * Update an existing custom status 
@@ -428,7 +443,7 @@ class EF_Custom_Status {
 			if ( $old_status->slug == $default_status )
 				$edit_flow->update_module_option( $this->module->name, 'default_status', $new_status );
 		}
-		
+		// We're encoding metadata that isn't supported by default in the term's description field
 		$args_to_encode = array();
 		$args_to_encode['description'] = ( isset( $args['description'] ) ) ? $args['description'] : $old_status->description;
 		$args_to_encode['position'] = ( isset( $args['position'] ) ) ? $args['position'] : $old_status->position;
@@ -443,7 +458,6 @@ class EF_Custom_Status {
 	}
 	
 	/**
-	 * delete_custom_status()
 	 * Deletes a custom status from the wp_terms table.
 	 * 
 	 * Partly a wrapper for the wp_delete_term function.
@@ -454,12 +468,12 @@ class EF_Custom_Status {
 		// Reassign posts to alternate status
 
 		// Get slug for the old status
-		$old_status = get_term($status_id, $this->status_taxonomy)->slug;
+		$old_status = $this->get_custom_status_by( 'id', $status_id )->slug;
 
-		if ($reassign == $old_status)
+		if ( $reassign == $old_status )
 			return new WP_Error( 'invalid', __( 'Cannot reassign to the status you want to delete', 'edit-flow' ) );
 		
-		if(!$this->is_restricted_status($old_status)) {
+		if( !$this->is_restricted_status( $old_status ) ) {
 			$default_status = $this->get_default_custom_status()->slug;
 			// If new status in $reassign, use that for all posts of the old_status
 			if( !empty( $reassign ) )
@@ -477,10 +491,10 @@ class EF_Custom_Status {
 		} else
 			return new WP_Error( 'restricted', __( 'Restricted status ', 'edit-flow' ) . '(' . get_term($status_id, $this->status_taxonomy)->name . ')' );
 			
-	} // END: delete_custom_status
+	}
 
 	/**
-	 * Get all custom statuses
+	 * Get all custom statuses as an ordered array
 	 *
 	 * @param array|string $statuses
 	 * @param array $args
@@ -561,7 +575,6 @@ class EF_Custom_Status {
 	}
 	
 	/**
-	 * reassign_post_status()
 	 * Assign new statuses to posts using value provided or the default
 	 *
 	 * @param string $old_status Slug for the old status
@@ -575,7 +588,7 @@ class EF_Custom_Status {
 		
 		// Make the database call
 		$result = $wpdb->update( $wpdb->posts, array( 'post_status' => $new_status ), array( 'post_status' => $old_status ), array( '%s' ));
-	} // END: reassign_post_status()
+	}
 	
 	/**
 	 * Insert new column header for post status after the title column
@@ -601,7 +614,6 @@ class EF_Custom_Status {
 	}
 	
 	/**
-	 * _filter_manage_posts_custom_column()
 	 * Adds a Post's status to its row on the Edit page
 	 * 
 	 * @param string $column_name
@@ -609,15 +621,14 @@ class EF_Custom_Status {
 	function _filter_manage_posts_custom_column( $column_name ) {
 		
 		if ( $column_name == 'status' ) {
-			global $post, $custom_status, $edit_flow;
+			global $post, $edit_flow;
 			echo $edit_flow->helpers->get_post_status_friendly_name( $post->post_status );
 		}
 		
-	} // END: _filter_manage_posts_custom_column()
+	}
 	
 	
 	/**
-	 * is_restricted_status()
 	 * Determines whether the slug indicated belongs to a restricted status or not
 	 *
 	 * @param string $slug Slug of the status 
@@ -642,317 +653,51 @@ class EF_Custom_Status {
 		}
 		return $restricted;
 		
-	} // END: is_restricted_status()
+	}
 	
 	/**
-	 * Handle the ajax request to update all of the status positions
+	 * Handles a form's POST request to add a custom status
 	 *
 	 * @since 0.7
-	 */
-	function handle_ajax_update_status_positions() {
-		global $edit_flow;
-		
-		if ( !wp_verify_nonce( $_POST['custom_status_sortable_nonce'], 'custom-status-sortable' ) )
-			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
-		
-		if ( !current_user_can( 'manage_options') )
-			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
-		
-		if ( !isset( $_POST['status_positions'] ) || !is_array( $_POST['status_positions'] ) )
-			$edit_flow->helpers->print_ajax_response( 'error', __( 'Terms not set.', 'edit-flow' ) );
-			
-		foreach ( $_POST['status_positions'] as $position => $term_id ) {
-			
-			// Have to add 1 to the position because the index started with zero
-			$args = array(
-				'position' => (int)$position + 1,
-			);
-			$return = $this->update_custom_status( (int)$term_id, $args );
-			// @todo check that this was a valid return
-		}
-		$edit_flow->helpers->print_ajax_response( 'success', $this->module->messages['status-position-updated'] );	
-	}
-	
-	/**
-	 * Register settings for notifications so we can partially use the Settings API
-	 * (We use the Settings API for form generation, but not saving)
-	 * 
-	 * @since 0.7
-	 */
-	function register_settings() {
-		
-			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', 'Use on these post types:', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-			add_settings_field( 'always_show_dropdown', 'Always show dropdown:', array( &$this, 'settings_always_show_dropdown_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-
-	}
-	
-	/**
-	 * Choose the post types that should be displayed on the calendar
-	 *
-	 * @since 0.7
-	 */
-	function settings_post_types_option() {
-		global $edit_flow;
-		$edit_flow->settings->helper_option_custom_post_type( $this->module );
-	}
-	
-	/**
-	 * Option for whether the blog admin email address should be always notified or not
-	 *
-	 * @since 0.7
-	 */
-	function settings_always_show_dropdown_option() {
-		$options = array(
-			'off' => __( 'Disabled', 'edit-flow' ),			
-			'on' => __( 'Enabled', 'edit-flow' ),
-		);
-		echo '<select id="always_show_dropdown" name="' . $this->module->options_group_name . '[always_show_dropdown]">';
-		foreach ( $options as $value => $label ) {
-			echo '<option value="' . esc_attr( $value ) . '"';
-			echo selected( $this->module->options->always_show_dropdown, $value );			
-			echo '>' . esc_html( $label ) . '</option>';
-		}
-		echo '</select>';
-	}
-	
-	function settings_validate( $new_options ) {
-		global $edit_flow;
-		
-		// Whitelist validation for the post type options
-		if ( !isset( $new_options['post_types'] ) )
-			$new_options['post_types'] = array();
-		$new_options['post_types'] = $edit_flow->helpers->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
-		
-		// Whitelist validation for the 'always_show_dropdown' optoins
-		if ( !isset( $new_options['always_show_dropdown'] ) || $new_options['always_show_dropdown'] != 'on' )
-			$new_options['always_show_dropdown'] = 'off';		
-		
-		return $new_options;
-	}	
-	
-	function configure_page() {
-		global $edit_flow;
-		
-		$wp_list_table = new EF_Custom_Status_List_Table();
-		$wp_list_table->prepare_items();
-		?>
-		<script type="text/javascript">
-			var ef_confirm_delete_status_string = "<?php _e( 'Are you sure you want to delete the post status? All posts with this status will be assigned to the default status.', 'edit-flow' ); ?>";
-		</script>
-			<div id="col-right">
-				<div class="col-wrap">
-					<?php $wp_list_table->display(); ?>
-					<?php wp_nonce_field( 'custom-status-sortable', 'custom-status-sortable' ); ?>
-					<p class="description" style="padding-top:10px;"><?php _e( 'Deleting a post status will assign all posts to the default post status.', 'edit-flow' ); ?></p>
-				</div>
-			</div>
-			<div id="col-left">
-				<div class="col-wrap">	
-				<div class="form-wrap">
-				<h3 class="nav-tab-wrapper">
-					<a href="<?php echo esc_url( $this->get_link() ); ?>" class="nav-tab<?php if ( !isset( $_GET['action'] ) || $_GET['action'] != 'change-options' ) echo ' nav-tab-active'; ?>"><?php _e( 'Add New', 'edit-flow' ); ?></a>
-					<a href="<?php echo esc_url( $this->get_link( array( 'action' => 'change-options' ) ) ); ?>" class="nav-tab<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'change-options' ) echo ' nav-tab-active'; ?>"><?php _e( 'Options', 'edit-flow' ); ?></a>
-				</h3>
-				<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'change-options' ): ?>
-				<form class="basic-settings" action="<?php echo esc_url( $this->get_link( array( 'action' => 'change-options' ) ) ); ?>" method="post">
-					<?php settings_fields( $this->module->options_group_name ); ?>
-					<?php do_settings_sections( $this->module->options_group_name ); ?>	
-					<?php echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />'; ?>
-					<?php submit_button(); ?>
-				</form>
-				<?php else: ?>
-				<?php /** Custom form for adding a new Custom Status term **/ ?>
-					<form class="add:the-list:" action="<?php echo esc_url( $this->get_link() ); ?>" method="post" id="addstatus" name="addstatus">
-					<div class="form-field form-required">
-						<label for="status_name"><?php _e( 'Name', 'edit-flow' ); ?></label>
-						<input type="text" aria-required="true" size="20" maxlength="20" id="status_name" name="status_name" value="<?php if ( !empty( $_POST['status_name'] ) ) esc_attr_e( $_POST['status_name'] ) ?>" />
-						<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the status. (Max: 20 characters)', 'edit-flow' ) ); ?>
-					</div>
-					<div class="form-field">
-						<label for="status_description"><?php _e( 'Description', 'edit-flow' ); ?></label>
-						<textarea cols="40" rows="5" id="status_description" name="status_description"><?php if ( !empty( $_POST['status_description'] ) ) echo esc_html( $_POST['status_description'] ) ?></textarea>
-						<?php $edit_flow->settings->helper_print_error_or_description( 'description', __( 'The description is primarily for administrative use, to give you some context on what the custom status is to be used for.', 'edit-flow' ) ); ?>
-					</div>
-					<?php wp_nonce_field( 'custom-status-add-nonce' ); ?>
-					<?php echo '<input id="action" name="action" type="hidden" value="add-new" />'; ?>					
-					<?php submit_button( __( 'Add New Status', 'edit-flow' ) ); ?>
-					</form>
-				<?php endif; ?>
-				</div>
-			</div>
-			</div>
-		
-			<?php $wp_list_table->inline_edit(); ?>
-		<?php
-	}
-	
-	function ajax_inline_save_status() {
-		global $edit_flow;
-		
-		if ( !wp_verify_nonce( $_POST['inline_edit'], 'custom-status-inline-edit-nonce' ) )
-			die( $this->module->messages['nonce-failed'] );
-			
-		if ( !current_user_can( 'manage_options') )
-			die( $this->module->messages['invalid-permissions'] );		
-		
-		$term_id = (int) $_POST['status_id'];
-		$status_name = esc_html( trim( $_POST['name'] ) );
-		$status_slug = sanitize_title( $_POST['name'] );		
-		$status_description = esc_html( $_POST['description'] );		
-		
-		// Check if name field was filled in
-		if ( empty( $status_name ) ) {
-			$change_error = new WP_Error( 'invalid', __( 'Please enter a name for the status.', 'edit-flow' ) );
-			die( $change_error->get_error_message() );
-		}
-
-		// Check that the name isn't numeric
-		if( is_numeric( $status_name) ) {
-			$change_error = new WP_Error( 'invalid', __( 'Please enter a valid, non-numeric name for the status.', 'edit-flow' ) );
-			die( $change_error->get_error_message() );
-		}
-
-		// Check that the status name doesn't exceed 20 chars
-		if ( strlen( $status_name ) > 20 ) {
-			$change_error = new WP_Error( 'invalid', __( 'Status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' ) );
-			die( $change_error->get_error_message() );			
-		}
-		
-		// Check to make sure the name is not restricted
-		if ( $edit_flow->custom_status->is_restricted_status( strtolower( $status_name ) ) ) {
-			$change_error = new WP_Error( 'invalid', __( 'Status name is restricted. Please use another name.', 'edit-flow' ) );
-			die( $change_error->get_error_message() );
-		}
-		
-		// Check to make sure the status doesn't already exist
-		if ( ef_term_exists( $status_slug ) && (get_term($term_id, $this->status_taxonomy)->slug != $status_slug ) ) {
-			$change_error = new WP_Error( 'invalid', __( 'Status already exists. Please use another name.', 'edit-flow' ) );
-			die( $change_error->get_error_message() );
-		}
-		
-		// get status_name & status_description
-		$args = array(
-			'name' => $status_name,
-			'description' => $status_description,
-			'slug' => $status_slug,
-		);		
-		$return = $this->update_custom_status( $term_id, $args );
-		if( !is_wp_error( $return ) ) {	
-			set_current_screen( 'edit-custom-status' );					
-			$wp_list_table = new EF_Custom_Status_List_Table();
-			$wp_list_table->prepare_items();
-			echo $wp_list_table->single_row( $return );
-			die();
-		} else {
-			$change_error = new WP_Error( 'invalid', sprintf( __( 'Could not update the status: <strong>%s</strong>', 'edit-flow' ), $status_name ) );
-			die( $change_error->get_error_message() );
-		}
-	
-	}
-	
-	/**
-	 * This is a hack! hack! hack! until core is fixed/better supports custom statuses
-	 *	
-	 * When publishing a post with a custom status, set the status to 'pending' temporarily
-	 * @see Works around this limitation: http://core.trac.wordpress.org/browser/tags/3.2.1/wp-includes/post.php#L2694
-	 * @see Original thread: http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem
-	 * @see Core ticket: http://core.trac.wordpress.org/ticket/18362
-	 */
-	function check_timestamp_on_publish() {
-		global $edit_flow, $pagenow, $wpdb;
-		
-		// Handles the transition to 'publish' on edit.php
-		if ( isset( $edit_flow ) && $pagenow == 'edit.php' && isset( $_REQUEST['bulk_edit'] ) ) {
-			// For every post_id, set the post_status as 'pending' only when there's no timestamp set for $post_date_gmt			
-			if ( $_REQUEST['_status'] == 'publish' ) {
-				$post_ids = array_map( 'intval', (array) $_REQUEST['post'] );
-				foreach ( $post_ids as $post_id ) {		
-					$wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array( 'ID' => $post_id, 'post_date_gmt' => '0000-00-00 00:00:00' ) );
-				}
-			}
-		}
-			
-		// Handles the transition to 'publish' on post.php
-		if ( isset( $edit_flow ) && $pagenow == 'post.php' && isset( $_POST['publish'] ) ) {
-			// Set the post_status as 'pending' only when there's no timestamp set for $post_date_gmt
-			if ( isset( $_POST['post_ID'] ) ) {
-				$post_id = (int) $_POST['post_ID'];
-				$wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array( 'ID' => $post_id, 'post_date_gmt' => '0000-00-00 00:00:00' ) );
-			}
-		}
-		
-	}
-	/**
-	 * This is a hack! hack! hack! until core is fixed/better supports custom statuses
-	 *	
-	 * Normalize post_date_gmt if it isn't set to the past or the future
-	 * @see Works around this limitation: http://core.trac.wordpress.org/browser/tags/3.2.1/wp-includes/post.php#L2506	
-	 * @see Original thread: http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem
-	 * @see Core ticket: http://core.trac.wordpress.org/ticket/18362	
-	 */
-	function fix_custom_status_timestamp( $data ) {
-		global $edit_flow, $pagenow;
-		// Don't run this if Edit Flow isn't active, or we're on some other page
-		if ( !isset( $edit_flow ) || $pagenow != 'post.php' || !isset( $_POST ) )
-			return $data;
-		$custom_statuses = get_terms( 'post_status', array( 'get' => 'all' ) );
-		$status_slugs = array();
-		foreach( $custom_statuses as $custom_status )
-		    $status_slugs[] = $custom_status->slug;
-		$ef_normalize_post_date_gmt = true;
-		// We're only going to normalize the post_date_gmt if the user hasn't set a custom date in the metabox
-		// and the current post_date_gmt isn't already future or past-ized
-		foreach ( array('aa', 'mm', 'jj', 'hh', 'mn') as $timeunit ) {
-			if ( !empty( $_POST['hidden_' . $timeunit] ) && (($_POST['hidden_' . $timeunit] != $_POST[$timeunit] ) || ( $_POST['hidden_' . $timeunit] != $_POST['cur_' . $timeunit] )) ) {
-				$ef_normalize_post_date_gmt = false;
-				break;
-			}
-		}
-		if ( $ef_normalize_post_date_gmt )
-			if ( in_array( $data['post_status'], $status_slugs ) )
-				$data['post_date_gmt'] = '0000-00-00 00:00:00';
-		return $data;
-	}
-	
-	/**
-	 * Handles a request to add a custom status
 	 */
 	function handle_add_custom_status() {
 		
+		// Check that the current POST request is our POST request
 		if ( !isset( $_POST['submit'], $_GET['page'], $_POST['action'] ) 
 			|| $_GET['page'] != $this->module->settings_slug || $_POST['action'] != 'add-new' )
 				return; 
 				
 		if ( !wp_verify_nonce( $_POST['_wpnonce'], 'custom-status-add-nonce' ) )
 			wp_die( $this->module->messages['nonce-failed'] );
-			
+		
+		// Validate and sanitize the form data
 		$status_name = esc_html( trim( $_POST['status_name'] ) );
 		$status_slug = sanitize_title( $status_name );
 		$status_description = esc_html( $_POST['status_description'] );
 			
-		// Sucky WP form validation
+		/**
+		 * Form validation
+		 * - Name is required and can't conflict with an existing name or slug
+		 * - Description is optional
+		 */
 		$_REQUEST['form-errors'] = array();	
 		// Check if name field was filled in
 		if( empty( $status_name ) )
 			$_REQUEST['form-errors']['name'] = __( 'Please enter a name for the status', 'edit-flow' );
-			
 		// Check that the name isn't numeric
 		if ( (int)$status_name != 0 )
 			$_REQUEST['form-errors']['name'] = __( 'Please enter a valid, non-numeric name for the status.', 'edit-flow' );
-		
 		// Check that the status name doesn't exceed 20 chars
 		if ( strlen( $status_name ) > 20 )
 			$_REQUEST['form-errors']['name'] = __( 'Status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' );
-
 		// Check to make sure the status doesn't already exist
 		if ( ef_term_exists( $status_slug ) )
 			$_REQUEST['form-errors']['name'] = __( 'Status name already exists. Please use another name.', 'edit-flow' );
-		
 		// Check to make sure the name is not restricted
 		if ( $this->is_restricted_status( strtolower( $status_slug ) ) )
 			$_REQUEST['form-errors']['name'] = __( 'Status name is restricted. Please use another name.', 'edit-flow' );
 		
+		// If there were any form errors, kick out and return them
 		if ( count( $_REQUEST['form-errors'] ) ) {
 			$_REQUEST['error'] = 'form-error';
 			return;
@@ -966,7 +711,7 @@ class EF_Custom_Status {
 		$return = $this->add_custom_status( $status_name, $status_args );
 		if ( is_wp_error( $return ) )
 			wp_die( __( 'Could not add status: ', 'edit-flow' ) . $return->get_error_message() );
-		
+		// Redirect if successful
 		$redirect_url = $this->get_link( array( 'message' => 'status-added' ) );
 		wp_redirect( $redirect_url );
 		exit;
@@ -974,13 +719,14 @@ class EF_Custom_Status {
 	}
 	
 	/**
-	 * Handles a request to make a default status
+	 * Handles a GET request to make the identified status default
 	 *
 	 * @since 0.7
 	 */
 	function handle_make_default_custom_status() {
 		global $edit_flow;
 		
+		// Check that the current GET request is our GET request		
 		if ( !isset( $_GET['page'], $_GET['action'], $_GET['term-id'], $_GET['nonce'] )
 			|| $_GET['page'] != $this->module->settings_slug || $_GET['action'] != 'make-default' )
 			return;
@@ -1008,11 +754,14 @@ class EF_Custom_Status {
 	}
 	
 	/**
-	 * Handles a request to make a default status
+	 * Handles a GET request to delete a specific term
+	 *
+	 * @since 0.7
 	 */
 	function handle_delete_custom_status() {
 		global $edit_flow;
 		
+		// Check that this GET request is our GET request
 		if ( !isset( $_GET['page'], $_GET['action'], $_GET['term-id'], $_GET['nonce'] )
 			|| $_GET['page'] != $this->module->settings_slug || $_GET['action'] != 'delete-status' )
 			return;
@@ -1068,23 +817,318 @@ class EF_Custom_Status {
 				break;
 		}
 		return add_query_arg( $args, get_admin_url( null, 'admin.php' ) );
+	}	
+	
+	/**
+	 * Handle an ajax request to update the order of custom statuses
+	 *
+	 * @since 0.7
+	 */
+	function handle_ajax_update_status_positions() {
+		global $edit_flow;
+		
+		if ( !wp_verify_nonce( $_POST['custom_status_sortable_nonce'], 'custom-status-sortable' ) )
+			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
+		
+		if ( !current_user_can( 'manage_options') )
+			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
+		
+		if ( !isset( $_POST['status_positions'] ) || !is_array( $_POST['status_positions'] ) )
+			$edit_flow->helpers->print_ajax_response( 'error', __( 'Terms not set.', 'edit-flow' ) );
+		
+		// Update each custom status with its new position
+		foreach ( $_POST['status_positions'] as $position => $term_id ) {
+			
+			// Have to add 1 to the position because the index started with zero
+			$args = array(
+				'position' => (int)$position + 1,
+			);
+			$return = $this->update_custom_status( (int)$term_id, $args );
+			// @todo check that this was a valid return
+		}
+		$edit_flow->helpers->print_ajax_response( 'success', $this->module->messages['status-position-updated'] );	
+	}
+	
+	/**
+	 * Handle an Inline Edit POST request to update status values
+	 *
+	 * @since 0.7
+	 */
+	function ajax_inline_save_status() {
+		global $edit_flow;
+		
+		if ( !wp_verify_nonce( $_POST['inline_edit'], 'custom-status-inline-edit-nonce' ) )
+			die( $this->module->messages['nonce-failed'] );
+			
+		if ( !current_user_can( 'manage_options') )
+			die( $this->module->messages['invalid-permissions'] );		
+		
+		$term_id = (int) $_POST['status_id'];
+		$status_name = esc_html( trim( $_POST['name'] ) );
+		$status_slug = sanitize_title( $_POST['name'] );		
+		$status_description = esc_html( $_POST['description'] );		
+		
+		// Check if name field was filled in
+		if ( empty( $status_name ) ) {
+			$change_error = new WP_Error( 'invalid', __( 'Please enter a name for the status.', 'edit-flow' ) );
+			die( $change_error->get_error_message() );
+		}
+
+		// Check that the name isn't numeric
+		if( is_numeric( $status_name) ) {
+			$change_error = new WP_Error( 'invalid', __( 'Please enter a valid, non-numeric name for the status.', 'edit-flow' ) );
+			die( $change_error->get_error_message() );
+		}
+
+		// Check that the status name doesn't exceed 20 chars
+		if ( strlen( $status_name ) > 20 ) {
+			$change_error = new WP_Error( 'invalid', __( 'Status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' ) );
+			die( $change_error->get_error_message() );			
+		}
+		
+		// Check to make sure the name is not restricted
+		if ( $edit_flow->custom_status->is_restricted_status( strtolower( $status_name ) ) ) {
+			$change_error = new WP_Error( 'invalid', __( 'Status name is restricted. Please use another name.', 'edit-flow' ) );
+			die( $change_error->get_error_message() );
+		}
+		
+		// Check to make sure the status doesn't already exist
+		if ( ef_term_exists( $status_slug ) && ( get_term($term_id, $this->status_taxonomy)->slug != $status_slug ) ) {
+			$change_error = new WP_Error( 'invalid', __( 'Status already exists. Please use another name.', 'edit-flow' ) );
+			die( $change_error->get_error_message() );
+		}
+		
+		// get status_name & status_description
+		$args = array(
+			'name' => $status_name,
+			'description' => $status_description,
+			'slug' => $status_slug,
+		);		
+		$return = $this->update_custom_status( $term_id, $args );
+		if( !is_wp_error( $return ) ) {	
+			set_current_screen( 'edit-custom-status' );					
+			$wp_list_table = new EF_Custom_Status_List_Table();
+			$wp_list_table->prepare_items();
+			echo $wp_list_table->single_row( $return );
+			die();
+		} else {
+			$change_error = new WP_Error( 'invalid', sprintf( __( 'Could not update the status: <strong>%s</strong>', 'edit-flow' ), $status_name ) );
+			die( $change_error->get_error_message() );
+		}
+	
+	}
+	
+	/**
+	 * Register settings for notifications so we can partially use the Settings API
+	 * (We use the Settings API for form generation, but not saving)
+	 * 
+	 * @since 0.7
+	 */
+	function register_settings() {
+		
+			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
+			add_settings_field( 'post_types', 'Use on these post types:', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'always_show_dropdown', 'Always show dropdown:', array( &$this, 'settings_always_show_dropdown_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+
+	}
+	
+	/**
+	 * Choose the post types that should be displayed on the calendar
+	 *
+	 * @since 0.7
+	 */
+	function settings_post_types_option() {
+		global $edit_flow;
+		$edit_flow->settings->helper_option_custom_post_type( $this->module );
+	}
+	
+	/**
+	 * Option for whether the blog admin email address should be always notified or not
+	 *
+	 * @since 0.7
+	 */
+	function settings_always_show_dropdown_option() {
+		$options = array(
+			'off' => __( 'Disabled', 'edit-flow' ),			
+			'on' => __( 'Enabled', 'edit-flow' ),
+		);
+		echo '<select id="always_show_dropdown" name="' . $this->module->options_group_name . '[always_show_dropdown]">';
+		foreach ( $options as $value => $label ) {
+			echo '<option value="' . esc_attr( $value ) . '"';
+			echo selected( $this->module->options->always_show_dropdown, $value );			
+			echo '>' . esc_html( $label ) . '</option>';
+		}
+		echo '</select>';
+	}
+	
+	/**
+	 * Validate input from the end user
+	 * 
+	 * @since 0.7
+	 */
+	function settings_validate( $new_options ) {
+		global $edit_flow;
+		
+		// Whitelist validation for the post type options
+		if ( !isset( $new_options['post_types'] ) )
+			$new_options['post_types'] = array();
+		$new_options['post_types'] = $edit_flow->helpers->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
+		
+		// Whitelist validation for the 'always_show_dropdown' optoins
+		if ( !isset( $new_options['always_show_dropdown'] ) || $new_options['always_show_dropdown'] != 'on' )
+			$new_options['always_show_dropdown'] = 'off';		
+		
+		return $new_options;
+	}
+	
+	/**
+	 * Primary configuration page for custom status class.
+	 * Shows form to add new custom statuses on the left and a
+	 * WP_List_Table with the custom status terms on the right
+	 */
+	function print_configure_view() {
+		global $edit_flow;
+		
+		$wp_list_table = new EF_Custom_Status_List_Table();
+		$wp_list_table->prepare_items();
+		?>
+		<script type="text/javascript">
+			var ef_confirm_delete_status_string = "<?php _e( 'Are you sure you want to delete the post status? All posts with this status will be assigned to the default status.', 'edit-flow' ); ?>";
+		</script>
+			<div id="col-right">
+				<div class="col-wrap">
+					<?php $wp_list_table->display(); ?>
+					<?php wp_nonce_field( 'custom-status-sortable', 'custom-status-sortable' ); ?>
+					<p class="description" style="padding-top:10px;"><?php _e( 'Deleting a post status will assign all posts to the default post status.', 'edit-flow' ); ?></p>
+				</div>
+			</div>
+			<div id="col-left">
+				<div class="col-wrap">	
+				<div class="form-wrap">
+				<h3 class="nav-tab-wrapper">
+					<a href="<?php echo esc_url( $this->get_link() ); ?>" class="nav-tab<?php if ( !isset( $_GET['action'] ) || $_GET['action'] != 'change-options' ) echo ' nav-tab-active'; ?>"><?php _e( 'Add New', 'edit-flow' ); ?></a>
+					<a href="<?php echo esc_url( $this->get_link( array( 'action' => 'change-options' ) ) ); ?>" class="nav-tab<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'change-options' ) echo ' nav-tab-active'; ?>"><?php _e( 'Options', 'edit-flow' ); ?></a>
+				</h3>
+				<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'change-options' ): ?>
+				<form class="basic-settings" action="<?php echo esc_url( $this->get_link( array( 'action' => 'change-options' ) ) ); ?>" method="post">
+					<?php settings_fields( $this->module->options_group_name ); ?>
+					<?php do_settings_sections( $this->module->options_group_name ); ?>	
+					<?php echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />'; ?>
+					<?php submit_button(); ?>
+				</form>
+				<?php else: ?>
+				<?php /** Custom form for adding a new Custom Status term **/ ?>
+					<form class="add:the-list:" action="<?php echo esc_url( $this->get_link() ); ?>" method="post" id="addstatus" name="addstatus">
+					<div class="form-field form-required">
+						<label for="status_name"><?php _e( 'Name', 'edit-flow' ); ?></label>
+						<input type="text" aria-required="true" size="20" maxlength="20" id="status_name" name="status_name" value="<?php if ( !empty( $_POST['status_name'] ) ) esc_attr_e( $_POST['status_name'] ) ?>" />
+						<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the status. (Max: 20 characters)', 'edit-flow' ) ); ?>
+					</div>
+					<div class="form-field">
+						<label for="status_description"><?php _e( 'Description', 'edit-flow' ); ?></label>
+						<textarea cols="40" rows="5" id="status_description" name="status_description"><?php if ( !empty( $_POST['status_description'] ) ) echo esc_html( $_POST['status_description'] ) ?></textarea>
+						<?php $edit_flow->settings->helper_print_error_or_description( 'description', __( 'The description is primarily for administrative use, to give you some context on what the custom status is to be used for.', 'edit-flow' ) ); ?>
+					</div>
+					<?php wp_nonce_field( 'custom-status-add-nonce' ); ?>
+					<?php echo '<input id="action" name="action" type="hidden" value="add-new" />'; ?>					
+					<?php submit_button( __( 'Add New Status', 'edit-flow' ) ); ?>
+					</form>
+				<?php endif; ?>
+				</div>
+			</div>
+			</div>
+		
+			<?php $wp_list_table->inline_edit(); ?>
+		<?php
+	}
+	
+	/**
+	 * This is a hack! hack! hack! until core is fixed/better supports custom statuses
+	 *	
+	 * When publishing a post with a custom status, set the status to 'pending' temporarily
+	 * @see Works around this limitation: http://core.trac.wordpress.org/browser/tags/3.2.1/wp-includes/post.php#L2694
+	 * @see Original thread: http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem
+	 * @see Core ticket: http://core.trac.wordpress.org/ticket/18362
+	 */
+	function check_timestamp_on_publish() {
+		global $edit_flow, $pagenow, $wpdb;
+		
+		// Handles the transition to 'publish' on edit.php
+		if ( isset( $edit_flow ) && $pagenow == 'edit.php' && isset( $_REQUEST['bulk_edit'] ) ) {
+			// For every post_id, set the post_status as 'pending' only when there's no timestamp set for $post_date_gmt			
+			if ( $_REQUEST['_status'] == 'publish' ) {
+				$post_ids = array_map( 'intval', (array) $_REQUEST['post'] );
+				foreach ( $post_ids as $post_id ) {		
+					$wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array( 'ID' => $post_id, 'post_date_gmt' => '0000-00-00 00:00:00' ) );
+				}
+			}
+		}
+			
+		// Handles the transition to 'publish' on post.php
+		if ( isset( $edit_flow ) && $pagenow == 'post.php' && isset( $_POST['publish'] ) ) {
+			// Set the post_status as 'pending' only when there's no timestamp set for $post_date_gmt
+			if ( isset( $_POST['post_ID'] ) ) {
+				$post_id = (int) $_POST['post_ID'];
+				$wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array( 'ID' => $post_id, 'post_date_gmt' => '0000-00-00 00:00:00' ) );
+			}
+		}
+		
+	}
+	/**
+	 * This is a hack! hack! hack! until core is fixed/better supports custom statuses
+	 *
+	 * @since 0.6.5
+	 *	
+	 * Normalize post_date_gmt if it isn't set to the past or the future
+	 * @see Works around this limitation: http://core.trac.wordpress.org/browser/tags/3.2.1/wp-includes/post.php#L2506	
+	 * @see Original thread: http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem
+	 * @see Core ticket: http://core.trac.wordpress.org/ticket/18362	
+	 */
+	function fix_custom_status_timestamp( $data ) {
+		global $edit_flow, $pagenow;
+		// Don't run this if Edit Flow isn't active, or we're on some other page
+		if ( !isset( $edit_flow ) || $pagenow != 'post.php' || !isset( $_POST ) )
+			return $data;
+		$custom_statuses = get_terms( 'post_status', array( 'get' => 'all' ) );
+		$status_slugs = array();
+		foreach( $custom_statuses as $custom_status )
+		    $status_slugs[] = $custom_status->slug;
+		$ef_normalize_post_date_gmt = true;
+		// We're only going to normalize the post_date_gmt if the user hasn't set a custom date in the metabox
+		// and the current post_date_gmt isn't already future or past-ized
+		foreach ( array('aa', 'mm', 'jj', 'hh', 'mn') as $timeunit ) {
+			if ( !empty( $_POST['hidden_' . $timeunit] ) && (($_POST['hidden_' . $timeunit] != $_POST[$timeunit] ) || ( $_POST['hidden_' . $timeunit] != $_POST['cur_' . $timeunit] )) ) {
+				$ef_normalize_post_date_gmt = false;
+				break;
+			}
+		}
+		if ( $ef_normalize_post_date_gmt )
+			if ( in_array( $data['post_status'], $status_slugs ) )
+				$data['post_date_gmt'] = '0000-00-00 00:00:00';
+		return $data;
 	}
 		
-} // END: class custom_status
-
-} // END: !class_exists('EF_Custom_Status')
-
-
-if ( !class_exists( 'WP_List_Table' ) ) {
-	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 }
 
+}
+
+
+if ( !class_exists( 'WP_List_Table' ) )
+	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
+/**
+ * Custom Statuses uses WordPress' List Table API for generating the custom status management table
+ *
+ * @since 0.7
+ */
 class EF_Custom_Status_List_Table extends WP_List_Table
 {
 	
 	var $callback_args;
 	var $default_status;
 	
+	/**
+	 * Construct the extended class
+	 */
 	function __construct() {
 		
 		parent::__construct( array(
@@ -1095,6 +1139,11 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		
 	}
 	
+	/**
+	 * Pull in the data we'll be displaying on the table
+	 *
+	 * @since 0.7
+	 */
 	function prepare_items() {
 		global $edit_flow;		
 		
@@ -1116,6 +1165,14 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		
 	}
 	
+	/**
+	 * Table shows (hidden) position, status name, status description, and the post count for each activated
+	 * post type
+	 *
+	 * @since 0.7
+	 *
+	 * @return array $columns Columns to be registered with the List Table
+	 */
 	function get_columns() {
 		global $edit_flow;
 
@@ -1134,6 +1191,16 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		return $columns;
 	}
 	
+	/**
+	 * Fallback column callback.
+	 * Primarily used to display post count for each post type
+	 *
+	 * @since 0.7
+	 *
+	 * @param object $item Custom status as an object
+	 * @param string $column_name Name of the column as registered in $this->prepare_items()
+	 * @return string $output What will be rendered
+	 */
 	function column_default( $item, $column_name ) {
 		global $edit_flow;
 		
@@ -1165,11 +1232,20 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 	 * @since 0.7
 	 *
 	 * @param object $item Custom status as an object
+	 * @return string $output What will be rendered	
 	 */
 	function column_position( $item ) {
 		return esc_html( $item->position );
 	}
 	
+	/**
+	 * Displayed column showing the name of the status
+	 *
+	 * @since 0.7
+	 * 
+	 * @param object $item Custom status as an object
+	 * @return string $output What will be rendered
+	 */
 	function column_name( $item ) {
 		global $edit_flow;
 		
@@ -1191,9 +1267,9 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 			$actions['delete delete-status'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'delete-status', 'term-id' => $item->term_id ) ) );
 		
 		$output .= $this->row_actions( $actions, false );
-		$output .= '<div class="hidden" id="inline_' . $item->term_id . '">';
-		$output .= '<div class="name">' . $item->name . '</div>';
-		$output .= '<div class="description">' . $item->description . '</div>';	
+		$output .= '<div class="hidden" id="inline_' . esc_attr( $item->term_id ) . '">';
+		$output .= '<div class="name">' . esc_html( $item->name ) . '</div>';
+		$output .= '<div class="description">' . esc_html( $item->description ) . '</div>';	
 		$output .= '</div>';
 		
 		return $output;
@@ -1201,12 +1277,22 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 	}	
 	
 	/**
-	 * Handle the 'description' column for the table of custom statuses
+	 * Displayed column showing the description of the status
+	 *
+	 * @since 0.7
+	 * 
+	 * @param object $item Custom status as an object
+	 * @return string $output What will be rendered
 	 */
 	function column_description( $item ) {
 		return esc_html( $item->description );
 	}
 	
+	/**
+	 * Prepare and echo a single custom status row
+	 *
+	 * @since 0.7
+	 */
 	function single_row( $item ) {
 		static $alternate_class = '';
 		$alternate_class = ( $alternate_class == '' ? ' alternate' : '' );
@@ -1217,6 +1303,11 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		echo '</tr>';
 	}
 	
+	/**
+	 * Hidden form used for inline editing functionality
+	 *
+	 * @since 0.7
+	 */
 	function inline_edit() {
 		global $edit_flow;
 ?>
