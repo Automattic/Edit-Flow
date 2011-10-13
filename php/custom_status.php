@@ -1,10 +1,9 @@
 <?php
 /**
  * class EF_Custom_Status
- * Custom statuses allow you to
+ * Custom statuses make it simple to define the different stages in your publishing workflow.
  *
  * @todo for v0.7
- * - Full screen edit view for a status
  * - Improve the copy
  * - Thoroughly test what happens when the default post statuses 'Draft' and 'Pending Review' no longer exist
  * - Ensure all of the form processing uses our messages functionality
@@ -27,7 +26,7 @@ class EF_Custom_Status {
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Custom Statuses', 'edit-flow' ),
-			'short_description' => __( 'Custom statuses allow you to do many awesome things with your workflow. tk', 'edit-flow' ),
+			'short_description' => __( 'Custom statuses make it simple to define the different stages in your publishing workflow.', 'edit-flow' ),
 			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
 			'img_url' => false,
 			'slug' => 'custom-status',
