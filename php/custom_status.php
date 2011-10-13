@@ -5,7 +5,6 @@
  *
  * @todo for v0.7
  * - Full screen edit view for a status
- * - Allow users to set slugs when creating a status
  * - Improve the copy
  * - Thoroughly test what happens when the default post statuses 'Draft' and 'Pending Review' no longer exist
  * - Ensure all of the form processing uses our messages functionality
