@@ -339,8 +339,6 @@ class EF_Custom_Status {
 	 * This is used to show all the posts with custom statuses.
 	 * Why? Because WordPress automatically hides anything without an allowed status (e.g. "publish", "draft",, etc.)
 	 *
-	 * @todo This needs to be sanitized
-	 *
 	 * @param string $where Original SQL query
 	 * @return string $where Modified SQL query
 	 */	
@@ -370,7 +368,7 @@ class EF_Custom_Status {
 				
 			} else {
 				// Okay, we're filtering by statuses
-				$status = $_GET['post_status'];
+				$status = sanitize_key( $_GET['post_status'] );
 				
 				// if not one of inbuilt custom statuses, delete query where AND (wp_posts.post_status = 'publish' OR wp_posts.post_status = 'future' OR wp_posts.post_status = 'draft' OR wp_posts.post_status = 'pending' OR wp_posts.post_status = 'private')
 				// append status to where
