@@ -508,7 +508,7 @@ class EF_Notifications {
 		$name = $user->user_login;
 		
 		// Remove the user from the following_users taxonomy
-		if( ef_term_exists($name, $this->following_users_taxonomy) ) {
+		if( term_exists($name, $this->following_users_taxonomy) ) {
 			$set = wp_set_object_terms( $post->ID, $name, $this->following_users_taxonomy, true );
 			$old_term_ids =  wp_get_object_terms($post_id, $this->following_users_taxonomy, array('fields' => 'ids', 'orderby' => 'none'));
 	
@@ -603,7 +603,7 @@ class EF_Notifications {
 	 * @return WP_error if insert fails, true otherwise
 	 */
 	function add_term_if_not_exists( $term, $taxonomy ) {
-	  if ( !ef_term_exists($term, $taxonomy) ) {
+	  if ( !term_exists($term, $taxonomy) ) {
       $args = array( 'slug' => sanitize_title($term) );		
       return wp_insert_term( $term, $taxonomy, $args );
     }

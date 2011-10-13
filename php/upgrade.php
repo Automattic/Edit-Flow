@@ -28,7 +28,7 @@ function edit_flow_upgrade_01() {
 	
 	// Okay, now add the default statuses to the db if they don't already exist 
 	foreach($default_terms as $term)
-		if( !ef_term_exists( $term['term'] ) )
+		if( !term_exists( $term['term'] ) )
 			$edit_flow->custom_status->add_custom_status( $term['term'], $term['args'] );
 	
 }
@@ -65,7 +65,7 @@ function edit_flow_upgrade_03 () {
 	
 	// Okay, now add the default statuses to the db if they don't already exist 
 	foreach($default_usergroups as $usergroup) {
-		if( !ef_term_exists( $usergroup['slug'], $edit_flow->notifications->following_usergroups_taxonomy ) ) {
+		if( !term_exists( $usergroup['slug'], $edit_flow->notifications->following_usergroups_taxonomy ) ) {
 			ef_add_usergroup( $usergroup['slug'], $usergroup['args'] );
 		}
 	}
@@ -180,7 +180,7 @@ function edit_flow_upgrade_06() {
 		);
 		
 		foreach ( $default_metadata as $term ) {
-			if ( !ef_term_exists( $term['args']['slug'], $edit_flow->editorial_metadata->metadata_taxonomy ) ) {
+			if ( !term_exists( $term['args']['slug'], $edit_flow->editorial_metadata->metadata_taxonomy ) ) {
 				$new_term = wp_insert_term( $term['term'], $edit_flow->editorial_metadata->metadata_taxonomy, $term['args'] );
 				$wpdb->update( $wpdb->term_taxonomy, array( 'description' => $term['args']['description'] ), array( 'term_taxonomy_id' => $new_term['term_taxonomy_id'] ) );
 			}

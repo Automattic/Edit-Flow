@@ -8,7 +8,6 @@
  * - Allow users to set slugs when creating a status
  * - Improve the copy
  * - Thoroughly test what happens when the default post statuses 'Draft' and 'Pending Review' no longer exist
- * - Deprecate ef_term_exists() and other non-class functions
  * - Ensure all of the form processing uses our messages functionality
  */
 if ( !class_exists( 'EF_Custom_Status' ) ) {
