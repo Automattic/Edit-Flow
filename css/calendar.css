@@ -31,19 +31,6 @@ table#ef-calendar-view {
 	padding-top: 3px;
 }
 
-#ef-calendar-view .day-unit .month-label {
-	float: left;
-	color: #666666;
-	display: block;
-	border-right: 1px solid #E1E1E1;
-	border-bottom: 1px solid #E1E1E1;	
-	padding-left: 5px;
-	padding-bottom: 1px;
-	padding-top: 1px;
-	padding-right: 5px;
-	font-size: 11px;
-}
-
 #ef-calendar-view .day-unit.weekend-day .day-unit-label,
 #ef-calendar-view .day-unit.weekend-day .month-label {
 	color: #999999;
@@ -87,6 +74,28 @@ div#week-wrap div.today { /*** Different background color for today ***/
 
 .first-heading {
 	margin-left:10px;
+}
+
+#ef-calendar-view .month-marker {
+	color: #666666;
+	border-bottom: 1px solid #E1E1E1;
+	font-size: 11px;
+	line-height: 15px;
+}
+
+#ef-calendar-view .month-marker td {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+#ef-calendar-view .month-marker-previous {
+	text-align: right;
+	padding-right: 8px;
+	border-right: 1px solid #E1E1E1;	
+}
+
+#ef-calendar-view .month-marker-current {
+	padding-left: 8px;
 }
 
 #ef-calendar-view .week-unit {
@@ -187,6 +196,12 @@ div.item-actions a {
 	margin-bottom:15px;
 }
 
+.ef-calendar-navigation li #post-query-submit.button-primary,
+.ef-calendar-navigation li .button-secondary {
+	margin-left: 8px;
+	margin-right: 0;
+}
+
 .ef-calendar-navigation a {
 	text-decoration:none;
 	-moz-border-radius:5px 5px 5px 5px;
@@ -196,9 +211,13 @@ div.item-actions a {
 	padding: 3px 6px;
 	color:#21759B;
 	font-weight: bold;
-	font-size: 11px;
+	font-size: 12px;
 	line-height: 30px;
 	background: url("../img/menu-bits.gif") repeat-x scroll left -379px #EEEEEE;
+}
+
+.ef-calendar-navigation li.today a {
+	font-weight: normal;	
 }
 
 .ef-calendar-navigation a:hover {
@@ -228,11 +247,13 @@ div.item-actions a {
 	margin-left: 5px;
 }
 
-.ef-calendar-navigation li.previous-week {
+.ef-calendar-navigation li.previous-week,
+.ef-calendar-navigation li.next-week,
+.ef-calendar-navigation li.today {
 	float:right;
-	margin-right: 15px;
 }
 
-.ef-calendar-navigation li.next-week {
-	float:right;
+.ef-calendar-navigation li.previous-week,
+.ef-calendar-navigation li.today {
+	margin-right: 15px;
 }

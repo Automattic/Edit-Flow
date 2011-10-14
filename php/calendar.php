@@ -1,9 +1,10 @@
 <?php
 /**
+ * class EF_Calendar
  * This class displays an editorial calendar for viewing upcoming and past content at a glance
  *
- * Somewhat prioritized @todos:
- * @todo Ensure all of the styles work cross-browser
+ * @todo Somewhat prioritized
+ * - Ensure all of the styles work cross-browser
  *
  * @author danielbachhuber
  */
@@ -210,7 +211,7 @@ class EF_Calendar {
 				<tbody>
 				
 				<?php
-				$current_month = null;
+				$current_month = date( 'F', strtotime( $filters['start_date'] ) );
 				for( $current_week = 1; $current_week <= $this->total_weeks; $current_week++ ):
 					// We need to set the global variable for our posts_where filter
 					$this->current_week = $current_week;
@@ -218,11 +219,31 @@ class EF_Calendar {
 					$date_format = 'Y-m-d';
 					$week_single_date = $this->get_beginning_of_week( $filters['start_date'], $date_format, $current_week );
 					$week_dates = array();
+					$split_month = false;
 					for ( $i = 0 ; $i < 7; $i++ ) {
 						$week_dates[$i] = $week_single_date;
+						$single_date_month = date( 'F', strtotime( $week_single_date ) );
+						if ( $single_date_month != $current_month ) {
+							$split_month = $single_date_month;
+							$current_month = $single_date_month;
+						}
 						$week_single_date = date( 'Y-m-d', strtotime( "+1 day", strtotime( $week_single_date ) ) );
 					}			
 				?>
+				<?php if ( $split_month ): ?>
+				<tr class="month-marker">
+					<?php foreach( $week_dates as $key => $week_single_date ) {
+						if ( date( 'F', strtotime( $week_single_date ) ) != $split_month && date( 'F', strtotime( "+1 day", strtotime( $week_single_date ) ) ) == $split_month ) {
+							$previous_month = date( 'F', strtotime( $week_single_date ) );
+							echo '<td class="month-marker-previous">' . esc_html( $previous_month ) . '</td>';
+						} else if ( date( 'F', strtotime( $week_single_date ) ) == $split_month && date( 'F', strtotime( "-1 day", strtotime( $week_single_date ) ) ) != $split_month ) {
+							echo '<td class="month-marker-current">' . esc_html( $split_month ) . '</td>';
+						} else {
+							echo '<td class="month-marker-empty"></td>';
+						}
+					} ?>
+				</tr>
+				<?php endif; ?>
 
 				<tr class="week-unit">
 				<?php foreach( $week_dates as $week_single_date ): ?>
@@ -233,16 +254,9 @@ class EF_Calendar {
 					$day_name = date( 'D', strtotime( $week_single_date ) );
 					if ( in_array( $day_name, $dotw ) )
 						$td_classes[] = 'weekend-day';
-					$month_name = date( 'F', strtotime( $week_single_date ) );
-					if ( $month_name != $current_month ) {
-						$month_label = '<span class="month-label">' . esc_html( $month_name ) . '</span>';
-						$current_month = $month_name;
-					} else {
-						$month_label = '';
-					}
 				?>
 				<td class="<?php echo implode( ' ', $td_classes ); ?>" id="day-<?php esc_attr_e( $week_single_date ); ?>">
-					<div class="day-unit-label"><?php echo $month_label; ?><?php echo date( 'j', strtotime( $week_single_date ) ); ?></div>
+					<div class="day-unit-label"><?php echo date( 'j', strtotime( $week_single_date ) ); ?></div>
 					<?php if ( !empty( $week_posts[$week_single_date] ) ): ?>
 					<ul class="post-list">
 						<?php
@@ -392,18 +406,21 @@ class EF_Calendar {
 				</form>
 			</li>
 
-			<!-- Previous and next navigation items -->
+			<?php /** Previous and next navigation items (translatable so they can be increased if needed )**/ ?>
 			<li class="next-week">
-				<a id="trigger-left" href="<?php echo esc_url( $this->get_next_link( $filters, 1 ) ); ?>"><?php _e( 'Next Week &raquo;', 'edit-flow' ); ?></a>
+				<a id="trigger-left" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters, 1 ) ); ?>"><?php _e( '&rsaquo;', 'edit-flow' ); ?></a>
 				<?php if ( $this->total_weeks > 1): ?>			
-				<a id="trigger-left" href="<?php echo esc_url( $this->get_next_link( $filters ) ); ?>"><?php _e( $this->total_weeks . ' Weeks &raquo;', 'edit-flow' ); ?></a>
+				<a id="trigger-left" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters ) ); ?>"><?php _e( '&raquo;', 'edit-flow' ); ?></a>
 				<?php endif; ?>
+			</li>
+			<li class="today">
+				<a href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters, 0 ) ); ?>"><?php _e( 'Today', 'edit-flow' ); ?></a>
 			</li>
 			<li class="previous-week">
 				<?php if ( $this->total_weeks > 1): ?>				
-				<a id="trigger-right" href="<?php echo esc_url( $this->get_previous_link( $filters ) ); ?>"><?php _e( '&laquo; ' . $this->total_weeks . ' Weeks', 'edit-flow' ); ?></a>
+				<a id="trigger-right" href="<?php echo esc_url( $this->get_pagination_link( 'previous', $filters ) ); ?>"><?php _e( '&laquo;', 'edit-flow' ); ?></a>
 				<?php endif; ?>
-				<a id="trigger-right" href="<?php echo esc_url( $this->get_previous_link( $filters, 1 ) ); ?>"><?php _e( '&laquo; Previous Week', 'edit-flow' ); ?></a>
+				<a id="trigger-right" href="<?php echo esc_url( $this->get_pagination_link( 'previous', $filters, 1 ) ); ?>"><?php _e( '&lsaquo;', 'edit-flow' ); ?></a>
 			</li>
 		</ul>
 	<?php
@@ -505,42 +522,24 @@ class EF_Calendar {
 	} 
 	
 	/**
-	 * Gets the link for the previous time period
-	 *
-	 * @param array $filters Any filters that need to be applied
-	 * @param int $weeks_offset Number of weeks we're offsetting the range
-	 * @return string $url The URL for the next page
-	 */
-	function get_previous_link( $filters = array(), $weeks_offset = null ) {
-		global $edit_flow;
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
-		
-		if ( !$weeks_offset )
-			$weeks_offset = $this->total_weeks;
-			
-		$filters['start_date'] = date( 'Y-m-d', strtotime( "-" . $weeks_offset . " weeks", strtotime( $filters['start_date'] ) ) );	
-		$url = add_query_arg( $filters, EDIT_FLOW_CALENDAR_PAGE );
-
-		if ( count( $supported_post_types ) > 1 )
-			$url = add_query_arg( 'post_type', $filters['post_type'] , $url );
-		
-		return $url;
-		
-	}
-
-	/**
 	 * Gets the link for the next time period
 	 *
+	 * @param string $direction 'previous' or 'next', direction to go in time
 	 * @param array $filters Any filters that need to be applied
 	 * @param int $weeks_offset Number of weeks we're offsetting the range	
 	 * @return string $url The URL for the next page
 	 */
-	function get_next_link( $filters = array(), $weeks_offset = null ) {
+	function get_pagination_link( $direction = 'next', $filters = array(), $weeks_offset = null ) {
 		global $edit_flow;
 		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
 		
-		if ( !$weeks_offset )
+		if ( !isset( $weeks_offset ) )
 			$weeks_offset = $this->total_weeks;
+		else if ( $weeks_offset == 0 )
+			$filters['start_date'] = $this->get_beginning_of_week( date( 'Y-m-d' ) );
+			
+		if ( $direction == 'previous' )
+			$weeks_offset = '-' . $weeks_offset;
 		
 		$filters['start_date'] = date( 'Y-m-d', strtotime( $weeks_offset . " weeks", strtotime( $filters['start_date'] ) ) );
 		$url = add_query_arg( $filters, EDIT_FLOW_CALENDAR_PAGE );
@@ -620,9 +619,9 @@ class EF_Calendar {
 		$numbers_to_words = apply_filters( 'ef_calendar_numbers_to_words', $numbers_to_words );
 		
 		if ( $this->total_weeks == 1 )
-			echo sprintf( __( 'is showing %1$s days starting %2$s'), 7, date( 'F jS', strtotime( $this->start_date ) ) );
+			echo sprintf( __( 'for %1$s days starting %2$s'), 7, date( 'F jS', strtotime( $this->start_date ) ) );
 		else if ( $this->total_weeks > 1 )
-			echo sprintf( __( 'is showing %1$s weeks starting %2$s'), $numbers_to_words[$this->total_weeks], date( 'F jS', strtotime( $this->start_date ) ) );
+			echo sprintf( __( 'for %1$s weeks starting %2$s'), $numbers_to_words[$this->total_weeks], date( 'F jS', strtotime( $this->start_date ) ) );
 	}
 	
 	/**
