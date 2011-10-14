@@ -276,31 +276,6 @@ class EF_Calendar {
 									echo $all_post_types[$post_type]->labels->singular_name . ': ';
 								} ?><?php echo $edit_flow->helpers->get_post_status_friendly_name( get_post_status( $post_id ) ); ?>]</span>
 							</div>
-							<ul class="item-metadata">
-								<li class="item-time"><?php echo date( get_option('time_format'), strtotime( $post->post_date ) ); ?>
-								<li class="item-category">
-									<?php
-										// Listing of all the categories
-										$categories_html = '';
-										$categories = get_the_category( $post_id );
-										foreach ( $categories as $category ) {
-											$categories_html .= $category->name . ', ';
-										}
-										echo rtrim( $categories_html, ', ' );
-									?>
-								</li>
-							</ul>
-							</div>
-							<div class="item-actions">
-								<?php if ( $edit_post_link ): ?>
-							  <span class="edit">
-								<?php edit_post_link( __( 'Edit', 'edit-flow' ), '', '', $post_id ); ?>
-							  </span> | 
-								<?php endif; ?>
-							  <span class="view">
-								<a href="#"><?php _e( 'View', 'edit-flow' ); ?></a>
-							  </span>
-							</div>
 							<div style="clear:left;"></div>
 						</li>
 						<?php endforeach; ?>
