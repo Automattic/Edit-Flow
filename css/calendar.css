@@ -25,10 +25,10 @@ table#ef-calendar-view {
 }
 
 #ef-calendar-view .day-unit .day-unit-label {
-	text-align: right;
+	float: right;
+	display: inline-block;
 	color: #666666;
 	padding-right: 3px;
-	padding-top: 3px;
 }
 
 #ef-calendar-view .day-unit.weekend-day .day-unit-label,
@@ -41,11 +41,30 @@ div#week-wrap div.today { /*** Different background color for today ***/
 	background-color: #FFFFE0; /*** Light yellow: this is the same color as message notifications ***/
 }
 
-#ef-calendar-view .week-list li {
-	list-style-type:none;
-	margin-left:0;
-	margin-bottom:10px;
+#ef-calendar-view .day-unit ul {
+	margin-top: 8px;
+	margin-bottom: 0;
+	padding: 0;
+}
+
+#ef-calendar-view .day-unit ul li {
+	list-style-type: square;	
+	margin-left: 18px;
+	margin-right: 5px;
 	word-wrap: break-word;
+}
+
+#ef-calendar-view .day-unit ul li:hover {
+	list-style-type: disc;
+}
+
+#ef-calendar-view .day-unit .show-more {
+	margin-right: 5px;
+	margin-bottom: 5px;
+	display: block;
+	text-align: right;
+	color: #999;
+	font-size: 11px;
 }
 
 #ef-calendar-view .calendar-heading {

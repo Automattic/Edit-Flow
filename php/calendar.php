@@ -63,6 +63,7 @@ class EF_Calendar {
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );
 		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );		
 		add_action( 'admin_print_styles', array( &$this, 'add_admin_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
 	}
 	
 	/**
@@ -84,6 +85,21 @@ class EF_Calendar {
 		// Only load calendar styles on the calendar page
 		if ( $pagenow == 'index.php' && isset( $_GET['page'] ) && $_GET['page'] == 'calendar' )
 			wp_enqueue_style( 'edit-flow-calendar-css', EDIT_FLOW_URL.'css/calendar.css', false, EDIT_FLOW_VERSION );
+	}
+	
+	/**
+	 * Add any necessary JS to the WordPress admin
+	 *
+	 * @since 0.7
+	 * @uses wp_enqueue_script()
+	 */
+	function enqueue_admin_scripts() {
+		global $edit_flow;
+		
+		if ( $edit_flow->helpers->is_whitelisted_functional_view() ) {
+			wp_enqueue_script( 'edit-flow-calendar-js', EDIT_FLOW_URL . 'js/calendar.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
+		}
+		
 	}
 	
 	/**
@@ -260,14 +276,24 @@ class EF_Calendar {
 					<?php if ( !empty( $week_posts[$week_single_date] ) ): ?>
 					<ul class="post-list">
 						<?php
-						foreach ( $week_posts[$week_single_date] as $post ) :
+						$hidden = 0;
+						foreach ( $week_posts[$week_single_date] as $num => $post ) :
 							$post_id = $post->ID;
 							$edit_post_link = get_edit_post_link( $post_id );
+							
+							$post_classes = array(
+								'day-item',
+								'custom-status-' . esc_attr( $post->post_status ),
+							);
+							if ( $num > 3 ) {
+								$post_classes[] = 'hidden';
+								$hidden++;
+							}
 						?>
-						<li class="day-item <?php echo 'custom-status-'. esc_attr( $post->post_status ); ?>" id="post-<?php esc_attr_e( $post->ID ); ?>">
+						<li class="<?php echo implode( ' ', $post_classes ); ?>" id="post-<?php esc_attr_e( $post->ID ); ?>">
 							<div class="item-headline post-title">
 								<?php if ( $edit_post_link ): ?>
-								<strong><?php edit_post_link( $post->post_title, '', '', $post_id ); ?></strong>
+								<strong><a title="<?php _e( 'See post details', 'edit-flow' ); ?>" href="#"><?php echo ef_draft_or_post_title( $post->ID );?></a></strong>
 								<?php else: ?>
 								<strong><?php esc_html_e( $post->post_title ); ?></strong>
 								<?php endif; ?>
@@ -280,6 +306,9 @@ class EF_Calendar {
 						</li>
 						<?php endforeach; ?>
 					</ul>
+					<?php if ( $hidden ): ?>
+						<a class="show-more" href="#"><?php printf( __( 'Show %1$s more ' ), $hidden ); ?></a>
+					<?php endif; ?>
 					<?php endif; ?>
 					</td>
 					<?php endforeach; ?>
