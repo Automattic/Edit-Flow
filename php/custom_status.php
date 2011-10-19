@@ -1113,7 +1113,7 @@ class EF_Custom_Status {
 			</tr>
 		</table>
 		<p class="submit">
-		<?php submit_button( __( 'Update Custom Status', 'edit-flow' ), 'primary', 'submit', false ); ?>
+		<?php submit_button( __( 'Update Status', 'edit-flow' ), 'primary', 'submit', false ); ?>
 		<a class="cancel-settings-link" href="<?php echo esc_url( $this->get_link() ); ?>"><?php _e( 'Cancel', 'edit-flow' ); ?></a>
 		</p>
 		</form>
@@ -1460,7 +1460,7 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 			</div></fieldset>
 		<p class="inline-edit-save submit">
 			<a accesskey="c" href="#inline-edit" title="<?php _e( 'Cancel' ); ?>" class="cancel button-secondary alignleft"><?php _e( 'Cancel' ); ?></a>
-			<?php $update_text = __( 'Update Custom Status', 'edit-flow' ); ?>
+			<?php $update_text = __( 'Update Status', 'edit-flow' ); ?>
 			<a accesskey="s" href="#inline-edit" title="<?php echo esc_attr( $update_text ); ?>" class="save button-primary alignright"><?php echo $update_text; ?></a>
 			<img class="waiting" style="display:none;" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
 			<span class="error" style="display:none;"></span>
