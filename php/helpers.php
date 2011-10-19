@@ -140,7 +140,8 @@ class EF_Helpers {
 			'trash' => __( 'Trash', 'edit-flow' ),
 		);
 		
-		if ( $this->module_enabled( 'custom_status' ) ) {
+		// Custom statuses only handles workflow statuses
+		if ( $this->module_enabled( 'custom_status' ) && !in_array( $status, array( 'publish', 'future', 'private', 'trash' ) ) ) {
 			$status_object = $edit_flow->custom_status->get_custom_status_by( 'slug', $status );
 			if( $status_object && !is_wp_error( $status_object ) ) {
 				$status_friendly_name = $status_object->name;
