@@ -46,7 +46,7 @@ class EF_Custom_Status {
 				'status-missing' => __( "Post status doesn't exist.", 'edit-flow' ),
 				'default-status-changed' => __( 'Default post status has been changed.', 'edit-flow'),
 				'term-updated' => __( "Post status updated.", 'edit-flow' ),
-				'status-deleted' => __( 'POst status deleted.', 'edit-flow' ),
+				'status-deleted' => __( 'Post status deleted.', 'edit-flow' ),
 				'status-position-updated' => __( "Status order updated.", 'edit-flow' ),
 			),					
 			'autoload' => false,
@@ -670,9 +670,9 @@ class EF_Custom_Status {
 			wp_die( $this->module->messages['nonce-failed'] );
 		
 		// Validate and sanitize the form data
-		$status_name = esc_html( trim( $_POST['status_name'] ) );
+		$status_name = strip_tags( trim( $_POST['status_name'] ) );
 		$status_slug = sanitize_title( $status_name );
-		$status_description = esc_html( $_POST['status_description'] );
+		$status_description = strip_tags( trim( $_POST['status_description'] ) );
 			
 		/**
 		 * Form validation
@@ -935,9 +935,9 @@ class EF_Custom_Status {
 			die( $this->module->messages['invalid-permissions'] );		
 		
 		$term_id = (int) $_POST['status_id'];
-		$status_name = esc_html( trim( $_POST['name'] ) );
+		$status_name = strip_tags( trim( $_POST['name'] ) );
 		$status_slug = sanitize_title( $_POST['name'] );		
-		$status_description = esc_html( $_POST['description'] );		
+		$status_description = strip_tags( trim( $_POST['description'] ) );		
 		
 		// Check if name field was filled in
 		if ( empty( $status_name ) ) {
@@ -1080,7 +1080,7 @@ class EF_Custom_Status {
 			$edit_status_link = $this->get_link( array( 'action' => 'edit-status', 'term-id' => $term_id ) );
 			
 			$name = ( isset( $_POST['name'] ) ) ? stripslashes( $_POST['name'] ) : $status->name;
-			$description = ( isset( $_POST['description'] ) ) ? stripslashes( $_POST['description'] ) : $status->description;
+			$description = ( isset( $_POST['description'] ) ) ? stripslashes( strip_tags( $_POST['description'] ) ) : $status->description;
 		?>
 		
 		<div id="ajax-response"></div>
