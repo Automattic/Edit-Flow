@@ -689,12 +689,12 @@ class EF_Custom_Status {
 		// Check that the status name doesn't exceed 20 chars
 		if ( strlen( $status_name ) > 20 )
 			$_REQUEST['form-errors']['name'] = __( 'Status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' );
-		// Check to make sure the status doesn't already exist
-		if ( $this->get_custom_status_by( 'slug', $status_slug ) )
-			$_REQUEST['form-errors']['name'] = __( 'Status name or slug conflicts with existing status. Please use another.', 'edit-flow' );
+		// Check to make sure the status doesn't already exist as another term because otherwise we'd get a weird slug
+		if ( term_exists( $status_slug ) )
+			$_REQUEST['form-errors']['name'] = __( 'Status name conflicts with existing term. Please choose another.', 'edit-flow' );
 		// Check to make sure the name is not restricted
 		if ( $this->is_restricted_status( strtolower( $status_slug ) ) )
-			$_REQUEST['form-errors']['name'] = __( 'Status name is restricted. Please use another name.', 'edit-flow' );
+			$_REQUEST['form-errors']['name'] = __( 'Status name is restricted. Please choose another name.', 'edit-flow' );
 		
 		// If there were any form errors, kick out and return them
 		if ( count( $_REQUEST['form-errors'] ) ) {
@@ -756,13 +756,17 @@ class EF_Custom_Status {
 		// Check that the status name doesn't exceed 20 chars
 		if ( strlen( $name ) > 20 )
 			$_REQUEST['form-errors']['name'] = __( 'Status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' );
+		// Check to make sure the status doesn't already exist as another term because otherwise we'd get a weird slug
+		$term_exists = term_exists( sanitize_title( $name ) );
+		if ( $term_exists && $term_exists['term_id'] != $existing_status->term_id )
+			$_REQUEST['form-errors']['name'] = __( 'Status name conflicts with existing term. Please choose another.', 'edit-flow' );
 		// Check to make sure the status doesn't already exist
 		$search_status = $this->get_custom_status_by( 'slug', sanitize_title( $name ) );
 		if ( $search_status && $search_status->term_id != $existing_status->term_id )
-			$_REQUEST['form-errors']['name'] = __( 'Status name or slug conflicts with existing status. Please use another.', 'edit-flow' );
+			$_REQUEST['form-errors']['name'] = __( 'Status name conflicts with existing status. Please choose another.', 'edit-flow' );
 		// Check to make sure the name is not restricted
 		if ( $this->is_restricted_status( strtolower( sanitize_title( $name ) ) ) )
-			$_REQUEST['form-errors']['name'] = __( 'Status name is restricted. Please use another name.', 'edit-flow' );
+			$_REQUEST['form-errors']['name'] = __( 'Status name is restricted. Please choose another name.', 'edit-flow' );
 	
 		// Kick out if there are any errors
 		if ( count( $_REQUEST['form-errors'] ) ) {
@@ -950,18 +954,25 @@ class EF_Custom_Status {
 		// Check that the status name doesn't exceed 20 chars
 		if ( strlen( $status_name ) > 20 ) {
 			$change_error = new WP_Error( 'invalid', __( 'Status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' ) );
-			die( $change_error->get_error_message() );			
+			die( $change_error->get_error_message() );
 		}
 		
 		// Check to make sure the name is not restricted
 		if ( $edit_flow->custom_status->is_restricted_status( strtolower( $status_name ) ) ) {
-			$change_error = new WP_Error( 'invalid', __( 'Status name is restricted. Please use another name.', 'edit-flow' ) );
+			$change_error = new WP_Error( 'invalid', __( 'Status name is restricted. Please chose another name.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );
 		}
 		
 		// Check to make sure the status doesn't already exist
 		if ( $this->get_custom_status_by( 'slug', $status_slug ) && ( $this->get_custom_status_by( 'id', $term_id )->slug != $status_slug ) ) {
-			$change_error = new WP_Error( 'invalid', __( 'Status already exists. Please use another name.', 'edit-flow' ) );
+			$change_error = new WP_Error( 'invalid', __( 'Status already exists. Please choose another name.', 'edit-flow' ) );
+			die( $change_error->get_error_message() );
+		}
+		
+		// Check to make sure the status doesn't already exist as another term because otherwise we'd get a fatal error
+		$term_exists = term_exists( sanitize_title( $status_name ) );
+		if ( $term_exists && $term_exists['term_id'] != $term_id ) {
+			$change_error = new WP_Error( 'invalid', __( 'Status name conflicts with existing term. Please choose another.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );
 		}
 		
@@ -1084,6 +1095,7 @@ class EF_Custom_Status {
 				<th scope="row" valign="top"><label for="name"><?php _e( 'Editorial Metadata', 'edit-flow' ); ?></label></th>
 				<td><input name="name" id="name" type="text" value="<?php echo esc_attr( $name ); ?>" size="40" aria-required="true" />
 				<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is for labeling the metadata field.', 'edit-flow' ) ); ?>
+				</td>
 			</tr>
 			<tr class="form-field">
 				<th scope="row" valign="top"><?php _e( 'Slug', 'edit-flow' ); ?></th>
@@ -1105,7 +1117,6 @@ class EF_Custom_Status {
 		<a class="cancel-settings-link" href="<?php echo esc_url( $this->get_link() ); ?>"><?php _e( 'Cancel', 'edit-flow' ); ?></a>
 		</p>
 		</form>
-		</div>
 		
 		<?php else: ?>
 		<?php
