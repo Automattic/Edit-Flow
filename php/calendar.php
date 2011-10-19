@@ -41,6 +41,10 @@ class EF_Calendar {
 					'page' => 'off',
 				),
 			),
+			'messages' => array(
+				'post-date-updated' => __( "Post date updated.", 'edit-flow' ),
+				'update-error' => __( 'There was an error updating the post. Please try again', 'edit-flow' ),
+			),
 			'configure_page_cb' => 'print_configure_view',
 			'configure_link_text' => __( 'Calendar Options', 'edit-flow' ),		
 		);
@@ -64,6 +68,9 @@ class EF_Calendar {
 		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );		
 		add_action( 'admin_print_styles', array( &$this, 'add_admin_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
+		
+		// Ajax manipulation for the calendar
+		add_action( 'wp_ajax_ef_calendar_drag_and_drop', array( &$this, 'handle_ajax_drag_and_drop' ) );
 	}
 	
 	/**
@@ -97,9 +104,86 @@ class EF_Calendar {
 		global $edit_flow;
 		
 		if ( $edit_flow->helpers->is_whitelisted_functional_view() ) {
-			wp_enqueue_script( 'edit-flow-calendar-js', EDIT_FLOW_URL . 'js/calendar.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
+			$js_libraries = array(
+				'jquery',
+				'jquery-ui-core',
+				'jquery-ui-sortable',
+				'jquery-ui-draggable',
+				'jquery-ui-droppable',
+			);
+			foreach( $js_libraries as $js_library ) {
+				wp_enqueue_script( $js_library );
+			}
+			wp_enqueue_script( 'edit-flow-calendar-js', EDIT_FLOW_URL . 'js/calendar.js', $js_libraries, EDIT_FLOW_VERSION, true );
 		}
 		
+	}
+	
+	/**
+	 * Handle an AJAX request from the calendar to update a post's timestamp.
+	 * Notes:
+	 * - For Post Time, if the post is unpublished, the change sets the publication timestamp
+	 * - If the post was published or scheduled for the future, the change will change the timestamp. 'publish' posts
+	 * will become scheduled if moved past today and 'future' posts will be published if moved before today
+	 * - Need to respect user permissions. Editors can move all, authors can move their own, and contributors can't move at all
+	 *
+	 * @since 0.7
+	 */
+	function handle_ajax_drag_and_drop() {
+		global $edit_flow, $wpdb;
+		
+		// Nonce check!
+		if ( !wp_verify_nonce( $_POST['nonce'], 'ef-calendar-modify' ) )
+			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
+		
+		// Check that we got a proper post
+		$post_id = (int)$_POST['post_id'];
+		$post = get_post( $post_id );
+		if ( !$post )
+			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['missing-post'] );
+			
+		// Check that the user can modify the post
+		if ( !$this->current_user_can_modify_post( $post ) )
+			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
+		
+		// Check that the new date passed is a valid one
+		$next_date_full = strtotime( $_POST['next_date'] );
+		if ( !$next_date_full )
+			$edit_flow->helpers->print_ajax_response( 'error', __( 'Something is wrong with the format for the new date.', 'edit-flow' ) );
+		
+		// Persist the old hourstamp because we can't manipulate the exact time on the calendar
+		// Bump the last modified timestamps too
+		$existing_time = date( 'H:i:s', strtotime( $post->post_date ) );
+		$existing_time_gmt = date( 'H:i:s', strtotime( $post->post_date_gmt ) );
+		$new_values = array(
+			'post_date' => date( 'Y-m-d', $next_date_full ) . ' ' . $existing_time,
+			// By setting the post_date_gmt, we're explictly setting the publication timestamp
+			// We may decide we don't want to do this, or add a filter to allow the user to opt out
+			// By opting out, regardless of the day the post is set to, it would always be published today
+			'post_date_gmt' => date( 'Y-m-d', $next_date_full ) . ' ' . $existing_time_gmt,
+			'post_modified' => current_time( 'mysql' ),
+			'post_modified_gmt' => current_time( 'mysql', 1 ),
+		);
+		// Handle the post status if the post was published and we're moving it to the future
+		// Or if the post was scheduled and we're moving it to the past
+		if ( 'publish' == $post->post_status ) {
+			$now = gmdate('Y-m-d H:i:59');
+			if ( mysql2date('U', $new_values['post_date_gmt'], false) > mysql2date('U', $now, false) )
+				$new_values['post_status'] = 'future';
+		} else if ( 'future' == $post->post_status ) {
+			$now = gmdate('Y-m-d H:i:59');
+			if ( mysql2date('U', $new_values['post_date_gmt'], false) <= mysql2date('U', $now, false) )
+				$new_values['post_status'] = 'publish';
+		}
+		// We have to do SQL unfortunately because of core bugginess
+		// Note to those reading this: bug Nacin to allow us to finish the custom status API
+		// See http://core.trac.wordpress.org/ticket/18362
+		$response = $wpdb->update( $wpdb->posts, $new_values, array( 'ID' => $post->ID ) );
+		if ( !$response )
+			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['update-error'] );
+		
+		$edit_flow->helpers->print_ajax_response( 'success', $this->module->messages['post-date-updated'] );
+		exit;
 	}
 	
 	/**
@@ -268,15 +352,19 @@ class EF_Calendar {
 						'day-unit',
 					);
 					$day_name = date( 'D', strtotime( $week_single_date ) );
+					
 					if ( in_array( $day_name, $dotw ) )
 						$td_classes[] = 'weekend-day';
+						
+					if ( $week_single_date == date( 'Y-m-d' ) )
+						$td_classes[] = 'today';
 				?>
-				<td class="<?php echo implode( ' ', $td_classes ); ?>" id="day-<?php esc_attr_e( $week_single_date ); ?>">
+				<td class="<?php echo implode( ' ', $td_classes ); ?>" id="<?php echo esc_attr( $week_single_date ); ?>">
 					<div class="day-unit-label"><?php echo date( 'j', strtotime( $week_single_date ) ); ?></div>
-					<?php if ( !empty( $week_posts[$week_single_date] ) ): ?>
 					<ul class="post-list">
 						<?php
 						$hidden = 0;
+						if ( !empty( $week_posts[$week_single_date] ) ): 
 						foreach ( $week_posts[$week_single_date] as $num => $post ) :
 							$post_id = $post->ID;
 							$edit_post_link = get_edit_post_link( $post_id );
@@ -285,30 +373,34 @@ class EF_Calendar {
 								'day-item',
 								'custom-status-' . esc_attr( $post->post_status ),
 							);
+							// Only allow the user to drag the post if they have permissions to
+							// This is checked on the ajax request too.
+							if ( $this->current_user_can_modify_post( $post ) )
+								$post_classes[] = 'sortable';
+							
 							if ( $num > 3 ) {
 								$post_classes[] = 'hidden';
 								$hidden++;
 							}
 						?>
 						<li class="<?php echo implode( ' ', $post_classes ); ?>" id="post-<?php esc_attr_e( $post->ID ); ?>">
-							<div class="item-headline post-title">
-								<?php if ( $edit_post_link ): ?>
-								<strong><a title="<?php _e( 'See post details', 'edit-flow' ); ?>" href="#"><?php echo ef_draft_or_post_title( $post->ID );?></a></strong>
+							<div class="item-status"><span class="status-text"><?php echo $edit_flow->helpers->get_post_status_friendly_name( get_post_status( $post_id ) ); ?></span></div>
+							<div class="inner">
+								<span class="item-headline post-title"><strong>
+								<?php if ( $this->current_user_can_modify_post( $post ) ): ?>
+									<a href="<?php echo esc_url( $edit_post_link ); ?>"><?php echo esc_html( $post->post_title );?></a>
 								<?php else: ?>
-								<strong><?php esc_html_e( $post->post_title ); ?></strong>
+									<?php echo esc_html( $post->post_title ); ?>
 								<?php endif; ?>
-								<span class="item-status">[<?php if ( count( $supported_post_types ) > 1 ) {
-									$post_type = $post->post_type;
-									echo $all_post_types[$post_type]->labels->singular_name . ': ';
-								} ?><?php echo $edit_flow->helpers->get_post_status_friendly_name( get_post_status( $post_id ) ); ?>]</span>
+								</strong></span>
 							</div>
-							<div style="clear:left;"></div>
+							<div style="clear:right;"></div>
 						</li>
-						<?php endforeach; ?>
+						<?php endforeach;
+						endif; ?>
 					</ul>
 					<?php if ( $hidden ): ?>
 						<a class="show-more" href="#"><?php printf( __( 'Show %1$s more ' ), $hidden ); ?></a>
-					<?php endif; ?>
 					<?php endif; ?>
 					</td>
 					<?php endforeach; ?>
@@ -318,6 +410,7 @@ class EF_Calendar {
 					
 					</tbody>		
 					</table><!-- /Week Wrapper -->
+					<?php wp_nonce_field( 'ef-calendar-modify', 'ef-calendar-modify' ); ?>
 					
 					<div class="clear"></div>
 				</div><!-- /Calendar Wrapper -->
@@ -626,6 +719,38 @@ class EF_Calendar {
 			echo sprintf( __( 'for %1$s days starting %2$s'), 7, date( 'F jS', strtotime( $this->start_date ) ) );
 		else if ( $this->total_weeks > 1 )
 			echo sprintf( __( 'for %1$s weeks starting %2$s'), $numbers_to_words[$this->total_weeks], date( 'F jS', strtotime( $this->start_date ) ) );
+	}
+	
+	/**
+	 * Check whether the current user should have the ability to modify the post
+	 * @todo Make this work for custom post types too
+	 *
+	 * @since 0.7
+	 *
+	 * @param object $post The post object we're checking
+	 * @return bool $can Whether or not the current user can modify the post
+	 */
+	function current_user_can_modify_post( $post ) {
+		
+		if ( !$post )
+			return false;
+			
+		$published_statuses = array(
+			'publish',
+			'future',
+			'private',
+		);
+		// Editors and admins are fine
+		if ( current_user_can( 'edit_others_posts' ) )
+			return true;
+		// Authors and contributors can move their own stuff if it's not published
+		if ( current_user_can( 'edit_posts') && wp_get_current_user()->ID == $post->post_author && !in_array( $post->post_status, $published_statuses ) )
+			return true;
+		// Those who can publish posts can move any of their own stuff
+		if ( current_user_can( 'publish_posts') && wp_get_current_user()->ID == $post->post_author )
+			return true;
+		
+		return false;
 	}
 	
 	/**

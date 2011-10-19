@@ -36,37 +36,6 @@ table#ef-calendar-view {
 	color: #999999;
 }
 
-
-div#week-wrap div.today { /*** Different background color for today ***/
-	background-color: #FFFFE0; /*** Light yellow: this is the same color as message notifications ***/
-}
-
-#ef-calendar-view .day-unit ul {
-	margin-top: 8px;
-	margin-bottom: 0;
-	padding: 0;
-}
-
-#ef-calendar-view .day-unit ul li {
-	list-style-type: square;	
-	margin-left: 18px;
-	margin-right: 5px;
-	word-wrap: break-word;
-}
-
-#ef-calendar-view .day-unit ul li:hover {
-	list-style-type: disc;
-}
-
-#ef-calendar-view .day-unit .show-more {
-	margin-right: 5px;
-	margin-bottom: 5px;
-	display: block;
-	text-align: right;
-	color: #999;
-	font-size: 11px;
-}
-
 #ef-calendar-view .calendar-heading {
 	height: 28px;
 	background: #DFDFDF url('../img/menu-bits.gif') repeat-x scroll left top;
@@ -91,10 +60,6 @@ div#week-wrap div.today { /*** Different background color for today ***/
 	font-weight: normal;
 }
 
-.first-heading {
-	margin-left:10px;
-}
-
 #ef-calendar-view .month-marker {
 	color: #666666;
 	border-bottom: 1px solid #E1E1E1;
@@ -117,92 +82,88 @@ div#week-wrap div.today { /*** Different background color for today ***/
 	padding-left: 8px;
 }
 
-#ef-calendar-view .week-unit {
+table#ef-calendar-view .week-unit {
 	border-bottom: 1px solid #E1E1E1;
 }
 
-#ef-calendar-view .week-unit .item-metadata {
-	padding-left:15px;
-	font-size: 12px;
-	font-family: Helvetica, Arial, sans-serif;
+table#ef-calendar-view .day-unit.today {
+	border: 1px solid #BBB;
+	margin-top: -1px;
+	margin-left: -1px;
 }
 
-.week-list ul.item-metadata {
-	margin-top: 4px;
-	margin-left: 0;
+table#ef-calendar-view .day-unit .ui-state-highlight {
+	min-height: 20px;
+}
+
+table#ef-calendar-view .day-unit.ui-wrapper-highlight {
+	/* background-color: #fcffb5; */
+	background-color: #FCFCFC;
+}
+
+table#ef-calendar-view .day-unit.weekend-day.ui-wrapper-highlight {
+	background-color: #EFEFEF;
+}
+
+table#ef-calendar-view .day-unit ul {
+	margin-top: 17px;
+	margin-bottom: 0;
+	padding-top:0;
+	padding-bottom: 0;
+	padding-left: 3px;
+	padding-right: 3px;
+	min-height: 70px;
+}
+
+table#ef-calendar-view .day-unit ul li {
+	list-style-type: none;
+	margin: 0;
+	word-wrap: break-word;
+	padding-top: 0;
 	padding-left: 0;
+	padding-right: 0;
+	padding-bottom: 5px;
 }
 
-.week-list ul.item-metadata li {
-	margin-top: 2px;
-	margin-bottom: 2px;
+table#ef-calendar-view .day-unit ul li.sortable:hover {
+	cursor: pointer;
 }
 
-.week-list .item-metadata .item-author {
-	
-}
-
-.week-list .item-metadata .item-category {
-	
-}
-
-.ui-state-highlight {
-	height:100px;
-	background-color:#fcffb5;
-}
-
-.item-headline {
-	font-size:12px;
-	margin-bottom:5px;
-	margin-top:0;
-}
-
-.item-status {
+table#ef-calendar-view .day-unit ul li .item-status {
 	font-size: 11px;
-	font-style:italic;
+	line-height: 13px;
 	color: #999999;
+	word-wrap: break-word;
+	width: 55px;
+	float: right;
+	padding-right: 2px;
+	text-align: right;
 }
 
-.item-headline a {
-	text-decoration:none;
+table#ef-calendar-view .day-unit ul li .inner {
+	margin-right: 57px;
+	padding-left: 3px;
 }
 
-.item-headline a:hover {
-	text-decoration:underline;
-	color:red;
+table#ef-calendar-view .day-unit ul li .item-headline {
+	font-size: 12px;
+	line-height: 15px;
+	margin-top:0;	
+	margin-bottom:0;
 }
 
-.item-actions {
-	font-family: "Lucida Grande",Verdana,Arial,sans-serif;
+table#ef-calendar-view .day-unit ul li .item-headline:hover {
+
+
+}
+
+#ef-calendar-view .day-unit .show-more {
+	margin-right: 5px;
+	margin-bottom: 5px;
+	display: block;
+	text-align: right;
+	color: #999;
 	font-size: 11px;
-	visibility: hidden;
-}
-
-.week-item:hover .item-actions {
-	visibility:visible !important;
-}
-
-div.item-actions a {
-	text-decoration: none;
-}
-
-.week-list img {
-	opacity:0.0;
-	cursor:move;
-}
-
-.week-item {
-	margin-top: 0;
-	margin-bottom: 0 !important;
-	padding: 5px;
-}
-
-.week-item:hover {
-	background-color: ;
-}
-
-.week-list li:hover img {
-	opacity:1.0;
 }
 
 /*** Week Navigation Links ***/
