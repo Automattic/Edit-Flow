@@ -1275,26 +1275,21 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 	function column_default( $item, $column_name ) {
 		
 		switch( $column_name ) {
+			case 'position':
+			case 'type':
+			case 'description':
+				return esc_html( $item->$column_name );
+				break;
 			case 'viewable':
 				if ( $item->viewable )
 					return __( 'Yes', 'edit-flow' );
 				else 
 					return __( 'No', 'edit-flow' );
+				break;
 			default:
 				break;
 		}
 		
-	}
-	
-	/**
-	 * Hidden column for storing the term position
-	 *
-	 * @since 0.7
-	 *
-	 * @param object $item Editorial Metadata term as an object
-	 */
-	function column_position( $item ) {
-		return esc_html( $item->position );
 	}
 
 	/**
@@ -1323,22 +1318,6 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		$out .= '</div>';
 		
 		return $out;
-	}
-	
-	/**
-	 * Column for displaying the type of editorial metadata
-	 */
-	function column_type( $item ) {
-		global $edit_flow;
-		return esc_html( $item->type );
-	}
-
-	/**
-	 * Column for displaying the description of the term
-	 */
-	function column_description( $item ) {
-		global $edit_flow;
-		return esc_html( $item->description );
 	}
 	
 	function inline_edit() {
