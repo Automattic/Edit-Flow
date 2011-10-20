@@ -68,6 +68,7 @@ class EF_Editorial_Metadata {
 	 * Initialize the module. Conditionally loads if the module is enabled
 	 */
 	function init() {
+		global $edit_flow;
 		
 		// Register the taxonomy we use for Editorial Metadata with WordPress core
 		$this->register_taxonomy();
@@ -84,6 +85,13 @@ class EF_Editorial_Metadata {
 		
 		add_action( 'add_meta_boxes', array( &$this, 'handle_post_metaboxes' ) );
 		add_action( 'save_post', array( &$this, 'save_meta_box' ), 10, 2 );
+		
+		// Add Editorial Metadata columns to the Manage Posts view
+		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		foreach( $supported_post_types as $post_type ) {
+			add_action( "manage_{$post_type}_posts_columns", array( &$this, 'filter_manage_posts_columns' ) );
+			add_action( 'manage_posts_custom_column', array( &$this, 'action_manage_posts_custom_column' ), null, 2 );
+		}
 		
 		// Load necessary scripts and stylesheets
 		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );	
@@ -159,7 +167,7 @@ class EF_Editorial_Metadata {
 		
 		// Add the metabox date picker JS and CSS
 		$current_post_type = $edit_flow->helpers->get_current_post_type();
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $edit_flow->custom_status->module );	
+		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
 		if ( in_array( $current_post_type, $supported_post_types ) ) {
 			$edit_flow->helpers->enqueue_datepicker_resources();
 
@@ -227,7 +235,7 @@ class EF_Editorial_Metadata {
 		global $edit_flow;
 
 		// We need to make sure taxonomy is registered for all of the post types that support it
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $edit_flow->custom_status->module );
+		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
 	
 		register_taxonomy( $this->metadata_taxonomy, $supported_post_types,
 			array(
@@ -256,7 +264,7 @@ class EF_Editorial_Metadata {
 	 */
 	function handle_post_metaboxes() {
 		global $edit_flow;
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $edit_flow->custom_status->module );
+		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
 		foreach ( $supported_post_types as $post_type ) {
 			add_meta_box( $this->metadata_taxonomy, __( 'Editorial Metadata', 'edit-flow' ), array( &$this, 'display_meta_box' ), $post_type, 'side' );
 		}
@@ -493,6 +501,83 @@ class EF_Editorial_Metadata {
 		}
 		
 		return $term;
+	}
+	
+	/**
+	 * Register editorial metadata fields as columns in the manage posts view
+	 * Only adds columns for the currently active post types - logic controlled in $this->init()
+	 *
+	 * @since 0.7
+	 * @uses apply_filters( 'manage_posts_columns' ) in wp-admin/includes/class-wp-posts-list-table.php
+	 *
+	 * @param array $posts_columns Existing post columns prepared by WP_List_Table
+	 * @param array $posts_columns Previous post columns with the new values
+	 */
+	function filter_manage_posts_columns( $posts_columns ) {
+		
+		$terms = $this->get_editorial_metadata_terms();
+		foreach( $terms as $term ) {
+			// Prefixing slug with module slug because it isn't stored prefixed and we want to avoid collisions
+			$key = $this->module->slug . $term->slug;
+			$posts_columns[$key] = $term->name;
+		}
+		return $posts_columns;
+	}
+	
+	/**
+	 * Handle the output of an editorial metadata custom column
+	 * Logic for the post types this is called on is controlled in $this->init()
+	 *
+	 * @since 0.7
+	 * @uses do_action( 'manage_posts_custom_column' ) in wp-admin/includes/class-wp-posts-list-table.php
+	 *
+	 * @param string $column_name Unique string for the column
+	 * @param int $post_id ID for the post of the row
+	 */
+	function action_manage_posts_custom_column( $column_name, $post_id ) {
+		
+		$terms = $this->get_editorial_metadata_terms();
+		// We're looking for the proper term to display its saved value
+		foreach( $terms as $term ) {
+			$key = $this->module->slug . $term->slug;
+			if ( $column_name != $key )
+				continue;
+
+			$postmeta_key = $this->get_postmeta_key( $term );
+			$current_metadata = $this->get_postmeta_value( $term, $post_id );
+			$type = $this->get_metadata_type( $term );
+			switch( $type ) {
+				case "date":
+					if ( !empty( $current_metadata ) )
+						$current_metadata = date( 'M d Y' , intval( $current_metadata ) );
+					echo esc_html( $current_metadata );
+					break;
+				case "location":
+					if ( !empty( $current_metadata ) )
+						echo "<a title='" . esc_attr( sprintf( __( 'View &#8220;%s&#8221; on Google Maps', 'edit-flow' ), $current_metadata ) ) . "' href='http://maps.google.com/?q=" . urlencode( $current_metadata ) . "&t=m' target='_blank'>" . esc_html( $current_metadata ) . "</a>";
+					break;
+				case "text":
+				case "number":
+				case "paragraph":
+					echo esc_html( $current_metadata );
+					break;
+				case "checkbox":
+					if ( $current_metadata )
+						echo __( 'Yes', 'edit-flow' );
+					else
+						echo __( 'No', 'edit-flow' );
+					break;
+				case "user": 
+					$userdata = get_userdata( $current_metadata );
+					if ( is_object( $userdata ) )
+						echo esc_html( $userdata->display_name );
+					break;
+				default:
+					break;
+			}
+
+		}
+		
 	}
 	
 	/**
