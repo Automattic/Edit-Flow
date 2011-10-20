@@ -217,7 +217,7 @@ class edit_flow {
 	 *
 	 */
 	function get_plugin_option ( $name ) {
-		if(is_array($this->options) && $option = $this->options[$name])
+		if(is_array($this->options) && isset( $this->options[$name] ) && $option = $this->options[$name])
 			return $option;
 		else 
 			return null;
