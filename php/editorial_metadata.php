@@ -18,17 +18,12 @@ if ( !class_exists('EF_Editorial_Metadata') ) {
 class EF_Editorial_Metadata {
 
 	/**
-	 * The name of the taxonomy we're going to register for editorial metadata. This could be a
-	 * const, but then it would be harder to use in PHP strings, so we'll keep it as a variable.
+	 * The name of the taxonomy we're going to register for editorial metadata.
 	 */
-	var $metadata_taxonomy = 'ef_editorial_meta';
-	var $metadata_postmeta_key = "_ef_editorial_meta";
-	var $screen_id = "edit-ef_editorial_meta";
+	const metadata_taxonomy = 'ef_editorial_meta';
+	const metadata_postmeta_key = "_ef_editorial_meta";
+	
 	var $module_name = 'editorial_metadata';
-
-	const position_key = 'position';
-	const description = 'desc';
-	const metadata_type_key = 'type';
 	
 	/**
 	 * Construct the EF_Editorial_Metadata class
@@ -99,41 +94,13 @@ class EF_Editorial_Metadata {
 	}
 	
 	/**
-	 * Encode a given description and type as JSON 
-	 *
-	 * @param string $metadata_description Metadata description
-	 * @param string $metadata_type Metadata type
-	 * @return string $encoded Type and description encoded as JSON
-	 */
-	function get_encoded_description( $metadata_position, $metadata_description, $metadata_type ) {
-		// Damn pesky carriage returns...
-		$metadata_description = str_replace("\r\n", "\n", $metadata_description);
-		$metadata_description = str_replace("\r", "\n", $metadata_description);
-		// Convert all newlines to <br /> for storage (and because it's the proper way to present them)
-		$metadata_description = str_replace("\n", "<br />", $metadata_description);		
-		$allowed_tags = '<b><a><strong><i><ul><li><ol><blockquote><em><br>';
-		$metadata_description = strip_tags( $metadata_description, $allowed_tags );
-		// Escape any special characters (', ", <, >, &)
-		$metadata_description = esc_attr( $metadata_description );
-		$metadata_description = htmlentities( $metadata_description, ENT_QUOTES );
-		$encoded = json_encode( array(
-				self::position_key 		 => (int)$metadata_position,
-				self::description		 => $metadata_description,
-				self::metadata_type_key  => $metadata_type,
-				)
-			);
-		
-		return $encoded;
-	}
-	
-	/**
 	 * Generate <select> HTML for all of the metadata types
 	 */
 	function get_select_html( $description ) {
-		$current_metadata_type = $this->get_metadata_type( $description );
+		$current_metadata_type = $description->type;
 		$metadata_types = $this->get_supported_metadata_types();
 		?>
-		<select id="<?php echo $this->metadata_taxonomy . '_' . self::metadata_type_key; ?>" name="<?php echo $this->metadata_taxonomy . '_' . self::metadata_type_key; ?>">
+		<select id="<?php echo self::metadata_taxonomy; ?>'_type" name="<?php echo self::metadata_taxonomy; ?>'_type">
 		<?php foreach ( $metadata_types as $metadata_type => $metadata_type_name ) : ?>
 			<option value="<?php echo $metadata_type; ?>" <?php selected( $metadata_type, $current_metadata_type ); ?>><?php echo $metadata_type_name; ?></option>
 		<?php endforeach; ?>
@@ -175,56 +142,10 @@ class EF_Editorial_Metadata {
 			wp_enqueue_style('edit_flow-editorial_metadata-styles', EDIT_FLOW_URL . 'css/editorial_metadata.css', false, EDIT_FLOW_VERSION, 'all');
 		}
 		
-		// Either editing the taxonomy or a specific term
-		if ( $current_screen->id == $this->screen_id ) {
-			wp_enqueue_script( 'edit_flow-editorial_metadata', EDIT_FLOW_URL . 'js/editorial_metadata.js', array( 'jquery',  ), EDIT_FLOW_VERSION, true );
-		}
-		
 		// Load Javascript specific to the editorial metadata configuration view
 		if ( $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-ui-sortable' );			
 			wp_enqueue_script( 'edit-flow-editorial-metadata-configure', EDIT_FLOW_URL . 'js/editorial_metadata_configure.js', array( 'jquery', 'jquery-ui-sortable' ), EDIT_FLOW_VERSION, true );
-		}
-	}
-	
-	/**
-	 * Gets the metadata type described by this term, stored in the term itself. Usually stored in $term->description.
-	 *
-	 * @param object|string|int term Term from which to get the metadata object (object or term_id) or the metadata type itself.
-	 * @return string $metadata_type Metadata type as a string
-	 */
-	function get_metadata_type( $term ) {
-		$metadata_type = '';
-		if ( is_object( $term ) ) {
-			$metadata_type = $term->description;
-		} else if ( is_int( $term ) && $term > 0 ) {
-			$metadata_type = get_term_by( 'term_id', $term->term_id, $this->metadata_taxonomy )->description;
-		} else {
-			$metadata_type = $term;
-		}
-		$metadata_type = $this->get_unencoded_value( $metadata_type, self::metadata_type_key );
-		return $metadata_type;
-	}
-	
-	/**
-	 * Get the unencoded value of a key that's been stored in term's description field
-	 *
-	 * @param string $string_to_unencode String we need to produce the value from
-	 * @param string $key Key we're searching for (either 'desc' or 'type' probably)
-	 * @return string The unencoded value for the key if we had an encoded string, or the string
-	 */
-	function get_unencoded_value( $string_to_unencode, $key ) {
-		$string_to_unencode = stripslashes( htmlspecialchars_decode( $string_to_unencode ) );
-		$unencoded_array = json_decode( $string_to_unencode, true );
-		if ( is_array( $unencoded_array ) ) {
-			if ( isset( $unencoded_array[$key] ) ) {
-				$unencoded_array[$key] = html_entity_decode( $unencoded_array[$key], ENT_QUOTES );
-				return $unencoded_array[$key];
-			} else {
-				return '';
-			}
-		} else {
-			return $string_to_unencode;
 		}
 	}
 	
@@ -237,7 +158,7 @@ class EF_Editorial_Metadata {
 		// We need to make sure taxonomy is registered for all of the post types that support it
 		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
 	
-		register_taxonomy( $this->metadata_taxonomy, $supported_post_types,
+		register_taxonomy( self::metadata_taxonomy, $supported_post_types,
 			array(
 				'public' => false,
 				'labels' => array(
@@ -266,7 +187,7 @@ class EF_Editorial_Metadata {
 		global $edit_flow;
 		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
 		foreach ( $supported_post_types as $post_type ) {
-			add_meta_box( $this->metadata_taxonomy, __( 'Editorial Metadata', 'edit-flow' ), array( &$this, 'display_meta_box' ), $post_type, 'side' );
+			add_meta_box( self::metadata_taxonomy, __( 'Editorial Metadata', 'edit-flow' ), array( &$this, 'display_meta_box' ), $post_type, 'side' );
 		}
 	}
 	
@@ -276,9 +197,9 @@ class EF_Editorial_Metadata {
 	 * @param object $post Current post
 	 */
 	function display_meta_box( $post ) {
-		echo "<div id='{$this->metadata_taxonomy}_meta_box'>";
+		echo "<div id='" . self::metadata_taxonomy . "_meta_box'>";
 		// Add nonce for verification upon save
-		echo "<input type='hidden' name='{$this->metadata_taxonomy}_nonce' value='" . wp_create_nonce(__FILE__) . "' />";
+		echo "<input type='hidden' name='" . self::metadata_taxonomy . "_nonce' value='" . wp_create_nonce(__FILE__) . "' />";
 	
 		$terms = $this->get_editorial_metadata_terms();
 		if ( !count( $terms ) ) {
@@ -292,21 +213,21 @@ class EF_Editorial_Metadata {
 			foreach ( $terms as $term ) {
 				$postmeta_key = $this->get_postmeta_key( $term );
 				$current_metadata = esc_attr( $this->get_postmeta_value( $term, $post->ID ) );
-				$type = $this->get_metadata_type( $term );
-				$description = $this->get_unencoded_value( $term->description, self::description );
+				$type = $term->type;
+				$description = $term->description;
 				if ( $description )
 					$description_span = "<span class='description'>$description</span>";
 				else
 					$description_span = '';
-				echo "<div class='{$this->metadata_taxonomy} {$this->metadata_taxonomy}_$type'>";
+				echo "<div class='" . self::metadata_taxonomy . " " . self::metadata_taxonomy . "_$type'>";
 				switch( $type ) {
 					case "date":
 						// TODO: Move this to a function
 						if ( !empty( $current_metadata ) ) {
 							// Turn timestamp into a human-readable date
-							$current_metadata = date( 'M d Y' , intval( $current_metadata ) );						
+							$current_metadata = date( 'M d Y' , intval( $current_metadata ) );	
 						}
-						echo "<div class='{$this->metadata_taxonomy}-item'>";
+						echo "<div class='" . self::metadata_taxonomy ."-item'>";
 						echo "<label for='$postmeta_key'>{$term->name}</label>";
 						echo "<span class='description'>";
 						if ( $description )
@@ -368,8 +289,8 @@ class EF_Editorial_Metadata {
 		global $edit_flow;
 		// Authentication checks: make sure data came from our meta box and that the current user is allowed to edit the post
 		// TODO: switch to using check_admin_referrer? See core (e.g. edit.php) for usage
-		if ( ! isset( $_POST[$this->metadata_taxonomy . "_nonce"] )
-			|| ! wp_verify_nonce( $_POST[$this->metadata_taxonomy . "_nonce"], __FILE__ ) ) {
+		if ( ! isset( $_POST[self::metadata_taxonomy . "_nonce"] )
+			|| ! wp_verify_nonce( $_POST[self::metadata_taxonomy . "_nonce"], __FILE__ ) ) {
 			return $id;
 		}
 		
@@ -398,7 +319,7 @@ class EF_Editorial_Metadata {
 				delete_post_meta( $id, $key );
 			} else {
 				
-				$type = $this->get_metadata_type( $term );
+				$type = $term->type;
 				// TODO: Move this to a function
 				if ( $type == 'date' ) {
 					$new_metadata = strtotime( $new_metadata );
@@ -419,7 +340,7 @@ class EF_Editorial_Metadata {
 		// This will allow us to update and display the count of metadata in posts in use per term.
 		// TODO: Core only correlates posts with terms if the post_status is publish. Do we care what it is?
 		if ( $post->post_status === 'publish' ) {
-			wp_set_object_terms( $id, $term_slugs, $this->metadata_taxonomy );
+			wp_set_object_terms( $id, $term_slugs, self::metadata_taxonomy );
 		}
 	}
 	
@@ -430,8 +351,8 @@ class EF_Editorial_Metadata {
 	 * @return string $postmeta_key Unique key
 	 */
 	function get_postmeta_key( $term ) {
-		$key = $this->metadata_postmeta_key;
-		$type = $this->get_metadata_type( $term );
+		$key = self::metadata_postmeta_key;
+		$type = $term->type;
 		$prefix = "{$key}_{$type}";
 		$postmeta_key = "{$prefix}_" . ( is_object( $term ) ? $term->slug : $term );
 		return $postmeta_key;
@@ -444,8 +365,12 @@ class EF_Editorial_Metadata {
 	 * @param int post_id The ID of the post
 	 */
 	function get_postmeta_value( $term, $post_id ) {
-		if( ! is_object( $term ) )
-			$term = $this->get_editorial_metadata_term( $term );
+		if( ! is_object( $term ) ) {
+			if ( is_int( $term ) )
+				$term = $this->get_editorial_metadata_term_by( 'id', $term );
+			else
+				$term = $this->get_editorial_metadata_term_by( 'slug', $term );
+		}
 		$postmeta_key = $this->get_postmeta_key( $term );
 		return get_metadata( 'post', $post_id, $postmeta_key, true );
 	}
@@ -457,20 +382,35 @@ class EF_Editorial_Metadata {
 	 * @return array $ordered_terms The terms as they should be ordered
 	 */ 
 	function get_editorial_metadata_terms() {
+		global $edit_flow;
+		
 		$args = array(
 		        'orderby'    => apply_filters( 'ef_editorial_metadata_term_order', 'name' ),
 		        'hide_empty' => false
 			);
-		$terms = get_terms( $this->metadata_taxonomy, $args );
+		$terms = get_terms( self::metadata_taxonomy, $args );
 		$ordered_terms = array();
 		$hold_to_end = array();
 		// Order the terms
 		foreach ( $terms as $key => $term ) {
+			// Unencode and set all of our psuedo term meta because we need the position and viewable if they exists
+			$term->position = false;
+			$term->viewable = false;
 			// Only add the term to the ordered array if it has a set position and doesn't conflict with another key
 			// Otherwise, hold it for later
-			$position = $this->get_unencoded_value( $term->description, self::position_key );
-			if ( $position && !array_key_exists( $position, $ordered_terms ) )
-				$ordered_terms[(int)$position] = $term;
+			$unencoded_description = $edit_flow->helpers->get_unencoded_description( $term->description );
+			if ( is_array( $unencoded_description ) ) {
+				foreach( $unencoded_description as $key => $value ) {
+					$term->$key = $value;
+				}
+			}
+			// We used to store the description field in a funny way
+			if ( isset( $term->desc ) ) {
+				$term->description = $term->desc;
+				unset( $term->desc );
+			}			
+			if ( $term->position && !array_key_exists( $term->position, $ordered_terms ) )
+				$ordered_terms[(int)$term->position] = $term;
 			else 
 				$hold_to_end[] = $term;
 		}
@@ -488,18 +428,27 @@ class EF_Editorial_Metadata {
 	 * @param int|string $field The slug or ID for the metadata field term to return 
 	 * @return object $term Term's object representation
 	 */
-	function get_editorial_metadata_term( $field ) {
+	function get_editorial_metadata_term_by( $field, $value ) {
+		global $edit_flow;
 		
-		if ( is_int( $field ) ) {
-			$term = get_term_by( 'id', $field, $this->metadata_taxonomy );
-		} elseif( is_string( $field ) ) {
-			$term = get_term_by( 'slug', $field, $this->metadata_taxonomy );
+		$term = get_term_by( $field, $value, self::metadata_taxonomy );
+		if ( ! $term || is_wp_error( $term ) )
+			return $term;
+		
+		// Unencode and set all of our psuedo term meta because we need the position and viewable if they exists
+		$term->position = false;
+		$term->viewable = false;
+		$unencoded_description = $edit_flow->helpers->get_unencoded_description( $term->description );
+		if ( is_array( $unencoded_description ) ) {
+			foreach( $unencoded_description as $key => $value ) {
+				$term->$key = $value;
+			}
+			// We used to store the description field in a funny way
+			if ( isset( $term->desc ) ) {
+				$term->description = $term->desc;
+				unset( $term->desc );
+			}
 		}
-		
-		if ( ! $term || is_wp_error( $term ) ) {
-			return false;
-		}
-		
 		return $term;
 	}
 	
@@ -545,7 +494,7 @@ class EF_Editorial_Metadata {
 
 			$postmeta_key = $this->get_postmeta_key( $term );
 			$current_metadata = $this->get_postmeta_value( $term, $post_id );
-			$type = $this->get_metadata_type( $term );
+			$type = $term->type;
 			switch( $type ) {
 				case "date":
 					if ( !empty( $current_metadata ) )
@@ -590,23 +539,33 @@ class EF_Editorial_Metadata {
 	 * @return object|WP_Error $updated_term The updated term or a WP_Error object if something disastrous happened
 	 */
 	function update_editorial_metadata_term( $term_id, $args ) {
+		global $edit_flow;
+		
 		$new_args = array();
-		$old_term = get_term_by( 'id', $term_id, $this->metadata_taxonomy );
+		$old_term = $this->get_editorial_metadata_term_by( 'id', $term_id );
 		if ( $old_term )
 			$new_args = array(
-				'position' => $this->get_unencoded_value( $old_term->description, self::position_key ),
+				'position' => $old_term->position,
 				'name' => $old_term->name,
 				'slug' => $old_term->slug,
-				'description' => $this->get_unencoded_value( $old_term->description, self::description ),
-				'type' => $this->get_unencoded_value( $old_term->description, 'type' ),
+				'description' => $old_term->description,
+				'type' => $old_term->type,
+				'viewable' => $old_term->viewable,
 			);
 		$new_args = array_merge( $new_args, $args );
-		// These fields have to be encoded into one if they exist
-		if ( isset( $new_args['position'] ) || isset( $new_args['description'] ) || isset( $new_args['type'] ) ) {
-			$new_args['description'] = $this->get_encoded_description( $new_args['position'], $new_args['description'], $new_args['type'] );
-		}
-		$updated_term = wp_update_term( $term_id, $this->metadata_taxonomy, $new_args );
-		$updated_term = get_term_by( 'id', $updated_term['term_id'], $this->metadata_taxonomy );
+		
+		// We're encoding metadata that isn't supported by default in the term's description field
+		$args_to_encode = array(
+			'description' => $new_args['description'],
+			'position' => $new_args['position'],
+			'type' => $new_args['type'],
+			'viewable' => $new_args['viewable'],
+		);	
+		$encoded_description = $edit_flow->helpers->get_encoded_description( $args_to_encode );
+		$new_args['description'] = $encoded_description;
+		
+		$updated_term = wp_update_term( $term_id, self::metadata_taxonomy, $new_args );
+		$updated_term = $this->get_editorial_metadata_term_by( 'id', $term_id );
 		return $updated_term;
 	}
 	
@@ -617,20 +576,33 @@ class EF_Editorial_Metadata {
 	 * @since 0.7
 	 */
 	function insert_editorial_metadata_term( $args ) {
-		$default_position = count( $this->get_editorial_metadata_terms() ) + 1;
+		global $edit_flow;
+		
+		// Term is always added to the end of the list
+		$default_position = count( $this->get_editorial_metadata_terms() ) + 2;
 		$defaults = array(
 			'position' => $default_position,
 			'name' => '',
 			'slug' => '',
 			'description' => '',
 			'type' => '',
+			'viewable' => false,
 		);
 		$args = array_merge( $defaults, $args );
 		$term_name = $args['name'];
 		unset( $args['name'] );
-		if ( isset( $args['description'] ) || isset( $args['type'] ) )
-			$args['description'] = $this->get_encoded_description( $args['position'], $args['description'], $args['type'] );
-		$inserted_term = wp_insert_term( $term_name, $this->metadata_taxonomy, $args );
+		
+		// We're encoding metadata that isn't supported by default in the term's description field
+		$args_to_encode = array(
+			'description' => $args['description'],
+			'position' => $args['position'],
+			'type' => $args['type'],
+			'viewable' => $args['viewable'],
+		);	
+		$encoded_description = $edit_flow->helpers->get_encoded_description( $args_to_encode );
+		$args['description'] = $encoded_description;
+
+		$inserted_term = wp_insert_term( $term_name, self::metadata_taxonomy, $args );
 		return $inserted_term;
 	}
 	
@@ -647,7 +619,7 @@ class EF_Editorial_Metadata {
 	 * @return bool $result Whether or not the term was deleted
 	 */
 	function delete_editorial_metadata_term( $term_id ) {
-		$result = wp_delete_term( $term_id, $this->metadata_taxonomy );
+		$result = wp_delete_term( $term_id, self::metadata_taxonomy );
 		return $result;
 	}
 	
@@ -712,12 +684,15 @@ class EF_Editorial_Metadata {
 		// Field is required
 		if ( empty( $term_slug ) )
 			$_REQUEST['form-errors']['slug'] = __( 'Please enter a slug for the editorial metadata.', 'edit-flow' );
+		if ( term_exists( $term_slug ) )
+			$_REQUEST['form-errors']['name'] = __( 'Name conflicts with existing term. Please choose another.', 'edit-flow' );
 		// Check to ensure a term with the same name doesn't exist
-		if ( get_term_by( 'name', $term_name, $this->metadata_taxonomy ) )
+		if ( $this->get_editorial_metadata_term_by( 'name', $term_name, self::metadata_taxonomy ) )
 			$_REQUEST['form-errors']['name'] = __( 'Name already in use. Please choose another.', 'edit-flow' );
 		// Check to ensure a term with the same slug doesn't exist
-		if ( get_term_by( 'slug', $term_slug, $this->metadata_taxonomy ) )
+		if ( $this->get_editorial_metadata_term_by( 'slug', $term_slug ) )
 			$_REQUEST['form-errors']['slug'] = __( 'Slug already in use. Please choose another.', 'edit-flow' );
+		// Check to make sure the status doesn't already exist as another term because otherwise we'd get a weird slug
 		// Check that the term name doesn't exceed 20 chars
 		if ( strlen( $term_name ) > 20 )
 			$_REQUEST['form-errors']['name'] = __( 'Name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' );
@@ -761,7 +736,7 @@ class EF_Editorial_Metadata {
 		if ( !current_user_can( 'manage_options' ) )
 			wp_die( $this->module->messages['invalid-permissions'] );			
 		
-		if ( !$existing_term = $this->get_editorial_metadata_term( (int)$_GET['term-id'] ) )
+		if ( !$existing_term = $this->get_editorial_metadata_term_by( 'id', (int)$_GET['term-id'] ) )
 			wp_die( $this->module->messsage['term-error'] );			
 		
 		$new_name = strip_tags( trim( $_POST['name'] ) );
@@ -782,13 +757,17 @@ class EF_Editorial_Metadata {
 		// Check that the name isn't numeric
 		if ( is_numeric( $new_name ) )
 			$_REQUEST['form-errors']['name'] = __( 'Please enter a valid, non-numeric name for the editorial metadata.', 'edit-flow' );
+
+		$term_exists = term_exists( sanitize_title( $new_name ) );
+		if ( $term_exists && $term_exists != $existing_term->term_id )
+			$_REQUEST['form-errors']['name'] = __( 'Metadata name conflicts with existing term. Please choose another.', 'edit-flow' );
 			
 		// Check to ensure a term with the same name doesn't exist,
-		$search_term = get_term_by( 'name', $new_name, $this->metadata_taxonomy );
+		$search_term = $this->get_editorial_metadata_term_by( 'name', $new_name );
 		if ( is_object( $search_term ) && $search_term->term_id != $existing_term->term_id )
 			$_REQUEST['form-errors']['name'] = __( 'Name already in use. Please choose another.', 'edit-flow' );
 		// or that the term name doesn't map to an existing term's slug			
-		$search_term = get_term_by( 'slug', sanitize_title( $new_name ), $this->metadata_taxonomy );
+		$search_term = $this->get_editorial_metadata_term_by( 'slug', sanitize_title( $new_name ) );
 		if ( is_object( $search_term ) && $search_term->term_id != $existing_term->term_id )
 			$_REQUEST['form-errors']['name'] = __( 'Name conflicts with slug for another term. Please choose something else.', 'edit-flow' );					
 		
@@ -830,7 +809,7 @@ class EF_Editorial_Metadata {
 			die( $this->module->messages['invalid-permissions'] );
 		
 		$term_id = (int) $_POST['term_id'];
-		if ( !$existing_term = $this->get_editorial_metadata_term( $term_id ) )
+		if ( !$existing_term = $this->get_editorial_metadata_term_by( 'id', $term_id ) )
 			die( $this->module->messsage['term-error'] );
 		
 		$metadata_name = strip_tags( trim( $_POST['name'] ) );
@@ -857,14 +836,21 @@ class EF_Editorial_Metadata {
 			die( $change_error->get_error_message() );
 		}
 		
+		// Check to make sure the status doesn't already exist as another term because otherwise we'd get a fatal error
+		$term_exists = term_exists( sanitize_title( $metadata_name ) );
+		if ( $term_exists && $term_exists != $term_id ) {
+			$change_error = new WP_Error( 'invalid', __( 'Metadata name conflicts with existing term. Please choose another.', 'edit-flow' ) );
+			die( $change_error->get_error_message() );
+		}		
+		
 		// Check to ensure a term with the same name doesn't exist,
-		$search_term = get_term_by( 'name', $metadata_name, $this->metadata_taxonomy );
+		$search_term = get_term_by( 'name', $metadata_name, self::metadata_taxonomy );
 		if ( is_object( $search_term ) && $search_term->term_id != $existing_term->term_id ) {
 			$change_error = new WP_Error( 'invalid', __( 'Name already in use. Please choose another.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );
 		}
 		// or that the term name doesn't map to an existing term's slug			
-		$search_term = get_term_by( 'slug', sanitize_title( $metadata_name ), $this->metadata_taxonomy );
+		$search_term = get_term_by( 'slug', sanitize_title( $metadata_name ), self::metadata_taxonomy );
 		if ( is_object( $search_term ) && $search_term->term_id != $existing_term->term_id ) {
 			$change_error = new WP_Error( 'invalid', __( 'Name conflicts with slug for another term. Please choose again.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );			
@@ -932,7 +918,7 @@ class EF_Editorial_Metadata {
 		if ( !current_user_can( 'manage_options' ) )
 			wp_die( $this->module->messages['invalid-permissions'] );
 			
-		if ( !$existing_term = $this->get_editorial_metadata_term( (int)$_GET['term-id'] ) )
+		if ( !$existing_term = $this->get_editorial_metadata_term_by( 'id', (int)$_GET['term-id'] ) )
 			wp_die( $this->module->messsage['term-error'] );			
 			
 		$result = $this->delete_editorial_metadata_term( $existing_term->term_id );
@@ -1021,24 +1007,24 @@ class EF_Editorial_Metadata {
 		<?php
 			// Check whether the term exists
 			$term_id = (int)$_GET['term-id'];
-			$term = get_term_by( 'id', $term_id, $this->metadata_taxonomy );
+			$term = $this->get_editorial_metadata_term_by( 'id', $term_id );
 			if ( !$term ) {
 				echo '<div class="error"><p>' . $this->module->messages['term-missing'] . '</p></div>';
 				return; 
 			}
 			$metadata_types = $this->get_supported_metadata_types();			
-			$type = $this->get_metadata_type( $term );
+			$type = $term->type;
 			$edit_term_link = $this->get_link( array( 'action' => 'edit-term', 'term-id' => $term->term_id ) );
 			
 			$name = ( isset( $_POST['metadata_name'] ) ) ? stripslashes( $_POST['metadata_name'] ) : $term->name;
-			$description = ( isset( $_POST['metadata_description'] ) ) ? stripslashes( $_POST['metadata_description'] ) : $this->get_unencoded_value( $term->description, 'desc' );
+			$description = ( isset( $_POST['metadata_description'] ) ) ? stripslashes( $_POST['metadata_description'] ) : $term->description;
 		?>
 		
 		<div id="ajax-response"></div>
 		<form method="post" action="<?php echo esc_url( $edit_term_link ); ?>" >
 		<input type="hidden" name="action" value="editedtag" />
 		<input type="hidden" name="tag_id" value="<?php echo esc_attr( $term->term_id ); ?>" />
-		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $this->metadata_taxonomy ) ?>" />
+		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( self::metadata_taxonomy ) ?>" />
 		<?php
 			wp_original_referer_field();
 			wp_nonce_field( 'editorial-metadata-edit-nonce' );
@@ -1070,7 +1056,7 @@ class EF_Editorial_Metadata {
 					<p class="description"><?php _e( 'The metadata type cannot be changed once created.', 'edit-flow' ); ?></p>
 				</td>
 			</tr>
-		<input type="hidden" name="<?php echo $this->metadata_taxonomy . '_' . self::metadata_type_key; ?>" value="<?php echo $type; ?>" />
+		<input type="hidden" name="<?php echo self::metadata_taxonomy ?>'_type" value="<?php echo $type; ?>" />
 		</table>
 		<p class="submit">
 		<?php submit_button( __( 'Update Metadata', 'edit-flow' ), 'primary', 'submit', false ); ?>
@@ -1162,7 +1148,7 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 	function __construct() {
 		global $edit_flow;
 
-		$this->taxonomy = $edit_flow->editorial_metadata->metadata_taxonomy;
+		$this->taxonomy = EF_Editorial_Metadata::metadata_taxonomy;
 		
 		$this->tax = get_taxonomy( $this->taxonomy );
 		
@@ -1254,8 +1240,7 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 	 * @param object $item Editorial Metadata term as an object
 	 */
 	function column_position( $item ) {
-		global $edit_flow;
-		return esc_html( $edit_flow->editorial_metadata->get_unencoded_value( $item->description, 'position' ) );
+		return esc_html( $item->position );
 	}
 
 	/**
@@ -1276,7 +1261,7 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		$out .= $this->row_actions( $actions, false );
 		$out .= '<div class="hidden" id="inline_' . $item->term_id . '">';
 		$out .= '<div class="name">' . $item->name . '</div>';
-		$out .= '<div class="description">' . $edit_flow->editorial_metadata->get_unencoded_value( $item->description, 'desc' ) . '</div>';	
+		$out .= '<div class="description">' . $item->description . '</div>';	
 		$out .= '</div>';
 		
 		return $out;
@@ -1287,7 +1272,7 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 	 */
 	function column_type( $item ) {
 		global $edit_flow;
-		return esc_html( $edit_flow->editorial_metadata->get_unencoded_value( $item->description, 'type' ) );
+		return esc_html( $item->type );
 	}
 
 	/**
@@ -1295,8 +1280,7 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 	 */
 	function column_description( $item ) {
 		global $edit_flow;
-		
-		return esc_html( $edit_flow->editorial_metadata->get_unencoded_value( $item->description, 'desc' ) );
+		return esc_html( $item->description );
 	}
 	
 	function inline_edit() {
