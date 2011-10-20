@@ -74,6 +74,7 @@ class EF_Editorial_Metadata {
 		// Actions relevant to the configuration view (adding, editing, or sorting existing Editorial Metadata)
 		add_action( 'admin_init', array( &$this, 'handle_add_editorial_metadata' ) );
 		add_action( 'admin_init', array( &$this, 'handle_edit_editorial_metadata' ) );
+		add_action( 'admin_init', array( &$this, 'handle_change_editorial_metadata_visibility' ) );	
 		add_action( 'admin_init', array( &$this, 'handle_delete_editorial_metadata' ) );
 		add_action( 'wp_ajax_inline_save_term', array( &$this, 'handle_ajax_inline_save_term' ) );
 		add_action( 'wp_ajax_update_term_positions', array( &$this, 'handle_ajax_update_term_positions' ) );
@@ -466,6 +467,9 @@ class EF_Editorial_Metadata {
 		
 		$terms = $this->get_editorial_metadata_terms();
 		foreach( $terms as $term ) {
+			// Don't show if the term isn't viewable
+			if ( !$term->viewable )
+				continue;
 			// Prefixing slug with module slug because it isn't stored prefixed and we want to avoid collisions
 			$key = $this->module->slug . $term->slug;
 			$posts_columns[$key] = $term->name;
@@ -544,7 +548,7 @@ class EF_Editorial_Metadata {
 		$new_args = array();
 		$old_term = $this->get_editorial_metadata_term_by( 'id', $term_id );
 		if ( $old_term )
-			$new_args = array(
+			$old_args = array(
 				'position' => $old_term->position,
 				'name' => $old_term->name,
 				'slug' => $old_term->slug,
@@ -552,7 +556,7 @@ class EF_Editorial_Metadata {
 				'type' => $old_term->type,
 				'viewable' => $old_term->viewable,
 			);
-		$new_args = array_merge( $new_args, $args );
+		$new_args = array_merge( $old_args, $args );
 		
 		// We're encoding metadata that isn't supported by default in the term's description field
 		$args_to_encode = array(
@@ -639,6 +643,7 @@ class EF_Editorial_Metadata {
 		// Add other things we may need depending on the action
 		switch( $args['action'] ) {
 			case 'make-viewable':
+			case 'make-hidden':
 			case 'delete-term':
 				$args['nonce'] = wp_create_nonce( $args['action'] );
 				break;
@@ -793,6 +798,45 @@ class EF_Editorial_Metadata {
 		$redirect_url = add_query_arg( array( 'page' => $this->module->settings_slug, 'message' => 'term-updated' ), get_admin_url( null, 'admin.php' ) );
 		wp_redirect( $redirect_url );
 		exit;
+	}
+	
+	/**
+	 * Handle a $_GET request to change the visibility of an Editorial Metadata term
+	 *
+	 * @since 0.7
+	 */
+	function handle_change_editorial_metadata_visibility() {
+		
+		global $edit_flow;
+		
+		// Check that the current GET request is our GET request		
+		if ( !isset( $_GET['page'], $_GET['action'], $_GET['term-id'], $_GET['nonce'] )
+			|| $_GET['page'] != $this->module->settings_slug || !in_array( $_GET['action'], array( 'make-viewable', 'make-hidden' ) ) )
+			return;
+		
+		// Check for proper nonce
+		if ( !wp_verify_nonce( $_GET['nonce'], 'make-viewable' ) && !wp_verify_nonce( $_GET['nonce'], 'make-hidden' ) )
+			wp_die( $this->module->messages['nonce-failed'] );
+		
+		// Only allow users with the proper caps
+		if ( !current_user_can( 'manage_options' ) )
+			wp_die( $this->module->messages['invalid-permissions'] );
+		
+		$term_id = (int)$_GET['term-id'];
+		$args = array();
+		if ( $_GET['action'] == 'make-viewable' )
+			$args['viewable'] = true;
+		elseif ( $_GET['action'] == 'make-hidden' )
+			$args['viewable'] = false;
+		
+		$return = $this->update_editorial_metadata_term( $term_id, $args );
+		if ( is_wp_error( $return ) )
+			wp_die( __( 'Error updating term.', 'edit-flow' ) );
+
+		$redirect_url = $this->get_link( array( 'message' => 'term-visibility-changed' ) );
+		wp_redirect( $redirect_url );
+		exit;
+		
 	}
 	
 	/**
@@ -1201,6 +1245,7 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 			'name'        => __( 'Editorial Metadata', 'edit-flow' ),
 			'type'		  => __( 'Metadata Type', 'edit-flow' ),
 			'description' => __( 'Description' ),
+			'viewable'    => __( 'Viewable', 'edit-flow' ),
 		);
 				
 		return $columns;
@@ -1228,7 +1273,16 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 	 * @param string $column_name How the column was registered at birth
 	 */
 	function column_default( $item, $column_name ) {
-
+		
+		switch( $column_name ) {
+			case 'viewable':
+				if ( $item->viewable )
+					return __( 'Yes', 'edit-flow' );
+				else 
+					return __( 'No', 'edit-flow' );
+			default:
+				break;
+		}
 		
 	}
 	
@@ -1255,7 +1309,11 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		
 		$actions = array();
 		$actions['edit'] = "<a href='$item_edit_link'>" . __( 'Edit', 'edit-flow' ) . "</a>";
-		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';		
+		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';
+		if ( $item->viewable )
+			$actions['change-visibility make-hidden'] = '<a title="' . __( 'Hidden metadata can only be viewed on the edit post view.', 'edit-flow' ) . '" href="' . esc_url( $edit_flow->editorial_metadata->get_link( array( 'action' => 'make-hidden', 'term-id' => $item->term_id ) ) ) . '">' . __( 'Make Hidden', 'edit-flow' ) . '</a>';
+		else
+			$actions['change-visibility make-viewable'] = '<a title="' . __( 'When viewable, metadata can be seen on views other than the edit post view (e.g. calendar, manage posts, story budget, etc.)', 'edit-flow' ) . '" href="' . esc_url( $edit_flow->editorial_metadata->get_link( array( 'action' => 'make-viewable', 'term-id' => $item->term_id ) ) ) . '">' . __( 'Make Viewable', 'edit-flow' ) . '</a>';
 		$actions['delete delete-status'] = "<a href='$item_delete_link'>" . __( 'Delete', 'edit-flow' ) . "</a>";
 		
 		$out .= $this->row_actions( $actions, false );
