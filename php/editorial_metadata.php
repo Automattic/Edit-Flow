@@ -652,39 +652,29 @@ class EF_Editorial_Metadata {
 	}
 	
 	/**
-	 * Generate a link to edit the existing term
+	 * Generate a link to one of the editorial metadata actions
 	 *
 	 * @since 0.7
 	 *
-	 * @param object $term The term as an object
-	 * @return string $link Generated link
+	 * @param array $args (optional) Action and any query args to add to the URL
+	 * @return string $link Direct link to complete the action
 	 */
-	function get_edit_term_link( $term ) {
-		$args = array(
-			'page' => $this->module->settings_slug,
-			'action' => 'edit',
-			'term-id' => $term->term_id,
-		);
+	function get_link( $args = array() ) {
+		if ( !isset( $args['action'] ) )
+			$args['action'] = '';
+		if ( !isset( $args['page'] ) )
+			$args['page'] = $this->module->settings_slug;
+		// Add other things we may need depending on the action
+		switch( $args['action'] ) {
+			case 'make-viewable':
+			case 'delete-term':
+				$args['nonce'] = wp_create_nonce( $args['action'] );
+				break;
+			default:
+				break;
+		}
 		return add_query_arg( $args, get_admin_url( null, 'admin.php' ) );
-	}
-	
-	/**
-	 * Generate a link to delete the existing term
-	 *
-	 * @since 0.7
-	 *
-	 * @param object $term The term as an object
-	 * @return string $link Generated link
-	 */
-	function get_delete_term_link( $term ) {
-		$args = array(
-			'page' => $this->module->settings_slug,
-			'action' => 'delete',
-			'term-id' => $term->term_id,
-			'nonce' => wp_create_nonce( 'editorial-metadata-delete-nonce' ),
-		);
-		return add_query_arg( $args, get_admin_url( null, 'admin.php' ) );
-	}
+	}	
 	
 	/**
 	 * Handles a request to add a new piece of editorial metadata
@@ -762,7 +752,7 @@ class EF_Editorial_Metadata {
 	 */
 	function handle_edit_editorial_metadata() {
 		if ( !isset( $_POST['submit'], $_GET['page'], $_GET['action'], $_GET['term-id'] ) 
-			|| $_GET['page'] != $this->module->settings_slug || $_GET['action'] != 'edit' )
+			|| $_GET['page'] != $this->module->settings_slug || $_GET['action'] != 'edit-term' )
 				return; 
 				
 		if ( !wp_verify_nonce( $_POST['_wpnonce'], 'editorial-metadata-edit-nonce' ) )
@@ -933,10 +923,10 @@ class EF_Editorial_Metadata {
 	 */
 	function handle_delete_editorial_metadata() {
 		if ( !isset( $_GET['page'], $_GET['action'], $_GET['term-id'] ) 
-			|| $_GET['page'] != $this->module->settings_slug || $_GET['action'] != 'delete' )
+			|| $_GET['page'] != $this->module->settings_slug || $_GET['action'] != 'delete-term' )
 				return;
 				
-		if ( !wp_verify_nonce( $_GET['nonce'], 'editorial-metadata-delete-nonce' ) )
+		if ( !wp_verify_nonce( $_GET['nonce'], 'delete-term' ) )
 			wp_die( $this->module->messages['nonce-failed'] );
 			
 		if ( !current_user_can( 'manage_options' ) )
@@ -1013,7 +1003,7 @@ class EF_Editorial_Metadata {
 		<script type="text/javascript">
 			var ef_confirm_delete_term_string = "<?php _e( 'Are you sure you want to delete this term? Any metadata for this term will remain but will not be visible unless this term is re-added.', 'edit-flow' ); ?>";
 		</script>
-		<?php if ( !isset( $_GET['action'] ) || ( isset( $_GET['action'] ) && $_GET['action'] != 'edit' ) ): ?>
+		<?php if ( !isset( $_GET['action'] ) || ( isset( $_GET['action'] ) && $_GET['action'] != 'edit-term' ) ): ?>
 		<div id="col-right">
 		<div class="col-wrap">
 		<form id="posts-filter" action="" method="post">
@@ -1026,7 +1016,7 @@ class EF_Editorial_Metadata {
 		<?php $wp_list_table->inline_edit(); ?>
 		<?php endif; ?>	
 		
-		<?php if ( isset( $_GET['action'], $_GET['term-id'] ) && $_GET['action'] == 'edit' ): ?>
+		<?php if ( isset( $_GET['action'], $_GET['term-id'] ) && $_GET['action'] == 'edit-term' ): ?>
 		<?php /** Full page width view for editing a given editorial metadata term **/ ?>
 		<?php
 			// Check whether the term exists
@@ -1038,14 +1028,14 @@ class EF_Editorial_Metadata {
 			}
 			$metadata_types = $this->get_supported_metadata_types();			
 			$type = $this->get_metadata_type( $term );
-			$edit_term_link = $this->get_edit_term_link( $term );
+			$edit_term_link = $this->get_link( array( 'action' => 'edit-term', 'term-id' => $term->term_id ) );
 			
 			$name = ( isset( $_POST['metadata_name'] ) ) ? stripslashes( $_POST['metadata_name'] ) : $term->name;
 			$description = ( isset( $_POST['metadata_description'] ) ) ? stripslashes( $_POST['metadata_description'] ) : $this->get_unencoded_value( $term->description, 'desc' );
 		?>
 		
 		<div id="ajax-response"></div>
-		<form method="post" action="<?php echo esc_attr( $edit_term_link ); ?>" >
+		<form method="post" action="<?php echo esc_url( $edit_term_link ); ?>" >
 		<input type="hidden" name="action" value="editedtag" />
 		<input type="hidden" name="tag_id" value="<?php echo esc_attr( $term->term_id ); ?>" />
 		<input type="hidden" name="taxonomy" value="<?php echo esc_attr( $this->metadata_taxonomy ) ?>" />
@@ -1273,8 +1263,8 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 	 */
 	function column_name( $item ) {
 		global $edit_flow;
-		$item_edit_link = esc_url( $edit_flow->editorial_metadata->get_edit_term_link( $item ) );
-		$item_delete_link = esc_url( $edit_flow->editorial_metadata->get_delete_term_link( $item ) );
+		$item_edit_link = esc_url( $edit_flow->editorial_metadata->get_link( array( 'action' => 'edit-term', 'term-id' => $item->term_id ) ) );
+		$item_delete_link = esc_url( $edit_flow->editorial_metadata->get_link( array( 'action' => 'delete-term', 'term-id' => $item->term_id ) ) );
 		
 		$out = '<strong><a class="row-title" href="' . $item_edit_link . '">' . esc_html( $item->name ) . '</a></strong>';
 		
