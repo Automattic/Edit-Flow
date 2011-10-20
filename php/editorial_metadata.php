@@ -1075,7 +1075,7 @@ class EF_Editorial_Metadata {
 		?>
 		<table class="form-table">
 			<tr class="form-field form-required">
-				<th scope="row" valign="top"><label for="name"><?php _e( 'Editorial Metadata', 'edit-flow' ); ?></label></th>
+				<th scope="row" valign="top"><label for="name"><?php _e( 'Name' ); ?></label></th>
 				<td><input name="name" id="name" type="text" value="<?php echo esc_attr( $name ); ?>" size="40" aria-required="true" />
 				<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is for labeling the metadata field.', 'edit-flow' ) ); ?>
 			</tr>
@@ -1242,7 +1242,7 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		global $edit_flow;
 		$columns = array(
 			'position'	  => __( 'Position', 'edit-flow' ),
-			'name'        => __( 'Editorial Metadata', 'edit-flow' ),
+			'name'        => __( 'Name' ),
 			'type'		  => __( 'Metadata Type', 'edit-flow' ),
 			'description' => __( 'Description' ),
 			'viewable'    => __( 'Viewable', 'edit-flow' ),
