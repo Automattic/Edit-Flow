@@ -1103,7 +1103,7 @@ class EF_Editorial_Metadata {
 		<input type="hidden" name="<?php echo self::metadata_taxonomy ?>'_type" value="<?php echo $type; ?>" />
 		</table>
 		<p class="submit">
-		<?php submit_button( __( 'Update Metadata', 'edit-flow' ), 'primary', 'submit', false ); ?>
+		<?php submit_button( __( 'Update Metadata Term', 'edit-flow' ), 'primary', 'submit', false ); ?>
 		<a class="cancel-settings-link" href="<?php echo esc_url( add_query_arg( 'page', $this->module->settings_slug, get_admin_url( null, 'admin.php' ) ) ); ?>"><?php _e( 'Cancel', 'edit-flow' ); ?></a>
 		</p>
 		</form>
