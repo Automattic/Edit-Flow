@@ -18,7 +18,7 @@
 }
 
 #ef_editorial_meta_meta_box div.ef_editorial_meta_date label:first-child  {
-	background: transparent url("../img/date-button.gif") no-repeat scroll 2px 0;
+	background: transparent url("../../../lib/img/date-button.gif") no-repeat scroll 2px 0;
 	padding-left: 20px;
 }
 	#ef_editorial_meta_meta_box div.ef_editorial_meta_date input[readonly] {
@@ -27,7 +27,7 @@
 	}
 
 #ef_editorial_meta_meta_box div.ef_editorial_meta_location label:first-child {
-	background: transparent url("../img/globe-V3.png") no-repeat scroll 2px 0;
+	background: transparent url("../../../lib/img/globe-V3.png") no-repeat scroll 2px 0;
 	padding-left: 20px;
 }
 

@@ -140,13 +140,13 @@ class EF_Editorial_Metadata {
 			$edit_flow->helpers->enqueue_datepicker_resources();
 
 			// Now add the rest of the metabox CSS
-			wp_enqueue_style('edit_flow-editorial_metadata-styles', EDIT_FLOW_URL . 'css/editorial_metadata.css', false, EDIT_FLOW_VERSION, 'all');
+			wp_enqueue_style( 'edit_flow-editorial_metadata-styles', EDIT_FLOW_URL . 'modules/editorial-metadata/lib/editorial-metadata.css', false, EDIT_FLOW_VERSION, 'all' );
 		}
 		
 		// Load Javascript specific to the editorial metadata configuration view
 		if ( $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-ui-sortable' );			
-			wp_enqueue_script( 'edit-flow-editorial-metadata-configure', EDIT_FLOW_URL . 'js/editorial_metadata_configure.js', array( 'jquery', 'jquery-ui-sortable' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-editorial-metadata-configure', EDIT_FLOW_URL . 'modules/editorial-metadata/lib/editorial-metadata-configure.js', array( 'jquery', 'jquery-ui-sortable' ), EDIT_FLOW_VERSION, true );
 		}
 	}
 	

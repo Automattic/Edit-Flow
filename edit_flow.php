@@ -50,7 +50,7 @@ include_once( EDIT_FLOW_ROOT . '/php/util.php' );
 include_once( EDIT_FLOW_ROOT . '/php/calendar.php' );
 include_once( EDIT_FLOW_ROOT . '/php/story_budget.php' );
 include_once( EDIT_FLOW_ROOT . '/php/settings.php' );
-include_once( EDIT_FLOW_ROOT . '/php/editorial_metadata.php' );
+include_once( EDIT_FLOW_ROOT . '/modules/editorial-metadata/editorial-metadata.php' );
 
 // Core class
 class edit_flow {
