@@ -471,7 +471,7 @@ class EF_Editorial_Metadata {
 			if ( !$term->viewable )
 				continue;
 			// Prefixing slug with module slug because it isn't stored prefixed and we want to avoid collisions
-			$key = $this->module->slug . $term->slug;
+			$key = $this->module->slug . '-' . $term->slug;
 			$posts_columns[$key] = $term->name;
 		}
 		return $posts_columns;
@@ -492,7 +492,7 @@ class EF_Editorial_Metadata {
 		$terms = $this->get_editorial_metadata_terms();
 		// We're looking for the proper term to display its saved value
 		foreach( $terms as $term ) {
-			$key = $this->module->slug . $term->slug;
+			$key = $this->module->slug . '-' . $term->slug;
 			if ( $column_name != $key )
 				continue;
 
@@ -502,13 +502,10 @@ class EF_Editorial_Metadata {
 			switch( $type ) {
 				case "date":
 					if ( !empty( $current_metadata ) )
-						$current_metadata = date( 'M d Y' , intval( $current_metadata ) );
+						$current_metadata = date( get_option( 'date_format' ), intval( $current_metadata ) );
 					echo esc_html( $current_metadata );
 					break;
 				case "location":
-					if ( !empty( $current_metadata ) )
-						echo "<a title='" . esc_attr( sprintf( __( 'View &#8220;%s&#8221; on Google Maps', 'edit-flow' ), $current_metadata ) ) . "' href='http://maps.google.com/?q=" . urlencode( $current_metadata ) . "&t=m' target='_blank'>" . esc_html( $current_metadata ) . "</a>";
-					break;
 				case "text":
 				case "number":
 				case "paragraph":
