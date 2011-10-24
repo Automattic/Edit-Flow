@@ -324,7 +324,7 @@ class EF_Usergroups {
 		$_REQUEST['form-errors'] = array();
 		
 		/**
-		 * Form validation for adding new Usergroup
+		 * Form validation for editing a Usergroup
 		 *
 		 * Details
 		 * - 'name' is a required field, but can't match an existing name or slug. Needs to be 40 characters or less
@@ -349,12 +349,13 @@ class EF_Usergroups {
 			return;
 		}
 
-		// Try to add the Usergroup
+		// Try to edit the Usergroup
 		$args = array(
 			'name' => $name,
 			'description' => $description,
 		);
-		$users = (array)$_POST['usergroup_users'];
+		// Gracefully handle the case where all users have been unsubscribed from the usergroup
+		$users = isset( $_POST['usergroup_users'] ) ? (array)$_POST['usergroup_users'] : array();
 		array_map( 'intval', $users );
 		$usergroup = $this->update_usergroup( $existing_usergroup->term_id, $args, $users );
 		if ( is_wp_error( $usergroup ) )
@@ -617,8 +618,12 @@ class EF_Usergroups {
 		?>
 		<table id="ef-user-usergroups" class="form-table"><tbody><tr>
 			<th>
-				<h3><?php _e( 'Usergroups', 'edit-flow' ) ?></h3> 
-				<p><?php _e( 'Select the usergroups that this user should is a part of:', 'edit-flow' ) ?></p>
+				<h3><?php _e( 'Usergroups', 'edit-flow' ) ?></h3>
+				<?php if ( $user_id === wp_get_current_user()->ID ) : ?>
+				<p><?php _e( 'Select the usergroups that you would like to be a part of:', 'edit-flow' ) ?></p>
+				<?php else : ?>
+				<p><?php _e( 'Select the usergroups that this user should be a part of:', 'edit-flow' ) ?></p>
+				<?php endif; ?>
 			</th>
 			<td>
 				<?php $this->usergroups_select_form( $selected_usergroups, $usergroups_form_args ); ?>
@@ -651,10 +656,11 @@ class EF_Usergroups {
 		// @todo Noncify
 		if ( !current_user_can('edit_user', $user->ID ) )
 			wp_die( $this->module->messages['invalid-permissions'] );
-			
+
 		if ( current_user_can( 'edit_usergroups' ) ) {
 			// Sanitize the data and save
-			$usergroups = array_map( 'intval', (array)$_POST['ef_usergroups'] );
+			// Gracefully handle the case where the user was unsubscribed from all usergroups
+			$usergroups = isset( $_POST['ef_usergroups'] ) ? array_map( 'intval', (array)$_POST['ef_usergroups'] ) : array();
 			$all_usergroups = $this->get_usergroups();
 			foreach( $all_usergroups as $usergroup ) {
 				if ( in_array( $usergroup->term_id, $usergroups ) )
@@ -1053,7 +1059,7 @@ class EF_Usergroups {
 	 *
 	 * @param int|string $user_id_or_login User ID or login to search against
 	 * @param array $ids_or_objects Whether to retrieve an array of IDs or usergroup objects
-	 * @param array|bool $usergroup_objects_or_ids Array of usergroup 'ids' or 'objects', false on none
+	 * @param array|bool $usergroup_objects_or_ids Array of usergroup 'ids' or 'objects', false if none
 	 */
 	function get_usergroups_for_user( $user_id_or_login, $ids_or_objects = 'ids' ) {
 
@@ -1065,17 +1071,21 @@ class EF_Usergroups {
 		// Unfortunately, the easiest way to do this is get all usergroups
 		// and then loop through each one to see if the user ID is stored
 		$all_usergroups = $this->get_usergroups();
-		$usergroup_objects_or_ids = array();
-		foreach( $all_usergroups as $usergroup ) {
-			// Not in this usergroup, so keep going
-			if ( !in_array( $user_id, $usergroup->user_ids ) )
-				continue;
-			if ( $ids_or_objects == 'ids' )
-				$usergroup_objects_or_ids[] = $usergroup->term_id;
-			else if ( $ids_or_objects == 'ids' )
-				$usergroup_objects_or_ids[] = $usergroup;			
+		if ( !empty( $all_usergroups) ) {
+			$usergroup_objects_or_ids = array();
+			foreach( $all_usergroups as $usergroup ) {
+				// Not in this usergroup, so keep going
+				if ( !in_array( $user_id, $usergroup->user_ids ) )
+					continue;
+				if ( $ids_or_objects == 'ids' )
+					$usergroup_objects_or_ids[] = $usergroup->term_id;
+				else if ( $ids_or_objects == 'ids' )
+					$usergroup_objects_or_ids[] = $usergroup;			
+			}
+			return $usergroup_objects_or_ids;
+		} else {
+			return false;
 		}
-		return $usergroup_objects_or_ids;
 	}
 	
 }
