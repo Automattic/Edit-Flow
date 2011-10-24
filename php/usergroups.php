@@ -508,10 +508,9 @@ class EF_Usergroups {
 	 */
 	function print_configure_view() {
 		global $edit_flow;
-		?>
 		
-		<?php if ( isset( $_GET['action'], $_GET['usergroup-id'] ) && $_GET['action'] == 'edit-usergroup' ): ?>
-		<?php /** Full page width view for editing a given usergroup **/
+		if ( isset( $_GET['action'], $_GET['usergroup-id'] ) && $_GET['action'] == 'edit-usergroup' ) :
+			/** Full page width view for editing a given usergroup **/
 			// Check whether the usergroup exists
 			$usergroup_id = (int)$_GET['usergroup-id'];
 			$usergroup = $this->get_usergroup_by( 'id', $usergroup_id );
@@ -522,12 +521,12 @@ class EF_Usergroups {
 			$name = ( isset( $_POST['name'] ) ) ? stripslashes( $_POST['name'] ) : $usergroup->name;
 			$description = ( isset( $_POST['description'] ) ) ? stripslashes( $_POST['description'] ) : $usergroup->description;
 		?>
-		<form method="post" action="<?php echo esc_url( $this->get_link( array( 'action' => 'edit-usergroup', 'usergroup-id' => $usergroup_id ) ) ); ?>" >
+		<form method="post" action="<?php echo esc_url( $this->get_link( array( 'action' => 'edit-usergroup', 'usergroup-id' => $usergroup_id ) ) ); ?>">
 		<div id="col-right"><div class="col-wrap"><div id="ef-usergroup-users" class="form-wrap">
 			<h4><?php _e( 'Users', 'edit-flow' ); ?></h4>
 			<?php 
-			$select_form_args = array(
-				'input_id' => 'usergroup_users'
+				$select_form_args = array(
+					'input_id' => 'usergroup_users'
 				);
 			?>
 			<?php $this->users_select_form( $usergroup->user_ids , $select_form_args ); ?>
@@ -540,7 +539,7 @@ class EF_Usergroups {
 				wp_nonce_field( 'edit-usergroup' );
 			?>
 			<div class="form-field form-required">
-				<label for="name"><?php _e( 'Name', 'edit-flow' ); ?></label></th>
+				<label for="name"><?php _e( 'Name', 'edit-flow' ); ?></label>
 				<input name="name" id="name" type="text" value="<?php echo esc_attr( $name ); ?>" size="40" maxlength="40" aria-required="true" />
 				<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the usergroup.', 'edit-flow' ) ); ?>
 			</div>
@@ -556,11 +555,11 @@ class EF_Usergroups {
 		</div></div></div>
 		</form>
 		
-		<?php else: ?>
-			<?php
-				$wp_list_table = new EF_Usergroups_List_Table();
-				$wp_list_table->prepare_items();
-			?>
+		<?php else :
+			/** Full page width view to allow adding a usergroup and edit the existing ones **/
+			$wp_list_table = new EF_Usergroups_List_Table();
+			$wp_list_table->prepare_items();
+		?>
 			<script type="text/javascript">
 				var ef_confirm_delete_usergroup_string = "<?php _e( 'Are you sure you want to delete the Usergroup?', 'edit-flow' ); ?>";
 			</script>
