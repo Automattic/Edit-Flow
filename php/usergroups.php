@@ -1124,7 +1124,15 @@ class EF_Usergroups_List_Table extends WP_List_Table
 			'total_items' => count( $this->items ),
 			'per_page' => count( $this->items ),
 		) );
-		
+	}
+
+	/**
+	 * Message to be displayed when there are no usergroups
+	 *
+	 * @since 0.7
+	 */
+	function no_items() {
+		_e( 'No usergroups found.', 'edit-flow' );
 	}
 	
 	/**
