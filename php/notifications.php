@@ -539,24 +539,26 @@ class EF_Notifications {
 	 *
 	 */
 	function follow_post_usergroups( $post, $usergroups = 0, $append = true ) {
-		
+		global $edit_flow;
+
 		$post_id = ( is_int($post) ) ? $post : $post->ID;
 		if( !is_array($usergroups) ) $usergroups = array($usergroups);
 
 		$usergroup_terms = array();
 		
 		foreach( $usergroups as $usergroup ) {
-
-			// Name and slug of term is the usergroup slug;
-			$usergroup_data = ef_get_usergroup($usergroup);
-			if( $usergroup_data ) {
-				$name = $usergroup_data->slug;
-				
-				// Add usergroup as a term if they don't exist
-				$term = $this->add_term_if_not_exists($name, $this->following_usergroups_taxonomy);
-				
-				if(!is_wp_error($term)) {
-					$usergroup_terms[] = $name;
+			if ( $edit_flow->helpers->module_enabled( 'usergroups' ) ) {
+				// Name and slug of term is the usergroup slug
+				$usergroup_data = $edit_flow->usergroups->get_usergroup_by( 'id', $usergroup );
+				if( $usergroup_data ) {
+					$name = $usergroup_data->slug;
+					
+					// Add usergroup as a term if they don't exist
+					$term = $this->add_term_if_not_exists($name, $this->following_usergroups_taxonomy);
+					
+					if(!is_wp_error($term)) {
+						$usergroup_terms[] = $name;
+					}
 				}
 			}
 		}
