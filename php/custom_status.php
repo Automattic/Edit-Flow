@@ -1085,7 +1085,7 @@ class EF_Custom_Status {
 		
 		<div id="ajax-response"></div>
 		<form method="post" action="<?php echo esc_attr( $edit_status_link ); ?>" >
-		<input type="hidden" name="term-id" value="<?php echo esc_attr( $term->term_id ); ?>" />
+		<input type="hidden" name="term-id" value="<?php echo esc_attr( $term_id ); ?>" />
 		<?php
 			wp_original_referer_field();
 			wp_nonce_field( 'edit-status' );
