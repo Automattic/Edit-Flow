@@ -1293,7 +1293,16 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 			'total_items' => $total_items,
 			'per_page' => $total_items,
 		) );		
-		
+	}
+
+	/**
+	 * Message to be displayed when there are no custom statuses. Should never be displayed, but we'll customize it
+	 * just in case.
+	 *
+	 * @since 0.7
+	 */
+	function no_items() {
+		_e( 'No custom statuses found.', 'edit-flow' );
 	}
 	
 	/**

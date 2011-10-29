@@ -1220,6 +1220,15 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 			'per_page' => count( $this->items ),
 		) );
 	}
+
+	/**
+	 * Message to be displayed when there is no editorial metadata
+	 *
+	 * @since 0.7
+	 */
+	function no_items() {
+		_e( 'No editorial metadata found.', 'edit-flow' );
+	}
 	
 	function current_action() {
 		return parent::current_action();
