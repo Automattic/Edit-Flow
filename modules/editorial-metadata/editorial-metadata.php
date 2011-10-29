@@ -34,7 +34,7 @@ class EF_Editorial_Metadata {
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Editorial Metadata', 'edit-flow' ),
-			'short_description' => __( 'Editorial Metadata make it possible to keep track of the details. tk', 'edit-flow' ),
+			'short_description' => __( 'A powerful way to capture details about your posts in progress.', 'edit-flow' ),
 			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
 			'img_url' => false,
 			'slug' => 'editorial-metadata',
