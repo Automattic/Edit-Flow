@@ -47,7 +47,7 @@ include_once( EDIT_FLOW_ROOT . '/php/notifications.php' );
 include_once( EDIT_FLOW_ROOT . '/php/usergroups.php' );
 include_once( EDIT_FLOW_ROOT . '/php/upgrade.php' );
 include_once( EDIT_FLOW_ROOT . '/php/util.php' );
-include_once( EDIT_FLOW_ROOT . '/php/calendar.php' );
+include_once( EDIT_FLOW_ROOT . '/modules/calendar/calendar.php' );
 include_once( EDIT_FLOW_ROOT . '/php/story_budget.php' );
 include_once( EDIT_FLOW_ROOT . '/php/settings.php' );
 include_once( EDIT_FLOW_ROOT . '/modules/editorial-metadata/editorial-metadata.php' );

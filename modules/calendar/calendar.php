@@ -91,7 +91,7 @@ class EF_Calendar {
 		global $pagenow;
 		// Only load calendar styles on the calendar page
 		if ( $pagenow == 'index.php' && isset( $_GET['page'] ) && $_GET['page'] == 'calendar' )
-			wp_enqueue_style( 'edit-flow-calendar-css', EDIT_FLOW_URL.'css/calendar.css', false, EDIT_FLOW_VERSION );
+			wp_enqueue_style( 'edit-flow-calendar-css', EDIT_FLOW_URL . 'modules/calendar/lib/calendar.css', false, EDIT_FLOW_VERSION );
 	}
 	
 	/**
@@ -114,7 +114,7 @@ class EF_Calendar {
 			foreach( $js_libraries as $js_library ) {
 				wp_enqueue_script( $js_library );
 			}
-			wp_enqueue_script( 'edit-flow-calendar-js', EDIT_FLOW_URL . 'js/calendar.js', $js_libraries, EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-calendar-js', EDIT_FLOW_URL . 'modules/calendar/lib/calendar.js', $js_libraries, EDIT_FLOW_VERSION, true );
 		}
 		
 	}

@@ -38,7 +38,7 @@ table#ef-calendar-view {
 
 #ef-calendar-view .calendar-heading {
 	height: 28px;
-	background: #DFDFDF url('../img/menu-bits.gif') repeat-x scroll left top;
+	background: #DFDFDF url('menu-bits.gif') repeat-x scroll left top;
 	-webkit-border-top-left-radius: 6px;	/*** Adds the rounded effect to fit with WP styles ***/
 	-webkit-border-top-right-radius: 6px;
 	-moz-border-radius-topleft: 6px;
@@ -193,7 +193,7 @@ table#ef-calendar-view .day-unit ul li .item-headline:hover {
 	font-weight: bold;
 	font-size: 12px;
 	line-height: 30px;
-	background: url("../img/menu-bits.gif") repeat-x scroll left -379px #EEEEEE;
+	background: url("menu-bits.gif") repeat-x scroll left -379px #EEEEEE;
 }
 
 .ef-calendar-navigation li.today a {
