@@ -1191,6 +1191,9 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 	var $taxonomy;
 	var $tax;
 
+	/**
+	 * Construct the class
+	 */
 	function __construct() {
 		global $edit_flow;
 
@@ -1212,10 +1215,11 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		) );
 	}
 
-	function ajax_user_can() {
-		return current_user_can( $this->tax->cap->manage_terms );
-	}
-
+	/**
+	 * Prepare the items to be displayed on the list table
+	 *
+	 * @since 0.7
+	 */
 	function prepare_items() {
 		global $edit_flow;
 		$this->items = $edit_flow->editorial_metadata->get_editorial_metadata_terms();
@@ -1235,35 +1239,30 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		_e( 'No editorial metadata found.', 'edit-flow' );
 	}
 	
-	function current_action() {
-		return parent::current_action();
-	}	
-
-	function has_items() {
-		if ( count( $this->items ) )
-			return true;
-		else
-			return false;
-	}
-	
 	/**
 	 * Register the columns to appear in the table
+	 *
+	 * @since 0.7
 	 */
 	function get_columns() {
-		global $edit_flow;
+		
 		$columns = array(
 			'position'	  => __( 'Position', 'edit-flow' ),
 			'name'        => __( 'Name' ),
 			'type'		  => __( 'Metadata Type', 'edit-flow' ),
 			'description' => __( 'Description' ),
 			'viewable'    => __( 'Viewable', 'edit-flow' ),
-		);
-				
+		);		
 		return $columns;
 	}
 	
 	/**
 	 * Prepare a single row of Editorial Metadata
+	 *
+	 * @since 0.7
+	 *
+	 * @param object $term The current term we're displaying
+	 * @param int $level Level is always zero because it isn't a parent-child tax
 	 */
 	function single_row( $term, $level = 0 ) {
 		static $alternate_class = '';
@@ -1304,7 +1303,11 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Column for displaying the term's name
+	 * Column for displaying the term's name and associated actions
+	 *
+	 * @since 0.7
+	 *
+	 * @param object $item Editorial Metadata term as an object
 	 */
 	function column_name( $item ) {
 		global $edit_flow;
@@ -1330,9 +1333,14 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		
 		return $out;
 	}
-	
+
+	/**
+	 * Admins can use the inline edit capability to quickly make changes to the title or description
+	 *
+	 * @since 0.7
+	 */
 	function inline_edit() {
-		global $edit_flow;
+
 ?>
 	<form method="get" action=""><table style="display: none"><tbody id="inlineedit">
 		<tr id="inline-edit" class="inline-edit-row" style="display: none"><td colspan="<?php echo $this->get_column_count(); ?>" class="colspanchange">
