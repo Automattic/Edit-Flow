@@ -58,8 +58,8 @@ class EF_Editorial_Comments
 		if ( !in_array( $pagenow, array( 'post.php', 'page.php', 'post-new.php', 'page-new.php' ) ) )
 			return;
 		
-		wp_enqueue_script( 'edit_flow-post_comment', EDIT_FLOW_URL . 'js/post_comment.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );		
-		wp_enqueue_style( 'edit-flow-editorial-comments-css', EDIT_FLOW_URL . 'css/editorial_comments.css', false, EDIT_FLOW_VERSION, 'all' );				
+		wp_enqueue_script( 'edit_flow-post_comment', EDIT_FLOW_URL . 'modules/editorial-comments/lib/editorial-comments.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );		
+		wp_enqueue_style( 'edit-flow-editorial-comments-css', EDIT_FLOW_URL . 'modules/editorial-comments/lib/editorial-comments.css', false, EDIT_FLOW_VERSION, 'all' );				
 				
 		$thread_comments = (int) get_option('thread_comments');
 		?>
