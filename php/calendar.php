@@ -157,13 +157,16 @@ class EF_Calendar {
 		$existing_time_gmt = date( 'H:i:s', strtotime( $post->post_date_gmt ) );
 		$new_values = array(
 			'post_date' => date( 'Y-m-d', $next_date_full ) . ' ' . $existing_time,
-			// By setting the post_date_gmt, we're explictly setting the publication timestamp
-			// We may decide we don't want to do this, or add a filter to allow the user to opt out
-			// By opting out, regardless of the day the post is set to, it would always be published today
-			'post_date_gmt' => date( 'Y-m-d', $next_date_full ) . ' ' . $existing_time_gmt,
 			'post_modified' => current_time( 'mysql' ),
 			'post_modified_gmt' => current_time( 'mysql', 1 ),
 		);
+		
+		// By default, changing a post on the calendar won't set the timestamp.
+		// If the user desires that to be the behaviour, they can set the result of this filter to 'true'
+		// With how WordPress works internally, setting 'post_date_gmt' will set the timestamp
+		if ( apply_filters( 'ef_calendar_allow_ajax_to_set_timestamp', false ) )
+			$new_values['post_date_gmt'] = date( 'Y-m-d', $next_date_full ) . ' ' . $existing_time_gmt;
+		
 		// Handle the post status if the post was published and we're moving it to the future
 		// Or if the post was scheduled and we're moving it to the past
 		if ( 'publish' == $post->post_status ) {
