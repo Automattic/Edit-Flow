@@ -1,5 +1,10 @@
 <?php
 /**
+ * class EF_Editorial_Metadata
+ * This class gives publishers arbitrary structured content details to go along with every post
+ *
+ * @author sbressler, danielbachhuber
+ *
  * Ways to test and play with this class:
  * 1) Create a new term by selecting Editorial Metadata from the Edit Flow settings
  * 2) Edit an existing term (slug, description, etc.)
@@ -208,7 +213,7 @@ class EF_Editorial_Metadata {
 			if ( current_user_can( 'manage_options' ) )
 				$message .= sprintf( __( ' <a href="%s">Add fields to get started</a>.' ), EDIT_FLOW_EDITORIAL_METADATA_PAGE );
 			else 
-				$message .= __( ' Encourage your site administrator to configure your editorial workflow.' );
+				$message .= __( ' Encourage your site administrator to configure your editorial workflow by adding editorial metadata.' );
 			echo '<p>' . $message . '</p>';
 		} else {
 			foreach ( $terms as $term ) {
@@ -695,9 +700,9 @@ class EF_Editorial_Metadata {
 		if ( $this->get_editorial_metadata_term_by( 'slug', $term_slug ) )
 			$_REQUEST['form-errors']['slug'] = __( 'Slug already in use. Please choose another.', 'edit-flow' );
 		// Check to make sure the status doesn't already exist as another term because otherwise we'd get a weird slug
-		// Check that the term name doesn't exceed 20 chars
-		if ( strlen( $term_name ) > 20 )
-			$_REQUEST['form-errors']['name'] = __( 'Name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' );
+		// Check that the term name doesn't exceed 50 chars
+		if ( strlen( $term_name ) > 50 )
+			$_REQUEST['form-errors']['name'] = __( 'Name cannot exceed 50 characters. Please try a shorter name.', 'edit-flow' );
 		// Metadata type needs to pass our whitelist check
 		$metadata_types = $this->get_supported_metadata_types();
 		if ( empty( $_POST['metadata_type'] ) || !isset( $metadata_types[$_POST['metadata_type'] ] ) )
@@ -773,9 +778,9 @@ class EF_Editorial_Metadata {
 		if ( is_object( $search_term ) && $search_term->term_id != $existing_term->term_id )
 			$_REQUEST['form-errors']['name'] = __( 'Name conflicts with slug for another term. Please choose something else.', 'edit-flow' );					
 		
-		// Check that the term name doesn't exceed 20 chars
-		if ( strlen( $new_name ) > 20 )
-			$_REQUEST['form-errors']['name'] = __( 'Name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' );
+		// Check that the term name doesn't exceed 50 chars
+		if ( strlen( $new_name ) > 50 )
+			$_REQUEST['form-errors']['name'] = __( 'Name cannot exceed 50 characters. Please try a shorter name.', 'edit-flow' );
 	
 		// Kick out if there are any errors
 		if ( count( $_REQUEST['form-errors'] ) ) {
@@ -871,9 +876,9 @@ class EF_Editorial_Metadata {
 			die( $change_error->get_error_message() );
 		}
 		
-		// Check that the term name doesn't exceed 20 chars
-		if ( strlen( $metadata_name ) > 20 ) {
-			$change_error = new WP_Error( 'invalid', __( 'Name cannot exceed 20 characters. Please try a shorter name.' ) );
+		// Check that the term name doesn't exceed 50 chars
+		if ( strlen( $metadata_name ) > 50 ) {
+			$change_error = new WP_Error( 'invalid', __( 'Name cannot exceed 50 characters. Please try a shorter name.' ) );
 			die( $change_error->get_error_message() );
 		}
 		
