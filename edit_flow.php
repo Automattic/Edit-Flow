@@ -272,10 +272,10 @@ class edit_flow {
 	 * Registers commonly used scripts + styles for easy enqueueing
 	 */	
 	function register_scripts_and_styles() {
-		wp_register_script( 'jquery-listfilterizer', EDIT_FLOW_URL . 'js/jquery.listfilterizer.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
-		wp_register_style( 'jquery-listfilterizer', EDIT_FLOW_URL . 'css/jquery.listfilterizer.css', false, EDIT_FLOW_VERSION, 'all' );
+		wp_register_script( 'jquery-listfilterizer', EDIT_FLOW_URL . 'lib/js/jquery.listfilterizer.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
+		wp_register_style( 'jquery-listfilterizer', EDIT_FLOW_URL . 'lib/css/jquery.listfilterizer.css', false, EDIT_FLOW_VERSION, 'all' );
 
-		wp_register_script( 'jquery-quicksearch', EDIT_FLOW_URL . 'js/lib/jquery.quicksearch.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
+		wp_register_script( 'jquery-quicksearch', EDIT_FLOW_URL . 'lib/js/jquery.quicksearch.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 
 		// @compat 3.3
 		// Register jQuery datepicker plugin if it doesn't already exist. Datepicker plugin was added in WordPress 3.3
