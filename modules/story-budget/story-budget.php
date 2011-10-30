@@ -60,7 +60,7 @@ class ef_story_budget {
 	
 		$this->max_num_columns = apply_filters( 'ef_story_budget_max_num_columns', 3 );
 		
-		include_once( EDIT_FLOW_ROOT . '/php/' . 'screen-options.php' );
+		include_once( EDIT_FLOW_ROOT . '/lib/php/' . 'screen-options.php' );
 		add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', __( 'Screen Layout', 'edit-flow' ), array( &$this, 'print_column_prefs' ), self::screen_id, array( &$this, 'save_column_prefs' ), true );
 		
 		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );
@@ -92,7 +92,7 @@ class ef_story_budget {
 			return;
 		
 		$edit_flow->helpers->enqueue_datepicker_resources();
-		wp_enqueue_script( 'edit_flow-story_budget', EDIT_FLOW_URL . 'js/ef_story_budget.js', array( 'edit_flow-date_picker' ), EDIT_FLOW_VERSION, true );
+		wp_enqueue_script( 'edit_flow-story_budget', EDIT_FLOW_URL . 'modules/story-budget/lib/story-budget.js', array( 'edit_flow-date_picker' ), EDIT_FLOW_VERSION, true );
 	}
 	
 	/**
@@ -104,8 +104,8 @@ class ef_story_budget {
 		if ( $current_screen->id != self::screen_id )
 			return;
 		
-		wp_enqueue_style( 'edit_flow-story_budget-styles', EDIT_FLOW_URL . 'css/ef_story_budget.css', false, EDIT_FLOW_VERSION, 'screen' );
-		wp_enqueue_style( 'edit_flow-story_budget-print-styles', EDIT_FLOW_URL . 'css/ef_story_budget_print.css', false, EDIT_FLOW_VERSION, 'print' );
+		wp_enqueue_style( 'edit_flow-story_budget-styles', EDIT_FLOW_URL . 'modules/story-budget/lib/story-budget.css', false, EDIT_FLOW_VERSION, 'screen' );
+		wp_enqueue_style( 'edit_flow-story_budget-print-styles', EDIT_FLOW_URL . 'modules/story-budget/lib/story-budget-print.css', false, EDIT_FLOW_VERSION, 'print' );
 	}
 	
 	/**
