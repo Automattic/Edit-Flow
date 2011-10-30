@@ -148,15 +148,16 @@ jQuery(document).ready(function(){
 			};
 			// Inform WordPress of our updated positions
 			jQuery.post( ajaxurl, params, function( retval ){
-				jQuery('.edit-flow-admin .message').remove();
-				jQuery('.edit-flow-admin .explanation').remove();
+				jQuery('.edit-flow-admin .edit-flow-message').remove();
 				// If there's a success message, print it. Otherwise we assume we received an error message
 				if ( retval.status == 'success' ) {
-					var message = '<div class="updated message"><p>' + retval.message + '</p></div>';
+					var message = '<span class="edit-flow-updated-message edit-flow-message">' + retval.message + '</span>';
 				} else {
-					var message = '<div class="error message"><p>' + retval.message + '</p></div>';
+					var message = '<span class="edit-flow-error-message edit-flow-message">' + retval.message + '</span>';
 				}
-				jQuery('.edit-flow-admin h2').after( message );
+				jQuery('.edit-flow-admin h2').append( message );
+				// Set a timeout to eventually remove it
+				setTimeout( edit_flow_hide_message, 8000 );
 			});
 		},
 	});

@@ -55,7 +55,7 @@ class EF_Editorial_Metadata {
 				'term-updated' => __( "Metadata term updated.", 'edit-flow' ),
 				'term-missing' => __( "Metadata term doesn't exist.", 'edit-flow' ),
 				'term-deleted' => __( "Metadata term deleted.", 'edit-flow' ),
-				'term-position-updated' => __( "Term order updated", 'edit-flow' ),
+				'term-position-updated' => __( "Term order updated.", 'edit-flow' ),
 			),
 			'configure_page_cb' => 'print_configure_view',
 		);
@@ -151,7 +151,7 @@ class EF_Editorial_Metadata {
 		// Load Javascript specific to the editorial metadata configuration view
 		if ( $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-ui-sortable' );			
-			wp_enqueue_script( 'edit-flow-editorial-metadata-configure', EDIT_FLOW_URL . 'modules/editorial-metadata/lib/editorial-metadata-configure.js', array( 'jquery', 'jquery-ui-sortable' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-editorial-metadata-configure', EDIT_FLOW_URL . 'modules/editorial-metadata/lib/editorial-metadata-configure.js', array( 'jquery', 'jquery-ui-sortable', 'edit-flow-settings-js' ), EDIT_FLOW_VERSION, true );
 		}
 	}
 	
@@ -1042,7 +1042,6 @@ class EF_Editorial_Metadata {
 			<?php $wp_list_table->display(); ?>
 			<?php wp_nonce_field( 'editorial-metadata-sortable', 'editorial-metadata-sortable' ); ?>
 		</form>
-
 		</div>
 		</div><!-- /col-right -->
 		<?php $wp_list_table->inline_edit(); ?>
@@ -1066,7 +1065,6 @@ class EF_Editorial_Metadata {
 			$description = ( isset( $_POST['metadata_description'] ) ) ? stripslashes( $_POST['metadata_description'] ) : $term->description;
 		?>
 		
-		<div id="ajax-response"></div>
 		<form method="post" action="<?php echo esc_url( $edit_term_link ); ?>" >
 		<input type="hidden" name="action" value="editedtag" />
 		<input type="hidden" name="tag_id" value="<?php echo esc_attr( $term->term_id ); ?>" />
@@ -1109,7 +1107,6 @@ class EF_Editorial_Metadata {
 		<a class="cancel-settings-link" href="<?php echo esc_url( add_query_arg( 'page', $this->module->settings_slug, get_admin_url( null, 'admin.php' ) ) ); ?>"><?php _e( 'Cancel', 'edit-flow' ); ?></a>
 		</p>
 		</form>
-		</div>
 		
 		<?php else: ?>
 		<?php /** If not in full-screen edit term mode, we can create new terms or change options **/ ?>

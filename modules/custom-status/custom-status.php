@@ -210,7 +210,7 @@ class EF_Custom_Status {
 		// Load Javascript we need to use on the configuration views (jQuery Sortable and Quick Edit)
 		if ( $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-ui-sortable' );			
-			wp_enqueue_script( 'edit-flow-custom-status-configure', EDIT_FLOW_URL . 'modules/custom-status/lib/custom-status-configure.js', array( 'jquery', 'jquery-ui-sortable' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-custom-status-configure', EDIT_FLOW_URL . 'modules/custom-status/lib/custom-status-configure.js', array( 'jquery', 'jquery-ui-sortable', 'edit-flow-settings-js' ), EDIT_FLOW_VERSION, true );
 		}
 		
 		// Custom javascript to modify the post status dropdown where it shows up

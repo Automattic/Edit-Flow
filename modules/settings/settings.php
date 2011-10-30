@@ -138,31 +138,7 @@ class EF_Settings {
 		if ( !$edit_flow->helpers->module_enabled( $requested_module_name ) ) {
 			echo '<div class="message error"><p>' . sprintf( __( 'Module not enabled. Please enable it from the <a href="%1$s">Edit Flow settings page</a>.', 'edit-flow' ), EDIT_FLOW_SETTINGS_PAGE ) . '</p></div>';
 			return;
-		}
-			
-		// If there's been a message, let's display it
-		if ( isset( $_GET['message'] ) )
-			$message = $_GET['message'];
-		else if ( isset( $_REQUEST['message'] ) )
-			$message = $_REQUEST['message'];
-		else if ( isset( $_POST['message'] ) )
-			$message = $_POST['message'];
-		else
-			$message = false;
-		if ( $message && isset( $requested_module->messages[$message] ) )
-			echo '<div class="updated message"><p>' . esc_html( $requested_module->messages[$message] ) . '</p></div>';
-			
-		// If there's been an error, let's display it
-		if ( isset( $_GET['error'] ) )
-			$error = $_GET['error'];
-		else if ( isset( $_REQUEST['error'] ) )
-			$error = $_REQUEST['error'];
-		else if ( isset( $_POST['error'] ) )
-			$error = $_POST['error'];
-		else
-			$error = false;
-		if ( $error && isset( $requested_module->messages[$error] ) )
-			echo '<div class="error message"><p>' . esc_html( $requested_module->messages[$error] ) . '</p></div>';			
+		}	
 		
 		$this->print_default_header( $requested_module );
 		$edit_flow->$requested_module_name->$configure_callback();
@@ -174,16 +150,40 @@ class EF_Settings {
 	 *
 	 */
 	function print_default_header( $current_module ) {
+		
+		// If there's been a message, let's display it
+		if ( isset( $_GET['message'] ) )
+			$message = $_GET['message'];
+		else if ( isset( $_REQUEST['message'] ) )
+			$message = $_REQUEST['message'];
+		else if ( isset( $_POST['message'] ) )
+			$message = $_POST['message'];
+		else
+			$message = false;
+		if ( $message && isset( $current_module->messages[$message] ) )
+			$display_text = '<span class="edit-flow-updated-message edit-flow-message">' . esc_html( $current_module->messages[$message] ) . '</span>';
+			
+		// If there's been an error, let's display it
+		if ( isset( $_GET['error'] ) )
+			$error = $_GET['error'];
+		else if ( isset( $_REQUEST['error'] ) )
+			$error = $_REQUEST['error'];
+		else if ( isset( $_POST['error'] ) )
+			$error = $_POST['error'];
+		else
+			$error = false;
+		if ( $error && isset( $current_module->messages[$error] ) )
+			$display_text = '<span class="edit-flow-error-message edit-flow-message">' . esc_html( $current_module->messages[$error] ) . '</span>';
+		
 		?>
 		<div class="wrap edit-flow-admin">
 			<div class="icon32" id="icon-options-general"><br/></div>
 			<?php if ( $current_module->name != 'settings' ): ?>
-			<h2><a href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e('Edit Flow', 'edit-flow') ?></a>&nbsp;&rarr;&nbsp;<?php echo $current_module->title; ?></h2>
+			<h2><a href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e('Edit Flow', 'edit-flow') ?></a>&nbsp;&rarr;&nbsp;<?php echo $current_module->title; ?><?php if ( isset( $display_text ) ) { echo $display_text; } ?></h2>
 			<?php else: ?>
-			<h2><?php _e('Edit Flow', 'edit-flow') ?></h2>
+			<h2><?php _e('Edit Flow', 'edit-flow') ?><?php if ( isset( $display_text ) ) { echo $display_text; } ?></h2>
 			<?php endif; ?>
 			
-			<?php if ( empty( $_GET['message'] ) && empty( $_GET['error'] ) && empty( $_REQUEST['error'] ) ): ?>
 			<div class="explanation">
 				<?php if ( $current_module->short_description ): ?>
 				<p><?php echo $current_module->short_description; ?></p>
@@ -192,7 +192,6 @@ class EF_Settings {
 				<p><?php echo $current_module->extended_description; ?></p>
 				<?php endif; ?>				
 			</div>
-			<?php endif; ?>
 		<?php
 	}
 	

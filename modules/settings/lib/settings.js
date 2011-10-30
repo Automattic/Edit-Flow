@@ -1,3 +1,8 @@
+// Hide a given message
+function edit_flow_hide_message() {
+	jQuery('.edit-flow-message').fadeOut(function(){ jQuery(this).remove(); });
+}
+
 jQuery(document).ready(function(){
 	
 	// Restore the Edit Flow submenu if there are no modules enabled
@@ -7,6 +12,11 @@ jQuery(document).ready(function(){
 		jQuery( 'li#toplevel_page_ef-settings' ).addClass('wp-has-submenu wp-has-current-submenu wp-menu-open');
 		jQuery( 'li#toplevel_page_ef-settings' ).append( ef_settings_submenu_html );
 		jQuery( 'li#toplevel_page_ef-settings .wp-submenu' ).show();
+	}
+
+	// Set auto-removal to 8 seconds
+	if ( jQuery('.edit-flow-message').length > 0 ) {
+		setTimeout( edit_flow_hide_message, 8000 );
 	}
 
 	jQuery('.enable-disable-edit-flow-module').click(function(){
