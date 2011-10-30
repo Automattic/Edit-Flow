@@ -696,29 +696,16 @@ class EF_Calendar {
 	
 	/**
 	 * Human-readable time range for the calendar
+	 * Shows something like "for October 30th through November 26th" for a four-week period
 	 *
-	 * @param array $filters The filters in use on the calendar
+	 * @since 0.7
 	 */
 	function calendar_time_range() {
-		$numbers_to_words = array(
-			__( 'zero' ),
-			__( 'one' ),
-			__( 'two' ),
-			__( 'three' ),
-			__( 'four' ),
-			__( 'five' ),
-			__( 'six' ),
-			__( 'seven' ),
-			__( 'eight' ),
-			__( 'nine' ),
-			__( 'ten' ),
-		);
-		$numbers_to_words = apply_filters( 'ef_calendar_numbers_to_words', $numbers_to_words );
 		
-		if ( $this->total_weeks == 1 )
-			echo sprintf( __( 'for %1$s days starting %2$s'), 7, date( 'F jS', strtotime( $this->start_date ) ) );
-		else if ( $this->total_weeks > 1 )
-			echo sprintf( __( 'for %1$s weeks starting %2$s'), $numbers_to_words[$this->total_weeks], date( 'F jS', strtotime( $this->start_date ) ) );
+		$first_date = date( 'F jS', strtotime( $this->start_date ) );
+		$total_days = ( $this->total_weeks * 7 ) - 1;
+		$last_date = date( 'F jS', strtotime( "+" . $total_days . " days", date( 'U', strtotime( $this->start_date ) ) ) );
+		echo sprintf( __( 'for %1$s through %2$s'), $first_date, $last_date );
 	}
 	
 	/**
