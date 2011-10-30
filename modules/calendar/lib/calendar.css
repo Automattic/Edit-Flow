@@ -227,13 +227,42 @@ table#ef-calendar-view .day-unit ul li .item-headline:hover {
 	margin-left: 5px;
 }
 
+.ef-calendar-navigation li.ajax-actions,
 .ef-calendar-navigation li.previous-week,
 .ef-calendar-navigation li.next-week,
 .ef-calendar-navigation li.today {
 	float:right;
 }
 
+.ef-calendar-navigation li.ajax-actions img.waiting {
+	padding-top: 8px;
+	vertical-align:middle;
+}
+
+.ef-calendar-navigation li.ajax-actions,
 .ef-calendar-navigation li.previous-week,
 .ef-calendar-navigation li.today {
 	margin-right: 15px;
+}
+
+.edit-flow-message {
+	margin-top: 2px;
+	font-weight:normal;
+	padding-left: 25px;
+	padding-right: 25px;	
+	padding-top: 5px;
+	padding-bottom: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;	
+}
+
+.edit-flow-updated-message {
+	background-color: #FFFFE0;
+	border: 1px solid #E6DB55;
+}
+
+.edit-flow-error-message {
+	background-color: #FFEBE8;
+	border: 1px solid #CC0000;
 }

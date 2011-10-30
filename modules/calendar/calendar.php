@@ -522,6 +522,9 @@ class EF_Calendar {
 				<?php endif; ?>
 				<a id="trigger-right" href="<?php echo esc_url( $this->get_pagination_link( 'previous', $filters, 1 ) ); ?>"><?php _e( '&lsaquo;', 'edit-flow' ); ?></a>
 			</li>
+			<li class="ajax-actions">
+				<img class="waiting" style="display:none;" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
+			</li>			
 		</ul>
 	<?php
 	}

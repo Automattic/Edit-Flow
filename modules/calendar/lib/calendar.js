@@ -7,6 +7,11 @@ jQuery(document).ready(function () {
 		return false;
 	});
 	
+	// Hide a message. Used by setTimeout()
+	function edit_flow_calendar_hide_message() {
+		jQuery('.edit-flow-message').fadeOut(function(){ jQuery(this).remove(); });
+	}	
+	
 	/**
 	 * Instantiates drag and drop sorting for posts on the calendar
 	 */
@@ -32,6 +37,8 @@ jQuery(document).ready(function () {
 			var prev_date = jQuery(this).closest('.day-unit').attr('id');
 			var next_date = jQuery(ui.item).closest('.day-unit').attr('id');
 			var nonce = jQuery(document).find('#ef-calendar-modify').val();
+			jQuery('.edit-flow-message').remove();
+			jQuery('li.ajax-actions .waiting').show();
 			// make ajax request
 			var params = {
 				action: 'ef_calendar_drag_and_drop',
@@ -42,7 +49,16 @@ jQuery(document).ready(function () {
 			};
 			jQuery.post(ajaxurl, params,
 				function(response) {
-					// @todo handle the response
+					jQuery('li.ajax-actions .waiting').hide();
+					var html = '';
+					if ( response.status == 'success' ) {
+						html = '<div class="edit-flow-message edit-flow-updated-message">' + response.message + '</div>';
+						//setTimeout( edit_flow_calendar_hide_message, 5000 );
+					} else if ( response.status == 'error' ) {
+						html = '<div class="edit-flow-message edit-flow-error-message">' + response.message + '</div>';
+					}
+					jQuery('li.ajax-actions').prepend(html);
+					setTimeout( edit_flow_calendar_hide_message, 10000 )
 				}
 			);
 		},
