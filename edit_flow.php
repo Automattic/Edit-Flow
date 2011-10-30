@@ -39,18 +39,20 @@ define( 'EDIT_FLOW_CALENDAR_PAGE', add_query_arg( 'page', 'calendar', get_admin_
 define( 'EDIT_FLOW_STORY_BUDGET_PAGE', add_query_arg( 'page', 'story-budget', get_admin_url( null, 'index.php' ) ) );
 
 // Include necessary files, including the path in which to search to avoid conflicts
-include_once( EDIT_FLOW_ROOT . '/php/helpers.php' );
 include_once( EDIT_FLOW_ROOT . '/php/custom_status.php' );
 include_once( EDIT_FLOW_ROOT . '/php/dashboard.php' );
 include_once( EDIT_FLOW_ROOT . '/php/editorial_comments.php' );
 include_once( EDIT_FLOW_ROOT . '/php/notifications.php' );
 include_once( EDIT_FLOW_ROOT . '/php/usergroups.php' );
-include_once( EDIT_FLOW_ROOT . '/php/upgrade.php' );
-include_once( EDIT_FLOW_ROOT . '/php/util.php' );
 include_once( EDIT_FLOW_ROOT . '/modules/calendar/calendar.php' );
 include_once( EDIT_FLOW_ROOT . '/php/story_budget.php' );
 include_once( EDIT_FLOW_ROOT . '/php/settings.php' );
 include_once( EDIT_FLOW_ROOT . '/modules/editorial-metadata/editorial-metadata.php' );
+
+// Common Edit Flow utilities and helpers
+include_once( EDIT_FLOW_ROOT . '/lib/php/util.php' );
+include_once( EDIT_FLOW_ROOT . '/lib/php/helpers.php' );
+include_once( EDIT_FLOW_ROOT . '/lib/php/upgrade.php' );
 
 // Core class
 class edit_flow {
