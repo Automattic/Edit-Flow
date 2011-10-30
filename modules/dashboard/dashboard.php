@@ -63,7 +63,7 @@ class EF_Dashboard {
 		if ( !$current_user->has_cap('edit_posts') ) 
 			return;
 		
-		wp_enqueue_style( 'edit-flow-dashboard-css', EDIT_FLOW_URL . 'css/dashboard.css', false, EDIT_FLOW_VERSION, 'all' );			
+		wp_enqueue_style( 'edit-flow-dashboard-css', EDIT_FLOW_URL . 'modules/dashboard/lib/dashboard.css', false, EDIT_FLOW_VERSION, 'all' );			
 			
 		// Set up Post Status widget but, first, check to see if it's enabled
 		if ( $this->module->options->post_status_widget == 'on')

@@ -40,7 +40,7 @@ define( 'EDIT_FLOW_STORY_BUDGET_PAGE', add_query_arg( 'page', 'story-budget', ge
 
 // Include necessary files, including the path in which to search to avoid conflicts
 include_once( EDIT_FLOW_ROOT . '/modules/custom-status/custom-status.php' );
-include_once( EDIT_FLOW_ROOT . '/php/dashboard.php' );
+include_once( EDIT_FLOW_ROOT . '/modules/dashboard/dashboard.php' );
 include_once( EDIT_FLOW_ROOT . '/php/editorial_comments.php' );
 include_once( EDIT_FLOW_ROOT . '/php/notifications.php' );
 include_once( EDIT_FLOW_ROOT . '/modules/usergroups/usergroups.php' );
