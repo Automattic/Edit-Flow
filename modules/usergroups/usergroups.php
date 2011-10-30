@@ -131,11 +131,11 @@ class EF_Usergroups {
 		if ( $edit_flow->helpers->is_whitelisted_functional_view() || $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-listfilterizer' );
 			wp_enqueue_script( 'jquery-quicksearch' );
-			wp_enqueue_script( 'edit-flow-usergroups-js', EDIT_FLOW_URL . 'js/usergroups.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-usergroups-js', EDIT_FLOW_URL . 'modules/usergroups/lib/usergroups.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
 		}
 			
 		if ( $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) )	
-			wp_enqueue_script( 'edit-flow-usergroups-configure-js', EDIT_FLOW_URL . 'js/usergroups_configure.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-usergroups-configure-js', EDIT_FLOW_URL . 'modules/usergroups/lib/usergroups_configure.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 	}
 	
 	/**
@@ -150,7 +150,7 @@ class EF_Usergroups {
 		
 		if ( $edit_flow->helpers->is_whitelisted_functional_view() || $edit_flow->helpers->is_whitelisted_settings_view() ) {
 			wp_enqueue_style( 'jquery-listfilterizer' );
-			wp_enqueue_style( 'edit-flow-usergroups-css', EDIT_FLOW_URL . 'css/usergroups.css', false, EDIT_FLOW_VERSION );
+			wp_enqueue_style( 'edit-flow-usergroups-css', EDIT_FLOW_URL . 'modules/usergroups/lib/usergroups.css', false, EDIT_FLOW_VERSION );
 		}
 	}
 	

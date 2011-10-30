@@ -43,7 +43,7 @@ include_once( EDIT_FLOW_ROOT . '/modules/custom-status/custom-status.php' );
 include_once( EDIT_FLOW_ROOT . '/php/dashboard.php' );
 include_once( EDIT_FLOW_ROOT . '/php/editorial_comments.php' );
 include_once( EDIT_FLOW_ROOT . '/php/notifications.php' );
-include_once( EDIT_FLOW_ROOT . '/php/usergroups.php' );
+include_once( EDIT_FLOW_ROOT . '/modules/usergroups/usergroups.php' );
 include_once( EDIT_FLOW_ROOT . '/modules/calendar/calendar.php' );
 include_once( EDIT_FLOW_ROOT . '/modules/story-budget/story-budget.php' );
 include_once( EDIT_FLOW_ROOT . '/php/settings.php' );
