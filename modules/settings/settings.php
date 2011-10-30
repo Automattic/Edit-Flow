@@ -38,6 +38,7 @@ class EF_Settings {
 		add_action( 'admin_init', array( &$this, 'helper_settings_validate_and_save' ), 100 );		
 		
 		add_action( 'admin_print_styles', array( &$this, 'action_admin_print_styles' ) );
+		add_action( 'admin_print_scripts', array( &$this, 'action_admin_print_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'action_admin_enqueue_scripts' ) );
 		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );
 		
@@ -78,6 +79,19 @@ class EF_Settings {
 			wp_enqueue_style( 'edit_flow-settings-css', EDIT_FLOW_URL.'modules/settings/lib/settings.css', false, EDIT_FLOW_VERSION );
 		
 		
+	}
+	
+	/**
+	 * Extra data we need on the page for transitions, etc.
+	 *
+	 * @since 0.7
+	 */
+	function action_admin_print_scripts() {
+		?>
+		<script type="text/javascript">
+			var ef_admin_url = '<?php echo get_admin_url(); ?>';
+		</script>
+		<?php
 	}
 	
 	function ajax_change_edit_flow_module_state() {
@@ -210,7 +224,17 @@ class EF_Settings {
 			foreach ( $edit_flow->modules as $mod_name => $mod_data ) {
 				if ( $mod_data->autoload )
 					continue;
-				echo '<div class="edit-flow-module" id="' . $mod_data->slug . '">';
+				
+				$classes = array(
+					'edit-flow-module',
+				);
+				if ( $mod_data->options->enabled == 'on' )
+					$classes[] = 'module-enabled';
+				elseif ( $mod_data->options->enabled == 'off' )
+					$classes[] = 'module-disabled';
+				if ( $mod_data->configure_page_cb )
+					$classes[] = 'has-configure-link';
+				echo '<div class="' . implode( ' ', $classes ) . '" id="' . $mod_data->slug . '">';
 				echo '<form method="get" action="' . get_admin_url( null, 'options.php' ) . '">';
 				echo '<h4>' . esc_html( $mod_data->title ) . '</h4>';
 				echo '<p>' . esc_html( $mod_data->short_description ) . '</p>';
@@ -224,9 +248,9 @@ class EF_Settings {
 				echo ' value="' . __( 'Disable', 'edit-flow' ) . '" />';
 				if ( $mod_data->configure_page_cb ) {
 					$configure_url = add_query_arg( 'page', $mod_data->settings_slug, get_admin_url( null, 'admin.php' ) );
-					echo '<a href="' . $configure_url . '" class="configure-edit-flow-module"';
-					if ( $mod_data->options->enabled == 'off' ) echo ' style="display:none;"';
-					echo '>' . $mod_data->configure_link_text . '</a>';
+					echo '<a href="' . $configure_url . '" class="configure-edit-flow-module';
+					if ( $mod_data->options->enabled == 'off' ) echo ' hidden" style="display:none;';
+					echo '">' . $mod_data->configure_link_text . '</a>';
 				}
 				echo '</p>';
 				wp_nonce_field( 'change-edit-flow-module-nonce', 'change-module-nonce', false );
