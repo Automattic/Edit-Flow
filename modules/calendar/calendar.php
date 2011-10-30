@@ -18,7 +18,7 @@ class EF_Calendar {
 	
 	var $start_date = '';
 	var $current_week = 1;
-	var $total_weeks = 4;	
+	var $total_weeks = 6;	
 	
 	/**
 	 * Construct the EF_Calendar class
