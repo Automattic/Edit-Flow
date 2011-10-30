@@ -64,7 +64,7 @@ class EF_Settings {
 		global $edit_flow;
 		
 		if ( $edit_flow->helpers->is_whitelisted_settings_view() )
-			wp_enqueue_script( 'edit-flow-settings-js', EDIT_FLOW_URL . 'js/settings.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-settings-js', EDIT_FLOW_URL . 'modules/settings/lib/settings.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 			
 	}
 	
@@ -75,7 +75,7 @@ class EF_Settings {
 		global $edit_flow;
 		
 		if ( $edit_flow->helpers->is_whitelisted_settings_view() )
-			wp_enqueue_style( 'edit_flow-settings-css', EDIT_FLOW_URL.'css/settings.css', false, EDIT_FLOW_VERSION );
+			wp_enqueue_style( 'edit_flow-settings-css', EDIT_FLOW_URL.'modules/settings/lib/settings.css', false, EDIT_FLOW_VERSION );
 		
 		
 	}
