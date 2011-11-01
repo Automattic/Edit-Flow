@@ -26,12 +26,14 @@ class EF_Calendar {
 	function __construct() {
 		global $edit_flow;
 	
+		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
 		// Register the module with Edit Flow	
 		$args = array(
 			'title' => __( 'Calendar', 'edit-flow' ),
 			'short_description' => __( 'See all of your content on a calendar tk', 'edit-flow' ),
 			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
-			'img_url' => false,
+			'module_url' => $module_url,
+			'img_url' => $module_url . 'lib/calendar_s128.png',
 			'slug' => 'calendar',
 			'post_type_support' => 'ef_calendar',
 			'default_options' => array(
@@ -297,7 +299,7 @@ class EF_Calendar {
 		?>
 		<div class="wrap">
 			<div id="ef-calendar-title"><!-- Calendar Title -->
-				<div class="icon32" id="icon-edit"></div>
+				<?php echo '<img src="' . esc_url( $this->module->img_url ) . '" class="module-icon icon32" />'; ?>
 				<h2><?php _e( 'Calendar', 'edit-flow' ); ?>&nbsp;<span class="time-range"><?php $this->calendar_time_range(); ?></span></h2>
 			</div><!-- /Calendar Title -->
 

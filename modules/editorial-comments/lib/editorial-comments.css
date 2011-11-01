@@ -4,6 +4,13 @@
 	padding: 0;
 }
 
+#edit-flow-editorial-comments h3 {
+	padding-left: 25px;
+	background-image: url( editorial_comments_s16.png );
+	background-repeat: no-repeat;
+	background-position: 5px 5px;
+}
+
 #ef-comments {
 	margin-bottom: 10px;
 	border-top: 1px solid #e5e5e5;

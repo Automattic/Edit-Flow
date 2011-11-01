@@ -35,13 +35,15 @@ class ef_story_budget {
 	
 		global $edit_flow;
 		
+		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		// @todo default options for the story budget
 		$args = array(
 			'title' => __( 'Story Budget', 'edit-flow' ),
 			'short_description' => __( 'Story budget gives you all of your content at a glance. tk', 'edit-flow' ),
 			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
-			'img_url' => false,
+			'module_url' => $module_url,
+			'img_url' => $module_url . 'lib/story_budget_s128.png',
 			'slug' => 'story-budget',
 			'default_options' => array(
 				'enabled' => 'on',
@@ -436,7 +438,7 @@ class ef_story_budget {
 	function print_messages() {
 	?>
 		<div id="ef-story-budget-title"><!-- Story Budget Title -->
-			<div class="icon32" id="icon-edit"></div>
+			<?php echo '<img src="' . esc_url( $this->module->img_url ) . '" class="module-icon icon32" />'; ?>
 			<h2><?php _e( 'Story Budget', 'edit-flow' ); ?></h2>
 		</div><!-- /Story Budget Title -->
 	

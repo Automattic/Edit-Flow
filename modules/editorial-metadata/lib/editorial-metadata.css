@@ -1,5 +1,12 @@
 /** Editorial Metadata **/
 
+#ef_editorial_meta h3 {
+	padding-left: 22px;
+	background-image: url( editorial_metadata_s16.png );
+	background-repeat: no-repeat;
+	background-position: 5px 5px;
+}
+
 /* Spacing between each term */
 #ef_editorial_meta_meta_box div.ef_editorial_meta {
 	margin-bottom: 10px;

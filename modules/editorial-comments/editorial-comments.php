@@ -13,12 +13,14 @@ class EF_Editorial_Comments
 	function __construct() {
 		global $edit_flow;
 		
+		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Editorial Comments', 'edit-flow' ),
 			'short_description' => __( 'Leave comments on posts in progress to share notes with your collaborators. tk', 'edit-flow' ),
 			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
-			'img_url' => false,
+			'module_url' => $module_url,
+			'img_url' => $module_url . 'lib/editorial_comments_s128.png',
 			'slug' => 'editorial-comments',
 			'default_options' => array(
 				'enabled' => 'on',

@@ -23,12 +23,14 @@ class EF_Custom_Status {
 	function __construct() {
 		global $edit_flow;
 		
+		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Custom Statuses', 'edit-flow' ),
 			'short_description' => __( 'Custom statuses make it simple to define the different stages in your publishing workflow.', 'edit-flow' ),
 			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
-			'img_url' => false,
+			'module_url' => $module_url,
+			'img_url' => $module_url . 'lib/custom_status_s128.png',
 			'slug' => 'custom-status',
 			'default_options' => array(
 				'enabled' => 'on',

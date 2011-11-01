@@ -36,12 +36,14 @@ class EF_Editorial_Metadata {
 	function __construct() {
 		global $edit_flow;
 		
+		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Editorial Metadata', 'edit-flow' ),
 			'short_description' => __( 'A powerful way to capture details about your posts in progress.', 'edit-flow' ),
 			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
-			'img_url' => false,
+			'module_url' => $module_url,
+			'img_url' => $module_url . 'lib/editorial_metadata_s128.png',
 			'slug' => 'editorial-metadata',
 			'default_options' => array(
 				'enabled' => 'on',
