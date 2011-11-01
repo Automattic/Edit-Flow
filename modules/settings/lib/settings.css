@@ -203,6 +203,12 @@
 	margin-left: 8px;
 }
 
+.credits {
+	text-align: right;
+	color: #666666;
+	font-size: 11px;
+}
+
 /* Module specific image styles */
 
 .button-inline-block {
