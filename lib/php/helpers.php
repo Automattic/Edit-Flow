@@ -354,5 +354,18 @@ class EF_Helpers {
 		return $string_or_unencoded_array;
 	}
 	
+	/**
+	 * Get the publicly accessible URL for the module based on the filename
+	 *
+	 * @since 0.7
+	 *
+	 * @param string $filepath File path for the module
+	 * @return string $module_url Publicly accessible URL for the module
+	 */
+	function get_module_url( $file ) {
+		$module_url = plugins_url( plugin_basename( dirname( $file ) ) );
+		return trailingslashit( $module_url );
+	}
+	
 }
 }

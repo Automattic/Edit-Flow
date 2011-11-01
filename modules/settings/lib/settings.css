@@ -1,5 +1,25 @@
 /* @override http://localhost:8888/wpplugindev/wp-content/plugins/edit-flow/css/settings.css?ver=0.6.4 */
 
+.float-right {
+	float:right;
+}
+
+.float-left {
+	float: left;
+}
+
+.clear-left {
+	clear: left;
+}
+
+.clear-right {
+	clear: right;
+}
+
+.clear-both {
+	clear: both;
+}
+
 .edit-flow-modules {
 	min-width: 740px;
 	width: 100%;
@@ -184,21 +204,6 @@
 }
 
 /* Module specific image styles */
-.edit-flow-modules #calendar form {
-	background: url(../img/ef-settings-calendar.png) no-repeat right top;
-}
-
-.edit-flow-modules #custom-status form {
-	background: url(../img/ef-settings-status.png) no-repeat right top;
-}
-
-.edit-flow-modules #notifications form {
-	background: url(../img/ef-settings-notifications.png) no-repeat right top;
-}
-
-.edit-flow-modules #story-budget form {
-	background: url(../img/ef-settings-budget.png) no-repeat right -4px;
-}
 
 .button-inline-block {
 	display: inline-block;

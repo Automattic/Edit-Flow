@@ -175,12 +175,18 @@ class EF_Settings {
 		if ( $error && isset( $current_module->messages[$error] ) )
 			$display_text = '<span class="edit-flow-error-message edit-flow-message">' . esc_html( $current_module->messages[$error] ) . '</span>';
 		
+		$generic_edit_flow_icon = '<div class="icon32" id="icon-options-general"><br/></div>';
 		?>
 		<div class="wrap edit-flow-admin">
-			<div class="icon32" id="icon-options-general"><br/></div>
 			<?php if ( $current_module->name != 'settings' ): ?>
+				<?php if ( $current_module->img_url ) {
+					echo '<img src="' . esc_url( $current_module->img_url ) . '" class="module-icon icon32" />';
+				} else {
+					echo $generic_edit_flow_icon;
+				} ?>
 			<h2><a href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e('Edit Flow', 'edit-flow') ?></a>&nbsp;&rarr;&nbsp;<?php echo $current_module->title; ?><?php if ( isset( $display_text ) ) { echo $display_text; } ?></h2>
 			<?php else: ?>
+			<?php echo $generic_edit_flow_icon; ?>
 			<h2><?php _e('Edit Flow', 'edit-flow') ?><?php if ( isset( $display_text ) ) { echo $display_text; } ?></h2>
 			<?php endif; ?>
 			
@@ -234,6 +240,8 @@ class EF_Settings {
 				if ( $mod_data->configure_page_cb )
 					$classes[] = 'has-configure-link';
 				echo '<div class="' . implode( ' ', $classes ) . '" id="' . $mod_data->slug . '">';
+				if ( $mod_data->img_url )
+					echo '<img src="' . esc_url( $mod_data->img_url ) . '" height="24px" width="24px" class="float-right module-icon" />';
 				echo '<form method="get" action="' . get_admin_url( null, 'options.php' ) . '">';
 				echo '<h4>' . esc_html( $mod_data->title ) . '</h4>';
 				echo '<p>' . esc_html( $mod_data->short_description ) . '</p>';

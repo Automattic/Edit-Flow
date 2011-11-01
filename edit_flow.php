@@ -43,7 +43,7 @@ include_once( EDIT_FLOW_ROOT . '/modules/custom-status/custom-status.php' );
 include_once( EDIT_FLOW_ROOT . '/modules/dashboard/dashboard.php' );
 include_once( EDIT_FLOW_ROOT . '/modules/editorial-comments/editorial-comments.php' );
 include_once( EDIT_FLOW_ROOT . '/php/notifications.php' );
-include_once( EDIT_FLOW_ROOT . '/modules/usergroups/usergroups.php' );
+include_once( EDIT_FLOW_ROOT . '/modules/user-groups/user-groups.php' );
 include_once( EDIT_FLOW_ROOT . '/modules/calendar/calendar.php' );
 include_once( EDIT_FLOW_ROOT . '/modules/story-budget/story-budget.php' );
 include_once( EDIT_FLOW_ROOT . '/modules/settings/settings.php' );
@@ -117,7 +117,7 @@ class edit_flow {
 		// Register all of our classes as Edit Flow modules
 		$this->custom_status = new EF_Custom_Status();
 		$this->calendar = new EF_Calendar();		
-		$this->usergroups = new EF_Usergroups();
+		$this->user_groups = new EF_User_Groups();
 		$this->editorial_comments = new EF_Editorial_Comments();
 		$this->editorial_metadata = new EF_Editorial_Metadata();
 		$this->story_budget = new EF_Story_Budget();

@@ -1,6 +1,6 @@
 <?php
 /**
- * class EF_Usergroups
+ * class EF_User_Groups
  * 
  * @todo all of them PHPdocs
  * @todo Resolve whether the notifications component of this class should be moved to "subscriptions"
@@ -9,9 +9,9 @@
  *
  */
 
-if ( !class_exists( 'EF_Usergroups' ) ) {
+if ( !class_exists( 'EF_User_Groups' ) ) {
 
-class EF_Usergroups {
+class EF_User_Groups {
 	
 	var $module;
 	
@@ -31,13 +31,16 @@ class EF_Usergroups {
 	function __construct( ) {
 		global $edit_flow;
 		
-		// Register the Usergroup module with Edit Flow
+		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
+		
+		// Register the User Groups module with Edit Flow
 		$args = array(
-			'title' => __( 'Usergroups', 'edit-flow' ),
-			'short_description' => __( 'Usergroups allow you to manage the people in your workflow. tk', 'edit-flow' ),
+			'title' => __( 'User Groups', 'edit-flow' ),
+			'short_description' => __( 'User Groups allow you to manage the people in your workflow. tk', 'edit-flow' ),
 			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
-			'img_url' => false,
-			'slug' => 'usergroups',
+			'module_url' => $module_url,
+			'img_url' => $module_url . 'lib/usergroups_s128.png',
+			'slug' => 'user-groups',
 			'default_options' => array(
 				'enabled' => 'on',
 				'post_types' => array(
@@ -46,16 +49,16 @@ class EF_Usergroups {
 				),
 			),
 			'messages' => array(
-				'usergroup-added' => __( "Usergroup created. Feel free to add users to the usergroup.", 'edit-flow' ),
-				'usergroup-updated' => __( "Usergroup updated.", 'edit-flow' ),
-				'usergroup-missing' => __( "Usergroup doesn't exist.", 'edit-flow' ),
-				'usergroup-deleted' => __( "Usergroup deleted.", 'edit-flow' ),				
+				'usergroup-added' => __( "User group created. Feel free to add users to the usergroup.", 'edit-flow' ),
+				'usergroup-updated' => __( "User group updated.", 'edit-flow' ),
+				'usergroup-missing' => __( "User group doesn't exist.", 'edit-flow' ),
+				'usergroup-deleted' => __( "User group deleted.", 'edit-flow' ),				
 			),
 			'configure_page_cb' => 'print_configure_view',
-			'configure_link_text' => __( 'Manage Usergroups', 'edit-flow' ),
+			'configure_link_text' => __( 'Manage User Groups', 'edit-flow' ),
 			'autoload' => false,
 		);
-		$this->module = $edit_flow->register_module( 'usergroups', $args );
+		$this->module = $edit_flow->register_module( 'user_groups', $args );
 		
 	}
 	
@@ -131,11 +134,11 @@ class EF_Usergroups {
 		if ( $edit_flow->helpers->is_whitelisted_functional_view() || $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-listfilterizer' );
 			wp_enqueue_script( 'jquery-quicksearch' );
-			wp_enqueue_script( 'edit-flow-usergroups-js', EDIT_FLOW_URL . 'modules/usergroups/lib/usergroups.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-user-groups-js', $this->module->module_url . 'lib/user-groups.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
 		}
 			
 		if ( $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) )	
-			wp_enqueue_script( 'edit-flow-usergroups-configure-js', EDIT_FLOW_URL . 'modules/usergroups/lib/usergroups_configure.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-user-groups-configure-js', $this->module->module_url . 'lib/user-groups-configure.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 	}
 	
 	/**
@@ -150,7 +153,7 @@ class EF_Usergroups {
 		
 		if ( $edit_flow->helpers->is_whitelisted_functional_view() || $edit_flow->helpers->is_whitelisted_settings_view() ) {
 			wp_enqueue_style( 'jquery-listfilterizer' );
-			wp_enqueue_style( 'edit-flow-usergroups-css', EDIT_FLOW_URL . 'modules/usergroups/lib/usergroups.css', false, EDIT_FLOW_VERSION );
+			wp_enqueue_style( 'edit-flow-user-groups-css', $this->module->module_url . 'lib/user-groups.css', false, EDIT_FLOW_VERSION );
 		}
 	}
 	
@@ -169,7 +172,7 @@ class EF_Usergroups {
 		if ( !current_user_can( $post_subscriptions_cap ) ) 
 			return;		
 		
-		$usergroup_post_types = $edit_flow->helpers->get_post_types_for_module( $edit_flow->custom_status->module );
+		$usergroup_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
 		foreach ( $usergroup_post_types as $post_type ) {
 			add_meta_box( 'edit-flow-usergroup-subscriptions', __( 'Usergroup Subscriptions', 'edit-flow'), array( &$this, 'usergroups_meta_box'), $post_type, 'advanced', 'high');
 		}
@@ -263,7 +266,7 @@ class EF_Usergroups {
 		 */
 		// Field is required
 		if ( empty( $name ) )
-			$_REQUEST['form-errors']['name'] = __( 'Please enter a name for the usergroup.', 'edit-flow' );
+			$_REQUEST['form-errors']['name'] = __( 'Please enter a name for the user group.', 'edit-flow' );
 		// Check to ensure a term with the same name doesn't exist
 		if ( $this->get_usergroup_by( 'name', $name ) )
 			$_REQUEST['form-errors']['name'] = __( 'Name already in use. Please choose another.', 'edit-flow' );
@@ -271,7 +274,7 @@ class EF_Usergroups {
 		if ( $this->get_usergroup_by( 'slug', sanitize_title( $name ) ) )
 			$_REQUEST['form-errors']['name'] = __( 'Name conflicts with slug for another term. Please choose again.', 'edit-flow' );
 		if ( strlen( $name ) > 40 )
-			$_REQUEST['form-errors']['name'] = __( 'Usergroup name cannot exceed 40 characters. Please try a shorter name.', 'edit-flow' );			
+			$_REQUEST['form-errors']['name'] = __( 'User group name cannot exceed 40 characters. Please try a shorter name.', 'edit-flow' );			
 		// Kick out if there are any errors
 		if ( count( $_REQUEST['form-errors'] ) ) {
 			$_REQUEST['error'] = 'form-error';
@@ -332,7 +335,7 @@ class EF_Usergroups {
 		 */
 		// Field is required
 		if ( empty( $name ) )
-			$_REQUEST['form-errors']['name'] = __( 'Please enter a name for the usergroup.', 'edit-flow' );
+			$_REQUEST['form-errors']['name'] = __( 'Please enter a name for the user group.', 'edit-flow' );
 		// Check to ensure a term with the same name doesn't exist
 		$search_term = $this->get_usergroup_by( 'name', $name );
 		if ( is_object( $search_term ) && $search_term->term_id != $existing_usergroup->term_id )
@@ -342,7 +345,7 @@ class EF_Usergroups {
 		if ( is_object( $search_term ) && $search_term->term_id != $existing_usergroup->term_id )
 			$_REQUEST['form-errors']['name'] = __( 'Name conflicts with slug for another term. Please choose again.', 'edit-flow' );
 		if ( strlen( $name ) > 40 )
-			$_REQUEST['form-errors']['name'] = __( 'Usergroup name cannot exceed 40 characters. Please try a shorter name.', 'edit-flow' );			
+			$_REQUEST['form-errors']['name'] = __( 'User group name cannot exceed 40 characters. Please try a shorter name.', 'edit-flow' );			
 		// Kick out if there are any errors
 		if ( count( $_REQUEST['form-errors'] ) ) {
 			$_REQUEST['error'] = 'form-error';
@@ -354,12 +357,12 @@ class EF_Usergroups {
 			'name' => $name,
 			'description' => $description,
 		);
-		// Gracefully handle the case where all users have been unsubscribed from the usergroup
+		// Gracefully handle the case where all users have been unsubscribed from the user group
 		$users = isset( $_POST['usergroup_users'] ) ? (array)$_POST['usergroup_users'] : array();
 		array_map( 'intval', $users );
 		$usergroup = $this->update_usergroup( $existing_usergroup->term_id, $args, $users );
 		if ( is_wp_error( $usergroup ) )
-			wp_die( __( 'Error updating usergroup.', 'edit-flow' ) );
+			wp_die( __( 'Error updating user group.', 'edit-flow' ) );
 
 		$args = array(
 			'message' => 'usergroup-updated',
@@ -388,7 +391,7 @@ class EF_Usergroups {
 			
 		$result = $this->delete_usergroup( (int)$_GET['usergroup-id'] );
 		if ( !$result || is_wp_error( $result ) )
-			wp_die( __( 'Error deleting usergroup.', 'edit-flow' ) );
+			wp_die( __( 'Error deleting user group.', 'edit-flow' ) );
 			
 		$redirect_url = $this->get_link( array( 'message' => 'usergroup-deleted' ) );
 		wp_redirect( $redirect_url );
@@ -420,12 +423,12 @@ class EF_Usergroups {
 		 */	
 		// Check if name field was filled in
 		if ( empty( $name ) ) {
-			$change_error = new WP_Error( 'invalid', __( 'Please enter a name for the usergroup.', 'edit-flow' ) );
+			$change_error = new WP_Error( 'invalid', __( 'Please enter a name for the user group.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );
 		}
 		// Check that the name doesn't exceed 40 chars
 		if ( strlen( $name ) > 40 ) {
-			$change_error = new WP_Error( 'invalid', __( 'Usergroup name cannot exceed 40 characters. Please try a shorter name.' ) );
+			$change_error = new WP_Error( 'invalid', __( 'User group name cannot exceed 40 characters. Please try a shorter name.' ) );
 			die( $change_error->get_error_message() );
 		}
 		// Check to ensure a term with the same name doesn't exist
@@ -454,7 +457,7 @@ class EF_Usergroups {
 			echo $wp_list_table->single_row( $return );
 			die();
 		} else {
-			$change_error = new WP_Error( 'invalid', sprintf( __( 'Could not update the usergroup: <strong>%s</strong>', 'edit-flow' ), $usergroup_name ) );
+			$change_error = new WP_Error( 'invalid', sprintf( __( 'Could not update the user group: <strong>%s</strong>', 'edit-flow' ), $usergroup_name ) );
 			die( $change_error->get_error_message() );
 		}
 		
@@ -541,15 +544,15 @@ class EF_Usergroups {
 			<div class="form-field form-required">
 				<label for="name"><?php _e( 'Name', 'edit-flow' ); ?></label>
 				<input name="name" id="name" type="text" value="<?php echo esc_attr( $name ); ?>" size="40" maxlength="40" aria-required="true" />
-				<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the usergroup.', 'edit-flow' ) ); ?>
+				<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the user group.', 'edit-flow' ) ); ?>
 			</div>
 			<div class="form-field">
 				<label for="description"><?php _e( 'Description', 'edit-flow' ); ?></label>
 				<textarea name="description" id="description" rows="5" cols="40"><?php echo esc_html( $description ); ?></textarea>
-				<?php $edit_flow->settings->helper_print_error_or_description( 'description', __( 'The description is primarily for administrative use, to give you some context on what the usergroup is to be used for.', 'edit-flow' ) ); ?>
+				<?php $edit_flow->settings->helper_print_error_or_description( 'description', __( 'The description is primarily for administrative use, to give you some context on what the user group is to be used for.', 'edit-flow' ) ); ?>
 			</div>
 			<p class="submit">
-			<?php submit_button( __( 'Update Usergroup', 'edit-flow' ), 'primary', 'submit', false ); ?>
+			<?php submit_button( __( 'Update User Group', 'edit-flow' ), 'primary', 'submit', false ); ?>
 			<a class="cancel-settings-link" href="<?php echo esc_url( $this->get_link() ); ?>"><?php _e( 'Cancel', 'edit-flow' ); ?></a>
 			</p>
 		</div></div></div>
@@ -561,7 +564,7 @@ class EF_Usergroups {
 			$wp_list_table->prepare_items();
 		?>
 			<script type="text/javascript">
-				var ef_confirm_delete_usergroup_string = "<?php _e( 'Are you sure you want to delete the Usergroup?', 'edit-flow' ); ?>";
+				var ef_confirm_delete_usergroup_string = "<?php _e( 'Are you sure you want to delete the user group?', 'edit-flow' ); ?>";
 			</script>
 			<div id="col-right"><div class="col-wrap">
 				<?php $wp_list_table->display(); ?>
@@ -584,16 +587,16 @@ class EF_Usergroups {
 					<div class="form-field form-required">
 						<label for="name"><?php _e( 'Name', 'edit-flow' ); ?></label>
 						<input type="text" aria-required="true" id="name" name="name" maxlength="40" value="<?php if ( !empty( $_POST['name'] ) ) echo esc_attr( $_POST['name'] ); ?>" />
-						<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the usergroup.', 'edit-flow' ) ); ?>
+						<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the user group.', 'edit-flow' ) ); ?>
 					</div>
 					<div class="form-field">
 						<label for="description"><?php _e( 'Description', 'edit-flow' ); ?></label>
 						<textarea cols="40" rows="5" id="description" name="description"><?php if ( !empty( $_POST['description'] ) ) echo esc_html( $_POST['description'] ) ?></textarea>
-						<?php $edit_flow->settings->helper_print_error_or_description( 'description', __( 'The description is primarily for administrative use, to give you some context on what the usergroup is to be used for.', 'edit-flow' ) ); ?>
+						<?php $edit_flow->settings->helper_print_error_or_description( 'description', __( 'The description is primarily for administrative use, to give you some context on what the user group is to be used for.', 'edit-flow' ) ); ?>
 					</div>
 					<?php wp_nonce_field( 'add-usergroup' ); ?>
 					<?php echo '<input id="form-action" name="form-action" type="hidden" value="add-usergroup" />'; ?>
-					<?php submit_button( __( 'Add New Usergroup', 'edit-flow' ) ); ?>
+					<?php submit_button( __( 'Add New User Group', 'edit-flow' ) ); ?>
 					</form>
 				<?php endif; ?>
 			</div></div></div>
@@ -619,9 +622,9 @@ class EF_Usergroups {
 			<th>
 				<h3><?php _e( 'Usergroups', 'edit-flow' ) ?></h3>
 				<?php if ( $user_id === wp_get_current_user()->ID ) : ?>
-				<p><?php _e( 'Select the usergroups that you would like to be a part of:', 'edit-flow' ) ?></p>
+				<p><?php _e( 'Select the user groups that you would like to be a part of:', 'edit-flow' ) ?></p>
 				<?php else : ?>
-				<p><?php _e( 'Select the usergroups that this user should be a part of:', 'edit-flow' ) ?></p>
+				<p><?php _e( 'Select the user groups that this user should be a part of:', 'edit-flow' ) ?></p>
 				<?php endif; ?>
 			</th>
 			<td>
@@ -772,7 +775,7 @@ class EF_Usergroups {
 		$usergroups = $this->get_usergroups();
 		if ( empty($usergroups) ) {
 			?>
-			<p><?php _e('No usergroups were found.', 'edit-flow') ?> <a href="<?php echo esc_url( $this->get_link() ); ?>" title="<?php _e('Add a new Usergroup. Opens new window.', 'edit-flow' ) ?>" target="_blank"><?php _e( 'Add a Usergroup', 'edit-flow' ); ?></a></p>
+			<p><?php _e('No user groups were found.', 'edit-flow') ?> <a href="<?php echo esc_url( $this->get_link() ); ?>" title="<?php _e('Add a new user group. Opens new window.', 'edit-flow' ) ?>" target="_blank"><?php _e( 'Add a User Group', 'edit-flow' ); ?></a></p>
 			<?php
 		} else {
 
@@ -881,7 +884,7 @@ class EF_Usergroups {
 		global $edit_flow;
 
 		if ( !isset( $args['name'] ) )
-			return new WP_Error( 'invalid', __( 'New Usergroups must have a name', 'edit-flow' ) );
+			return new WP_Error( 'invalid', __( 'New user groups must have a name', 'edit-flow' ) );
 			
 		$name = $args['name'];			
 		$default = array(
@@ -925,7 +928,7 @@ class EF_Usergroups {
 		
 		$existing_usergroup = $this->get_usergroup_by( 'id', $id );
 		if ( is_wp_error( $existing_usergroup ) )
-			return new WP_Error( 'invalid', __( "Usergroup doesn't exist.", 'edit-flow' ) );
+			return new WP_Error( 'invalid', __( "User group doesn't exist.", 'edit-flow' ) );
 		
 		// Encode our extra fields and then store them in the description field
 		$args_to_encode = array();
@@ -1106,8 +1109,8 @@ class EF_Usergroups_List_Table extends WP_List_Table
 	function __construct() {
 		
 		parent::__construct( array(
-			'plural' => 'usergroups',
-			'singular' => 'usergroup',
+			'plural' => 'user groups',
+			'singular' => 'user group',
 			'ajax' => true
 		) );
 		
@@ -1127,7 +1130,7 @@ class EF_Usergroups_List_Table extends WP_List_Table
 		
 		$this->_column_headers = array( $columns, $hidden, $sortable );
 		
-		$this->items = $edit_flow->usergroups->get_usergroups();
+		$this->items = $edit_flow->user_groups->get_usergroups();
 		
 		$this->set_pagination_args( array(
 			'total_items' => count( $this->items ),
@@ -1141,7 +1144,7 @@ class EF_Usergroups_List_Table extends WP_List_Table
 	 * @since 0.7
 	 */
 	function no_items() {
-		_e( 'No usergroups found.', 'edit-flow' );
+		_e( 'No user groups found.', 'edit-flow' );
 	}
 	
 	/**
@@ -1181,12 +1184,12 @@ class EF_Usergroups_List_Table extends WP_List_Table
 		global $edit_flow;
 		
 		// @todo direct edit link
-		$output = '<strong><a href="' . esc_url( $edit_flow->usergroups->get_link( array( 'action' => 'edit-usergroup', 'usergroup-id' => $usergroup->term_id ) ) ) . '">' . esc_html( $usergroup->name ) . '</a></strong>';
+		$output = '<strong><a href="' . esc_url( $edit_flow->user_groups->get_link( array( 'action' => 'edit-usergroup', 'usergroup-id' => $usergroup->term_id ) ) ) . '">' . esc_html( $usergroup->name ) . '</a></strong>';
 		
 		$actions = array();
-		$actions['edit edit-usergroup'] = sprintf( '<a href="%1$s">' . __( 'Edit', 'edit-flow' ) . '</a>', $edit_flow->usergroups->get_link( array( 'action' => 'edit-usergroup', 'usergroup-id' => $usergroup->term_id ) ) );
+		$actions['edit edit-usergroup'] = sprintf( '<a href="%1$s">' . __( 'Edit', 'edit-flow' ) . '</a>', $edit_flow->user_groups->get_link( array( 'action' => 'edit-usergroup', 'usergroup-id' => $usergroup->term_id ) ) );
 		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';
-		$actions['delete delete-usergroup'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->usergroups->get_link( array( 'action' => 'delete-usergroup', 'usergroup-id' => $usergroup->term_id ) ) );
+		$actions['delete delete-usergroup'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->user_groups->get_link( array( 'action' => 'delete-usergroup', 'usergroup-id' => $usergroup->term_id ) ) );
 		
 		$output .= $this->row_actions( $actions, false );
 		$output .= '<div class="hidden" id="inline_' . $usergroup->term_id . '">';
@@ -1215,7 +1218,7 @@ class EF_Usergroups_List_Table extends WP_List_Table
 	 */
 	function column_users( $usergroup ) {
 		global $edit_flow;
-		return '<a href="' . esc_url( $edit_flow->usergroups->get_link( array( 'action' => 'edit-usergroup', 'usergroup-id' => $usergroup->term_id ) ) ) . '">' . count( $usergroup->user_ids ) . '</a>';
+		return '<a href="' . esc_url( $edit_flow->user_groups->get_link( array( 'action' => 'edit-usergroup', 'usergroup-id' => $usergroup->term_id ) ) ) . '">' . count( $usergroup->user_ids ) . '</a>';
 	}
 	
 	/**
@@ -1255,7 +1258,7 @@ class EF_Usergroups_List_Table extends WP_List_Table
 			</div></fieldset>
 		<p class="inline-edit-save submit">
 			<a accesskey="c" href="#inline-edit" title="<?php _e( 'Cancel' ); ?>" class="cancel button-secondary alignleft"><?php _e( 'Cancel' ); ?></a>
-			<?php $update_text = __( 'Update Usergroup', 'edit-flow' ); ?>
+			<?php $update_text = __( 'Update User Group', 'edit-flow' ); ?>
 			<a accesskey="s" href="#inline-edit" title="<?php echo esc_attr( $update_text ); ?>" class="save button-primary alignright"><?php echo $update_text; ?></a>
 			<img class="waiting" style="display:none;" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
 			<span class="error" style="display:none;"></span>
