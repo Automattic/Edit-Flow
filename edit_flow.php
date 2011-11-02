@@ -42,7 +42,7 @@ define( 'EDIT_FLOW_STORY_BUDGET_PAGE', add_query_arg( 'page', 'story-budget', ge
 include_once( EDIT_FLOW_ROOT . '/modules/custom-status/custom-status.php' );
 include_once( EDIT_FLOW_ROOT . '/modules/dashboard/dashboard.php' );
 include_once( EDIT_FLOW_ROOT . '/modules/editorial-comments/editorial-comments.php' );
-include_once( EDIT_FLOW_ROOT . '/php/notifications.php' );
+include_once( EDIT_FLOW_ROOT . '/modules/notifications/notifications.php' );
 include_once( EDIT_FLOW_ROOT . '/modules/user-groups/user-groups.php' );
 include_once( EDIT_FLOW_ROOT . '/modules/calendar/calendar.php' );
 include_once( EDIT_FLOW_ROOT . '/modules/story-budget/story-budget.php' );

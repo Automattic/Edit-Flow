@@ -26,11 +26,13 @@ class EF_Notifications {
 		
 		// Register the module with Edit Flow
 		// @todo default options for registering the statuses
+		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
 		$args = array(
 			'title' => __( 'Notifications', 'edit-flow' ),
 			'short_description' => __( 'Notifications ensure the right people get notified at the right time. tk', 'edit-flow' ),
 			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
-			'img_url' => false,
+			'module_url' => $module_url,
+			'img_url' => $module_url . 'lib/notifications_s128.png',
 			'slug' => 'notifications',
 			'default_options' => array(
 				'enabled' => 'on',
