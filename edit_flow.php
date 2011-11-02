@@ -38,17 +38,6 @@ define( 'EDIT_FLOW_PREFIX' , 'ef_' );
 define( 'EDIT_FLOW_CALENDAR_PAGE', add_query_arg( 'page', 'calendar', get_admin_url( null, 'index.php' ) ) );
 define( 'EDIT_FLOW_STORY_BUDGET_PAGE', add_query_arg( 'page', 'story-budget', get_admin_url( null, 'index.php' ) ) );
 
-// Include necessary files, including the path in which to search to avoid conflicts
-include_once( EDIT_FLOW_ROOT . '/modules/custom-status/custom-status.php' );
-include_once( EDIT_FLOW_ROOT . '/modules/dashboard/dashboard.php' );
-include_once( EDIT_FLOW_ROOT . '/modules/editorial-comments/editorial-comments.php' );
-include_once( EDIT_FLOW_ROOT . '/modules/notifications/notifications.php' );
-include_once( EDIT_FLOW_ROOT . '/modules/user-groups/user-groups.php' );
-include_once( EDIT_FLOW_ROOT . '/modules/calendar/calendar.php' );
-include_once( EDIT_FLOW_ROOT . '/modules/story-budget/story-budget.php' );
-include_once( EDIT_FLOW_ROOT . '/modules/settings/settings.php' );
-include_once( EDIT_FLOW_ROOT . '/modules/editorial-metadata/editorial-metadata.php' );
-
 // Core class
 class edit_flow {
 
