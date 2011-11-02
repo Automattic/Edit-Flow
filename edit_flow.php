@@ -49,11 +49,6 @@ include_once( EDIT_FLOW_ROOT . '/modules/story-budget/story-budget.php' );
 include_once( EDIT_FLOW_ROOT . '/modules/settings/settings.php' );
 include_once( EDIT_FLOW_ROOT . '/modules/editorial-metadata/editorial-metadata.php' );
 
-// Common Edit Flow utilities and helpers
-include_once( EDIT_FLOW_ROOT . '/lib/php/util.php' );
-include_once( EDIT_FLOW_ROOT . '/lib/php/helpers.php' );
-include_once( EDIT_FLOW_ROOT . '/lib/php/upgrade.php' );
-
 // Core class
 class edit_flow {
 
@@ -74,19 +69,6 @@ class edit_flow {
 		'calendar_enabled' => 1,
 		'story_budget_enabled' => 1,
 	);
-	
-	// used to create an instance of the various classes 
-	var $custom_status;
-	var $ef_post_metadata;
-	var $editorial_metadata;
-	var $calendar;
-	var $dashboard;
-	var $post_status;
-	var $notifications;
-	var $usergroups;
-	var $story_budget;
-	var $modules;
-	var $helpers;
 
 	/**
 	 * Constructor
@@ -95,43 +77,69 @@ class edit_flow {
 		
 		load_plugin_textdomain( 'edit-flow', null, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 
-		$this->modules = (object)array();			
+		$this->modules = (object)array();
+
+		// Load all of our modules. 'ef_loaded' happens after 'plugins_loaded' so other plugins can
+		// hook into the action we have at the end
+		add_action( 'ef_loaded', array( &$this, 'action_ef_loaded_load_modules' ) );
 		
-		// Load all of our modules, and the load their options after we've confirmed they're loaded
-		add_action( 'plugins_loaded', array( &$this, 'register_modules' ) );
-		
-		// Initialize all of the modules
-		add_action( 'init', array( &$this,'init' ) );
-		add_action( 'admin_init', array( &$this, 'admin_init' ) );
-		
-		// Edit Flow inits in a bunch of places all at the default priority.
-		// This is run after all the init calls have been run.
-		add_action( 'init', array( &$this, 'do_init_hook' ), 11 );
+		// Load the module options later on
+		add_action( 'init', array( &$this, 'action_init' ) );
+		add_action( 'admin_init', array( &$this, 'action_admin_init' ) );
 		
 	} // END __construct()
-	
-	function register_modules() {
+
+	/**
+	 * Include the common resources to Edit Flow and dynamically load the modules
+	 */
+	function action_ef_loaded_load_modules() {
 		
+		// Scan the modules directory and include any modules that exist there
+		$module_dirs = scandir( EDIT_FLOW_ROOT . '/modules/' );
+		$class_names = array();
+		foreach( $module_dirs as $module_dir ) {
+			if ( file_exists( EDIT_FLOW_ROOT . "/modules/{$module_dir}/$module_dir.php" ) ) {
+				include_once( EDIT_FLOW_ROOT . "/modules/{$module_dir}/$module_dir.php" );
+				// Prepare the class name because it should be standardized
+				$tmp = explode( '-', $module_dir );
+				$class_name = '';
+				$slug_name = '';
+				foreach( $tmp as $word ) {
+					$class_name .= ucfirst( $word ) . '_';
+					$slug_name .= $word . '_';
+				}
+				$slug_name = rtrim( $slug_name, '_' );
+				$class_names[$slug_name] = 'EF_' . rtrim( $class_name, '_' );
+			}
+		}
+		
+		// Common Edit Flow utilities and helpers
+		include_once( EDIT_FLOW_ROOT . '/lib/php/util.php' );
+		include_once( EDIT_FLOW_ROOT . '/lib/php/helpers.php' );
+		include_once( EDIT_FLOW_ROOT . '/lib/php/upgrade.php' );
+		
+		// Helpers is in a class of its own, and needs to be loaded before the modules
 		$this->helpers = new EF_Helpers();
 		
-		// Register all of our classes as Edit Flow modules
-		$this->custom_status = new EF_Custom_Status();
-		$this->calendar = new EF_Calendar();		
-		$this->user_groups = new EF_User_Groups();
-		$this->editorial_comments = new EF_Editorial_Comments();
-		$this->editorial_metadata = new EF_Editorial_Metadata();
-		$this->story_budget = new EF_Story_Budget();
-		$this->notifications = new EF_Notifications();
-		$this->dashboard = new EF_Dashboard();
+		// Instantiate all of our classes onto the Edit Flow object
+		// but make sure they exist too
+		foreach( $class_names as $slug => $class_name ) {
+			if ( class_exists( $class_name ) ) {
+				$this->$slug = new $class_name();
+			}
+		}
 		
-		$this->settings = new EF_Settings();
+		// Supplementary plugins can hook into this, include their own modules
+		// and add them to the $edit_flow object
+		do_action( 'ef_modules_loaded' );
 		
 	}
 	
 	/**
 	 * Inititalizes the Edit Flows!
+	 * Loads options for each registered module and then initializes it if it's active
 	 */
-	function init() {
+	function action_init() {
 		
 		// Load all of the module options
 		$this->load_module_options();
@@ -142,19 +150,13 @@ class edit_flow {
 			if ( isset( $mod_data->options->enabled ) && $mod_data->options->enabled == 'on' )
 				$this->$mod_name->init();
 		
-	} // END: init()
-	
-	/**
-	 * Call a custom hook for Edit Flow Extensions to hook into.
-	 */
-	function do_init_hook() {
 		do_action( 'ef_init' );
-	}	
+	}
 	
 	/**
 	 * Initialize the plugin for the admin 
 	 */
-	function admin_init() {
+	function action_admin_init() {
 	    	    
 		// Upgrade if need be
 		$previous_version = get_option( $this->options_group . 'version' );
