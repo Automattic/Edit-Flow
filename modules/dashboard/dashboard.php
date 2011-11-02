@@ -18,15 +18,17 @@ class EF_Dashboard {
 	/**
 	 * Load the EF_Dashboard class as an Edit Flow module
 	 */
-	function __construct () {
+	function __construct() {
 		global $edit_flow;
 		
-		// Register the module with Edit Flow	
+		// Register the module with Edit Flow
+		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
 		$args = array(
 			'title' => __( 'Dashboard Widgets', 'edit-flow' ),
 			'short_description' => __( 'Quickly access an overview of your content.', 'edit-flow' ),
 			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
-			'img_url' => false,
+			'module_url' => $module_url,
+			'img_url' => $module_url . 'lib/dashboard_s128.png',
 			'slug' => 'dashboard',
 			'post_type_support' => 'ef_dashboard',
 			'default_options' => array(
