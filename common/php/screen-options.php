@@ -212,7 +212,7 @@ class wsScreenOptions10 {
 	
 		if ( $got_autosave ){
 			//Enqueue the script itself
-			$url = EDIT_FLOW_URL . '/lib/js/screen-options.js';
+			$url = EDIT_FLOW_URL . '/common/js/screen-options.js';
 			wp_enqueue_script('screen-options-custom-autosave', $url, array('jquery'), EDIT_FLOW_VERSION );
 		}
 	}

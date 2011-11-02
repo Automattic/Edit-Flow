@@ -161,11 +161,11 @@ class EF_Helpers {
 
 		// Datepicker is available WordPress 3.3. We have to register it ourselves for previous versions of WordPress
 		wp_enqueue_script( 'jquery-ui-datepicker' );
-		wp_enqueue_script( 'edit_flow-date_picker', EDIT_FLOW_URL . 'lib/js/ef_date.js', array( 'jquery', 'jquery-ui-datepicker' ), EDIT_FLOW_VERSION, true );
+		wp_enqueue_script( 'edit_flow-date_picker', EDIT_FLOW_URL . 'common/js/ef_date.js', array( 'jquery', 'jquery-ui-datepicker' ), EDIT_FLOW_VERSION, true );
 
 		// Now styles
-		wp_enqueue_style( 'jquery-ui-datepicker', EDIT_FLOW_URL . 'lib/css/jquery.ui.datepicker.css', array( 'wp-jquery-ui-dialog' ), EDIT_FLOW_VERSION, 'screen' );
-		wp_enqueue_style( 'jquery-ui-theme', EDIT_FLOW_URL . 'lib/css/jquery.ui.theme.css', false, EDIT_FLOW_VERSION, 'screen' );
+		wp_enqueue_style( 'jquery-ui-datepicker', EDIT_FLOW_URL . 'common/css/jquery.ui.datepicker.css', array( 'wp-jquery-ui-dialog' ), EDIT_FLOW_VERSION, 'screen' );
+		wp_enqueue_style( 'jquery-ui-theme', EDIT_FLOW_URL . 'common/css/jquery.ui.theme.css', false, EDIT_FLOW_VERSION, 'screen' );
 	}
 	
 	/**
