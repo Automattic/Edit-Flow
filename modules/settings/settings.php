@@ -142,7 +142,7 @@ class EF_Settings {
 		
 		$this->print_default_header( $requested_module );
 		$edit_flow->$requested_module_name->$configure_callback();
-		$this->print_default_footer();
+		$this->print_default_footer( $requested_module );
 		
 	}
 	
@@ -213,14 +213,16 @@ class EF_Settings {
 		<?php 
 	}
 	
-	function print_default_footer() {
+	function print_default_footer( $current_module ) {
 		?>
+		<?php if ( $current_module->slug == 'settings' ): ?>
 		<div class="credits">
-		<p><a href="http://editflow.org/">Edit Flow</a> is produced by <a href="http://danielbachhuber.com/">Daniel Bachhuber</a>, <a href="http://digitalize.ca/">Mo Jangda</a>, and <a href="http://scottbressler.com/">Scott Bressler</a> with special help from <a href="http://andrewspittle.net">Andrew Spittle</a> and <a href="http://andrewwitherspoon.com/">Andrew Witherspoon</a>.</p>
-		<p>Icons courtesy of the <a href="http://thenounproject.com/">Noun Project</a>.</p>
-		<p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Please give us your feedback, ideas, bug reports and comments</a> in the WordPress.org forums.</p>
+		<p><a href="http://editflow.org/">Edit Flow</a> is produced by <a href="http://danielbachhuber.com/">Daniel Bachhuber</a>, <a href="http://digitalize.ca/">Mo Jangda</a>, and <a href="http://scottbressler.com/">Scott Bressler</a> with special help from <a href="http://andrewspittle.net">Andrew Spittle</a> and <a href="http://andrewwitherspoon.com/">Andrew Witherspoon</a>.
+		<br />Icons courtesy of the <a href="http://thenounproject.com/">Noun Project</a>.
+		<br /><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Please give us your feedback, ideas, bug reports and comments</a> in the WordPress.org forums.
 		</div>
 		</div>
+		<?php endif; ?>
 		<?php
 	}
 	

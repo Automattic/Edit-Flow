@@ -204,9 +204,12 @@
 }
 
 .credits {
-	text-align: right;
 	color: #666666;
 	font-size: 11px;
+}
+
+.credits a {
+	color: #666666;
 }
 
 /* Module specific image styles */
