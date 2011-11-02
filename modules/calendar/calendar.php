@@ -13,6 +13,7 @@ if ( !class_exists('EF_Calendar') ) {
 class EF_Calendar {
 	
 	const usermeta_key_prefix = 'ef_calendar_';
+	const screen_id = 'dashboard_page_calendar';
 	
 	var $module;
 	
@@ -66,6 +67,10 @@ class EF_Calendar {
 		$view_calendar_cap = apply_filters( 'ef_view_calendar_cap', $view_calendar_cap );
 		if ( !current_user_can( $view_calendar_cap ) ) return false;
 		
+		require_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
+		add_screen_options_panel( self::usermeta_key_prefix . 'screen_options', __( 'Calendar Options', 'edit-flow' ), array( &$this, 'generate_screen_options' ), self::screen_id, false, true );
+		add_action( 'admin_init', array( &$this, 'handle_save_screen_options' ) );
+		
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );
 		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );		
 		add_action( 'admin_print_styles', array( &$this, 'add_admin_styles' ) );
@@ -80,7 +85,7 @@ class EF_Calendar {
 	 *
 	 * @uses add_submenu_page
 	 */
-	function action_admin_menu() {
+	function action_admin_menu() {	
 		add_submenu_page('index.php', __('Calendar', 'edit-flow'), __('Calendar', 'edit-flow'), apply_filters( 'ef_view_calendar_cap', 'ef_view_calendar' ), $this->module->slug, array( &$this, 'view_calendar' ) );
 	}
 	
@@ -119,6 +124,60 @@ class EF_Calendar {
 			wp_enqueue_script( 'edit-flow-calendar-js', EDIT_FLOW_URL . 'modules/calendar/lib/calendar.js', $js_libraries, EDIT_FLOW_VERSION, true );
 		}
 		
+	}
+	
+	/**
+	 * Prepare the options that need to appear in Screen Options
+	 *
+	 * @since 0.7
+	 */ 
+	function generate_screen_options() {
+		
+		$output = '';
+		$screen_options = $this->get_screen_options();
+		
+		$output .= __( 'Number of Weeks: ', 'edit-flow' );
+		$output .= '<select id="' . self::usermeta_key_prefix . 'num_weeks" name="' . self::usermeta_key_prefix . 'num_weeks">';
+		for( $i = 1; $i <= 12; $i++ ) {
+			$output .= '<option value="' . esc_attr( $i ) . '" ' . selected( $i, $screen_options['num_weeks'], false ) . '>' . esc_attr( $i ) . '</option>';
+		}
+		$output .= '</select>';
+		
+		$output .= '&nbsp;&nbsp;&nbsp;<input id="screen-options-apply" name="screen-options-apply" type="submit" value="' . __( 'Apply' ) . '" class="button-secondary" />';
+		
+		return $output;	
+	}
+	
+	/**
+	 * Handle the request to save the screen options
+	 *
+	 * @since 0.7
+	 */
+	function handle_save_screen_options() {
+		
+		// Only handle screen options submissions from the current screen
+		if ( !isset( $_POST['screen-options-apply'], $_POST['ef_calendar_num_weeks'] ) )
+			return;
+		
+		// Nonce check
+		if ( !wp_verify_nonce( $_POST['_wpnonce-' . self::usermeta_key_prefix . 'screen_options'], 'save_settings-' . self::usermeta_key_prefix . 'screen_options' ) )
+			
+			wp_die( $this->module->messages['nonce-failed'] );
+		
+		// Get the current screen options
+		$screen_options = $this->get_screen_options();
+		
+		// Save the number of weeks to show
+		$screen_options['num_weeks'] = (int)$_POST['ef_calendar_num_weeks'];
+		
+		// Save the screen options
+		$current_user = wp_get_current_user();
+		update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'screen_options', $screen_options );
+		
+		// Redirect after we're complete
+		$redirect_to = get_admin_url( null, 'index.php?' . parse_url( $_SERVER['REQUEST_URI'], PHP_URL_QUERY ) );
+		wp_redirect( $redirect_to );
+		exit;
 	}
 	
 	/**
@@ -189,6 +248,26 @@ class EF_Calendar {
 		
 		$edit_flow->helpers->print_ajax_response( 'success', $this->module->messages['post-date-updated'] );
 		exit;
+	}
+	
+	/**
+	 * Get a user's screen options
+	 *
+	 * @since 0.7
+	 * @uses get_user_meta
+	 *
+	 * @return array $screen_options The screen options values
+	 */
+	function get_screen_options() {
+		
+		$defaults = array(
+			'num_weeks' => (int)$this->total_weeks,
+		);
+		$current_user = wp_get_current_user();
+		$screen_options = get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'screen_options', true );
+		$screen_options = array_merge( (array)$defaults, (array)$screen_options );
+		
+		return $screen_options;
 	}
 	
 	/**
@@ -264,16 +343,17 @@ class EF_Calendar {
 		
 		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
 		
-		// Total number of weeks to display on the calendar
-		$this->total_weeks = apply_filters( 'ef_calendar_total_weeks', $this->total_weeks );
+		// Get the user's screen options for displaying the data
+		$screen_options = $this->get_screen_options();
+		// Total number of weeks to display on the calendar. Run it through a filter in case we want to override the
+		// user's standard
+		$this->total_weeks = apply_filters( 'ef_calendar_total_weeks', $screen_options['num_weeks'] );
 		
 		$dotw = array(
 			'Sat',
 			'Sun',
 		);
 		$dotw = apply_filters( 'ef_calendar_weekend_days', $dotw );
-
-		date_default_timezone_set('UTC');
 		
 		// Get filters either from $_GET or from user settings
 		$filters = $this->get_filters();
@@ -510,19 +590,19 @@ class EF_Calendar {
 
 			<?php /** Previous and next navigation items (translatable so they can be increased if needed )**/ ?>
 			<li class="next-week">
-				<a id="trigger-left" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters, 1 ) ); ?>"><?php _e( '&rsaquo;', 'edit-flow' ); ?></a>
+				<a title="<?php printf( __( 'Forward 1 week', 'edit-flow' ) ); ?>" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters, 1 ) ); ?>"><?php _e( '&rsaquo;', 'edit-flow' ); ?></a>
 				<?php if ( $this->total_weeks > 1): ?>			
-				<a id="trigger-left" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters ) ); ?>"><?php _e( '&raquo;', 'edit-flow' ); ?></a>
+				<a title="<?php printf( __( 'Forward %d weeks', 'edit-flow' ), $this->total_weeks ); ?>" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters ) ); ?>"><?php _e( '&raquo;', 'edit-flow' ); ?></a>
 				<?php endif; ?>
 			</li>
 			<li class="today">
-				<a href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters, 0 ) ); ?>"><?php _e( 'Today', 'edit-flow' ); ?></a>
+				<a title="<?php printf( __( 'Today is %s', 'edit-flow' ), date( get_option( 'date_format' ) ) ); ?>" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters, 0 ) ); ?>"><?php _e( 'Today', 'edit-flow' ); ?></a>
 			</li>
 			<li class="previous-week">
 				<?php if ( $this->total_weeks > 1): ?>				
-				<a id="trigger-right" href="<?php echo esc_url( $this->get_pagination_link( 'previous', $filters ) ); ?>"><?php _e( '&laquo;', 'edit-flow' ); ?></a>
+				<a title="<?php printf( __( 'Back %d weeks', 'edit-flow' ), $this->total_weeks ); ?>"  href="<?php echo esc_url( $this->get_pagination_link( 'previous', $filters ) ); ?>"><?php _e( '&laquo;', 'edit-flow' ); ?></a>
 				<?php endif; ?>
-				<a id="trigger-right" href="<?php echo esc_url( $this->get_pagination_link( 'previous', $filters, 1 ) ); ?>"><?php _e( '&lsaquo;', 'edit-flow' ); ?></a>
+				<a title="<?php printf( __( 'Back 1 week', 'edit-flow' ) ); ?>" href="<?php echo esc_url( $this->get_pagination_link( 'previous', $filters, 1 ) ); ?>"><?php _e( '&lsaquo;', 'edit-flow' ); ?></a>
 			</li>
 			<li class="ajax-actions">
 				<img class="waiting" style="display:none;" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
