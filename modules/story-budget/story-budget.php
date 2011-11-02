@@ -62,7 +62,7 @@ class ef_story_budget {
 	
 		$this->max_num_columns = apply_filters( 'ef_story_budget_max_num_columns', 3 );
 		
-		include_once( EDIT_FLOW_ROOT . '/lib/php/' . 'screen-options.php' );
+		include_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
 		add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', __( 'Screen Layout', 'edit-flow' ), array( &$this, 'print_column_prefs' ), self::screen_id, array( &$this, 'save_column_prefs' ), true );
 		
 		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );

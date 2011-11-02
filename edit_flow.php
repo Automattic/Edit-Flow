@@ -114,9 +114,9 @@ class edit_flow {
 		}
 		
 		// Common Edit Flow utilities and helpers
-		include_once( EDIT_FLOW_ROOT . '/lib/php/util.php' );
-		include_once( EDIT_FLOW_ROOT . '/lib/php/helpers.php' );
-		include_once( EDIT_FLOW_ROOT . '/lib/php/upgrade.php' );
+		include_once( EDIT_FLOW_ROOT . '/common/php/util.php' );
+		include_once( EDIT_FLOW_ROOT . '/common/php/helpers.php' );
+		include_once( EDIT_FLOW_ROOT . '/common/php/upgrade.php' );
 		
 		// Helpers is in a class of its own, and needs to be loaded before the modules
 		$this->helpers = new EF_Helpers();
@@ -274,16 +274,16 @@ class edit_flow {
 	 * Registers commonly used scripts + styles for easy enqueueing
 	 */	
 	function register_scripts_and_styles() {
-		wp_register_script( 'jquery-listfilterizer', EDIT_FLOW_URL . 'lib/js/jquery.listfilterizer.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
-		wp_register_style( 'jquery-listfilterizer', EDIT_FLOW_URL . 'lib/css/jquery.listfilterizer.css', false, EDIT_FLOW_VERSION, 'all' );
+		wp_register_script( 'jquery-listfilterizer', EDIT_FLOW_URL . 'common/js/jquery.listfilterizer.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
+		wp_register_style( 'jquery-listfilterizer', EDIT_FLOW_URL . 'common/css/jquery.listfilterizer.css', false, EDIT_FLOW_VERSION, 'all' );
 
-		wp_register_script( 'jquery-quicksearch', EDIT_FLOW_URL . 'lib/js/jquery.quicksearch.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
+		wp_register_script( 'jquery-quicksearch', EDIT_FLOW_URL . 'common/js/jquery.quicksearch.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 
 		// @compat 3.3
 		// Register jQuery datepicker plugin if it doesn't already exist. Datepicker plugin was added in WordPress 3.3
 		global $wp_scripts;
 		if ( !isset( $wp_scripts->registered['jquery-ui-datepicker'] ) )
-			wp_register_script( 'jquery-ui-datepicker', EDIT_FLOW_URL . 'js/lib/jquery.ui.datepicker.min.js', array( 'jquery', 'jquery-ui-core'), '1.8.16', true );		
+			wp_register_script( 'jquery-ui-datepicker', EDIT_FLOW_URL . 'common/js/jquery.ui.datepicker.min.js', array( 'jquery', 'jquery-ui-core'), '1.8.16', true );		
 	}
 
 } // END: class edit_flow
