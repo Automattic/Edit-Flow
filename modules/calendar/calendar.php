@@ -46,7 +46,8 @@ class EF_Calendar {
 			),
 			'messages' => array(
 				'post-date-updated' => __( "Post date updated.", 'edit-flow' ),
-				'update-error' => __( 'There was an error updating the post. Please try again', 'edit-flow' ),
+				'update-error' => __( 'There was an error updating the post. Please try again.', 'edit-flow' ),
+				'published-post-ajax' => __( "AJAX doesn't work for published content.", 'edit-flow' ),
 			),
 			'configure_page_cb' => 'print_configure_view',
 			'configure_link_text' => __( 'Calendar Options', 'edit-flow' ),		
@@ -206,6 +207,15 @@ class EF_Calendar {
 		// Check that the user can modify the post
 		if ( !$this->current_user_can_modify_post( $post ) )
 			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
+			
+		// Check that it's not yet published
+		$published_statuses = array(
+			'publish',
+			'future',
+			'private',
+		);
+		if ( in_array( $post->post_status, $published_statuses ) )
+			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['published-post-ajax'] );
 		
 		// Check that the new date passed is a valid one
 		$next_date_full = strtotime( $_POST['next_date'] );
@@ -459,8 +469,14 @@ class EF_Calendar {
 								'custom-status-' . esc_attr( $post->post_status ),
 							);
 							// Only allow the user to drag the post if they have permissions to
+							// or if it's in an approved post status
 							// This is checked on the ajax request too.
-							if ( $this->current_user_can_modify_post( $post ) )
+							$published_statuses = array(
+								'publish',
+								'future',
+								'private',
+							);
+							if ( $this->current_user_can_modify_post( $post ) && !in_array( $post->post_status, $published_statuses ) )
 								$post_classes[] = 'sortable';
 							
 							if ( $num > 3 ) {
