@@ -399,7 +399,17 @@ class EF_Calendar {
 					
 			<?php $this->print_top_navigation( $filters, $dates ); ?>
 
-			<table id="ef-calendar-view">				
+			<?php
+				$table_classes = array();
+				// CSS don't like our classes to start with numbers
+				if ( $this->total_weeks == 1 )
+					$table_classes[] = 'one-week-showing';
+				elseif ( $this->total_weeks == 2 )
+					$table_classes[] = 'two-weeks-showing';
+				elseif ( $this->total_weeks == 3 )
+					$table_classes[] = 'three-weeks-showing';
+			?>
+			<table id="ef-calendar-view" class="<?php echo implode( ' ', $table_classes ); ?>">
 				<thead>
 				<tr class="calendar-heading">
 					<?php echo $this->get_time_period_header( $dates ); ?>
@@ -443,7 +453,7 @@ class EF_Calendar {
 				<?php endif; ?>
 
 				<tr class="week-unit">
-				<?php foreach( $week_dates as $week_single_date ): ?>
+				<?php foreach( $week_dates as $day_num => $week_single_date ): ?>
 				<?php
 					// Somewhat ghetto way of sorting all of the day's posts by post status order
 					if ( !empty( $week_posts[$week_single_date] ) ) {
@@ -465,6 +475,7 @@ class EF_Calendar {
 							}
 						}
 					}
+					//var_dump( $week_posts[$week_single_date] );
 				
 					$td_classes = array(
 						'day-unit',
@@ -476,8 +487,15 @@ class EF_Calendar {
 						
 					if ( $week_single_date == date( 'Y-m-d' ) )
 						$td_classes[] = 'today';
+						
+					// Last day of the week
+					if ( $day_num == 6 )
+						$td_classes[] = 'last-day';
 				?>
 				<td class="<?php echo implode( ' ', $td_classes ); ?>" id="<?php echo esc_attr( $week_single_date ); ?>">
+					<?php if ( $week_single_date == date( 'Y-m-d' ) ): ?>
+						<div class="day-unit-today"><?php _e( 'Today', 'edit-flow' ); ?></div>
+					<?php endif; ?>
 					<div class="day-unit-label"><?php echo date( 'j', strtotime( $week_single_date ) ); ?></div>
 					<ul class="post-list">
 						<?php
@@ -502,7 +520,11 @@ class EF_Calendar {
 							if ( $this->current_user_can_modify_post( $post ) && !in_array( $post->post_status, $published_statuses ) )
 								$post_classes[] = 'sortable';
 							
-							if ( $num > 3 ) {
+							if ( in_array( $post->post_status, $published_statuses ) )
+								$post_classes[] = 'is-published';
+							
+							// Don't hide posts for just a couple of weeks
+							if ( $num > 3 && $this->total_weeks > 2 ) {
 								$post_classes[] = 'hidden';
 								$hidden++;
 							}
@@ -510,14 +532,32 @@ class EF_Calendar {
 						<li class="<?php echo implode( ' ', $post_classes ); ?>" id="post-<?php esc_attr_e( $post->ID ); ?>">
 							<div class="item-status"><span class="status-text"><?php echo $edit_flow->helpers->get_post_status_friendly_name( get_post_status( $post_id ) ); ?></span></div>
 							<div class="inner">
-								<span class="item-headline post-title"><strong>
-								<?php if ( $this->current_user_can_modify_post( $post ) ): ?>
-									<a href="<?php echo esc_url( $edit_post_link ); ?>"><?php echo esc_html( $post->post_title );?></a>
-								<?php else: ?>
-									<?php echo esc_html( $post->post_title ); ?>
-								<?php endif; ?>
-								</strong></span>
+								<span class="item-headline post-title"><strong><?php echo esc_html( $post->post_title ); ?></strong></span>
 							</div>
+							<?php
+								// All of the item information we're going to display
+								$ef_calendar_item_information_fields = array(
+									'author' => array(
+										'label' => 'Author',
+										'value' => 'Daniel Bachhuber',
+									),
+								);
+								$ef_calendar_item_information_fields = apply_filters( 'ef_calendar_item_information_fields', $ef_calendar_item_information_fields, $post->ID );
+							?>
+							<div style="clear:right;"></div>
+							<table class="item-information">
+								<?php foreach( $ef_calendar_item_information_fields as $field => $values ): ?>
+									<tr class="item-field item-information-<?php echo esc_attr( $field ); ?>">
+										<th class="label"><?php echo esc_html( $values['label'] ); ?>:</th>
+										<?php if ( $values['value'] ): ?>
+										<td class="value"><?php echo esc_html( $values['value'] ); ?></td>
+										<?php else: ?>
+										<td class="value"><em class="none"><?php echo _e( 'None', 'edit-flow' ); ?></em></td>
+										<?php endif; ?>
+									</tr>
+								<?php endforeach; ?>
+								<?php do_action( 'ef_calendar_item_additional_html', $post->ID ); ?>
+							</table>
 							<div style="clear:right;"></div>
 						</li>
 						<?php endforeach;
@@ -740,7 +780,9 @@ class EF_Calendar {
 	
 		$beginning_date = $this->get_beginning_of_week( $this->start_date, 'Y-m-d', $this->current_week );
 		$ending_date = $this->get_ending_of_week( $this->start_date, 'Y-m-d', $this->current_week );
-		$where .= " AND post_date >= '$beginning_date' AND post_date <= '$ending_date'";
+		// Adjust the ending date to account for the entire day of the last day of the week
+		$ending_date = date( "Y-m-d", strtotime( "+1 day", strtotime( $ending_date ) ) );
+		$where .= " AND post_date >= '$beginning_date' AND post_date < '$ending_date'";
 	
 		return $where;
 	} 
@@ -815,7 +857,7 @@ class EF_Calendar {
 		$end_of_week = get_option( 'start_of_week' ) - 1;
 		$day_of_week = date( 'w', $date );
 		$date += (( $end_of_week - $day_of_week + 7 ) % 7) * 60 * 60 * 24;
-		$additional = 3600 * 24 * 7 * ( $week - 1 );		
+		$additional = 3600 * 24 * 7 * ( $week - 1 );
 		$formatted_end_of_week = date( $format, $date + $additional );
 		return $formatted_end_of_week;
 		

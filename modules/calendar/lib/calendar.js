@@ -10,7 +10,51 @@ jQuery(document).ready(function () {
 	// Hide a message. Used by setTimeout()
 	function edit_flow_calendar_hide_message() {
 		jQuery('.edit-flow-message').fadeOut(function(){ jQuery(this).remove(); });
-	}	
+	}
+	
+	// Close out all of the overlays with your escape key,
+	// or by clicking anywhere other than inside an existing overlay
+	jQuery(document).keydown(function(event) {
+		if (event.keyCode == '27') {
+			edit_flow_calendar_close_overlays();
+		}
+	});
+	
+	/**
+	 * Somewhat hackish way to close overlays automagically when you click outside an overlay
+	 */
+	jQuery('#wpbody').click(function(event){
+		// Only close them if we aren't clicking within the overlay
+		if ( jQuery(event.target).closest('ul.post-list li').length == 0 && jQuery(event.target).closest('.item-overlay').length == 0 ) {
+			edit_flow_calendar_close_overlays();
+		}
+	});
+	
+	/**
+	 * Close all of the open overlays on the calendar
+	 */
+	function edit_flow_calendar_close_overlays() {
+		jQuery('.item-overlay').remove();
+		jQuery('td.day-unit ul li').removeClass('item-overlay-active');
+	}
+	
+	function edit_flow_calendar_show_overlay() {
+		edit_flow_calendar_close_overlays();
+		var item_information = jQuery(this).html();
+		jQuery(this).addClass('item-overlay-active');
+		var item_overlay_html = '<div class="item-overlay">' + item_information + '</div>';
+		jQuery(this).prepend( item_overlay_html );
+	}
+	
+	/**
+	 * Bind the overlay click event to all list items within the posts list
+	 */
+	function edit_flow_calendar_bind_overlay() {	
+		jQuery('td.day-unit ul li').bind({
+			'click.ef-calendar-show-overlay': edit_flow_calendar_show_overlay
+		});
+	}
+	edit_flow_calendar_bind_overlay();
 	
 	/**
 	 * Instantiates drag and drop sorting for posts on the calendar
@@ -20,6 +64,9 @@ jQuery(document).ready(function () {
 		connectWith: 'td.day-unit ul',
 		placeholder: 'ui-state-highlight',
 		start: function(event, ui) {
+			jQuery(this).disableSelection();
+			edit_flow_calendar_close_overlays();
+			jQuery('td.day-unit ul li').unbind('click.ef-calendar-show-overlay');
 			jQuery(this).css('cursor','move');
 		},
 		sort: function(event, ui) {
@@ -58,13 +105,14 @@ jQuery(document).ready(function () {
 						html = '<div class="edit-flow-message edit-flow-error-message">' + response.message + '</div>';
 					}
 					jQuery('li.ajax-actions').prepend(html);
-					setTimeout( edit_flow_calendar_hide_message, 10000 )
+					setTimeout( edit_flow_calendar_hide_message, 10000 );
 				}
 			);
+			jQuery(this).enableSelection();
+			// Allow the overlays to show up again
+			setTimeout( edit_flow_calendar_bind_overlay, 250 );
 		},
-	});
-	jQuery('td.day-unit ul li.day-item').disableSelection();
-	
+	});	
 	
 });
 

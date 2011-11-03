@@ -96,6 +96,10 @@ class EF_Editorial_Metadata {
 			add_action( 'manage_posts_custom_column', array( &$this, 'action_manage_posts_custom_column' ), null, 2 );
 		}
 		
+		// Add Editorial Metadata to the calendar if the calendar is activated
+		if ( $edit_flow->helpers->module_enabled( 'calendar' ) )
+			add_filter( 'ef_calendar_item_information_fields', array( &$this, 'filter_calendar_item_fields' ), null, 2 );
+		
 		// Load necessary scripts and stylesheets
 		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );	
 		
@@ -534,6 +538,56 @@ class EF_Editorial_Metadata {
 			}
 
 		}
+		
+	}
+	
+	function filter_calendar_item_fields( $calendar_fields, $post_id ) {
+		
+		$terms = $this->get_editorial_metadata_terms();
+		foreach( $terms as $term ) {
+			$key = $this->module->slug . '-' . $term->slug;
+			if ( !$term->viewable )
+				continue;
+
+			// Default values
+			$term_data = array(
+				'label' => $term->name,
+				'value' => '',
+			);
+			$postmeta_key = $this->get_postmeta_key( $term );
+			$current_metadata = $this->get_postmeta_value( $term, $post_id );
+			$type = $term->type;
+			switch( $type ) {
+				case "date":
+					if ( !empty( $current_metadata ) )
+						$current_metadata = date( get_option( 'date_format' ), intval( $current_metadata ) );
+					$term_data['value'] = esc_html( $current_metadata );
+					break;
+				case "location":
+				case "text":
+				case "number":
+				case "paragraph":
+					if ( $current_metadata )
+						$term_data['value'] = esc_html( $current_metadata );
+					break;
+				case "checkbox":
+					if ( $current_metadata )
+						$term_data['value'] = __( 'Yes', 'edit-flow' );
+					else
+						$term_data['value'] = __( 'No', 'edit-flow' );
+					break;
+				case "user": 
+					$userdata = get_userdata( $current_metadata );
+					if ( is_object( $userdata ) )
+						$term_data['value'] = esc_html( $userdata->display_name );
+					break;
+				default:
+					break;
+			}
+			
+			$calendar_fields[$key] = $term_data;
+		}
+		return $calendar_fields;
 		
 	}
 	
