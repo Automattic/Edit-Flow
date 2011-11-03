@@ -386,6 +386,8 @@ class EF_Calendar {
 			$heading_date = date( 'Y-m-d', strtotime( "+1 day", strtotime( $heading_date ) ) );
 		}
 		
+		// we sort by post statuses eventually
+		$post_statuses = $edit_flow->helpers->get_post_statuses();
 		?>
 		<div class="wrap">
 			<div id="ef-calendar-title"><!-- Calendar Title -->
@@ -443,6 +445,27 @@ class EF_Calendar {
 				<tr class="week-unit">
 				<?php foreach( $week_dates as $week_single_date ): ?>
 				<?php
+					// Somewhat ghetto way of sorting all of the day's posts by post status order
+					if ( !empty( $week_posts[$week_single_date] ) ) {
+						$week_posts_by_status = array();
+						foreach( $post_statuses as $post_status ) {
+							$week_posts_by_status[$post_status->slug] = array();
+						}
+						// These statuses aren't handled by custom statuses or post statuses
+						$week_posts_by_status['private'] = array();
+						$week_posts_by_status['publish'] = array();
+						$week_posts_by_status['future'] = array();
+						foreach( $week_posts[$week_single_date] as $num => $post ) {
+							$week_posts_by_status[$post->post_status][$num] = $post;
+						}
+						unset( $week_posts[$week_single_date] );
+						foreach( $week_posts_by_status as $status ) {
+							foreach( $status as $num => $post ) {
+								$week_posts[$week_single_date][] = $post; 
+							}
+						}
+					}
+				
 					$td_classes = array(
 						'day-unit',
 					);
