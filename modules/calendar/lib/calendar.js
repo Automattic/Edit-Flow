@@ -38,20 +38,28 @@ jQuery(document).ready(function () {
 		jQuery('td.day-unit ul li').removeClass('item-overlay-active');
 	}
 	
-	function edit_flow_calendar_show_overlay() {
-		edit_flow_calendar_close_overlays();
-		var item_information = jQuery(this).html();
-		jQuery(this).addClass('item-overlay-active');
-		var item_overlay_html = '<div class="item-overlay">' + item_information + '</div>';
-		jQuery(this).prepend( item_overlay_html );
+	/**
+	 * Show the overlay for a post date
+	 */
+	function edit_flow_calendar_show_overlay( event ) {
+		// Hide the overlay if it's already showing but only if we click on the original clickable area
+		if ( jQuery(this).hasClass('item-overlay-active') && jQuery(event.target).closest('table.item-information').length == 0 ) {
+			edit_flow_calendar_close_overlays();
+		} else {
+			edit_flow_calendar_close_overlays();
+			var item_information = jQuery(this).html();
+			jQuery(this).addClass('item-overlay-active');
+			var item_overlay_html = '<div class="item-overlay">' + item_information + '</div>';
+			jQuery(this).prepend( item_overlay_html );
+		}
 	}
 	
 	/**
 	 * Bind the overlay click event to all list items within the posts list
 	 */
-	function edit_flow_calendar_bind_overlay() {	
+	function edit_flow_calendar_bind_overlay() {
 		jQuery('td.day-unit ul li').bind({
-			'click.ef-calendar-show-overlay': edit_flow_calendar_show_overlay
+			'click.ef-calendar-show-overlay': edit_flow_calendar_show_overlay,
 		});
 	}
 	edit_flow_calendar_bind_overlay();
@@ -76,38 +84,38 @@ jQuery(document).ready(function () {
 		stop: function(event, ui) {
 			jQuery(this).css('cursor','auto');
 			jQuery('td.day-unit').removeClass('ui-wrapper-highlight');
-			// Don't do anything if we didn't move it past the today
-			if ( jQuery(this).closest('.day-unit').attr('id') == jQuery(ui.item).closest('.day-unit').attr('id') )
-				return;
-			var post_id = jQuery(ui.item).attr('id').split('-');
-			post_id = post_id[post_id.length - 1];
-			var prev_date = jQuery(this).closest('.day-unit').attr('id');
-			var next_date = jQuery(ui.item).closest('.day-unit').attr('id');
-			var nonce = jQuery(document).find('#ef-calendar-modify').val();
-			jQuery('.edit-flow-message').remove();
-			jQuery('li.ajax-actions .waiting').show();
-			// make ajax request
-			var params = {
-				action: 'ef_calendar_drag_and_drop',
-				post_id: post_id,
-				prev_date: prev_date,
-				next_date: next_date,
-				nonce: nonce,
-			};
-			jQuery.post(ajaxurl, params,
-				function(response) {
-					jQuery('li.ajax-actions .waiting').hide();
-					var html = '';
-					if ( response.status == 'success' ) {
-						html = '<div class="edit-flow-message edit-flow-updated-message">' + response.message + '</div>';
-						//setTimeout( edit_flow_calendar_hide_message, 5000 );
-					} else if ( response.status == 'error' ) {
-						html = '<div class="edit-flow-message edit-flow-error-message">' + response.message + '</div>';
+			// Only do a POST request if we moved the post off today
+			if ( jQuery(this).closest('.day-unit').attr('id') != jQuery(ui.item).closest('.day-unit').attr('id') ) {
+				var post_id = jQuery(ui.item).attr('id').split('-');
+				post_id = post_id[post_id.length - 1];
+				var prev_date = jQuery(this).closest('.day-unit').attr('id');
+				var next_date = jQuery(ui.item).closest('.day-unit').attr('id');
+				var nonce = jQuery(document).find('#ef-calendar-modify').val();
+				jQuery('.edit-flow-message').remove();
+				jQuery('li.ajax-actions .waiting').show();
+				// make ajax request
+				var params = {
+					action: 'ef_calendar_drag_and_drop',
+					post_id: post_id,
+					prev_date: prev_date,
+					next_date: next_date,
+					nonce: nonce,
+				};
+				jQuery.post(ajaxurl, params,
+					function(response) {
+						jQuery('li.ajax-actions .waiting').hide();
+						var html = '';
+						if ( response.status == 'success' ) {
+							html = '<div class="edit-flow-message edit-flow-updated-message">' + response.message + '</div>';
+							//setTimeout( edit_flow_calendar_hide_message, 5000 );
+						} else if ( response.status == 'error' ) {
+							html = '<div class="edit-flow-message edit-flow-error-message">' + response.message + '</div>';
+						}
+						jQuery('li.ajax-actions').prepend(html);
+						setTimeout( edit_flow_calendar_hide_message, 10000 );
 					}
-					jQuery('li.ajax-actions').prepend(html);
-					setTimeout( edit_flow_calendar_hide_message, 10000 );
-				}
-			);
+				);
+			}
 			jQuery(this).enableSelection();
 			// Allow the overlays to show up again
 			setTimeout( edit_flow_calendar_bind_overlay, 250 );

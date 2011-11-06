@@ -118,7 +118,7 @@ table#ef-calendar-view .day-unit.ui-wrapper-highlight {
 	background-color: #FFFFE0;
 }
 
-table#ef-calendar-view .day-unit.ui-wrapper-highlight ul li.ui-state-highlight {
+table#ef-calendar-view .day-unit.ui-wrapper-highlight ul li {
 	border-color: #FFFFE0;
 }
 
@@ -187,10 +187,6 @@ table#ef-calendar-view .day-unit ul li .item-headline {
 	color: #21759B;
 }
 
-table#ef-calendar-view .day-unit ul li .item-headline:hover {
-	cursor: pointer;
-}
-
 table#ef-calendar-view .day-unit ul li.is-published:hover {
 	border-color: #FFF;
 	cursor: pointer;
@@ -199,11 +195,17 @@ table#ef-calendar-view .day-unit ul li.is-published:hover {
 table#ef-calendar-view .day-unit ul li.sortable:hover {
 	border-color: #21759B;
 	background-color: #F7F7F7;
-	cursor: move;
+	cursor: pointer;
 }
 
-table#ef-calendar-view .day-unit ul li.ui-sortable-helper {
-	cursor: move;	
+table#ef-calendar-view .day-unit ul li .item-headline:hover {
+	cursor: pointer;
+}
+
+table#ef-calendar-view .day-unit ul li.sortable.ui-sortable-helper {
+	cursor: move;
+	border-color: #21759B;
+	background-color: #F7F7F7;
 }
 
 table#ef-calendar-view .day-unit ul li .item-information {
@@ -263,14 +265,14 @@ table#ef-calendar-view .day-unit.last-day ul li .item-overlay {
 	left: auto;
 }
 
-table#ef-calendar-view .day-unit ul li .item-overlay:hover {
-	cursor:pointer;
-}
-
 table#ef-calendar-view .day-unit ul li .item-overlay .item-information {
 	display: block;
 	min-width: 170px;
 	max-width: 270px;
+}
+
+table#ef-calendar-view .day-unit ul li .item-overlay .item-information {
+	cursor: default;
 }
 
 #ef-calendar-view .day-unit .show-more {

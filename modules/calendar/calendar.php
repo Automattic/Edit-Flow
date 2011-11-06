@@ -530,6 +530,7 @@ class EF_Calendar {
 							}
 						?>
 						<li class="<?php echo implode( ' ', $post_classes ); ?>" id="post-<?php esc_attr_e( $post->ID ); ?>">
+							<div class="item-default-visible">
 							<div class="item-status"><span class="status-text"><?php echo $edit_flow->helpers->get_post_status_friendly_name( get_post_status( $post_id ) ); ?></span></div>
 							<div class="inner">
 								<span class="item-headline post-title"><strong><?php echo esc_html( $post->post_title ); ?></strong></span>
@@ -544,6 +545,7 @@ class EF_Calendar {
 								);
 								$ef_calendar_item_information_fields = apply_filters( 'ef_calendar_item_information_fields', $ef_calendar_item_information_fields, $post->ID );
 							?>
+							</div>
 							<div style="clear:right;"></div>
 							<table class="item-information">
 								<?php foreach( $ef_calendar_item_information_fields as $field => $values ): ?>
