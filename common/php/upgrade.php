@@ -2,35 +2,11 @@
 // Handles all current and future upgrades for edit_flow
 function edit_flow_upgrade( $from ) {
 	global $edit_flow;
-	if ( !$from || version_compare( $from, '0.1', '<' ) )
-		edit_flow_upgrade_01();
 	if ( version_compare( $from, '0.3', '<' ) )
 		edit_flow_upgrade_03();
-	if ( version_compare( $from, '0.5.1', '<' ) )
-		edit_flow_upgrade_051();
 	if ( version_compare( $from, '0.6', '<' ) )
 		edit_flow_upgrade_06();
 	update_option( $edit_flow->options_group . 'version', EDIT_FLOW_VERSION );
-}
-
-// Upgrade to 0.1
-function edit_flow_upgrade_01() {
-	global $edit_flow;	
-	
-	// Create default statuses
-	$default_terms = array( 
-		array( 'term' => __( 'Draft' ), 'args' => array( 'slug' => 'draft', 'description' => __( 'Post is simply a draft', 'edit-flow' ), ) ),
-		array( 'term' => __( 'Pending Review' ), 'args' => array( 'slug' => 'pending', 'description' => __( 'The post needs to be reviewed by an Editor', 'edit-flow' ), ) ),
-		array( 'term' => __( 'Pitch', 'edit-flow' ), 'args' => array( 'slug' => 'pitch', 'description' => __( 'Post idea proposed', 'edit-flow' ), ) ),
-		array( 'term' => __( 'Assigned', 'edit-flow' ), 'args' => array( 'slug' => 'assigned', 'description' => __( 'The post has been assigned to a writer', 'edit-flow' ), ) ),
-		array( 'term' => __( 'Waiting for Feedback', 'edit-flow' ), 'args' => array( 'slug' => 'waiting-for-feedback', 'description' => __( 'The post has been sent to the editor, and is waiting on feedback', 'edit-flow' ) ) ) 
-	);
-	
-	// Okay, now add the default statuses to the db if they don't already exist 
-	foreach($default_terms as $term)
-		if( !term_exists( $term['term'] ) )
-			$edit_flow->custom_status->add_custom_status( $term['term'], $term['args'] );
-	
 }
 
 // Upgrade to 0.3

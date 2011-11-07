@@ -34,7 +34,7 @@ class EF_Custom_Status {
 			'slug' => 'custom-status',
 			'default_options' => array(
 				'enabled' => 'on',
-				'default_status' => 'draft',
+				'default_status' => 'pitch',
 				'always_show_dropdown' => 'off',
 				'post_types' => array(
 					'post' => 'on',
@@ -93,6 +93,58 @@ class EF_Custom_Status {
 		// These two methods are hacks for fixing bugs in WordPress core
 		add_action( 'admin_init', array( &$this, 'check_timestamp_on_publish' ) );
 		add_filter( 'wp_insert_post_data', array( &$this, 'fix_custom_status_timestamp' ) );
+		
+	}
+	
+	/**
+	 * Create the default set of custom statuses the first time the module is loaded
+	 *
+	 * @since 0.7
+	 */
+	function install() {
+			
+		$default_terms = array( 
+			array(
+				'term' => __( 'Draft', 'edit-flow' ),
+				'args' => array(
+					'slug' => 'draft',
+					'description' => __( 'Post is a draft; not ready for review or publication.', 'edit-flow' ),
+				),
+			),
+			array(
+				'term' => __( 'Pending Review' ),
+				'args' => array(
+					'slug' => 'pending',
+					'description' => __( 'Post needs to be reviewed by an editor.', 'edit-flow' ),
+				),
+			),
+			array( 
+				'term' => __( 'Pitch', 'edit-flow' ),
+				'args' => array(
+					'slug' => 'pitch',
+					'description' => __( 'Idea proposed; waiting for acceptance.', 'edit-flow' ),
+				),
+			),
+			array(
+				'term' => __( 'Assigned', 'edit-flow' ),
+				'args' => array(
+					'slug' => 'assigned',
+					'description' => __( 'Post idea assigned to writer.', 'edit-flow' ),
+				),
+			),
+			array(
+				'term' => __( 'In Progress', 'edit-flow' ),
+				'args' => array(
+					'slug' => 'in-progress',
+					'description' => __( 'Writer is working on the post.', 'edit-flow' ),
+				),
+			), 
+		);
+
+		// Okay, now add the default statuses to the db if they don't already exist 
+		foreach( $default_terms as $term )
+			if( !term_exists( $term['term'] ) )
+				$this->add_custom_status( $term['term'], $term['args'] );
 		
 	}
 	
