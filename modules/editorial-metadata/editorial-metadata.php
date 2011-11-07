@@ -40,8 +40,8 @@ class EF_Editorial_Metadata {
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Editorial Metadata', 'edit-flow' ),
-			'short_description' => __( 'A powerful way to capture details about your posts in progress.', 'edit-flow' ),
-			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
+			'short_description' => __( 'Track details about your posts in progress.', 'edit-flow' ),
+			'extended_description' => __( 'Log details on every assignment using configurable editorial metadata. It’s completely customizable; create fields for everything from due date to location to contact information to role assignments.', 'edit-flow' ),
 			'module_url' => $module_url,
 			'img_url' => $module_url . 'lib/editorial_metadata_s128.png',
 			'slug' => 'editorial-metadata',

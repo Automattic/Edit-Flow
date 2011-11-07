@@ -17,8 +17,8 @@ class EF_Editorial_Comments
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Editorial Comments', 'edit-flow' ),
-			'short_description' => __( 'Leave comments on posts in progress to share notes with your collaborators. tk', 'edit-flow' ),
-			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
+			'short_description' => __( 'Share internal notes with your team.', 'edit-flow' ),
+			'extended_description' => __( 'Use editorial comments to hold a private discussion about a post. Communicate directly with your writers or editors about what works and what needs to be improved for each piece.', 'edit-flow' ),
 			'module_url' => $module_url,
 			'img_url' => $module_url . 'lib/editorial_comments_s128.png',
 			'slug' => 'editorial-comments',

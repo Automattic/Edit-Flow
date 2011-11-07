@@ -36,8 +36,8 @@ class EF_User_Groups {
 		// Register the User Groups module with Edit Flow
 		$args = array(
 			'title' => __( 'User Groups', 'edit-flow' ),
-			'short_description' => __( 'User Groups allow you to manage the people in your workflow. tk', 'edit-flow' ),
-			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
+			'short_description' => __( 'Organize your users into groups to mimic your organizational structure.', 'edit-flow' ),
+			'extended_description' => __( 'Configure user groups to organize all of the users on your site. Each user can be in many user groups and you can change them at any time.', 'edit-flow' ),
 			'module_url' => $module_url,
 			'img_url' => $module_url . 'lib/usergroups_s128.png',
 			'slug' => 'user-groups',

@@ -31,8 +31,8 @@ class EF_Calendar {
 		// Register the module with Edit Flow	
 		$args = array(
 			'title' => __( 'Calendar', 'edit-flow' ),
-			'short_description' => __( 'See all of your content on a calendar tk', 'edit-flow' ),
-			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
+			'short_description' => __( 'View upcoming content in a customizable calendar.', 'edit-flow' ),
+			'extended_description' => __( 'Edit Flow’s calendar lets you see your posts over a customizable date range. Filter by status or click on the post title to see its details. Drag and drop posts between days to change their publication date date.', 'edit-flow' ),
 			'module_url' => $module_url,
 			'img_url' => $module_url . 'lib/calendar_s128.png',
 			'slug' => 'calendar',

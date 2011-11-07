@@ -29,8 +29,8 @@ class EF_Notifications {
 		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
 		$args = array(
 			'title' => __( 'Notifications', 'edit-flow' ),
-			'short_description' => __( 'Notifications ensure the right people get notified at the right time. tk', 'edit-flow' ),
-			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
+			'short_description' => __( 'Update your team of important changes to your content.', 'edit-flow' ),
+			'extended_description' => __( 'With email notifications, you can keep everyone updated about what’s happening with a given content. Each status change or editorial comment sends out an email notification to users subscribed to a post. User groups can be used to manage who receives notifications on what.', 'edit-flow' ),
 			'module_url' => $module_url,
 			'img_url' => $module_url . 'lib/notifications_s128.png',
 			'slug' => 'notifications',

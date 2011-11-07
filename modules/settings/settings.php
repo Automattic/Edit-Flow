@@ -17,7 +17,7 @@ class EF_Settings {
 		$args = array(
 			'title' => __( 'Edit Flow', 'edit-flow' ),
 			'short_description' => __( 'Edit Flow redefines your WordPress publishing workflow.', 'edit-flow' ),
-			'extended_description' => __( 'Longer description of what Edit Flow does. tk', 'edit-flow' ),
+			'extended_description' => __( 'Enable any of the features below to take control of your workflow. Custom statuses, email notifications, editorial comments, and more help you and your team save time so everyone can focus on what matters most: the content.', 'edit-flow' ),
 			'module_url' => $module_url,
 			'img_url' => $module_url . 'lib/eflogo_s128.png',
 			'slug' => 'settings',
@@ -184,7 +184,7 @@ class EF_Settings {
 		<div class="wrap edit-flow-admin">
 			<?php if ( $current_module->name != 'settings' ): ?>
 			<?php echo $page_icon; ?>
-			<h2><a href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e('Edit Flow', 'edit-flow') ?></a>&nbsp;&rarr;&nbsp;<?php echo $current_module->title; ?><?php if ( isset( $display_text ) ) { echo $display_text; } ?></h2>
+			<h2><a href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e('Edit Flow', 'edit-flow') ?></a>:&nbsp;<?php echo $current_module->title; ?><?php if ( isset( $display_text ) ) { echo $display_text; } ?></h2>
 			<?php else: ?>
 			<?php echo $page_icon; ?>
 			<h2><?php _e('Edit Flow', 'edit-flow') ?><?php if ( isset( $display_text ) ) { echo $display_text; } ?></h2>
@@ -192,7 +192,7 @@ class EF_Settings {
 			
 			<div class="explanation">
 				<?php if ( $current_module->short_description ): ?>
-				<p><?php echo $current_module->short_description; ?></p>
+				<h3><?php echo $current_module->short_description; ?></h3>
 				<?php endif; ?>
 				<?php if ( $current_module->extended_description ): ?>
 				<p><?php echo $current_module->extended_description; ?></p>
@@ -218,6 +218,7 @@ class EF_Settings {
 		<?php if ( $current_module->slug == 'settings' ): ?>
 		<div class="credits">
 		<p><a href="http://editflow.org/">Edit Flow</a> is produced by <a href="http://danielbachhuber.com/">Daniel Bachhuber</a>, <a href="http://digitalize.ca/">Mo Jangda</a>, and <a href="http://scottbressler.com/">Scott Bressler</a> with special help from <a href="http://andrewspittle.net">Andrew Spittle</a> and <a href="http://andrewwitherspoon.com/">Andrew Witherspoon</a>.
+		<br />You're using Edit Flow v<?php echo EDIT_FLOW_VERSION; ?>.
 		<br />Icons courtesy of the <a href="http://thenounproject.com/">Noun Project</a>.
 		<br /><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Please give us your feedback, ideas, bug reports and comments</a> in the WordPress.org forums.
 		</div>

@@ -25,8 +25,8 @@ class EF_Dashboard {
 		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
 		$args = array(
 			'title' => __( 'Dashboard Widgets', 'edit-flow' ),
-			'short_description' => __( 'Quickly access an overview of your content.', 'edit-flow' ),
-			'extended_description' => __( 'This is a longer description that shows up on some views. We might want to include a link to documentation. tk', 'edit-flow' ),
+			'short_description' => __( 'Track your content from the WordPress dashboard.', 'edit-flow' ),
+			'extended_description' => __( 'Enable the dashboard widgets to quickly view the number of posts at each status, or an activity stream of your content.', 'edit-flow' ),
 			'module_url' => $module_url,
 			'img_url' => $module_url . 'lib/dashboard_s128.png',
 			'slug' => 'dashboard',
