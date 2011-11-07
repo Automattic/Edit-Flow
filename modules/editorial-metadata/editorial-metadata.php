@@ -405,22 +405,28 @@ class EF_Editorial_Metadata {
 		$hold_to_end = array();
 		// Order the terms
 		foreach ( $terms as $key => $term ) {
+			
 			// Unencode and set all of our psuedo term meta because we need the position and viewable if they exists
-			$term->position = false;
-			$term->viewable = false;
-			// Only add the term to the ordered array if it has a set position and doesn't conflict with another key
-			// Otherwise, hold it for later
+			// First do an array_merge() on the term object to make sure the keys exist, then array_merge()
+			// any values that may already exist
 			$unencoded_description = $edit_flow->helpers->get_unencoded_description( $term->description );
+			$defaults = array(
+				'description' => '',
+				'viewable' => false,
+				'position' => false,
+			);
+			$term = array_merge( $defaults, (array)$term );
 			if ( is_array( $unencoded_description ) ) {
-				foreach( $unencoded_description as $key => $value ) {
-					$term->$key = $value;
-				}
+				$term = array_merge( $term, $unencoded_description );
 			}
+			$term = (object)$term;
 			// We used to store the description field in a funny way
 			if ( isset( $term->desc ) ) {
 				$term->description = $term->desc;
 				unset( $term->desc );
-			}			
+			}
+			// Only add the term to the ordered array if it has a set position and doesn't conflict with another key
+			// Otherwise, hold it for later
 			if ( $term->position && !array_key_exists( $term->position, $ordered_terms ) )
 				$ordered_terms[(int)$term->position] = $term;
 			else 
@@ -544,6 +550,7 @@ class EF_Editorial_Metadata {
 	function filter_calendar_item_fields( $calendar_fields, $post_id ) {
 		
 		$terms = $this->get_editorial_metadata_terms();
+		
 		foreach( $terms as $term ) {
 			$key = $this->module->slug . '-' . $term->slug;
 			if ( !$term->viewable )
