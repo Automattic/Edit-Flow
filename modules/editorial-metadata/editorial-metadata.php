@@ -106,6 +106,47 @@ class EF_Editorial_Metadata {
 	}
 	
 	/**
+	 * Load default editorial metadata the first time the module is loaded
+	 *
+	 * @since 0.7
+	 */
+	function install() {
+		// Our default metadata fields
+		$default_metadata = array(
+			array(
+				'name' => __( 'Due Date', 'edit-flow' ),
+				'slug' => 'duedate',
+				'type' => 'date',
+				'description' => __( 'Deadline for this post to be published.', 'edit-flow' ),
+			),
+			array(
+				'name' => __( 'Assignment Description', 'edit-flow' ),
+				'slug' => 'description',
+				'type' => 'paragraph',
+				'description' => __( 'What the post needs to be cover.', 'edit-flow' ),
+			),
+			array(
+				'name' => __( 'Needs Photo', 'edit-flow' ),
+				'slug' => 'needs-photo',
+				'type' => 'checkbox',
+				'description' => __( 'Checked if this post needs a photo.', 'edit-flow' ),
+			),
+			array(
+				'name' => __( 'Word Count', 'edit-flow' ),
+				'slug' => 'word-count',
+				'type' => 'number',
+				'description' => __( 'Required post length in words.', 'edit-flow' ),
+			),
+		);
+		// Load the metadata fields if the slugs don't conflict
+		foreach ( $default_metadata as $args ) {
+			if ( !term_exists( $args['slug'], self::metadata_taxonomy ) ) {
+				$this->insert_editorial_metadata_term( $args );
+			}
+		}
+	}
+	
+	/**
 	 * Generate <select> HTML for all of the metadata types
 	 */
 	function get_select_html( $description ) {
