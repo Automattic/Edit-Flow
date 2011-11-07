@@ -147,10 +147,12 @@ class edit_flow {
 	 */
 	function action_admin_init() {
 	    	    
-		// Upgrade if need be
+		// Upgrade if need be but don't run the upgrade if the plugin has never been used
 		$previous_version = get_option( $this->options_group . 'version' );
-		if ( version_compare( $previous_version, EDIT_FLOW_VERSION, '<' ) )
+		if ( $previous_version && version_compare( $previous_version, EDIT_FLOW_VERSION, '<' ) )
 			edit_flow_upgrade( $previous_version );
+		elseif ( !$previous_version )
+			update_option( $this->options_group . 'version', EDIT_FLOW_VERSION );
 
 		$this->register_scripts_and_styles();
 		
