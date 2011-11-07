@@ -562,12 +562,27 @@ class EF_Calendar {
 							</div>
 							<?php
 								// All of the item information we're going to display
-								$ef_calendar_item_information_fields = array(
-									'author' => array(
-										'label' => 'Author',
-										'value' => 'Daniel Bachhuber',
-									),
+								$ef_calendar_item_information_fields = array();
+								// Post author
+								$ef_calendar_item_information_fields['author'] = array(
+									'label' => __( 'Author', 'edit-flow' ),
+									'value' => get_the_author_meta( 'display_name', $post->post_author ),
 								);
+								// Publication time for published statuses
+								if ( in_array( $post->post_status, $published_statuses ) ) {
+									if ( $post->post_status == 'future' ) {
+										$ef_calendar_item_information_fields['post_date'] = array(
+											'label' => __( 'Scheduled', 'edit-flow' ),
+											'value' => get_the_time( null, $post->ID ),
+										);
+									} else {
+										$ef_calendar_item_information_fields['post_date'] = array(
+											'label' => __( 'Published', 'edit-flow' ),
+											'value' => get_the_time( null, $post->ID ),
+										);
+									}
+								}
+								
 								$ef_calendar_item_information_fields = apply_filters( 'ef_calendar_item_information_fields', $ef_calendar_item_information_fields, $post->ID );
 							?>
 							</div>
