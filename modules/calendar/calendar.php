@@ -82,6 +82,31 @@ class EF_Calendar {
 	}
 	
 	/**
+	 * Load the capabilities onto users the first time the module is run
+	 *
+	 * @since 0.7
+	 */
+	function install() {
+		global $wp_roles, $edit_flow;
+
+		if ( ! isset( $wp_roles ) )
+			$wp_roles = new WP_Roles();
+
+		// Add necessary capabilities to allow management of calendar
+		// view_calendar - administrator --> contributor
+		$calendar_roles = array(
+			'administrator' => array('ef_view_calendar'),
+			'editor' =>        array('ef_view_calendar'),
+			'author' =>        array('ef_view_calendar'),
+			'contributor' =>   array('ef_view_calendar')
+		);
+
+		foreach ($calendar_roles as $role => $caps) {
+			ef_add_caps_to_role( $role, $caps );
+		}
+	}
+	
+	/**
 	 * Add the calendar link underneath the "Dashboard"
 	 *
 	 * @uses add_submenu_page
