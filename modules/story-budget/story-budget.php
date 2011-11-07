@@ -73,6 +73,24 @@ class ef_story_budget {
 	}
 	
 	/**
+	 * Give users the appropriate permissions to view the story budget the first time the module is loaded
+	 *
+	 * @since 0.7
+	 */
+	function install() {
+
+		$story_budget_roles = array(
+			'administrator' => array( 'ef_view_story_budget' ),
+			'editor' =>        array( 'ef_view_story_budget' ),
+			'author' =>        array( 'ef_view_story_budget' ),
+			'contributor' =>   array( 'ef_view_story_budget' )
+		);
+		foreach( $story_budget_roles as $role => $caps ) {
+			ef_add_caps_to_role( $role, $caps );
+		}
+	}
+	
+	/**
 	 * Include the story budget link in the admin menu.
 	 *
 	 * @uses add_submenu_page()
