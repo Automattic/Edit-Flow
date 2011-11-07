@@ -153,6 +153,16 @@ class edit_flow {
 			edit_flow_upgrade( $previous_version );
 		elseif ( !$previous_version )
 			update_option( $this->options_group . 'version', EDIT_FLOW_VERSION );
+			
+		// For each module that's been loaded, auto-load data if it's never been run before
+		foreach ( $this->modules as $mod_name => $mod_data ) {
+			// If the module has never been loaded before, run the install method if there is one
+			if ( !isset( $mod_data->options->loaded_once ) || !$mod_data->options->loaded_once ) {
+				if ( method_exists( $this->$mod_name, 'install' ) )
+					$this->$mod_name->install();
+				$this->update_module_option( $mod_name, 'loaded_once', true );
+			}
+		}
 
 		$this->register_scripts_and_styles();
 		
