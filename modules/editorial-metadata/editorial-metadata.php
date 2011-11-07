@@ -770,6 +770,11 @@ class EF_Editorial_Metadata {
 		$metadata_types = $this->get_supported_metadata_types();
 		if ( empty( $_POST['metadata_type'] ) || !isset( $metadata_types[$_POST['metadata_type'] ] ) )
 			$_REQUEST['form-errors']['type'] = __( 'Please select a valid metadata type.', 'edit-flow' );
+		// Metadata viewable needs to be a valid Yes or No
+		$term_viewable = false;
+		if ( $_POST['metadata_viewable'] == 'yes' )
+			$term_viewable = true;
+		
 		// Kick out if there are any errors
 		if ( count( $_REQUEST['form-errors'] ) ) {
 			$_REQUEST['error'] = 'form-error';
@@ -782,6 +787,7 @@ class EF_Editorial_Metadata {
 			'description' => $term_description,
 			'slug' => $term_slug,
 			'type' => $term_type,
+			'viewable' => $term_viewable,
 		);
 		$return = $this->insert_editorial_metadata_term( $args );
 		if ( is_wp_error( $return ) )
@@ -844,6 +850,10 @@ class EF_Editorial_Metadata {
 		// Check that the term name doesn't exceed 50 chars
 		if ( strlen( $new_name ) > 50 )
 			$_REQUEST['form-errors']['name'] = __( 'Name cannot exceed 50 characters. Please try a shorter name.', 'edit-flow' );
+		// Make sure the viewable state is valid
+		$new_viewable = false;
+		if ( $_POST['viewable'] == 'yes' )
+			$new_viewable = true;
 	
 		// Kick out if there are any errors
 		if ( count( $_REQUEST['form-errors'] ) ) {
@@ -855,6 +865,7 @@ class EF_Editorial_Metadata {
 		$args = array(
 			'name' => $new_name,			
 			'description' => $new_description,
+			'viewable' => $new_viewable,
 		);
 		$return = $this->update_editorial_metadata_term( $existing_term->term_id, $args );
 		if ( is_wp_error( $return ) )
@@ -1124,8 +1135,13 @@ class EF_Editorial_Metadata {
 			$type = $term->type;
 			$edit_term_link = $this->get_link( array( 'action' => 'edit-term', 'term-id' => $term->term_id ) );
 			
-			$name = ( isset( $_POST['metadata_name'] ) ) ? stripslashes( $_POST['metadata_name'] ) : $term->name;
-			$description = ( isset( $_POST['metadata_description'] ) ) ? stripslashes( $_POST['metadata_description'] ) : $term->description;
+			$name = ( isset( $_POST['name'] ) ) ? stripslashes( $_POST['name'] ) : $term->name;
+			$description = ( isset( $_POST['description'] ) ) ? stripslashes( $_POST['description'] ) : $term->description;
+			if ( $term->viewable )
+				$viewable = 'yes';
+			else
+				$viewable = 'no';
+			$viewable = ( isset( $_POST['viewable'] ) ) ? stripslashes( $_POST['viewable'] ) : $viewable;
 		?>
 		
 		<form method="post" action="<?php echo esc_url( $edit_term_link ); ?>" >
@@ -1161,6 +1177,23 @@ class EF_Editorial_Metadata {
 				<td>
 					<input type="text" disabled="disabled" value="<?php echo esc_attr( $metadata_types[$type] ); ?>" />
 					<p class="description"><?php _e( 'The metadata type cannot be changed once created.', 'edit-flow' ); ?></p>
+				</td>
+			</tr>
+			<tr class="form-field">
+				<th scope="row" valign="top"><?php _e( 'Viewable', 'edit-flow' ); ?></th>
+				<td>
+					<?php
+						$metadata_viewable_options = array(
+							'no' => __( 'No', 'edit-flow' ),
+							'yes' => __( 'Yes', 'edit-flow' ),
+						);
+					?>
+					<select id="viewable" name="viewable">
+					<?php foreach ( $metadata_viewable_options as $metadata_viewable_key => $metadata_viewable_value ) : ?>
+						<option value="<?php echo esc_attr( $metadata_viewable_key ); ?>" <?php selected( $viewable, $metadata_viewable_key ); ?>><?php echo esc_attr( $metadata_viewable_value ); ?></option>
+					<?php endforeach; ?>
+					</select>
+					<?php $edit_flow->settings->helper_print_error_or_description( 'viewable', __( 'When viewable, metadata can be seen on views other than the edit post view (e.g. calendar, manage posts, story budget, etc.)', 'edit-flow' ) ); ?>
 				</td>
 			</tr>
 		<input type="hidden" name="<?php echo self::metadata_taxonomy ?>'_type" value="<?php echo $type; ?>" />
@@ -1220,6 +1253,22 @@ class EF_Editorial_Metadata {
 				<?php endforeach; ?>
 				</select>
 				<?php $edit_flow->settings->helper_print_error_or_description( 'type', __( 'Indicate the type of editorial metadata.', 'edit-flow' ) ); ?>
+			</div>
+			<div class="form-field form-required">
+				<label for="metadata_viewable"><?php _e( 'Viewable', 'edit-flow' ); ?></label>
+				<?php
+					$metadata_viewable_options = array(
+						'no' => __( 'No', 'edit-flow' ),
+						'yes' => __( 'Yes', 'edit-flow' ),
+					);
+					$current_metadata_viewable = ( isset( $_POST['metadata_viewable'] ) && in_array( $_POST['metadata_viewable'], array_keys( $metadata_viewable_options ) ) ) ? $_POST['metadata_viewable'] : 'no';
+				?>
+				<select id="metadata_viewable" name="metadata_viewable">
+				<?php foreach ( $metadata_viewable_options as $metadata_viewable_key => $metadata_viewable_value ) : ?>
+					<option value="<?php echo esc_attr( $metadata_viewable_key ); ?>" <?php selected( $current_metadata_viewable, $metadata_viewable_key ); ?>><?php echo esc_attr( $metadata_viewable_value ); ?></option>
+				<?php endforeach; ?>
+				</select>
+				<?php $edit_flow->settings->helper_print_error_or_description( 'viewable', __( 'When viewable, metadata can be seen on views other than the edit post view (e.g. calendar, manage posts, story budget, etc.)', 'edit-flow' ) ); ?>
 			</div>
 			<?php wp_nonce_field( 'editorial-metadata-add-nonce' );?>
 			<input type="hidden" id="form-action" name="form-action" value="add-term" />
