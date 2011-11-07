@@ -53,7 +53,7 @@ class EF_Settings {
 	function action_admin_menu() {
 		global $edit_flow;
 		
-		add_menu_page( $this->module->title, $this->module->title, 'manage_options', $this->module->settings_slug, array( &$this, 'settings_page_controller' ), $this->module->img_url ) ;
+		add_menu_page( $this->module->title, $this->module->title, 'manage_options', $this->module->settings_slug, array( &$this, 'settings_page_controller' ), $this->module->module_url . 'lib/eflogo_s16.png' ) ;
 		
 		foreach ( $edit_flow->modules as $mod_name => $mod_data ) {
 			if ( isset( $mod_data->options->enabled ) && $mod_data->options->enabled == 'on'
