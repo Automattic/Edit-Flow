@@ -13,12 +13,13 @@ class EF_Settings {
 		global $edit_flow;
 		
 		// Register the module with Edit Flow
-		// @todo default options for registering the statuses
+		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
 		$args = array(
 			'title' => __( 'Edit Flow', 'edit-flow' ),
 			'short_description' => __( 'Edit Flow redefines your WordPress publishing workflow.', 'edit-flow' ),
 			'extended_description' => __( 'Longer description of what Edit Flow does. tk', 'edit-flow' ),
-			'img_url' => false,
+			'module_url' => $module_url,
+			'img_url' => $module_url . 'lib/eflogo_s128.png',
 			'slug' => 'settings',
 			'settings_slug' => 'ef-settings',
 			'default_options' => array(
@@ -52,7 +53,7 @@ class EF_Settings {
 	function action_admin_menu() {
 		global $edit_flow;
 		
-		add_menu_page( $this->module->title, $this->module->title, 'manage_options', $this->module->settings_slug, array( &$this, 'settings_page_controller' ) ) ;
+		add_menu_page( $this->module->title, $this->module->title, 'manage_options', $this->module->settings_slug, array( &$this, 'settings_page_controller' ), $this->module->img_url ) ;
 		
 		foreach ( $edit_flow->modules as $mod_name => $mod_data ) {
 			if ( isset( $mod_data->options->enabled ) && $mod_data->options->enabled == 'on'
@@ -175,18 +176,17 @@ class EF_Settings {
 		if ( $error && isset( $current_module->messages[$error] ) )
 			$display_text = '<span class="edit-flow-error-message edit-flow-message">' . esc_html( $current_module->messages[$error] ) . '</span>';
 		
-		$generic_edit_flow_icon = '<div class="icon32" id="icon-options-general"><br/></div>';
+		if ( $current_module->img_url )
+			$page_icon = '<img src="' . esc_url( $current_module->img_url ) . '" class="module-icon icon32" />';
+		else
+			$page_icon = '<div class="icon32" id="icon-options-general"><br/></div>';
 		?>
 		<div class="wrap edit-flow-admin">
 			<?php if ( $current_module->name != 'settings' ): ?>
-				<?php if ( $current_module->img_url ) {
-					echo '<img src="' . esc_url( $current_module->img_url ) . '" class="module-icon icon32" />';
-				} else {
-					echo $generic_edit_flow_icon;
-				} ?>
+			<?php echo $page_icon; ?>
 			<h2><a href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e('Edit Flow', 'edit-flow') ?></a>&nbsp;&rarr;&nbsp;<?php echo $current_module->title; ?><?php if ( isset( $display_text ) ) { echo $display_text; } ?></h2>
 			<?php else: ?>
-			<?php echo $generic_edit_flow_icon; ?>
+			<?php echo $page_icon; ?>
 			<h2><?php _e('Edit Flow', 'edit-flow') ?><?php if ( isset( $display_text ) ) { echo $display_text; } ?></h2>
 			<?php endif; ?>
 			

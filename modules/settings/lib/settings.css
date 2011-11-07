@@ -27,6 +27,11 @@
 	margin-top: 20px;
 }
 
+#toplevel_page_ef-settings .wp-menu-image img {
+	height: 16px;
+	width: 16px;
+}
+
 .edit-flow-modules .edit-flow-module {
 	width: 210px;
 	min-height: 150px;
