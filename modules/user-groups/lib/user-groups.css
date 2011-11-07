@@ -1,0 +1,83 @@
+/** Post subscriptions **/
+.ef-post_following_list {
+}
+
+	.ef-post_following_list li {
+		padding: 10px 5px 5px 5px;
+		margin: 0;
+		border-bottom: 1px solid #ccc;
+	}
+		.ef-post_following_list li:hover {
+			background: #EAF2FA;
+		}
+	.ef-post_following_list li input {
+		float: right;
+	}
+	.ef-post_following_list .ef-user_displayname,
+	.ef-post_following_list .ef-usergroup_name {
+		display: block;
+		font-size: 14px;
+	}
+	.ef-post_following_list .ef-user_useremail,
+	.ef-post_following_list .ef-usergroup_description {
+		display: block;
+		color: #ccc;
+		font-size: 12px;
+	}
+
+#ef-post_following_box {
+	margin:10px 0;	
+}
+	#ef-post_following_box h4 {
+		background: #F1F1F1;
+		font-weight: bold;
+		padding: 8px;
+		margin: 0;
+		border: 1px solid #DFDFDF;
+		-moz-border-radius: 3px;
+	}
+
+	#ef-post_following_box label.ef-select_all_box {
+		float: right;
+		margin: -20px 10px;
+	}
+
+		#ef-post_following_box label.ef-select_all_box input {
+			margin-bottom: 5px;
+		}
+		
+	#ef-post_following_users_box,
+	#ef-post_following_usergroups_box {
+		width: 49%;	
+	}
+	#ef-post_following_users_box {
+		float: left;
+		margin-right:10px;
+	}
+	#ef-post_following_usergroups_box {
+		float: right;
+	}
+		#ef-post_following_users_box .ef-post_following_list,
+		#ef-post_following_usergroups_box .ef-post_following_list {
+			height: 300px;
+			overflow: auto;
+		}
+		#ef-post_following_users_box .list-filterizer-tools,
+		#ef-post_following_usergroups_box .list-filterizer-tools {
+			margin-top: 5px;
+		}
+
+
+/** User Groups **/
+#profile-page #post_following_usergroups {
+	width: 300px;
+}
+
+#ef-usergroup-users form.quicksearch,
+#ef-post_following_users_box form.quicksearch {
+	display: none;
+}
+
+#ef-usergroup-users h4 {
+	margin-top: 0;
+}

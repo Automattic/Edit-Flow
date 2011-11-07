@@ -1,0 +1,91 @@
+/** Editorial Metadata **/
+
+#ef_editorial_meta h3 {
+	padding-left: 22px;
+	background-image: url( editorial_metadata_s16.png );
+	background-repeat: no-repeat;
+	background-position: 5px 5px;
+}
+
+/* Spacing between each term */
+#ef_editorial_meta_meta_box div.ef_editorial_meta {
+	margin-bottom: 10px;
+}
+
+#ef_editorial_meta_meta_box div.ef_editorial_meta label,
+#ef_editorial_meta_meta_box div.ef_editorial_meta span.description {
+	display: block;
+}
+
+#ef_editorial_meta_meta_box div.ef_editorial_meta label {
+	font-weight: bold;
+	line-height: 1.3em;
+	margin-top: 5px;
+	padding-left: 2px;
+}
+
+#ef_editorial_meta_meta_box div.ef_editorial_meta_date label:first-child  {
+	background: transparent url("date-button.gif") no-repeat scroll 2px 0;
+	padding-left: 20px;
+}
+	#ef_editorial_meta_meta_box div.ef_editorial_meta_date input[readonly] {
+		background: #fff;
+		cursor: pointer;
+	}
+
+#ef_editorial_meta_meta_box div.ef_editorial_meta_location label:first-child {
+	background: transparent url("globe-V3.png") no-repeat scroll 2px 0;
+	padding-left: 20px;
+}
+
+/* Spacing above Google Maps link */
+#ef_editorial_meta_meta_box div.ef_editorial_meta_location div {
+	line-height: 1.4em;
+	margin-top: 5px;
+}
+
+#ef_editorial_meta_meta_box span.description {
+	font-size: 1em;
+	font-style: normal;
+	font-weight: normal;
+	line-height: 1.4em;
+	margin: 3px 0 5px;
+}
+
+div#normal-sortables #ef_editorial_meta_meta_box input[type=text],
+div#normal-sortables #ef_editorial_meta_meta_box textarea,
+div#normal-sortables #ef_editorial_meta_meta_box select,
+div#normal-sortables #ef_editorial_meta_meta_box label {
+	min-width: 250px;
+	width: 30%;
+}
+
+div#side-sortables #ef_editorial_meta_meta_box input[type=text],
+div#side-sortables #ef_editorial_meta_meta_box textarea,
+div#side-sortables #ef_editorial_meta_meta_box select {
+	width: 98%;
+}
+
+div#side-sortables .ef_editorial_meta_checkbox label span.description {
+	float: right;
+	display: inline-block;
+	margin-bottom: 10px;
+	margin-top: 2px;
+	width: 90%;
+}
+
+div#normal-sortables .ef_editorial_meta_checkbox label span.description {
+	float: right;
+	margin-top: 2px;
+	width: 95%;
+}
+
+div#normal-sortables .ef_editorial_meta_checkbox label {
+	width: 96%;
+}
+
+div#normal-sortables .ef_editorial_meta_checkbox input,
+div#side-sortables .ef_editorial_meta_checkbox input {
+	margin-left: 4px;
+	margin-top: 3px;
+}

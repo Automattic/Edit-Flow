@@ -1,8 +1,8 @@
 === Edit Flow ===
-Contributors: batmoo, danielbachhuber, sbressler, andrewspittle
+Contributors: batmoo, danielbachhuber, sbressler, automattic
 Donate link: http://editflow.org/donate/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
-Requires at least: 3.0
+Requires at least: 3.1
 Tested up to: 3.2.1
 Stable tag: 0.6.5
 
@@ -20,9 +20,9 @@ Edit Flow offers a suite of functionality to redefine your editorial workflow wi
 * Editorial Metadata - Define custom editorial metadata to be attached to every post. Admins can add editorial metadata like "contact information", "assignment description", "due date", or "location" using the following field types: checkbox, date, location, paragraph, text, or user dropdown.
 * Story Budget - View all of your upcoming posts in a more traditional story budget view. Posts are grouped by category, and view can be filtered by post status, category, user, or limited to a date range. Hit the print button to take it on the go.
 
-More details and documentation can be found on the [Edit Flow website](http://www.editflow.org/)
+More details and documentation can be found on the [Edit Flow website](http://www.editflow.org/).
 
-For support questions, feedback and ideas, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10).
+For support questions, feedback and ideas, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10), which we look at often.
 
 For everything else, say [hello@editflow.org](mailto:hello@editflow.org).
 
@@ -68,7 +68,7 @@ The other option is to install a role management plugin, like Justin Tadlock's e
 
 = Edit Flow doesn't do X, Y, and Z. That makes me sad. =
 
-Contact us at [hello@editflow.org](mailto:hello@editflow.org) and we'll see what we can do.
+For support questions, feedback and ideas, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10), which we look at often. For everything else, say [hello@editflow.org](mailto:hello@editflow.org).
 
 == Other Notes ==
 
