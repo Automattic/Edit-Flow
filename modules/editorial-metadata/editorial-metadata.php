@@ -195,6 +195,62 @@ class EF_Editorial_Metadata {
 			// Now add the rest of the metabox CSS
 			wp_enqueue_style( 'edit_flow-editorial_metadata-styles', EDIT_FLOW_URL . 'modules/editorial-metadata/lib/editorial-metadata.css', false, EDIT_FLOW_VERSION, 'all' );
 		}
+		// A bit of custom CSS for the Manage Posts view if we have viewable metadata
+		if ( $current_screen->base == 'edit' && in_array( $current_post_type, $supported_post_types ) ) {
+			$terms = $this->get_editorial_metadata_terms();
+			$viewable_terms = array();
+			foreach( $terms as $term ) {
+				if ( $term->viewable ) 
+					$viewable_terms[] = $term;
+			}
+			if ( !empty( $viewable_terms ) ) {
+				$css_rules = array(
+					'.wp-list-table.fixed .column-author' => array(
+						'min-width: 7em;',
+						'width: auto;',
+					),
+					'.wp-list-table.fixed .column-tags' => array(
+						'min-width: 7em;',
+						'width: auto;',
+					),
+					'.wp-list-table.fixed .column-categories' => array(
+						'min-width: 7em;',
+						'width: auto;',
+					),
+				);
+				foreach( $viewable_terms as $viewable_term ) {
+					switch( $viewable_term->type ) {
+						case 'checkbox':
+						case 'number':
+						case 'date':
+							$css_rules['.wp-list-table.fixed .column-' . $this->module->slug . '-' . $viewable_term->slug] = array(
+								'min-width: 6em;',
+							);
+							break;
+						case 'location':
+						case 'text':
+						case 'user':
+							$css_rules['.wp-list-table.fixed .column-' . $this->module->slug . '-' . $viewable_term->slug] = array(
+								'min-width: 7em;',
+							);
+							break;
+						case 'paragraph':
+							$css_rules['.wp-list-table.fixed .column-' . $this->module->slug . '-' . $viewable_term->slug] = array(
+								'min-width: 8em;',
+							);
+							break;
+					}
+				}
+				// Allow users to filter out rules if there's something wonky
+				$css_rules = apply_filters( 'ef_editorial_metadata_manage_posts_css_rules', $css_rules );
+				echo "<style type=\"text/css\">\n";
+				foreach( (array)$css_rules as $css_property => $rules ) {
+					echo $css_property . " {" . implode( ' ', $rules ) . "}\n";
+				}
+				echo '</style>';
+			}
+			
+		}
 		
 		// Load Javascript specific to the editorial metadata configuration view
 		if ( $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) ) {
