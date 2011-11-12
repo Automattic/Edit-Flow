@@ -58,6 +58,7 @@ class EF_Editorial_Metadata {
 				'term-missing' => __( "Metadata term doesn't exist.", 'edit-flow' ),
 				'term-deleted' => __( "Metadata term deleted.", 'edit-flow' ),
 				'term-position-updated' => __( "Term order updated.", 'edit-flow' ),
+				'term-visibility-changed' => __( "Term visibility changed.", 'edit-flow' ),
 			),
 			'configure_page_cb' => 'print_configure_view',
 		);
