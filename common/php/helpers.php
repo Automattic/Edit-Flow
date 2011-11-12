@@ -158,6 +158,9 @@ class EF_Helpers {
 	 * @since 0.7
 	 */
 	function enqueue_datepicker_resources() {
+		
+		// Add the first day of the week as an available variable to wp_head
+		echo "<script type=\"text/javascript\">var ef_week_first_day=\"" . get_option( 'start_of_week' ) . "\";</script>";		
 
 		// Datepicker is available WordPress 3.3. We have to register it ourselves for previous versions of WordPress
 		wp_enqueue_script( 'jquery-ui-datepicker' );
