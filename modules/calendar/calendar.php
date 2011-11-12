@@ -819,13 +819,13 @@ class EF_Calendar {
 	 * @return string $where Our modified WHERE query string
 	 */
 	function posts_where_week_range( $where = '' ) {
-		global $edit_flow;
+		global $edit_flow, $wpdb;
 	
 		$beginning_date = $this->get_beginning_of_week( $this->start_date, 'Y-m-d', $this->current_week );
 		$ending_date = $this->get_ending_of_week( $this->start_date, 'Y-m-d', $this->current_week );
 		// Adjust the ending date to account for the entire day of the last day of the week
 		$ending_date = date( "Y-m-d", strtotime( "+1 day", strtotime( $ending_date ) ) );
-		$where .= " AND post_date >= '$beginning_date' AND post_date < '$ending_date'";
+		$where = " AND ($wpdb->posts.post_date >= '$beginning_date' AND $wpdb->posts.post_date < '$ending_date')" . $where;
 	
 		return $where;
 	} 
