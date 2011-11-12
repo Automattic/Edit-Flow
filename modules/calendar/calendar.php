@@ -772,14 +772,14 @@ class EF_Calendar {
 		
 		// Unpublished as a status is just an array of everything but 'publish'
 		if ( $args['post_status'] == 'unpublish' ) {
+			$args['post_status'] = '';
 			$post_statuses = $edit_flow->helpers->get_post_statuses();
 			foreach ( $post_statuses as $post_status ) {
 				$args['post_status'] .= $post_status->slug . ', ';
 			}
 			if ( apply_filters( 'ef_show_scheduled_as_unpublished', false ) )
 				$args['post_status'] .= 'future';
-		} // END if ( $args['post_status'] == 'unpublish' )
-		
+		}
 		// The WP functions for printing the category and author assign a value of 0 to the default
 		// options, but passing this to the query is bad (trashed and auto-draft posts appear!), so
 		// unset those arguments. We could alternatively amend the first option from these
