@@ -195,6 +195,47 @@ class EF_Helpers {
 	}
 	
 	/**
+	 * Wrapper for the get_user_meta() function so we can replace it if we need to
+	 *
+	 * @since 0.7
+	 *
+	 * @param int $user_id Unique ID for the user
+	 * @param string $key Key to search against
+	 * @param bool $single Whether or not to return just one value
+	 * @return string|bool|array $value Whatever the stored value was
+	 */
+	function get_user_meta( $user_id, $key, $string = true ) {
+		
+		$response = do_action( 'ef_get_user_meta', $user_id, $key, $string );
+		if ( !is_null( $response ) )
+			return $response;
+			
+		return get_user_meta( $user_id, $key, $string );
+		
+	}
+	
+	/**
+	 * Wrapper for the update_user_meta() function so we can replace it if we need to
+	 *
+	 * @since 0.7
+	 *
+	 * @param int $user_id Unique ID for the user
+	 * @param string $key Key to search against
+	 * @param string|bool|array $value Whether or not to return just one value
+	 * @param string|bool|array $previous (optional) Previous value to replace
+	 * @return bool $success Whether we were successful in saving
+	 */
+	function update_user_meta( $user_id, $key, $value, $previous = null ) {
+		
+		$response = do_action( 'ef_update_user_meta', $user_id, $key, $value, $previous );
+		if ( !is_null( $response ) )
+			return $response;
+			
+		return update_user_meta( $user_id, $key, $value, $previous );
+		
+	}	
+	
+	/**
 	 * Take a status and a message, JSON encode and print
 	 *
 	 * @since 0.7

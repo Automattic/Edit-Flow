@@ -132,9 +132,10 @@ class ef_story_budget {
 	 * ??
 	 */
 	function get_num_columns() {
+		global $edit_flow;
 		if ( empty( $this->num_columns ) ) {
 			$current_user = wp_get_current_user();
-			$this->num_columns = get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'screen_columns', true );
+			$this->num_columns = $edit_flow->helpers->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'screen_columns', true );
 			// If usermeta didn't have a value already, use a default value and insert into DB
 			if ( empty( $this->num_columns ) ) {
 				$this->num_columns = self::default_num_columns;
@@ -156,11 +157,12 @@ class ef_story_budget {
 	 * Save the current user's preference for number of columns.
 	 */
 	function save_column_prefs( $posted_fields ) {
+		global $edit_flow;
 		$key = self::usermeta_key_prefix . 'screen_columns';
 		$this->num_columns = (int) $posted_fields[ $key ];
 		
 		$current_user = wp_get_current_user();
-		update_user_meta( $current_user->ID, $key, $this->num_columns );
+		$edit_flow->helpers->update_user_meta( $current_user->ID, $key, $this->num_columns );
 	}
 
 	/**
@@ -581,6 +583,7 @@ class ef_story_budget {
 	 * in $_GET take precedence over the current users filters if they exist.
 	 */
 	function update_user_filters() {
+		global $edit_flow;
 		$current_user = wp_get_current_user();
 		
 		$user_filters = array(
@@ -592,7 +595,7 @@ class ef_story_budget {
 							  );
 		
 		$current_user_filters = array();
-		$current_user_filters = get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
+		$current_user_filters = $edit_flow->helpers->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
 		
 		// If any of the $_GET vars are missing, then use the current user filter
 		foreach ( $user_filters as $key => $value ) {
@@ -601,7 +604,7 @@ class ef_story_budget {
 			}
 		}
 		
-		update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $user_filters );
+		$edit_flow->helpers->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $user_filters );
 		return $user_filters;
 	}
 	
@@ -612,9 +615,10 @@ class ef_story_budget {
 	 * @return array The filters for the current user, or the default filters if the current user has none.
 	 */
 	function get_user_filters() {
+		global $edit_flow;
 		$current_user = wp_get_current_user();
 		$user_filters = array();
-		$user_filters = get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
+		$user_filters = $edit_flow->helpers->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
 		
 		// If usermeta didn't have filters already, insert defaults into DB
 		if ( empty( $user_filters ) )

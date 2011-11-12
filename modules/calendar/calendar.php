@@ -180,6 +180,7 @@ class EF_Calendar {
 	 * @since 0.7
 	 */
 	function handle_save_screen_options() {
+		global $edit_flow;
 		
 		// Only handle screen options submissions from the current screen
 		if ( !isset( $_POST['screen-options-apply'], $_POST['ef_calendar_num_weeks'] ) )
@@ -187,7 +188,6 @@ class EF_Calendar {
 		
 		// Nonce check
 		if ( !wp_verify_nonce( $_POST['_wpnonce-' . self::usermeta_key_prefix . 'screen_options'], 'save_settings-' . self::usermeta_key_prefix . 'screen_options' ) )
-			
 			wp_die( $this->module->messages['nonce-failed'] );
 		
 		// Get the current screen options
@@ -198,7 +198,7 @@ class EF_Calendar {
 		
 		// Save the screen options
 		$current_user = wp_get_current_user();
-		update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'screen_options', $screen_options );
+		$edit_flow->helpers->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'screen_options', $screen_options );
 		
 		// Redirect after we're complete
 		$redirect_to = get_admin_url( null, 'index.php?' . parse_url( $_SERVER['REQUEST_URI'], PHP_URL_QUERY ) );
@@ -294,12 +294,13 @@ class EF_Calendar {
 	 * @return array $screen_options The screen options values
 	 */
 	function get_screen_options() {
+		global $edit_flow;
 		
 		$defaults = array(
 			'num_weeks' => (int)$this->total_weeks,
 		);
 		$current_user = wp_get_current_user();
-		$screen_options = get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'screen_options', true );
+		$screen_options = $edit_flow->helpers->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'screen_options', true );
 		$screen_options = array_merge( (array)$defaults, (array)$screen_options );
 		
 		return $screen_options;
@@ -318,7 +319,7 @@ class EF_Calendar {
 		
 		$current_user = wp_get_current_user();
 		$filters = array();
-		$old_filters = get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
+		$old_filters = $edit_flow->helpers->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
 	
 		// Set the proper keys to empty so we don't thr
 		if ( empty( $old_filters ) ) {
@@ -365,7 +366,7 @@ class EF_Calendar {
 
 		$filters['start_date'] = $this->get_beginning_of_week( $filters['start_date'] ); // don't just set the given date as the end of the week. use the blog's settings
 		
-		update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $filters );
+		$edit_flow->helpers->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $filters );
 		
 		return $filters;
 	}

@@ -334,38 +334,6 @@ function ef_get_users_by_usermeta( $meta_key, $meta_value = '', $return = 'ID' )
 }
 
 /**
- * Wrapper for get_metadata('user', ... )
- * @param int $obj_id ID of the user
- * @param string $meta_key
- * @param bool $single Return just the first entry if true, or all entries if false
- */
-function ef_get_user_metadata( $obj_id, $meta_key = '', $single = false ) {
-	return get_metadata( 'user', $obj_id, $meta_key, $single );
-}
-
-/**
- * Wrapper for get_metadata('user', ... )
- * @param int $obj_id ID of the user
- * @param string $meta_key
- * @param string $meta_value
- * @param bool $unique
- */
-function ef_add_user_metadata( $obj_id, $meta_key, $meta_value, $unique = false ) {
-	return add_metadata( 'user', $obj_id, $meta_key, $meta_value, $unique );
-}
-
-/**
- * Wrapper for update_metadata('user', ... )
- * @param int $obj_id ID of the user
- * @param string $meta_key 
- * @param string $meta_value
- * @param string $prev_value
- */
-function ef_update_user_metadata( $obj_id, $meta_key, $meta_value, $prev_value = '' ) {
-	return update_metadata( 'user', $obj_id, $meta_key, $meta_value, $prev_value );
-}
-
-/**
  * Wrapper for delete_metadata('user', ... )
  * @param int $obj_id ID of the user
  * @param string $meta_key 
