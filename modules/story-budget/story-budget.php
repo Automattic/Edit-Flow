@@ -20,6 +20,8 @@ class ef_story_budget {
 	
 	var $terms = array();
 	
+	var $user_filters;
+	
 	const screen_width_percent = 98;
 	
 	const screen_id = 'dashboard_page_story-budget';
@@ -61,6 +63,9 @@ class ef_story_budget {
 	function init() {
 	
 		$this->max_num_columns = apply_filters( 'ef_story_budget_max_num_columns', 3 );
+		
+		// Update the current user's filters with the variables set in $_GET
+		$this->user_filters = $this->update_user_filters();
 		
 		include_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
 		if ( function_exists( 'add_screen_options_panel' ) )
@@ -197,10 +202,7 @@ class ef_story_budget {
 	 */
 	function story_budget() {
 		
-		// Update the current user's filters with the variables set in $_GET
-		$user_filters = $this->update_user_filters();
-		
-		$cat = $this->combine_get_with_user_filter( $user_filters, 'cat' );
+		$cat = $this->combine_get_with_user_filter( $this->user_filters, 'cat' );
 		if ( !empty( $cat ) ) {
 			$terms = array();
 			$terms[] = get_term( $cat, $this->taxonomy_used );
@@ -233,89 +235,81 @@ class ef_story_budget {
 	}
 
 	/**
-	 * Get posts by term and any matching filters
-	 * TODO: Get this to actually work
+	 * Get all of the posts for a given term based on filters
+	 *
+	 * @param object $term The term we're getting posts for
+	 * @return array $term_posts An array of post objects for the term
 	 */
-	function get_matching_posts_by_term_and_filters( $term ) {
-		global $wpdb, $edit_flow;
+	function get_posts_for_term( $term, $args = null ) {
+		global $edit_flow;
 		
-		$user_filters = $this->get_user_filters();
+		$defaults = array(
+			'post_status' => null,
+			'author'      => null,
+			'posts_per_page' => apply_filters( 'ef_story_budget_query_limit', 10 ),
+		);				 
+		$args = array_merge( $defaults, $args );
 		
-		// TODO: clean up this query, make it work with an eventual setup_postdata() call
-		$query = "SELECT * FROM "/*$wpdb->users, */ . "$wpdb->posts 
-					JOIN $wpdb->term_relationships
-						ON $wpdb->posts.ID = $wpdb->term_relationships.object_id
-					WHERE ";
-		
-		$post_where = '';		
-		
-		// Only show approved statuses if we aren't filtering (post_status isn't set or it's 0 or empty), otherwise filter to status
-		$post_status = $this->combine_get_with_user_filter( $user_filters, 'post_status' );
-		$post_statuses = $edit_flow->helpers->get_post_statuses();
-		if ( !empty( $post_status ) ) {
-			if ( $post_status == 'unpublish' ) {
-				$post_where .= "($wpdb->posts.post_status IN (";
-				foreach( $post_statuses as $status ) {
-					$post_where .= $wpdb->prepare( "%s, ", $status->slug );
-				}
-				$post_where = rtrim( $post_where, ', ' );
-				if ( apply_filters( 'ef_show_scheduled_as_unpublished', false ) ) {
-					$post_where .= ", 'future'";
-				}
-				$post_where .= ')) ';
-			} else {
-				$post_where .= $wpdb->prepare( "$wpdb->posts.post_status = %s ", $post_status );
+		// Filter to the term and any children if it's hierarchical
+		$arg_terms = array(
+			$term->term_id,
+		);
+		$arg_terms = array_merge( $arg_terms, get_term_children( $term->term_id, $this->taxonomy_used ) ) ;
+		$args['tax_query'] = array(
+			array(
+				'taxonomy' => $this->taxonomy_used,
+				'field' => 'id',
+				'terms' => $arg_terms,
+				'operator' => 'IN',
+			),
+		);
+
+		// Unpublished as a status is just an array of everything but 'publish'
+		if ( $args['post_status'] == 'unpublish' ) {
+			$args['post_status'] = '';
+			$post_statuses = $edit_flow->helpers->get_post_statuses();
+			foreach ( $post_statuses as $post_status ) {
+				$args['post_status'] .= $post_status->slug . ', ';
 			}
-		} else {
-			$post_where .= "($wpdb->posts.post_status IN ('publish', 'future'";
-			foreach( $post_statuses as $status ) {
-				$post_where .= $wpdb->prepare( ", %s", $status->slug );
-			}
-			$post_where .= ')) ';
+			$args['post_status'] = rtrim( $args['post_status'], ', ' );
+			if ( apply_filters( 'ef_show_scheduled_as_unpublished', false ) )
+				$args['post_status'] .= ', future';
 		}
 		
 		// Filter by post_author if it's set
-		$post_author = $this->combine_get_with_user_filter( $user_filters, 'post_author' );
-		if ( !empty( $post_author ) ) {
-			$post_where .= $wpdb->prepare( "AND $wpdb->posts.post_author = %s ", (int) $post_author );
+		if ( $args['author'] === '0' ) unset( $args['author'] );
+		
+		add_filter( 'posts_where', array( &$this, 'posts_where_range' ) );
+		$term_posts_query_results = new WP_Query( $args );
+		remove_filter( 'posts_where', array( &$this, 'posts_where_range' ) );
+		
+		$term_posts = array();
+		while ( $term_posts_query_results->have_posts() ) {
+			$term_posts_query_results->the_post();
+			global $post;
+			$term_posts[] = $post;
 		}
 		
-		// Filter by start date if it's set
-		$start_date = $this->combine_get_with_user_filter( $user_filters, 'start_date' );
-		if ( !empty( $start_date ) ) {
-			// strtotime basically handles turning any date format we give to the function into a valid timestamp
-			// so we don't really care what date string format is used on the page, as long as it makes sense
-			$mysql_time = date( 'Y-m-d', strtotime( $start_date ) );
-			$post_where .= $wpdb->prepare( "AND ($wpdb->posts.post_date >= %s) ", $mysql_time );
-		}
-		
-		// Filter by end date if it's set
-		$end_date = $this->combine_get_with_user_filter( $user_filters, 'end_date' );
-		if ( !empty( $end_date) ) {
-			$mysql_time = date( 'Y-m-d', strtotime( $end_date ) );
-			$post_where .= $wpdb->prepare( "AND ($wpdb->posts.post_date <= %s) ", $mysql_time );
-		}
-	
-		// Limit results to the given category where type is 'post'
-		$post_where .= $wpdb->prepare( "AND $wpdb->term_relationships.term_taxonomy_id = %d ", $term->term_taxonomy_id );
-		$post_where .= "AND $wpdb->posts.post_type = 'post' ";
-		
-		// Limit the number of results per category
-		$default_query_limit_number = 10;
-		$query_limit_number = apply_filters( 'ef_story_budget_query_limit', $default_query_limit_number );
-		// Don't allow filtering the limit below 0
-		if ( $query_limit_number < 0 ) {
-			$query_limit_number = $default_query_limit_number;
-		}
-		$query_limit = $wpdb->prepare( 'LIMIT %d ', $query_limit_number );
-		
-		$query .= apply_filters( 'ef_story_budget_query_where', $post_where );
-		$query .= apply_filters( 'ef_story_budget_order_by', 'ORDER BY post_modified DESC ' );
-		$query .= $query_limit;
-		$query .= ';';
-		
-		return $wpdb->get_results( $query );
+		return $term_posts;
 	}
+	
+	/**
+	 * Filter the WP_Query so we can get a range of posts
+	 *
+	 * @param string $where The original WHERE SQL query string
+	 * @return string $where Our modified WHERE query string
+	 */
+	function posts_where_range( $where = '' ) {
+		global $edit_flow, $wpdb;
+	
+		//$beginning_date = $this->get_beginning_of_week( $this->start_date, 'Y-m-d', $this->current_week );
+		//$ending_date = $this->get_ending_of_week( $this->start_date, 'Y-m-d', $this->current_week );
+		// Adjust the ending date to account for the entire day of the last day of the week
+		//$ending_date = date( "Y-m-d", strtotime( "+1 day", strtotime( $ending_date ) ) );
+		//$where = " AND ($wpdb->posts.post_date >= '$beginning_date' AND $wpdb->posts.post_date < '$ending_date')" . $where;
+	
+		return $where;
+	}	
 	
 	function combine_get_with_user_filter( $user_filters, $param ) {
 		if ( !isset( $user_filters[$param] ) ) {
@@ -354,7 +348,7 @@ class ef_story_budget {
 	 */
 	function print_term( $term ) {
 		global $wpdb;
-		$posts = $this->get_matching_posts_by_term_and_filters( $term );
+		$posts = $this->get_posts_for_term( $term, $this->user_filters );
 		if ( !empty( $posts ) ) :
 			// Don't display the message for $no_matching_posts
 			$this->no_matching_posts = false;
@@ -517,7 +511,6 @@ class ef_story_budget {
 	function table_navigation() {
 		global $edit_flow;
 		$post_statuses = $edit_flow->helpers->get_post_statuses();
-		$user_filters = $this->get_user_filters();
 	?>
 	<div class="tablenav" id="ef-story-budget-tablenav">
 		<div class="alignleft actions">
@@ -527,11 +520,11 @@ class ef_story_budget {
 					<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
 					<?php
 						foreach ( $post_statuses as $post_status ) {
-							echo "<option value='$post_status->slug' " . selected( $post_status->slug, $user_filters['post_status'] ) . ">$post_status->name</option>";
+							echo "<option value='$post_status->slug' " . selected( $post_status->slug, $this->user_filters['post_status'] ) . ">$post_status->name</option>";
 						}
-						echo "<option value='future'" . selected('future', $user_filters['post_status']) . ">" . __( 'Scheduled', 'edit-flow' ) . "</option>";
-						echo "<option value='unpublish'" . selected('unpublish', $user_filters['post_status']) . ">" . __( 'Unpublished', 'edit-flow' ) . "</option>";
-						echo "<option value='publish'" . selected('publish', $user_filters['post_status']) . ">" . __( 'Published', 'edit-flow' ) . "</option>";
+						echo "<option value='future'" . selected('future', $this->user_filters['post_status']) . ">" . __( 'Scheduled', 'edit-flow' ) . "</option>";
+						echo "<option value='unpublish'" . selected('unpublish', $this->user_filters['post_status']) . ">" . __( 'Unpublished', 'edit-flow' ) . "</option>";
+						echo "<option value='publish'" . selected('publish', $this->user_filters['post_status']) . ">" . __( 'Published', 'edit-flow' ) . "</option>";
 					?>
 				</select>
 
@@ -544,7 +537,7 @@ class ef_story_budget {
 							'hierarchical' => 1,
 							'show_count' => 0,
 							'orderby' => 'name',
-							'selected' => $user_filters['cat']
+							'selected' => $this->user_filters['cat']
 							);
 						wp_dropdown_categories( $category_dropdown_args );
 					}
@@ -553,15 +546,15 @@ class ef_story_budget {
 					$user_dropdown_args = array(
 						'show_option_all' => __( 'View all users', 'edit-flow' ),
 						'name'     => 'post_author',
-						'selected' => $user_filters['post_author']
+						'selected' => $this->user_filters['post_author']
 						);
 					wp_dropdown_users( $user_dropdown_args );
 				?>
 				
 				<label for="start_date"><?php _e( 'From:', 'edit-flow' ); ?> </label>
-				<input id='start_date' name='start_date' type='text' class="date-pick" value="<?php echo $user_filters['start_date']; ?>" autocomplete="off" />
+				<input id='start_date' name='start_date' type='text' class="date-pick" value="<?php echo $this->user_filters['start_date']; ?>" autocomplete="off" />
 				<label for="end_date"><?php _e( 'To:', 'edit-flow' ); ?> </label>
-				<input id='end_date' name='end_date' type='text' size='20' class="date-pick" value="<?php echo $user_filters['end_date']; ?>" autocomplete="off" />
+				<input id='end_date' name='end_date' type='text' size='20' class="date-pick" value="<?php echo $this->user_filters['end_date']; ?>" autocomplete="off" />
 				<input type="submit" id="post-query-submit" value="<?php _e( 'Filter', 'edit-flow' ); ?>" class="button-primary button" />
 			</form>
 			<form method="GET" style="float: left;">
