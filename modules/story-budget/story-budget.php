@@ -411,16 +411,23 @@ class ef_story_budget {
 	
 	/**
 	 * Default callback for producing the HTML for a term column's single post value
-	 * Includes an action other 
+	 * Includes a filter other modules can hook into
 	 *
 	 * @since 0.7
+	 * 
+	 * @param object $post The post we're displaying
+	 * @param string $column_name Name of the column, as registered with register_term_columns
+	 * @param object $parent_term The parent term for the term column
+	 * @return string $output Output value for the term column
 	 */
 	function term_column_default( $post, $column_name, $parent_term ) {
 		global $edit_flow;
 		
 		// Hook for other modules to get into
-		if ( $response = do_action( 'ef_story_budget_term_column_' . $column_name, $post, $parent_term ) )
-			return $response;
+		$column_value = null;
+		$column_value = apply_filters( 'ef_story_budget_term_column_value', $column_name, $post, $parent_term );
+		if ( !is_null( $column_value ) )
+			return $column_value;
 			
 		switch( $column_name ) {
 			case 'status':

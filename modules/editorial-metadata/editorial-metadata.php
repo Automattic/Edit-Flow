@@ -101,6 +101,13 @@ class EF_Editorial_Metadata {
 		if ( $edit_flow->helpers->module_enabled( 'calendar' ) )
 			add_filter( 'ef_calendar_item_information_fields', array( &$this, 'filter_calendar_item_fields' ), null, 2 );
 		
+		// Add Editorial Metadata columns to the Story Budget if it exists
+		if ( $edit_flow->helpers->module_enabled( 'calendar' ) ) {
+			add_filter( 'ef_story_budget_term_columns', array( &$this, 'filter_story_budget_term_columns' ) );
+			// Register an action to handle this data later
+			add_filter( 'ef_story_budget_term_column_value', array( &$this, 'filter_story_budget_term_column_values' ), null, 3 );
+		}		
+		
 		// Load necessary scripts and stylesheets
 		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );	
 		
@@ -693,6 +700,90 @@ class EF_Editorial_Metadata {
 			$calendar_fields[$key] = $term_data;
 		}
 		return $calendar_fields;
+		
+	}
+	
+	/**
+	 * If the Edit Flow Story Budget is enabled, register our viewable terms as columns
+	 *
+	 * @since 0.7
+	 * @uses apply_filters( 'ef_story_budget_term_columns' )
+	 *
+	 * @param array $term_columns The existing columns on the story budget
+	 * @return array $term_columns Term columns with viewable Editorial Metadata terms
+	 */
+	function filter_story_budget_term_columns( $term_columns ) {
+		
+		$terms = $this->get_editorial_metadata_terms();
+		foreach( $terms as $term ) {
+			// Don't show if the term isn't viewable
+			if ( !$term->viewable )
+				continue;
+			// Prefixing slug with module slug because it isn't stored prefixed and we want to avoid collisions
+			$key = $this->module->slug . '-' . $term->slug;
+			// Switch to underscores
+			$key = str_replace( '-', '_', $key );
+			$term_columns[$key] = $term->name;
+		}		
+		return $term_columns;
+		
+	}
+	
+	/**
+	 * If the Edit Flow Story Budget is enabled,
+	 *
+	 * @since 0.7
+	 * @uses apply_filters( 'ef_story_budget_term_column_value' )
+	 *
+	 * @param object $post The post we're displaying
+	 * @param string $column_name Name of the column, as registered with EF_Story_Budget::register_term_columns
+	 * @param object $parent_term The parent term for the term column
+	 */
+	function filter_story_budget_term_column_values( $column_name, $post, $parent_term ) {
+		
+		$column_name = str_replace( '_', '-', $column_name );
+		// Don't accidentally handle values not our own
+		if ( false === strpos( $column_name, $this->module->slug ) )
+			return;
+			
+		$term_slug = str_replace( $this->module->slug . '-', '', $column_name );
+		$term = $this->get_editorial_metadata_term_by( 'slug', $term_slug );
+		
+		// Don't allow non-viewable term data to be displayed
+		if ( !$term->viewable )
+			return;
+			
+		$output = '';
+		$postmeta_key = $this->get_postmeta_key( $term );
+		$current_metadata = $this->get_postmeta_value( $term, $post->ID );
+		switch( $term->type ) {
+			case "date":
+				if ( !empty( $current_metadata ) )
+					$current_metadata = date( get_option( 'date_format' ), intval( $current_metadata ) );
+				$output = esc_html( $current_metadata );
+				break;
+			case "location":
+			case "text":
+			case "number":
+			case "paragraph":
+				if ( $current_metadata )
+					$output = esc_html( $current_metadata );
+				break;
+			case "checkbox":
+				if ( $current_metadata )
+					$output = __( 'Yes', 'edit-flow' );
+				else
+					$output = __( 'No', 'edit-flow' );
+				break;
+			case "user": 
+				$userdata = get_userdata( $current_metadata );
+				if ( is_object( $userdata ) )
+					$output = esc_html( $userdata->display_name );
+				break;
+			default:
+				break;
+		}
+		return $output;
 		
 	}
 	
