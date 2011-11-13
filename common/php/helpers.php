@@ -411,5 +411,51 @@ class EF_Helpers {
 		return trailingslashit( $module_url );
 	}
 	
+	/**
+	 * Produce a human-readable version of the time since a timestamp
+	 *
+	 * @param int $original The UNIX timestamp we're producing a relative time for
+	 * @return string $relative_time Human-readable version of the difference between the timestamp and now
+	 */
+	function timesince( $original ) {
+		// array of time period chunks
+		$chunks = array(
+			array(60 * 60 * 24 * 365 , 'year'),
+			array(60 * 60 * 24 * 30 , 'month'),
+			array(60 * 60 * 24 * 7, 'week'),
+			array(60 * 60 * 24 , 'day'),
+			array(60 * 60 , 'hour'),
+			array(60 , 'minute'),
+			array(1 , 'second'),
+		);
+
+		$today = time(); /* Current unix time  */
+		$since = $today - $original;
+
+		if ( $since > $chunks[2][0] ) {
+			$print = date("M jS", $original);
+
+			if( $since > $chunks[0][0] ) { // Seconds in a year
+					$print .= ", " . date( "Y", $original );
+			}
+
+			return $print;
+		}
+
+		// $j saves performing the count function each time around the loop
+		for ($i = 0, $j = count($chunks); $i < $j; $i++) {
+
+			$seconds = $chunks[$i][0];
+			$name = $chunks[$i][1];
+
+			// finding the biggest chunk (if the chunk fits, break)
+			if (($count = floor($since / $seconds)) != 0) {
+				break;
+			}
+		}
+
+		return sprintf( _n( "1 $name ago", "$count ${name}s ago", $count), $count);
+	}
+	
 }
 }

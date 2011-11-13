@@ -438,6 +438,15 @@ class ef_story_budget {
 				$post_author = get_userdata( $post->post_author );
 				return $post_author->display_name;
 				break;
+			case 'post_date':
+				$output = get_the_time( get_option( 'date_format' ), $post->ID ) . '<br />';
+				$output .= get_the_time( get_option( 'time_format' ), $post->ID );
+				return $output;
+				break;
+			case 'post_modified':
+				$modified_time_gmt = strtotime( $post->post_modified_gmt );
+				return $edit_flow->helpers->timesince( $modified_time_gmt );
+				break;
 			default:
 				break;
 		}
