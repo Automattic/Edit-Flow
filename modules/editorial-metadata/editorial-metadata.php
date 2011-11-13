@@ -652,6 +652,16 @@ class EF_Editorial_Metadata {
 		
 	}
 	
+	/**
+	 * If the Edit Flow Calendar is enabled, add viewable Editorial Metadata terms
+	 *
+	 * @since 0.7
+	 * @uses apply_filters( 'ef_calendar_item_information_fields' )
+	 *
+	 * @param array $calendar_fields Additional data fields to include on the calendar
+	 * @param int $post_id Unique ID for the post data we're building
+	 * @return array $calendar_fields Calendar fields with our viewable Editorial Metadata added
+	 */
 	function filter_calendar_item_fields( $calendar_fields, $post_id ) {
 		
 		$terms = $this->get_editorial_metadata_terms();
