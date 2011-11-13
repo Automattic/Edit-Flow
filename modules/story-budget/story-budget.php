@@ -22,8 +22,6 @@ class ef_story_budget {
 	
 	var $user_filters;
 	
-	const screen_width_percent = 98;
-	
 	const screen_id = 'dashboard_page_story-budget';
 	
 	const usermeta_key_prefix = 'ef_story_budget_';
@@ -62,6 +60,7 @@ class ef_story_budget {
 	 */
 	function init() {
 	
+		$this->num_columns = $this->get_num_columns();
 		$this->max_num_columns = apply_filters( 'ef_story_budget_max_num_columns', 3 );
 		
 		// Update the current user's filters with the variables set in $_GET
@@ -120,6 +119,9 @@ class ef_story_budget {
 		
 		if ( $current_screen->id != self::screen_id )
 			return;
+		
+		$num_columns = $this->get_num_columns();
+		echo '<script type="text/javascript"> var ef_story_budget_number_of_columns="' . esc_js( $this->num_columns ) . '";</script>';
 		
 		$edit_flow->helpers->enqueue_datepicker_resources();
 		wp_enqueue_script( 'edit_flow-story_budget', EDIT_FLOW_URL . 'modules/story-budget/lib/story-budget.js', array( 'edit_flow-date_picker' ), EDIT_FLOW_VERSION, true );
@@ -219,18 +221,27 @@ class ef_story_budget {
 		$this->terms = apply_filters( 'ef_story_budget_filter_terms', $terms ); // allow for reordering or any other filtering of terms
 		
 		?>
-		<div class="wrap" id="ef-story-budget-wrap">
+		<div class="wrap" id="ef-story-budget-wrap metabox-holder">
 			<?php $this->print_messages(); ?>
 			<?php $this->table_navigation(); ?>
-			<div id="dashboard-widgets-wrap">
-				<div id="dashboard-widgets" class="metabox-holder">
-				<?php
-					$this->print_column( $this->terms );
-				?>
-				</div>
-			</div><!-- /dashboard-widgets -->
+			<div class="metabox-holder">
+			<?php
+				// Handle the calculation of terms to postbox-containers
+				$terms_per_container = ceil( count( $terms ) / $this->num_columns );
+				$term_index = 0;
+				for( $i = 1; $i <= $this->num_columns; $i++ ) {
+					echo '<div class="postbox-container" style="width:' . ( 100 / $this->num_columns ) . '%;"';
+					echo '><div class="meta-box-sortables ui-sortable">';
+					for( $j = 0; $j < $terms_per_container; $j++ ) {
+						$this->print_term( $terms[$term_index] );
+						$term_index++;
+					}
+					echo '</div></div>';
+				}
+			?>
+			</div>
 			<?php $this->matching_posts_messages(); ?>
-		</div><!-- /wrap -->
+		</div>
 		<?php
 	}
 
@@ -320,28 +331,6 @@ class ef_story_budget {
 	}
 	
 	/**
-	 * Prints a single column in the story budget.
-	 *
-	 * @param int $col_num The column which we're going to print.
-	 * @param array $terms The terms to print in this column.
-	 */
-	function print_column( $terms ) {
-		// If printing fewer than get_num_columns() terms, only print that many columns
-		$num_columns = $this->get_num_columns();
-		?>
-		<div class="postbox-container">
-			<div class="meta-box-sortables">
-			<?php
-				// for ($i = $col_num; $i < count($terms); $i += $num_columns)
-				for ($i = 0; $i < count($terms); $i++)
-					$this->print_term( $terms[$i] );
-			?>
-			</div>
-		</div>
-		<?php
-	}
-	
-	/**
 	 * Prints the stories in a single term in the story budget.
 	 *
 	 * @param object $term The term to print.
@@ -354,9 +343,9 @@ class ef_story_budget {
 			$this->no_matching_posts = false;
 			
 	?>
-	<div class="postbox" style='width: <?php echo self::screen_width_percent / $this->get_num_columns(); ?>%'>
+	<div class="postbox">
 		<div class="handlediv" title="<?php _e( 'Click to toggle', 'edit-flow' ); ?>"><br /></div>
-		<h3 class='hndle'><span><?php echo $term->name; ?></span></h3>
+		<h3 class='hndle'><span><?php echo esc_html( $term->name ); ?></span></h3>
 		<div class="inside">
 			<table class="widefat post fixed story-budget" cellspacing="0">
 				<thead>

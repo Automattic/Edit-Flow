@@ -4,18 +4,15 @@
 	overflow: hidden;
 }
 
-#dashboard-widgets-wrap .postbox {
-	min-width: 0px;
-}
-
 .postbox-container {
-	width: 99%;
+	float: left;
 }
 
 .postbox {
-	display: inline-block;
-	margin: 0 0 20px;
-	position: relative;
+	display: block;
+	margin-bottom: 10px;
+	margin-left: 10px;
+	margin-right: 10px;
 }
 
 .story-budget thead tr th {

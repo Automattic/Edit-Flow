@@ -3,7 +3,7 @@
 jQuery(document).ready(function($) {
 	// Hide all post details when directed
 	$("#toggle_details").click(function() {
-		$(".post-title > p").toggleClass('hidden'); 
+		$(".post-title > p").toggle('hidden'); 
 	});
 	
 	// Make print link open up print dialog
@@ -14,18 +14,18 @@ jQuery(document).ready(function($) {
 	
 	// Hide a single section when directed
 	$("h3.hndle,div.handlediv").click(function() {
-		$(this).parent().children("div.inside").slideToggle();
+		$(this).parent().children("div.inside").toggle();
 	});
+	
+	/**
+	 * Dynamically set the width of the metaboxes on page load
+	 */
+	jQuery(".postbox-container").css('width', (100 / ef_story_budget_number_of_columns) + '%' );
 	
 	// Change number of columns when choosing a new number from Screen Options
 	$("input[name=ef_story_budget_screen_columns]").click(function() {
-		// Get the new number of columns
 		var numColumns = $(this).val();
 		
-		// Grab the total width constant (percentage) output by the PHP
-		var totalWidth = typeof(editFlowStoryBudgetColumnsWidth) !== 'undefined' ? editFlowStoryBudgetColumnsWidth : 98;
-		
-		// Set the width of each column based on the new number of columns
-		jQuery(".postbox").css('width', totalWidth / numColumns + '%');
+		jQuery(".postbox-container").css('width', (100 / numColumns) + '%' );
 	});
 });
