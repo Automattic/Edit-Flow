@@ -65,6 +65,10 @@ class ef_story_budget {
 		include_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
 		add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', __( 'Screen Layout', 'edit-flow' ), array( &$this, 'print_column_prefs' ), self::screen_id, array( &$this, 'save_column_prefs' ), true );
 		
+		// Register the columns of data appearing on every term. This is hooked into admin_init
+		// so other Edit Flow modules can register their filters if needed
+		add_action( 'admin_init', array( &$this, 'register_term_columns' ) );
+		
 		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );
 		// Load necessary scripts and stylesheets
 		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
@@ -127,6 +131,26 @@ class ef_story_budget {
 		wp_enqueue_style( 'edit_flow-story_budget-styles', EDIT_FLOW_URL . 'modules/story-budget/lib/story-budget.css', false, EDIT_FLOW_VERSION, 'screen' );
 		wp_enqueue_style( 'edit_flow-story_budget-print-styles', EDIT_FLOW_URL . 'modules/story-budget/lib/story-budget-print.css', false, EDIT_FLOW_VERSION, 'print' );
 	}
+	
+	/**
+	 * Register the columns of information that appear for each term module.
+	 * Modeled after how WP_List_Table works, but focused on hooks instead of OOP extending
+	 *
+	 * @since 0.7
+	 */
+	function register_term_columns() {
+		
+		$term_columns = array(
+			'title' => __( 'Title', 'edit-flow' ),
+			'status' => __( 'Status', 'edit-flow' ),
+			'author' => __( 'Author', 'edit-flow' ),
+			'post_date' => __( 'Post Date', 'edit-flow' ),
+			'post_modified' => __( 'Last Modified', 'edit-flow' ),
+		);
+		
+		$term_columns = apply_filters( 'ef_story_budget_term_columns', $term_columns );
+		$this->term_columns = $term_columns;
+	}	
 	
 	/**
 	 * ??
@@ -342,16 +366,12 @@ class ef_story_budget {
 			<table class="widefat post fixed story-budget" cellspacing="0">
 				<thead>
 					<tr>
-						<th scope="col" id="title" class="manage-column column-title" ><?php _e( 'Title', 'edit-flow' ); ?></th>
-						<th scope="col" id="author" class="manage-column column-author"><?php _e( 'Author', 'edit-flow' ); ?></th>
-						<!-- Intentionally using column-author below for CSS -->
-						<th scope="col" id="status" class="manage-column column-author"><?php _e( 'Status', 'edit-flow' ); ?></th>
-						<th scope="col" id="updated" class="manage-column column-author" title="<?php _e( 'Last update time', 'edit-flow'); ?>"><?php _e( 'Updated', 'edit-flow' ); ?></th>
+						<?php foreach( (array)$this->term_columns as $key => $name ): ?>
+						<th scope="col" id="<?php echo esc_attr( sanitize_key( $key ) ); ?>" class="manage-column column-<?php echo esc_attr( sanitize_key( $key ) ); ?>" ><?php echo esc_html( $name ); ?></th>
+						<?php endforeach; ?>
 					</tr>
 				</thead>
-
 				<tfoot></tfoot>
-
 				<tbody>
 				<?php
 					foreach ($posts as $post)
@@ -366,93 +386,84 @@ class ef_story_budget {
 	}
 	
 	/**
-	 * Prints a single post in the story budget.
+	 * Prints a single post within a term in the story budget.
 	 *
 	 * @param object $post The post to print.
 	 * @param object $parent_term The top-level term to which this post belongs.
 	 */
-	function print_post( $the_post, $parent_term ) {
-		global $post, $edit_flow;
-		$post = $the_post; // TODO: this isn't right - need to call setup_postdata($the_post). But that doesn't work. Why?
-		$authordata = get_userdata($post->post_author); // get the author data so we can use the author's display name
-		
-		// Build filtering URLs for post_author and post_status
-		$filter_url = EDIT_FLOW_STORY_BUDGET_PAGE;	
-		$author_filter_url = $filter_url . '&post_author=' . $post->post_author;
-		$status_filter_url = $filter_url . '&post_status=' . $post->post_status;
-		// Add any existing $_GET parameters to filter links in printed post
-		if ( isset($_GET['post_status']) && !empty( $_GET['post_status'] )  ) {
-			$author_filter_url .= '&post_status=' . $_GET['post_status'];
-		}
-		if ( isset( $_GET['post_author'] ) && !empty( $_GET['post_author'] ) ) {
-			$status_filter_url .= '&post_author=' . $_GET['post_author'];
-		}
-		if ( isset( $_GET['start_date'] ) && !empty( $_GET['start_date'] ) ) {
-			$author_filter_url .= '&start_date=' . $_GET['start_date'];
-			$status_filter_url .= '&start_date=' . $_GET['start_date'];
-		}
-		if ( isset( $_GET['end_date'] ) && !empty( $_GET['end_date'] ) ) {
-			$author_filter_url .= '&end_date=' . $_GET['end_date'];
-			$status_filter_url .= '&end_date=' . $_GET['end_date'];
-		}
-		
-		$post_owner = ( get_current_user_id() == $post->post_author ? 'self' : 'other' );
-		$edit_link = get_edit_post_link( $post->ID );
-		$post_title = _draft_or_post_title();				
-		$post_type_object = get_post_type_object( $post->post_type );
-		$can_edit_post = current_user_can( $post_type_object->cap->edit_post, $post->ID );
-				
-		// TODO: use these two lines before and after calling the_excerpt() once setup_postdata works correctly
-		//add_filter( 'excerpt_length', array( &$this, 'story_budget_excerpt_length') );
-		//remove_filter( 'excerpt_length', array( &$this, 'story_budget_excerpt_length') );
-		
-		// Get the friendly name for the status (e.g. Pending Review for pending)
-		$status = $edit_flow->helpers->get_post_status_friendly_name( $post->post_status );
+	function print_post( $post, $parent_term ) {
+		global $edit_flow;
 		?>
-			<tr id='post-<?php echo $post->ID; ?>' class='alternate author-self status-publish iedit' valign="top">
-				<td class="post-title column-title">
-					<?php if ( $can_edit_post ): ?>
-						<strong><a class="row-title" href="<?php echo $edit_link; ?>" title="<?php sprintf( __( 'Edit &#8220;%s&#8221', 'edit-flow' ), $post->post_title ); ?>"><?php echo $post_title; ?></a></strong>
-					<?php else: ?>
-						<strong><?php echo $post_title; ?></strong>
-					<?php endif; ?>
-					<p><?php echo strip_tags( substr( $post->post_content, 0, 5 * $this->story_budget_excerpt_length(0) ) ); // TODO: just call the_excerpt once setup_postadata works ?></p>
-					<p><?php do_action('story_budget_post_details'); ?></p>
-					<div class="row-actions">
-						<?php if ( $can_edit_post ) : ?>
-							<span class='edit'><a title='<?php _e( 'Edit this item', 'edit-flow' ); ?>' href="<?php echo $edit_link; ?>"><?php _e( 'Edit', 'edit-flow' ); ?></a> | </span>
-						<?php endif; ?>
-						<?php if ( EMPTY_TRASH_DAYS > 0 && current_user_can( $post_type_object->cap->delete_post, $post->ID ) ) : ?>
-						<span class='trash'><a class='submitdelete' title='<?php _e( 'Move this item to the Trash', 'edit-flow' ); ?>' href='<?php echo get_delete_post_link( $post->ID ); ?>'><?php _e( 'Trash', 'edit-flow' ); ?></a> | </span>
-						<?php endif; ?>
-						<span class='view'><a href="<?php get_permalink( $post->ID ); ?>" title="<?php echo esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'edit-flow' ), $post_title ) ); ?>" rel="permalink"><?php _e( 'View', 'edit-flow' ); ?></a></span></div>
-				</td>
-				<td class="author column-author"><a href="<?php echo $author_filter_url; ?>"><?php echo $authordata->display_name; ?></a></td>
-				<td class="status column-status"><a href="<?php echo $status_filter_url; ?>"><?php echo $status ?></a></td>
-				<td class="last-updated column-updated"><abbr class="ef-timeago" title="<?php echo printf( __( 'Last updated at %s', 'edit-flow' ), date( 'c', get_the_modified_date( 'U' ) ) ); ?>"><?php echo ef_timesince(get_the_modified_date('U')); ?><?php //$this->print_subcategories( $post->ID, $parent_term ); ?></abbr></td>
+			<tr id='post-<?php echo $post->ID; ?>' class='alternate' valign="top">
+				<?php foreach( (array)$this->term_columns as $key => $name ) {
+					echo '<td>';
+					if ( method_exists( &$this, 'term_column_' . $key ) ) {
+						$method = 'term_column_' . $key;
+						echo $this->$method( $post, $parent_term );
+					} else {
+						echo $this->term_column_default( $post, $key, $parent_term );
+					}
+					echo '</td>';
+				} ?>
 			</tr>
 		<?php
 	}
 	
 	/**
-	 * Prints the subcategories of a single post in the story budget.
+	 * Default callback for producing the HTML for a term column's single post value
+	 * Includes an action other 
 	 *
-	 * @todo Add this as an optional field
-	 *
-	 * @param int $id The post id whose subcategories should be printed.
-	 * @param object $parent_term The top-level term to which the post with given ID belongs.
+	 * @since 0.7
 	 */
-	function print_subcategories( $id, $parent_term ) {
-		// Display the subcategories of the post
-		$subterms = get_the_category( $id );
-		for ($i = 0; $i < count($subterms); $i++) {
-			$subterm = $subterms[$i];
-			if ($subterm->term_id != $parent_term->term_id) {
-				$subterm_url = esc_url( add_query_arg( array( 'post_type' => 'post', 'category_name' => $subterm_slug ), admin_url( 'edit.php' ) ) );	
-				echo "<a href='$subterm_url'>{$subterm->name}</a>";
-				echo ($i < count( $subterms ) - 1) ? ', ' : ''; // Separate list (all but last item) with commas
-			}
+	function term_column_default( $post, $column_name, $parent_term ) {
+		global $edit_flow;
+		
+		// Hook for other modules to get into
+		if ( $response = do_action( 'ef_story_budget_term_column_' . $column_name, $post, $parent_term ) )
+			return $response;
+			
+		switch( $column_name ) {
+			case 'status':
+				$status_name = $edit_flow->helpers->get_post_status_friendly_name( $post->post_status );
+				return $status_name;
+				break;
+			case 'author':
+				$post_author = get_userdata( $post->post_author );
+				return $post_author->display_name;
+				break;
+			default:
+				break;
 		}
+		
+	}
+	
+	/**
+	 * Prepare the data for the title term column
+	 *
+	 * @since 0.7
+	 */
+	function term_column_title( $post, $parent_term ) {
+		
+		$post_title = _draft_or_post_title( $post->ID );
+		
+		$post_type_object = get_post_type_object( $post->post_type );
+		if ( current_user_can( $post_type_object->cap->edit_post, $post->ID ) )
+			$output = '<strong><a href="' . get_edit_post_link( $post->ID ) . '">' . esc_html( $post_title ) . '</a></strong>'; 
+		else
+			$output = '<strong>' . esc_html( $post_title ) . '</strong>';
+		
+		// @todo Load the excerpt in here.
+		
+		// Edit or Trash or View
+		$output .= '<div class="row-actions">';
+		if ( current_user_can( $post_type_object->cap->edit_post, $post->ID ) )
+			$output .= '<span class="edit"><a title="' . __( 'Edit this post', 'edit-flow' ) . '" href="' . get_edit_post_link( $post->ID ) . '">' . __( 'Edit', 'edit-flow' ) . '</a> | </span>';
+		if ( EMPTY_TRASH_DAYS > 0 && current_user_can( $post_type_object->cap->delete_post, $post->ID ) )
+			$output .= '<span class="trash"><a class="submitdelete" title="' . __( 'Move this item to the Trash', 'edit-flow' ) . '" href="' . get_delete_post_link( $post->ID ) . '">' . __( 'Trash', 'edit-flow' ) . '</a> |</span>';
+		$output .= '<span class="view"><a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'edit-flow' ), $post_title ) ) . '" rel="permalink">' . __( 'View', 'edit-flow' ) . '</a></span>';
+		$output .= '</div>';
+		return $output;
+		
 	}
 	
 	function print_messages() {
