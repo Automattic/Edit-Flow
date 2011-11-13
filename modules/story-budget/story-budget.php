@@ -230,13 +230,12 @@ class ef_story_budget {
 				$terms_per_container = ceil( count( $terms ) / $this->num_columns );
 				$term_index = 0;
 				for( $i = 1; $i <= $this->num_columns; $i++ ) {
-					echo '<div class="postbox-container" style="width:' . ( 100 / $this->num_columns ) . '%;"';
-					echo '><div class="meta-box-sortables ui-sortable">';
+					echo '<div class="postbox-container" style="width:' . ( 100 / $this->num_columns ) . '%;">';
 					for( $j = 0; $j < $terms_per_container; $j++ ) {
 						$this->print_term( $terms[$term_index] );
 						$term_index++;
 					}
-					echo '</div></div>';
+					echo '</div>';
 				}
 			?>
 			</div>
