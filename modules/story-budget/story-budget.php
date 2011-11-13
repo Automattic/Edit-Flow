@@ -459,8 +459,6 @@ class ef_story_budget {
 		else
 			$output = '<strong>' . esc_html( $post_title ) . '</strong>';
 		
-		// @todo Load the excerpt in here.
-		
 		// Edit or Trash or View
 		$output .= '<div class="row-actions">';
 		if ( current_user_can( $post_type_object->cap->edit_post, $post->ID ) )
@@ -568,7 +566,7 @@ class ef_story_budget {
 		</div><!-- /alignleft actions -->
 		
 		<p class="print-box" style="float:right; margin-right: 30px;"><!-- Print link -->
-			<a href="#" id="toggle_details"><?php _e( 'Toggle Post Details', 'edit-flow' ); ?></a> | <a href="#" id="print_link"><?php _e( 'Print', 'edit-flow' ); ?></a>
+			<a href="#" id="print_link"><?php _e( 'Print', 'edit-flow' ); ?></a>
 		</p>
 		<div class="clear"></div>
 		
@@ -590,10 +588,6 @@ class ef_story_budget {
 		<div id="noposts-message" class="ef-updated"><p><?php _e( 'There are currently no matching posts.', 'edit-flow' ); ?></p></div>
 		<?php
 		}
-	}
-
-	function story_budget_excerpt_length( $default_length ) {
-		return 60 / $this->get_num_columns();
 	}
 	
 	/**
