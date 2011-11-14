@@ -259,10 +259,14 @@ class ef_story_budget {
 				// Handle the calculation of terms to postbox-containers
 				$terms_per_container = ceil( count( $terms ) / $this->num_columns );
 				$term_index = 0;
+				// Show just one column if we've filtered to one term
+				if ( count( $terms ) == 1 )
+					$this->num_columns = 1;
 				for( $i = 1; $i <= $this->num_columns; $i++ ) {
 					echo '<div class="postbox-container" style="width:' . ( 100 / $this->num_columns ) . '%;">';
 					for( $j = 0; $j < $terms_per_container; $j++ ) {
-						$this->print_term( $terms[$term_index] );
+						if ( isset( $terms[$term_index] ) )
+							$this->print_term( $terms[$term_index] );
 						$term_index++;
 					}
 					echo '</div>';
