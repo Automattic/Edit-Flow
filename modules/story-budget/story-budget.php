@@ -404,15 +404,16 @@ class ef_story_budget {
 	function print_term( $term ) {
 		global $wpdb;
 		$posts = $this->get_posts_for_term( $term, $this->user_filters );
-		if ( !empty( $posts ) ) :
+		if ( !empty( $posts ) )
 			// Don't display the message for $no_matching_posts
 			$this->no_matching_posts = false;
 			
 	?>
-	<div class="postbox">
+	<div class="postbox<?php if ( !empty( $posts )) echo ' postbox-has-posts'; ?>">
 		<div class="handlediv" title="<?php _e( 'Click to toggle', 'edit-flow' ); ?>"><br /></div>
 		<h3 class='hndle'><span><?php echo esc_html( $term->name ); ?></span></h3>
 		<div class="inside">
+			<?php if ( !empty( $posts )) : ?>
 			<table class="widefat post fixed story-budget" cellspacing="0">
 				<thead>
 					<tr>
@@ -429,10 +430,12 @@ class ef_story_budget {
 				?>
 				</tbody>
 			</table>
+			<?php else: ?>
+			<div class="message info"><?php _e( 'There are no posts for this term in the range or filter specified.' ); ?></div>
+			<?php endif; ?>
 		</div>
 	</div>
 	<?php
-		endif;
 	}
 	
 	/**
