@@ -663,7 +663,12 @@ class EF_Editorial_Metadata {
 	 * @return array $calendar_fields Calendar fields with our viewable Editorial Metadata added
 	 */
 	function filter_calendar_item_fields( $calendar_fields, $post_id ) {
+		global $edit_flow;
 		
+		// Make sure we respect which post type we're on
+		if ( !in_array( get_post_type( $post_id ), $edit_flow->helpers->get_post_types_for_module( $this->module ) ) )
+			return $calendar_fields;
+			
 		$terms = $this->get_editorial_metadata_terms();
 		
 		foreach( $terms as $term ) {
