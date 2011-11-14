@@ -457,5 +457,56 @@ class EF_Helpers {
 		return sprintf( _n( "1 $name ago", "$count ${name}s ago", $count), $count);
 	}
 	
+	/**
+	 * Displays a list of users that can be selected!
+	 *
+	 * @since 0.7
+	 *
+	 * @todo Add pagination support for blogs with billions of users
+	 *
+	 * @param ???
+	 * @param ???
+	 */
+	function users_select_form( $selected = null, $args = null ) {
+		global $blog_id;
+
+		// Set up arguments
+		$defaults = array(
+			'list_class' => 'ef-users-select-form', 
+			'input_id' => 'ef-selected-users'
+		);
+		$parsed_args = wp_parse_args( $args, $defaults );
+		extract($parsed_args, EXTR_SKIP);
+
+		$args = array(
+			'who' => 'authors',
+			'fields' => array(
+				'ID',
+				'display_name',
+				'user_email'
+			),
+		);
+		$users = get_users( $args );
+
+		if ( !is_array($selected) ) $selected = array();
+		?>
+
+		<?php if( !empty($users) ) : ?>
+			<ul class="<?php echo esc_attr( $list_class ) ?>">
+				<?php foreach( $users as $user ) : ?>
+					<?php $checked = ( in_array($user->ID, $selected) ) ? 'checked="checked"' : ''; ?>
+					<li>
+						<label for="<?php echo $input_id .'-'. $user->ID ?>">
+							<input type="checkbox" id="<?php echo $input_id .'-'. $user->ID ?>" name="<?php echo $input_id ?>[]" value="<?php echo esc_attr( $user->ID ); ?>" <?php echo $checked; ?> />
+							<span class="ef-user-displayname"><?php echo esc_html( $user->display_name ); ?></span>
+							<span class="ef-user-useremail"><?php echo esc_html( $user->user_email ); ?></span>
+						</label>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		<?php endif; ?>
+		<?php
+	}
+	
 }
 }

@@ -1,6 +1,8 @@
 <?php
- 
-// Functions related to hooking into custom statuses will go here
+/**
+ * class EF_Notifications
+ * Email notifications for Edit Flow and more
+ */
 
 if( ! defined( 'EF_NOTIFICATION_USE_CRON' ) )
 	define( 'EF_NOTIFICATION_USE_CRON', false );
@@ -25,7 +27,6 @@ class EF_Notifications {
 		global $edit_flow;
 		
 		// Register the module with Edit Flow
-		// @todo default options for registering the statuses
 		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
 		$args = array(
 			'title' => __( 'Notifications', 'edit-flow' ),
@@ -62,6 +63,9 @@ class EF_Notifications {
 		if( !taxonomy_exists( $this->unfollowing_users_taxonomy ) ) register_taxonomy( $this->unfollowing_users_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
 		// Register new taxonomy used to track which usergroups are following posts 
 		if( !taxonomy_exists( $this->following_usergroups_taxonomy ) ) register_taxonomy( $this->following_usergroups_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
+		
+		// Set up metabox and related actions
+		add_action( 'admin_init', array( &$this, 'add_post_meta_box' ) );
 	
 		add_action( 'transition_post_status', array( &$this, 'notification_status_change' ), 10, 3 );
 		add_action( 'ef_post_insert_editorial_comment', array( &$this, 'notification_comment') );
@@ -71,6 +75,121 @@ class EF_Notifications {
 		
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );
 		
+		// Javascript and CSS if we need it
+		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );		
+		
+	}
+	
+	/**
+	 * Load the capabilities onto users the first time the module is run
+	 *
+	 * @since 0.7
+	 */
+	function install() {
+		
+		global $wp_roles, $edit_flow;
+
+		if ( ! isset( $wp_roles ) )
+			$wp_roles = new WP_Roles();	
+		
+		if( $wp_roles->is_role('administrator') ) {
+			$admin_role =& get_role('administrator');
+			$admin_role->add_cap('edit_post_subscriptions');
+			$admin_role->add_cap('edit_usergroups');
+		}		
+		if ( $wp_roles->is_role( 'editor' ) ) {	
+			$editor_role =& get_role('editor');
+			$editor_role->add_cap('edit_post_subscriptions');
+		}				
+		
+		if ( $wp_roles->is_role( 'author' ) ) {	
+			$author_role =& get_role('author');
+			$author_role->add_cap('edit_post_subscriptions');
+		}
+		
+	}
+	
+	/**
+	 * Enqueue necessary admin scripts
+	 *
+	 * @since 0.7
+	 *
+	 * @uses wp_enqueue_script()
+	 */
+	function enqueue_admin_scripts() {
+		global $edit_flow;
+		
+		if ( $edit_flow->helpers->is_whitelisted_functional_view() ) {
+			wp_enqueue_script( 'jquery-listfilterizer' );
+			wp_enqueue_script( 'jquery-quicksearch' );
+			wp_enqueue_script( 'edit-flow-notifications-js', $this->module->module_url . 'lib/notifications.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
+		}
+	}
+	
+	/**
+	 * Add the subscriptions meta box to relevant post types
+	 */
+	function add_post_meta_box() {
+		global $edit_flow;
+		
+		$post_subscriptions_cap = apply_filters( 'ef_edit_post_subscriptions_cap', 'edit_post_subscriptions' );
+		if ( !current_user_can( $post_subscriptions_cap ) ) 
+			return;		
+		
+		$usergroup_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		foreach ( $usergroup_post_types as $post_type ) {
+			add_meta_box( 'edit-flow-subscriptions', __( 'Subscriptions', 'edit-flow'), array( &$this, 'subscriptions_meta_box'), $post_type, 'advanced', 'high');
+		}
+	}
+	
+	/**
+	 * Outputs box used to subscribe users and usergroups to Posts
+	 *
+	 * @todo Resolve whether this should live in a "subscriptions" class
+	 * @todo add_cap to set subscribers for posts; default to Admin and editors
+	 * @todo Remove dependency on post being saved already
+	 */	
+	function subscriptions_meta_box() {
+		global $post, $post_ID, $edit_flow;
+
+		// Only show on posts that have been saved
+		if( in_array( $post->post_status, array( 'new', 'auto-draft' ) ) ) {
+			?>
+			<p><?php _e( 'Subscribers can be added to a post after the post has been saved for the first time.', 'edit-flow' ); ?></p>
+			<?php
+			return;
+		}
+		
+		// @todo
+		//$followers = ef_get_following_users( $post->ID, 'id' );
+
+		// @todo
+		//$following_usergroups = ef_get_following_usergroups($post->ID, 'slugs');
+		
+		$user_form_args = array();
+		
+		$usergroups_form_args = array();
+		?>
+		<div id="ef-post_following_box">
+			<a name="subscriptions"></a>
+
+			<p><?php _e( 'Select the users and usergroups that should receive notifications when the status of this post is updated or when an editorial comment is added.', 'edit-flow' ); ?></p>
+			<div id="ef-post_following_users_box">
+				<h4><?php _e( 'Users', 'edit-flow' ); ?></h4>
+				<?php $edit_flow->helpers->users_select_form(); ?>
+			</div>
+			
+			<?php if ( $edit_flow->helpers->module_enabled( 'user_groups' ) ): ?>
+			<div id="ef-post_following_usergroups_box">
+				<h4><?php _e('User Groups', 'edit-flow') ?></h4>
+				<?php $edit_flow->user_groups->usergroups_select_form(); ?>
+			</div>
+			<?php endif; ?>
+			<div class="clear"></div>
+			<input type="hidden" name="ef-save_followers" value="1" /> <?php // Extra protection against autosaves ?>
+		</div>
+		
+		<?php
 	}
 	
 	/**
