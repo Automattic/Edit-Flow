@@ -102,7 +102,7 @@ class EF_Editorial_Metadata {
 			add_filter( 'ef_calendar_item_information_fields', array( &$this, 'filter_calendar_item_fields' ), null, 2 );
 		
 		// Add Editorial Metadata columns to the Story Budget if it exists
-		if ( $edit_flow->helpers->module_enabled( 'calendar' ) ) {
+		if ( $edit_flow->helpers->module_enabled( 'story_budget' ) ) {
 			add_filter( 'ef_story_budget_term_columns', array( &$this, 'filter_story_budget_term_columns' ) );
 			// Register an action to handle this data later
 			add_filter( 'ef_story_budget_term_column_value', array( &$this, 'filter_story_budget_term_column_values' ), null, 3 );
