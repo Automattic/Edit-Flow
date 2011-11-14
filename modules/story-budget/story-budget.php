@@ -161,6 +161,11 @@ class ef_story_budget {
 		$this->term_columns = $term_columns;
 	}
 	
+	/**
+	 * Handle a form submission to change the user's date range on the budget
+	 *
+	 * @since 0.7
+	 */
 	function handle_form_date_range_change() {
 		
 		if ( !isset( $_POST['ef-story-budget-range-submit'], $_POST['ef-story-budget-number-days'], $_POST['ef-story-budget-start-date'] ) )
@@ -587,12 +592,11 @@ class ef_story_budget {
 							);
 						wp_dropdown_categories( $category_dropdown_args );
 					}
-					
-					// TODO: Consider getting rid of this dropdown? The Edit Posts page doesn't have it and only allows filtering by user by clicking on their name. Should we do the same here?
+
 					$user_dropdown_args = array(
 						'show_option_all' => __( 'View all users', 'edit-flow' ),
-						'name'     => 'post_author',
-						'selected' => $this->user_filters['post_author']
+						'name'     => 'author',
+						'selected' => $this->user_filters['author']
 						);
 					wp_dropdown_users( $user_dropdown_args );
 				?>
@@ -602,7 +606,7 @@ class ef_story_budget {
 				<input type="hidden" name="page" value="story-budget"/>
 				<input type="hidden" name="post_status" value=""/>
 				<input type="hidden" name="cat" value=""/>
-				<input type="hidden" name="post_author" value=""/>
+				<input type="hidden" name="author" value=""/>
 				<input type="submit" id="post-query-clear" value="<?php _e( 'Reset', 'edit-flow' ); ?>" class="button-secondary button" />
 			</form>
 		</div><!-- /alignleft actions -->
@@ -643,7 +647,7 @@ class ef_story_budget {
 		$user_filters = array(
 			'post_status' 	=> $this->filter_get_param( 'post_status' ),
 			'cat' 			=> $this->filter_get_param( 'cat' ),
-			'post_author' 	=> $this->filter_get_param( 'post_author' ),
+			'author'     	=> $this->filter_get_param( 'author' ),
 			'start_date' 	=> $this->filter_get_param( 'start_date' ),
 			'number_days'   => $this->filter_get_param( 'number_days' )
 		);
