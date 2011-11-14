@@ -394,11 +394,12 @@ class EF_Calendar {
 		// Get filters either from $_GET or from user settings
 		$filters = $this->get_filters();
 		// For generating the WP Query objects later on
-		$args = array(	'post_status' => $filters['post_status'],
-						'post_type' => $filters['post_type'],
-						'cat'         => $filters['cat'],
-						'author'      => $filters['author']
-					  );
+		$post_query_args = array(
+			'post_status' => $filters['post_status'],
+			'post_type' => $filters['post_type'],
+			'cat'         => $filters['cat'],
+			'author'      => $filters['author']
+		);
 		$this->start_date = $filters['start_date'];
 		
 		// We use this later to label posts if they need labeling
@@ -448,7 +449,7 @@ class EF_Calendar {
 				for( $current_week = 1; $current_week <= $this->total_weeks; $current_week++ ):
 					// We need to set the global variable for our posts_where filter
 					$this->current_week = $current_week;
-					$week_posts = $this->get_calendar_posts_for_week( $args );
+					$week_posts = $this->get_calendar_posts_for_week( $post_query_args );
 					$date_format = 'Y-m-d';
 					$week_single_date = $this->get_beginning_of_week( $filters['start_date'], $date_format, $current_week );
 					$week_dates = array();
@@ -501,7 +502,6 @@ class EF_Calendar {
 							}
 						}
 					}
-					//var_dump( $week_posts[$week_single_date] );
 				
 					$td_classes = array(
 						'day-unit',
@@ -794,12 +794,13 @@ class EF_Calendar {
 		global $wpdb, $edit_flow;
 		
 		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
-		$defaults = array(	'post_status' => null,
-							'cat'         => null,
-						  	'author'      => null,
-							'post_type' => $supported_post_types,
-							'posts_per_page' => -1,
-						  );
+		$defaults = array(
+			'post_status' => null,
+			'cat'         => null,
+			'author'      => null,
+			'post_type' => $supported_post_types,
+			'posts_per_page' => -1,
+		);
 						 
 		$args = array_merge( $defaults, $args );
 		
