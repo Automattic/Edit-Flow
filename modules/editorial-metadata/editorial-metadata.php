@@ -412,7 +412,7 @@ class EF_Editorial_Metadata {
 		}
 		
 		if( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
-			|| ! in_array( $post->post_type, $edit_flow->helpers->get_post_types_for_module( $edit_flow->custom_status->module ) )
+			|| ! in_array( $post->post_type, $edit_flow->helpers->get_post_types_for_module( $this->module ) )
 			|| $post->post_type == 'post' && !current_user_can( 'edit_post', $id )
 			|| $post->post_type == 'page' && !current_user_can( 'edit_page', $id ) ) {
 			return $id;
