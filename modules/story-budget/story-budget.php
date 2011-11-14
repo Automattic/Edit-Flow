@@ -478,8 +478,8 @@ class ef_story_budget {
 		
 		// Hook for other modules to get into
 		$column_value = null;
-		$column_value = apply_filters( 'ef_story_budget_term_column_value', $column_name, $post, $parent_term );
-		if ( !is_null( $column_value ) )
+		$column_value = apply_filters( 'ef_story_budget_term_column_value', $column_name, $post, $parent_term ); 
+		if ( !is_null( $column_value ) && $column_value != $column_name )
 			return $column_value;
 			
 		switch( $column_name ) {
