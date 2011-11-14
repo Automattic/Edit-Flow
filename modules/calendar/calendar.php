@@ -569,6 +569,13 @@ class EF_Calendar {
 									'label' => __( 'Author', 'edit-flow' ),
 									'value' => get_the_author_meta( 'display_name', $post->post_author ),
 								);
+								// If the calendar supports more than one post type, show the post type label
+								if ( count( $edit_flow->helpers->get_post_types_for_module( $this->module ) ) > 1 ) {
+									$ef_calendar_item_information_fields['post_type'] = array(
+										'label' => __( 'Post Type', 'edit-flow' ),
+										'value' => get_post_type_object( $post->post_type )->labels->singular_name,
+									);
+								}
 								// Publication time for published statuses
 								if ( in_array( $post->post_status, $published_statuses ) ) {
 									if ( $post->post_status == 'future' ) {
