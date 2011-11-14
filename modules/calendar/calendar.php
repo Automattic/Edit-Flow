@@ -583,6 +583,31 @@ class EF_Calendar {
 										);
 									}
 								}
+								// Taxonomies and their values
+								$args = array(
+									'post_type' => $post->post_type,
+								);
+								$taxonomies = get_object_taxonomies( $args, 'object' );
+								foreach( (array)$taxonomies as $taxonomy ) {
+									// Sometimes taxonomies skip by, so let's make sure it has a label too
+									if ( !$taxonomy->public || !$taxonomy->label )
+										continue;
+									$terms = wp_get_object_terms( $post->ID, $taxonomy->name );
+									$key = 'tax_' . $taxonomy->name;
+									if ( count( $terms ) ) {
+										$value = '';
+										foreach( (array)$terms as $term ) {
+											$value .= $term->name . ', ';
+										}
+										$value = rtrim( $value, ', ' );
+									} else {
+										$value = '';
+									}
+									$ef_calendar_item_information_fields[$key] = array(
+										'label' => $taxonomy->label,
+										'value' => $value,
+									);
+								}
 								
 								$ef_calendar_item_information_fields = apply_filters( 'ef_calendar_item_information_fields', $ef_calendar_item_information_fields, $post->ID );
 							?>
