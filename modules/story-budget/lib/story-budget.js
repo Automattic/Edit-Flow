@@ -28,4 +28,20 @@ jQuery(document).ready(function($) {
 		
 		jQuery(".postbox-container").css('width', (100 / numColumns) + '%' );
 	});
+	
+	jQuery('h2 a.change-date').click(function(){
+		jQuery(this).hide();
+		jQuery('h2 form .form-value').hide();
+		jQuery('h2 form input').show();
+		jQuery('h2 form a.change-date-cancel').show();
+		return false;
+	});
+	
+	jQuery('h2 form a.change-date-cancel').click(function(){
+		jQuery(this).hide();
+		jQuery('h2 form .form-value').show();
+		jQuery('h2 form input').hide();
+		jQuery('h2 form a.change-date').show();
+		return false;
+	});
 });

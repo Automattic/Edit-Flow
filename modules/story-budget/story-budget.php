@@ -65,6 +65,7 @@ class ef_story_budget {
 		
 		// Update the current user's filters with the variables set in $_GET
 		$this->user_filters = $this->update_user_filters();
+		add_action( 'admin_init', array( &$this, 'handle_form_date_range_change' ) );
 		
 		include_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
 		if ( function_exists( 'add_screen_options_panel' ) )
@@ -158,7 +159,27 @@ class ef_story_budget {
 		
 		$term_columns = apply_filters( 'ef_story_budget_term_columns', $term_columns );
 		$this->term_columns = $term_columns;
-	}	
+	}
+	
+	function handle_form_date_range_change() {
+		
+		if ( !isset( $_POST['ef-story-budget-range-submit'], $_POST['ef-story-budget-number-days'], $_POST['ef-story-budget-start-date'] ) )
+			return;
+			
+		if ( !wp_verify_nonce( $_POST['nonce'], 'change-date' ) )
+			wp_die( $this->module->messages['nonce-failed'] );
+		
+		global $edit_flow;
+		
+		$current_user = wp_get_current_user();
+		$user_filters = $edit_flow->helpers->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
+		$user_filters['start_date'] = date( 'Y-m-d', strtotime( $_POST['ef-story-budget-start-date'] ) );
+		$user_filters['number_days'] = (int)$_POST['ef-story-budget-number-days'];
+		
+		$edit_flow->helpers->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $user_filters );
+		wp_redirect( menu_page_url( $this->module->slug, false ) );
+		exit;
+	}
 	
 	/**
 	 * ??
@@ -221,7 +242,11 @@ class ef_story_budget {
 		$this->terms = apply_filters( 'ef_story_budget_filter_terms', $terms ); // allow for reordering or any other filtering of terms
 		
 		?>
-		<div class="wrap" id="ef-story-budget-wrap metabox-holder">
+		<div class="wrap" id="ef-story-budget-wrap">
+			<div id="ef-story-budget-title">
+				<?php echo '<img src="' . esc_url( $this->module->img_url ) . '" class="module-icon icon32" />'; ?>
+				<h2><?php _e( 'Story Budget', 'edit-flow' ); ?>&nbsp;<span class="time-range"><?php $this->story_budget_time_range(); ?></span></h2>
+			</div><!-- /Story Budget Title -->
 			<?php $this->print_messages(); ?>
 			<?php $this->table_navigation(); ?>
 			<div class="metabox-holder">
@@ -243,6 +268,43 @@ class ef_story_budget {
 		</div>
 		<?php
 	}
+	
+	/**
+	 * Allow the user to define the date range in a new and exciting way
+	 *
+	 * @since 0.7
+	 */
+	function story_budget_time_range() {
+		
+		$output = '<form method="POST" action="' . menu_page_url( $this->module->slug, false ) . '">';
+			
+		$start_date_value = '<input type="text" id="ef-story-budget-start-date" name="ef-story-budget-start-date"'
+			. ' size="10" class="date-pick" value="'
+			. esc_attr( date( 'M d Y', strtotime( $this->user_filters['start_date'] ) ) ) . '" /><span class="form-value">';
+		
+		if ( date( 'Y', strtotime( $this->user_filters['start_date'] ) ) != date( 'Y' ) )
+			$start_date_value .= esc_html( date( 'F jS, Y', strtotime( $this->user_filters['start_date'] ) ) );
+		else
+			$start_date_value .= esc_html( date( 'F jS', strtotime( $this->user_filters['start_date'] ) ) );
+		$start_date_value .= '</span>';
+		
+		$number_days_value = '<input type="text" id="ef-story-budget-number-days" name="ef-story-budget-number-days"'
+			. ' size="3" maxlength="3" value="'
+			. esc_attr( $this->user_filters['number_days'] ) . '" /><span class="form-value">' . esc_html( $this->user_filters['number_days'] )
+			. '</span>';		
+		
+		$output .= sprintf( __( 'starting %s showing %s days', 'edit-flow' ), $start_date_value, $number_days_value );
+		$output .= '&nbsp;&nbsp;<span class="change-date-buttons">';
+		$output .= '<input id="ef-story-budget-range-submit" name="ef-story-budget-range-submit" type="submit"';
+		$output .= ' class="button-primary" value="' . __( 'Change', 'edit-flow' ) . '" />';
+		$output .= '&nbsp;';
+		$output .= '<a class="change-date-cancel hidden" href="#">' . __( 'Cancel', 'edit-flow' ) . '</a>';
+		$output .= '<a class="change-date" href="#">' . __( 'Change', 'edit-flow' ) . '</a>';
+		$output .= wp_nonce_field( 'change-date', 'nonce', 'change-date-nonce', false );
+		$output .= '</span></form>';
+		
+		echo $output;
+	}
 
 	/**
 	 * Get all of the posts for a given term based on filters
@@ -256,7 +318,7 @@ class ef_story_budget {
 		$defaults = array(
 			'post_status' => null,
 			'author'      => null,
-			'posts_per_page' => apply_filters( 'ef_story_budget_query_limit', 10 ),
+			'posts_per_page' => apply_filters( 'ef_story_budget_max_query', 200 ),
 		);				 
 		$args = array_merge( $defaults, $args );
 		
@@ -312,11 +374,11 @@ class ef_story_budget {
 	function posts_where_range( $where = '' ) {
 		global $edit_flow, $wpdb;
 	
-		//$beginning_date = $this->get_beginning_of_week( $this->start_date, 'Y-m-d', $this->current_week );
-		//$ending_date = $this->get_ending_of_week( $this->start_date, 'Y-m-d', $this->current_week );
-		// Adjust the ending date to account for the entire day of the last day of the week
-		//$ending_date = date( "Y-m-d", strtotime( "+1 day", strtotime( $ending_date ) ) );
-		//$where = " AND ($wpdb->posts.post_date >= '$beginning_date' AND $wpdb->posts.post_date < '$ending_date')" . $where;
+		$beginning_date = date( 'Y-m-d', strtotime( $this->user_filters['start_date'] ) );
+		// Adjust the ending date to account for the entire day of the last day
+		$end_day = $this->user_filters['number_days'] + 1;
+		$ending_date = date( "Y-m-d", strtotime( "+" . $end_day . " days", strtotime( $beginning_date ) ) );
+		$where = $where . $wpdb->prepare( " AND ($wpdb->posts.post_date >= '%s' AND $wpdb->posts.post_date < '%s')", $beginning_date, $ending_date );
 	
 		return $where;
 	}	
@@ -465,10 +527,6 @@ class ef_story_budget {
 	
 	function print_messages() {
 	?>
-		<div id="ef-story-budget-title"><!-- Story Budget Title -->
-			<?php echo '<img src="' . esc_url( $this->module->img_url ) . '" class="module-icon icon32" />'; ?>
-			<h2><?php _e( 'Story Budget', 'edit-flow' ); ?></h2>
-		</div><!-- /Story Budget Title -->
 	
 	<?php
 		if ( isset($_GET['trashed']) || isset($_GET['untrashed']) ) {
@@ -538,11 +596,6 @@ class ef_story_budget {
 						);
 					wp_dropdown_users( $user_dropdown_args );
 				?>
-				
-				<label for="start_date"><?php _e( 'From:', 'edit-flow' ); ?> </label>
-				<input id='start_date' name='start_date' type='text' class="date-pick" value="<?php echo $this->user_filters['start_date']; ?>" autocomplete="off" />
-				<label for="end_date"><?php _e( 'To:', 'edit-flow' ); ?> </label>
-				<input id='end_date' name='end_date' type='text' size='20' class="date-pick" value="<?php echo $this->user_filters['end_date']; ?>" autocomplete="off" />
 				<input type="submit" id="post-query-submit" value="<?php _e( 'Filter', 'edit-flow' ); ?>" class="button-primary button" />
 			</form>
 			<form method="GET" style="float: left;">
@@ -550,15 +603,13 @@ class ef_story_budget {
 				<input type="hidden" name="post_status" value=""/>
 				<input type="hidden" name="cat" value=""/>
 				<input type="hidden" name="post_author" value=""/>
-				<input type="hidden" name="start_date" value=""/>
-				<input type="hidden" name="end_date" value=""/>
 				<input type="submit" id="post-query-clear" value="<?php _e( 'Reset', 'edit-flow' ); ?>" class="button-secondary button" />
 			</form>
 		</div><!-- /alignleft actions -->
 		
-		<p class="print-box" style="float:right; margin-right: 30px;"><!-- Print link -->
+		<div class="print-box" style="float:right; margin-right: 30px;"><!-- Print link -->
 			<a href="#" id="print_link"><?php _e( 'Print', 'edit-flow' ); ?></a>
-		</p>
+		</div>
 		<div class="clear"></div>
 		
 	</div><!-- /tablenav -->
@@ -590,12 +641,12 @@ class ef_story_budget {
 		$current_user = wp_get_current_user();
 		
 		$user_filters = array(
-								'post_status' 	=> $this->filter_get_param( 'post_status' ),
-								'cat' 			=> $this->filter_get_param( 'cat' ),
-								'post_author' 	=> $this->filter_get_param( 'post_author' ),
-								'start_date' 	=> $this->filter_get_param( 'start_date' ),
-								'end_date' 		=> $this->filter_get_param( 'end_date' )
-							  );
+			'post_status' 	=> $this->filter_get_param( 'post_status' ),
+			'cat' 			=> $this->filter_get_param( 'cat' ),
+			'post_author' 	=> $this->filter_get_param( 'post_author' ),
+			'start_date' 	=> $this->filter_get_param( 'start_date' ),
+			'number_days'   => $this->filter_get_param( 'number_days' )
+		);
 		
 		$current_user_filters = array();
 		$current_user_filters = $edit_flow->helpers->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
@@ -606,6 +657,12 @@ class ef_story_budget {
 				$user_filters[$key] = $current_user_filters[$key];
 			}
 		}
+		
+		if ( !$user_filters['start_date'] )
+			$user_filters['start_date'] = date( 'Y-m-d' );
+		
+		if ( !$user_filters['number_days'] )
+			$user_filters['number_days'] = 10;
 		
 		$edit_flow->helpers->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $user_filters );
 		return $user_filters;
