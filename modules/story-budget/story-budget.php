@@ -431,7 +431,7 @@ class ef_story_budget {
 				</tbody>
 			</table>
 			<?php else: ?>
-			<div class="message info"><?php _e( 'There are no posts for this term in the range or filter specified.' ); ?></div>
+			<div class="message info"><?php _e( 'There are no posts for this term in the range or filter specified.', 'edit-flow' ); ?></div>
 			<?php endif; ?>
 		</div>
 	</div>
