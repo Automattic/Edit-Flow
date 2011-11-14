@@ -322,7 +322,7 @@ class EF_Editorial_Metadata {
 		if ( !count( $terms ) ) {
 			$message = __( 'No editorial metadata available.' );
 			if ( current_user_can( 'manage_options' ) )
-				$message .= sprintf( __( ' <a href="%s">Add fields to get started</a>.' ), EDIT_FLOW_EDITORIAL_METADATA_PAGE );
+				$message .= sprintf( __( ' <a href="%s">Add fields to get started</a>.' ), $this->get_link() );
 			else 
 				$message .= __( ' Encourage your site administrator to configure your editorial workflow by adding editorial metadata.' );
 			echo '<p>' . $message . '</p>';

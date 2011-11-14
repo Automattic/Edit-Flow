@@ -33,31 +33,14 @@ define( 'EDIT_FLOW_ROOT' , dirname(__FILE__) );
 define( 'EDIT_FLOW_FILE_PATH' , EDIT_FLOW_ROOT . '/' . basename(__FILE__) );
 define( 'EDIT_FLOW_URL' , plugins_url(plugin_basename(dirname(__FILE__)).'/') );
 define( 'EDIT_FLOW_SETTINGS_PAGE' , add_query_arg( 'page', 'ef-settings', get_admin_url( null, 'admin.php' ) ) );
-define( 'EDIT_FLOW_EDITORIAL_METADATA_PAGE' , add_query_arg( 'taxonomy', 'ef_editorial_meta', get_admin_url( null, 'edit-tags.php' ) ) );
-define( 'EDIT_FLOW_PREFIX' , 'ef_' );
 define( 'EDIT_FLOW_CALENDAR_PAGE', add_query_arg( 'page', 'calendar', get_admin_url( null, 'index.php' ) ) );
-define( 'EDIT_FLOW_STORY_BUDGET_PAGE', add_query_arg( 'page', 'story-budget', get_admin_url( null, 'index.php' ) ) );
 
 // Core class
 class edit_flow {
 
 	// Unique identified added as a prefix to all options
 	var $options_group = 'edit_flow_';
-	var $options_group_name = 'edit_flow_options';	
-	// Initially stores default option values, but when load_options is run, it is populated with the options stored in the WP db
-	var $options = array(
-		'version' => 0,
-		'status_dropdown_visible' => 1,
-		'custom_status_default_status' => 'draft',
-		'dashboard_widgets_enabled' => 1,
-		'post_status_widget_enabled' => 1,
-		'quickpitch_widget_enabled' => 1,
-		'myposts_widget_enabled' => 1,
-		'notifications_enabled' => 1,
-		'always_notify_admin' => 0,
-		'calendar_enabled' => 1,
-		'story_budget_enabled' => 1,
-	);
+	var $options_group_name = 'edit_flow_options';
 
 	/**
 	 * Constructor
