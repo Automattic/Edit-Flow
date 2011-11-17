@@ -72,7 +72,7 @@ class EF_Dashboard {
 			wp_add_dashboard_widget( 'post_status_widget', __( 'Unpublished Content', 'edit-flow' ), array( &$this, 'post_status_widget' ) );
 			
 		// Add the MyPosts widget, if enabled
-		if ( $this->module->options->my_posts_widget == 'on')			
+		if ( $this->module->options->my_posts_widget == 'on' && $edit_flow->helpers->module_enabled( 'notifications' ) )
 			wp_add_dashboard_widget( 'myposts_widget', __( 'Posts I\'m Following', 'edit-flow' ), array( &$this, 'myposts_widget' ) );
 
 	}
@@ -130,7 +130,7 @@ class EF_Dashboard {
 	function myposts_widget() {
 		global $edit_flow;
 		
-		$myposts = ef_get_user_following_posts();
+		$myposts = $edit_flow->notifications->get_user_following_posts();
 		
 		?>
 		<div class="ef-myposts">
@@ -192,17 +192,27 @@ class EF_Dashboard {
 	 * @since 0.7
 	 */
 	function settings_my_posts_widget_option() {
+		global $edit_flow;
 		$options = array(
 			'off' => __( 'Disabled', 'edit-flow' ),			
 			'on' => __( 'Enabled', 'edit-flow' ),
 		);
-		echo '<select id="my_posts_widget" name="' . $this->module->options_group_name . '[my_posts_widget]">';
+		echo '<select id="my_posts_widget" name="' . $this->module->options_group_name . '[my_posts_widget]"';
+		// Notifications module has to be enabled for the My Posts widget to work
+		if ( !$edit_flow->helpers->module_enabled('notifications') ) {
+			echo ' disabled="disabled"';
+			$this->module->options->my_posts_widget = 'off';
+		}
+		echo '>';
 		foreach ( $options as $value => $label ) {
 			echo '<option value="' . esc_attr( $value ) . '"';
-			echo selected( $this->module->options->my_posts_widget, $value );			
+			echo selected( $this->module->options->my_posts_widget, $value );
 			echo '>' . esc_html( $label ) . '</option>';
 		}
-		echo '</select>';		
+		echo '</select>';
+		if ( !$edit_flow->helpers->module_enabled('notifications') ) {
+			echo '&nbsp;&nbsp;&nbsp;<span class="description">' . __( 'The notifications module will need to be enabled for this widget to display.', 'edit-flow' );
+		}
 	}
 	
 	/**
@@ -231,13 +241,13 @@ class EF_Dashboard {
 	function print_configure_view() {
 		global $edit_flow;
 		?>
-		<form class="basic-settings" action="<?php echo esc_url( add_query_arg( 'page', $this->module->settings_slug, get_admin_url( null, 'admin.php' ) ) ); ?>" method="post">
+		<form class="basic-settings" action="<?php echo esc_url( menu_page_url( $this->module->settings_slug ) ); ?>" method="post">
 			<?php settings_fields( $this->module->options_group_name ); ?>
 			<?php do_settings_sections( $this->module->options_group_name ); ?>	
 			<?php				
 				echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';
-				submit_button();
 			?>
+			<p class="submit"><?php submit_button( null, 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow' ); ?></a></p>
 		</form>
 		<?php
 	}

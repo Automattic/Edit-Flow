@@ -158,6 +158,9 @@ class EF_Helpers {
 	 * @since 0.7
 	 */
 	function enqueue_datepicker_resources() {
+		
+		// Add the first day of the week as an available variable to wp_head
+		echo "<script type=\"text/javascript\">var ef_week_first_day=\"" . get_option( 'start_of_week' ) . "\";</script>";		
 
 		// Datepicker is available WordPress 3.3. We have to register it ourselves for previous versions of WordPress
 		wp_enqueue_script( 'jquery-ui-datepicker' );
@@ -190,6 +193,47 @@ class EF_Helpers {
 
 		return $post_type;
 	}
+	
+	/**
+	 * Wrapper for the get_user_meta() function so we can replace it if we need to
+	 *
+	 * @since 0.7
+	 *
+	 * @param int $user_id Unique ID for the user
+	 * @param string $key Key to search against
+	 * @param bool $single Whether or not to return just one value
+	 * @return string|bool|array $value Whatever the stored value was
+	 */
+	function get_user_meta( $user_id, $key, $string = true ) {
+		
+		$response = do_action( 'ef_get_user_meta', $user_id, $key, $string );
+		if ( !is_null( $response ) )
+			return $response;
+			
+		return get_user_meta( $user_id, $key, $string );
+		
+	}
+	
+	/**
+	 * Wrapper for the update_user_meta() function so we can replace it if we need to
+	 *
+	 * @since 0.7
+	 *
+	 * @param int $user_id Unique ID for the user
+	 * @param string $key Key to search against
+	 * @param string|bool|array $value Whether or not to return just one value
+	 * @param string|bool|array $previous (optional) Previous value to replace
+	 * @return bool $success Whether we were successful in saving
+	 */
+	function update_user_meta( $user_id, $key, $value, $previous = null ) {
+		
+		$response = do_action( 'ef_update_user_meta', $user_id, $key, $value, $previous );
+		if ( !is_null( $response ) )
+			return $response;
+			
+		return update_user_meta( $user_id, $key, $value, $previous );
+		
+	}	
 	
 	/**
 	 * Take a status and a message, JSON encode and print
@@ -365,6 +409,103 @@ class EF_Helpers {
 	function get_module_url( $file ) {
 		$module_url = plugins_url( plugin_basename( dirname( $file ) ) );
 		return trailingslashit( $module_url );
+	}
+	
+	/**
+	 * Produce a human-readable version of the time since a timestamp
+	 *
+	 * @param int $original The UNIX timestamp we're producing a relative time for
+	 * @return string $relative_time Human-readable version of the difference between the timestamp and now
+	 */
+	function timesince( $original ) {
+		// array of time period chunks
+		$chunks = array(
+			array(60 * 60 * 24 * 365 , 'year'),
+			array(60 * 60 * 24 * 30 , 'month'),
+			array(60 * 60 * 24 * 7, 'week'),
+			array(60 * 60 * 24 , 'day'),
+			array(60 * 60 , 'hour'),
+			array(60 , 'minute'),
+			array(1 , 'second'),
+		);
+
+		$today = time(); /* Current unix time  */
+		$since = $today - $original;
+
+		if ( $since > $chunks[2][0] ) {
+			$print = date("M jS", $original);
+
+			if( $since > $chunks[0][0] ) { // Seconds in a year
+					$print .= ", " . date( "Y", $original );
+			}
+
+			return $print;
+		}
+
+		// $j saves performing the count function each time around the loop
+		for ($i = 0, $j = count($chunks); $i < $j; $i++) {
+
+			$seconds = $chunks[$i][0];
+			$name = $chunks[$i][1];
+
+			// finding the biggest chunk (if the chunk fits, break)
+			if (($count = floor($since / $seconds)) != 0) {
+				break;
+			}
+		}
+
+		return sprintf( _n( "1 $name ago", "$count ${name}s ago", $count), $count);
+	}
+	
+	/**
+	 * Displays a list of users that can be selected!
+	 *
+	 * @since 0.7
+	 *
+	 * @todo Add pagination support for blogs with billions of users
+	 *
+	 * @param ???
+	 * @param ???
+	 */
+	function users_select_form( $selected = null, $args = null ) {
+		global $blog_id;
+
+		// Set up arguments
+		$defaults = array(
+			'list_class' => 'ef-users-select-form', 
+			'input_id' => 'ef-selected-users'
+		);
+		$parsed_args = wp_parse_args( $args, $defaults );
+		extract($parsed_args, EXTR_SKIP);
+
+		$args = array(
+			'who' => 'authors',
+			'fields' => array(
+				'ID',
+				'display_name',
+				'user_email'
+			),
+		);
+		$users = get_users( $args );
+
+		if ( !is_array($selected) ) $selected = array();
+		?>
+
+		<?php if( !empty($users) ) : ?>
+			<ul class="<?php echo esc_attr( $list_class ) ?>">
+				<?php foreach( $users as $user ) : ?>
+					<?php $checked = ( in_array($user->ID, $selected) ) ? 'checked="checked"' : ''; ?>
+					<li>
+						<label for="<?php echo esc_attr( $input_id .'-'. $user->ID ) ?>">
+							<input type="checkbox" id="<?php echo esc_attr( $input_id .'-'. $user->ID ) ?>" name="<?php echo esc_attr( $input_id ) ?>[]" value="<?php echo esc_attr( $user->ID ); ?>" <?php echo $checked; ?> />
+							<span class="ef-user-displayname"><?php echo esc_html( $user->display_name ); ?></span>
+							<span class="ef-user-useremail"><?php echo esc_html( $user->user_email ); ?></span>
+						</label>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		<?php endif; ?>
+		<?php
 	}
 	
 }

@@ -4,18 +4,38 @@
 	overflow: hidden;
 }
 
-#dashboard-widgets-wrap .postbox {
-	min-width: 0px;
+#ef-story-budget-title h2 span {
+	color: #999999;
 }
 
+#ef-story-budget-title h2 form {
+	display: inline;
+	position: relative;
+}
+
+#ef-story-budget-title h2 form input {
+	display:none;
+}
+
+#ef-story-budget-title h2 a.change-date {
+	display:inline-block;
+}
+
+#ef-story-budget-title h2 a.change-date,
+#ef-story-budget-title h2 a.change-date-cancel {
+	font-size: 14px;
+}
+
+
 .postbox-container {
-	width: 99%;
+	float: left;
 }
 
 .postbox {
-	display: inline-block;
-	margin: 0 0 20px;
-	position: relative;
+	display: block;
+	margin-bottom: 10px;
+	margin-left: 10px;
+	margin-right: 10px;
 }
 
 .story-budget thead tr th {

@@ -4,7 +4,7 @@ Plugin Name: Edit Flow
 Plugin URI: http://editflow.org/
 Description: Remixing the WordPress admin for better editorial workflow options.
 Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Automattic, and others
-Version: 0.7-alpha1
+Version: 0.7-alpha2
 Author URI: http://editflow.org/
 
 Copyright 2009-2011 Mohammad Jangda, Daniel Bachhuber, et al.
@@ -27,36 +27,19 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-define( 'EDIT_FLOW_VERSION' , '0.7-alpha1' );
+// Define contants
+define( 'EDIT_FLOW_VERSION' , '0.7-alpha2' );
 define( 'EDIT_FLOW_ROOT' , dirname(__FILE__) );
 define( 'EDIT_FLOW_FILE_PATH' , EDIT_FLOW_ROOT . '/' . basename(__FILE__) );
 define( 'EDIT_FLOW_URL' , plugins_url(plugin_basename(dirname(__FILE__)).'/') );
 define( 'EDIT_FLOW_SETTINGS_PAGE' , add_query_arg( 'page', 'ef-settings', get_admin_url( null, 'admin.php' ) ) );
-define( 'EDIT_FLOW_EDITORIAL_METADATA_PAGE' , add_query_arg( 'taxonomy', 'ef_editorial_meta', get_admin_url( null, 'edit-tags.php' ) ) );
-define( 'EDIT_FLOW_PREFIX' , 'ef_' );
-define( 'EDIT_FLOW_CALENDAR_PAGE', add_query_arg( 'page', 'calendar', get_admin_url( null, 'index.php' ) ) );
-define( 'EDIT_FLOW_STORY_BUDGET_PAGE', add_query_arg( 'page', 'story-budget', get_admin_url( null, 'index.php' ) ) );
 
 // Core class
 class edit_flow {
 
 	// Unique identified added as a prefix to all options
 	var $options_group = 'edit_flow_';
-	var $options_group_name = 'edit_flow_options';	
-	// Initially stores default option values, but when load_options is run, it is populated with the options stored in the WP db
-	var $options = array(
-		'version' => 0,
-		'status_dropdown_visible' => 1,
-		'custom_status_default_status' => 'draft',
-		'dashboard_widgets_enabled' => 1,
-		'post_status_widget_enabled' => 1,
-		'quickpitch_widget_enabled' => 1,
-		'myposts_widget_enabled' => 1,
-		'notifications_enabled' => 1,
-		'always_notify_admin' => 0,
-		'calendar_enabled' => 1,
-		'story_budget_enabled' => 1,
-	);
+	var $options_group_name = 'edit_flow_options';
 
 	/**
 	 * Constructor
@@ -75,7 +58,7 @@ class edit_flow {
 		add_action( 'init', array( &$this, 'action_init' ) );
 		add_action( 'admin_init', array( &$this, 'action_admin_init' ) );
 		
-	} // END __construct()
+	}
 
 	/**
 	 * Include the common resources to Edit Flow and dynamically load the modules
@@ -165,7 +148,7 @@ class edit_flow {
 
 		$this->register_scripts_and_styles();
 		
-	} // END: admin_init()
+	}
 	
 	/**
 	 * Register a new module with Edit Flow
@@ -286,7 +269,7 @@ class edit_flow {
 			wp_register_script( 'jquery-ui-datepicker', EDIT_FLOW_URL . 'common/js/jquery.ui.datepicker.min.js', array( 'jquery', 'jquery-ui-core'), '1.8.16', true );		
 	}
 
-} // END: class edit_flow
+}
 
 // Create new instance of the edit_flow object
 global $edit_flow;

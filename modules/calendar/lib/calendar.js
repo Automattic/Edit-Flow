@@ -43,7 +43,7 @@ jQuery(document).ready(function () {
 	 */
 	function edit_flow_calendar_show_overlay( event ) {
 		// Hide the overlay if it's already showing but only if we click on the original clickable area
-		if ( jQuery(this).hasClass('item-overlay-active') && jQuery(event.target).closest('table.item-information').length == 0 ) {
+		if ( jQuery(this).hasClass('item-overlay-active') && jQuery(event.target).closest('.item-inner').length == 0 ) {
 			edit_flow_calendar_close_overlays();
 		} else {
 			edit_flow_calendar_close_overlays();

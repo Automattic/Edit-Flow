@@ -58,6 +58,7 @@ class EF_Editorial_Metadata {
 				'term-missing' => __( "Metadata term doesn't exist.", 'edit-flow' ),
 				'term-deleted' => __( "Metadata term deleted.", 'edit-flow' ),
 				'term-position-updated' => __( "Term order updated.", 'edit-flow' ),
+				'term-visibility-changed' => __( "Term visibility changed.", 'edit-flow' ),
 			),
 			'configure_page_cb' => 'print_configure_view',
 		);
@@ -99,6 +100,13 @@ class EF_Editorial_Metadata {
 		// Add Editorial Metadata to the calendar if the calendar is activated
 		if ( $edit_flow->helpers->module_enabled( 'calendar' ) )
 			add_filter( 'ef_calendar_item_information_fields', array( &$this, 'filter_calendar_item_fields' ), null, 2 );
+		
+		// Add Editorial Metadata columns to the Story Budget if it exists
+		if ( $edit_flow->helpers->module_enabled( 'story_budget' ) ) {
+			add_filter( 'ef_story_budget_term_columns', array( &$this, 'filter_story_budget_term_columns' ) );
+			// Register an action to handle this data later
+			add_filter( 'ef_story_budget_term_column_value', array( &$this, 'filter_story_budget_term_column_values' ), null, 3 );
+		}		
 		
 		// Load necessary scripts and stylesheets
 		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );	
@@ -194,6 +202,62 @@ class EF_Editorial_Metadata {
 			// Now add the rest of the metabox CSS
 			wp_enqueue_style( 'edit_flow-editorial_metadata-styles', EDIT_FLOW_URL . 'modules/editorial-metadata/lib/editorial-metadata.css', false, EDIT_FLOW_VERSION, 'all' );
 		}
+		// A bit of custom CSS for the Manage Posts view if we have viewable metadata
+		if ( $current_screen->base == 'edit' && in_array( $current_post_type, $supported_post_types ) ) {
+			$terms = $this->get_editorial_metadata_terms();
+			$viewable_terms = array();
+			foreach( $terms as $term ) {
+				if ( $term->viewable ) 
+					$viewable_terms[] = $term;
+			}
+			if ( !empty( $viewable_terms ) ) {
+				$css_rules = array(
+					'.wp-list-table.fixed .column-author' => array(
+						'min-width: 7em;',
+						'width: auto;',
+					),
+					'.wp-list-table.fixed .column-tags' => array(
+						'min-width: 7em;',
+						'width: auto;',
+					),
+					'.wp-list-table.fixed .column-categories' => array(
+						'min-width: 7em;',
+						'width: auto;',
+					),
+				);
+				foreach( $viewable_terms as $viewable_term ) {
+					switch( $viewable_term->type ) {
+						case 'checkbox':
+						case 'number':
+						case 'date':
+							$css_rules['.wp-list-table.fixed .column-' . $this->module->slug . '-' . $viewable_term->slug] = array(
+								'min-width: 6em;',
+							);
+							break;
+						case 'location':
+						case 'text':
+						case 'user':
+							$css_rules['.wp-list-table.fixed .column-' . $this->module->slug . '-' . $viewable_term->slug] = array(
+								'min-width: 7em;',
+							);
+							break;
+						case 'paragraph':
+							$css_rules['.wp-list-table.fixed .column-' . $this->module->slug . '-' . $viewable_term->slug] = array(
+								'min-width: 8em;',
+							);
+							break;
+					}
+				}
+				// Allow users to filter out rules if there's something wonky
+				$css_rules = apply_filters( 'ef_editorial_metadata_manage_posts_css_rules', $css_rules );
+				echo "<style type=\"text/css\">\n";
+				foreach( (array)$css_rules as $css_property => $rules ) {
+					echo $css_property . " {" . implode( ' ', $rules ) . "}\n";
+				}
+				echo '</style>';
+			}
+			
+		}
 		
 		// Load Javascript specific to the editorial metadata configuration view
 		if ( $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) ) {
@@ -258,7 +322,7 @@ class EF_Editorial_Metadata {
 		if ( !count( $terms ) ) {
 			$message = __( 'No editorial metadata available.' );
 			if ( current_user_can( 'manage_options' ) )
-				$message .= sprintf( __( ' <a href="%s">Add fields to get started</a>.' ), EDIT_FLOW_EDITORIAL_METADATA_PAGE );
+				$message .= sprintf( __( ' <a href="%s">Add fields to get started</a>.' ), $this->get_link() );
 			else 
 				$message .= __( ' Encourage your site administrator to configure your editorial workflow by adding editorial metadata.' );
 			echo '<p>' . $message . '</p>';
@@ -348,7 +412,7 @@ class EF_Editorial_Metadata {
 		}
 		
 		if( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
-			|| ! in_array( $post->post_type, $edit_flow->helpers->get_post_types_for_module( $edit_flow->custom_status->module ) )
+			|| ! in_array( $post->post_type, $edit_flow->helpers->get_post_types_for_module( $this->module ) )
 			|| $post->post_type == 'post' && !current_user_can( 'edit_post', $id )
 			|| $post->post_type == 'page' && !current_user_can( 'edit_page', $id ) ) {
 			return $id;
@@ -588,8 +652,23 @@ class EF_Editorial_Metadata {
 		
 	}
 	
+	/**
+	 * If the Edit Flow Calendar is enabled, add viewable Editorial Metadata terms
+	 *
+	 * @since 0.7
+	 * @uses apply_filters( 'ef_calendar_item_information_fields' )
+	 *
+	 * @param array $calendar_fields Additional data fields to include on the calendar
+	 * @param int $post_id Unique ID for the post data we're building
+	 * @return array $calendar_fields Calendar fields with our viewable Editorial Metadata added
+	 */
 	function filter_calendar_item_fields( $calendar_fields, $post_id ) {
+		global $edit_flow;
 		
+		// Make sure we respect which post type we're on
+		if ( !in_array( get_post_type( $post_id ), $edit_flow->helpers->get_post_types_for_module( $this->module ) ) )
+			return $calendar_fields;
+			
 		$terms = $this->get_editorial_metadata_terms();
 		
 		foreach( $terms as $term ) {
@@ -636,6 +715,90 @@ class EF_Editorial_Metadata {
 			$calendar_fields[$key] = $term_data;
 		}
 		return $calendar_fields;
+		
+	}
+	
+	/**
+	 * If the Edit Flow Story Budget is enabled, register our viewable terms as columns
+	 *
+	 * @since 0.7
+	 * @uses apply_filters( 'ef_story_budget_term_columns' )
+	 *
+	 * @param array $term_columns The existing columns on the story budget
+	 * @return array $term_columns Term columns with viewable Editorial Metadata terms
+	 */
+	function filter_story_budget_term_columns( $term_columns ) {
+		
+		$terms = $this->get_editorial_metadata_terms();
+		foreach( $terms as $term ) {
+			// Don't show if the term isn't viewable
+			if ( !$term->viewable )
+				continue;
+			// Prefixing slug with module slug because it isn't stored prefixed and we want to avoid collisions
+			$key = $this->module->slug . '-' . $term->slug;
+			// Switch to underscores
+			$key = str_replace( '-', '_', $key );
+			$term_columns[$key] = $term->name;
+		}		
+		return $term_columns;
+		
+	}
+	
+	/**
+	 * If the Edit Flow Story Budget is enabled,
+	 *
+	 * @since 0.7
+	 * @uses apply_filters( 'ef_story_budget_term_column_value' )
+	 *
+	 * @param object $post The post we're displaying
+	 * @param string $column_name Name of the column, as registered with EF_Story_Budget::register_term_columns
+	 * @param object $parent_term The parent term for the term column
+	 */
+	function filter_story_budget_term_column_values( $column_name, $post, $parent_term ) {
+		
+		$column_name = str_replace( '_', '-', $column_name );
+		// Don't accidentally handle values not our own
+		if ( false === strpos( $column_name, $this->module->slug ) )
+			return;
+			
+		$term_slug = str_replace( $this->module->slug . '-', '', $column_name );
+		$term = $this->get_editorial_metadata_term_by( 'slug', $term_slug );
+		
+		// Don't allow non-viewable term data to be displayed
+		if ( !$term->viewable )
+			return;
+			
+		$output = '';
+		$postmeta_key = $this->get_postmeta_key( $term );
+		$current_metadata = $this->get_postmeta_value( $term, $post->ID );
+		switch( $term->type ) {
+			case "date":
+				if ( !empty( $current_metadata ) )
+					$current_metadata = date( get_option( 'date_format' ), intval( $current_metadata ) );
+				$output = esc_html( $current_metadata );
+				break;
+			case "location":
+			case "text":
+			case "number":
+			case "paragraph":
+				if ( $current_metadata )
+					$output = esc_html( $current_metadata );
+				break;
+			case "checkbox":
+				if ( $current_metadata )
+					$output = __( 'Yes', 'edit-flow' );
+				else
+					$output = __( 'No', 'edit-flow' );
+				break;
+			case "user": 
+				$userdata = get_userdata( $current_metadata );
+				if ( is_object( $userdata ) )
+					$output = esc_html( $userdata->display_name );
+				break;
+			default:
+				break;
+		}
+		return $output;
 		
 	}
 	

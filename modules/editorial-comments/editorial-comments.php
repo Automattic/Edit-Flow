@@ -1,9 +1,12 @@
 <?php
+/**
+ * class EF_Editorial_Comments
+ * Threaded commenting in the admin for discussion between writers and editors
+ *
+ * @author batmoo
+ */
 
-// Functions that hook into or modify post.php
-define( 'EDIT_FLOW_META_PREFIX', '_ef_' );
-
-if ( !class_exists('EF_Editorial_Comments') ) {
+if ( !class_exists( 'EF_Editorial_Comments' ) ) {
 
 class EF_Editorial_Comments
 {
@@ -30,7 +33,7 @@ class EF_Editorial_Comments
 				),
 			),
 			'configure_page_cb' => 'print_configure_view',
-			'configure_link_text' => __( 'Choose Post Types' ),				
+			'configure_link_text' => __( 'Choose Post Types' ),
 			'autoload' => false,
 		);
 		$this->module = $edit_flow->register_module( 'editorial_comments', $args );
@@ -40,6 +43,10 @@ class EF_Editorial_Comments
 	 * Initialize the rest of the stuff in the class if the module is active
 	 */	
 	function init() {
+		
+		// Register our notification event with the notifications class
+		add_action( 'ef_modules_loaded', array( &$this, 'register_notification_event' ) );
+		
 		add_action( 'admin_init', array ( &$this, 'add_post_meta_box' ) );
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );		
 		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );
@@ -60,8 +67,8 @@ class EF_Editorial_Comments
 		if ( !in_array( $pagenow, array( 'post.php', 'page.php', 'post-new.php', 'page-new.php' ) ) )
 			return;
 		
-		wp_enqueue_script( 'edit_flow-post_comment', EDIT_FLOW_URL . 'modules/editorial-comments/lib/editorial-comments.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );		
-		wp_enqueue_style( 'edit-flow-editorial-comments-css', EDIT_FLOW_URL . 'modules/editorial-comments/lib/editorial-comments.css', false, EDIT_FLOW_VERSION, 'all' );				
+		wp_enqueue_script( 'edit_flow-post_comment', $this->module->module_url . '/lib/editorial-comments.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
+		wp_enqueue_style( 'edit-flow-editorial-comments-css', $this->module->module_url . '/lib/editorial-comments.css', false, EDIT_FLOW_VERSION, 'all' );
 				
 		$thread_comments = (int) get_option('thread_comments');
 		?>
@@ -73,21 +80,20 @@ class EF_Editorial_Comments
 	}
 		
 	/**
-	 *
-	 * @since ???
+	 * Wrapper for getting post meta
 	 */
 	function get_post_meta( $post_id, $name, $single = true ) {
 	
-		$meta = get_post_meta( $post_id, EDIT_FLOW_META_PREFIX . $name );
+		$meta = get_post_meta( $post_id, '_ef_' . $name );
 		
-		if($single)	return $meta[0];
-		else return $meta;
+		if ($single)
+			return $meta[0];
+		else
+			return $meta;
 	}
 	
 	/**
 	 * Add the editorial comments metabox to enabled post types
-	 *
-	 * @since ???
 	 * 
 	 * @uses add_meta_box()
 	 */
@@ -100,10 +106,17 @@ class EF_Editorial_Comments
 			
 	}
 	
+	/**
+	 * Get the total number of editorial comments for a post
+	 *
+	 * @param int $id Unique post ID
+	 * @return int $comment_count Number of editorial comments for a post
+	 */
 	function get_editorial_comment_count( $id ) {
 		global $wpdb; 
 		$comment_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $wpdb->comments WHERE comment_post_ID = %d AND comment_type = %s", $id, self::comment_type));
-		if(!$comment_count) $comment_count = 0;
+		if ( !$comment_count )
+			$comment_count = 0;
 		return $comment_count;
 	}
 	
@@ -158,7 +171,9 @@ class EF_Editorial_Comments
 		<?php
 	}
 	
-	// Displays the main commenting form
+	/**
+	 * Displays the main commenting form
+	 */
 	function the_comment_form( ) {
 		global $post;
 		
@@ -182,7 +197,7 @@ class EF_Editorial_Comments
 			</p>
 		
 			<input type="hidden" value="" id="ef-comment_parent" name="ef-comment_parent" />
-			<input type="hidden" name="ef-post_id" id="ef-post_id" value="<?php echo $post->ID; ?>" />
+			<input type="hidden" name="ef-post_id" id="ef-post_id" value="<?php echo esc_attr( $post->ID ); ?>" />
 			
 			<?php wp_nonce_field('comment', 'ef_comment_nonce', false); ?>
 			
@@ -229,7 +244,7 @@ class EF_Editorial_Comments
 	
 	?>
 
-		<li id="comment-<?php echo $comment->comment_ID; ?>" <?php comment_class( array( 'comment-item', wp_get_comment_status($comment->comment_ID) ) ); ?>>
+		<li id="comment-<?php echo esc_attr( $comment->comment_ID ); ?>" <?php comment_class( array( 'comment-item', wp_get_comment_status($comment->comment_ID) ) ); ?>>
 		
 			<?php echo get_avatar( $comment->comment_author_email, 50 ); ?>
 
@@ -252,7 +267,9 @@ class EF_Editorial_Comments
 		<?php
 	}
 		
-	// Handles AJAX insert comment
+	/**
+	 * Handles AJAX insert comment
+	 */
 	function ajax_insert_comment( ) {
 		global $current_user, $user_ID, $wpdb;
 		
@@ -394,7 +411,7 @@ class EF_Editorial_Comments
 
 }
 
-} // END: !class_exists('EF_Editorial_Comments')
+}
 
 /**
  * Retrieve a list of comments -- overloaded from get_comments and with mods by filosofo (SVN Ticket #10668)

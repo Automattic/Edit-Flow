@@ -84,9 +84,6 @@ class EF_User_Groups {
 		add_action( 'admin_init', array( &$this, 'handle_edit_usergroup' ) );
 		add_action( 'admin_init', array( &$this, 'handle_delete_usergroup' ) );
 		add_action( 'wp_ajax_inline_save_usergroup', array( &$this, 'handle_ajax_inline_save_usergroup' ) );
-		
-		// Set up metabox and related actions
-		add_action( 'admin_init', array( &$this, 'add_post_meta_box' ) );
 	
 		// Usergroups can be managed from the User profile view
 		add_action( 'show_user_profile', array( &$this, 'user_profile_page' ) );
@@ -96,6 +93,48 @@ class EF_User_Groups {
 		// Javascript and CSS if we need it
 		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_styles' ) );	
+		
+	}
+	
+	/**
+	 * Load the capabilities onto users the first time the module is run
+	 *
+	 * @since 0.7
+	 */
+	function install() {
+		
+		global $wp_roles, $edit_flow;
+
+		if ( ! isset( $wp_roles ) )
+			$wp_roles = new WP_Roles();	
+		
+		if( $wp_roles->is_role('administrator') ) {
+			$admin_role =& get_role('administrator');
+			$admin_role->add_cap('edit_usergroups');
+		}
+		
+		// Create our default usergroups
+		$default_usergroups = array( 
+			array( 
+				'name' => __( 'Copy Editors', 'edit-flow' ),
+				'description' => __( 'Making sure the quality is top-notch.', 'edit-flow' ),
+			),
+			array(
+				'name' => __( 'Photographers', 'edit-flow' ), 
+				'description' => __( 'Capturing the story visually.', 'edit-flow' ),
+			),
+			array(
+				'name' => __( 'Reporters', 'edit-flow' ),
+				'description' => __( 'Out in the field, writing stories.', 'edit-flow' ),
+			),
+			array(
+				'name' => __( 'Section Editors', 'edit-flow' ),
+				'description' => __( 'Providing feedback and direction.', 'edit-flow' ),
+			),
+		);
+		foreach( $default_usergroups as $args ) {
+			$this->add_usergroup( $args );
+		}
 		
 	}
 	
@@ -160,77 +199,6 @@ class EF_User_Groups {
 	/**
 	 * Module ???
 	 */
-	
-	/**
-	 * Add the usergroup subscriptions meta box to relevant post types
-	 * @todo Resolve whether this should live in a "subscriptions" class
-	 */
-	function add_post_meta_box() {
-		global $edit_flow;
-		
-		$post_subscriptions_cap = apply_filters( 'ef_edit_post_subscriptions_cap', 'edit_post_subscriptions' );
-		if ( !current_user_can( $post_subscriptions_cap ) ) 
-			return;		
-		
-		$usergroup_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
-		foreach ( $usergroup_post_types as $post_type ) {
-			add_meta_box( 'edit-flow-usergroup-subscriptions', __( 'Usergroup Subscriptions', 'edit-flow'), array( &$this, 'usergroups_meta_box'), $post_type, 'advanced', 'high');
-		}
-	}
-	
-	/**
-	 * Outputs box used to subscribe users and usergroups to Posts
-	 *
-	 * @todo Resolve whether this should live in a "subscriptions" class
-	 * @todo add_cap to set subscribers for posts; default to Admin and editors
-	 * @todo Remove dependency on post being saved already
-	 */	
-	function usergroups_meta_box() {
-		global $post, $post_ID, $edit_flow;
-
-		// Only show on posts that have been saved
-		if( in_array( $post->post_status, array( 'new', 'auto-draft' ) ) ) {
-			?>
-			<p><?php _e( 'Subscribers can be added to a post after the post has been saved for the first time.', 'edit-flow' ); ?></p>
-			<?php
-			return;
-		}
-		
-		// @todo
-		//$followers = ef_get_following_users( $post->ID, 'id' );
-
-		// @todo
-		//$following_usergroups = ef_get_following_usergroups($post->ID, 'slugs');
-		
-		$user_form_args = array();
-		
-		$usergroups_form_args = array();
-		?>
-		<div id="ef-post_following_box">
-			<a name="subscriptions"></a>
-
-			<p><?php _e( 'Select the users and usergroups that should receive notifications when the status of this post is updated or when an editorial comment is added.', 'edit-flow' ); ?></p>
-			<div id="ef-post_following_users_box">
-				<h4><?php _e( 'Users', 'edit-flow' ); ?></h4>
-				<?php $this->users_select_form( array() ); ?>
-			</div>
-			
-			<div id="ef-post_following_usergroups_box">
-				<h4><?php _e('User Groups', 'edit-flow') ?></h4>
-				<?php $this->usergroups_select_form( array() ); ?>
-			</div>
-			<div class="clear"></div>
-			<input type="hidden" name="ef-save_followers" value="1" /> <?php // Extra protection against autosaves ?>
-		</div>
-		
-		<script>
-			jQuery(document).ready(function(){
-				jQuery('#ef-post_following_box ul').listFilterizer();
-			});
-		</script>
-		
-		<?php
-	}
 	
 	/**
 	 * Handles a POST request to add a new Usergroup. Redirects to edit view after
@@ -532,7 +500,7 @@ class EF_User_Groups {
 					'input_id' => 'usergroup_users'
 				);
 			?>
-			<?php $this->users_select_form( $usergroup->user_ids , $select_form_args ); ?>
+			<?php $edit_flow->helpers->users_select_form( $usergroup->user_ids , $select_form_args ); ?>
 		</div></div></div>
 		<div id="col-left"><div class="col-wrap"><div class="form-wrap">		
 			<input type="hidden" name="form-action" value="edit-usergroup" />
@@ -698,57 +666,6 @@ class EF_User_Groups {
 				break;
 		}
 		return add_query_arg( $args, get_admin_url( null, 'admin.php' ) );
-	}
-	
-	/**
-	 * Displays a list of users that can be selected!
-	 *
-	 * @since 0.7
-	 *
-	 * @param ???
-	 * @param ???
-	 */
-	function users_select_form( $selected = null, $args = null ) {
-		global $blog_id;
-
-		// TODO: Add pagination support for blogs with billions of users
-
-		// Set up arguments
-		$defaults = array(
-			'list_class' => 'ef-post_following_list', 
-			'input_id' => 'following_users'
-		);
-		$parsed_args = wp_parse_args( $args, $defaults );
-		extract($parsed_args, EXTR_SKIP);
-
-		$args = array(
-			'who' => 'authors',
-			'fields' => array(
-				'ID',
-				'display_name',
-				'user_email'
-			),
-		);
-		$users = get_users( $args );
-
-		if ( !is_array($selected) ) $selected = array();
-		?>
-
-		<?php if( !empty($users) ) : ?>
-			<ul id="ef-post_following_users" class="<?php echo $list_class ?>">
-				<?php foreach( $users as $user ) : ?>
-					<?php $checked = ( in_array($user->ID, $selected) ) ? 'checked="checked"' : ''; ?>
-					<li>
-						<label for="<?php echo $input_id .'_'. $user->ID ?>">
-							<input type="checkbox" id="<?php echo $input_id .'_'. $user->ID ?>" name="<?php echo $input_id ?>[]" value="<?php echo $user->ID ?>" <?php echo $checked ?> />
-							<span class="ef-user_displayname"><?php echo esc_html( $user->display_name ); ?></span>
-							<span class="ef-user_useremail"><?php echo $user->user_email ?></span>
-						</label>
-					</li>
-				<?php endforeach; ?>
-			</ul>
-		<?php endif; ?>
-		<?php
 	}
 	
 	/**

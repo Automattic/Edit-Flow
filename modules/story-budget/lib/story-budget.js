@@ -3,7 +3,7 @@
 jQuery(document).ready(function($) {
 	// Hide all post details when directed
 	$("#toggle_details").click(function() {
-		$(".post-title > p").toggleClass('hidden'); 
+		$(".post-title > p").toggle('hidden'); 
 	});
 	
 	// Make print link open up print dialog
@@ -14,18 +14,29 @@ jQuery(document).ready(function($) {
 	
 	// Hide a single section when directed
 	$("h3.hndle,div.handlediv").click(function() {
-		$(this).parent().children("div.inside").slideToggle();
+		$(this).parent().children("div.inside").toggle();
 	});
 	
 	// Change number of columns when choosing a new number from Screen Options
 	$("input[name=ef_story_budget_screen_columns]").click(function() {
-		// Get the new number of columns
 		var numColumns = $(this).val();
 		
-		// Grab the total width constant (percentage) output by the PHP
-		var totalWidth = typeof(editFlowStoryBudgetColumnsWidth) !== 'undefined' ? editFlowStoryBudgetColumnsWidth : 98;
-		
-		// Set the width of each column based on the new number of columns
-		jQuery(".postbox").css('width', totalWidth / numColumns + '%');
+		jQuery(".postbox-container").css('width', (100 / numColumns) + '%' );
+	});
+	
+	jQuery('h2 a.change-date').click(function(){
+		jQuery(this).hide();
+		jQuery('h2 form .form-value').hide();
+		jQuery('h2 form input').show();
+		jQuery('h2 form a.change-date-cancel').show();
+		return false;
+	});
+	
+	jQuery('h2 form a.change-date-cancel').click(function(){
+		jQuery(this).hide();
+		jQuery('h2 form .form-value').show();
+		jQuery('h2 form input').hide();
+		jQuery('h2 form a.change-date').show();
+		return false;
 	});
 });
