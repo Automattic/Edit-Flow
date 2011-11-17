@@ -16,7 +16,7 @@ class EF_Notifications {
 	// Taxonomy name used to store users that have opted out of notifications
 	var $unfollowing_users_taxonomy = 'unfollowing_users';
 	// Taxonomy name used to store user groups following posts
-	var $following_usergroups_taxonomy = 'following_usergroups';
+	var $following_usergroups_taxonomy = EF_User_Groups::taxonomy_key;
 	
 	var $module;
 	
@@ -192,7 +192,7 @@ class EF_Notifications {
 			<div id="ef-post_following_usergroups_box">
 				<h4><?php _e('User Groups', 'edit-flow') ?></h4>
 				<?php
-				$following_usergroups = $this->get_following_usergroups( $post->ID, 'slugs' );
+				$following_usergroups = $this->get_following_usergroups( $post->ID, 'ids' );
 				$edit_flow->user_groups->usergroups_select_form( $following_usergroups ); ?>
 			</div>
 			<?php endif; ?>
@@ -212,10 +212,10 @@ class EF_Notifications {
 				
 		// only if has edit_post_subscriptions cap
 		if( ( !wp_is_post_revision($post) && !wp_is_post_autosave($post) ) && isset($_POST['ef-save_followers']) && current_user_can('edit_post_subscriptions') ) {
-			$users = isset( $_POST['following_users'] ) ? $_POST['following_users'] : array();
+			$users = isset( $_POST['ef-selected-users'] ) ? $_POST['ef-selected-users'] : array();
 			$usergroups = isset( $_POST['following_usergroups'] ) ? $_POST['following_usergroups'] : array();
-			$this->save_post_following_users($post, $users);
-			$this->save_post_following_usergroups($post, $usergroups);
+			$this->save_post_following_users( $post, $users );
+			$this->save_post_following_usergroups( $post, $usergroups );
 		}
 		
 	}
@@ -234,7 +234,7 @@ class EF_Notifications {
 		if ( $user )
 			$users[] = $user->ID;
 		
-		$users = array_map( 'intval', $users );
+		$users = array_unique( array_map( 'intval', $users ) );
 
 		$follow = $this->follow_post_user( $post, $users, false );
 		
@@ -249,7 +249,7 @@ class EF_Notifications {
 	function save_post_following_usergroups( $post, $usergroups = null ) {
 		
 		if( !is_array($usergroups) ) $usergroups = array();
-		$usergroups = array_map( 'sanitize_title', $usergroups );
+		$usergroups = array_map( 'intval', $usergroups );
 
 		$follow = $this->follow_post_usergroups($post, $usergroups, false);
 	}	
@@ -658,18 +658,16 @@ class EF_Notifications {
 			return;
 
 		$post_id = ( is_int($post) ) ? $post : $post->ID;
-		if( !is_array($usergroups) ) $usergroups = array($usergroups);
+		if( !is_array($usergroups) )
+			$usergroups = array($usergroups);
 
 		$usergroup_terms = array();
 		
 		foreach( $usergroups as $usergroup ) {
 			// Name and slug of term is the usergroup slug
-			$usergroup_data = $edit_flow->user_groups->get_usergroup_by( 'id', $usergroup );
-			if( $usergroup_data ) {
-				$name = $usergroup_data->slug;
-			}
+			$usergroup_data = $edit_flow->user_groups->get_usergroup_by( 'id', $usergroup ); 
 		}
-		$set = wp_set_object_terms( $post_id, $usergroup_terms, $this->following_usergroups_taxonomy, $append );
+		$set = wp_set_object_terms( $post_id, $usergroups, $this->following_usergroups_taxonomy, $append );
 		return;
 	}
 	
