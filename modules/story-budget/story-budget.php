@@ -431,7 +431,7 @@ class EF_Story_Budget {
 				</tbody>
 			</table>
 			<?php else: ?>
-			<div class="message info"><?php _e( 'There are no posts for this term in the range or filter specified.', 'edit-flow' ); ?></div>
+			<div class="message info"><p><?php _e( 'There are no posts for this term in the range or filter specified.', 'edit-flow' ); ?></p></div>
 			<?php endif; ?>
 		</div>
 	</div>

@@ -29,6 +29,7 @@
 
 .postbox-container {
 	float: left;
+	padding-right: 0;
 }
 
 .postbox {
@@ -36,6 +37,11 @@
 	margin-bottom: 10px;
 	margin-left: 10px;
 	margin-right: 10px;
+}
+
+.postbox .inside {
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
 .story-budget thead tr th {
