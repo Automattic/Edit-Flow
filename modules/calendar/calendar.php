@@ -620,6 +620,7 @@ class EF_Calendar {
 							?>
 							</div>
 							<div style="clear:right;"></div>
+							<div class="item-inner">
 							<table class="item-information">
 								<?php foreach( $ef_calendar_item_information_fields as $field => $values ): ?>
 									<tr class="item-field item-information-<?php echo esc_attr( $field ); ?>">
@@ -633,7 +634,33 @@ class EF_Calendar {
 								<?php endforeach; ?>
 								<?php do_action( 'ef_calendar_item_additional_html', $post->ID ); ?>
 							</table>
+							<?php
+								$post_type_object = get_post_type_object( $post->post_type );
+								$item_actions = array();
+								if ( $this->current_user_can_modify_post( $post ) ) {
+									// Edit this post
+									$item_actions['edit'] = '<a href="' . get_edit_post_link( $post->ID, true ) . '" title="' . esc_attr( __( 'Edit this item' ) ) . '">' . __( 'Edit', 'edit-flow' ) . '</a>';
+									// Preview/view this post
+									if ( !in_array( $post->post_status, $published_statuses ) ) {
+										$item_actions['view'] = '<a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" rel="permalink">' . __( 'Preview', 'edit-flow' ) . '</a>';
+									} elseif ( 'trash' != $post->post_status ) {
+										$item_actions['view'] = '<a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" rel="permalink">' . __( 'View', 'edit-flow' ) . '</a>';
+									}
+								}
+								// Allow other plugins to add actions
+								$item_actions = apply_filters( 'ef_calendar_item_actions', $item_actions, $post->ID );
+								if ( count( $item_actions ) ) {
+									echo '<div class="item-actions">';
+									$html = '';
+									foreach ( $item_actions as $class => $item_action ) {
+										$html .= '<span class="' . esc_attr( $class ) . '">' . $item_action . '</span> | ';
+									}
+									echo rtrim( $html, '| ' );
+									echo '</div>';
+								}
+							?>
 							<div style="clear:right;"></div>
+							</div>
 						</li>
 						<?php endforeach;
 						endif; ?>
@@ -968,19 +995,21 @@ class EF_Calendar {
 		if ( !$post )
 			return false;
 			
+		$post_type_object = get_post_type_object( $post->post_type );
+			
 		$published_statuses = array(
 			'publish',
 			'future',
 			'private',
 		);
 		// Editors and admins are fine
-		if ( current_user_can( 'edit_others_posts' ) )
+		if ( current_user_can( $post_type_object->cap->edit_others_posts, $post->ID ) )
 			return true;
 		// Authors and contributors can move their own stuff if it's not published
-		if ( current_user_can( 'edit_posts') && wp_get_current_user()->ID == $post->post_author && !in_array( $post->post_status, $published_statuses ) )
+		if ( current_user_can( $post_type_object->cap->edit_posts, $post->ID ) && wp_get_current_user()->ID == $post->post_author && !in_array( $post->post_status, $published_statuses ) )
 			return true;
 		// Those who can publish posts can move any of their own stuff
-		if ( current_user_can( 'publish_posts') && wp_get_current_user()->ID == $post->post_author )
+		if ( current_user_can( $post_type_object->cap->publish_posts, $post->ID ) && wp_get_current_user()->ID == $post->post_author )
 			return true;
 		
 		return false;
