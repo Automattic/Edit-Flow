@@ -547,7 +547,7 @@ class EF_Calendar {
 							}
 							$post_classes = apply_filters( 'ef_calendar_table_td_li_classes', $post_classes, $week_single_date, $post->ID );
 						?>
-						<li class="<?php echo esc_attr( implode( ' ', $post_classes ) ); ?>" id="post-<?php esc_attr( $post->ID ); ?>">
+						<li class="<?php echo esc_attr( implode( ' ', $post_classes ) ); ?>" id="post-<?php echo esc_attr( $post->ID ); ?>">
 							<div class="item-default-visible">
 							<div class="item-status"><span class="status-text"><?php echo esc_html( $edit_flow->helpers->get_post_status_friendly_name( get_post_status( $post_id ) ) ); ?></span></div>
 							<div class="inner">
@@ -697,7 +697,7 @@ class EF_Calendar {
 			<li id="calendar-filter">
 				<form method="GET">
 					<input type="hidden" name="page" value="calendar" />
-					<input type="hidden" name="start_date" value="<?php esc_attr( $filters['start_date'] ); ?>"/>
+					<input type="hidden" name="start_date" value="<?php echo esc_attr( $filters['start_date'] ); ?>"/>
 					<!-- Filter by status -->
 					<select id="post_status" name="post_status">
 						<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
@@ -754,7 +754,7 @@ class EF_Calendar {
 			<li>
 				<form method="GET">
 					<input type="hidden" name="page" value="calendar" />
-					<input type="hidden" name="start_date" value="<?php esc_attr( $filters['start_date'] ); ?>"/>
+					<input type="hidden" name="start_date" value="<?php echo esc_attr( $filters['start_date'] ); ?>"/>
 					<input type="hidden" name="post_status" value="" />
 					<input type="hidden" name="type" value="" />					
 					<input type="hidden" name="cat" value="" />
