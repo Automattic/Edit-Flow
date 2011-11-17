@@ -3,9 +3,6 @@
  * class EF_Calendar
  * This class displays an editorial calendar for viewing upcoming and past content at a glance
  *
- * @todo Somewhat prioritized
- * - Ensure all of the styles work cross-browser
- *
  * @author danielbachhuber
  */
 if ( !class_exists('EF_Calendar') ) {
@@ -201,7 +198,7 @@ class EF_Calendar {
 		$edit_flow->helpers->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'screen_options', $screen_options );
 		
 		// Redirect after we're complete
-		$redirect_to = get_admin_url( null, 'index.php?' . parse_url( $_SERVER['REQUEST_URI'], PHP_URL_QUERY ) );
+		$redirect_to = menu_page_url( $this->module->slug, false );
 		wp_redirect( $redirect_to );
 		exit;
 	}
@@ -263,17 +260,6 @@ class EF_Calendar {
 		if ( apply_filters( 'ef_calendar_allow_ajax_to_set_timestamp', false ) )
 			$new_values['post_date_gmt'] = date( 'Y-m-d', $next_date_full ) . ' ' . $existing_time_gmt;
 		
-		// Handle the post status if the post was published and we're moving it to the future
-		// Or if the post was scheduled and we're moving it to the past
-		if ( 'publish' == $post->post_status ) {
-			$now = gmdate('Y-m-d H:i:59');
-			if ( mysql2date('U', $new_values['post_date_gmt'], false) > mysql2date('U', $now, false) )
-				$new_values['post_status'] = 'future';
-		} else if ( 'future' == $post->post_status ) {
-			$now = gmdate('Y-m-d H:i:59');
-			if ( mysql2date('U', $new_values['post_date_gmt'], false) <= mysql2date('U', $now, false) )
-				$new_values['post_status'] = 'publish';
-		}
 		// We have to do SQL unfortunately because of core bugginess
 		// Note to those reading this: bug Nacin to allow us to finish the custom status API
 		// See http://core.trac.wordpress.org/ticket/18362
@@ -289,7 +275,7 @@ class EF_Calendar {
 	 * Get a user's screen options
 	 *
 	 * @since 0.7
-	 * @uses get_user_meta
+	 * @uses get_user_meta()
 	 *
 	 * @return array $screen_options The screen options values
 	 */
@@ -327,7 +313,7 @@ class EF_Calendar {
 			$old_filters['post_type'] = '';		
 			$old_filters['cat'] = '';
 			$old_filters['author'] = '';
-			$old_filters['start_date'] = '';			
+			$old_filters['start_date'] = '';
 		}
 		
 		// Post status
@@ -364,7 +350,8 @@ class EF_Calendar {
 		else
 			$filters['start_date'] = date( 'Y-m-d' );
 
-		$filters['start_date'] = $this->get_beginning_of_week( $filters['start_date'] ); // don't just set the given date as the end of the week. use the blog's settings
+		// Set the start date as the beginning of the week, according to blog settings
+		$filters['start_date'] = $this->get_beginning_of_week( $filters['start_date'] );
 		
 		$edit_flow->helpers->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $filters );
 		
@@ -413,7 +400,7 @@ class EF_Calendar {
 			$heading_date = date( 'Y-m-d', strtotime( "+1 day", strtotime( $heading_date ) ) );
 		}
 		
-		// we sort by post statuses eventually
+		// we sort by post statuses....... eventually
 		$post_statuses = $edit_flow->helpers->get_post_statuses();
 		?>
 		<div class="wrap">
@@ -435,8 +422,10 @@ class EF_Calendar {
 					$table_classes[] = 'two-weeks-showing';
 				elseif ( $this->total_weeks == 3 )
 					$table_classes[] = 'three-weeks-showing';
+					
+				$table_classes = apply_filters( 'ef_calendar_table_classes', $table_classes );
 			?>
-			<table id="ef-calendar-view" class="<?php echo implode( ' ', $table_classes ); ?>">
+			<table id="ef-calendar-view" class="<?php echo esc_attr( implode( ' ', $table_classes ) ); ?>">
 				<thead>
 				<tr class="calendar-heading">
 					<?php echo $this->get_time_period_header( $dates ); ?>
@@ -447,7 +436,7 @@ class EF_Calendar {
 				<?php
 				$current_month = date( 'F', strtotime( $filters['start_date'] ) );
 				for( $current_week = 1; $current_week <= $this->total_weeks; $current_week++ ):
-					// We need to set the global variable for our posts_where filter
+					// We need to set the object variable for our posts_where filter
 					$this->current_week = $current_week;
 					$week_posts = $this->get_calendar_posts_for_week( $post_query_args );
 					$date_format = 'Y-m-d';
@@ -517,12 +506,14 @@ class EF_Calendar {
 					// Last day of the week
 					if ( $day_num == 6 )
 						$td_classes[] = 'last-day';
+						
+					$td_classes = apply_filters( 'ef_calendar_table_td_classes', $td_classes, $week_single_date );
 				?>
-				<td class="<?php echo implode( ' ', $td_classes ); ?>" id="<?php echo esc_attr( $week_single_date ); ?>">
+				<td class="<?php echo esc_attr( implode( ' ', $td_classes ) ); ?>" id="<?php echo esc_attr( $week_single_date ); ?>">
 					<?php if ( $week_single_date == date( 'Y-m-d' ) ): ?>
 						<div class="day-unit-today"><?php _e( 'Today', 'edit-flow' ); ?></div>
 					<?php endif; ?>
-					<div class="day-unit-label"><?php echo date( 'j', strtotime( $week_single_date ) ); ?></div>
+					<div class="day-unit-label"><?php echo esc_html( date( 'j', strtotime( $week_single_date ) ) ); ?></div>
 					<ul class="post-list">
 						<?php
 						$hidden = 0;
@@ -554,10 +545,11 @@ class EF_Calendar {
 								$post_classes[] = 'hidden';
 								$hidden++;
 							}
+							$post_classes = apply_filters( 'ef_calendar_table_td_li_classes', $post_classes, $week_single_date, $post->ID );
 						?>
-						<li class="<?php echo implode( ' ', $post_classes ); ?>" id="post-<?php esc_attr_e( $post->ID ); ?>">
+						<li class="<?php echo esc_attr( implode( ' ', $post_classes ) ); ?>" id="post-<?php esc_attr( $post->ID ); ?>">
 							<div class="item-default-visible">
-							<div class="item-status"><span class="status-text"><?php echo $edit_flow->helpers->get_post_status_friendly_name( get_post_status( $post_id ) ); ?></span></div>
+							<div class="item-status"><span class="status-text"><?php echo esc_html( $edit_flow->helpers->get_post_status_friendly_name( get_post_status( $post_id ) ) ); ?></span></div>
 							<div class="inner">
 								<span class="item-headline post-title"><strong><?php echo esc_html( $post->post_title ); ?></strong></span>
 							</div>
@@ -676,7 +668,9 @@ class EF_Calendar {
 					
 					</tbody>		
 					</table><!-- /Week Wrapper -->
-					<?php wp_nonce_field( 'ef-calendar-modify', 'ef-calendar-modify' ); ?>
+					<?php
+					// Nonce field for AJAX actions
+					wp_nonce_field( 'ef-calendar-modify', 'ef-calendar-modify' ); ?>
 					
 					<div class="clear"></div>
 				</div><!-- /Calendar Wrapper -->
@@ -685,7 +679,7 @@ class EF_Calendar {
 
 		<?php 
 		
-	} // END: view_calendar()
+	}
 	
 	/**
 	 * Generates the filtering and navigation options for the top of the calendar
@@ -703,13 +697,13 @@ class EF_Calendar {
 			<li id="calendar-filter">
 				<form method="GET">
 					<input type="hidden" name="page" value="calendar" />
-					<input type="hidden" name="start_date" value="<?php esc_attr_e( $filters['start_date'] ); ?>"/>
+					<input type="hidden" name="start_date" value="<?php esc_attr( $filters['start_date'] ); ?>"/>
 					<!-- Filter by status -->
 					<select id="post_status" name="post_status">
 						<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
 						<?php
 							foreach ( $post_statuses as $post_status ) {
-								echo "<option value='$post_status->slug' " . selected( $post_status->slug, $filters['post_status'] ) . ">" . esc_html( $post_status->name ) . "</option>";
+								echo "<option value='" . esc_attr( $post_status->slug ) . "' " . selected( $post_status->slug, $filters['post_status'] ) . ">" . esc_html( $post_status->name ) . "</option>";
 							}
 							echo "<option value='future'" . selected( 'future', $filters['post_status'] ) . ">" . __( 'Scheduled', 'edit-flow' ) . "</option>";
 							echo "<option value='unpublish'" . selected( 'unpublish', $filters['post_status'] ) . ">" . __( 'Unpublished', 'edit-flow' ) . "</option>";
@@ -746,7 +740,7 @@ class EF_Calendar {
 					<?php
 						foreach ( $supported_post_types as $key => $post_type_name ) {
 							$all_post_types = get_post_types( null, 'objects' );
-							echo '<option value="' . esc_attr( $post_type_name ) . '"' . selected( $post_type_name, $filters['post_type']) . '>' . esc_html( $all_post_types[$post_type_name]->labels->name ) . '</option>';
+							echo '<option value="' . esc_attr( $post_type_name ) . '"' . selected( $post_type_name, $filters['post_type'] ) . '>' . esc_html( $all_post_types[$post_type_name]->labels->name ) . '</option>';
 						}
 					?>
 					</select>
@@ -760,7 +754,7 @@ class EF_Calendar {
 			<li>
 				<form method="GET">
 					<input type="hidden" name="page" value="calendar" />
-					<input type="hidden" name="start_date" value="<?php esc_attr_e( $filters['start_date'] ); ?>"/>
+					<input type="hidden" name="start_date" value="<?php esc_attr( $filters['start_date'] ); ?>"/>
 					<input type="hidden" name="post_status" value="" />
 					<input type="hidden" name="type" value="" />					
 					<input type="hidden" name="cat" value="" />
@@ -822,11 +816,11 @@ class EF_Calendar {
 		
 		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
 		$defaults = array(
-			'post_status' => null,
-			'cat'         => null,
-			'author'      => null,
-			'post_type' => $supported_post_types,
-			'posts_per_page' => -1,
+			'post_status'      => null,
+			'cat'              => null,
+			'author'           => null,
+			'post_type'        => $supported_post_types,
+			'posts_per_page'   => -1,
 		);
 						 
 		$args = array_merge( $defaults, $args );
@@ -839,13 +833,13 @@ class EF_Calendar {
 				$args['post_status'] .= $post_status->slug . ', ';
 			}
 			$args['post_status'] = rtrim( $args['post_status'], ', ' );
+			// Optional filter to include scheduled content as unpublished
 			if ( apply_filters( 'ef_show_scheduled_as_unpublished', false ) )
 				$args['post_status'] .= ', future';
 		}
 		// The WP functions for printing the category and author assign a value of 0 to the default
 		// options, but passing this to the query is bad (trashed and auto-draft posts appear!), so
-		// unset those arguments. We could alternatively amend the first option from these
-		// dropdowns with a regex on the wp_dropdown_cats and wp_dropdown_users filters.
+		// unset those arguments.
 		if ( $args['cat'] === '0' ) unset( $args['cat'] );
 		if ( $args['author'] === '0' ) unset( $args['author'] );
 		
@@ -853,7 +847,7 @@ class EF_Calendar {
 			$args['post_type'] = $supported_post_types;
 		}
 		
-		// Filter for an end user to implement
+		// Filter for an end user to implement any of their own query args
 		$args = apply_filters( 'ef_calendar_posts_query_args', $args );
 		
 		add_filter( 'posts_where', array( &$this, 'posts_where_week_range' ) );
@@ -865,7 +859,6 @@ class EF_Calendar {
 			$post_results->the_post();
 			global $post;
 			$key_date = date( 'Y-m-d', strtotime( $post->post_date ) );
-			// @todo Sort within a day by whatever field we're sorting by
 			$posts[$key_date][] = $post;
 		}
 		
@@ -925,12 +918,12 @@ class EF_Calendar {
 	 * Given a day in string format, returns the day at the beginning of that week, which can be the given date.
 	 * The end of the week is determined by the blog option, 'start_of_week'.
 	 *
+	 * @see http://www.php.net/manual/en/datetime.formats.date.php for valid date formats
+	 *
 	 * @param string $date String representing a date
 	 * @param string $format Date format in which the end of the week should be returned
 	 * @param int $week Number of weeks we're offsetting the range	
 	 * @return string $formatted_start_of_week End of the week
-	 *
-	 * @see http://www.php.net/manual/en/datetime.formats.date.php for valid date formats
 	 */
 	function get_beginning_of_week( $date, $format = 'Y-m-d', $week = 1 ) {
 		
@@ -942,18 +935,18 @@ class EF_Calendar {
 		$formatted_start_of_week = date( $format, $date + $additional );
 		return $formatted_start_of_week;
 		
-	} // END: get_beginning_of_week()
+	}
 	
 	/**
 	 * Given a day in string format, returns the day at the end of that week, which can be the given date.
 	 * The end of the week is determined by the blog option, 'start_of_week'.
 	 *
+	 * @see http://www.php.net/manual/en/datetime.formats.date.php for valid date formats	
+	 *
 	 * @param string $date String representing a date
 	 * @param string $format Date format in which the end of the week should be returned
 	 * @param int $week Number of weeks we're offsetting the range		
 	 * @return string $formatted_end_of_week End of the week
-	 *
-	 * @see http://www.php.net/manual/en/datetime.formats.date.php for valid date formats
 	 */
 	function get_ending_of_week( $date, $format = 'Y-m-d', $week = 1  ) {
 		
@@ -983,7 +976,6 @@ class EF_Calendar {
 	
 	/**
 	 * Check whether the current user should have the ability to modify the post
-	 * @todo Make this work for custom post types too
 	 *
 	 * @since 0.7
 	 *
@@ -1017,7 +1009,8 @@ class EF_Calendar {
 	
 	/**
 	 * Register settings for notifications so we can partially use the Settings API
-	 * (We use the Settings API for form generation, but not saving)
+	 * We use the Settings API for form generation, but not saving because we have our
+	 * own way of handling the data.
 	 * 
 	 * @since 0.7
 	 */
@@ -1038,6 +1031,11 @@ class EF_Calendar {
 		$edit_flow->settings->helper_option_custom_post_type( $this->module );
 	}
 	
+	/**
+	 * Validate the data submitted by the user in calendar settings
+	 *
+	 * @since 0.7
+	 */
 	function settings_validate( $new_options ) {
 		global $edit_flow;
 		
@@ -1055,7 +1053,7 @@ class EF_Calendar {
 	function print_configure_view() {
 		global $edit_flow;
 		?>
-		<form class="basic-settings" action="<?php echo esc_url( add_query_arg( 'page', $this->module->settings_slug, get_admin_url( null, 'admin.php' ) ) ); ?>" method="post">
+		<form class="basic-settings" action="<?php echo esc_url( menu_page_url( $this->module->settings_slug, false ) ); ?>" method="post">
 			<?php settings_fields( $this->module->options_group_name ); ?>
 			<?php do_settings_sections( $this->module->options_group_name ); ?>	
 			<?php				
@@ -1068,4 +1066,4 @@ class EF_Calendar {
 	
 }
 	
-} // END: if ( !class_exists('EF_Calendar') )
+}
