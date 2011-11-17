@@ -25,7 +25,7 @@ class EF_Story_Budget {
 	
 	const usermeta_key_prefix = 'ef_story_budget_';
 	
-	const default_num_columns = 2;
+	const default_num_columns = 1;
 	
 	/**
 	 * Register the module with Edit Flow but don't do anything else
