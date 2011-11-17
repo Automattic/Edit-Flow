@@ -25,7 +25,7 @@ class EF_Story_Budget {
 	
 	const usermeta_key_prefix = 'ef_story_budget_';
 	
-	const default_num_columns = 2;
+	const default_num_columns = 1;
 	
 	/**
 	 * Register the module with Edit Flow but don't do anything else
@@ -431,7 +431,7 @@ class EF_Story_Budget {
 				</tbody>
 			</table>
 			<?php else: ?>
-			<div class="message info"><?php _e( 'There are no posts for this term in the range or filter specified.', 'edit-flow' ); ?></div>
+			<div class="message info"><p><?php _e( 'There are no posts for this term in the range or filter specified.', 'edit-flow' ); ?></p></div>
 			<?php endif; ?>
 		</div>
 	</div>
