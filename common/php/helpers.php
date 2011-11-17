@@ -496,8 +496,8 @@ class EF_Helpers {
 				<?php foreach( $users as $user ) : ?>
 					<?php $checked = ( in_array($user->ID, $selected) ) ? 'checked="checked"' : ''; ?>
 					<li>
-						<label for="<?php echo $input_id .'-'. $user->ID ?>">
-							<input type="checkbox" id="<?php echo $input_id .'-'. $user->ID ?>" name="<?php echo $input_id ?>[]" value="<?php echo esc_attr( $user->ID ); ?>" <?php echo $checked; ?> />
+						<label for="<?php echo esc_attr( $input_id .'-'. $user->ID ) ?>">
+							<input type="checkbox" id="<?php echo esc_attr( $input_id .'-'. $user->ID ) ?>" name="<?php echo esc_attr( $input_id ) ?>[]" value="<?php echo esc_attr( $user->ID ); ?>" <?php echo $checked; ?> />
 							<span class="ef-user-displayname"><?php echo esc_html( $user->display_name ); ?></span>
 							<span class="ef-user-useremail"><?php echo esc_html( $user->user_email ); ?></span>
 						</label>
