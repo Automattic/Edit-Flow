@@ -1,12 +1,11 @@
 <?php
 /**
+ * class EF_Story_Budget
  * This class displays a budgeting system for an editorial desk's publishing workflow.
  *
  * @author sbressler
- * TODO: Review inline TODOs
- * TODO: Fix any bugs with collapsing postbox divs and floating columns
  */
-class ef_story_budget {
+class EF_Story_Budget {
 	
 	var $taxonomy_used = 'category';
 	
@@ -26,7 +25,7 @@ class ef_story_budget {
 	
 	const usermeta_key_prefix = 'ef_story_budget_';
 	
-	const default_num_columns = 1;
+	const default_num_columns = 2;
 	
 	/**
 	 * Register the module with Edit Flow but don't do anything else
@@ -37,7 +36,6 @@ class ef_story_budget {
 		
 		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
-		// @todo default options for the story budget
 		$args = array(
 			'title' => __( 'Story Budget', 'edit-flow' ),
 			'short_description' => __( 'View the status of all your content at a glance.', 'edit-flow' ),
@@ -59,6 +57,10 @@ class ef_story_budget {
 	 * Initialize the rest of the stuff in the class if the module is active
 	 */
 	function init() {
+		
+		$view_story_budget_cap = apply_filters( 'ef_view_story_budget_cap', 'ef_view_story_budget' );
+		if ( !current_user_can( $view_story_budget_cap ) )
+			return;
 	
 		$this->num_columns = $this->get_num_columns();
 		$this->max_num_columns = apply_filters( 'ef_story_budget_max_num_columns', 3 );
@@ -125,7 +127,7 @@ class ef_story_budget {
 		echo '<script type="text/javascript"> var ef_story_budget_number_of_columns="' . esc_js( $this->num_columns ) . '";</script>';
 		
 		$edit_flow->helpers->enqueue_datepicker_resources();
-		wp_enqueue_script( 'edit_flow-story_budget', EDIT_FLOW_URL . 'modules/story-budget/lib/story-budget.js', array( 'edit_flow-date_picker' ), EDIT_FLOW_VERSION, true );
+		wp_enqueue_script( 'edit_flow-story_budget', $this->module->module_url . '/lib/story-budget.js', array( 'edit_flow-date_picker' ), EDIT_FLOW_VERSION, true );
 	}
 	
 	/**
@@ -137,8 +139,8 @@ class ef_story_budget {
 		if ( $current_screen->id != self::screen_id )
 			return;
 		
-		wp_enqueue_style( 'edit_flow-story_budget-styles', EDIT_FLOW_URL . 'modules/story-budget/lib/story-budget.css', false, EDIT_FLOW_VERSION, 'screen' );
-		wp_enqueue_style( 'edit_flow-story_budget-print-styles', EDIT_FLOW_URL . 'modules/story-budget/lib/story-budget-print.css', false, EDIT_FLOW_VERSION, 'print' );
+		wp_enqueue_style( 'edit_flow-story_budget-styles', $this->module->module_url . '/lib/story-budget.css', false, EDIT_FLOW_VERSION, 'screen' );
+		wp_enqueue_style( 'edit_flow-story_budget-print-styles', $this->module->module_url . '/lib/story-budget-print.css', false, EDIT_FLOW_VERSION, 'print' );
 	}
 	
 	/**
@@ -187,7 +189,7 @@ class ef_story_budget {
 	}
 	
 	/**
-	 * ??
+	 * Get the number of columns to show on the story budget
 	 */
 	function get_num_columns() {
 		global $edit_flow;
@@ -203,10 +205,13 @@ class ef_story_budget {
 		return $this->num_columns;
 	}
 	
+	/**
+	 * Print column number preferences for screen options
+	 */
 	function print_column_prefs() {
 		$return_val = __( 'Number of Columns: ', 'edit-flow' );
 		for ( $i = 1; $i <= $this->max_num_columns; ++$i ) {
-			$return_val .= "<label><input type='radio' name='" . self::usermeta_key_prefix . "screen_columns' value='$i' " . checked($this->get_num_columns(), $i, false) . " /> $i</label>\n";
+			$return_val .= "<label><input type='radio' name='" . esc_attr( self::usermeta_key_prefix ) . "screen_columns' value='" . esc_attr( $i ) . "' " . checked($this->get_num_columns(), $i, false) . " />&nbsp;" . esc_attr( $i ) . "</label>\n";
 		}
 		return $return_val;
 	}
@@ -230,10 +235,9 @@ class ef_story_budget {
 	 */
 	function story_budget() {
 		
-		$cat = $this->combine_get_with_user_filter( $this->user_filters, 'cat' );
-		if ( !empty( $cat ) ) {
+		if ( !empty( $this->user_filters['cat'] ) ) {
 			$terms = array();
-			$terms[] = get_term( $cat, $this->taxonomy_used );
+			$terms[] = get_term( $this->user_filters['cat'], $this->taxonomy_used );
 		} else {
 			// Get all of the terms from the taxonomy, regardless whether there are published posts
 			$args = array(
@@ -273,7 +277,6 @@ class ef_story_budget {
 				}
 			?>
 			</div>
-			<?php $this->matching_posts_messages(); ?>
 		</div>
 		<?php
 	}
@@ -353,6 +356,7 @@ class ef_story_budget {
 				$args['post_status'] .= $post_status->slug . ', ';
 			}
 			$args['post_status'] = rtrim( $args['post_status'], ', ' );
+			// Optional filter to include scheduled content as unpublished
 			if ( apply_filters( 'ef_show_scheduled_as_unpublished', false ) )
 				$args['post_status'] .= ', future';
 		}
@@ -390,14 +394,6 @@ class ef_story_budget {
 		$where = $where . $wpdb->prepare( " AND ($wpdb->posts.post_date >= '%s' AND $wpdb->posts.post_date < '%s')", $beginning_date, $ending_date );
 	
 		return $where;
-	}	
-	
-	function combine_get_with_user_filter( $user_filters, $param ) {
-		if ( !isset( $user_filters[$param] ) ) {
-			return $this->filter_get_param( $param );
-		} else {
-			return $user_filters[$param];
-		}
 	}
 	
 	/**
@@ -430,7 +426,7 @@ class ef_story_budget {
 				<tbody>
 				<?php
 					foreach ($posts as $post)
-						$this->print_post($post, $term);
+						$this->print_post( $post, $term );
 				?>
 				</tbody>
 			</table>
@@ -451,18 +447,18 @@ class ef_story_budget {
 	function print_post( $post, $parent_term ) {
 		global $edit_flow;
 		?>
-			<tr id='post-<?php echo $post->ID; ?>' class='alternate' valign="top">
-				<?php foreach( (array)$this->term_columns as $key => $name ) {
-					echo '<td>';
-					if ( method_exists( &$this, 'term_column_' . $key ) ) {
-						$method = 'term_column_' . $key;
-						echo $this->$method( $post, $parent_term );
-					} else {
-						echo $this->term_column_default( $post, $key, $parent_term );
-					}
-					echo '</td>';
-				} ?>
-			</tr>
+		<tr id='post-<?php echo esc_attr( $post->ID ); ?>' class='alternate' valign="top">
+			<?php foreach( (array)$this->term_columns as $key => $name ) {
+				echo '<td>';
+				if ( method_exists( &$this, 'term_column_' . $key ) ) {
+					$method = 'term_column_' . $key;
+					echo $this->$method( $post, $parent_term );
+				} else {
+					echo $this->term_column_default( $post, $key, $parent_term );
+				}
+				echo '</td>';
+			} ?>
+		</tr>
 		<?php
 	}
 	
@@ -480,7 +476,7 @@ class ef_story_budget {
 	function term_column_default( $post, $column_name, $parent_term ) {
 		global $edit_flow;
 		
-		// Hook for other modules to get into
+		// Hook for other modules to get data into columns
 		$column_value = null;
 		$column_value = apply_filters( 'ef_story_budget_term_column_value', $column_name, $post, $parent_term ); 
 		if ( !is_null( $column_value ) && $column_value != $column_name )
@@ -537,6 +533,9 @@ class ef_story_budget {
 		
 	}
 	
+	/**
+	 * Print any messages that should appear based on the action performed
+	 */
 	function print_messages() {
 	?>
 	
@@ -578,7 +577,7 @@ class ef_story_budget {
 					<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
 					<?php
 						foreach ( $post_statuses as $post_status ) {
-							echo "<option value='$post_status->slug' " . selected( $post_status->slug, $this->user_filters['post_status'] ) . ">$post_status->name</option>";
+							echo "<option value='" . esc_attr( $post_status->slug ) . "' " . selected( $post_status->slug, $this->user_filters['post_status'] ) . ">" . esc_html( $post_status->name ) . "</option>";
 						}
 						echo "<option value='future'" . selected('future', $this->user_filters['post_status']) . ">" . __( 'Scheduled', 'edit-flow' ) . "</option>";
 						echo "<option value='unpublish'" . selected('unpublish', $this->user_filters['post_status']) . ">" . __( 'Unpublished', 'edit-flow' ) . "</option>";
@@ -625,22 +624,6 @@ class ef_story_budget {
 		
 	</div><!-- /tablenav -->
 	<?php
-	}
-	
-	/**
-	 * Display any messages after displaying all the story budget boxes. This will likely be for messages when no
-	 * stories are found to match the current filters.
-	 */
-	function matching_posts_messages() {
-		if ( $this->no_matching_posts ) { ?>
-		<style type="text/css">
-			/* Apparently the meta-box-sortables class has a minimum height of 300px. Not good with nothing inside them! */
-			.postbox-container .meta-box-sortables { min-height: 0; }
-			.print-box { display: none; }
-		</style>
-		<div id="noposts-message" class="ef-updated"><p><?php _e( 'There are currently no matching posts.', 'edit-flow' ); ?></p></div>
-		<?php
-		}
 	}
 	
 	/**
@@ -711,8 +694,7 @@ class ef_story_budget {
 			return '';
 		}
 		
-		// TODO: is this the correct sanitization/secure enough?
-		return htmlspecialchars( $_GET[$param] );
+		return sanitize_key( $_GET[$param] );
 	}
 	
-} // End class EF_Story_Budget
+}
