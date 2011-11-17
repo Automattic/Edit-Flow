@@ -58,7 +58,7 @@ class edit_flow {
 		add_action( 'init', array( &$this, 'action_init' ) );
 		add_action( 'admin_init', array( &$this, 'action_admin_init' ) );
 		
-	} // END __construct()
+	}
 
 	/**
 	 * Include the common resources to Edit Flow and dynamically load the modules
@@ -148,7 +148,7 @@ class edit_flow {
 
 		$this->register_scripts_and_styles();
 		
-	} // END: admin_init()
+	}
 	
 	/**
 	 * Register a new module with Edit Flow
@@ -269,7 +269,7 @@ class edit_flow {
 			wp_register_script( 'jquery-ui-datepicker', EDIT_FLOW_URL . 'common/js/jquery.ui.datepicker.min.js', array( 'jquery', 'jquery-ui-core'), '1.8.16', true );		
 	}
 
-} // END: class edit_flow
+}
 
 // Create new instance of the edit_flow object
 global $edit_flow;
