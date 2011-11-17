@@ -57,12 +57,8 @@ class EF_Notifications {
 	function init() {
 		global $edit_flow;
 
-		// Register new taxonomy used to track which users are following posts 
-		if( !taxonomy_exists( $this->following_users_taxonomy ) ) register_taxonomy( $this->following_users_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
-		// Register new taxonomy used to track which users are UNfollowing posts 
-		if( !taxonomy_exists( $this->unfollowing_users_taxonomy ) ) register_taxonomy( $this->unfollowing_users_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
-		// Register new taxonomy used to track which usergroups are following posts 
-		if( !taxonomy_exists( $this->following_usergroups_taxonomy ) ) register_taxonomy( $this->following_usergroups_taxonomy, 'post', array('hierarchical' => false, 'update_count_callback' => '_update_post_term_count', 'label' => false, 'query_var' => false, 'rewrite' => false, 'show_ui' => false) );
+		// Register our taxonomies for managing relationships
+		$this->register_taxonomies();
 		
 		// Set up metabox and related actions
 		add_action( 'admin_init', array( &$this, 'add_post_meta_box' ) );
@@ -111,6 +107,33 @@ class EF_Notifications {
 	}
 	
 	/**
+	 * Register the taxonomies we use to manage relationships
+	 *
+	 * @since 0.7
+	 *
+	 * @uses register_taxonomy()
+	 */
+	function register_taxonomies() {
+		global $edit_flow;
+		
+		// Load the currently supported post types so we only register against those
+		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		
+		$args = array(
+			'hierarchical' => false,
+			'update_count_callback' =>
+			'_update_post_term_count',
+			'label' => false,
+			'query_var' => false,
+			'rewrite' => false,
+			'show_ui' => false
+		);
+		foreach( array( $this->following_users_taxonomy, $this->following_users_taxonomy ) as $taxonomy ) {
+			register_taxonomy( $taxonomy, $supported_post_types, $args );
+		}
+	}
+	
+	/**
 	 * Enqueue necessary admin scripts
 	 *
 	 * @since 0.7
@@ -155,7 +178,7 @@ class EF_Notifications {
 		
 		$usergroup_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
 		foreach ( $usergroup_post_types as $post_type ) {
-			add_meta_box( 'edit-flow-subscriptions', __( 'Subscriptions', 'edit-flow'), array( &$this, 'notifications_meta_box'), $post_type, 'advanced', 'high');
+			add_meta_box( 'edit-flow-notifications', __( 'Notifications', 'edit-flow'), array( &$this, 'notifications_meta_box'), $post_type, 'advanced', 'high');
 		}
 	}
 	
@@ -171,7 +194,7 @@ class EF_Notifications {
 		// Only show on posts that have been saved
 		if( in_array( $post->post_status, array( 'new', 'auto-draft' ) ) ) {
 			?>
-			<p><?php _e( 'Subscribers can be added to a post after the post has been saved for the first time.', 'edit-flow' ); ?></p>
+			<p><?php _e( 'Notifications can be added to a post after the post has been saved for the first time.', 'edit-flow' ); ?></p>
 			<?php
 			return;
 		}
@@ -264,7 +287,8 @@ class EF_Notifications {
 		if ( ! apply_filters( 'ef_notification_status_change', $new_status, $old_status, $post ) || ! apply_filters( "ef_notification_{$post->post_type}_status_change", $new_status, $old_status, $post ) )
 			return false;
 		
-		if( ! post_type_supports( $post->post_type, 'ef_notifications' ) )
+		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		if ( !in_array( $post->post_type, $supported_post_types ) )
 			return;
 		
 		// No need to notify if it's a revision, auto-draft, or if post status wasn't changed
@@ -376,8 +400,13 @@ class EF_Notifications {
 	 * Set up and set editorial comment notification email
 	 */
 	function notification_comment( $comment ) {
+		global $edit_flow;
 		
 		$post = get_post($comment->comment_post_ID);
+		
+		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		if ( !in_array( $post->post_type, $supported_post_types ) )
+			return;		
 		
 		// Kill switch for notification
 		if ( ! apply_filters( 'ef_notification_editorial_comment', $comment, $post ) )
@@ -454,7 +483,7 @@ class EF_Notifications {
 	function send_email( $action, $post, $subject, $message, $message_headers = '' ) {
 	
 		// Get list of email recipients -- set them CC		
-		$recipients = $this->_get_notification_recipients($post, true);
+		$recipients = $this->_get_notification_recipients( $post, true );
 		
 		if( $recipients && ! is_array( $recipients ) )
 			$recipients = explode( ',', $recipients );
@@ -466,10 +495,9 @@ class EF_Notifications {
 				$this->send_single_email( $recipient, $subject, $message, $message_headers );
 			}
 		}
-	} // END: send_email()
+	}
 	
 	/**
-	 * schedule_emails()
 	 * Schedules emails to be sent in succession
 	 * 
 	 * @param mixed $recipients Individual email or array of emails
@@ -488,7 +516,7 @@ class EF_Notifications {
 			$send_time += $time_offset;
 		}
 		
-	} // END: schedule_emails()
+	}
 	
 	/**
 	 * Sends an individual email
@@ -526,19 +554,24 @@ class EF_Notifications {
 		if( 'on' == $this->module->options->always_notify_admin )
 			$admins[] = get_option('admin_email');
 		
-		// Get following users and usergroups
-		$usergroups = $this->get_following_usergroups( $post_id, 'slugs' );
-		if( $usergroups && !empty( $usergroups ) )
-			$usergroup_users = ef_get_users_in_usergroup( $usergroups, 'user_email' );
-		else
-			$usergroup_users = array();
+		$usergroup_users = array();
+		if ( $edit_flow->helpers->module_enabled( 'user_groups' ) ) {
+			// Get following users and usergroups
+			$usergroups = $this->get_following_usergroups( $post_id, 'ids' );
+			foreach( (array)$usergroups as $usergroup_id ) {
+				$usergroup = $edit_flow->user_groups->get_usergroup_by( 'id', $usergroup_id );
+				foreach( (array)$usergroup->user_ids as $user_id ) {
+					$usergroup_user = get_user_by( 'id', $user_id );
+					if ( $usergroup_user )
+						$usergroup_users[] = $usergroup_user->user_email;
+				}
+			}
+		}
 		
 		$users = $this->get_following_users( $post_id, 'user_email' );
 		
-		// Merge arrays
+		// Merge arrays and filter any duplicates
 		$recipients = array_merge( $authors, $admins, $users, $usergroup_users );
-		
-		// Filter out any duplicates
 		$recipients = array_unique( $recipients );
 		
 		// Get rid of empty email entries
@@ -834,7 +867,6 @@ class EF_Notifications {
 	function register_settings() {
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
 			add_settings_field( 'post_types', 'Post types for notifications:', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-			add_settings_field( 'events', 'Notify on these events:', array( &$this, 'settings_events_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 			add_settings_field( 'always_notify_admin', 'Always notify blog admin', array( &$this, 'settings_always_notify_admin_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 	}
 	
@@ -847,16 +879,7 @@ class EF_Notifications {
 		global $edit_flow;
 		$edit_flow->settings->helper_option_custom_post_type( $this->module );	
 	}
-	
-	/**
-	 * Chose which events to send notifications for
-	 *
-	 * @since 0.7
-	 */
-	function settings_events_option() {
-		
-	}
-	
+
 	/**
 	 * Option for whether the blog admin email address should be always notified or not
 	 *
