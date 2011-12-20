@@ -63,9 +63,12 @@ class EF_Notifications {
 		// Set up metabox and related actions
 		add_action( 'admin_init', array( &$this, 'add_post_meta_box' ) );
 	
+		// Saving post actions
+		// self::save_post_subscriptions() is hooked into transition_post_status so we can ensure usergroup data
+		// is properly saved before sending notifs
+		add_action( 'transition_post_status', array( &$this, 'save_post_subscriptions' ), 0, 3 );
 		add_action( 'transition_post_status', array( &$this, 'notification_status_change' ), 10, 3 );
 		add_action( 'ef_post_insert_editorial_comment', array( &$this, 'notification_comment') );
-		add_action( 'save_post', array( &$this, 'save_post' ) );
 		add_action( 'delete_user',  array(&$this, 'delete_user_action') );
 		add_action( 'ef_send_scheduled_email', array( &$this, 'send_single_email' ), 10, 4 );
 		
@@ -231,7 +234,7 @@ class EF_Notifications {
 	 *
 	 * @param int $post ID of the post
 	 */
-	function save_post( $post ) {
+	function save_post_subscriptions( $new_status, $old_status, $post ) {
 				
 		// only if has edit_post_subscriptions cap
 		if( ( !wp_is_post_revision($post) && !wp_is_post_autosave($post) ) && isset($_POST['ef-save_followers']) && current_user_can('edit_post_subscriptions') ) {
@@ -929,7 +932,7 @@ class EF_Notifications {
 		global $edit_flow;
 		?>
 
-		<form class="basic-settings" action="<?php echo esc_url( menu_page_url( $this->module->settings_slug ) ); ?>" method="post">
+		<form class="basic-settings" action="<?php echo esc_url( menu_page_url( $this->module->settings_slug, false ) ); ?>" method="post">
 			<?php settings_fields( $this->module->options_group_name ); ?>
 			<?php do_settings_sections( $this->module->options_group_name ); ?>
 			<?php
