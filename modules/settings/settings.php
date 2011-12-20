@@ -314,17 +314,22 @@ class EF_Settings {
 			'_builtin' => false,
 		);
 		$custom_post_types = get_post_types( $pt_args, 'objects' );		
-		if ( count( $custom_post_types ) )
-			foreach( $custom_post_types as $custom_post_type => $args )
-				$all_post_types[$custom_post_type] = $args->name;
+		if ( count( $custom_post_types ) ) {
+			foreach( $custom_post_types as $custom_post_type => $args ) {
+				$all_post_types[$custom_post_type] = $args->label;
+			}
+		}
 		
 		foreach( $all_post_types as $post_type => $title ) {
+			echo '<label for="' . esc_attr( $post_type ) . '">';
+			var_dump( $module->options->post_types[$post_type] );
 			echo '<input id="' . esc_attr( $post_type ) . '" name="'
-				. $module->options_group_name . '[post_types][' . esc_attr( $post_type ) . ']"';				
-			checked( $module->options->post_types[$post_type], 'on' );
+				. $module->options_group_name . '[post_types][' . esc_attr( $post_type ) . ']"';
+			if ( isset( $module->options->post_types[$post_type] ) ) 
+				checked( $module->options->post_types[$post_type], 'on' );
 			// Defining post_type_supports in the functions.php file or similar should disable the checkbox
 			disabled( post_type_supports( $post_type, $module->post_type_support ), true );
-			echo ' type="checkbox" />&nbsp;&nbsp;&nbsp;' . esc_html( $title );
+			echo ' type="checkbox" />&nbsp;&nbsp;&nbsp;' . esc_html( $title ) . '</label>';
 			// Leave a note to the admin as a reminder that add_post_type_support has been used somewhere in their code
 			if ( post_type_supports( $post_type, $module->post_type_support ) )
 				echo '&nbsp&nbsp;&nbsp;<span class="description">' . sprintf( __( 'Disabled because add_post_type_support( \'%1$s\', \'%2$s\' ) is in use.' ), $post_type, $module->post_type_support ) . '</span>';
