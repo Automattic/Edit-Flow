@@ -322,7 +322,6 @@ class EF_Settings {
 		
 		foreach( $all_post_types as $post_type => $title ) {
 			echo '<label for="' . esc_attr( $post_type ) . '">';
-			var_dump( $module->options->post_types[$post_type] );
 			echo '<input id="' . esc_attr( $post_type ) . '" name="'
 				. $module->options_group_name . '[post_types][' . esc_attr( $post_type ) . ']"';
 			if ( isset( $module->options->post_types[$post_type] ) ) 
