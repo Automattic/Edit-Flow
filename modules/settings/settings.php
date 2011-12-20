@@ -331,7 +331,7 @@ class EF_Settings {
 			echo ' type="checkbox" />&nbsp;&nbsp;&nbsp;' . esc_html( $title ) . '</label>';
 			// Leave a note to the admin as a reminder that add_post_type_support has been used somewhere in their code
 			if ( post_type_supports( $post_type, $module->post_type_support ) )
-				echo '&nbsp&nbsp;&nbsp;<span class="description">' . sprintf( __( 'Disabled because add_post_type_support( \'%1$s\', \'%2$s\' ) is in use.' ), $post_type, $module->post_type_support ) . '</span>';
+				echo '&nbsp&nbsp;&nbsp;<span class="description">' . sprintf( __( 'Disabled because add_post_type_support( \'%1$s\', \'%2$s\' ) is included in a loaded file.', 'edit-flow' ), $post_type, $module->post_type_support ) . '</span>';
 			echo '<br />';
 		}
 		

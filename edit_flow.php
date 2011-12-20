@@ -54,8 +54,9 @@ class edit_flow {
 		// hook into the action we have at the end
 		add_action( 'ef_loaded', array( &$this, 'action_ef_loaded_load_modules' ) );
 		
-		// Load the module options later on
+		// Load the module options later on, and offer a function to happen way after init
 		add_action( 'init', array( &$this, 'action_init' ) );
+		add_action( 'init', array( &$this, 'action_init_after' ), 1000 );
 		add_action( 'admin_init', array( &$this, 'action_admin_init' ) );
 		
 	}
@@ -188,6 +189,8 @@ class edit_flow {
 		$args['options_group_name'] = $this->options_group . $name . '_options';
 		if ( !isset( $args['settings_slug'] ) )
 			$args['settings_slug'] = 'ef-' . $args['slug'] . '-settings';
+		if ( empty( $args['post_type_support'] ) )
+			$args['post_type_support'] = 'ef_' . $name;
 		$this->modules->$name = (object) $args;
 		do_action( 'ef_module_registered', $name );
 		return $this->modules->$name;
@@ -215,6 +218,24 @@ class edit_flow {
 			$this->$mod_name->module = $this->modules->$mod_name;
 		}
 		do_action( 'ef_module_options_loaded' );
+	}
+
+	/**
+	 * Load the post type options again so we give add_post_type_support() a chance to work
+	 *
+	 * @see http://dev.editflow.org/2011/11/17/edit-flow-v0-7-alpha2-notes/#comment-232
+	 */
+	function action_init_after() {
+		foreach ( $this->modules as $mod_name => $mod_data ) {
+			// Don't load modules on the frontend unless they're explictly defined as such
+			if ( !is_admin() && !$mod_data->load_frontend )
+				continue;
+
+			if ( isset( $this->modules->$mod_name->options->post_types ) )
+				$this->modules->$mod_name->options->post_types = $this->helpers->clean_post_type_options( $this->modules->$mod_name->options->post_types, $mod_data->post_type_support );	
+			
+			$this->$mod_name->module = $this->modules->$mod_name;
+		}
 	}
 	
 	/**

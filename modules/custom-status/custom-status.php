@@ -41,6 +41,7 @@ class EF_Custom_Status {
 					'page' => 'on',
 				),
 			),
+			'post_type_support' => 'ef_custom_statuses', // This has been plural in all of our docs
 			'configure_page_cb' => 'print_configure_view',
 			'configure_link_text' => __( 'Edit Statuses' ),
 			'messages' => array(
