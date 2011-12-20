@@ -257,7 +257,7 @@ class EF_Notifications {
 		
 		// Add current user to following users
 		$user = wp_get_current_user();
-		if ( $user )
+		if ( $user && apply_filters( 'ef_notification_auto_subscribe_current_user', true, 'subscription_action' ) )
 			$users[] = $user->ID;
 		
 		$users = array_unique( array_map( 'intval', $users ) );
@@ -426,10 +426,9 @@ class EF_Notifications {
 		//$parent_ID = isset( $comment->comment_parent_ID ) ? $comment->comment_parent_ID : 0;
 		//if($parent_ID) $parent = get_comment($parent_ID);
 		
-		// Set user to follow post
-		// @TODO: need option to opt-out
-		// TODO: This should not be in here... move to separate function
-		$this->follow_post_user($post, (int) $current_user->ID);
+		// Set user to follow post, but make it filterable
+		if ( apply_filters( 'ef_notification_auto_subscribe_current_user', true, 'comment' ) )
+			$this->follow_post_user($post, (int) $current_user->ID);
 	
 		$blogname = get_option('blogname');
 	
@@ -549,10 +548,7 @@ class EF_Notifications {
 		$authors = array();
 		$admins = array();
 		$recipients = array();
-		
-		// Email author(s) (setting needs to be enabled)
-		$authors[] = get_userdata($post->post_author)->user_email;
-		
+
 		// Email all admins, if enabled
 		if( 'on' == $this->module->options->always_notify_admin )
 			$admins[] = get_option('admin_email');
@@ -704,16 +700,6 @@ class EF_Notifications {
 			$usergroup_data = $edit_flow->user_groups->get_usergroup_by( 'id', $usergroup ); 
 		}
 		$set = wp_set_object_terms( $post_id, $usergroups, $this->following_usergroups_taxonomy, $append );
-		return;
-	}
-	
-	/** 
-	 * unfollow_post_usergroups()
-	 */
-	function unfollow_post_usergroups( $post_id, $users = 0 ) {
-		
-		// TODO: Allow opt-out of email
-		
 		return;
 	}
 	
