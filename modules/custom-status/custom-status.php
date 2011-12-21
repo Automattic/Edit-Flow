@@ -27,7 +27,7 @@ class EF_Custom_Status {
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Custom Statuses', 'edit-flow' ),
-			'short_description' => __( 'Create custom post statuses to define the stages of your workflow', 'edit-flow' ),
+			'short_description' => __( 'Create custom post statuses to define the stages of your workflow.', 'edit-flow' ),
 			'extended_description' => __( 'Create your own post statuses to add structure your publishing workflow. You can change existing or add new ones anytime, and drag and drop to change their order.', 'edit-flow' ),
 			'module_url' => $module_url,
 			'img_url' => $module_url . 'lib/custom_status_s128.png',
