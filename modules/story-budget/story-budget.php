@@ -101,6 +101,27 @@ class EF_Story_Budget {
 			ef_add_caps_to_role( $role, $caps );
 		}
 	}
+
+	/**
+	 * Upgrade our data in case we need to
+	 *
+	 * @since 0.7
+	 */
+	function upgrade( $previous_version ) {
+		global $edit_flow;
+
+		// Upgrade path to v0.7
+		if ( version_compare( $previous_version, '0.7' , '<' ) ) {
+			// Migrate whether the story budget was enabled or not and clean up old option
+			if ( $enabled = get_option( 'edit_flow_story_budget_enabled' ) )
+				$enabled = 'on';
+			else
+				$enabled = 'off';
+			$edit_flow->update_module_option( $this->module->name, 'enabled', $enabled );
+			delete_option( 'edit_flow_story_budget_enabled' );
+		}
+		
+	}
 	
 	/**
 	 * Include the story budget link in the admin menu.

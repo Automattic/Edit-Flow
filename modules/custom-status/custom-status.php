@@ -161,13 +161,15 @@ class EF_Custom_Status {
 		if ( version_compare( $previous_version, '0.7' , '<' ) ) {
 			// Migrate dropdown visibility option
 			if ( $dropdown_visible = get_option( 'edit_flow_status_dropdown_visible' ) )
-				$edit_flow->update_module_option( $this->module->name, 'always_show_dropdown', 'on' );
+				$dropdown_visible = 'on';
+			else
+				$dropdown_visible = 'off';
+			$edit_flow->update_module_option( $this->module->name, 'always_show_dropdown', $dropdown_visible );
 			delete_option( 'edit_flow_status_dropdown_visible' );
 			// Migrate default status option
 			if ( $default_status = get_option( 'edit_flow_custom_status_default_status' ) )
 				$edit_flow->update_module_option( $this->module->name, 'default_status', $default_status );
 			delete_option( 'edit_flow_custom_status_default_status' );
-			
 		}
 		
 	}

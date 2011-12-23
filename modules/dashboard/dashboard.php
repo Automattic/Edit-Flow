@@ -54,6 +54,43 @@ class EF_Dashboard {
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );		
 		
 	}
+
+	/**
+	 * Upgrade our data in case we need to
+	 *
+	 * @since 0.7
+	 */
+	function upgrade( $previous_version ) {
+		global $edit_flow;
+
+		// Upgrade path to v0.7
+		if ( version_compare( $previous_version, '0.7' , '<' ) ) {
+			// Migrate whether dashboard widgets were enabled or not
+			if ( $enabled = get_option( 'edit_flow_dashboard_widgets_enabled' ) )
+				$enabled = 'on';
+			else
+				$enabled = 'off';
+			$edit_flow->update_module_option( $this->module->name, 'enabled', $enabled );
+			delete_option( 'edit_flow_dashboard_widgets_enabled' );
+			// Migrate whether the post status widget was on
+			if ( $post_status_widget = get_option( 'edit_flow_post_status_widget_enabled' ) )
+				$post_status_widget = 'on';
+			else
+				$post_status_widget = 'off';
+			$edit_flow->update_module_option( $this->module->name, 'post_status_widget', $post_status_widget );
+			delete_option( 'edit_flow_post_status_widget_enabled' );
+			// Migrate whether the my posts widget was on
+			if ( $my_posts_widget = get_option( 'edit_flow_myposts_widget_enabled' ) )
+				$my_posts_widget = 'on';
+			else
+				$my_posts_widget = 'off';
+			$edit_flow->update_module_option( $this->module->name, 'post_status_widget', $my_posts_widget );
+			delete_option( 'edit_flow_myposts_widget_enabled' );
+			// Delete legacy option
+			delete_option( 'edit_flow_quickpitch_widget_enabled' );
+		}
+		
+	}
 	
 	/**
 	 * Add Edit Flow dashboard widgets to the WordPress admin dashboard

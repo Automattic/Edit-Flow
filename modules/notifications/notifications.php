@@ -108,6 +108,34 @@ class EF_Notifications {
 		}
 		
 	}
+
+	/**
+	 * Upgrade our data in case we need to
+	 *
+	 * @since 0.7
+	 */
+	function upgrade( $previous_version ) {
+		global $edit_flow;
+
+		// Upgrade path to v0.7
+		if ( version_compare( $previous_version, '0.7' , '<' ) ) {
+			// Migrate whether notifications were enabled or not
+			if ( $enabled = get_option( 'edit_flow_notifications_enabled' ) )
+				$enabled = 'on';
+			else
+				$enabled = 'off';
+			$edit_flow->update_module_option( $this->module->name, 'enabled', $enabled );
+			delete_option( 'edit_flow_notifications_enabled' );
+			// Migrate whether to always notify the admin
+			if ( $always_notify_admin = get_option( 'edit_flow_always_notify_admin' ) )
+				$always_notify_admin = 'on';
+			else
+				$always_notify_admin = 'off';
+			$edit_flow->update_module_option( $this->module->name, 'always_notify_admin', $always_notify_admin );
+			delete_option( 'edit_flow_always_notify_admin' );
+		}
+		
+	}
 	
 	/**
 	 * Register the taxonomies we use to manage relationships
