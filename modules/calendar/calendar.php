@@ -348,7 +348,7 @@ class EF_Calendar {
 		if ( isset( $_GET['start_date'] ) && !empty( $_GET['start_date'] ) )
 			$filters['start_date'] = date( 'Y-m-d', strtotime( $_GET['start_date'] ) );
 		else
-			$filters['start_date'] = date( 'Y-m-d' );
+			$filters['start_date'] = $old_filters['start_date'];
 
 		// Set the start date as the beginning of the week, according to blog settings
 		$filters['start_date'] = $this->get_beginning_of_week( $filters['start_date'] );
