@@ -133,7 +133,7 @@ class edit_flow {
 		// Upgrade if need be but don't run the upgrade if the plugin has never been used
 		$previous_version = get_option( $this->options_group . 'version' );
 		if ( $previous_version && version_compare( $previous_version, EDIT_FLOW_VERSION, '<' ) )
-			edit_flow_upgrade( $previous_version );
+			// @todo replace this with a modular upgrade path
 		elseif ( !$previous_version )
 			update_option( $this->options_group . 'version', EDIT_FLOW_VERSION );
 			
