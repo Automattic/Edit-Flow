@@ -134,6 +134,7 @@ class edit_flow {
 		$previous_version = get_option( $this->options_group . 'version' );
 		if ( $previous_version && version_compare( $previous_version, EDIT_FLOW_VERSION, '<' ) )
 			// @todo replace this with a modular upgrade path
+			$donothing = true;
 		elseif ( !$previous_version )
 			update_option( $this->options_group . 'version', EDIT_FLOW_VERSION );
 			
