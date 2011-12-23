@@ -148,6 +148,29 @@ class EF_Custom_Status {
 				$this->add_custom_status( $term['term'], $term['args'] );
 		
 	}
+
+	/**
+	 * Upgrade our data in case we need to
+	 *
+	 * @since 0.7
+	 */
+	function upgrade( $previous_version ) {
+		global $edit_flow;
+
+		// Upgrade path to v0.7
+		if ( version_compare( $previous_version, '0.7' , '<' ) ) {
+			// Migrate dropdown visibility option
+			if ( $dropdown_visible = get_option( 'edit_flow_status_dropdown_visible' ) )
+				$edit_flow->update_module_option( $this->module->name, 'always_show_dropdown', 'on' );
+			delete_option( 'edit_flow_status_dropdown_visible' );
+			// Migrate default status option
+			if ( $default_status = get_option( 'edit_flow_custom_status_default_status' ) )
+				$edit_flow->update_module_option( $this->module->name, 'default_status', $default_status );
+			delete_option( 'edit_flow_custom_status_default_status' );
+			
+		}
+		
+	}
 	
 	/**
 	 * Makes the call to register_post_status to register the user's custom statuses.

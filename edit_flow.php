@@ -131,11 +131,15 @@ class edit_flow {
 	    	    
 		// Upgrade if need be but don't run the upgrade if the plugin has never been used
 		$previous_version = get_option( $this->options_group . 'version' );
-		if ( $previous_version && version_compare( $previous_version, EDIT_FLOW_VERSION, '<' ) )
-			// @todo replace this with a modular upgrade path
-			$donothing = true;
-		elseif ( !$previous_version )
+		if ( $previous_version && version_compare( $previous_version, EDIT_FLOW_VERSION, '<' ) ) {
+			foreach ( $this->modules as $mod_name => $mod_data ) {
+				if ( method_exists( $this->$mod_name, 'upgrade' ) )
+						$this->$mod_name->upgrade( $previous_version );
+			}
+			//update_option( $this->options_group . 'version', EDIT_FLOW_VERSION );
+		} else if ( !$previous_version ) {
 			update_option( $this->options_group . 'version', EDIT_FLOW_VERSION );
+		}
 			
 		// For each module that's been loaded, auto-load data if it's never been run before
 		foreach ( $this->modules as $mod_name => $mod_data ) {
