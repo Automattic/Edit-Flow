@@ -88,7 +88,6 @@ class edit_flow {
 		// Common Edit Flow utilities and helpers
 		include_once( EDIT_FLOW_ROOT . '/common/php/util.php' );
 		include_once( EDIT_FLOW_ROOT . '/common/php/helpers.php' );
-		include_once( EDIT_FLOW_ROOT . '/common/php/upgrade.php' );
 		
 		// Helpers is in a class of its own, and needs to be loaded before the modules
 		$this->helpers = new EF_Helpers();
