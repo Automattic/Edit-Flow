@@ -136,7 +136,7 @@ class edit_flow {
 				if ( method_exists( $this->$mod_name, 'upgrade' ) )
 						$this->$mod_name->upgrade( $previous_version );
 			}
-			//update_option( $this->options_group . 'version', EDIT_FLOW_VERSION );
+			update_option( $this->options_group . 'version', EDIT_FLOW_VERSION );
 		} else if ( !$previous_version ) {
 			update_option( $this->options_group . 'version', EDIT_FLOW_VERSION );
 		}
