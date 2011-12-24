@@ -137,6 +137,25 @@ class EF_User_Groups {
 		}
 		
 	}
+
+	/**
+	 * Upgrade our data in case we need to
+	 *
+	 * @since 0.7
+	 */
+	function upgrade( $previous_version ) {
+		global $edit_flow;
+
+		// Upgrade path to v0.7
+		if ( version_compare( $previous_version, '0.7' , '<' ) ) {
+			
+			// @todo Users groups need to be migrated to their new taxonomy
+			// - Update the taxonomy
+			// - Update the description field to include user_ids
+
+		}
+		
+	}
 	
 	/**
 	 * Individual Usergroups are stored using a custom taxonomy
