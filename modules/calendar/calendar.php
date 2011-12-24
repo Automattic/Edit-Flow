@@ -120,6 +120,9 @@ class EF_Calendar {
 				$enabled = 'off';
 			$edit_flow->update_module_option( $this->module->name, 'enabled', $enabled );
 			delete_option( 'edit_flow_calendar_enabled' );
+
+			// Technically we've run this code before so we don't want to auto-install new data
+			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
 		}
 		
 	}

@@ -88,6 +88,9 @@ class EF_Dashboard {
 			delete_option( 'edit_flow_myposts_widget_enabled' );
 			// Delete legacy option
 			delete_option( 'edit_flow_quickpitch_widget_enabled' );
+
+			// Technically we've run this code before so we don't want to auto-install new data
+			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
 		}
 		
 	}

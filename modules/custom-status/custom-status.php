@@ -170,6 +170,9 @@ class EF_Custom_Status {
 			if ( $default_status = get_option( 'edit_flow_custom_status_default_status' ) )
 				$edit_flow->update_module_option( $this->module->name, 'default_status', $default_status );
 			delete_option( 'edit_flow_custom_status_default_status' );
+
+			// Technically we've run this code before so we don't want to auto-install new data
+			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
 		}
 		
 	}

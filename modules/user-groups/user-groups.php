@@ -178,6 +178,9 @@ class EF_User_Groups {
 			// Delete all of the previous usermeta values
 			$wpdb->query( "DELETE FROM $wpdb->usermeta WHERE meta_key='wp_ef_usergroups';" );
 
+			// Technically we've run this code before so we don't want to auto-install new data
+			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
+
 		}
 		
 	}

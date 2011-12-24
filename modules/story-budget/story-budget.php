@@ -119,6 +119,9 @@ class EF_Story_Budget {
 				$enabled = 'off';
 			$edit_flow->update_module_option( $this->module->name, 'enabled', $enabled );
 			delete_option( 'edit_flow_story_budget_enabled' );
+
+			// Technically we've run this code before so we don't want to auto-install new data
+			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
 		}
 		
 	}

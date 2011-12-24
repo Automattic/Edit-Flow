@@ -133,6 +133,9 @@ class EF_Notifications {
 				$always_notify_admin = 'off';
 			$edit_flow->update_module_option( $this->module->name, 'always_notify_admin', $always_notify_admin );
 			delete_option( 'edit_flow_always_notify_admin' );
+
+			// Technically we've run this code before so we don't want to auto-install new data
+			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
 		}
 		
 	}
