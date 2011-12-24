@@ -27,7 +27,7 @@ class EF_Custom_Status {
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Custom Statuses', 'edit-flow' ),
-			'short_description' => __( 'Create custom post statuses to define the stages of your workflow', 'edit-flow' ),
+			'short_description' => __( 'Create custom post statuses to define the stages of your workflow.', 'edit-flow' ),
 			'extended_description' => __( 'Create your own post statuses to add structure your publishing workflow. You can change existing or add new ones anytime, and drag and drop to change their order.', 'edit-flow' ),
 			'module_url' => $module_url,
 			'img_url' => $module_url . 'lib/custom_status_s128.png',
@@ -41,6 +41,7 @@ class EF_Custom_Status {
 					'page' => 'on',
 				),
 			),
+			'post_type_support' => 'ef_custom_statuses', // This has been plural in all of our docs
 			'configure_page_cb' => 'print_configure_view',
 			'configure_link_text' => __( 'Edit Statuses' ),
 			'messages' => array(
@@ -145,6 +146,34 @@ class EF_Custom_Status {
 		foreach( $default_terms as $term )
 			if( !term_exists( $term['term'] ) )
 				$this->add_custom_status( $term['term'], $term['args'] );
+		
+	}
+
+	/**
+	 * Upgrade our data in case we need to
+	 *
+	 * @since 0.7
+	 */
+	function upgrade( $previous_version ) {
+		global $edit_flow;
+
+		// Upgrade path to v0.7
+		if ( version_compare( $previous_version, '0.7' , '<' ) ) {
+			// Migrate dropdown visibility option
+			if ( $dropdown_visible = get_option( 'edit_flow_status_dropdown_visible' ) )
+				$dropdown_visible = 'on';
+			else
+				$dropdown_visible = 'off';
+			$edit_flow->update_module_option( $this->module->name, 'always_show_dropdown', $dropdown_visible );
+			delete_option( 'edit_flow_status_dropdown_visible' );
+			// Migrate default status option
+			if ( $default_status = get_option( 'edit_flow_custom_status_default_status' ) )
+				$edit_flow->update_module_option( $this->module->name, 'default_status', $default_status );
+			delete_option( 'edit_flow_custom_status_default_status' );
+
+			// Technically we've run this code before so we don't want to auto-install new data
+			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
+		}
 		
 	}
 	

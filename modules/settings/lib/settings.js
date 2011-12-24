@@ -27,7 +27,6 @@ jQuery(document).ready(function(){
 		
 		var slug = jQuery(this).closest('.edit-flow-module').attr('id');
 		var change_module_nonce = jQuery('#' + slug + ' #change-module-nonce').val();
-		jQuery('#' + slug + ' .waiting').show();
 		var data = {
 			action: 'change_edit_flow_module_state',
 			module_action: module_action,
@@ -81,7 +80,6 @@ jQuery(document).ready(function(){
 					}
 				}
 			}
-			jQuery('#' + slug + ' .waiting').hide();
 			return false;
 			
 		});

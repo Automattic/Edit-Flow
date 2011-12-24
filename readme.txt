@@ -129,6 +129,9 @@ Here's a full list of notification types that can be disabled:
 
 == Upgrade Notice ==
 
+= 0.7 = 
+Complete rewrite (yada, tk). Important note: If upgrading from pre-v0.6, please upgrade to v0.6.5 first
+
 = 0.6.5 = 
 Fixes an issue where the post timestamp would be set as soon as a custom status was used.
 
@@ -148,6 +151,9 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 == Changelog ==
+
+= 0.7 (Dec. ???, 2011) =
+* Important note: If upgrading from pre-v0.6, please upgrade to v0.6.5 first to ensure all of your data remains intact.
 
 = 0.6.5 (Sept. 19, 2011) =
 * Bug fix: Workaround for a bug in core where the timestamp is set when a post is saved with a custom status. Instead, we update the timestamp on publish to current time if a custom post date hasn't been set. Thanks saomay for [help tracking the bug down](http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem/).

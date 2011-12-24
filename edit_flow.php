@@ -4,7 +4,7 @@ Plugin Name: Edit Flow
 Plugin URI: http://editflow.org/
 Description: Remixing the WordPress admin for better editorial workflow options.
 Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Automattic, and others
-Version: 0.7-alpha2
+Version: 0.7-beta1
 Author URI: http://editflow.org/
 
 Copyright 2009-2011 Mohammad Jangda, Daniel Bachhuber, et al.
@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 // Define contants
-define( 'EDIT_FLOW_VERSION' , '0.7-alpha2' );
+define( 'EDIT_FLOW_VERSION' , '0.7-beta1' );
 define( 'EDIT_FLOW_ROOT' , dirname(__FILE__) );
 define( 'EDIT_FLOW_FILE_PATH' , EDIT_FLOW_ROOT . '/' . basename(__FILE__) );
 define( 'EDIT_FLOW_URL' , plugins_url(plugin_basename(dirname(__FILE__)).'/') );
@@ -54,8 +54,9 @@ class edit_flow {
 		// hook into the action we have at the end
 		add_action( 'ef_loaded', array( &$this, 'action_ef_loaded_load_modules' ) );
 		
-		// Load the module options later on
+		// Load the module options later on, and offer a function to happen way after init
 		add_action( 'init', array( &$this, 'action_init' ) );
+		add_action( 'init', array( &$this, 'action_init_after' ), 1000 );
 		add_action( 'admin_init', array( &$this, 'action_admin_init' ) );
 		
 	}
@@ -87,7 +88,6 @@ class edit_flow {
 		// Common Edit Flow utilities and helpers
 		include_once( EDIT_FLOW_ROOT . '/common/php/util.php' );
 		include_once( EDIT_FLOW_ROOT . '/common/php/helpers.php' );
-		include_once( EDIT_FLOW_ROOT . '/common/php/upgrade.php' );
 		
 		// Helpers is in a class of its own, and needs to be loaded before the modules
 		$this->helpers = new EF_Helpers();
@@ -131,10 +131,15 @@ class edit_flow {
 	    	    
 		// Upgrade if need be but don't run the upgrade if the plugin has never been used
 		$previous_version = get_option( $this->options_group . 'version' );
-		if ( $previous_version && version_compare( $previous_version, EDIT_FLOW_VERSION, '<' ) )
-			edit_flow_upgrade( $previous_version );
-		elseif ( !$previous_version )
+		if ( $previous_version && version_compare( $previous_version, EDIT_FLOW_VERSION, '<' ) ) {
+			foreach ( $this->modules as $mod_name => $mod_data ) {
+				if ( method_exists( $this->$mod_name, 'upgrade' ) )
+						$this->$mod_name->upgrade( $previous_version );
+			}
 			update_option( $this->options_group . 'version', EDIT_FLOW_VERSION );
+		} else if ( !$previous_version ) {
+			update_option( $this->options_group . 'version', EDIT_FLOW_VERSION );
+		}
 			
 		// For each module that's been loaded, auto-load data if it's never been run before
 		foreach ( $this->modules as $mod_name => $mod_data ) {
@@ -188,6 +193,8 @@ class edit_flow {
 		$args['options_group_name'] = $this->options_group . $name . '_options';
 		if ( !isset( $args['settings_slug'] ) )
 			$args['settings_slug'] = 'ef-' . $args['slug'] . '-settings';
+		if ( empty( $args['post_type_support'] ) )
+			$args['post_type_support'] = 'ef_' . $name;
 		$this->modules->$name = (object) $args;
 		do_action( 'ef_module_registered', $name );
 		return $this->modules->$name;
@@ -215,6 +222,24 @@ class edit_flow {
 			$this->$mod_name->module = $this->modules->$mod_name;
 		}
 		do_action( 'ef_module_options_loaded' );
+	}
+
+	/**
+	 * Load the post type options again so we give add_post_type_support() a chance to work
+	 *
+	 * @see http://dev.editflow.org/2011/11/17/edit-flow-v0-7-alpha2-notes/#comment-232
+	 */
+	function action_init_after() {
+		foreach ( $this->modules as $mod_name => $mod_data ) {
+			// Don't load modules on the frontend unless they're explictly defined as such
+			if ( !is_admin() && !$mod_data->load_frontend )
+				continue;
+
+			if ( isset( $this->modules->$mod_name->options->post_types ) )
+				$this->modules->$mod_name->options->post_types = $this->helpers->clean_post_type_options( $this->modules->$mod_name->options->post_types, $mod_data->post_type_support );	
+			
+			$this->$mod_name->module = $this->modules->$mod_name;
+		}
 	}
 	
 	/**

@@ -153,6 +153,22 @@ class EF_Editorial_Metadata {
 			}
 		}
 	}
+
+	/**
+	 * Upgrade our data in case we need to
+	 *
+	 * @since 0.7
+	 */
+	function upgrade( $previous_version ) {
+		global $edit_flow;
+
+		// Upgrade path to v0.7
+		if ( version_compare( $previous_version, '0.7' , '<' ) ) {
+			// Technically we've run this code before so we don't want to auto-install new data
+			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
+		}
+		
+	}
 	
 	/**
 	 * Generate <select> HTML for all of the metadata types

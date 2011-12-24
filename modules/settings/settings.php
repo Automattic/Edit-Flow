@@ -253,20 +253,19 @@ class EF_Settings {
 				echo '<form method="get" action="' . get_admin_url( null, 'options.php' ) . '">';
 				echo '<h4>' . esc_html( $mod_data->title ) . '</h4>';
 				echo '<p>' . esc_html( $mod_data->short_description ) . '</p>';
-				echo '<img class="waiting" style="display:none;" src="' . esc_url( get_admin_url( null, 'images/wpspin_light.gif' ) ) . '" alt="" />';				
 				echo '<p class="edit-flow-module-actions">';
-				echo '<input type="submit" class="button-primary button enable-disable-edit-flow-module"';
-				if ( $mod_data->options->enabled == 'on' ) echo ' style="display:none;"';	
-				echo ' value="' . __( 'Enable', 'edit-flow' ) . '" />';
-				echo '<input type="submit" class="button-remove button enable-disable-edit-flow-module"';
-				if ( $mod_data->options->enabled == 'off' ) echo ' style="display:none;"';				
-				echo ' value="' . __( 'Disable', 'edit-flow' ) . '" />';
 				if ( $mod_data->configure_page_cb ) {
 					$configure_url = add_query_arg( 'page', $mod_data->settings_slug, get_admin_url( null, 'admin.php' ) );
-					echo '<a href="' . $configure_url . '" class="configure-edit-flow-module';
+					echo '<a href="' . $configure_url . '" class="configure-edit-flow-module button button-primary';
 					if ( $mod_data->options->enabled == 'off' ) echo ' hidden" style="display:none;';
 					echo '">' . $mod_data->configure_link_text . '</a>';
 				}
+				echo '<input type="submit" class="button-primary button enable-disable-edit-flow-module"';
+				if ( $mod_data->options->enabled == 'on' ) echo ' style="display:none;"';	
+				echo ' value="' . __( 'Enable', 'edit-flow' ) . '" />';
+				echo '<input type="submit" class="button-secondary button-remove button enable-disable-edit-flow-module"';
+				if ( $mod_data->options->enabled == 'off' ) echo ' style="display:none;"';				
+				echo ' value="' . __( 'Disable', 'edit-flow' ) . '" />';
 				echo '</p>';
 				wp_nonce_field( 'change-edit-flow-module-nonce', 'change-module-nonce', false );
 				echo '</form>';
@@ -315,20 +314,24 @@ class EF_Settings {
 			'_builtin' => false,
 		);
 		$custom_post_types = get_post_types( $pt_args, 'objects' );		
-		if ( count( $custom_post_types ) )
-			foreach( $custom_post_types as $custom_post_type => $args )
-				$all_post_types[$custom_post_type] = $args->name;
+		if ( count( $custom_post_types ) ) {
+			foreach( $custom_post_types as $custom_post_type => $args ) {
+				$all_post_types[$custom_post_type] = $args->label;
+			}
+		}
 		
 		foreach( $all_post_types as $post_type => $title ) {
+			echo '<label for="' . esc_attr( $post_type ) . '">';
 			echo '<input id="' . esc_attr( $post_type ) . '" name="'
-				. $module->options_group_name . '[post_types][' . esc_attr( $post_type ) . ']"';				
-			checked( $module->options->post_types[$post_type], 'on' );
+				. $module->options_group_name . '[post_types][' . esc_attr( $post_type ) . ']"';
+			if ( isset( $module->options->post_types[$post_type] ) ) 
+				checked( $module->options->post_types[$post_type], 'on' );
 			// Defining post_type_supports in the functions.php file or similar should disable the checkbox
 			disabled( post_type_supports( $post_type, $module->post_type_support ), true );
-			echo ' type="checkbox" />&nbsp;&nbsp;&nbsp;' . esc_html( $title );
+			echo ' type="checkbox" />&nbsp;&nbsp;&nbsp;' . esc_html( $title ) . '</label>';
 			// Leave a note to the admin as a reminder that add_post_type_support has been used somewhere in their code
 			if ( post_type_supports( $post_type, $module->post_type_support ) )
-				echo '&nbsp&nbsp;&nbsp;<span class="description">' . sprintf( __( 'Disabled because add_post_type_support( \'%1$s\', \'%2$s\' ) is in use.' ), $post_type, $module->post_type_support ) . '</span>';
+				echo '&nbsp&nbsp;&nbsp;<span class="description">' . sprintf( __( 'Disabled because add_post_type_support( \'%1$s\', \'%2$s\' ) is included in a loaded file.', 'edit-flow' ), $post_type, $module->post_type_support ) . '</span>';
 			echo '<br />';
 		}
 		

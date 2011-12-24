@@ -63,9 +63,12 @@ class EF_Notifications {
 		// Set up metabox and related actions
 		add_action( 'admin_init', array( &$this, 'add_post_meta_box' ) );
 	
+		// Saving post actions
+		// self::save_post_subscriptions() is hooked into transition_post_status so we can ensure usergroup data
+		// is properly saved before sending notifs
+		add_action( 'transition_post_status', array( &$this, 'save_post_subscriptions' ), 0, 3 );
 		add_action( 'transition_post_status', array( &$this, 'notification_status_change' ), 10, 3 );
 		add_action( 'ef_post_insert_editorial_comment', array( &$this, 'notification_comment') );
-		add_action( 'save_post', array( &$this, 'save_post' ) );
 		add_action( 'delete_user',  array(&$this, 'delete_user_action') );
 		add_action( 'ef_send_scheduled_email', array( &$this, 'send_single_email' ), 10, 4 );
 		
@@ -102,6 +105,37 @@ class EF_Notifications {
 		if ( $wp_roles->is_role( 'author' ) ) {	
 			$author_role =& get_role('author');
 			$author_role->add_cap('edit_post_subscriptions');
+		}
+		
+	}
+
+	/**
+	 * Upgrade our data in case we need to
+	 *
+	 * @since 0.7
+	 */
+	function upgrade( $previous_version ) {
+		global $edit_flow;
+
+		// Upgrade path to v0.7
+		if ( version_compare( $previous_version, '0.7' , '<' ) ) {
+			// Migrate whether notifications were enabled or not
+			if ( $enabled = get_option( 'edit_flow_notifications_enabled' ) )
+				$enabled = 'on';
+			else
+				$enabled = 'off';
+			$edit_flow->update_module_option( $this->module->name, 'enabled', $enabled );
+			delete_option( 'edit_flow_notifications_enabled' );
+			// Migrate whether to always notify the admin
+			if ( $always_notify_admin = get_option( 'edit_flow_always_notify_admin' ) )
+				$always_notify_admin = 'on';
+			else
+				$always_notify_admin = 'off';
+			$edit_flow->update_module_option( $this->module->name, 'always_notify_admin', $always_notify_admin );
+			delete_option( 'edit_flow_always_notify_admin' );
+
+			// Technically we've run this code before so we don't want to auto-install new data
+			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
 		}
 		
 	}
@@ -231,7 +265,7 @@ class EF_Notifications {
 	 *
 	 * @param int $post ID of the post
 	 */
-	function save_post( $post ) {
+	function save_post_subscriptions( $new_status, $old_status, $post ) {
 				
 		// only if has edit_post_subscriptions cap
 		if( ( !wp_is_post_revision($post) && !wp_is_post_autosave($post) ) && isset($_POST['ef-save_followers']) && current_user_can('edit_post_subscriptions') ) {
@@ -254,7 +288,7 @@ class EF_Notifications {
 		
 		// Add current user to following users
 		$user = wp_get_current_user();
-		if ( $user )
+		if ( $user && apply_filters( 'ef_notification_auto_subscribe_current_user', true, 'subscription_action' ) )
 			$users[] = $user->ID;
 		
 		$users = array_unique( array_map( 'intval', $users ) );
@@ -423,10 +457,9 @@ class EF_Notifications {
 		//$parent_ID = isset( $comment->comment_parent_ID ) ? $comment->comment_parent_ID : 0;
 		//if($parent_ID) $parent = get_comment($parent_ID);
 		
-		// Set user to follow post
-		// @TODO: need option to opt-out
-		// TODO: This should not be in here... move to separate function
-		$this->follow_post_user($post, (int) $current_user->ID);
+		// Set user to follow post, but make it filterable
+		if ( apply_filters( 'ef_notification_auto_subscribe_current_user', true, 'comment' ) )
+			$this->follow_post_user($post, (int) $current_user->ID);
 	
 		$blogname = get_option('blogname');
 	
@@ -546,10 +579,7 @@ class EF_Notifications {
 		$authors = array();
 		$admins = array();
 		$recipients = array();
-		
-		// Email author(s) (setting needs to be enabled)
-		$authors[] = get_userdata($post->post_author)->user_email;
-		
+
 		// Email all admins, if enabled
 		if( 'on' == $this->module->options->always_notify_admin )
 			$admins[] = get_option('admin_email');
@@ -701,16 +731,6 @@ class EF_Notifications {
 			$usergroup_data = $edit_flow->user_groups->get_usergroup_by( 'id', $usergroup ); 
 		}
 		$set = wp_set_object_terms( $post_id, $usergroups, $this->following_usergroups_taxonomy, $append );
-		return;
-	}
-	
-	/** 
-	 * unfollow_post_usergroups()
-	 */
-	function unfollow_post_usergroups( $post_id, $users = 0 ) {
-		
-		// TODO: Allow opt-out of email
-		
 		return;
 	}
 	
@@ -929,7 +949,7 @@ class EF_Notifications {
 		global $edit_flow;
 		?>
 
-		<form class="basic-settings" action="<?php echo esc_url( menu_page_url( $this->module->settings_slug ) ); ?>" method="post">
+		<form class="basic-settings" action="<?php echo esc_url( menu_page_url( $this->module->settings_slug, false ) ); ?>" method="post">
 			<?php settings_fields( $this->module->options_group_name ); ?>
 			<?php do_settings_sections( $this->module->options_group_name ); ?>
 			<?php

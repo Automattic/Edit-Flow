@@ -250,8 +250,8 @@ table#ef-calendar-view .day-unit ul li.item-overlay-active {
 }
 
 table#ef-calendar-view .day-unit ul li .item-overlay {
-	min-width: 170px;
-	max-width: 250px;
+	min-width: 250px;
+	max-width: 350px;
 	background-color: #FFF;
 	padding: 5px;
 	position: absolute;

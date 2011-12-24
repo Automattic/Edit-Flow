@@ -44,6 +44,7 @@ class EF_Helpers {
 		);
 		$all_post_types = get_post_types( $pt_args, 'names' );
 		array_push( $all_post_types, 'post', 'page' );
+		$all_post_types = array_merge( $all_post_types, array_keys( $module_post_types ) );
 		foreach( $all_post_types as $post_type ) {
 			if ( ( isset( $module_post_types[$post_type] ) && $module_post_types[$post_type] == 'on' ) || post_type_supports( $post_type, $post_type_support ) )
 				$normalized_post_type_options[$post_type] = 'on';

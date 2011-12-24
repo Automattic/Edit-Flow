@@ -137,6 +137,53 @@ class EF_User_Groups {
 		}
 		
 	}
+
+	/**
+	 * Upgrade our data in case we need to
+	 *
+	 * @since 0.7
+	 */
+	function upgrade( $previous_version ) {
+		global $edit_flow;
+
+		// Upgrade path to v0.7
+		if ( version_compare( $previous_version, '0.7' , '<' ) ) {
+			global $wpdb;
+
+			// Set all of the user group terms to our new taxonomy
+			$wpdb->update( $wpdb->term_taxonomy, array( 'taxonomy' => self::taxonomy_key ), array( 'taxonomy' => 'following_usergroups' ) );
+
+			// Get all of the users who are a part of user groups and assign them to their new user group values
+			$query = $wpdb->prepare( "SELECT * FROM $wpdb->usermeta WHERE meta_key='wp_ef_usergroups';" );
+			$usergroup_users = $wpdb->get_results( $query );
+
+			// Sort all of the users based on their usergroup(s)
+			$users_to_add = array();
+			foreach( (array)$usergroup_users as $usergroup_user ) {
+				if ( is_object( $usergroup_user ) )
+					$users_to_add[$usergroup_user->meta_value][] = (int)$usergroup_user->user_id;
+			}
+			// Add user IDs to each usergroup
+			foreach( $users_to_add as $usergroup_slug => $users_array ) {
+				$usergroup = $this->get_usergroup_by( 'slug', $usergroup_slug );
+				$this->add_users_to_usergroup( $users_array, $usergroup->term_id );
+			}
+			// Update the term slugs for each user group
+			$all_usergroups = $this->get_usergroups();
+			foreach( $all_usergroups as $usergroup ) {
+				$new_slug = str_replace( 'ef_', self::term_prefix, $usergroup->slug );
+				$this->update_usergroup( $usergroup->term_id, array( 'slug' => $new_slug ) );
+			}
+
+			// Delete all of the previous usermeta values
+			$wpdb->query( "DELETE FROM $wpdb->usermeta WHERE meta_key='wp_ef_usergroups';" );
+
+			// Technically we've run this code before so we don't want to auto-install new data
+			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
+
+		}
+		
+	}
 	
 	/**
 	 * Individual Usergroups are stored using a custom taxonomy

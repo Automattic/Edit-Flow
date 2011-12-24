@@ -25,7 +25,7 @@ class EF_Story_Budget {
 	
 	const usermeta_key_prefix = 'ef_story_budget_';
 	
-	const default_num_columns = 2;
+	const default_num_columns = 1;
 	
 	/**
 	 * Register the module with Edit Flow but don't do anything else
@@ -100,6 +100,30 @@ class EF_Story_Budget {
 		foreach( $story_budget_roles as $role => $caps ) {
 			ef_add_caps_to_role( $role, $caps );
 		}
+	}
+
+	/**
+	 * Upgrade our data in case we need to
+	 *
+	 * @since 0.7
+	 */
+	function upgrade( $previous_version ) {
+		global $edit_flow;
+
+		// Upgrade path to v0.7
+		if ( version_compare( $previous_version, '0.7' , '<' ) ) {
+			// Migrate whether the story budget was enabled or not and clean up old option
+			if ( $enabled = get_option( 'edit_flow_story_budget_enabled' ) )
+				$enabled = 'on';
+			else
+				$enabled = 'off';
+			$edit_flow->update_module_option( $this->module->name, 'enabled', $enabled );
+			delete_option( 'edit_flow_story_budget_enabled' );
+
+			// Technically we've run this code before so we don't want to auto-install new data
+			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
+		}
+		
 	}
 	
 	/**
@@ -431,7 +455,7 @@ class EF_Story_Budget {
 				</tbody>
 			</table>
 			<?php else: ?>
-			<div class="message info"><?php _e( 'There are no posts for this term in the range or filter specified.', 'edit-flow' ); ?></div>
+			<div class="message info"><p><?php _e( 'There are no posts for this term in the range or filter specified.', 'edit-flow' ); ?></p></div>
 			<?php endif; ?>
 		</div>
 	</div>
