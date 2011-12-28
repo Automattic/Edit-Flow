@@ -35,13 +35,14 @@ class EF_Settings {
 	 * Initialize the rest of the stuff in the class if the module is active
 	 */
 	function init() {
-		
+
 		add_action( 'admin_init', array( &$this, 'helper_settings_validate_and_save' ), 100 );		
 		
 		add_action( 'admin_print_styles', array( &$this, 'action_admin_print_styles' ) );
 		add_action( 'admin_print_scripts', array( &$this, 'action_admin_print_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'action_admin_enqueue_scripts' ) );
 		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );
+		add_action( 'load-toplevel_page_' . $this->module->settings_slug, array( &$this, 'action_help_menu' ) );
 		
 		add_action( 'wp_ajax_change_edit_flow_module_state', array( &$this, 'ajax_change_edit_flow_module_state' ) );
 		
@@ -60,6 +61,42 @@ class EF_Settings {
 				&& $mod_data->configure_page_cb && $mod_name != $this->module->name )
 				add_submenu_page( $this->module->settings_slug, $mod_data->title, $mod_data->title, 'manage_options', $mod_data->settings_slug, array( &$this, 'settings_page_controller' ) ) ;
 		}
+	}
+
+	/**
+	 * Add contextual help menu
+	 */
+
+	function action_help_menu() {
+		if (!class_exists('WP_Screen')) return;
+		
+		$screen = get_current_screen();
+	
+		if ($screen->id != 'toplevel_page_' . $this->module->settings_slug) 
+			return;
+
+		$screen->add_help_tab( array(
+			'id'      => 'ef-overview',
+			'title'   => __('Overview', 'edit-flow'),
+			'content' => __('<p>Edit Flow offers a suite of functionality to redefine your editorial workflow within WordPress.</p><p>Features include:</p><ul><li>Custom Statuses – Create any number of custom statuses to define the stages of your editorial workflow. By default, Edit Flow adds “Assigned”, “Pitch”, and “Waiting for Feedback” to WordPress’ default “Draft” and “Pending Review”.</li><li>Editorial Comments – Threaded commenting in the WordPress admin on every post for discussion about the production of a given piece of content. This can cutdown on long-winded back-and-forth email threads as all comments are conveniently displayed within the Edit Post page.</li><li>Email Notifications – Receive email notifications for new editorial comments or when a post changes status. Notifications are delivered to admins and the post author by default, but any users that comment on posts will receive follow up email notifications.</li><li>User Groups – Similar to roles, usergroups provice a way to group users that perform similar roles in your organization. At the moment, usergroups can be subscribed to posts so that all members receive post updates.</li><li>Calendar – View all of your upcoming posts on a week-by-week calendar, and filter by post status, category, or user.</li><li>Editorial Metadata – Define custom editorial metadata to be attached to every post. Admins can add editorial metadata like “contact information”, “assignment description”, “due date”, or “location” using the following field types: checkbox, date, location, paragraph, text, or user dropdown.</li><li>Story Budget – View all of your upcoming posts in a more traditional story budget view. Posts are grouped by category, and view can be filtered by post status, category, user, or limited to a date range. Hit the print button to take it on the go.</li></ul>', 'edit-flow'),
+		));
+		$screen->add_help_tab( array(
+			'id'      => 'ef-modules',
+			'title'   => __('Modules', 'edit-flow'),
+			'content' => __('<p>Edit Flow is set up to be modular. This means that you can choose which Edit Flow elements you want to use. Each separate module can be enabled or disabled using enable/disable buttons on each module card. If you don\'t see a link underneath the Edit Flow mean for a certain feature make sure to check that you have that particular module enabled.', 'edit-flow'),
+		));
+		$screen->add_help_tab( array(
+			'id'      => 'ef-faqs',
+			'title'   => __('FAQ\'s', 'edit-flow'),
+			'content' => __('<p>How can I contribute to Edit Flow?', 'edit-flow'),
+		));
+		$screen->add_help_tab( array(
+			'id'      => 'ef-credits',
+			'title'   => __('Credits', 'edit-flow'),
+			'content' => __('<p><a href="http://editflow.org/">Edit Flow</a> is produced by <a href="http://danielbachhuber.com/">Daniel Bachhuber</a>, <a href="http://digitalize.ca/">Mo Jangda</a>, and <a href="http://scottbressler.com/">Scott Bressler</a> with special help from <a href="http://andrewspittle.net">Andrew Spittle</a> and <a href="http://andrewwitherspoon.com/">Andrew Witherspoon</a>.</p><p>The icons used in Edit Flow are courtsey of the <a href="http://thenounproject.com/">Noun Project</a></p>', 'edit-flow'),
+		));
+		$screen->set_help_sidebar(__('<p><strong>For more information:</strong></p><p><a href="http://www.editflow.com">Edit Flow</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow')
+		);
 	}
 	
 	function action_admin_enqueue_scripts() {
