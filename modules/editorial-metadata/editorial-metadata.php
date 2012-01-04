@@ -1327,7 +1327,7 @@ class EF_Editorial_Metadata {
 		$wp_list_table->prepare_items();
 		?>
 		<script type="text/javascript">
-			var ef_confirm_delete_term_string = "<?php _e( 'Are you sure you want to delete this term? Any metadata for this term will remain but will not be visible unless this term is re-added.', 'edit-flow' ); ?>";
+			var ef_confirm_delete_term_string = "<?php echo esc_js( __( 'Are you sure you want to delete this term? Any metadata for this term will remain but will not be visible unless this term is re-added.', 'edit-flow' ) ); ?>";
 		</script>
 		<?php if ( !isset( $_GET['action'] ) || ( isset( $_GET['action'] ) && $_GET['action'] != 'edit-term' ) ): ?>
 		<div id="col-right">
@@ -1508,7 +1508,7 @@ class EF_Editorial_Metadata {
 }
 
 
-if ( !class_exists( 'WP_List_Table' ) )
+if ( !class_exists( 'WP_List_Table' ) && is_admin() )
 	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 
 /**
@@ -1649,9 +1649,9 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		$actions['edit'] = "<a href='$item_edit_link'>" . __( 'Edit', 'edit-flow' ) . "</a>";
 		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';
 		if ( $item->viewable )
-			$actions['change-visibility make-hidden'] = '<a title="' . __( 'Hidden metadata can only be viewed on the edit post view.', 'edit-flow' ) . '" href="' . esc_url( $edit_flow->editorial_metadata->get_link( array( 'action' => 'make-hidden', 'term-id' => $item->term_id ) ) ) . '">' . __( 'Make Hidden', 'edit-flow' ) . '</a>';
+			$actions['change-visibility make-hidden'] = '<a title="' . esc_attr( __( 'Hidden metadata can only be viewed on the edit post view.', 'edit-flow' ) ) . '" href="' . esc_url( $edit_flow->editorial_metadata->get_link( array( 'action' => 'make-hidden', 'term-id' => $item->term_id ) ) ) . '">' . __( 'Make Hidden', 'edit-flow' ) . '</a>';
 		else
-			$actions['change-visibility make-viewable'] = '<a title="' . __( 'When viewable, metadata can be seen on views other than the edit post view (e.g. calendar, manage posts, story budget, etc.)', 'edit-flow' ) . '" href="' . esc_url( $edit_flow->editorial_metadata->get_link( array( 'action' => 'make-viewable', 'term-id' => $item->term_id ) ) ) . '">' . __( 'Make Viewable', 'edit-flow' ) . '</a>';
+			$actions['change-visibility make-viewable'] = '<a title="' . esc_attr( __( 'When viewable, metadata can be seen on views other than the edit post view (e.g. calendar, manage posts, story budget, etc.)', 'edit-flow' ) ) . '" href="' . esc_url( $edit_flow->editorial_metadata->get_link( array( 'action' => 'make-viewable', 'term-id' => $item->term_id ) ) ) . '">' . __( 'Make Viewable', 'edit-flow' ) . '</a>';
 		$actions['delete delete-status'] = "<a href='$item_delete_link'>" . __( 'Delete', 'edit-flow' ) . "</a>";
 		
 		$out .= $this->row_actions( $actions, false );
