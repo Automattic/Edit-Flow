@@ -560,7 +560,7 @@ class EF_Notifications {
 	 * @param string $message_headers. (optional) Message headers
 	 */
 	function send_single_email( $to, $subject, $message, $message_headers = '' ) {
-		@wp_mail( $to, $subject, $message, $message_headers );
+		wp_mail( $to, $subject, $message, $message_headers );
 	}
 	
 	/**
