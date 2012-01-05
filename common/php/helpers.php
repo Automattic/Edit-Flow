@@ -207,7 +207,8 @@ class EF_Helpers {
 	 */
 	function get_user_meta( $user_id, $key, $string = true ) {
 		
-		$response = apply_filters( 'ef_get_user_meta', $user_id, $key, $string );
+		$response = null;
+		$response = apply_filters( 'ef_get_user_meta', $response, $user_id, $key, $string );
 		if ( !is_null( $response ) )
 			return $response;
 			
@@ -228,7 +229,8 @@ class EF_Helpers {
 	 */
 	function update_user_meta( $user_id, $key, $value, $previous = null ) {
 		
-		$response = apply_filters( 'ef_update_user_meta', $user_id, $key, $value, $previous );
+		$response = null;
+		$response = apply_filters( 'ef_update_user_meta', $response, $user_id, $key, $value, $previous );
 		if ( !is_null( $response ) )
 			return $response;
 			
