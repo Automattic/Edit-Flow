@@ -1270,9 +1270,6 @@ class EF_Custom_Status {
 
 }
 
-
-if ( !class_exists( 'WP_List_Table' ) && is_admin() )
-	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 /**
  * Custom Statuses uses WordPress' List Table API for generating the custom status management table
  *

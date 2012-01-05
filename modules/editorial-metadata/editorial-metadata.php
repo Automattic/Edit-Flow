@@ -1507,10 +1507,6 @@ class EF_Editorial_Metadata {
 
 }
 
-
-if ( !class_exists( 'WP_List_Table' ) && is_admin() )
-	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
-
 /**
  * Management interface for Editorial Metadata. Extends WP_List_Table class
  */

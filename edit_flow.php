@@ -65,6 +65,10 @@ class edit_flow {
 	 * Include the common resources to Edit Flow and dynamically load the modules
 	 */
 	function action_ef_loaded_load_modules() {
+
+		// We use the WP_List_Table API for some of the table gen
+		if ( !class_exists( 'WP_List_Table' ) )
+			require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 		
 		// Scan the modules directory and include any modules that exist there
 		$module_dirs = scandir( EDIT_FLOW_ROOT . '/modules/' );
