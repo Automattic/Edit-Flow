@@ -3,10 +3,21 @@
 /* Hide the styles that we don't need */
 #ef-story-budget-tablenav,
 #adminmenu,
+#wpadminbar,
+#adminmenuback,
+#screen-meta-links,
 #wphead,
 #footer,
-#screen-meta {
+#screen-meta,
+#ef-story-budget-wrap .change-date-buttons,
+#ef-story-budget-wrap .time-range input,
+#ef-story-budget-wrap .module-icon,
+.row-actions {
 	display: none;
+}
+
+#ef-story-budget-wrap .time-range form {
+	display: inline;
 }
 
 body {
@@ -20,7 +31,12 @@ a {
 
 #wpbody {
 	margin-left: 0px;
-	margin-top: -60px;
+	margin-top: -20px;
+}
+
+#wpcontent {
+	margin-left: 1em;
+	margin-right: 2em;
 }
 
 #wpbody #wpbody-content,
@@ -68,6 +84,10 @@ a {
 
 .postbox {
 	margin-bottom: 30px;
+}
+
+.postbox .hndle {
+	background-image: none;
 }
 
 .meta-box-sortables .postbox h3 {
