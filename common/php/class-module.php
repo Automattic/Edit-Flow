@@ -410,7 +410,7 @@ class EF_Module {
 	 * @return string $module_url Publicly accessible URL for the module
 	 */
 	function get_module_url( $file ) {
-		$module_url = plugins_url( plugin_basename( dirname( $file ) ) );
+		$module_url = plugins_url( '/', $file );
 		return trailingslashit( $module_url );
 	}
 	

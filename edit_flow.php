@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 define( 'EDIT_FLOW_VERSION' , '0.7-beta4' );
 define( 'EDIT_FLOW_ROOT' , dirname(__FILE__) );
 define( 'EDIT_FLOW_FILE_PATH' , EDIT_FLOW_ROOT . '/' . basename(__FILE__) );
-define( 'EDIT_FLOW_URL' , plugins_url(plugin_basename(dirname(__FILE__)).'/') );
+define( 'EDIT_FLOW_URL' , plugins_url( '/', __FILE__ ) );
 define( 'EDIT_FLOW_SETTINGS_PAGE' , add_query_arg( 'page', 'ef-settings', get_admin_url( null, 'admin.php' ) ) );
 
 // Core class
