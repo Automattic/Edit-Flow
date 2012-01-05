@@ -51,6 +51,34 @@ class EF_Editorial_Comments
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );		
 		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );
 		add_action( 'wp_ajax_editflow_ajax_insert_comment', array( &$this, 'ajax_insert_comment' ) );
+
+		// Load the contextual help menu
+		add_action( 'load-edit-flow_page_' . $this->module->settings_slug, array( &$this, 'action_help_menu' ) );
+	}
+
+	/**
+	 * Add contextual help menu
+	 */
+	function action_help_menu() {
+		if (!class_exists('WP_Screen')) return;
+		
+		$screen = get_current_screen();
+	
+		if ($screen->id != 'edit-flow_page_' . $this->module->settings_slug) 
+			return;
+
+		$screen->add_help_tab( array(
+			'id'      => 'ef-comments-overview',
+			'title'   => __('Overview', 'edit-flow'),
+			'content' => __('<p>Editorial comments help you cut down on email overload and keep the conversation close to where it matters: your content. Threaded commenting in the admin, similar to what you find at the end of a blog post, allows writers and editors to privately leave feedback and discuss what needs to be changed before publication.</p><p>Anyone with access to view the story in progress will also have the ability to comment on it. If you have notifications enabled, those following the post will receive an email every time a comment is left.</p>', 'edit-flow'),
+		));
+		$screen->add_help_tab( array(
+			'id'      => 'ef-comments-extend',
+			'title'   => __('Extend', 'edit-flow'),
+			'content' => __('<p>Using WordPress’ hooks and filters, you can extend editorial comments in the following ways:</p><ul><li>ef_pre_insert_editorial_comment (filter) – Do something before the editorial comment is inserted into the database.</li><li>ef_post_insert_editorial_comment (action) – Do something after the editorial comment is inserted into the database.</li></ul>', 'edit-flow'),
+		));
+		$screen->set_help_sidebar(__('<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/editorial-comments/">Editorial Comments Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow')
+		);
 	}
 
 	/**
