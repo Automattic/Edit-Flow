@@ -1189,7 +1189,7 @@ class EF_Custom_Status {
 					</div>
 					<?php wp_nonce_field( 'custom-status-add-nonce' ); ?>
 					<?php echo '<input id="action" name="action" type="hidden" value="add-new" />'; ?>					
-					<p class="submit"><?php submit_button( __( 'Add New Status', 'edit-flow' ), 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo esc_url( EDIT_FLOW_SETTINGS_PAGE ); ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
+					<?php submit_button( __( 'Add New Status', 'edit-flow' ) ); ?>
 					</form>
 				<?php endif; ?>
 				</div>
