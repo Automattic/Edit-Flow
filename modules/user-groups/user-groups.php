@@ -77,7 +77,10 @@ class EF_User_Groups extends EF_Module {
 		$this->register_usergroup_objects();
 		
 		// Register our settings
-		add_action( 'admin_init', array( &$this, 'register_settings' ) );		
+		add_action( 'admin_init', array( &$this, 'register_settings' ) );	
+		
+		// Load the contextual help menu
+		add_action( 'load-edit-flow_page_' . $this->module->settings_slug, array( &$this, 'action_help_menu' ) );		
 		
 		// Handle any adding, editing or saving
 		add_action( 'admin_init', array( &$this, 'handle_add_usergroup' ) );
@@ -94,6 +97,31 @@ class EF_User_Groups extends EF_Module {
 		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_styles' ) );	
 		
+	}
+
+	/**
+	 * Add contextual help menu
+	 */
+	function action_help_menu() {
+		if (!class_exists('WP_Screen')) return;
+		
+		$screen = get_current_screen();
+	
+		if ($screen->id != 'edit-flow_page_' . $this->module->settings_slug) 
+			return;
+
+		$screen->add_help_tab( array(
+			'id'      => 'ef-user-groups-overview',
+			'title'   => __('Overview', 'edit-flow'),
+			'content' => __('<p>For those with many people involved in the publishing process, user groups helps you keep them organized. Currently, user groups are primarily used for subscribing a set of users to a post for notifications.</p>', 'edit-flow'),
+		));
+		$screen->add_help_tab( array(
+			'id'      => 'ef-user-groups-add',
+			'title'   => __('Adding User Groups', 'edit-flow'),
+			'content' => __('<p>When adding a new user group on this screen, you’ll fill in the following fields:</p><ul><li>Name - The name is used to identify the user group.</li><li>Description - The description is primarily for administrative use, to give you some context on what the user group is to be used for.</li>', 'edit-flow'),
+		));
+		$screen->set_help_sidebar(__('<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/user-groups/">User Group Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow')
+		);
 	}
 	
 	/**
