@@ -22,7 +22,7 @@ Edit Flow empowers you to collaborate with your editorial team inside WordPress.
 
 More details and documentation can be found on [our website](http://www.editflow.org/).
 
-We'd love to hear from you! For support questions, feedback and ideas, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10), which we look at often. If you'd like to contribute code, [we'd love to have involved](http://editflow.org/contribute/).
+We'd love to hear from you! For support questions, feedback and ideas, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10), which we look at often. If you'd like to contribute code, [we'd love to have you involved](http://editflow.org/contribute/).
 
 == Installation ==
 
@@ -77,6 +77,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 == Changelog ==
 
 = 0.7 (Dec. ???, 2011) =
+* Entire plugin was rewritten into a modular architecture (e.g. each feature is broken into a module you can enable or disable). One point of the modular architecture is to make it much easier for others to contribute new features. For the end user, there’s a brand new settings page where you can manage your modules. Each module then registers a configuration view for module settings. Most have options to choose which post types you’d like it activated for, along with other configuration options.
 * Calendar is far more functional. Content is viewed in a six week view by default, and number of weeks is configurable in screen options. Posts can be dragged and dropped between dates. Click on a post title to get the details about the post, including editorial metadata.
 * Custom statuses can be drag and drop ordered with AJAX. All statuses (including core ‘draft’ and ‘pending’) can be edited or deleted.
 * Editorial Metadata terms can be ordered with AJAX. Terms can be made “viewable” and then will be displayed on the manage posts view and calendar if enabled.
