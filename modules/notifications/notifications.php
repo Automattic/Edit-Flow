@@ -10,22 +10,22 @@ if( ! defined( 'EF_NOTIFICATION_USE_CRON' ) )
 if ( !class_exists('EF_Notifications') ) {
 
 class EF_Notifications extends EF_Module {
-	
+
 	// Taxonomy name used to store users following posts
 	var $following_users_taxonomy = 'following_users';
 	// Taxonomy name used to store users that have opted out of notifications
 	var $unfollowing_users_taxonomy = 'unfollowing_users';
 	// Taxonomy name used to store user groups following posts
 	var $following_usergroups_taxonomy = EF_User_Groups::taxonomy_key;
-	
+
 	var $module;
-	
+
 	/**
 	 * Register the module with Edit Flow but don't do anything else
 	 */
 	function __construct () {
 		global $edit_flow;
-		
+
 		// Register the module with Edit Flow
 		$module_url = $this->get_module_url( __FILE__ );
 		$args = array(
@@ -41,16 +41,16 @@ class EF_Notifications extends EF_Module {
 					'post' => 'on',
 					'page' => 'on',
 				),
-				'always_notify_admin' => 'on',
+				'always_notify_admin' => 'off',
 			),
 			'configure_page_cb' => 'print_configure_view',
 			'post_type_support' => 'ef_notification',
 			'autoload' => false,
 		);
 		$this->module = $edit_flow->register_module( 'notifications', $args );
-		
+
 	}
-	
+
 	/**
 	 * Initialize the notifications class if the plugin is enabled
 	 */
@@ -58,10 +58,10 @@ class EF_Notifications extends EF_Module {
 
 		// Register our taxonomies for managing relationships
 		$this->register_taxonomies();
-		
+
 		// Set up metabox and related actions
 		add_action( 'admin_init', array( &$this, 'add_post_meta_box' ) );
-	
+
 		// Saving post actions
 		// self::save_post_subscriptions() is hooked into transition_post_status so we can ensure usergroup data
 		// is properly saved before sending notifs
@@ -70,15 +70,15 @@ class EF_Notifications extends EF_Module {
 		add_action( 'ef_post_insert_editorial_comment', array( &$this, 'notification_comment') );
 		add_action( 'delete_user',  array(&$this, 'delete_user_action') );
 		add_action( 'ef_send_scheduled_email', array( &$this, 'send_single_email' ), 10, 4 );
-		
+
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );
-		
+
 		// Javascript and CSS if we need it
 		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
-		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_styles' ) );	
-		
+		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_styles' ) );
+
 	}
-	
+
 	/**
 	 * Load the capabilities onto users the first time the module is run
 	 *
@@ -96,7 +96,7 @@ class EF_Notifications extends EF_Module {
 		foreach ( $notifications_roles as $role => $caps ) {
 			$this->add_caps_to_role( $role, $caps );
 		}
-		
+
 	}
 
 	/**
@@ -127,9 +127,9 @@ class EF_Notifications extends EF_Module {
 			// Technically we've run this code before so we don't want to auto-install new data
 			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
 		}
-		
+
 	}
-	
+
 	/**
 	 * Register the taxonomies we use to manage relationships
 	 *
@@ -138,10 +138,10 @@ class EF_Notifications extends EF_Module {
 	 * @uses register_taxonomy()
 	 */
 	function register_taxonomies() {
-		
+
 		// Load the currently supported post types so we only register against those
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
-		
+
 		$args = array(
 			'hierarchical' => false,
 			'update_count_callback' =>
@@ -155,7 +155,7 @@ class EF_Notifications extends EF_Module {
 			register_taxonomy( $taxonomy, $supported_post_types, $args );
 		}
 	}
-	
+
 	/**
 	 * Enqueue necessary admin scripts
 	 *
@@ -164,50 +164,50 @@ class EF_Notifications extends EF_Module {
 	 * @uses wp_enqueue_script()
 	 */
 	function enqueue_admin_scripts() {
-		
+
 		if ( $this->is_whitelisted_functional_view() ) {
 			wp_enqueue_script( 'jquery-listfilterizer' );
 			wp_enqueue_script( 'jquery-quicksearch' );
 			wp_enqueue_script( 'edit-flow-notifications-js', $this->module->module_url . 'lib/notifications.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
 		}
 	}
-	
+
 	/**
 	 * Enqueue necessary admin styles, but only on the proper pages
 	 *
 	 * @since 0.7
 	 *
-	 * @uses wp_enqueue_style()	
+	 * @uses wp_enqueue_style()
 	 */
 	function enqueue_admin_styles() {
-		
+
 		if ( $this->is_whitelisted_functional_view() || $this->is_whitelisted_settings_view() ) {
 			wp_enqueue_style( 'jquery-listfilterizer' );
 			wp_enqueue_style( 'edit-flow-notifications-css', $this->module->module_url . 'lib/notifications.css', false, EDIT_FLOW_VERSION );
 		}
 	}
-	
+
 	/**
 	 * Add the subscriptions meta box to relevant post types
 	 */
 	function add_post_meta_box() {
-		
+
 		$post_subscriptions_cap = apply_filters( 'ef_edit_post_subscriptions_cap', 'edit_post_subscriptions' );
-		if ( !current_user_can( $post_subscriptions_cap ) ) 
-			return;		
-		
+		if ( !current_user_can( $post_subscriptions_cap ) )
+			return;
+
 		$usergroup_post_types = $this->get_post_types_for_module( $this->module );
 		foreach ( $usergroup_post_types as $post_type ) {
 			add_meta_box( 'edit-flow-notifications', __( 'Notifications', 'edit-flow'), array( &$this, 'notifications_meta_box'), $post_type, 'advanced', 'high');
 		}
 	}
-	
+
 	/**
 	 * Outputs box used to subscribe users and usergroups to Posts
 	 *
 	 * @todo add_cap to set subscribers for posts; default to Admin and editors
 	 * @todo Remove dependency on post being saved already
-	 */	
+	 */
 	function notifications_meta_box() {
 		global $post, $post_ID, $edit_flow;
 
@@ -230,7 +230,7 @@ class EF_Notifications extends EF_Module {
 				$followers = $this->get_following_users( $post->ID, 'id' );
 				$this->users_select_form( $followers ); ?>
 			</div>
-			
+
 			<?php if ( $this->module_enabled( 'user_groups' ) && in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $edit_flow->user_groups->module ) ) ): ?>
 			<div id="ef-post_following_usergroups_box">
 				<h4><?php _e('User Groups', 'edit-flow') ?></h4>
@@ -242,10 +242,10 @@ class EF_Notifications extends EF_Module {
 			<div class="clear"></div>
 			<input type="hidden" name="ef-save_followers" value="1" /> <?php // Extra protection against autosaves ?>
 		</div>
-		
+
 		<?php
 	}
-	
+
 	/**
 	 * Called when post is saved. Handles saving of user/usergroup followers
 	 *
@@ -261,9 +261,9 @@ class EF_Notifications extends EF_Module {
 			if ( $this->module_enabled( 'user_groups' ) && in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $edit_flow->user_groups->module ) ) )
 				$this->save_post_following_usergroups( $post, $usergroups );
 		}
-		
+
 	}
-	
+
 	/**
 	 * Sets users to follow specified post
 	 *
@@ -272,18 +272,18 @@ class EF_Notifications extends EF_Module {
 	function save_post_following_users( $post, $users = null ) {
 		if( !is_array( $users ) )
 			$users = array();
-		
+
 		// Add current user to following users
 		$user = wp_get_current_user();
 		if ( $user && apply_filters( 'ef_notification_auto_subscribe_current_user', true, 'subscription_action' ) )
 			$users[] = $user->ID;
-		
+
 		$users = array_unique( array_map( 'intval', $users ) );
 
 		$follow = $this->follow_post_user( $post, $users, false );
-		
+
 	}
-	
+
 	/**
 	 * Sets usergroups to follow specified post
 	 *
@@ -291,42 +291,42 @@ class EF_Notifications extends EF_Module {
 	 * @param array $usergroups Usergroups to follow posts
 	 */
 	function save_post_following_usergroups( $post, $usergroups = null ) {
-		
+
 		if( !is_array($usergroups) ) $usergroups = array();
 		$usergroups = array_map( 'intval', $usergroups );
 
 		$follow = $this->follow_post_usergroups($post, $usergroups, false);
-	}	
-	
+	}
+
 	/**
 	 * Set up and send post status change notification email
 	 */
 	function notification_status_change( $new_status, $old_status, $post ) {
 		global $edit_flow;
-		
+
 		// Kill switch for notification
 		if ( ! apply_filters( 'ef_notification_status_change', $new_status, $old_status, $post ) || ! apply_filters( "ef_notification_{$post->post_type}_status_change", $new_status, $old_status, $post ) )
 			return false;
-		
+
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		if ( !in_array( $post->post_type, $supported_post_types ) )
 			return;
-		
+
 		// No need to notify if it's a revision, auto-draft, or if post status wasn't changed
 		$ignored_statuses = apply_filters( 'ef_notification_ignored_statuses', array( $old_status, 'inherit', 'auto-draft' ), $post->post_type );
-		
+
 		if ( !in_array( $new_status, $ignored_statuses ) ) {
-			
+
 			// Get current user
 			$current_user = wp_get_current_user();
-			
+
 			$post_author = get_userdata( $post->post_author );
 			//$duedate = $edit_flow->post_metadata->get_post_meta($post->ID, 'duedate', true);
-			
+
 			$blogname = get_option('blogname');
-			
+
 			$body  = '';
-			
+
 			$post_id = $post->ID;
 			$post_title = ef_draft_or_post_title( $post_id );
 			$post_type = ucwords( $post->post_type );
@@ -338,9 +338,9 @@ class EF_Notifications extends EF_Module {
 				$current_user_display_name = __( 'WordPress Scheduler', 'edit-flow' );
 				$current_user_email = '';
 			}
-			
-			// Email subject and first line of body 
-			// Set message subjects according to what action is being taken on the Post	
+
+			// Email subject and first line of body
+			// Set message subjects according to what action is being taken on the Post
 			if ( $old_status == 'new' || $old_status == 'auto-draft' ) {
 				/* translators: 1: site name, 2: post type, 3. post title */
 				$subject = sprintf( __( '[%1$s] New %2$s Created: "%3$s"', 'edit-flow' ), $blogname, $post_type, $post_title );
@@ -377,26 +377,26 @@ class EF_Notifications extends EF_Module {
 				/* translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user email */
 				$body .= sprintf( __( 'Status was changed for %1$s #%2$s "%3$s" by %4$s %5$s', 'edit-flow'), $post_type, $post_id, $post_title, $current_user_display_name, $current_user_email ) . "\r\n";
 			}
-			
+
 			/* translators: 1: date, 2: time, 3: timezone */
 			$body .= sprintf( __( 'This action was taken on %1$s at %2$s %3$s', 'edit-flow' ), date_i18n( get_option( 'date_format' ) ), date_i18n( get_option( 'time_format' ) ), get_option( 'timezone_string' ) ) . "\r\n";
-			
+
 			$old_status_friendly_name = $this->get_post_status_friendly_name( $old_status );
 			$new_status_friendly_name = $this->get_post_status_friendly_name( $new_status );
-			
+
 			// Email body
 			$body .= "\r\n";
 			/* translators: 1: old status, 2: new status */
 			$body .= sprintf( __( '%1$s => %2$s', 'edit-flow' ), $old_status_friendly_name, $new_status_friendly_name );
 			$body .= "\r\n\r\n";
-			
+
 			$body .= "--------------------\r\n\r\n";
-			
+
 			$body .= sprintf( __( '== %s Details ==', 'edit-flow' ), $post_type ) . "\r\n";
 			$body .= sprintf( __( 'Title: %s', 'edit-flow' ), $post_title ) . "\r\n";
 			/* translators: 1: author name, 2: author email */
 			$body .= sprintf( __( 'Author: %1$s (%2$s)', 'edit-flow' ), $post_author->display_name, $post_author->user_email ) . "\r\n";
-			
+
 			$edit_link = htmlspecialchars_decode( get_edit_post_link( $post_id ) );
 			if ( $new_status != 'publish' ) {
 				$preview_nonce = wp_create_nonce( 'post_preview_' . $post_id );
@@ -409,46 +409,46 @@ class EF_Notifications extends EF_Module {
 			$body .= sprintf( __( 'Add editorial comment: %s', 'edit-flow' ), $edit_link . '#editorialcomments/add' ) . "\r\n";
 			$body .= sprintf( __( 'Edit: %s', 'edit-flow' ), $edit_link ) . "\r\n";
 			$body .= sprintf( __( 'View: %s', 'edit-flow' ), $view_link ) . "\r\n";
-				
+
 			$body .= $this->get_notification_footer($post);
-			
+
 			$this->send_email( 'status-change', $post, $subject, $body );
 		}
-		
+
 	}
-	
+
 	/**
 	 * Set up and set editorial comment notification email
 	 */
 	function notification_comment( $comment ) {
-		
+
 		$post = get_post($comment->comment_post_ID);
-		
+
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		if ( !in_array( $post->post_type, $supported_post_types ) )
-			return;		
-		
+			return;
+
 		// Kill switch for notification
 		if ( ! apply_filters( 'ef_notification_editorial_comment', $comment, $post ) )
 			return false;
-		
+
 		$user = get_userdata( $post->post_author );
 		$current_user = wp_get_current_user();
-	
+
 		$post_id = $post->ID;
 		$post_type = ucwords( $post->post_type );
 		$post_title = ef_draft_or_post_title( $post_id );
-	
+
 		// Check if this a reply
 		//$parent_ID = isset( $comment->comment_parent_ID ) ? $comment->comment_parent_ID : 0;
 		//if($parent_ID) $parent = get_comment($parent_ID);
-		
+
 		// Set user to follow post, but make it filterable
 		if ( apply_filters( 'ef_notification_auto_subscribe_current_user', true, 'comment' ) )
 			$this->follow_post_user($post, (int) $current_user->ID);
-	
+
 		$blogname = get_option('blogname');
-	
+
 		/* translators: 1: blog name, 2: post title */
 		$subject = sprintf( __( '[%1$s] New Editorial Comment: "%2$s"', 'edit-flow' ), $blogname, $post_title );
 
@@ -461,30 +461,30 @@ class EF_Notifications extends EF_Module {
 		// @TODO: mention if it was a reply
 		/*
 		if($parent) {
-			
+
 		}
 		*/
-		
+
 		$body .= "\r\n--------------------\r\n";
-		
+
 		$edit_link = htmlspecialchars_decode( get_edit_post_link( $post_id ) );
 		$view_link = htmlspecialchars_decode( get_permalink( $post_id ) );
-		
+
 		$body .= "\r\n";
 		$body .= __( '== Actions ==', 'edit-flow' ) . "\r\n";
 		$body .= sprintf( __( 'Reply: %s', 'edit-flow' ), $edit_link . '#editorialcomments/reply/' . $comment->comment_ID ) . "\r\n";
 		$body .= sprintf( __( 'Add editorial comment: %s', 'edit-flow' ), $edit_link . '#editorialcomments/add' ) . "\r\n";
 		$body .= sprintf( __( 'Edit: %s', 'edit-flow' ), $edit_link ) . "\r\n";
 		$body .= sprintf( __( 'View: %s', 'edit-flow' ), $view_link ) . "\r\n";
-		
-		$body .= "\r\n" . sprintf( __( 'You can see all editorial comments on this %s here: ', 'edit-flow' ), $post_type ). "\r\n";		
+
+		$body .= "\r\n" . sprintf( __( 'You can see all editorial comments on this %s here: ', 'edit-flow' ), $post_type ). "\r\n";
 		$body .= $edit_link . "#editorialcomments" . "\r\n\r\n";
-		
+
 		$body .= $this->get_notification_footer($post);
-		
+
 		$this->send_email( 'comment', $post, $subject, $body );
 	}
-	
+
 	function get_notification_footer( $post ) {
 		$body  = "";
 		$body .= "\r\n--------------------\r\n";
@@ -494,19 +494,19 @@ class EF_Notifications extends EF_Module {
 		$body .= "\r\n \r\n";
 		$body .= get_option('blogname') ." | ". get_bloginfo('url') . " | " . admin_url('/') . "\r\n";
 		return $body;
-	} 
-	
+	}
+
 	/**
 	 * send_email()
 	 */
 	function send_email( $action, $post, $subject, $message, $message_headers = '' ) {
-	
-		// Get list of email recipients -- set them CC		
+
+		// Get list of email recipients -- set them CC
 		$recipients = $this->_get_notification_recipients( $post, true );
-		
+
 		if( $recipients && ! is_array( $recipients ) )
 			$recipients = explode( ',', $recipients );
-		
+
 		if( EF_NOTIFICATION_USE_CRON ) {
 			$this->schedule_emails( $recipients, $subject, $message, $message_headers );
 		} else if ( !empty( $recipients ) ) {
@@ -515,10 +515,10 @@ class EF_Notifications extends EF_Module {
 			}
 		}
 	}
-	
+
 	/**
 	 * Schedules emails to be sent in succession
-	 * 
+	 *
 	 * @param mixed $recipients Individual email or array of emails
 	 * @param string $subject Subject of the email
 	 * @param string $message Body of the email
@@ -527,19 +527,19 @@ class EF_Notifications extends EF_Module {
 	 */
 	function schedule_emails( $recipients, $subject, $message, $message_headers = '', $time_offset = 1 ) {
 		$recipients = (array) $recipients;
-		
+
 		$send_time = time();
-		
+
 		foreach( $recipients as $recipient ) {
 			wp_schedule_single_event( $send_time, 'ef_send_scheduled_email', array( $recipient, $subject, $message, $message_headers ) );
 			$send_time += $time_offset;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Sends an individual email
-	 * 
+	 *
 	 * @param mixed $to Email to send to
 	 * @param string $subject Subject of the email
 	 * @param string $message Body of the email
@@ -548,20 +548,20 @@ class EF_Notifications extends EF_Module {
 	function send_single_email( $to, $subject, $message, $message_headers = '' ) {
 		wp_mail( $to, $subject, $message, $message_headers );
 	}
-	
+
 	/**
 	 * Returns a list of recipients for a given post
 	 *
 	 * @param $post object
-	 * @param $string bool Whether to return recipients as comma-delimited string or array 
-	 * @return string or array of recipients to receive notification 
+	 * @param $string bool Whether to return recipients as comma-delimited string or array
+	 * @return string or array of recipients to receive notification
 	 */
 	private function _get_notification_recipients( $post, $string = false ) {
 		global $edit_flow;
-		
+
 		$post_id = $post->ID;
 		if( !$post_id ) return;
-		
+
 		$authors = array();
 		$admins = array();
 		$recipients = array();
@@ -569,7 +569,7 @@ class EF_Notifications extends EF_Module {
 		// Email all admins, if enabled
 		if( 'on' == $this->module->options->always_notify_admin )
 			$admins[] = get_option('admin_email');
-		
+
 		$usergroup_users = array();
 		if ( $this->module_enabled( 'user_groups' ) ) {
 			// Get following users and usergroups
@@ -583,21 +583,21 @@ class EF_Notifications extends EF_Module {
 				}
 			}
 		}
-		
+
 		$users = $this->get_following_users( $post_id, 'user_email' );
-		
+
 		// Merge arrays and filter any duplicates
 		$recipients = array_merge( $authors, $admins, $users, $usergroup_users );
 		$recipients = array_unique( $recipients );
-		
+
 		// Get rid of empty email entries
 		for ( $i = 0; $i < count( $recipients ); $i++ ) {
 			if ( empty( $recipients[$i] ) ) unset( $recipients[$i] );
 		}
-		
+
 		// Filter to allow modification of recipients
 		$recipients = apply_filters( 'ef_notification_recipients', $recipients, $post, $string );
-		
+
 		// If string set to true, return comma-delimited
 		if ( $string && is_array( $recipients ) ) {
 			return implode( ',', $recipients );
@@ -605,7 +605,7 @@ class EF_Notifications extends EF_Module {
 			return $recipients;
 		}
 	}
-	
+
 	/**
 	 * Set set user to follow posts
 	 *
@@ -620,32 +620,32 @@ class EF_Notifications extends EF_Module {
 		if( !is_array($users) ) $users = array($users);
 
 		$user_terms = array();
-		
+
 		foreach( $users as $user ) {
-			if( is_int($user) ) 
+			if( is_int($user) )
 				$user_data = get_userdata($user);
 			else if( is_string($user) )
 				$user_data = get_userdatabylogin($user);
 			else
 				$user_data = $user;
-			
+
 			if( $user_data ) {
 				// Name and slug of term are the username;
 				$name = $user_data->user_login;
-				
+
 				/** TODO: ONLY ADD IF USER IS NOT PART OF $this->exclude_users_taxonomy for the post **/
 				// if( !user_excluding_post($post_id, $user) )
-				
+
 				// Add user as a term if they don't exist
 				$term = $this->add_term_if_not_exists($name, $this->following_users_taxonomy);
-				
+
 				if(!is_wp_error($term)) {
 					$user_terms[] = $name;
 				}
 			}
 		}
 		$set = wp_set_object_terms( $post_id, $user_terms, $this->following_users_taxonomy, $append );
-		
+
 		return;
 	}
 
@@ -657,24 +657,24 @@ class EF_Notifications extends EF_Module {
 	 */
 	 function unfollow_post_user( $post, $user = 0 ) {
 		global $current_user;
-		
+
 		// TODO: Finish this
-		
+
 		$post_id = $post->ID;
 		//if(!$user) $user = wp_get_current_user();
 
         if(!$post_id || !$user || $user->ID == 0)
 			return;
-			
-		// Name and slug of term are the username;  
+
+		// Name and slug of term are the username;
 		$name = $user->user_login;
-		
+
 		// Remove the user from the following_users taxonomy
 		if( term_exists($name, $this->following_users_taxonomy) ) {
 			$set = wp_set_object_terms( $post->ID, $name, $this->following_users_taxonomy, true );
 			$old_term_ids =  wp_get_object_terms($post_id, $this->following_users_taxonomy, array('fields' => 'ids', 'orderby' => 'none'));
-	
-/*			
+
+/*
 			$delete_terms = array_diff($old_tt_ids, $tt_ids);
 			if ( $delete_terms ) {
 				$in_delete_terms = "'" . implode("', '", $delete_terms) . "'";
@@ -685,24 +685,24 @@ class EF_Notifications extends EF_Module {
 			}
 */
 		}
-		
+
 		// Add user to the unfollowing_users taxonomy
 		$insert = $this->add_term_if_not_exists($name, $this->unfollowing_users_taxonomy);
-		
+
 		if(!is_wp_error($insert)) {
 			$exclude = wp_set_object_terms( $post_id, $name, $this->unfollowing_users_taxonomy, true );
 		}
-		
+
 		return;
 	}
 
-	/** 
+	/**
 	 * follow_post_usergroups()
 	 *
 	 */
 	function follow_post_usergroups( $post, $usergroups = 0, $append = true ) {
 		global $edit_flow;
-		
+
 		if ( !$this->module_enabled( 'user_groups' ) )
 			return;
 
@@ -711,15 +711,15 @@ class EF_Notifications extends EF_Module {
 			$usergroups = array($usergroups);
 
 		$usergroup_terms = array();
-		
+
 		foreach( $usergroups as $usergroup ) {
 			// Name and slug of term is the usergroup slug
-			$usergroup_data = $edit_flow->user_groups->get_usergroup_by( 'id', $usergroup ); 
+			$usergroup_data = $edit_flow->user_groups->get_usergroup_by( 'id', $usergroup );
 		}
 		$set = wp_set_object_terms( $post_id, $usergroups, $this->following_usergroups_taxonomy, $append );
 		return;
 	}
-	
+
 	/**
 	 * Removes users that are deleted from receiving future notifications (i.e. makes them unfollow posts FOREVER!)
 	 *
@@ -727,10 +727,10 @@ class EF_Notifications extends EF_Module {
 	 */
 	function delete_user_action( $id ) {
 		if( !$id ) return;
-		
+
 		// get user data
 		$user = get_userdata($id);
-		
+
 		if( $user ) {
 			// Delete term from the following_users taxonomy
 			$user_following_term = get_term_by('name', $user->user_login, $this->following_users_taxonomy);
@@ -741,7 +741,7 @@ class EF_Notifications extends EF_Module {
 		}
 		return;
 	}
-		
+
 	/**
 	 * Add user as a term if they aren't already
 	 * @param $term string term to be added
@@ -750,16 +750,16 @@ class EF_Notifications extends EF_Module {
 	 */
 	function add_term_if_not_exists( $term, $taxonomy ) {
 		if ( !term_exists($term, $taxonomy) ) {
-			$args = array( 'slug' => sanitize_title($term) );		
+			$args = array( 'slug' => sanitize_title($term) );
 			return wp_insert_term( $term, $taxonomy, $args );
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Gets a list of the users following the specified post
 	 *
-	 * @param int $post_id The ID of the post 
+	 * @param int $post_id The ID of the post
 	 * @param string $return The field to return
 	 * @return array $users Users following the specified posts
 	 */
@@ -800,7 +800,7 @@ class EF_Notifications extends EF_Module {
 					break;
 				case 'user_email':
 					$users[$key] = $new_user->user_email;
-					break;					
+					break;
 			}
 		}
 		if( !$users || is_wp_error($users) )
@@ -808,11 +808,11 @@ class EF_Notifications extends EF_Module {
 		return $users;
 
 	}
-	
+
 	/**
 	 * Gets a list of the usergroups that are following specified post
 	 *
-	 * @param int $post_id 
+	 * @param int $post_id
 	 * @return array $usergroups All of the usergroup slugs
 	 */
 	function get_following_usergroups( $post_id, $return = 'all' ) {
@@ -829,18 +829,18 @@ class EF_Notifications extends EF_Module {
 		if( $return == 'slugs' ) {
 			$slugs = array();
 			foreach($usergroups as $usergroup) {
-				$slugs[] = $usergroup->slug; 	
+				$slugs[] = $usergroup->slug;
 			}
 			$usergroups = $slugs;
 		}
 		return $usergroups;
 	}
-	
+
 	/**
 	 * Gets a list of posts that a user is following
 	 *
 	 * @param string|int $user user_login or id of user
-	 * @param array $args  
+	 * @param array $args
 	 * @return array $posts Posts a user is following
 	 */
 	function get_user_following_posts( $user = 0, $args = null ) {
@@ -861,11 +861,11 @@ class EF_Notifications extends EF_Module {
 		return $posts;
 
 	}
-	
+
 	/**
 	 * Register settings for notifications so we can partially use the Settings API
 	 * (We use the Settings API for form generation, but not saving)
-	 * 
+	 *
 	 * @since 0.7
 	 */
 	function register_settings() {
@@ -873,7 +873,7 @@ class EF_Notifications extends EF_Module {
 			add_settings_field( 'post_types', 'Post types for notifications:', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 			add_settings_field( 'always_notify_admin', 'Always notify blog admin', array( &$this, 'settings_always_notify_admin_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 	}
-	
+
 	/**
 	 * Chose the post types for notifications
 	 *
@@ -881,7 +881,7 @@ class EF_Notifications extends EF_Module {
 	 */
 	function settings_post_types_option() {
 		global $edit_flow;
-		$edit_flow->settings->helper_option_custom_post_type( $this->module );	
+		$edit_flow->settings->helper_option_custom_post_type( $this->module );
 	}
 
 	/**
@@ -891,13 +891,13 @@ class EF_Notifications extends EF_Module {
 	 */
 	function settings_always_notify_admin_option() {
 		$options = array(
-			'off' => __( 'Disabled', 'edit-flow' ),			
+			'off' => __( 'Disabled', 'edit-flow' ),
 			'on' => __( 'Enabled', 'edit-flow' ),
 		);
 		echo '<select id="always_notify_admin" name="' . $this->module->options_group_name . '[always_notify_admin]">';
 		foreach ( $options as $value => $label ) {
 			echo '<option value="' . esc_attr( $value ) . '"';
-			echo selected( $this->module->options->always_notify_admin, $value );			
+			echo selected( $this->module->options->always_notify_admin, $value );
 			echo '>' . esc_html( $label ) . '</option>';
 		}
 		echo '</select>';
@@ -909,7 +909,7 @@ class EF_Notifications extends EF_Module {
 	 * @since 0.7
 	 */
 	function settings_validate( $new_options ) {
-		
+
 		// Whitelist validation for the post type options
 		if ( !isset( $new_options['post_types'] ) )
 			$new_options['post_types'] = array();
@@ -918,15 +918,15 @@ class EF_Notifications extends EF_Module {
 		// Whitelist validation for the 'always_notify_admin' options
 		if ( !isset( $new_options['always_notify_admin'] ) || $new_options['always_notify_admin'] != 'on' )
 			$new_options['always_notify_admin'] = 'off';
-		
+
 		return $new_options;
 
-	}	
+	}
 
 	/**
 	 * Settings page for notifications
 	 *
-	 * @since 0.7	
+	 * @since 0.7
 	 */
 	function print_configure_view() {
 		?>
@@ -934,13 +934,13 @@ class EF_Notifications extends EF_Module {
 			<?php settings_fields( $this->module->options_group_name ); ?>
 			<?php do_settings_sections( $this->module->options_group_name ); ?>
 			<?php
-				echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';				
+				echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';
 			?>
 			<p class="submit"><?php submit_button( null, 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow' ); ?></a></p>
 		</form>
 		<?php
-	}	
-	
+	}
+
 }
 
 }
