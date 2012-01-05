@@ -143,9 +143,10 @@ class EF_Custom_Status {
 		);
 
 		// Okay, now add the default statuses to the db if they don't already exist 
-		foreach( $default_terms as $term )
+		foreach( $default_terms as $term ) {
 			if( !term_exists( $term['term'] ) )
 				$this->add_custom_status( $term['term'], $term['args'] );
+		}
 		
 	}
 
@@ -405,73 +406,16 @@ class EF_Custom_Status {
 			?>
 			<script type="text/javascript">
 				var custom_statuses = <?php echo json_encode( $all_statuses ); ?>;
-				var ef_text_no_change = '<?php _e( "&mdash; No Change &mdash;" ); ?>';
-				var ef_default_custom_status = '<?php $this->get_default_custom_status()->slug; ?>';
-				var current_status = '<?php echo $selected ?>';
-				var status_dropdown_visible = <?php echo $always_show_dropdown ?>;
-				var current_user_can_publish_posts = <?php if ( current_user_can('publish_posts') ) { echo 1; } else { echo 0; } ?>;
+				var ef_text_no_change = '<?php echo esc_js( __( "&mdash; No Change &mdash;" ) ); ?>';
+				var ef_default_custom_status = '<?php echo esc_js( $this->get_default_custom_status()->slug ); ?>';
+				var current_status = '<?php echo esc_js( $selected ); ?>';
+				var status_dropdown_visible = <?php echo esc_js( $always_show_dropdown ); ?>;
+				var current_user_can_publish_posts = <?php echo current_user_can( 'publish_posts' ) ? 1 : 0; ?>;
 			</script>
 			
 			<?php
 
 		}
-		
-	}
-
-	/**
-	 * Edits the WHERE clause for the the get_post query.
-	 * This is used to show all the posts with custom statuses.
-	 * Why? Because WordPress automatically hides anything without an allowed status (e.g. "publish", "draft",, etc.)
-	 *
-	 * @param string $where Original SQL query
-	 * @return string $where Modified SQL query
-	 */	
-	function custom_status_where_filter( $where ){
-		global $wpdb, $user_ID;
-		
-		/** 
-		 * Replacement code fixes filtering issue
-		 * Could not filter by category, author, search, on Manage Posts page
-		 *
-		 * Mad props to David Smith from Columbia U.
-		 **/
-		if ( is_admin() ) {
-			if(!(isset($_GET['post_status'])) && !(isset($_POST['post_status']))) {			
-				$custom_statuses = $this->get_custom_statuses();
-				//insert custom post_status where statements into the existing the post_status where statements - "post_status = publish OR"
-				//the search string
-				$search_string = $wpdb->posts.".post_status = 'publish' OR ";
-	
-				//build up the replacement string
-				$replace_string = $search_string;
-				foreach ( $custom_statuses as $status ) {
-					$replace_string .= $wpdb->posts.".post_status = '".$status->slug."' OR "; 
-				}
-	
-				$where = str_replace($search_string, $replace_string, $where);
-				
-			} else {
-				// Okay, we're filtering by statuses
-				$status = sanitize_key( $_GET['post_status'] );
-				
-				// if not one of inbuilt custom statuses, delete query where AND (wp_posts.post_status = 'publish' OR wp_posts.post_status = 'future' OR wp_posts.post_status = 'draft' OR wp_posts.post_status = 'pending' OR wp_posts.post_status = 'private')
-				// append status to where
-				
-				if( $this->get_custom_status_by( 'slug', $status ) ) {
-					//delete only the offending query --- not the entire query
-					 $search_string = "AND (".$wpdb->posts.".post_status = 'publish' OR ".$wpdb->posts.".post_status = 'future' OR ".$wpdb->posts.".post_status = 'draft' OR ".$wpdb->posts.".post_status = 'pending'";
-					if ( is_user_logged_in() ) {
-						$search_string .= current_user_can( "read_private_posts" ) ? " OR $wpdb->posts.post_status = 'private'" : " OR $wpdb->posts.post_author = $user_ID AND $wpdb->posts.post_status = 'private'";
-					}
-					$search_string .= ")";
-	
-					$replace_string = "AND (".$wpdb->posts.".post_status = '".$status."')";
-					$where = str_replace($search_string, $replace_string, $where);
-				}
-			}
-	
-		}
-		return $where;
 		
 	}
 	
@@ -1190,7 +1134,7 @@ class EF_Custom_Status {
 			<tr class="form-field">
 				<th scope="row" valign="top"><label for="description"><?php _e( 'Description', 'edit-flow' ); ?></label></th>
 				<td>
-					<textarea name="description" id="description" rows="5" cols="50" style="width: 97%;"><?php echo esc_html( $description ); ?></textarea>
+					<textarea name="description" id="description" rows="5" cols="50" style="width: 97%;"><?php echo esc_textarea( $description ); ?></textarea>
 				<?php $edit_flow->settings->helper_print_error_or_description( 'description', __( 'The description is primarily for administrative use, to give you some context on what the custom status is to be used for.', 'edit-flow' ) ); ?>
 				</td>
 			</tr>
@@ -1207,7 +1151,7 @@ class EF_Custom_Status {
 		$wp_list_table->prepare_items();
 		?>
 		<script type="text/javascript">
-			var ef_confirm_delete_status_string = "<?php _e( 'Are you sure you want to delete the post status? All posts with this status will be assigned to the default status.', 'edit-flow' ); ?>";
+			var ef_confirm_delete_status_string = "<?php echo esc_js( __( 'Are you sure you want to delete the post status? All posts with this status will be assigned to the default status.', 'edit-flow' ) ); ?>";
 		</script>
 			<div id="col-right">
 				<div class="col-wrap">
@@ -1235,12 +1179,12 @@ class EF_Custom_Status {
 					<form class="add:the-list:" action="<?php echo esc_url( $this->get_link() ); ?>" method="post" id="addstatus" name="addstatus">
 					<div class="form-field form-required">
 						<label for="status_name"><?php _e( 'Name', 'edit-flow' ); ?></label>
-						<input type="text" aria-required="true" size="20" maxlength="20" id="status_name" name="status_name" value="<?php if ( !empty( $_POST['status_name'] ) ) esc_attr_e( $_POST['status_name'] ) ?>" />
+						<input type="text" aria-required="true" size="20" maxlength="20" id="status_name" name="status_name" value="<?php if ( !empty( $_POST['status_name'] ) ) esc_attr( $_POST['status_name'] ) ?>" />
 						<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the status. (Max: 20 characters)', 'edit-flow' ) ); ?>
 					</div>
 					<div class="form-field">
 						<label for="status_description"><?php _e( 'Description', 'edit-flow' ); ?></label>
-						<textarea cols="40" rows="5" id="status_description" name="status_description"><?php if ( !empty( $_POST['status_description'] ) ) echo esc_html( $_POST['status_description'] ) ?></textarea>
+						<textarea cols="40" rows="5" id="status_description" name="status_description"><?php if ( !empty( $_POST['status_description'] ) ) echo esc_textarea( $_POST['status_description'] ) ?></textarea>
 						<?php $edit_flow->settings->helper_print_error_or_description( 'description', __( 'The description is primarily for administrative use, to give you some context on what the custom status is to be used for.', 'edit-flow' ) ); ?>
 					</div>
 					<?php wp_nonce_field( 'custom-status-add-nonce' ); ?>
@@ -1327,7 +1271,7 @@ class EF_Custom_Status {
 }
 
 
-if ( !class_exists( 'WP_List_Table' ) )
+if ( !class_exists( 'WP_List_Table' ) && is_admin() )
 	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 /**
  * Custom Statuses uses WordPress' List Table API for generating the custom status management table
