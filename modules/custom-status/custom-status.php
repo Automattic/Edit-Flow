@@ -10,7 +10,7 @@
  */
 if ( !class_exists( 'EF_Custom_Status' ) ) {
 
-class EF_Custom_Status {
+class EF_Custom_Status extends EF_Module {
 
 	var $module;
 	
@@ -23,7 +23,7 @@ class EF_Custom_Status {
 	function __construct() {
 		global $edit_flow;
 		
-		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
+		$module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Custom Statuses', 'edit-flow' ),
@@ -83,13 +83,10 @@ class EF_Custom_Status {
 		add_action( 'wp_ajax_update_status_positions', array( &$this, 'handle_ajax_update_status_positions' ) );
 		add_action( 'wp_ajax_inline_save_status', array( &$this, 'ajax_inline_save_status' ) );
 		
-		// Hooks to add "status" column to Edit Posts page
+		// Hook to add the status column to Manage Posts
+		
 		add_filter( 'manage_posts_columns', array( &$this, '_filter_manage_posts_columns') );
 		add_action( 'manage_posts_custom_column', array( &$this, '_filter_manage_posts_custom_column') );
-		
-		// Hooks to add "status" column to Edit Pages page, BUT, only add it if not being filtered by post_status
-		add_filter( 'manage_pages_columns', array( &$this, '_filter_manage_posts_columns' ) );
-		add_action( 'manage_pages_custom_column', array( &$this, '_filter_manage_posts_custom_column' ) );
 		
 		// These two methods are hacks for fixing bugs in WordPress core
 		add_action( 'admin_init', array( &$this, 'check_timestamp_on_publish' ) );
@@ -195,7 +192,7 @@ class EF_Custom_Status {
 							'show_ui' => false
 					);
 			register_taxonomy( self::taxonomy_key, 'post', $args );
-		}		
+		}
 		
 		if ( function_exists( 'register_post_status' ) ) {
 			// Users can delete draft and pending statuses if they want, so let's get rid of them
@@ -205,6 +202,11 @@ class EF_Custom_Status {
 			
 			$custom_statuses = $this->get_custom_statuses();
 			
+			// Unfortunately, register_post_status() doesn't accept a
+			// post type argument, so we have to register the post
+			// statuses for all post types. This results in
+			// all post statuses for a post type appearing at the top
+			// of manage posts if there is a post with the status
 			foreach ( $custom_statuses as $status ) {
 				register_post_status( $status->slug, array(
 					'label'       => $status->name
@@ -217,82 +219,15 @@ class EF_Custom_Status {
 	}
 	
 	/**
-	 * Adds custom stati to the $post_stati array.
-	 * This is used to generate the list of statuses on the Edit/Manage Posts page.
-	 *
-	 * @todo Don't return statuses that are empty (i.e. no posts)
-	 */
-	function enable_custom_status_filters() {
-		// This is the array WP uses to store custom stati (really? stati?)
-		// The status list at the top of the Manage/Edit Posts page is generated using this array
-		global $post_stati;
-
-		if ( is_array( $post_stati ) ) {
-			// Get a list of ALL the custom statuses
-			$custom_statuses = $this->get_custom_statuses();
-			
-			// Alright, now append them to the $post_stati array
-			foreach( $custom_statuses as $status ) {
-				if ( !$this->is_restricted_status( $status->slug ) ) {
-					$slug = $status->slug;
-					$post_stati[$slug] = array(
-						$status->name,
-						$status->description,
-						array(
-							$status->name.' <span class="count">(%s)</span>',
-							$status->name.' <span class="count">(%s)</span>'
-						)
-					);	
-				}
-			}
-		}
-	}
-
-	/**
-	 * Adds custom stati to the $post_stati array for pages
-	 * This is used to generate the list of statuses on the Edit/Manage Pages page.
-	 *
-	 * @todo Don't return statuses that are empty (i.e. no posts)
-	 * 
-	 * @param object $post_stati All of the post statuses
-	 * @return object $post_stati Post statuses with Edit Flow custom statuses
-	 */
-	function enable_custom_status_filters_pages( $post_stati ) {
-		
-		if ( is_array( $post_stati ) ) {
-			
-			// Get a list of ALL the custom statuses
-			$custom_statuses = $this->get_custom_statuses();
-			
-			// Alright, now append them to the $post_stati array
-			foreach( $custom_statuses as $status ) {
-				if( !$this->is_restricted_status( $status->slug ) ) {
-					$slug = $status->slug;
-					$post_stati[$slug] = array(
-						$status->name,
-						$status->description,
-						array(
-							$status->name.' <span class="count">(%s)</span>',
-							$status->name.' <span class="count">(%s)</span>'
-						)
-					);
-				}
-			}
-		}
-		return $post_stati;
-	}
-	
-	/**
 	 * Enqueue Javascript resources that we need in the admin:
 	 * - Primary use of Javascript is to manipulate the post status dropdown on Edit Post and Manage Posts
 	 * - jQuery Sortable plugin is used for drag and dropping custom statuses
 	 * - We have other custom code for Quick Edit and JS niceties
 	 */
 	function action_admin_enqueue_scripts() {
-		global $edit_flow;
 		
 		// Load Javascript we need to use on the configuration views (jQuery Sortable and Quick Edit)
-		if ( $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) ) {
+		if ( $this->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-ui-sortable' );			
 			wp_enqueue_script( 'edit-flow-custom-status-configure', EDIT_FLOW_URL . 'modules/custom-status/lib/custom-status-configure.js', array( 'jquery', 'jquery-ui-sortable', 'edit-flow-settings-js' ), EDIT_FLOW_VERSION, true );
 		}
@@ -328,18 +263,16 @@ class EF_Custom_Status {
 	/**
 	 * Check whether custom status stuff should be loaded on this page
 	 *
-	 * @todo migrate this to an Edit Flow helper class method
+	 * @todo migrate this to the base module class
 	 */
 	function is_whitelisted_page() {
-		global $edit_flow, $pagenow;
+		global $pagenow;
 		
-		$post_type = $edit_flow->helpers->get_current_post_type();
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
-		if ( !in_array( $post_type, $supported_post_types ) )
-			return;
+		if ( !in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $this->module ) ) )
+			return false;
 		
 		if( ! current_user_can('edit_posts') )
-			return;
+			return false;
 		
 		// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
 		return in_array( $pagenow, array( 'post.php', 'edit.php', 'post-new.php', 'page.php', 'edit-pages.php', 'page-new.php' ) );
@@ -359,7 +292,7 @@ class EF_Custom_Status {
 		// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
 		if ( !empty( $post ) && $this->is_whitelisted_page() ) {
 			
-			$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
+			$custom_statuses = $this->get_custom_statuses();
 			$custom_statuses = apply_filters( 'ef_custom_status_list', $custom_statuses, $post );			
 	
 			// Get the status of the current post		
@@ -473,7 +406,7 @@ class EF_Custom_Status {
 		$args_to_encode = array();
 		$args_to_encode['description'] = ( isset( $args['description'] ) ) ? $args['description'] : $old_status->description;
 		$args_to_encode['position'] = ( isset( $args['position'] ) ) ? $args['position'] : $old_status->position;
-		$encoded_description = $edit_flow->helpers->get_encoded_description( $args_to_encode );
+		$encoded_description = $this->get_encoded_description( $args_to_encode );
 		$args['description'] = $encoded_description;
 
 		$updated_status_array = wp_update_term( $status_id, self::taxonomy_key, $args );
@@ -527,7 +460,6 @@ class EF_Custom_Status {
 	 * @return object $statuses All of the statuses
 	 */
 	function get_custom_statuses( $args = array() ) {
-		global $edit_flow;
 		
 		$default = array(
 			'hide_empty' => false,
@@ -539,7 +471,7 @@ class EF_Custom_Status {
 		$hold_to_end = array();
 		foreach ( $statuses as $key => $status ) {
 			// Unencode and set all of our psuedo term meta because we need the position if it exists
-			$unencoded_description = $edit_flow->helpers->get_unencoded_description( $status->description );
+			$unencoded_description = $this->get_unencoded_description( $status->description );
 			if ( is_array( $unencoded_description ) ) {
 				foreach( $unencoded_description as $key => $value ) {
 					$status->$key = $value;
@@ -571,14 +503,13 @@ class EF_Custom_Status {
 	 * @return object|WP_Error $status The object for the matching status
 	 */
 	function get_custom_status_by( $field, $value ) {
-		global $edit_flow;
 		
 		$status = get_term_by( $field, $value, self::taxonomy_key );
 		if ( !$status || is_wp_error( $status ) )
 			return $status;
 		// Unencode and set all of our psuedo term meta because we need the position if it exists
 		$status->position = false;
-		$unencoded_description = $edit_flow->helpers->get_unencoded_description( $status->description );
+		$unencoded_description = $this->get_unencoded_description( $status->description );
 		if ( is_array( $unencoded_description ) ) {
 			foreach( $unencoded_description as $key => $value ) {
 				$status->$key = $value;
@@ -594,7 +525,6 @@ class EF_Custom_Status {
 	 * @return object $default_status Default post status object
 	 */
 	function get_default_custom_status() {
-		global $edit_flow;
 		$default_status = $this->get_custom_status_by( 'slug', $this->module->options->default_status );
 		return $default_status;
 		
@@ -627,6 +557,10 @@ class EF_Custom_Status {
 		// http://wordpress.org/support/topic/plugin-edit-flow-bug-shows-2-drafts-when-there-are-none-leads-to-error-messages
 		if ( !is_array( $posts_columns ) )
 			return $posts_columns;
+		
+		// Only do it for the post types this module is activated for
+		if ( !in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $this->module ) ) )
+			return $posts_columns;
 
 		$result = array();
 		foreach ( $posts_columns as $key => $value ) {
@@ -647,8 +581,8 @@ class EF_Custom_Status {
 	function _filter_manage_posts_custom_column( $column_name ) {
 		
 		if ( $column_name == 'status' ) {
-			global $post, $edit_flow;
-			echo $edit_flow->helpers->get_post_status_friendly_name( $post->post_status );
+			global $post;
+			echo $this->get_post_status_friendly_name( $post->post_status );
 		}
 		
 	}
@@ -857,7 +791,6 @@ class EF_Custom_Status {
 	 * @since 0.7
 	 */
 	function handle_delete_custom_status() {
-		global $edit_flow;
 		
 		// Check that this GET request is our GET request
 		if ( !isset( $_GET['page'], $_GET['action'], $_GET['term-id'], $_GET['nonce'] )
@@ -923,16 +856,15 @@ class EF_Custom_Status {
 	 * @since 0.7
 	 */
 	function handle_ajax_update_status_positions() {
-		global $edit_flow;
 		
 		if ( !wp_verify_nonce( $_POST['custom_status_sortable_nonce'], 'custom-status-sortable' ) )
-			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
+			$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
 		
 		if ( !current_user_can( 'manage_options') )
-			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
+			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
 		
 		if ( !isset( $_POST['status_positions'] ) || !is_array( $_POST['status_positions'] ) )
-			$edit_flow->helpers->print_ajax_response( 'error', __( 'Terms not set.', 'edit-flow' ) );
+			$this->print_ajax_response( 'error', __( 'Terms not set.', 'edit-flow' ) );
 		
 		// Update each custom status with its new position
 		foreach ( $_POST['status_positions'] as $position => $term_id ) {
@@ -944,7 +876,7 @@ class EF_Custom_Status {
 			$return = $this->update_custom_status( (int)$term_id, $args );
 			// @todo check that this was a valid return
 		}
-		$edit_flow->helpers->print_ajax_response( 'success', $this->module->messages['status-position-updated'] );	
+		$this->print_ajax_response( 'success', $this->module->messages['status-position-updated'] );	
 	}
 	
 	/**
@@ -1072,12 +1004,11 @@ class EF_Custom_Status {
 	 * @since 0.7
 	 */
 	function settings_validate( $new_options ) {
-		global $edit_flow;
 		
 		// Whitelist validation for the post type options
 		if ( !isset( $new_options['post_types'] ) )
 			$new_options['post_types'] = array();
-		$new_options['post_types'] = $edit_flow->helpers->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
+		$new_options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
 		
 		// Whitelist validation for the 'always_show_dropdown' optoins
 		if ( !isset( $new_options['always_show_dropdown'] ) || $new_options['always_show_dropdown'] != 'on' )
@@ -1189,7 +1120,7 @@ class EF_Custom_Status {
 					</div>
 					<?php wp_nonce_field( 'custom-status-add-nonce' ); ?>
 					<?php echo '<input id="action" name="action" type="hidden" value="add-new" />'; ?>					
-					<?php submit_button( __( 'Add New Status', 'edit-flow' ) ); ?>
+					<p class="submit"><?php submit_button( __( 'Add New Status', 'edit-flow' ), 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow' ); ?></a></p>
 					</form>
 				<?php endif; ?>
 				</div>

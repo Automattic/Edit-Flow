@@ -4,7 +4,7 @@ Plugin Name: Edit Flow
 Plugin URI: http://editflow.org/
 Description: Remixing the WordPress admin for better editorial workflow options.
 Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Automattic, and others
-Version: 0.7-beta3
+Version: 0.7-beta4
 Author URI: http://editflow.org/
 
 Copyright 2009-2011 Mohammad Jangda, Daniel Bachhuber, et al.
@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 // Define contants
-define( 'EDIT_FLOW_VERSION' , '0.7-beta3' );
+define( 'EDIT_FLOW_VERSION' , '0.7-beta4' );
 define( 'EDIT_FLOW_ROOT' , dirname(__FILE__) );
 define( 'EDIT_FLOW_FILE_PATH' , EDIT_FLOW_ROOT . '/' . basename(__FILE__) );
 define( 'EDIT_FLOW_URL' , plugins_url(plugin_basename(dirname(__FILE__)).'/') );
@@ -69,6 +69,9 @@ class edit_flow {
 		// We use the WP_List_Table API for some of the table gen
 		if ( !class_exists( 'WP_List_Table' ) )
 			require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
+
+		// Edit Flow base module
+		require_once( EDIT_FLOW_ROOT . '/common/php/class-module.php' );
 		
 		// Scan the modules directory and include any modules that exist there
 		$module_dirs = scandir( EDIT_FLOW_ROOT . '/modules/' );
@@ -88,13 +91,13 @@ class edit_flow {
 				$class_names[$slug_name] = 'EF_' . rtrim( $class_name, '_' );
 			}
 		}
+
+		// Instantiate EF_Module as $helpers for back compat and so we can
+		// use it in this class
+		$this->helpers = new EF_Module();
 		
-		// Common Edit Flow utilities and helpers
+		// Other utils
 		require_once( EDIT_FLOW_ROOT . '/common/php/util.php' );
-		require_once( EDIT_FLOW_ROOT . '/common/php/helpers.php' );
-		
-		// Helpers is in a class of its own, and needs to be loaded before the modules
-		$this->helpers = new EF_Helpers();
 		
 		// Instantiate all of our classes onto the Edit Flow object
 		// but make sure they exist too

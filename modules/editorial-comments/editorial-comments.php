@@ -8,7 +8,7 @@
 
 if ( !class_exists( 'EF_Editorial_Comments' ) ) {
 
-class EF_Editorial_Comments
+class EF_Editorial_Comments extends EF_Module
 {
 	// This is comment type used to differentiate editorial comments
 	const comment_type = 'editorial-comment';
@@ -16,7 +16,7 @@ class EF_Editorial_Comments
 	function __construct() {
 		global $edit_flow;
 		
-		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
+		$module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Editorial Comments', 'edit-flow' ),
@@ -73,10 +73,10 @@ class EF_Editorial_Comments
 	 * Load any of the admin scripts we need but only on the pages we need them
 	 */
 	function add_admin_scripts( ) {
-		global $pagenow, $edit_flow;
+		global $pagenow;
 		
-		$post_type = $edit_flow->helpers->get_current_post_type();
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		$post_type = $this->get_current_post_type();
+		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		if ( !in_array( $post_type, $supported_post_types ) )
 			return;
 			
@@ -101,9 +101,8 @@ class EF_Editorial_Comments
 	 * @uses add_meta_box()
 	 */
 	function add_post_meta_box() {
-		global $edit_flow;
 		
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		foreach ( $supported_post_types as $post_type )
 			add_meta_box('edit-flow-editorial-comments', __('Editorial Comments', 'edit-flow'), array(&$this, 'editorial_comments_meta_box'), $post_type, 'normal', 'high');
 			
@@ -380,12 +379,11 @@ class EF_Editorial_Comments
 	 * @since 0.7
 	 */
 	function settings_validate( $new_options ) {
-		global $edit_flow;
 		
 		// Whitelist validation for the post type options
 		if ( !isset( $new_options['post_types'] ) )
 			$new_options['post_types'] = array();
-		$new_options['post_types'] = $edit_flow->helpers->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
+		$new_options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
 		
 		return $new_options;
 
@@ -397,7 +395,6 @@ class EF_Editorial_Comments
 	 * @since 0.7	
 	 */
 	function print_configure_view() {
-		global $edit_flow;
 		?>
 
 		<form class="basic-settings" action="<?php echo add_query_arg( 'page', $this->module->settings_slug, get_admin_url( null, 'admin.php' ) ); ?>" method="post">
