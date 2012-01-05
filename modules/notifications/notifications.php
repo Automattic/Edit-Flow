@@ -41,7 +41,7 @@ class EF_Notifications extends EF_Module {
 					'post' => 'on',
 					'page' => 'on',
 				),
-				'always_notify_admin' => 'on',
+				'always_notify_admin' => 'off',
 			),
 			'configure_page_cb' => 'print_configure_view',
 			'post_type_support' => 'ef_notification',
