@@ -611,7 +611,7 @@ class EF_User_Groups {
 					</div>
 					<?php wp_nonce_field( 'add-usergroup' ); ?>
 					<?php echo '<input id="form-action" name="form-action" type="hidden" value="add-usergroup" />'; ?>
-					<?php submit_button( __( 'Add New User Group', 'edit-flow' ) ); ?>
+					<p class="submit"><?php submit_button( __( 'Add New User Group', 'edit-flow' ), 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo esc_url( EDIT_FLOW_SETTINGS_PAGE ); ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
 					</form>
 				<?php endif; ?>
 			</div></div></div>
