@@ -20,7 +20,7 @@
  */
 if ( !class_exists('EF_Editorial_Metadata') ) {
 
-class EF_Editorial_Metadata {
+class EF_Editorial_Metadata extends EF_Module {
 
 	/**
 	 * The name of the taxonomy we're going to register for editorial metadata.
@@ -36,7 +36,7 @@ class EF_Editorial_Metadata {
 	function __construct() {
 		global $edit_flow;
 		
-		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
+		$module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Editorial Metadata', 'edit-flow' ),
@@ -71,7 +71,6 @@ class EF_Editorial_Metadata {
 	 * Initialize the module. Conditionally loads if the module is enabled
 	 */
 	function init() {
-		global $edit_flow;
 		
 		// Register the taxonomy we use for Editorial Metadata with WordPress core
 		$this->register_taxonomy();
@@ -91,18 +90,18 @@ class EF_Editorial_Metadata {
 		add_action( 'save_post', array( &$this, 'save_meta_box' ), 10, 2 );
 		
 		// Add Editorial Metadata columns to the Manage Posts view
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		foreach( $supported_post_types as $post_type ) {
 			add_action( "manage_{$post_type}_posts_columns", array( &$this, 'filter_manage_posts_columns' ) );
 			add_action( 'manage_posts_custom_column', array( &$this, 'action_manage_posts_custom_column' ), null, 2 );
 		}
 		
 		// Add Editorial Metadata to the calendar if the calendar is activated
-		if ( $edit_flow->helpers->module_enabled( 'calendar' ) )
+		if ( $this->module_enabled( 'calendar' ) )
 			add_filter( 'ef_calendar_item_information_fields', array( &$this, 'filter_calendar_item_fields' ), null, 2 );
 		
 		// Add Editorial Metadata columns to the Story Budget if it exists
-		if ( $edit_flow->helpers->module_enabled( 'story_budget' ) ) {
+		if ( $this->module_enabled( 'story_budget' ) ) {
 			add_filter( 'ef_story_budget_term_columns', array( &$this, 'filter_story_budget_term_columns' ) );
 			// Register an action to handle this data later
 			add_filter( 'ef_story_budget_term_column_value', array( &$this, 'filter_story_budget_term_column_values' ), null, 3 );
@@ -207,13 +206,13 @@ class EF_Editorial_Metadata {
 	 * Enqueue relevant admin Javascript
 	 */ 
 	function add_admin_scripts() {
-		global $current_screen, $edit_flow, $pagenow;
+		global $current_screen, $pagenow;
 		
 		// Add the metabox date picker JS and CSS
-		$current_post_type = $edit_flow->helpers->get_current_post_type();
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		$current_post_type = $this->get_current_post_type();
+		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		if ( in_array( $current_post_type, $supported_post_types ) ) {
-			$edit_flow->helpers->enqueue_datepicker_resources();
+			$this->enqueue_datepicker_resources();
 
 			// Now add the rest of the metabox CSS
 			wp_enqueue_style( 'edit_flow-editorial_metadata-styles', EDIT_FLOW_URL . 'modules/editorial-metadata/lib/editorial-metadata.css', false, EDIT_FLOW_VERSION, 'all' );
@@ -276,7 +275,7 @@ class EF_Editorial_Metadata {
 		}
 		
 		// Load Javascript specific to the editorial metadata configuration view
-		if ( $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) ) {
+		if ( $this->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-ui-sortable' );			
 			wp_enqueue_script( 'edit-flow-editorial-metadata-configure', EDIT_FLOW_URL . 'modules/editorial-metadata/lib/editorial-metadata-configure.js', array( 'jquery', 'jquery-ui-sortable', 'edit-flow-settings-js' ), EDIT_FLOW_VERSION, true );
 		}
@@ -286,10 +285,9 @@ class EF_Editorial_Metadata {
 	 * Register the post metadata taxonomy
 	 */
 	function register_taxonomy() {
-		global $edit_flow;
 
 		// We need to make sure taxonomy is registered for all of the post types that support it
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		$supported_post_types = $this->get_post_types_for_module( $this->module );
 	
 		register_taxonomy( self::metadata_taxonomy, $supported_post_types,
 			array(
@@ -317,8 +315,8 @@ class EF_Editorial_Metadata {
 	 * Load the post metaboxes for all of the post types that are supported
 	 */
 	function handle_post_metaboxes() {
-		global $edit_flow;
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+
+		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		foreach ( $supported_post_types as $post_type ) {
 			add_meta_box( self::metadata_taxonomy, __( 'Editorial Metadata', 'edit-flow' ), array( &$this, 'display_meta_box' ), $post_type, 'side' );
 		}
@@ -419,7 +417,7 @@ class EF_Editorial_Metadata {
 	 * @param object $post Post object
 	 */
 	function save_meta_box( $id, $post ) {
-		global $edit_flow;
+
 		// Authentication checks: make sure data came from our meta box and that the current user is allowed to edit the post
 		// TODO: switch to using check_admin_referrer? See core (e.g. edit.php) for usage
 		if ( ! isset( $_POST[self::metadata_taxonomy . "_nonce"] )
@@ -428,7 +426,7 @@ class EF_Editorial_Metadata {
 		}
 		
 		if( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
-			|| ! in_array( $post->post_type, $edit_flow->helpers->get_post_types_for_module( $this->module ) )
+			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) )
 			|| $post->post_type == 'post' && !current_user_can( 'edit_post', $id )
 			|| $post->post_type == 'page' && !current_user_can( 'edit_page', $id ) ) {
 			return $id;
@@ -515,7 +513,7 @@ class EF_Editorial_Metadata {
 	 * @return array $ordered_terms The terms as they should be ordered
 	 */ 
 	function get_editorial_metadata_terms() {
-		global $edit_flow;
+
 		
 		$args = array(
 		        'orderby'    => apply_filters( 'ef_editorial_metadata_term_order', 'name' ),
@@ -530,7 +528,7 @@ class EF_Editorial_Metadata {
 			// Unencode and set all of our psuedo term meta because we need the position and viewable if they exists
 			// First do an array_merge() on the term object to make sure the keys exist, then array_merge()
 			// any values that may already exist
-			$unencoded_description = $edit_flow->helpers->get_unencoded_description( $term->description );
+			$unencoded_description = $this->get_unencoded_description( $term->description );
 			$defaults = array(
 				'description' => '',
 				'viewable' => false,
@@ -568,7 +566,7 @@ class EF_Editorial_Metadata {
 	 * @return object $term Term's object representation
 	 */
 	function get_editorial_metadata_term_by( $field, $value ) {
-		global $edit_flow;
+
 		
 		$term = get_term_by( $field, $value, self::metadata_taxonomy );
 		if ( ! $term || is_wp_error( $term ) )
@@ -577,7 +575,7 @@ class EF_Editorial_Metadata {
 		// Unencode and set all of our psuedo term meta because we need the position and viewable if they exists
 		$term->position = false;
 		$term->viewable = false;
-		$unencoded_description = $edit_flow->helpers->get_unencoded_description( $term->description );
+		$unencoded_description = $this->get_unencoded_description( $term->description );
 		if ( is_array( $unencoded_description ) ) {
 			foreach( $unencoded_description as $key => $value ) {
 				$term->$key = $value;
@@ -679,10 +677,10 @@ class EF_Editorial_Metadata {
 	 * @return array $calendar_fields Calendar fields with our viewable Editorial Metadata added
 	 */
 	function filter_calendar_item_fields( $calendar_fields, $post_id ) {
-		global $edit_flow;
+
 		
 		// Make sure we respect which post type we're on
-		if ( !in_array( get_post_type( $post_id ), $edit_flow->helpers->get_post_types_for_module( $this->module ) ) )
+		if ( !in_array( get_post_type( $post_id ), $this->get_post_types_for_module( $this->module ) ) )
 			return $calendar_fields;
 			
 		$terms = $this->get_editorial_metadata_terms();
@@ -828,7 +826,6 @@ class EF_Editorial_Metadata {
 	 * @return object|WP_Error $updated_term The updated term or a WP_Error object if something disastrous happened
 	 */
 	function update_editorial_metadata_term( $term_id, $args ) {
-		global $edit_flow;
 		
 		$new_args = array();
 		$old_term = $this->get_editorial_metadata_term_by( 'id', $term_id );
@@ -850,7 +847,7 @@ class EF_Editorial_Metadata {
 			'type' => $new_args['type'],
 			'viewable' => $new_args['viewable'],
 		);	
-		$encoded_description = $edit_flow->helpers->get_encoded_description( $args_to_encode );
+		$encoded_description = $this->get_encoded_description( $args_to_encode );
 		$new_args['description'] = $encoded_description;
 		
 		$updated_term = wp_update_term( $term_id, self::metadata_taxonomy, $new_args );
@@ -865,7 +862,7 @@ class EF_Editorial_Metadata {
 	 * @since 0.7
 	 */
 	function insert_editorial_metadata_term( $args ) {
-		global $edit_flow;
+
 		
 		// Term is always added to the end of the list
 		$default_position = count( $this->get_editorial_metadata_terms() ) + 2;
@@ -888,7 +885,7 @@ class EF_Editorial_Metadata {
 			'type' => $args['type'],
 			'viewable' => $args['viewable'],
 		);	
-		$encoded_description = $edit_flow->helpers->get_encoded_description( $args_to_encode );
+		$encoded_description = $this->get_encoded_description( $args_to_encode );
 		$args['description'] = $encoded_description;
 
 		$inserted_term = wp_insert_term( $term_name, self::metadata_taxonomy, $args );
@@ -1103,8 +1100,6 @@ class EF_Editorial_Metadata {
 	 */
 	function handle_change_editorial_metadata_visibility() {
 		
-		global $edit_flow;
-		
 		// Check that the current GET request is our GET request		
 		if ( !isset( $_GET['page'], $_GET['action'], $_GET['term-id'], $_GET['nonce'] )
 			|| $_GET['page'] != $this->module->settings_slug || !in_array( $_GET['action'], array( 'make-viewable', 'make-hidden' ) ) )
@@ -1221,16 +1216,15 @@ class EF_Editorial_Metadata {
 	 * @since 0.7
 	 */
 	function handle_ajax_update_term_positions() {
-		global $edit_flow;
-		
+
 		if ( !wp_verify_nonce( $_POST['editorial_metadata_sortable_nonce'], 'editorial-metadata-sortable' ) )
-			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
+			$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
 		
 		if ( !current_user_can( 'manage_options') )
-			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
+			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
 		
 		if ( !isset( $_POST['term_positions'] ) || !is_array( $_POST['term_positions'] ) )
-			$edit_flow->helpers->print_ajax_response( 'error', __( 'Terms not set.', 'edit-flow' ) );
+			$this->print_ajax_response( 'error', __( 'Terms not set.', 'edit-flow' ) );
 			
 		foreach ( $_POST['term_positions'] as $position => $term_id ) {
 			
@@ -1241,7 +1235,7 @@ class EF_Editorial_Metadata {
 			$return = $this->update_editorial_metadata_term( (int)$term_id, $args );
 			// @todo check that this was a valid return
 		}
-		$edit_flow->helpers->print_ajax_response( 'success', $this->module->messages['term-position-updated'] );	
+		$this->print_ajax_response( 'success', $this->module->messages['term-position-updated'] );	
 	}
 	
 	/**
@@ -1301,12 +1295,11 @@ class EF_Editorial_Metadata {
 	 * @return array $new_options Form values after they've been sanitized
 	 */
 	function settings_validate( $new_options ) {
-		global $edit_flow;
 		
 		// Whitelist validation for the post type options
 		if ( !isset( $new_options['post_types'] ) )
 			$new_options['post_types'] = array();
-		$new_options['post_types'] = $edit_flow->helpers->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );		
+		$new_options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );		
 		
 		return $new_options;
 	}

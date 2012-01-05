@@ -69,6 +69,9 @@ class edit_flow {
 		// We use the WP_List_Table API for some of the table gen
 		if ( !class_exists( 'WP_List_Table' ) )
 			require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
+
+		// Edit Flow base module
+		require_once( EDIT_FLOW_ROOT . '/common/php/class-module.php' );
 		
 		// Scan the modules directory and include any modules that exist there
 		$module_dirs = scandir( EDIT_FLOW_ROOT . '/modules/' );
@@ -88,13 +91,13 @@ class edit_flow {
 				$class_names[$slug_name] = 'EF_' . rtrim( $class_name, '_' );
 			}
 		}
+
+		// Instantiate EF_Module as $helpers for back compat and so we can
+		// use it in this class
+		$this->helpers = new EF_Module();
 		
-		// Common Edit Flow utilities and helpers
+		// Other utils
 		require_once( EDIT_FLOW_ROOT . '/common/php/util.php' );
-		require_once( EDIT_FLOW_ROOT . '/common/php/helpers.php' );
-		
-		// Helpers is in a class of its own, and needs to be loaded before the modules
-		$this->helpers = new EF_Helpers();
 		
 		// Instantiate all of our classes onto the Edit Flow object
 		// but make sure they exist too

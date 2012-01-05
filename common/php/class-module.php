@@ -1,13 +1,13 @@
 <?php
 /**
- * class EF_Helpers
+ * class EF_Module
  *
- * @desc A number of Edit Flow helpers any module can use
+ * @desc Base class any Edit Flow module should extend
  */
 
-if ( !class_exists( 'EF_Helpers' ) ) {
+if ( !class_exists( 'EF_Module' ) ) {
 	
-class EF_Helpers {
+class EF_Module {
 	
 	function __construct() {
 	}

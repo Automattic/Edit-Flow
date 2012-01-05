@@ -13,7 +13,7 @@
 
 if ( !class_exists('EF_Dashboard') ) {
 
-class EF_Dashboard {
+class EF_Dashboard extends EF_Module {
 	
 	/**
 	 * Load the EF_Dashboard class as an Edit Flow module
@@ -22,7 +22,7 @@ class EF_Dashboard {
 		global $edit_flow;
 		
 		// Register the module with Edit Flow
-		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
+		$module_url = $this->get_module_url( __FILE__ );
 		$args = array(
 			'title' => __( 'Dashboard Widgets', 'edit-flow' ),
 			'short_description' => __( 'Track your content from the WordPress dashboard.', 'edit-flow' ),
@@ -99,7 +99,6 @@ class EF_Dashboard {
 	 * Add Edit Flow dashboard widgets to the WordPress admin dashboard
 	 */
 	function add_dashboard_widgets() {
-		global $edit_flow, $current_user;
 		
 		// Only show dashboard widgets for Contributor or higher
 		if ( !current_user_can('edit_posts') ) 
@@ -112,7 +111,7 @@ class EF_Dashboard {
 			wp_add_dashboard_widget( 'post_status_widget', __( 'Unpublished Content', 'edit-flow' ), array( &$this, 'post_status_widget' ) );
 			
 		// Add the MyPosts widget, if enabled
-		if ( $this->module->options->my_posts_widget == 'on' && $edit_flow->helpers->module_enabled( 'notifications' ) )
+		if ( $this->module->options->my_posts_widget == 'on' && $this->module_enabled( 'notifications' ) )
 			wp_add_dashboard_widget( 'myposts_widget', __( 'Posts I\'m Following', 'edit-flow' ), array( &$this, 'myposts_widget' ) );
 
 	}
@@ -126,9 +125,9 @@ class EF_Dashboard {
 	function post_status_widget () {
 		global $edit_flow;
 		
-		$statuses = $edit_flow->helpers->get_post_statuses();
+		$statuses = $this->get_post_statuses();
 		// If custom statuses are enabled, we'll output a link to edit the terms just below the post counts
-		if ( $edit_flow->helpers->module_enabled( 'custom_status' ) )
+		if ( $this->module_enabled( 'custom_status' ) )
 			$edit_custom_status_url = add_query_arg( 'configure', 'custom-status', EDIT_FLOW_SETTINGS_PAGE );
 		
 		?>
@@ -138,7 +137,7 @@ class EF_Dashboard {
 			<table>
 				<tbody>
 					<?php foreach($statuses as $status) : ?>
-						<?php $filter_link = esc_url($edit_flow->helpers->filter_posts_link($status->slug)) ?>
+						<?php $filter_link = esc_url($this->filter_posts_link($status->slug)) ?>
 						<tr>
 							<td class="b">
 								<a href="<?php echo $filter_link; ?>">
@@ -169,6 +168,9 @@ class EF_Dashboard {
 	 */ 
 	function myposts_widget() {
 		global $edit_flow;
+
+		if ( !$this->module_enabled( 'notifications' ) )
+			return;
 		
 		$myposts = $edit_flow->notifications->get_user_following_posts();
 		
@@ -239,7 +241,7 @@ class EF_Dashboard {
 		);
 		echo '<select id="my_posts_widget" name="' . $this->module->options_group_name . '[my_posts_widget]"';
 		// Notifications module has to be enabled for the My Posts widget to work
-		if ( !$edit_flow->helpers->module_enabled('notifications') ) {
+		if ( !$this->module_enabled('notifications') ) {
 			echo ' disabled="disabled"';
 			$this->module->options->my_posts_widget = 'off';
 		}
@@ -250,7 +252,7 @@ class EF_Dashboard {
 			echo '>' . esc_html( $label ) . '</option>';
 		}
 		echo '</select>';
-		if ( !$edit_flow->helpers->module_enabled('notifications') ) {
+		if ( !$this->module_enabled('notifications') ) {
 			echo '&nbsp;&nbsp;&nbsp;<span class="description">' . __( 'The notifications module will need to be enabled for this widget to display.', 'edit-flow' );
 		}
 	}
@@ -261,7 +263,6 @@ class EF_Dashboard {
 	 * @since 0.7
 	 */
 	function settings_validate( $new_options ) {
-		global $edit_flow;
 		
 		// Follow whitelist validation for modules
 		if ( $new_options['post_status_widget'] != 'on' )
@@ -279,9 +280,8 @@ class EF_Dashboard {
 	 * @since 0.7
 	 */
 	function print_configure_view() {
-		global $edit_flow;
 		?>
-		<form class="basic-settings" action="<?php echo esc_url( menu_page_url( $this->module->settings_slug ) ); ?>" method="post">
+		<form class="basic-settings" action="<?php echo esc_url( menu_page_url( $this->module->settings_slug, false ) ); ?>" method="post">
 			<?php settings_fields( $this->module->options_group_name ); ?>
 			<?php do_settings_sections( $this->module->options_group_name ); ?>	
 			<?php				

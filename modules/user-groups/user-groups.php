@@ -11,7 +11,7 @@
 
 if ( !class_exists( 'EF_User_Groups' ) ) {
 
-class EF_User_Groups {
+class EF_User_Groups extends EF_Module {
 	
 	var $module;
 	
@@ -31,7 +31,7 @@ class EF_User_Groups {
 	function __construct( ) {
 		global $edit_flow;
 		
-		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
+		$module_url = $this->get_module_url( __FILE__ );
 		
 		// Register the User Groups module with Edit Flow
 		$args = array(
@@ -102,14 +102,13 @@ class EF_User_Groups {
 	 * @since 0.7
 	 */
 	function install() {
-		global $edit_flow;
 
 		// Add necessary capabilities to allow management of user groups
 		$usergroup_roles = array(
 			'administrator' => array('edit_usergroups'),
 		);
 		foreach( $usergroup_roles as $role => $caps ) {
-			$edit_flow->helpers->add_caps_to_role( $role, $caps );
+			$this->add_caps_to_role( $role, $caps );
 		}
 		
 		// Create our default usergroups
@@ -194,10 +193,9 @@ class EF_User_Groups {
 	 * @uses register_taxonomy()
 	 */
 	function register_usergroup_objects() {
-		global $edit_flow;
 		
 		// Load the currently supported post types so we only register against those
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		
 		// Use a taxonomy to manage relationships between posts and usergroups
 		$args = array(
@@ -214,15 +212,14 @@ class EF_User_Groups {
 	 * @uses wp_enqueue_script()
 	 */
 	function enqueue_admin_scripts() {
-		global $edit_flow;
 		
-		if ( $edit_flow->helpers->is_whitelisted_functional_view() || $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) ) {
+		if ( $this->is_whitelisted_functional_view() || $this->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-listfilterizer' );
 			wp_enqueue_script( 'jquery-quicksearch' );
 			wp_enqueue_script( 'edit-flow-user-groups-js', $this->module->module_url . 'lib/user-groups.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
 		}
 			
-		if ( $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) )	
+		if ( $this->is_whitelisted_settings_view( $this->module->name ) )	
 			wp_enqueue_script( 'edit-flow-user-groups-configure-js', $this->module->module_url . 'lib/user-groups-configure.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 	}
 	
@@ -234,9 +231,9 @@ class EF_User_Groups {
 	 * @uses wp_enqueue_style()	
 	 */
 	function enqueue_admin_styles() {
-		global $edit_flow;
+
 		
-		if ( $edit_flow->helpers->is_whitelisted_functional_view() || $edit_flow->helpers->is_whitelisted_settings_view() ) {
+		if ( $this->is_whitelisted_functional_view() || $this->is_whitelisted_settings_view() ) {
 			wp_enqueue_style( 'jquery-listfilterizer' );
 			wp_enqueue_style( 'edit-flow-user-groups-css', $this->module->module_url . 'lib/user-groups.css', false, EDIT_FLOW_VERSION );
 		}
@@ -508,12 +505,12 @@ class EF_User_Groups {
 	 * @return array $new_options Form values after they've been sanitized
 	 */
 	function settings_validate( $new_options ) {
-		global $edit_flow;
+
 		
 		// Whitelist validation for the post type options
 		if ( !isset( $new_options['post_types'] ) )
 			$new_options['post_types'] = array();
-		$new_options['post_types'] = $edit_flow->helpers->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );		
+		$new_options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );		
 		
 		return $new_options;
 	}	
@@ -546,7 +543,7 @@ class EF_User_Groups {
 					'input_id' => 'usergroup_users'
 				);
 			?>
-			<?php $edit_flow->helpers->users_select_form( $usergroup->user_ids , $select_form_args ); ?>
+			<?php $this->users_select_form( $usergroup->user_ids , $select_form_args ); ?>
 		</div></div></div>
 		<div id="col-left"><div class="col-wrap"><div class="form-wrap">		
 			<input type="hidden" name="form-action" value="edit-usergroup" />
@@ -811,7 +808,6 @@ class EF_User_Groups {
 	 * @return object|array|WP_Error $usergroup Usergroup information as specified by $output
 	 */
 	function get_usergroup_by( $field, $value ) {
-		global $edit_flow;
 		
 		$usergroup = get_term_by( $field, $value, self::taxonomy_key );
 		
@@ -821,7 +817,7 @@ class EF_User_Groups {
 		// We're using an encoded description field to store extra values
 		// Declare $user_ids ahead of time just in case it's empty
 		$usergroup->user_ids = array();
-		$unencoded_description = $edit_flow->helpers->get_unencoded_description( $usergroup->description );
+		$unencoded_description = $this->get_unencoded_description( $usergroup->description );
 		if ( is_array( $unencoded_description ) ) {
 			foreach( $unencoded_description as $key => $value ) {
 				$usergroup->$key = $value;
@@ -844,7 +840,6 @@ class EF_User_Groups {
 	 * @return object|WP_Error $usergroup Object for the new Usergroup on success, WP_Error otherwise
 	 */
 	function add_usergroup( $args = array(), $user_ids = array() ) {
-		global $edit_flow;
 
 		if ( !isset( $args['name'] ) )
 			return new WP_Error( 'invalid', __( 'New user groups must have a name', 'edit-flow' ) );
@@ -862,7 +857,7 @@ class EF_User_Groups {
 			'description' => $args['description'],
 			'user_ids' => array_unique( $user_ids, SORT_NUMERIC ),
 		);
-		$encoded_description = $edit_flow->helpers->get_encoded_description( $args_to_encode );
+		$encoded_description = $this->get_encoded_description( $args_to_encode );
 		$args['description'] = $encoded_description;
 		$usergroup = wp_insert_term( $name, self::taxonomy_key, $args );
 		if ( is_wp_error( $usergroup ) )
@@ -887,7 +882,6 @@ class EF_User_Groups {
 	 * @return object|WP_Error $usergroup Object for the updated Usergroup on success, WP_Error otherwise
 	 */
 	function update_usergroup( $id, $args = array(), $users = null ) {
-		global $edit_flow;
 		
 		$existing_usergroup = $this->get_usergroup_by( 'id', $id );
 		if ( is_wp_error( $existing_usergroup ) )
@@ -898,7 +892,7 @@ class EF_User_Groups {
 		$args_to_encode['description'] = ( isset( $args['description'] ) ) ? $args['description'] : $existing_usergroup->description;
 		$args_to_encode['user_ids'] = ( is_array( $users ) ) ? $users : $existing_usergroup->user_ids;
 		$args_to_encode['user_ids'] = array_unique( $args_to_encode['user_ids'], SORT_NUMERIC );
-		$encoded_description = $edit_flow->helpers->get_encoded_description( $args_to_encode );
+		$encoded_description = $this->get_encoded_description( $args_to_encode );
 		$args['description'] = $encoded_description;
 		
 		$usergroup = wp_update_term( $id, self::taxonomy_key, $args );
@@ -1116,7 +1110,6 @@ class EF_Usergroups_List_Table extends WP_List_Table
 	 * @since 0.7
 	 */
 	function get_columns() {
-		global $edit_flow;
 
 		$columns = array(
 			'name' => __( 'Name', 'edit-flow' ),
@@ -1133,7 +1126,7 @@ class EF_Usergroups_List_Table extends WP_List_Table
 	 * @since 0.7
 	 */
 	function column_default( $usergroup, $column_name ) {
-		global $edit_flow;
+
 		
 	}
 	

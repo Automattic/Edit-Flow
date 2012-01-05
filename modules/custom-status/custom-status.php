@@ -10,7 +10,7 @@
  */
 if ( !class_exists( 'EF_Custom_Status' ) ) {
 
-class EF_Custom_Status {
+class EF_Custom_Status extends EF_Module {
 
 	var $module;
 	
@@ -23,7 +23,7 @@ class EF_Custom_Status {
 	function __construct() {
 		global $edit_flow;
 		
-		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
+		$module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Custom Statuses', 'edit-flow' ),
@@ -289,10 +289,9 @@ class EF_Custom_Status {
 	 * - We have other custom code for Quick Edit and JS niceties
 	 */
 	function action_admin_enqueue_scripts() {
-		global $edit_flow;
 		
 		// Load Javascript we need to use on the configuration views (jQuery Sortable and Quick Edit)
-		if ( $edit_flow->helpers->is_whitelisted_settings_view( $this->module->name ) ) {
+		if ( $this->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-ui-sortable' );			
 			wp_enqueue_script( 'edit-flow-custom-status-configure', EDIT_FLOW_URL . 'modules/custom-status/lib/custom-status-configure.js', array( 'jquery', 'jquery-ui-sortable', 'edit-flow-settings-js' ), EDIT_FLOW_VERSION, true );
 		}
@@ -328,13 +327,13 @@ class EF_Custom_Status {
 	/**
 	 * Check whether custom status stuff should be loaded on this page
 	 *
-	 * @todo migrate this to an Edit Flow helper class method
+	 * @todo migrate this to the base module class
 	 */
 	function is_whitelisted_page() {
-		global $edit_flow, $pagenow;
+		global $pagenow;
 		
-		$post_type = $edit_flow->helpers->get_current_post_type();
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		$post_type = $this->get_current_post_type();
+		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		if ( !in_array( $post_type, $supported_post_types ) )
 			return;
 		
@@ -359,7 +358,7 @@ class EF_Custom_Status {
 		// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
 		if ( !empty( $post ) && $this->is_whitelisted_page() ) {
 			
-			$custom_statuses = $edit_flow->custom_status->get_custom_statuses();
+			$custom_statuses = $this->get_custom_statuses();
 			$custom_statuses = apply_filters( 'ef_custom_status_list', $custom_statuses, $post );			
 	
 			// Get the status of the current post		
@@ -473,7 +472,7 @@ class EF_Custom_Status {
 		$args_to_encode = array();
 		$args_to_encode['description'] = ( isset( $args['description'] ) ) ? $args['description'] : $old_status->description;
 		$args_to_encode['position'] = ( isset( $args['position'] ) ) ? $args['position'] : $old_status->position;
-		$encoded_description = $edit_flow->helpers->get_encoded_description( $args_to_encode );
+		$encoded_description = $this->get_encoded_description( $args_to_encode );
 		$args['description'] = $encoded_description;
 
 		$updated_status_array = wp_update_term( $status_id, self::taxonomy_key, $args );
@@ -527,7 +526,6 @@ class EF_Custom_Status {
 	 * @return object $statuses All of the statuses
 	 */
 	function get_custom_statuses( $args = array() ) {
-		global $edit_flow;
 		
 		$default = array(
 			'hide_empty' => false,
@@ -539,7 +537,7 @@ class EF_Custom_Status {
 		$hold_to_end = array();
 		foreach ( $statuses as $key => $status ) {
 			// Unencode and set all of our psuedo term meta because we need the position if it exists
-			$unencoded_description = $edit_flow->helpers->get_unencoded_description( $status->description );
+			$unencoded_description = $this->get_unencoded_description( $status->description );
 			if ( is_array( $unencoded_description ) ) {
 				foreach( $unencoded_description as $key => $value ) {
 					$status->$key = $value;
@@ -571,14 +569,13 @@ class EF_Custom_Status {
 	 * @return object|WP_Error $status The object for the matching status
 	 */
 	function get_custom_status_by( $field, $value ) {
-		global $edit_flow;
 		
 		$status = get_term_by( $field, $value, self::taxonomy_key );
 		if ( !$status || is_wp_error( $status ) )
 			return $status;
 		// Unencode and set all of our psuedo term meta because we need the position if it exists
 		$status->position = false;
-		$unencoded_description = $edit_flow->helpers->get_unencoded_description( $status->description );
+		$unencoded_description = $this->get_unencoded_description( $status->description );
 		if ( is_array( $unencoded_description ) ) {
 			foreach( $unencoded_description as $key => $value ) {
 				$status->$key = $value;
@@ -594,7 +591,6 @@ class EF_Custom_Status {
 	 * @return object $default_status Default post status object
 	 */
 	function get_default_custom_status() {
-		global $edit_flow;
 		$default_status = $this->get_custom_status_by( 'slug', $this->module->options->default_status );
 		return $default_status;
 		
@@ -647,8 +643,8 @@ class EF_Custom_Status {
 	function _filter_manage_posts_custom_column( $column_name ) {
 		
 		if ( $column_name == 'status' ) {
-			global $post, $edit_flow;
-			echo $edit_flow->helpers->get_post_status_friendly_name( $post->post_status );
+			global $post;
+			echo $this->get_post_status_friendly_name( $post->post_status );
 		}
 		
 	}
@@ -857,7 +853,6 @@ class EF_Custom_Status {
 	 * @since 0.7
 	 */
 	function handle_delete_custom_status() {
-		global $edit_flow;
 		
 		// Check that this GET request is our GET request
 		if ( !isset( $_GET['page'], $_GET['action'], $_GET['term-id'], $_GET['nonce'] )
@@ -923,16 +918,15 @@ class EF_Custom_Status {
 	 * @since 0.7
 	 */
 	function handle_ajax_update_status_positions() {
-		global $edit_flow;
 		
 		if ( !wp_verify_nonce( $_POST['custom_status_sortable_nonce'], 'custom-status-sortable' ) )
-			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
+			$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
 		
 		if ( !current_user_can( 'manage_options') )
-			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
+			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
 		
 		if ( !isset( $_POST['status_positions'] ) || !is_array( $_POST['status_positions'] ) )
-			$edit_flow->helpers->print_ajax_response( 'error', __( 'Terms not set.', 'edit-flow' ) );
+			$this->print_ajax_response( 'error', __( 'Terms not set.', 'edit-flow' ) );
 		
 		// Update each custom status with its new position
 		foreach ( $_POST['status_positions'] as $position => $term_id ) {
@@ -944,7 +938,7 @@ class EF_Custom_Status {
 			$return = $this->update_custom_status( (int)$term_id, $args );
 			// @todo check that this was a valid return
 		}
-		$edit_flow->helpers->print_ajax_response( 'success', $this->module->messages['status-position-updated'] );	
+		$this->print_ajax_response( 'success', $this->module->messages['status-position-updated'] );	
 	}
 	
 	/**
@@ -1072,12 +1066,11 @@ class EF_Custom_Status {
 	 * @since 0.7
 	 */
 	function settings_validate( $new_options ) {
-		global $edit_flow;
 		
 		// Whitelist validation for the post type options
 		if ( !isset( $new_options['post_types'] ) )
 			$new_options['post_types'] = array();
-		$new_options['post_types'] = $edit_flow->helpers->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
+		$new_options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
 		
 		// Whitelist validation for the 'always_show_dropdown' optoins
 		if ( !isset( $new_options['always_show_dropdown'] ) || $new_options['always_show_dropdown'] != 'on' )

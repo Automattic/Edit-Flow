@@ -5,7 +5,7 @@
  *
  * @author sbressler
  */
-class EF_Story_Budget {
+class EF_Story_Budget extends EF_Module {
 	
 	var $taxonomy_used = 'category';
 	
@@ -34,7 +34,7 @@ class EF_Story_Budget {
 	
 		global $edit_flow;
 		
-		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
+		$module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Story Budget', 'edit-flow' ),
@@ -90,7 +90,6 @@ class EF_Story_Budget {
 	 * @since 0.7
 	 */
 	function install() {
-		global $edit_flow;
 
 		$story_budget_roles = array(
 			'administrator' => array( 'ef_view_story_budget' ),
@@ -99,7 +98,7 @@ class EF_Story_Budget {
 			'contributor' =>   array( 'ef_view_story_budget' )
 		);
 		foreach( $story_budget_roles as $role => $caps ) {
-			$edit_flow->helpers->add_caps_to_role( $role, $caps );
+			$this->add_caps_to_role( $role, $caps );
 		}
 	}
 
@@ -133,8 +132,7 @@ class EF_Story_Budget {
 	 * @uses add_submenu_page()
 	 */
 	function action_admin_menu() {
-		global $edit_flow;
-		add_submenu_page( 'index.php', __('Story Budget', 'edit-flow'), __('Story Budget', 'edit-flow'), apply_filters( 'ef_view_story_budget_cap', 'ef_view_story_budget' ), $this->module->slug, array( &$edit_flow->story_budget, 'story_budget') );
+		add_submenu_page( 'index.php', __('Story Budget', 'edit-flow'), __('Story Budget', 'edit-flow'), apply_filters( 'ef_view_story_budget_cap', 'ef_view_story_budget' ), $this->module->slug, array( &$this, 'story_budget') );
 	}
 	
 	/**
@@ -143,7 +141,7 @@ class EF_Story_Budget {
 	 * @uses enqueue_admin_script()
 	 */
 	function enqueue_admin_scripts() {
-		global $current_screen, $edit_flow;
+		global $current_screen;
 		
 		if ( $current_screen->id != self::screen_id )
 			return;
@@ -151,7 +149,7 @@ class EF_Story_Budget {
 		$num_columns = $this->get_num_columns();
 		echo '<script type="text/javascript"> var ef_story_budget_number_of_columns="' . esc_js( $this->num_columns ) . '";</script>';
 		
-		$edit_flow->helpers->enqueue_datepicker_resources();
+		$this->enqueue_datepicker_resources();
 		wp_enqueue_script( 'edit_flow-story_budget', $this->module->module_url . '/lib/story-budget.js', array( 'edit_flow-date_picker' ), EDIT_FLOW_VERSION, true );
 	}
 	
@@ -201,14 +199,12 @@ class EF_Story_Budget {
 		if ( !wp_verify_nonce( $_POST['nonce'], 'change-date' ) )
 			wp_die( $this->module->messages['nonce-failed'] );
 		
-		global $edit_flow;
-		
 		$current_user = wp_get_current_user();
-		$user_filters = $edit_flow->helpers->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
+		$user_filters = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
 		$user_filters['start_date'] = date( 'Y-m-d', strtotime( $_POST['ef-story-budget-start-date'] ) );
 		$user_filters['number_days'] = (int)$_POST['ef-story-budget-number-days'];
 		
-		$edit_flow->helpers->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $user_filters );
+		$this->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $user_filters );
 		wp_redirect( menu_page_url( $this->module->slug, false ) );
 		exit;
 	}
@@ -217,10 +213,10 @@ class EF_Story_Budget {
 	 * Get the number of columns to show on the story budget
 	 */
 	function get_num_columns() {
-		global $edit_flow;
+
 		if ( empty( $this->num_columns ) ) {
 			$current_user = wp_get_current_user();
-			$this->num_columns = $edit_flow->helpers->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'screen_columns', true );
+			$this->num_columns = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'screen_columns', true );
 			// If usermeta didn't have a value already, use a default value and insert into DB
 			if ( empty( $this->num_columns ) ) {
 				$this->num_columns = self::default_num_columns;
@@ -245,12 +241,12 @@ class EF_Story_Budget {
 	 * Save the current user's preference for number of columns.
 	 */
 	function save_column_prefs( $posted_fields ) {
-		global $edit_flow;
+
 		$key = self::usermeta_key_prefix . 'screen_columns';
 		$this->num_columns = (int) $posted_fields[ $key ];
 		
 		$current_user = wp_get_current_user();
-		$edit_flow->helpers->update_user_meta( $current_user->ID, $key, $this->num_columns );
+		$this->update_user_meta( $current_user->ID, $key, $this->num_columns );
 	}
 
 	/**
@@ -350,7 +346,6 @@ class EF_Story_Budget {
 	 * @return array $term_posts An array of post objects for the term
 	 */
 	function get_posts_for_term( $term, $args = null ) {
-		global $edit_flow;
 		
 		$defaults = array(
 			'post_status' => null,
@@ -376,7 +371,7 @@ class EF_Story_Budget {
 		// Unpublished as a status is just an array of everything but 'publish'
 		if ( $args['post_status'] == 'unpublish' ) {
 			$args['post_status'] = '';
-			$post_statuses = $edit_flow->helpers->get_post_statuses();
+			$post_statuses = $this->get_post_statuses();
 			foreach ( $post_statuses as $post_status ) {
 				$args['post_status'] .= $post_status->slug . ', ';
 			}
@@ -410,7 +405,7 @@ class EF_Story_Budget {
 	 * @return string $where Our modified WHERE query string
 	 */
 	function posts_where_range( $where = '' ) {
-		global $edit_flow, $wpdb;
+		global $wpdb;
 	
 		$beginning_date = date( 'Y-m-d', strtotime( $this->user_filters['start_date'] ) );
 		// Adjust the ending date to account for the entire day of the last day
@@ -470,7 +465,6 @@ class EF_Story_Budget {
 	 * @param object $parent_term The top-level term to which this post belongs.
 	 */
 	function print_post( $post, $parent_term ) {
-		global $edit_flow;
 		?>
 		<tr id='post-<?php echo esc_attr( $post->ID ); ?>' class='alternate' valign="top">
 			<?php foreach( (array)$this->term_columns as $key => $name ) {
@@ -499,7 +493,6 @@ class EF_Story_Budget {
 	 * @return string $output Output value for the term column
 	 */
 	function term_column_default( $post, $column_name, $parent_term ) {
-		global $edit_flow;
 		
 		// Hook for other modules to get data into columns
 		$column_value = null;
@@ -509,7 +502,7 @@ class EF_Story_Budget {
 			
 		switch( $column_name ) {
 			case 'status':
-				$status_name = $edit_flow->helpers->get_post_status_friendly_name( $post->post_status );
+				$status_name = $this->get_post_status_friendly_name( $post->post_status );
 				return $status_name;
 				break;
 			case 'author':
@@ -523,7 +516,7 @@ class EF_Story_Budget {
 				break;
 			case 'post_modified':
 				$modified_time_gmt = strtotime( $post->post_modified_gmt );
-				return $edit_flow->helpers->timesince( $modified_time_gmt );
+				return $this->timesince( $modified_time_gmt );
 				break;
 			default:
 				break;
@@ -591,8 +584,8 @@ class EF_Story_Budget {
 	 * Print the table navigation and filter controls, using the current user's filters if any are set.
 	 */
 	function table_navigation() {
-		global $edit_flow;
-		$post_statuses = $edit_flow->helpers->get_post_statuses();
+
+		$post_statuses = $this->get_post_statuses();
 	?>
 	<div class="tablenav" id="ef-story-budget-tablenav">
 		<div class="alignleft actions">
@@ -656,7 +649,7 @@ class EF_Story_Budget {
 	 * in $_GET take precedence over the current users filters if they exist.
 	 */
 	function update_user_filters() {
-		global $edit_flow;
+
 		$current_user = wp_get_current_user();
 		
 		$user_filters = array(
@@ -668,7 +661,7 @@ class EF_Story_Budget {
 		);
 		
 		$current_user_filters = array();
-		$current_user_filters = $edit_flow->helpers->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
+		$current_user_filters = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
 		
 		// If any of the $_GET vars are missing, then use the current user filter
 		foreach ( $user_filters as $key => $value ) {
@@ -683,7 +676,7 @@ class EF_Story_Budget {
 		if ( !$user_filters['number_days'] )
 			$user_filters['number_days'] = 10;
 		
-		$edit_flow->helpers->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $user_filters );
+		$this->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $user_filters );
 		return $user_filters;
 	}
 	
@@ -694,10 +687,10 @@ class EF_Story_Budget {
 	 * @return array The filters for the current user, or the default filters if the current user has none.
 	 */
 	function get_user_filters() {
-		global $edit_flow;
+		
 		$current_user = wp_get_current_user();
 		$user_filters = array();
-		$user_filters = $edit_flow->helpers->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
+		$user_filters = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
 		
 		// If usermeta didn't have filters already, insert defaults into DB
 		if ( empty( $user_filters ) )
