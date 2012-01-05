@@ -90,6 +90,7 @@ class EF_Story_Budget {
 	 * @since 0.7
 	 */
 	function install() {
+		global $edit_flow;
 
 		$story_budget_roles = array(
 			'administrator' => array( 'ef_view_story_budget' ),
@@ -98,7 +99,7 @@ class EF_Story_Budget {
 			'contributor' =>   array( 'ef_view_story_budget' )
 		);
 		foreach( $story_budget_roles as $role => $caps ) {
-			ef_add_caps_to_role( $role, $caps );
+			$edit_flow->helpers->add_caps_to_role( $role, $caps );
 		}
 	}
 

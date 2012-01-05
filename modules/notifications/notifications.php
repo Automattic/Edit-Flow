@@ -86,25 +86,17 @@ class EF_Notifications {
 	 * @since 0.7
 	 */
 	function install() {
-		
-		global $wp_roles, $edit_flow;
+		global $edit_flow;
 
-		if ( ! isset( $wp_roles ) )
-			$wp_roles = new WP_Roles();	
-		
-		if( $wp_roles->is_role('administrator') ) {
-			$admin_role =& get_role('administrator');
-			$admin_role->add_cap('edit_post_subscriptions');
-			$admin_role->add_cap('edit_usergroups');
-		}		
-		if ( $wp_roles->is_role( 'editor' ) ) {	
-			$editor_role =& get_role('editor');
-			$editor_role->add_cap('edit_post_subscriptions');
-		}				
-		
-		if ( $wp_roles->is_role( 'author' ) ) {	
-			$author_role =& get_role('author');
-			$author_role->add_cap('edit_post_subscriptions');
+		// Add necessary capabilities to allow management of notifications
+		$notifications_roles = array(
+			'administrator' => array('edit_post_subscriptions'),
+			'editor' =>        array('edit_post_subscriptions'),
+			'author' =>        array('edit_post_subscriptions'),
+		);
+
+		foreach ( $notifications_roles as $role => $caps ) {
+			$edit_flow->helpers->add_caps_to_role( $role, $caps );
 		}
 		
 	}

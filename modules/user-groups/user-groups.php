@@ -102,15 +102,14 @@ class EF_User_Groups {
 	 * @since 0.7
 	 */
 	function install() {
-		
-		global $wp_roles, $edit_flow;
+		global $edit_flow;
 
-		if ( ! isset( $wp_roles ) )
-			$wp_roles = new WP_Roles();	
-		
-		if( $wp_roles->is_role('administrator') ) {
-			$admin_role =& get_role('administrator');
-			$admin_role->add_cap('edit_usergroups');
+		// Add necessary capabilities to allow management of user groups
+		$usergroup_roles = array(
+			'administrator' => array('edit_usergroups'),
+		);
+		foreach( $usergroup_roles as $role => $caps ) {
+			$edit_flow->helpers->add_caps_to_role( $role, $caps );
 		}
 		
 		// Create our default usergroups

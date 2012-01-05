@@ -84,10 +84,7 @@ class EF_Calendar {
 	 * @since 0.7
 	 */
 	function install() {
-		global $wp_roles, $edit_flow;
-
-		if ( ! isset( $wp_roles ) )
-			$wp_roles = new WP_Roles();
+		global $edit_flow;
 
 		// Add necessary capabilities to allow management of calendar
 		// view_calendar - administrator --> contributor
@@ -98,8 +95,8 @@ class EF_Calendar {
 			'contributor' =>   array('ef_view_calendar')
 		);
 
-		foreach ($calendar_roles as $role => $caps) {
-			ef_add_caps_to_role( $role, $caps );
+		foreach ( $calendar_roles as $role => $caps ) {
+			$edit_flow->helpers->add_caps_to_role( $role, $caps );
 		}
 	}
 
