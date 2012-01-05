@@ -83,13 +83,10 @@ class EF_Custom_Status extends EF_Module {
 		add_action( 'wp_ajax_update_status_positions', array( &$this, 'handle_ajax_update_status_positions' ) );
 		add_action( 'wp_ajax_inline_save_status', array( &$this, 'ajax_inline_save_status' ) );
 		
-		// Hooks to add "status" column to Edit Posts page
+		// Hook to add the status column to Manage Posts
+		
 		add_filter( 'manage_posts_columns', array( &$this, '_filter_manage_posts_columns') );
 		add_action( 'manage_posts_custom_column', array( &$this, '_filter_manage_posts_custom_column') );
-		
-		// Hooks to add "status" column to Edit Pages page, BUT, only add it if not being filtered by post_status
-		add_filter( 'manage_pages_columns', array( &$this, '_filter_manage_posts_columns' ) );
-		add_action( 'manage_pages_custom_column', array( &$this, '_filter_manage_posts_custom_column' ) );
 		
 		// These two methods are hacks for fixing bugs in WordPress core
 		add_action( 'admin_init', array( &$this, 'check_timestamp_on_publish' ) );
@@ -195,7 +192,7 @@ class EF_Custom_Status extends EF_Module {
 							'show_ui' => false
 					);
 			register_taxonomy( self::taxonomy_key, 'post', $args );
-		}		
+		}
 		
 		if ( function_exists( 'register_post_status' ) ) {
 			// Users can delete draft and pending statuses if they want, so let's get rid of them
@@ -205,6 +202,11 @@ class EF_Custom_Status extends EF_Module {
 			
 			$custom_statuses = $this->get_custom_statuses();
 			
+			// Unfortunately, register_post_status() doesn't accept a
+			// post type argument, so we have to register the post
+			// statuses for all post types. This results in
+			// all post statuses for a post type appearing at the top
+			// of manage posts if there is a post with the status
 			foreach ( $custom_statuses as $status ) {
 				register_post_status( $status->slug, array(
 					'label'       => $status->name
@@ -214,72 +216,6 @@ class EF_Custom_Status extends EF_Module {
 				) );
 			}
 		}
-	}
-	
-	/**
-	 * Adds custom stati to the $post_stati array.
-	 * This is used to generate the list of statuses on the Edit/Manage Posts page.
-	 *
-	 * @todo Don't return statuses that are empty (i.e. no posts)
-	 */
-	function enable_custom_status_filters() {
-		// This is the array WP uses to store custom stati (really? stati?)
-		// The status list at the top of the Manage/Edit Posts page is generated using this array
-		global $post_stati;
-
-		if ( is_array( $post_stati ) ) {
-			// Get a list of ALL the custom statuses
-			$custom_statuses = $this->get_custom_statuses();
-			
-			// Alright, now append them to the $post_stati array
-			foreach( $custom_statuses as $status ) {
-				if ( !$this->is_restricted_status( $status->slug ) ) {
-					$slug = $status->slug;
-					$post_stati[$slug] = array(
-						$status->name,
-						$status->description,
-						array(
-							$status->name.' <span class="count">(%s)</span>',
-							$status->name.' <span class="count">(%s)</span>'
-						)
-					);	
-				}
-			}
-		}
-	}
-
-	/**
-	 * Adds custom stati to the $post_stati array for pages
-	 * This is used to generate the list of statuses on the Edit/Manage Pages page.
-	 *
-	 * @todo Don't return statuses that are empty (i.e. no posts)
-	 * 
-	 * @param object $post_stati All of the post statuses
-	 * @return object $post_stati Post statuses with Edit Flow custom statuses
-	 */
-	function enable_custom_status_filters_pages( $post_stati ) {
-		
-		if ( is_array( $post_stati ) ) {
-			
-			// Get a list of ALL the custom statuses
-			$custom_statuses = $this->get_custom_statuses();
-			
-			// Alright, now append them to the $post_stati array
-			foreach( $custom_statuses as $status ) {
-				if( !$this->is_restricted_status( $status->slug ) ) {
-					$slug = $status->slug;
-					$post_stati[$slug] = array(
-						$status->name,
-						$status->description,
-						array(
-							$status->name.' <span class="count">(%s)</span>',
-							$status->name.' <span class="count">(%s)</span>'
-						)
-					);
-				}
-			}
-		}
-		return $post_stati;
 	}
 	
 	/**
@@ -332,13 +268,11 @@ class EF_Custom_Status extends EF_Module {
 	function is_whitelisted_page() {
 		global $pagenow;
 		
-		$post_type = $this->get_current_post_type();
-		$supported_post_types = $this->get_post_types_for_module( $this->module );
-		if ( !in_array( $post_type, $supported_post_types ) )
-			return;
+		if ( !in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $this->module ) ) )
+			return false;
 		
 		if( ! current_user_can('edit_posts') )
-			return;
+			return false;
 		
 		// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
 		return in_array( $pagenow, array( 'post.php', 'edit.php', 'post-new.php', 'page.php', 'edit-pages.php', 'page-new.php' ) );
@@ -622,6 +556,10 @@ class EF_Custom_Status extends EF_Module {
 		// Return immediately if the supplied parameter isn't an array (which shouldn't happen in practice?)
 		// http://wordpress.org/support/topic/plugin-edit-flow-bug-shows-2-drafts-when-there-are-none-leads-to-error-messages
 		if ( !is_array( $posts_columns ) )
+			return $posts_columns;
+		
+		// Only do it for the post types this module is activated for
+		if ( !in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $this->module ) ) )
 			return $posts_columns;
 
 		$result = array();
