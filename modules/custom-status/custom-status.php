@@ -1119,9 +1119,9 @@ class EF_Custom_Status {
 		?>
 		<table class="form-table">
 			<tr class="form-field form-required">
-				<th scope="row" valign="top"><label for="name"><?php _e( 'Editorial Metadata', 'edit-flow' ); ?></label></th>
+				<th scope="row" valign="top"><label for="name"><?php _e( 'Custom Status', 'edit-flow' ); ?></label></th>
 				<td><input name="name" id="name" type="text" value="<?php echo esc_attr( $name ); ?>" size="40" aria-required="true" />
-				<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is for labeling the metadata field.', 'edit-flow' ) ); ?>
+				<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the status. (Max: 20 characters)', 'edit-flow' ) ); ?>
 				</td>
 			</tr>
 			<tr class="form-field">
@@ -1179,7 +1179,7 @@ class EF_Custom_Status {
 					<form class="add:the-list:" action="<?php echo esc_url( $this->get_link() ); ?>" method="post" id="addstatus" name="addstatus">
 					<div class="form-field form-required">
 						<label for="status_name"><?php _e( 'Name', 'edit-flow' ); ?></label>
-						<input type="text" aria-required="true" size="20" maxlength="20" id="status_name" name="status_name" value="<?php if ( !empty( $_POST['status_name'] ) ) esc_attr( $_POST['status_name'] ) ?>" />
+						<input type="text" aria-required="true" size="20" maxlength="20" id="status_name" name="status_name" value="<?php if ( !empty( $_POST['status_name'] ) ) echo esc_attr( $_POST['status_name'] ) ?>" />
 						<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the status. (Max: 20 characters)', 'edit-flow' ) ); ?>
 					</div>
 					<div class="form-field">
