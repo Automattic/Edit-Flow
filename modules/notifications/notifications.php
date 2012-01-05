@@ -62,6 +62,9 @@ class EF_Notifications {
 		
 		// Set up metabox and related actions
 		add_action( 'admin_init', array( &$this, 'add_post_meta_box' ) );
+
+		// Load the contextual help menu
+		add_action( 'load-edit-flow_page_' . $this->module->settings_slug, array( &$this, 'action_help_menu' ) );
 	
 		// Saving post actions
 		// self::save_post_subscriptions() is hooked into transition_post_status so we can ensure usergroup data
@@ -78,6 +81,31 @@ class EF_Notifications {
 		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_styles' ) );	
 		
+	}
+
+	/**
+	 * Add contextual help menu
+	 */
+	function action_help_menu() {
+		if (!class_exists('WP_Screen')) return;
+		
+		$screen = get_current_screen();
+	
+		if ($screen->id != 'edit-flow_page_' . $this->module->settings_slug) 
+			return;
+
+		$screen->add_help_tab( array(
+			'id'      => 'ef-notifications-overview',
+			'title'   => __('Overview', 'edit-flow'),
+			'content' => __('<p>Notifications ensure you keep up to date with progress your most important content. Users can be subscribed to notifications on a post one by one or by selecting user groups.</p><p>When enabled, email notifications can be sent when a post changes status or an editorial comment is left by a writer or an editor.</p>', 'edit-flow'),
+		));
+		$screen->add_help_tab( array(
+			'id'      => 'ef-notifications-extend',
+			'title'   => __('Extend', 'edit-flow'),
+			'content' => __('<p>Using WordPress’ hooks and filters, you can extend notifications in the following ways:</p><ul><li>ef_edit_post_subscriptions_cap (filter) – Change the capability required to modify who’s subscribed to a post.</li><li>ef_notification_auto_subscribe_current_user (filter) – Whether or not to auto-subscribe a user editing the post or leaving an editorial comment. The former passes ‘subscription_action’ and the latter ‘comment’.</li><li>ef_notification_status_change (filter) – Kill notifications for specific post status changes (or all).</li><li>ef_notification_ignored_statuses (filter) – Another way to kill notifications for specific post status changes.</li><li>ef_notification_editorial_comment (filter) – Kill notifications for editorial comments.</li><li>ef_notification_recipients (filter) – Modify who receives a notification.</li><ul><p>Leveraging these hooks and filters, we’ve also prepared the following code snippets:</p><ul><li><a href="http://editflow.org/extend/auto-subscribe-user-groups-for-notifications/">Auto-subscribe user groups based on post status changes</a></li></ul>', 'edit-flow'),
+		));
+		$screen->set_help_sidebar(__('<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/notifications/">Notifications Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow')
+		);
 	}
 	
 	/**
