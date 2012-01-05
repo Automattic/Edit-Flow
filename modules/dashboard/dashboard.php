@@ -102,7 +102,7 @@ class EF_Dashboard {
 		global $edit_flow, $current_user;
 		
 		// Only show dashboard widgets for Contributor or higher
-		if ( !$current_user->has_cap('edit_posts') ) 
+		if ( !current_user_can('edit_posts') ) 
 			return;
 		
 		wp_enqueue_style( 'edit-flow-dashboard-css', EDIT_FLOW_URL . 'modules/dashboard/lib/dashboard.css', false, EDIT_FLOW_VERSION, 'all' );			
