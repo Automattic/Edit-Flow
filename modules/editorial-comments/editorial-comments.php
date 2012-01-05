@@ -94,19 +94,6 @@ class EF_Editorial_Comments
 		<?php
 		
 	}
-		
-	/**
-	 * Wrapper for getting post meta
-	 */
-	function get_post_meta( $post_id, $name, $single = true ) {
-	
-		$meta = get_post_meta( $post_id, '_ef_' . $name );
-		
-		if ($single)
-			return $meta[0];
-		else
-			return $meta;
-	}
 	
 	/**
 	 * Add the editorial comments metabox to enabled post types
