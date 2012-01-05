@@ -68,7 +68,6 @@ class EF_Settings {
 	/**
 	 * Add contextual help menu
 	 */
-
 	function action_help_menu() {
 		if (!class_exists('WP_Screen')) return;
 		
