@@ -231,7 +231,7 @@ class EF_Notifications extends EF_Module {
 				$this->users_select_form( $followers ); ?>
 			</div>
 			
-			<?php if ( $this->module_enabled( 'user_groups' ) ): ?>
+			<?php if ( $this->module_enabled( 'user_groups' ) && in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $edit_flow->user_groups->module ) ) ): ?>
 			<div id="ef-post_following_usergroups_box">
 				<h4><?php _e('User Groups', 'edit-flow') ?></h4>
 				<?php
@@ -252,13 +252,14 @@ class EF_Notifications extends EF_Module {
 	 * @param int $post ID of the post
 	 */
 	function save_post_subscriptions( $new_status, $old_status, $post ) {
-				
+		global $edit_flow;
 		// only if has edit_post_subscriptions cap
 		if( ( !wp_is_post_revision($post) && !wp_is_post_autosave($post) ) && isset($_POST['ef-save_followers']) && current_user_can('edit_post_subscriptions') ) {
 			$users = isset( $_POST['ef-selected-users'] ) ? $_POST['ef-selected-users'] : array();
 			$usergroups = isset( $_POST['following_usergroups'] ) ? $_POST['following_usergroups'] : array();
 			$this->save_post_following_users( $post, $users );
-			$this->save_post_following_usergroups( $post, $usergroups );
+			if ( $this->module_enabled( 'user_groups' ) && in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $edit_flow->user_groups->module ) ) )
+				$this->save_post_following_usergroups( $post, $usergroups );
 		}
 		
 	}
