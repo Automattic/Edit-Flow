@@ -510,6 +510,24 @@ class EF_Helpers {
 		<?php endif; ?>
 		<?php
 	}
+
+	/**
+	 * Adds an array of capabilities to a role.
+	 */
+	function add_caps_to_role( $role, $caps ) {
+
+		$kill_switch = false;
+		if ( apply_filters( 'ef_add_caps_to_role', $kill_switch, $role, $caps ) )
+			return;
+
+		global $wp_roles;
+		
+		if ( $wp_roles->is_role( $role ) ) {
+			$role =& get_role( $role );
+			foreach ( $caps as $cap )
+				$role->add_cap( $cap );
+		}
+	}
 	
 }
 }

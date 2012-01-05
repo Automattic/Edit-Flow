@@ -1,18 +1,5 @@
 <?php
 
-/**
- * Adds an array of capabilities to a role.
- */
-function ef_add_caps_to_role( $role, $caps ) {
-	global $wp_roles;
-	
-	if ( $wp_roles->is_role( $role ) ) {
-		$role =& get_role( $role );
-		foreach ( $caps as $cap )
-			$role->add_cap( $cap );
-	}
-}
-
 if( ! function_exists( 'ef_draft_or_post_title' ) ) :
 	/**
 	 * Copy of core's _draft_or_post_title without the filters
