@@ -134,7 +134,7 @@ class EF_Editorial_Metadata {
 		));
 		$screen->add_help_tab( array(
 			'id'      => 'ef-metadata-add',
-			'title'   => __('Adding New', 'edit-flow'),
+			'title'   => __('Adding Editorial Metadata', 'edit-flow'),
 			'content' => __('<p>When adding new editorial metadata on this screen, you’ll fill in the following fields:</p><ul><li>Name - The name is for labeling the metadata field.</li><li>Slug - The "slug" is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.</li><li>Description - The description is primarily for administrative use, to give you some context on what the user group is to be used for.</li><li>Type - Indicate the type of editorial metadata. You can choose from checkbox, date, location, number, paragraph, text, or user.</li><li>Viewable - When viewable, metadata can be seen on views other than the edit post view (e.g. calendar, manage posts, story budget, etc.).</li>', 'edit-flow'),
 		));
 		$screen->set_help_sidebar(__('<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/editorial-metadata/">Editorial Metadata Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow')
