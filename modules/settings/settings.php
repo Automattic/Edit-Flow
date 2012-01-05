@@ -217,7 +217,7 @@ class EF_Settings {
 		?>
 		<?php if ( $current_module->slug == 'settings' ): ?>
 		<div class="credits">
-		<p><a href="http://editflow.org/">Edit Flow</a> is produced by <a href="http://danielbachhuber.com/">Daniel Bachhuber</a>, <a href="http://digitalize.ca/">Mo Jangda</a>, and <a href="http://scottbressler.com/">Scott Bressler</a>, with special help from <a href="http://andrewspittle.net">Andrew Spittle</a> and <a href="http://andrewwitherspoon.com/">Andrew Witherspoon</a>.
+		<p><a href="http://editflow.org/">Edit Flow</a> is produced by <a href="http://danielbachhuber.com/">Daniel Bachhuber</a>, <a href="http://digitalize.ca/">Mo Jangda</a>, and <a href="http://www.scottbressler.com/blog/">Scott Bressler</a>, with special help from <a href="http://andrewspittle.net">Andrew Spittle</a> and <a href="http://andrewwitherspoon.com/">Andrew Witherspoon</a>.
 		<br />You're using Edit Flow v<?php echo EDIT_FLOW_VERSION; ?>.
 		<br />Icons courtesy of the <a href="http://thenounproject.com/">Noun Project</a>.
 		<br /><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Please give us your feedback, ideas, bug reports and comments</a> in the WordPress.org forums.
