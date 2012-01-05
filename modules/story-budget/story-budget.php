@@ -100,7 +100,7 @@ class EF_Story_Budget {
 			return;
 
 		$screen->add_help_tab( array(
-			'id'      => 'ef-calendar-overview',
+			'id'      => 'ef-story-budget-overview',
 			'title'   => __('Overview', 'edit-flow'),
 			'content' => __('<p>View all of your upcoming content in a more traditional story budget view, and print it out to take a copy to your planning meeting. Posts are grouped by category, and view can be filtered by post status, category, or user. Specify a date range to only show the content in your next publishing cycle.<p><p>If you’re actively using editorial metadata, you can make some terms visible to have them appear on your story budget.</p>', 'edit-flow'),
 		));
