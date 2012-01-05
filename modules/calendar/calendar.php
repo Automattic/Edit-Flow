@@ -903,7 +903,7 @@ class EF_Calendar {
 		$ending_date = $this->get_ending_of_week( $this->start_date, 'Y-m-d', $this->current_week );
 		// Adjust the ending date to account for the entire day of the last day of the week
 		$ending_date = date( "Y-m-d", strtotime( "+1 day", strtotime( $ending_date ) ) );
-		$where = $where . $wpdb->prepare( " AND ($wpdb->posts.post_date >= '%s' AND $wpdb->posts.post_date < '%s')", $beginning_date, $ending_date );
+		$where = $where . $wpdb->prepare( " AND ($wpdb->posts.post_date >= %s AND $wpdb->posts.post_date < %s)", $beginning_date, $ending_date );
 	
 		return $where;
 	} 
