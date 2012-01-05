@@ -513,11 +513,16 @@ class EF_Helpers {
 
 	/**
 	 * Adds an array of capabilities to a role.
+	 *
+	 * @since 0.7
+	 *
+	 * @param string $role A standard WP user role like 'administrator' or 'author'
+	 * @param array $caps One or more user caps to add
 	 */
 	function add_caps_to_role( $role, $caps ) {
 
-		$kill_switch = false;
-		if ( apply_filters( 'ef_add_caps_to_role', $kill_switch, $role, $caps ) )
+		// In some contexts, we don't want to add caps to roles
+		if ( apply_filters( 'ef_kill_add_caps_to_role', false, $role, $caps ) )
 			return;
 
 		global $wp_roles;
