@@ -89,6 +89,9 @@ class EF_Editorial_Metadata {
 		
 		add_action( 'add_meta_boxes', array( &$this, 'handle_post_metaboxes' ) );
 		add_action( 'save_post', array( &$this, 'save_meta_box' ), 10, 2 );
+
+		// Load the contextual help menu
+		add_action( 'load-edit-flow_page_' . $this->module->settings_slug, array( &$this, 'action_help_menu' ) );
 		
 		// Add Editorial Metadata columns to the Manage Posts view
 		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
@@ -111,6 +114,31 @@ class EF_Editorial_Metadata {
 		// Load necessary scripts and stylesheets
 		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );	
 		
+	}
+
+	/**
+	 * Add contextual help menu
+	 */
+	function action_help_menu() {
+		if (!class_exists('WP_Screen')) return;
+		
+		$screen = get_current_screen();
+	
+		if ($screen->id != 'edit-flow_page_' . $this->module->settings_slug) 
+			return;
+
+		$screen->add_help_tab( array(
+			'id'      => 'ef-metadata-overview',
+			'title'   => __('Overview', 'edit-flow'),
+			'content' => __('<p>Keep track of important details about your content with editorial metadata. This feature allows you to create as many date, text, number, etc. fields as you like, and then use them to store information like contact details, required word count, or the location of an interview.</p><p>Once you’ve set your fields up, editorial metadata integrates with both the calendar and the story budget. Make an editorial metadata item visible to have it appear to the rest of your team. Keep it hidden to restrict the information between the writer and their editor.</p>', 'edit-flow'),
+		));
+		$screen->add_help_tab( array(
+			'id'      => 'ef-metadata-add',
+			'title'   => __('Adding New', 'edit-flow'),
+			'content' => __('<p>When adding new editorial metadata on this screen, you’ll fill in the following fields:</p><ul><li>Name - The name is for labeling the metadata field.</li><li>Slug - The "slug" is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.</li><li>Description - The description is primarily for administrative use, to give you some context on what the user group is to be used for.</li><li>Type - Indicate the type of editorial metadata. You can choose from checkbox, date, location, number, paragraph, text, or user.</li><li>Viewable - When viewable, metadata can be seen on views other than the edit post view (e.g. calendar, manage posts, story budget, etc.).</li>', 'edit-flow'),
+		));
+		$screen->set_help_sidebar(__('<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/editorial-metadata/">Editorial Metadata Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow')
+		);
 	}
 	
 	/**
