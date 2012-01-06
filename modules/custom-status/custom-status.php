@@ -89,8 +89,8 @@ class EF_Custom_Status extends EF_Module {
 		add_action( 'manage_posts_custom_column', array( &$this, '_filter_manage_posts_custom_column') );
 		
 		// We need these for pages (http://core.trac.wordpress.org/browser/tags/3.3.1/wp-admin/includes/class-wp-posts-list-table.php#L283)
-		add_filter( 'manage_pages_columns', array( &$this, '_filter_manage_posts_columns' ) );	  	
-    	add_action( 'manage_pages_custom_column', array( &$this, '_filter_manage_posts_custom_column' ) );	
+		add_filter( 'manage_pages_columns', array( &$this, '_filter_manage_posts_columns' ) );
+		add_action( 'manage_pages_custom_column', array( &$this, '_filter_manage_posts_custom_column' ) );	
 		
 		// These two methods are hacks for fixing bugs in WordPress core
 		add_action( 'admin_init', array( &$this, 'check_timestamp_on_publish' ) );
