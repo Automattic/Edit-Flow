@@ -9,7 +9,7 @@ if( ! defined( 'EF_NOTIFICATION_USE_CRON' ) )
 
 if ( !class_exists('EF_Notifications') ) {
 
-class EF_Notifications {
+class EF_Notifications extends EF_Module {
 	
 	// Taxonomy name used to store users following posts
 	var $following_users_taxonomy = 'following_users';
@@ -27,7 +27,7 @@ class EF_Notifications {
 		global $edit_flow;
 		
 		// Register the module with Edit Flow
-		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
+		$module_url = $this->get_module_url( __FILE__ );
 		$args = array(
 			'title' => __( 'Notifications', 'edit-flow' ),
 			'short_description' => __( 'Update your team of important changes to your content.', 'edit-flow' ),
@@ -41,7 +41,7 @@ class EF_Notifications {
 					'post' => 'on',
 					'page' => 'on',
 				),
-				'always_notify_admin' => 'on',
+				'always_notify_admin' => 'off',
 			),
 			'configure_page_cb' => 'print_configure_view',
 			'post_type_support' => 'ef_notification',
@@ -55,7 +55,6 @@ class EF_Notifications {
 	 * Initialize the notifications class if the plugin is enabled
 	 */
 	function init() {
-		global $edit_flow;
 
 		// Register our taxonomies for managing relationships
 		$this->register_taxonomies();
@@ -86,7 +85,6 @@ class EF_Notifications {
 	 * @since 0.7
 	 */
 	function install() {
-		global $edit_flow;
 
 		// Add necessary capabilities to allow management of notifications
 		$notifications_roles = array(
@@ -96,7 +94,7 @@ class EF_Notifications {
 		);
 
 		foreach ( $notifications_roles as $role => $caps ) {
-			$edit_flow->helpers->add_caps_to_role( $role, $caps );
+			$this->add_caps_to_role( $role, $caps );
 		}
 		
 	}
@@ -140,10 +138,9 @@ class EF_Notifications {
 	 * @uses register_taxonomy()
 	 */
 	function register_taxonomies() {
-		global $edit_flow;
 		
 		// Load the currently supported post types so we only register against those
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		
 		$args = array(
 			'hierarchical' => false,
@@ -167,9 +164,8 @@ class EF_Notifications {
 	 * @uses wp_enqueue_script()
 	 */
 	function enqueue_admin_scripts() {
-		global $edit_flow;
 		
-		if ( $edit_flow->helpers->is_whitelisted_functional_view() ) {
+		if ( $this->is_whitelisted_functional_view() ) {
 			wp_enqueue_script( 'jquery-listfilterizer' );
 			wp_enqueue_script( 'jquery-quicksearch' );
 			wp_enqueue_script( 'edit-flow-notifications-js', $this->module->module_url . 'lib/notifications.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
@@ -184,9 +180,8 @@ class EF_Notifications {
 	 * @uses wp_enqueue_style()	
 	 */
 	function enqueue_admin_styles() {
-		global $edit_flow;
 		
-		if ( $edit_flow->helpers->is_whitelisted_functional_view() || $edit_flow->helpers->is_whitelisted_settings_view() ) {
+		if ( $this->is_whitelisted_functional_view() || $this->is_whitelisted_settings_view() ) {
 			wp_enqueue_style( 'jquery-listfilterizer' );
 			wp_enqueue_style( 'edit-flow-notifications-css', $this->module->module_url . 'lib/notifications.css', false, EDIT_FLOW_VERSION );
 		}
@@ -196,13 +191,12 @@ class EF_Notifications {
 	 * Add the subscriptions meta box to relevant post types
 	 */
 	function add_post_meta_box() {
-		global $edit_flow;
 		
 		$post_subscriptions_cap = apply_filters( 'ef_edit_post_subscriptions_cap', 'edit_post_subscriptions' );
 		if ( !current_user_can( $post_subscriptions_cap ) ) 
 			return;		
 		
-		$usergroup_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		$usergroup_post_types = $this->get_post_types_for_module( $this->module );
 		foreach ( $usergroup_post_types as $post_type ) {
 			add_meta_box( 'edit-flow-notifications', __( 'Notifications', 'edit-flow'), array( &$this, 'notifications_meta_box'), $post_type, 'advanced', 'high');
 		}
@@ -234,10 +228,10 @@ class EF_Notifications {
 				<h4><?php _e( 'Users', 'edit-flow' ); ?></h4>
 				<?php
 				$followers = $this->get_following_users( $post->ID, 'id' );
-				$edit_flow->helpers->users_select_form( $followers ); ?>
+				$this->users_select_form( $followers ); ?>
 			</div>
 			
-			<?php if ( $edit_flow->helpers->module_enabled( 'user_groups' ) ): ?>
+			<?php if ( $this->module_enabled( 'user_groups' ) && in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $edit_flow->user_groups->module ) ) ): ?>
 			<div id="ef-post_following_usergroups_box">
 				<h4><?php _e('User Groups', 'edit-flow') ?></h4>
 				<?php
@@ -258,13 +252,14 @@ class EF_Notifications {
 	 * @param int $post ID of the post
 	 */
 	function save_post_subscriptions( $new_status, $old_status, $post ) {
-				
+		global $edit_flow;
 		// only if has edit_post_subscriptions cap
 		if( ( !wp_is_post_revision($post) && !wp_is_post_autosave($post) ) && isset($_POST['ef-save_followers']) && current_user_can('edit_post_subscriptions') ) {
 			$users = isset( $_POST['ef-selected-users'] ) ? $_POST['ef-selected-users'] : array();
 			$usergroups = isset( $_POST['following_usergroups'] ) ? $_POST['following_usergroups'] : array();
 			$this->save_post_following_users( $post, $users );
-			$this->save_post_following_usergroups( $post, $usergroups );
+			if ( $this->module_enabled( 'user_groups' ) && in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $edit_flow->user_groups->module ) ) )
+				$this->save_post_following_usergroups( $post, $usergroups );
 		}
 		
 	}
@@ -313,7 +308,7 @@ class EF_Notifications {
 		if ( ! apply_filters( 'ef_notification_status_change', $new_status, $old_status, $post ) || ! apply_filters( "ef_notification_{$post->post_type}_status_change", $new_status, $old_status, $post ) )
 			return false;
 		
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		if ( !in_array( $post->post_type, $supported_post_types ) )
 			return;
 		
@@ -386,8 +381,8 @@ class EF_Notifications {
 			/* translators: 1: date, 2: time, 3: timezone */
 			$body .= sprintf( __( 'This action was taken on %1$s at %2$s %3$s', 'edit-flow' ), date_i18n( get_option( 'date_format' ) ), date_i18n( get_option( 'time_format' ) ), get_option( 'timezone_string' ) ) . "\r\n";
 			
-			$old_status_friendly_name = $edit_flow->helpers->get_post_status_friendly_name( $old_status );
-			$new_status_friendly_name = $edit_flow->helpers->get_post_status_friendly_name( $new_status );
+			$old_status_friendly_name = $this->get_post_status_friendly_name( $old_status );
+			$new_status_friendly_name = $this->get_post_status_friendly_name( $new_status );
 			
 			// Email body
 			$body .= "\r\n";
@@ -426,11 +421,10 @@ class EF_Notifications {
 	 * Set up and set editorial comment notification email
 	 */
 	function notification_comment( $comment ) {
-		global $edit_flow;
 		
 		$post = get_post($comment->comment_post_ID);
 		
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		if ( !in_array( $post->post_type, $supported_post_types ) )
 			return;		
 		
@@ -577,7 +571,7 @@ class EF_Notifications {
 			$admins[] = get_option('admin_email');
 		
 		$usergroup_users = array();
-		if ( $edit_flow->helpers->module_enabled( 'user_groups' ) ) {
+		if ( $this->module_enabled( 'user_groups' ) ) {
 			// Get following users and usergroups
 			$usergroups = $this->get_following_usergroups( $post_id, 'ids' );
 			foreach( (array)$usergroups as $usergroup_id ) {
@@ -709,7 +703,7 @@ class EF_Notifications {
 	function follow_post_usergroups( $post, $usergroups = 0, $append = true ) {
 		global $edit_flow;
 		
-		if ( !$edit_flow->helpers->module_enabled( 'user_groups' ) )
+		if ( !$this->module_enabled( 'user_groups' ) )
 			return;
 
 		$post_id = ( is_int($post) ) ? $post : $post->ID;
@@ -770,7 +764,6 @@ class EF_Notifications {
 	 * @return array $users Users following the specified posts
 	 */
 	function get_following_users( $post_id, $return = 'user_login' ) {
-		global $edit_flow;
 
 		// Get following_users terms for the post
 		$users = wp_get_object_terms( $post_id, $this->following_users_taxonomy, array('fields' => 'names') );
@@ -851,7 +844,6 @@ class EF_Notifications {
 	 * @return array $posts Posts a user is following
 	 */
 	function get_user_following_posts( $user = 0, $args = null ) {
-		global $edit_flow;
 		if ( !$user )
 			$user = (int) wp_get_current_user()->ID;
 
@@ -917,12 +909,11 @@ class EF_Notifications {
 	 * @since 0.7
 	 */
 	function settings_validate( $new_options ) {
-		global $edit_flow;
 		
 		// Whitelist validation for the post type options
 		if ( !isset( $new_options['post_types'] ) )
 			$new_options['post_types'] = array();
-		$new_options['post_types'] = $edit_flow->helpers->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
+		$new_options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
 
 		// Whitelist validation for the 'always_notify_admin' options
 		if ( !isset( $new_options['always_notify_admin'] ) || $new_options['always_notify_admin'] != 'on' )
@@ -938,9 +929,7 @@ class EF_Notifications {
 	 * @since 0.7	
 	 */
 	function print_configure_view() {
-		global $edit_flow;
 		?>
-
 		<form class="basic-settings" action="<?php echo esc_url( menu_page_url( $this->module->settings_slug, false ) ); ?>" method="post">
 			<?php settings_fields( $this->module->options_group_name ); ?>
 			<?php do_settings_sections( $this->module->options_group_name ); ?>
@@ -948,7 +937,6 @@ class EF_Notifications {
 				echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';				
 			?>
 			<p class="submit"><?php submit_button( null, 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow' ); ?></a></p>
-
 		</form>
 		<?php
 	}	

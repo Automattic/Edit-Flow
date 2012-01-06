@@ -7,7 +7,7 @@
  */
 if ( !class_exists('EF_Calendar') ) {
 
-class EF_Calendar {
+class EF_Calendar extends EF_Module {
 	
 	const usermeta_key_prefix = 'ef_calendar_';
 	const screen_id = 'dashboard_page_calendar';
@@ -24,7 +24,7 @@ class EF_Calendar {
 	function __construct() {
 		global $edit_flow;
 	
-		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
+		$module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow	
 		$args = array(
 			'title' => __( 'Calendar', 'edit-flow' ),
@@ -85,7 +85,6 @@ class EF_Calendar {
 	 * @since 0.7
 	 */
 	function install() {
-		global $edit_flow;
 
 		// Add necessary capabilities to allow management of calendar
 		// view_calendar - administrator --> contributor
@@ -97,7 +96,7 @@ class EF_Calendar {
 		);
 
 		foreach ( $calendar_roles as $role => $caps ) {
-			$edit_flow->helpers->add_caps_to_role( $role, $caps );
+			$this->add_caps_to_role( $role, $caps );
 		}
 	}
 
@@ -153,9 +152,8 @@ class EF_Calendar {
 	 * @uses wp_enqueue_script()
 	 */
 	function enqueue_admin_scripts() {
-		global $edit_flow;
 		
-		if ( $edit_flow->helpers->is_whitelisted_functional_view() ) {
+		if ( $this->is_whitelisted_functional_view() ) {
 			$js_libraries = array(
 				'jquery',
 				'jquery-ui-core',
@@ -199,7 +197,6 @@ class EF_Calendar {
 	 * @since 0.7
 	 */
 	function handle_save_screen_options() {
-		global $edit_flow;
 		
 		// Only handle screen options submissions from the current screen
 		if ( !isset( $_POST['screen-options-apply'], $_POST['ef_calendar_num_weeks'] ) )
@@ -217,7 +214,7 @@ class EF_Calendar {
 		
 		// Save the screen options
 		$current_user = wp_get_current_user();
-		$edit_flow->helpers->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'screen_options', $screen_options );
+		$this->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'screen_options', $screen_options );
 		
 		// Redirect after we're complete
 		$redirect_to = menu_page_url( $this->module->slug, false );
@@ -236,21 +233,21 @@ class EF_Calendar {
 	 * @since 0.7
 	 */
 	function handle_ajax_drag_and_drop() {
-		global $edit_flow, $wpdb;
+		global $wpdb;
 		
 		// Nonce check!
 		if ( !wp_verify_nonce( $_POST['nonce'], 'ef-calendar-modify' ) )
-			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
+			$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
 		
 		// Check that we got a proper post
 		$post_id = (int)$_POST['post_id'];
 		$post = get_post( $post_id );
 		if ( !$post )
-			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['missing-post'] );
+			$this->print_ajax_response( 'error', $this->module->messages['missing-post'] );
 			
 		// Check that the user can modify the post
 		if ( !$this->current_user_can_modify_post( $post ) )
-			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
+			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
 			
 		// Check that it's not yet published
 		$published_statuses = array(
@@ -259,12 +256,12 @@ class EF_Calendar {
 			'private',
 		);
 		if ( in_array( $post->post_status, $published_statuses ) )
-			$edit_flow->helpers->print_ajax_response( 'error', sprintf( $this->module->messages['published-post-ajax'], $post_id ) );
+			$this->print_ajax_response( 'error', sprintf( $this->module->messages['published-post-ajax'], $post_id ) );
 		
 		// Check that the new date passed is a valid one
 		$next_date_full = strtotime( $_POST['next_date'] );
 		if ( !$next_date_full )
-			$edit_flow->helpers->print_ajax_response( 'error', __( 'Something is wrong with the format for the new date.', 'edit-flow' ) );
+			$this->print_ajax_response( 'error', __( 'Something is wrong with the format for the new date.', 'edit-flow' ) );
 		
 		// Persist the old hourstamp because we can't manipulate the exact time on the calendar
 		// Bump the last modified timestamps too
@@ -287,9 +284,9 @@ class EF_Calendar {
 		// See http://core.trac.wordpress.org/ticket/18362
 		$response = $wpdb->update( $wpdb->posts, $new_values, array( 'ID' => $post->ID ) );
 		if ( !$response )
-			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['update-error'] );
+			$this->print_ajax_response( 'error', $this->module->messages['update-error'] );
 		
-		$edit_flow->helpers->print_ajax_response( 'success', $this->module->messages['post-date-updated'] );
+		$this->print_ajax_response( 'success', $this->module->messages['post-date-updated'] );
 		exit;
 	}
 	
@@ -302,13 +299,12 @@ class EF_Calendar {
 	 * @return array $screen_options The screen options values
 	 */
 	function get_screen_options() {
-		global $edit_flow;
 		
 		$defaults = array(
 			'num_weeks' => (int)$this->total_weeks,
 		);
 		$current_user = wp_get_current_user();
-		$screen_options = $edit_flow->helpers->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'screen_options', true );
+		$screen_options = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'screen_options', true );
 		$screen_options = array_merge( (array)$defaults, (array)$screen_options );
 		
 		return $screen_options;
@@ -321,13 +317,12 @@ class EF_Calendar {
 	 * @return array $filters All of the set or saved calendar filters
 	 */
 	function get_filters() {
-		global $edit_flow;
 		
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		
 		$current_user = wp_get_current_user();
 		$filters = array();
-		$old_filters = $edit_flow->helpers->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
+		$old_filters = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
 	
 		// Set the proper keys to empty so we don't thr
 		if ( empty( $old_filters ) ) {
@@ -347,7 +342,7 @@ class EF_Calendar {
 				'unpublish',
 				'publish'
 			);
-			foreach ( $edit_flow->helpers->get_post_statuses() as $post_status ) {
+			foreach ( $this->get_post_statuses() as $post_status ) {
 				$all_valid_statuses[] = $post_status->slug;
 			}
 			if ( !in_array( $filters['post_status'], $all_valid_statuses ) ) {
@@ -375,7 +370,7 @@ class EF_Calendar {
 		// Set the start date as the beginning of the week, according to blog settings
 		$filters['start_date'] = $this->get_beginning_of_week( $filters['start_date'] );
 		
-		$edit_flow->helpers->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $filters );
+		$this->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $filters );
 		
 		return $filters;
 	}
@@ -384,9 +379,8 @@ class EF_Calendar {
 	 * Build all of the HTML for the calendar view
 	 */
 	function view_calendar() {
-		global $edit_flow;
 		
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		
 		// Get the user's screen options for displaying the data
 		$screen_options = $this->get_screen_options();
@@ -423,7 +417,7 @@ class EF_Calendar {
 		}
 		
 		// we sort by post statuses....... eventually
-		$post_statuses = $edit_flow->helpers->get_post_statuses();
+		$post_statuses = $this->get_post_statuses();
 		?>
 		<div class="wrap">
 			<div id="ef-calendar-title"><!-- Calendar Title -->
@@ -571,7 +565,7 @@ class EF_Calendar {
 						?>
 						<li class="<?php echo esc_attr( implode( ' ', $post_classes ) ); ?>" id="post-<?php echo esc_attr( $post->ID ); ?>">
 							<div class="item-default-visible">
-							<div class="item-status"><span class="status-text"><?php echo esc_html( $edit_flow->helpers->get_post_status_friendly_name( get_post_status( $post_id ) ) ); ?></span></div>
+							<div class="item-status"><span class="status-text"><?php echo esc_html( $this->get_post_status_friendly_name( get_post_status( $post_id ) ) ); ?></span></div>
 							<div class="inner">
 								<span class="item-headline post-title"><strong><?php echo esc_html( $post->post_title ); ?></strong></span>
 							</div>
@@ -584,7 +578,7 @@ class EF_Calendar {
 									'value' => get_the_author_meta( 'display_name', $post->post_author ),
 								);
 								// If the calendar supports more than one post type, show the post type label
-								if ( count( $edit_flow->helpers->get_post_types_for_module( $this->module ) ) > 1 ) {
+								if ( count( $this->get_post_types_for_module( $this->module ) ) > 1 ) {
 									$ef_calendar_item_information_fields['post_type'] = array(
 										'label' => __( 'Post Type', 'edit-flow' ),
 										'value' => get_post_type_object( $post->post_type )->labels->singular_name,
@@ -710,10 +704,9 @@ class EF_Calendar {
 	 * @param array $dates All of the days of the week. Used for generating navigation links
 	 */
 	function print_top_navigation( $filters, $dates ) {
-		global $edit_flow;
 		
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
-		$post_statuses = $edit_flow->helpers->get_post_statuses();
+		$supported_post_types = $this->get_post_types_for_module( $this->module );
+		$post_statuses = $this->get_post_statuses();
 		?>
 		<ul class="ef-calendar-navigation">
 			<li id="calendar-filter">
@@ -834,9 +827,9 @@ class EF_Calendar {
 	 * @return array $posts All of the posts as an array sorted by date
 	 */
 	function get_calendar_posts_for_week( $args = null ) {
-		global $wpdb, $edit_flow;
+		global $wpdb;
 		
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		$defaults = array(
 			'post_status'      => null,
 			'cat'              => null,
@@ -850,7 +843,7 @@ class EF_Calendar {
 		// Unpublished as a status is just an array of everything but 'publish'
 		if ( $args['post_status'] == 'unpublish' ) {
 			$args['post_status'] = '';
-			$post_statuses = $edit_flow->helpers->get_post_statuses();
+			$post_statuses = $this->get_post_statuses();
 			foreach ( $post_statuses as $post_status ) {
 				$args['post_status'] .= $post_status->slug . ', ';
 			}
@@ -895,7 +888,7 @@ class EF_Calendar {
 	 * @return string $where Our modified WHERE query string
 	 */
 	function posts_where_week_range( $where = '' ) {
-		global $edit_flow, $wpdb;
+		global $wpdb;
 	
 		$beginning_date = $this->get_beginning_of_week( $this->start_date, 'Y-m-d', $this->current_week );
 		$ending_date = $this->get_ending_of_week( $this->start_date, 'Y-m-d', $this->current_week );
@@ -915,8 +908,8 @@ class EF_Calendar {
 	 * @return string $url The URL for the next page
 	 */
 	function get_pagination_link( $direction = 'next', $filters = array(), $weeks_offset = null ) {
-		global $edit_flow;
-		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $this->module );
+
+		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		
 		if ( !isset( $weeks_offset ) )
 			$weeks_offset = $this->total_weeks;
@@ -1059,12 +1052,11 @@ class EF_Calendar {
 	 * @since 0.7
 	 */
 	function settings_validate( $new_options ) {
-		global $edit_flow;
 		
 		// Whitelist validation for the post type options
 		if ( !isset( $new_options['post_types'] ) )
 			$new_options['post_types'] = array();
-		$new_options['post_types'] = $edit_flow->helpers->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
+		$new_options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
 		
 		return $new_options;
 	}

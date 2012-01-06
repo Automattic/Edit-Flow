@@ -1,13 +1,13 @@
 <?php
 /**
- * class EF_Helpers
+ * class EF_Module
  *
- * @desc A number of Edit Flow helpers any module can use
+ * @desc Base class any Edit Flow module should extend
  */
 
-if ( !class_exists( 'EF_Helpers' ) ) {
+if ( !class_exists( 'EF_Module' ) ) {
 	
-class EF_Helpers {
+class EF_Module {
 	
 	function __construct() {
 	}
@@ -410,7 +410,7 @@ class EF_Helpers {
 	 * @return string $module_url Publicly accessible URL for the module
 	 */
 	function get_module_url( $file ) {
-		$module_url = plugins_url( plugin_basename( dirname( $file ) ) );
+		$module_url = plugins_url( '/', $file );
 		return trailingslashit( $module_url );
 	}
 	

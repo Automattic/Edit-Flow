@@ -2,7 +2,7 @@
 
 if ( !class_exists('EF_Settings') ) {
 
-class EF_Settings {
+class EF_Settings extends EF_Module {
 	
 	var $module;
 	
@@ -13,7 +13,7 @@ class EF_Settings {
 		global $edit_flow;
 		
 		// Register the module with Edit Flow
-		$module_url = $edit_flow->helpers->get_module_url( __FILE__ );
+		$module_url = $this->get_module_url( __FILE__ );
 		$args = array(
 			'title' => __( 'Edit Flow', 'edit-flow' ),
 			'short_description' => __( 'Edit Flow redefines your WordPress publishing workflow.', 'edit-flow' ),
@@ -63,9 +63,8 @@ class EF_Settings {
 	}
 	
 	function action_admin_enqueue_scripts() {
-		global $edit_flow;
 		
-		if ( $edit_flow->helpers->is_whitelisted_settings_view() )
+		if ( $this->is_whitelisted_settings_view() )
 			wp_enqueue_script( 'edit-flow-settings-js', EDIT_FLOW_URL . 'modules/settings/lib/settings.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 			
 	}
@@ -74,9 +73,8 @@ class EF_Settings {
 	 * Add settings styles to the settings page
 	 */
 	function action_admin_print_styles() {		
-		global $edit_flow;
 		
-		if ( $edit_flow->helpers->is_whitelisted_settings_view() )
+		if ( $this->is_whitelisted_settings_view() )
 			wp_enqueue_style( 'edit_flow-settings-css', EDIT_FLOW_URL.'modules/settings/lib/settings.css', false, EDIT_FLOW_VERSION );
 		
 		
@@ -136,7 +134,7 @@ class EF_Settings {
 		$requested_module_name = $requested_module->name;	
 		
 		// Don't show the settings page for the module if the module isn't activated
-		if ( !$edit_flow->helpers->module_enabled( $requested_module_name ) ) {
+		if ( !$this->module_enabled( $requested_module_name ) ) {
 			echo '<div class="message error"><p>' . sprintf( __( 'Module not enabled. Please enable it from the <a href="%1$s">Edit Flow settings page</a>.', 'edit-flow' ), EDIT_FLOW_SETTINGS_PAGE ) . '</p></div>';
 			return;
 		}	
