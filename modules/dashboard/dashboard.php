@@ -128,7 +128,7 @@ class EF_Dashboard extends EF_Module {
 		$statuses = $this->get_post_statuses();
 		// If custom statuses are enabled, we'll output a link to edit the terms just below the post counts
 		if ( $this->module_enabled( 'custom_status' ) )
-			$edit_custom_status_url = add_query_arg( 'configure', 'custom-status', EDIT_FLOW_SETTINGS_PAGE );
+			$edit_custom_status_url = add_query_arg( 'page', 'ef-custom-status-settings', get_admin_url( null, 'admin.php' ) );
 		
 		?>
 		<p class="sub"><?php _e('Posts at a Glance', 'edit-flow') ?></p>
@@ -265,10 +265,10 @@ class EF_Dashboard extends EF_Module {
 	function settings_validate( $new_options ) {
 		
 		// Follow whitelist validation for modules
-		if ( $new_options['post_status_widget'] != 'on' )
+		if ( array_key_exists( 'post_status_widget', $new_options ) && $new_options['post_status_widget'] != 'on' )
 			$new_options['post_status_widget'] = 'off';
 			
-		if ( $new_options['my_posts_widget'] != 'on' )
+		if ( array_key_exists( 'my_posts_widget', $new_options ) && $new_options['my_posts_widget'] != 'on' )
 			$new_options['my_posts_widget'] = 'off';
 		
 		return $new_options;
