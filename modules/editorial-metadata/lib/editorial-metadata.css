@@ -7,6 +7,14 @@
 	background-position: 5px 5px;
 }
 
+/* Position the Configure link on the metabox title line to the right */
+#ef_editorial_meta h3 .postbox-title-action {
+    padding: 0;
+    position: absolute;
+    right: 30px;
+    top: 5px;
+}
+
 /* Spacing between each term */
 #ef_editorial_meta_meta_box div.ef_editorial_meta {
 	margin-bottom: 10px;
