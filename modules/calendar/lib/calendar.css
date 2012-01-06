@@ -316,7 +316,7 @@ table#ef-calendar-view .day-unit ul li .item-overlay .item-actions a {
 	margin-right: 0;
 }
 
-.ef-calendar-navigation a {
+.ef-calendar-navigation li.date-change a {
 	text-decoration:none;
 	-moz-border-radius:5px 5px 5px 5px;
 	-webkit-border-radius:5px 5px 5px 5px;
@@ -362,9 +362,7 @@ table#ef-calendar-view .day-unit ul li .item-overlay .item-actions a {
 }
 
 .ef-calendar-navigation li.ajax-actions,
-.ef-calendar-navigation li.previous-week,
-.ef-calendar-navigation li.next-week,
-.ef-calendar-navigation li.today {
+.ef-calendar-navigation li.date-change {
 	float:right;
 }
 

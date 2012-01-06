@@ -44,7 +44,8 @@ class EF_Calendar {
 			'messages' => array(
 				'post-date-updated' => __( "Post date updated.", 'edit-flow' ),
 				'update-error' => __( 'There was an error updating the post. Please try again.', 'edit-flow' ),
-				'published-post-ajax' => __( "AJAX doesn't work for published content.", 'edit-flow' ),
+				// @todo find a way to link to the post as in below without using a nearly absolute, static URL
+				'published-post-ajax' => __( "Updating the post date dynamically doesn't work for published content. Please <a href='post.php?post=%d&action=edit'>edit the post</a>.", 'edit-flow' ),
 			),
 			'configure_page_cb' => 'print_configure_view',
 			'configure_link_text' => __( 'Calendar Options', 'edit-flow' ),		
@@ -258,7 +259,7 @@ class EF_Calendar {
 			'private',
 		);
 		if ( in_array( $post->post_status, $published_statuses ) )
-			$edit_flow->helpers->print_ajax_response( 'error', $this->module->messages['published-post-ajax'] );
+			$edit_flow->helpers->print_ajax_response( 'error', sprintf( $this->module->messages['published-post-ajax'], $post_id ) );
 		
 		// Check that the new date passed is a valid one
 		$next_date_full = strtotime( $_POST['next_date'] );
@@ -785,16 +786,16 @@ class EF_Calendar {
 			</li>
 
 			<?php /** Previous and next navigation items (translatable so they can be increased if needed )**/ ?>
-			<li class="next-week">
+			<li class="date-change next-week">
 				<a title="<?php printf( __( 'Forward 1 week', 'edit-flow' ) ); ?>" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters, 1 ) ); ?>"><?php _e( '&rsaquo;', 'edit-flow' ); ?></a>
 				<?php if ( $this->total_weeks > 1): ?>			
 				<a title="<?php printf( __( 'Forward %d weeks', 'edit-flow' ), $this->total_weeks ); ?>" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters ) ); ?>"><?php _e( '&raquo;', 'edit-flow' ); ?></a>
 				<?php endif; ?>
 			</li>
-			<li class="today">
+			<li class="date-change today">
 				<a title="<?php printf( __( 'Today is %s', 'edit-flow' ), date( get_option( 'date_format' ) ) ); ?>" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters, 0 ) ); ?>"><?php _e( 'Today', 'edit-flow' ); ?></a>
 			</li>
-			<li class="previous-week">
+			<li class="date-change previous-week">
 				<?php if ( $this->total_weeks > 1): ?>				
 				<a title="<?php printf( __( 'Back %d weeks', 'edit-flow' ), $this->total_weeks ); ?>"  href="<?php echo esc_url( $this->get_pagination_link( 'previous', $filters ) ); ?>"><?php _e( '&laquo;', 'edit-flow' ); ?></a>
 				<?php endif; ?>
