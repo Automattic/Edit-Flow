@@ -1,0 +1,4 @@
+/* Hide the post-state (status) span since we display a custom column with post status */
+span.post-state {
+	display: none;
+}

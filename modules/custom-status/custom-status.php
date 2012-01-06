@@ -229,7 +229,6 @@ class EF_Custom_Status extends EF_Module {
 	 * - We have other custom code for Quick Edit and JS niceties
 	 */
 	function action_admin_enqueue_scripts() {
-		
 		// Load Javascript we need to use on the configuration views (jQuery Sortable and Quick Edit)
 		if ( $this->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-ui-sortable' );			
@@ -237,9 +236,10 @@ class EF_Custom_Status extends EF_Module {
 		}
 		
 		// Custom javascript to modify the post status dropdown where it shows up
-		if ( $this->is_whitelisted_page() )
-			wp_enqueue_script( 'edit_flow-custom_status', EDIT_FLOW_URL.'modules/custom-status/lib/custom-status.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
-			
+		if ( $this->is_whitelisted_page() ) {
+			wp_enqueue_script( 'edit_flow-custom_status', EDIT_FLOW_URL . 'modules/custom-status/lib/custom-status.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_style( 'edit_flow-custom_status', EDIT_FLOW_URL . 'modules/custom-status/lib/custom-status.css', false, EDIT_FLOW_VERSION, 'all' );
+		}
 	}
 	
 	/**

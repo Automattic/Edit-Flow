@@ -34,8 +34,6 @@ jQuery(document).ready(function() {
 		jQuery('#the-list a.editinline').bind( 'click', function() {
 			ef_append_to_dropdown('#the-list select[name="_status"]');
 		} );
-		// Apply the post state to post titles. Only works on initial load but not after inline edit
-		ef_apply_post_state_to_titles();
 		// Clean up the bulk edit selector because it's non-standard
 		jQuery( '#bulk-edit' ).find( 'select[name="_status"]' ).prepend( '<option value="">' + ef_text_no_change + '</option>' );
 		jQuery( '#bulk-edit' ).find( 'select[name="_status"] option' ).removeAttr('selected');
@@ -101,19 +99,6 @@ jQuery(document).ready(function() {
 		
 	}
 	
-	/**
-	 * Add the post state to post titles on edit.php, mimicking the 'draft' and private that are already added
-	 */
-	function ef_apply_post_state_to_titles() {
-		var status_blacklist = new Array( 'Published', 'Scheduled' );
-		jQuery('#the-list tr').each( function() {
-			var status = jQuery(this).find('td.status').html();
-			if ( jQuery.inArray( status, status_blacklist ) == -1 && jQuery(this).find('.post-title strong .post-state').length == 0 )
-				jQuery(this).find('.post-title strong').append( ' - <span class="post-state">' + status + '</span>' );
-					
-		});
-	}
-	
 	// Update "Save" button text
 	function ef_update_save_button( text ) {
 		if(!text) text = 'Save as ' + jQuery('select[name="post_status"] :selected').text();
@@ -127,7 +112,20 @@ jQuery(document).ready(function() {
 			if(this.slug==slug) name = this.name;
 		});
 		return name;
-						
+	}
+
+	// If we're on the Manage Posts screen, remove the trailing dashes left behind once we hide the post-state span (the status).
+	// We do this since we already add a custom column for post status on the screen since custom statuses are a core part of EF.
+	if ( jQuery('.post-state').length > 0 ) {
+		ef_remove_post_title_trailing_dashes();
+	}
+
+	// Remove the " - " in between a post title and the post-state span (separately hidden via CSS).
+	// This will not affect the dash before post-state-format spans.
+	function ef_remove_post_title_trailing_dashes() {
+		jQuery('.post-title.column-title strong').each(function() {
+			jQuery(this).html(jQuery(this).html().replace(/(.*) - (<span class="post-state".*<\/span>)$/g, "$1$2"));
+		});
 	}
 	
 });
