@@ -635,8 +635,6 @@ class EF_Editorial_Metadata extends EF_Module {
 				case "date":
 					if ( !empty( $current_metadata ) )
 						$current_metadata = date( get_option( 'date_format' ), intval( $current_metadata ) );
-					echo esc_html( $current_metadata );
-					break;
 				case "location":
 				case "text":
 				case "number":
