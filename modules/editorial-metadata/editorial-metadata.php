@@ -360,14 +360,10 @@ class EF_Editorial_Metadata {
 							// Turn timestamp into a human-readable date
 							$current_metadata = date( 'M d Y' , intval( $current_metadata ) );	
 						}
-						echo "<div class='" . self::metadata_taxonomy ."-item'>";
 						echo "<label for='$postmeta_key'>{$term->name}</label>";
-						echo "<span class='description'>";
-						if ( $description )
-							echo "$description&nbsp;&nbsp;&nbsp;";
-						echo "<a class='clear-date' href='#'>Clear</a></span>";
+						if ( $description_span )
+							echo "<label for='$postmeta_key'>$description_span</label>";
 						echo "<input id='$postmeta_key' name='$postmeta_key' type='text' class='date-pick' value='$current_metadata' />";
-						echo "</div>";
 						break;
 					case "location":
 						echo "<label for='$postmeta_key'>{$term->name}</label>";
