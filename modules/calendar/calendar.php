@@ -44,8 +44,7 @@ class EF_Calendar extends EF_Module {
 			'messages' => array(
 				'post-date-updated' => __( "Post date updated.", 'edit-flow' ),
 				'update-error' => __( 'There was an error updating the post. Please try again.', 'edit-flow' ),
-				// @todo find a way to link to the post as in below without using a nearly absolute, static URL
-				'published-post-ajax' => __( "Updating the post date dynamically doesn't work for published content. Please <a href='post.php?post=%d&action=edit'>edit the post</a>.", 'edit-flow' ),
+				'published-post-ajax' => __( "Updating the post date dynamically doesn't work for published content. Please <a href='%s'>edit the post</a>.", 'edit-flow' ),
 			),
 			'configure_page_cb' => 'print_configure_view',
 			'configure_link_text' => __( 'Calendar Options', 'edit-flow' ),		
@@ -256,7 +255,7 @@ class EF_Calendar extends EF_Module {
 			'private',
 		);
 		if ( in_array( $post->post_status, $published_statuses ) )
-			$this->print_ajax_response( 'error', sprintf( $this->module->messages['published-post-ajax'], $post_id ) );
+			$this->print_ajax_response( 'error', sprintf( $this->module->messages['published-post-ajax'], get_edit_post_link( $post_id ) ) );
 		
 		// Check that the new date passed is a valid one
 		$next_date_full = strtotime( $_POST['next_date'] );
