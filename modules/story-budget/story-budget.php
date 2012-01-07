@@ -529,25 +529,31 @@ class EF_Story_Budget extends EF_Module {
 	 * @since 0.7
 	 */
 	function term_column_title( $post, $parent_term ) {
-		
 		$post_title = _draft_or_post_title( $post->ID );
 		
 		$post_type_object = get_post_type_object( $post->post_type );
-		if ( current_user_can( $post_type_object->cap->edit_post, $post->ID ) )
+		$can_edit_post = current_user_can( $post_type_object->cap->edit_post, $post->ID );
+		if ( $can_edit_post )
 			$output = '<strong><a href="' . get_edit_post_link( $post->ID ) . '">' . esc_html( $post_title ) . '</a></strong>'; 
 		else
 			$output = '<strong>' . esc_html( $post_title ) . '</strong>';
 		
 		// Edit or Trash or View
 		$output .= '<div class="row-actions">';
-		if ( current_user_can( $post_type_object->cap->edit_post, $post->ID ) )
-			$output .= '<span class="edit"><a title="' . __( 'Edit this post', 'edit-flow' ) . '" href="' . get_edit_post_link( $post->ID ) . '">' . __( 'Edit', 'edit-flow' ) . '</a> | </span>';
+		if ( $can_edit_post )
+			$output .= '<span class="edit"><a title="' . __( 'Edit this post', 'edit-flow' ) . '" href="' . get_edit_post_link( $post->ID ) . '">' . __( 'Edit' ) . '</a> | </span>';
 		if ( EMPTY_TRASH_DAYS > 0 && current_user_can( $post_type_object->cap->delete_post, $post->ID ) )
-			$output .= '<span class="trash"><a class="submitdelete" title="' . __( 'Move this item to the Trash', 'edit-flow' ) . '" href="' . get_delete_post_link( $post->ID ) . '">' . __( 'Trash', 'edit-flow' ) . '</a> |</span>';
-		$output .= '<span class="view"><a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'edit-flow' ), $post_title ) ) . '" rel="permalink">' . __( 'View', 'edit-flow' ) . '</a></span>';
+			$output .= '<span class="trash"><a class="submitdelete" title="' . __( 'Move this item to the Trash', 'edit-flow' ) . '" href="' . get_delete_post_link( $post->ID ) . '">' . __( 'Trash' ) . '</a></span>';
+
+		// Display a View or a Preview link depending on whether the post has been published or not
+		if ( in_array( $post->post_status, array( 'publish' ) ) )
+			$output .= '<span class="view"> | <a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;' ), $post_title ) ) . '" rel="permalink">' . __( 'View' ) . '</a></span>';
+		// @todo Fix previews for posts with custom statuses
+	//	else if ( $can_edit_post )
+	//		$output .= '<span class="previewpost"> | <a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $post_title ) ) . '" rel="permalink">' . __( 'Preview' ) . '</a></span>';
 		$output .= '</div>';
+
 		return $output;
-		
 	}
 	
 	/**
