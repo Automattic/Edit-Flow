@@ -548,9 +548,8 @@ class EF_Story_Budget extends EF_Module {
 		// Display a View or a Preview link depending on whether the post has been published or not
 		if ( in_array( $post->post_status, array( 'publish' ) ) )
 			$output .= '<span class="view"> | <a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;' ), $post_title ) ) . '" rel="permalink">' . __( 'View' ) . '</a></span>';
-		// @todo Fix previews for posts with custom statuses
-	//	else if ( $can_edit_post )
-	//		$output .= '<span class="previewpost"> | <a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $post_title ) ) . '" rel="permalink">' . __( 'Preview' ) . '</a></span>';
+		else if ( $can_edit_post )
+			$output .= '<span class="previewpost"> | <a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $post_title ) ) . '" rel="permalink">' . __( 'Preview' ) . '</a></span>';
 		$output .= '</div>';
 
 		return $output;
