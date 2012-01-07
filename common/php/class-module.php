@@ -534,6 +534,29 @@ class EF_Module {
 				$role->add_cap( $cap );
 		}
 	}
+
+	/**
+	 * Add settings help menus to our module screens if the values exist
+	 * Auto-registered in Edit_Flow::register_module()
+	 *
+	 * @since 0.7
+	 */
+	function action_settings_help_menu() {
+		
+		if ( !class_exists( 'WP_Screen' ) )
+			return;
+
+		$screen = get_current_screen();
+		if ( $screen->id != 'edit-flow_page_' . $this->module->settings_slug ) 
+			return;
+
+		// Make sure we have all of the required values for our tab
+		if ( !isset( $this->module->settings_help_tab['id'], $this->module->settings_help_tab['title'], $this->module->settings_help_tab['content'] ) )
+			return;
+		
+		$screen->add_help_tab( $this->module->settings_help_tab );
+
+	}
 	
 }
 }

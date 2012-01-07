@@ -202,6 +202,11 @@ class edit_flow {
 			$args['settings_slug'] = 'ef-' . $args['slug'] . '-settings';
 		if ( empty( $args['post_type_support'] ) )
 			$args['post_type_support'] = 'ef_' . $name;
+		// If there's a Help Screen registered for the module, make sure we
+		// auto-load it
+		if ( !empty( $args['settings_help_tab'] ) )
+			 add_action( 'load-edit-flow_page_' . $args['settings_slug'], array( &$this->$name, 'action_settings_help_menu' ) );
+		
 		$this->modules->$name = (object) $args;
 		do_action( 'ef_module_registered', $name );
 		return $this->modules->$name;

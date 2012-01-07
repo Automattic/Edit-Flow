@@ -47,7 +47,12 @@ class EF_Calendar extends EF_Module {
 				'published-post-ajax' => __( "Updating the post date dynamically doesn't work for published content. Please <a href='%s'>edit the post</a>.", 'edit-flow' ),
 			),
 			'configure_page_cb' => 'print_configure_view',
-			'configure_link_text' => __( 'Calendar Options', 'edit-flow' ),		
+			'configure_link_text' => __( 'Calendar Options', 'edit-flow' ),
+			'settings_help_tab' => array(
+				'id' => 'ef-calendar-overview',
+				'title' => __('Overview', 'edit-flow'),
+				'content' => __('<p>The calendar is a convenient week-by-week or month-by-month view into your content. Quickly see which stories are on track to being published on time, and which will need extra effort.</p>', 'edit-flow'),
+				),
 		);
 		$this->module = $edit_flow->register_module( 'calendar', $args );		
 		
