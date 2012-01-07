@@ -630,6 +630,12 @@ class EF_Calendar extends EF_Module {
 							<div class="item-inner">
 							<table class="item-information">
 								<?php foreach( $ef_calendar_item_information_fields as $field => $values ): ?>
+									<?php
+										// Allow filters to hide empty fields or to hide any given individual field. Hide empty fields by default.
+										if ( ( apply_filters( 'ef_calendar_hide_empty_item_information_fields', true, $post->ID ) && empty( $values['value'] ) )
+												|| apply_filters( "ef_calendar_hide_{$field}_item_information_field", false, $post->ID ) )
+											continue;
+									?>
 									<tr class="item-field item-information-<?php echo esc_attr( $field ); ?>">
 										<th class="label"><?php echo esc_html( $values['label'] ); ?>:</th>
 										<?php if ( $values['value'] ): ?>
