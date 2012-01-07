@@ -51,6 +51,10 @@ class EF_Editorial_Comments extends EF_Module
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );		
 		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );
 		add_action( 'wp_ajax_editflow_ajax_insert_comment', array( &$this, 'ajax_insert_comment' ) );
+
+		// Add Editorial Comments to the calendar if the calendar is activated
+		if ( $this->module_enabled( 'calendar' ) )
+			add_filter( 'ef_calendar_item_information_fields', array( &$this, 'filter_calendar_item_fields' ), null, 2 );
 	}
 
 	/**
@@ -407,6 +411,32 @@ class EF_Editorial_Comments extends EF_Module
 
 		</form>
 		<?php
+	}
+
+	/**
+	 * If the Edit Flow Calendar is enabled, add the editorial comment count to the post overlay.
+	 *
+	 * @since 0.7
+	 * @uses apply_filters( 'ef_calendar_item_information_fields' )
+	 *
+	 * @param array $calendar_fields Additional data fields to include on the calendar
+	 * @param int $post_id Unique ID for the post data we're building
+	 * @return array $calendar_fields Calendar fields with our viewable Editorial Metadata added
+	 */
+	function filter_calendar_item_fields( $calendar_fields, $post_id ) {
+		// Make sure we respect which post type we're on
+		if ( !in_array( get_post_type( $post_id ), $this->get_post_types_for_module( $this->module ) ) )
+			return $calendar_fields;
+
+		// Name/value for the field to add
+		$comment_count_data = array(
+			'label' => $this->module->title,
+			'value' => $this->get_editorial_comment_count( $post_id ),
+		);
+
+		$calendar_fields[$this->module->slug] = $comment_count_data;
+
+		return $calendar_fields;
 	}
 
 }
