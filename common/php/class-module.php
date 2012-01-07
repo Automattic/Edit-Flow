@@ -543,10 +543,11 @@ class EF_Module {
 	 */
 	function action_settings_help_menu() {
 		
-		if ( !class_exists( 'WP_Screen' ) )
-			return;
-
 		$screen = get_current_screen();
+		
+		if ( !method_exists( $screen, 'add_help_tab' ) ) 
+			return;
+		
 		if ( $screen->id != 'edit-flow_page_' . $this->module->settings_slug ) 
 			return;
 
@@ -555,6 +556,7 @@ class EF_Module {
 			return;
 		
 		$screen->add_help_tab( $this->module->settings_help_tab );
+		$screen->set_help_sidebar( $this->module->settings_help_sidebar );
 
 	}
 	

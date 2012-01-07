@@ -35,6 +35,12 @@ class EF_Editorial_Comments extends EF_Module
 			'configure_page_cb' => 'print_configure_view',
 			'configure_link_text' => __( 'Choose Post Types' ),
 			'autoload' => false,
+			'settings_help_tab' => array(
+				'id' => 'ef-comments-overview',
+				'title' => __('Overview', 'edit-flow'),
+				'content' => __('<p>Editorial comments help you cut down on email overload and keep the conversation close to where it matters: your content. Threaded commenting in the admin, similar to what you find at the end of a blog post, allows writers and editors to privately leave feedback and discuss what needs to be changed before publication.</p><p>Anyone with access to view the story in progress will also have the ability to comment on it. If you have notifications enabled, those following the post will receive an email every time a comment is left.</p>', 'edit-flow'),
+				),
+			'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/editorial-comments/">Editorial Comments Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
 		);
 		$this->module = $edit_flow->register_module( 'editorial_comments', $args );
 	}
