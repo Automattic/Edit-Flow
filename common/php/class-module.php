@@ -552,7 +552,7 @@ class EF_Module {
 			return;
 
 		// Make sure we have all of the required values for our tab
-		if ( !isset( $this->module->settings_help_tab['id'], $this->module->settings_help_tab['title'], $this->module->settings_help_tab['content'] ) )
+		if ( !isset( $this->module->settings_help_tab['id'], $this->module->settings_help_tab['title'], $this->module->settings_help_tab['content'], $this->module->settings_help_sidebar ) )
 			return;
 		
 		$screen->add_help_tab( $this->module->settings_help_tab );
