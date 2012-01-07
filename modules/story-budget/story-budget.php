@@ -203,6 +203,8 @@ class EF_Story_Budget extends EF_Module {
 		$user_filters = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
 		$user_filters['start_date'] = date( 'Y-m-d', strtotime( $_POST['ef-story-budget-start-date'] ) );
 		$user_filters['number_days'] = (int)$_POST['ef-story-budget-number-days'];
+		if ( $user_filters['number_days'] <= 1 )
+			$user_filters['number_days'] = 1;
 		
 		$this->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $user_filters );
 		wp_redirect( menu_page_url( $this->module->slug, false ) );
@@ -326,7 +328,7 @@ class EF_Story_Budget extends EF_Module {
 			. esc_attr( $this->user_filters['number_days'] ) . '" /><span class="form-value">' . esc_html( $this->user_filters['number_days'] )
 			. '</span>';		
 		
-		$output .= sprintf( __( 'starting %s showing %s days', 'edit-flow' ), $start_date_value, $number_days_value );
+		$output .= sprintf( __( 'starting %1$s showing %2$s %3$s', 'edit-flow' ), $start_date_value, $number_days_value, _n( 'day', 'days', $this->user_filters['number_days'], 'edit-flow' ) );
 		$output .= '&nbsp;&nbsp;<span class="change-date-buttons">';
 		$output .= '<input id="ef-story-budget-range-submit" name="ef-story-budget-range-submit" type="submit"';
 		$output .= ' class="button-primary" value="' . __( 'Change', 'edit-flow' ) . '" />';
