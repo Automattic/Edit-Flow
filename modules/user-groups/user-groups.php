@@ -540,6 +540,7 @@ class EF_User_Groups extends EF_Module {
 			<h4><?php _e( 'Users', 'edit-flow' ); ?></h4>
 			<?php 
 				$select_form_args = array(
+					'list_class' => 'ef-post_following_list',
 					'input_id' => 'usergroup_users'
 				);
 			?>

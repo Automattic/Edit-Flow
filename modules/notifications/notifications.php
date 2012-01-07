@@ -228,7 +228,10 @@ class EF_Notifications extends EF_Module {
 				<h4><?php _e( 'Users', 'edit-flow' ); ?></h4>
 				<?php
 				$followers = $this->get_following_users( $post->ID, 'id' );
-				$this->users_select_form( $followers ); ?>
+				$select_form_args = array(
+					'list_class' => 'ef-post_following_list',
+				);
+				$this->users_select_form( $followers, $select_form_args ); ?>
 			</div>
 			
 			<?php if ( $this->module_enabled( 'user_groups' ) && in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $edit_flow->user_groups->module ) ) ): ?>

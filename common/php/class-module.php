@@ -488,6 +488,7 @@ class EF_Module {
 				'display_name',
 				'user_email'
 			),
+			'orderby' => 'display_name',
 		);
 		$users = get_users( $args );
 
@@ -501,8 +502,8 @@ class EF_Module {
 					<li>
 						<label for="<?php echo esc_attr( $input_id .'-'. $user->ID ) ?>">
 							<input type="checkbox" id="<?php echo esc_attr( $input_id .'-'. $user->ID ) ?>" name="<?php echo esc_attr( $input_id ) ?>[]" value="<?php echo esc_attr( $user->ID ); ?>" <?php echo $checked; ?> />
-							<span class="ef-user-displayname"><?php echo esc_html( $user->display_name ); ?></span>
-							<span class="ef-user-useremail"><?php echo esc_html( $user->user_email ); ?></span>
+							<span class="ef-user_displayname"><?php echo esc_html( $user->display_name ); ?></span>
+							<span class="ef-user_useremail"><?php echo esc_html( $user->user_email ); ?></span>
 						</label>
 					</li>
 				<?php endforeach; ?>
