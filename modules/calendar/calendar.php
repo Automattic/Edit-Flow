@@ -1038,6 +1038,7 @@ class EF_Calendar extends EF_Module {
 		
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
 			add_settings_field( 'post_types', 'Post types to show', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'number_of_weeks', 'Number of weeks to show', array( &$this, 'settings_number_weeks_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 
 	}
 	
@@ -1049,6 +1050,16 @@ class EF_Calendar extends EF_Module {
 	function settings_post_types_option() {
 		global $edit_flow;
 		$edit_flow->settings->helper_option_custom_post_type( $this->module );
+	}
+
+	/**
+	 * Give a bit of helper text to indicate the user can change
+	 * number of weeks in the screen options
+	 *
+	 * @since 0.7
+	 */
+	function settings_number_weeks_option() {
+		echo '<span class="description">' . __( 'The number of weeks shown on the calendar can be changed on a user-by-user basis using the calendar\'s screen options.', 'edit-flow' ) . '</span>';
 	}
 	
 	/**
