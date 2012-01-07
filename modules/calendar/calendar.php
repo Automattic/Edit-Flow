@@ -81,6 +81,35 @@ class EF_Calendar extends EF_Module {
 		
 		// Ajax manipulation for the calendar
 		add_action( 'wp_ajax_ef_calendar_drag_and_drop', array( &$this, 'handle_ajax_drag_and_drop' ) );
+
+		// Load the contextual help menus
+		add_action( 'load-edit-flow_page_' . $this->module->settings_slug, array( &$this, 'action_help_menu' ) );
+		add_action( 'load-dashboard_page_calendar', array( &$this, 'action_dashboard_help_menu' ) );
+	}
+
+	/**
+	 * Add contextual help menu
+	 */
+	function action_help_menu() {
+		if (!class_exists('WP_Screen')) return;
+		
+		$screen = get_current_screen();
+	
+		if ($screen->id != 'edit-flow_page_' . $this->module->settings_slug) 
+			return;
+
+		$screen->add_help_tab( array(
+			'id'      => 'ef-calendar-overview',
+			'title'   => __('Overview', 'edit-flow'),
+			'content' => __('<p>The calendar is a convenient week-by-week or month-by-month view into your content. Quickly see which stories are on track to being published on time, and which will need extra effort.</p>', 'edit-flow'),
+		));
+		$screen->add_help_tab( array(
+			'id'      => 'ef-calendar-extend',
+			'title'   => __('Extend', 'edit-flow'),
+			'content' => __('<p>Using WordPress’ hooks and filters, you can extend the calendar in the following ways:</p><ul><li>ef_view_calendar_cap (filter) – Modify the capability required to view the calendar. Upon installation, the ‘ef_view_calendar’ capability is applied to administrators, editors, authors and contributors.</li><li>ef_calendar_allow_ajax_to_set_timestamp (filter) – Whether or not dragging a post to a new date sets the publication timestamp for the post. This is off by default.</li><li>ef_calendar_total_weeks (filter) – Number of weeks to show on the calendar. This will override the user’s screen options setting and lock the calendar to a specific range.</li><li>ef_calendar_weekend_days (filter) – Which days of the week are considered the weekend for the calendar. By default, this is Saturday and Sunday.<li>ef_calendar_item_information_fields (filter) – Post details to be presented in the overlay that appears when you click on the post title. You can unset default fields, or include your own.</li><li>ef_show_scheduled_as_unpublished (filter) – Show scheduled posts too when filtering the calendar to unpublished content. This is off by default.</li></ul>', 'edit-flow'),
+		));
+		$screen->set_help_sidebar(__('<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/calendar/">Calendar Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow')
+		);
 	}
 	
 	/**
@@ -135,6 +164,26 @@ class EF_Calendar extends EF_Module {
 	 */
 	function action_admin_menu() {	
 		add_submenu_page('index.php', __('Calendar', 'edit-flow'), __('Calendar', 'edit-flow'), apply_filters( 'ef_view_calendar_cap', 'ef_view_calendar' ), $this->module->slug, array( &$this, 'view_calendar' ) );
+	}
+
+	/**
+	 * Add dashboard contextual help menu
+	 */
+	function action_dashboard_help_menu() {
+		if (!class_exists('WP_Screen')) return;
+		
+		$screen = get_current_screen();
+	
+		if ($screen->id != 'dashboard_page_calendar') 
+			return;
+
+		$screen->add_help_tab( array(
+			'id'      => 'ef-calendar-overview',
+			'title'   => __('Overview', 'edit-flow'),
+			'content' => __('<p>The calendar is a convenient week-by-week or month-by-month view into your content. Quickly see which stories are on track to being published on time, and which will need extra effort.</p><p>By default, you’ll see all of your content for the upcoming six weeks but you can change the range in your screen options. You can filter the calendar by post status, categories, users or post types, if you are showing more than one post type on the calendar. When you apply filters to the calendar, they’ll be saved if you leave the calendar and then return.</p><p>Posts listed on the calendar with an “unpublished” status can be dragged from date to date. Click on the post’s title to see an overlay with details about the post, including viewable editorial metadata if you have the module activated.</p>', 'edit-flow'),
+		));
+		$screen->set_help_sidebar(__('<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/calendar/">Calendar Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow')
+		);
 	}
 	
 	/**

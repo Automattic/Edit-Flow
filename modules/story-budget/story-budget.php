@@ -78,10 +78,34 @@ class EF_Story_Budget extends EF_Module {
 		add_action( 'admin_init', array( &$this, 'register_term_columns' ) );
 		
 		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );
+		
 		// Load necessary scripts and stylesheets
 		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'action_enqueue_admin_styles' ) );
+
+		// Load the contextual help menu
+		add_action( 'load-dashboard_page_story-budget', array( &$this, 'action_help_menu' ) );
 		
+	}
+
+	/**
+	 * Add contextual help menu
+	 */
+	function action_help_menu() {
+		if (!class_exists('WP_Screen')) return;
+		
+		$screen = get_current_screen();
+	
+		if ($screen->id != 'dashboard_page_story-budget') 
+			return;
+
+		$screen->add_help_tab( array(
+			'id'      => 'ef-story-budget-overview',
+			'title'   => __('Overview', 'edit-flow'),
+			'content' => __('<p>View all of your upcoming content in a more traditional story budget view, and print it out to take a copy to your planning meeting. Posts are grouped by category, and view can be filtered by post status, category, or user. Specify a date range to only show the content in your next publishing cycle.<p><p>If you’re actively using editorial metadata, you can make some terms visible to have them appear on your story budget.</p>', 'edit-flow'),
+		));
+		$screen->set_help_sidebar(__('<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/story-budget/">Story Budget Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow')
+		);
 	}
 	
 	/**
