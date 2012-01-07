@@ -408,8 +408,7 @@ class EF_Story_Budget extends EF_Module {
 		global $wpdb;
 	
 		$beginning_date = date( 'Y-m-d', strtotime( $this->user_filters['start_date'] ) );
-		// Adjust the ending date to account for the entire day of the last day
-		$end_day = $this->user_filters['number_days'] + 1;
+		$end_day = $this->user_filters['number_days'];
 		$ending_date = date( "Y-m-d", strtotime( "+" . $end_day . " days", strtotime( $beginning_date ) ) );
 		$where = $where . $wpdb->prepare( " AND ($wpdb->posts.post_date >= %s AND $wpdb->posts.post_date < %s)", $beginning_date, $ending_date );
 	
