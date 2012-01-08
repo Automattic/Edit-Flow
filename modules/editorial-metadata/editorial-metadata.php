@@ -61,6 +61,12 @@ class EF_Editorial_Metadata extends EF_Module {
 				'term-visibility-changed' => __( "Term visibility changed.", 'edit-flow' ),
 			),
 			'configure_page_cb' => 'print_configure_view',
+			'settings_help_tab' => array(
+				'id' => 'ef-editorial-metadata-overview',
+				'title' => __('Overview', 'edit-flow'),
+				'content' => __('<p>Keep track of important details about your content with editorial metadata. This feature allows you to create as many date, text, number, etc. fields as you like, and then use them to store information like contact details, required word count, or the location of an interview.</p><p>Once you’ve set your fields up, editorial metadata integrates with both the calendar and the story budget. Make an editorial metadata item visible to have it appear to the rest of your team. Keep it hidden to restrict the information between the writer and their editor.</p>', 'edit-flow'),
+				),
+			'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/editorial-metadata/">Editorial Metadata Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
 		);
 		$edit_flow->register_module( $this->module_name, $args );		
 		

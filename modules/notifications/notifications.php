@@ -46,6 +46,12 @@ class EF_Notifications extends EF_Module {
 			'configure_page_cb' => 'print_configure_view',
 			'post_type_support' => 'ef_notification',
 			'autoload' => false,
+			'settings_help_tab' => array(
+				'id' => 'ef-notifications-overview',
+				'title' => __('Overview', 'edit-flow'),
+				'content' => __('<p>Notifications ensure you keep up to date with progress your most important content. Users can be subscribed to notifications on a post one by one or by selecting user groups.</p><p>When enabled, email notifications can be sent when a post changes status or an editorial comment is left by a writer or an editor.</p>', 'edit-flow'),
+				),
+			'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/notifications/">Notifications Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
 		);
 		$this->module = $edit_flow->register_module( 'notifications', $args );
 		
