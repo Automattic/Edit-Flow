@@ -552,12 +552,13 @@ class EF_Module {
 			return;
 
 		// Make sure we have all of the required values for our tab
-		if ( !isset( $this->module->settings_help_tab['id'], $this->module->settings_help_tab['title'], $this->module->settings_help_tab['content'], $this->module->settings_help_sidebar ) )
-			return;
+		if ( isset( $this->module->settings_help_tab['id'], $this->module->settings_help_tab['title'], $this->module->settings_help_tab['content'] ) ) {
+			$screen->add_help_tab( $this->module->settings_help_tab );
 		
-		$screen->add_help_tab( $this->module->settings_help_tab );
-		$screen->set_help_sidebar( $this->module->settings_help_sidebar );
-
+			if ( isset( $this->module->settings_help_sidebar ) ) {
+				$screen->set_help_sidebar( $this->module->settings_help_sidebar );
+			}
+		}
 	}
 	
 }
