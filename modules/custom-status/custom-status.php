@@ -54,6 +54,12 @@ class EF_Custom_Status extends EF_Module {
 			),					
 			'autoload' => false,
 			'load_frontend' => true, // Load on the frontend so that previewing posts with custom statuses works
+			'settings_help_tab' => array(
+				'id' => 'ef-custom-status-overview',
+				'title' => __('Overview', 'edit-flow'),
+				'content' => __('<p>Edit Flow’s custom statuses allow you to define the most important stages of your editorial workflow. Out of the box, WordPress only offers “Draft” and “Pending Review” as post states. With custom statuses, you can create your own post states like “In Progress”, “Pitch”, or “Waiting for Edit” and keep or delete the originals. You can also drag and drop statuses to set the best order for your workflow.</p><p>Custom statuses are fully integrated into the rest of Edit Flow and the WordPress admin. On the calendar and story budget, you can filter your view to see only posts of a specific post state. Furthermore, email notifications can be sent to a specific group of users when a post changes state.</p>', 'edit-flow'),
+				),
+			'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/custom-statuses/">Custom Status Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
 		);
 		$this->module = $edit_flow->register_module( 'custom_status', $args );		
 		
