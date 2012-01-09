@@ -35,6 +35,12 @@ class EF_Editorial_Comments extends EF_Module
 			'configure_page_cb' => 'print_configure_view',
 			'configure_link_text' => __( 'Choose Post Types' ),
 			'autoload' => false,
+			'settings_help_tab' => array(
+				'id' => 'ef-editorial-comments-overview',
+				'title' => __('Overview', 'edit-flow'),
+				'content' => __('<p>Editorial comments help you cut down on email overload and keep the conversation close to where it matters: your content. Threaded commenting in the admin, similar to what you find at the end of a blog post, allows writers and editors to privately leave feedback and discuss what needs to be changed before publication.</p><p>Anyone with access to view the story in progress will also have the ability to comment on it. If you have notifications enabled, those following the post will receive an email every time a comment is left.</p>', 'edit-flow'),
+				),
+			'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/editorial-comments/">Editorial Comments Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
 		);
 		$this->module = $edit_flow->register_module( 'editorial_comments', $args );
 	}
@@ -51,6 +57,12 @@ class EF_Editorial_Comments extends EF_Module
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );		
 		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );
 		add_action( 'wp_ajax_editflow_ajax_insert_comment', array( &$this, 'ajax_insert_comment' ) );
+
+		// Add Editorial Comments to the calendar if the calendar is activated
+		if ( $this->module_enabled( 'calendar' ) ) {
+			// Still in progress. See: https://www.pivotaltracker.com/story/show/5930884 and https://www.pivotaltracker.com/story/show/5930895
+			//add_filter( 'ef_calendar_item_information_fields', array( &$this, 'filter_calendar_item_fields' ), null, 2 );
+		}
 	}
 
 	/**
@@ -252,13 +264,10 @@ class EF_Editorial_Comments extends EF_Module
 
 			<div class="post-comment-wrap">
 				<h5 class="comment-meta">
-				
-					<span class="comment-author">
-						<?php comment_author_email_link($comment->comment_author) ?>
-					</span>
-					<span class="meta">
-						<?php printf( __(' said on %s at %s', 'edit-flow'), get_comment_date( get_option('date_format') ), get_comment_time() ); ?>
-					</span>
+					<?php printf( __('<span class="comment-author">%1$s</span><span class="meta"> said on %2$s at %3$s</span>', 'edit-flow'),
+							comment_author_email_link( $comment->comment_author ),
+							get_comment_date( get_option( 'date_format' ) ),
+							get_comment_time() ); ?>
 				</h5>
 	
 				<div class="comment-content"><?php comment_text(); ?></div>
@@ -407,6 +416,32 @@ class EF_Editorial_Comments extends EF_Module
 
 		</form>
 		<?php
+	}
+
+	/**
+	 * If the Edit Flow Calendar is enabled, add the editorial comment count to the post overlay.
+	 *
+	 * @since 0.7
+	 * @uses apply_filters( 'ef_calendar_item_information_fields' )
+	 *
+	 * @param array $calendar_fields Additional data fields to include on the calendar
+	 * @param int $post_id Unique ID for the post data we're building
+	 * @return array $calendar_fields Calendar fields with our viewable Editorial Metadata added
+	 */
+	function filter_calendar_item_fields( $calendar_fields, $post_id ) {
+		// Make sure we respect which post type we're on
+		if ( !in_array( get_post_type( $post_id ), $this->get_post_types_for_module( $this->module ) ) )
+			return $calendar_fields;
+
+		// Name/value for the field to add
+		$comment_count_data = array(
+			'label' => $this->module->title,
+			'value' => $this->get_editorial_comment_count( $post_id ),
+		);
+
+		$calendar_fields[$this->module->slug] = $comment_count_data;
+
+		return $calendar_fields;
 	}
 
 }

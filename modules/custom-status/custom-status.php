@@ -53,6 +53,13 @@ class EF_Custom_Status extends EF_Module {
 				'status-position-updated' => __( "Status order updated.", 'edit-flow' ),
 			),					
 			'autoload' => false,
+			'load_frontend' => true, // Load on the frontend so that previewing posts with custom statuses works
+			'settings_help_tab' => array(
+				'id' => 'ef-custom-status-overview',
+				'title' => __('Overview', 'edit-flow'),
+				'content' => __('<p>Edit Flow’s custom statuses allow you to define the most important stages of your editorial workflow. Out of the box, WordPress only offers “Draft” and “Pending Review” as post states. With custom statuses, you can create your own post states like “In Progress”, “Pitch”, or “Waiting for Edit” and keep or delete the originals. You can also drag and drop statuses to set the best order for your workflow.</p><p>Custom statuses are fully integrated into the rest of Edit Flow and the WordPress admin. On the calendar and story budget, you can filter your view to see only posts of a specific post state. Furthermore, email notifications can be sent to a specific group of users when a post changes state.</p>', 'edit-flow'),
+				),
+			'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/custom-statuses/">Custom Status Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
 		);
 		$this->module = $edit_flow->register_module( 'custom_status', $args );		
 		
@@ -87,6 +94,10 @@ class EF_Custom_Status extends EF_Module {
 		
 		add_filter( 'manage_posts_columns', array( &$this, '_filter_manage_posts_columns') );
 		add_action( 'manage_posts_custom_column', array( &$this, '_filter_manage_posts_custom_column') );
+		
+		// We need these for pages (http://core.trac.wordpress.org/browser/tags/3.3.1/wp-admin/includes/class-wp-posts-list-table.php#L283)
+		add_filter( 'manage_pages_columns', array( &$this, '_filter_manage_posts_columns' ) );
+		add_action( 'manage_pages_custom_column', array( &$this, '_filter_manage_posts_custom_column' ) );	
 		
 		// These two methods are hacks for fixing bugs in WordPress core
 		add_action( 'admin_init', array( &$this, 'check_timestamp_on_publish' ) );
@@ -225,7 +236,6 @@ class EF_Custom_Status extends EF_Module {
 	 * - We have other custom code for Quick Edit and JS niceties
 	 */
 	function action_admin_enqueue_scripts() {
-		
 		// Load Javascript we need to use on the configuration views (jQuery Sortable and Quick Edit)
 		if ( $this->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-ui-sortable' );			
@@ -233,9 +243,10 @@ class EF_Custom_Status extends EF_Module {
 		}
 		
 		// Custom javascript to modify the post status dropdown where it shows up
-		if ( $this->is_whitelisted_page() )
-			wp_enqueue_script( 'edit_flow-custom_status', EDIT_FLOW_URL.'modules/custom-status/lib/custom-status.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
-			
+		if ( $this->is_whitelisted_page() ) {
+			wp_enqueue_script( 'edit_flow-custom_status', EDIT_FLOW_URL . 'modules/custom-status/lib/custom-status.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_style( 'edit_flow-custom_status', EDIT_FLOW_URL . 'modules/custom-status/lib/custom-status.css', false, EDIT_FLOW_VERSION, 'all' );
+		}
 	}
 	
 	/**

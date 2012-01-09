@@ -57,6 +57,12 @@ class EF_User_Groups extends EF_Module {
 			'configure_page_cb' => 'print_configure_view',
 			'configure_link_text' => __( 'Manage User Groups', 'edit-flow' ),
 			'autoload' => false,
+			'settings_help_tab' => array(
+				'id' => 'ef-user-groups-overview',
+				'title' => __('Overview', 'edit-flow'),
+				'content' => __('<p>For those with many people involved in the publishing process, user groups helps you keep them organized.</p><p>Currently, user groups are primarily used for subscribing a set of users to a post for notifications.</p>', 'edit-flow'),
+				),
+			'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/user-groups/">User Groups Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
 		);
 		$this->module = $edit_flow->register_module( 'user_groups', $args );
 		
@@ -540,6 +546,7 @@ class EF_User_Groups extends EF_Module {
 			<h4><?php _e( 'Users', 'edit-flow' ); ?></h4>
 			<?php 
 				$select_form_args = array(
+					'list_class' => 'ef-post_following_list',
 					'input_id' => 'usergroup_users'
 				);
 			?>

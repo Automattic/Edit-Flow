@@ -41,11 +41,17 @@ class EF_Notifications extends EF_Module {
 					'post' => 'on',
 					'page' => 'on',
 				),
-				'always_notify_admin' => 'on',
+				'always_notify_admin' => 'off',
 			),
 			'configure_page_cb' => 'print_configure_view',
 			'post_type_support' => 'ef_notification',
 			'autoload' => false,
+			'settings_help_tab' => array(
+				'id' => 'ef-notifications-overview',
+				'title' => __('Overview', 'edit-flow'),
+				'content' => __('<p>Notifications ensure you keep up to date with progress your most important content. Users can be subscribed to notifications on a post one by one or by selecting user groups.</p><p>When enabled, email notifications can be sent when a post changes status or an editorial comment is left by a writer or an editor.</p>', 'edit-flow'),
+				),
+			'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/notifications/">Notifications Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
 		);
 		$this->module = $edit_flow->register_module( 'notifications', $args );
 		
@@ -223,12 +229,15 @@ class EF_Notifications extends EF_Module {
 		<div id="ef-post_following_box">
 			<a name="subscriptions"></a>
 
-			<p><?php _e( 'Select the users and usergroups that should receive notifications when the status of this post is updated or when an editorial comment is added.', 'edit-flow' ); ?></p>
+			<p><?php _e( 'Select the users and user groups that should receive notifications when the status of this post is updated or when an editorial comment is added.', 'edit-flow' ); ?></p>
 			<div id="ef-post_following_users_box">
 				<h4><?php _e( 'Users', 'edit-flow' ); ?></h4>
 				<?php
 				$followers = $this->get_following_users( $post->ID, 'id' );
-				$this->users_select_form( $followers ); ?>
+				$select_form_args = array(
+					'list_class' => 'ef-post_following_list',
+				);
+				$this->users_select_form( $followers, $select_form_args ); ?>
 			</div>
 			
 			<?php if ( $this->module_enabled( 'user_groups' ) && in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $edit_flow->user_groups->module ) ) ): ?>

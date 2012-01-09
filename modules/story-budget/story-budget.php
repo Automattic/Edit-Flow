@@ -203,6 +203,8 @@ class EF_Story_Budget extends EF_Module {
 		$user_filters = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
 		$user_filters['start_date'] = date( 'Y-m-d', strtotime( $_POST['ef-story-budget-start-date'] ) );
 		$user_filters['number_days'] = (int)$_POST['ef-story-budget-number-days'];
+		if ( $user_filters['number_days'] <= 1 )
+			$user_filters['number_days'] = 1;
 		
 		$this->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $user_filters );
 		wp_redirect( menu_page_url( $this->module->slug, false ) );
@@ -326,7 +328,7 @@ class EF_Story_Budget extends EF_Module {
 			. esc_attr( $this->user_filters['number_days'] ) . '" /><span class="form-value">' . esc_html( $this->user_filters['number_days'] )
 			. '</span>';		
 		
-		$output .= sprintf( __( 'starting %s showing %s days', 'edit-flow' ), $start_date_value, $number_days_value );
+		$output .= sprintf( __( 'starting %1$s showing %2$s %3$s', 'edit-flow' ), $start_date_value, $number_days_value, _n( 'day', 'days', $this->user_filters['number_days'], 'edit-flow' ) );
 		$output .= '&nbsp;&nbsp;<span class="change-date-buttons">';
 		$output .= '<input id="ef-story-budget-range-submit" name="ef-story-budget-range-submit" type="submit"';
 		$output .= ' class="button-primary" value="' . __( 'Change', 'edit-flow' ) . '" />';
@@ -408,8 +410,7 @@ class EF_Story_Budget extends EF_Module {
 		global $wpdb;
 	
 		$beginning_date = date( 'Y-m-d', strtotime( $this->user_filters['start_date'] ) );
-		// Adjust the ending date to account for the entire day of the last day
-		$end_day = $this->user_filters['number_days'] + 1;
+		$end_day = $this->user_filters['number_days'];
 		$ending_date = date( "Y-m-d", strtotime( "+" . $end_day . " days", strtotime( $beginning_date ) ) );
 		$where = $where . $wpdb->prepare( " AND ($wpdb->posts.post_date >= %s AND $wpdb->posts.post_date < %s)", $beginning_date, $ending_date );
 	
@@ -530,25 +531,30 @@ class EF_Story_Budget extends EF_Module {
 	 * @since 0.7
 	 */
 	function term_column_title( $post, $parent_term ) {
-		
 		$post_title = _draft_or_post_title( $post->ID );
 		
 		$post_type_object = get_post_type_object( $post->post_type );
-		if ( current_user_can( $post_type_object->cap->edit_post, $post->ID ) )
+		$can_edit_post = current_user_can( $post_type_object->cap->edit_post, $post->ID );
+		if ( $can_edit_post )
 			$output = '<strong><a href="' . get_edit_post_link( $post->ID ) . '">' . esc_html( $post_title ) . '</a></strong>'; 
 		else
 			$output = '<strong>' . esc_html( $post_title ) . '</strong>';
 		
 		// Edit or Trash or View
 		$output .= '<div class="row-actions">';
-		if ( current_user_can( $post_type_object->cap->edit_post, $post->ID ) )
-			$output .= '<span class="edit"><a title="' . __( 'Edit this post', 'edit-flow' ) . '" href="' . get_edit_post_link( $post->ID ) . '">' . __( 'Edit', 'edit-flow' ) . '</a> | </span>';
+		if ( $can_edit_post )
+			$output .= '<span class="edit"><a title="' . __( 'Edit this post', 'edit-flow' ) . '" href="' . get_edit_post_link( $post->ID ) . '">' . __( 'Edit' ) . '</a> | </span>';
 		if ( EMPTY_TRASH_DAYS > 0 && current_user_can( $post_type_object->cap->delete_post, $post->ID ) )
-			$output .= '<span class="trash"><a class="submitdelete" title="' . __( 'Move this item to the Trash', 'edit-flow' ) . '" href="' . get_delete_post_link( $post->ID ) . '">' . __( 'Trash', 'edit-flow' ) . '</a> |</span>';
-		$output .= '<span class="view"><a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'edit-flow' ), $post_title ) ) . '" rel="permalink">' . __( 'View', 'edit-flow' ) . '</a></span>';
+			$output .= '<span class="trash"><a class="submitdelete" title="' . __( 'Move this item to the Trash', 'edit-flow' ) . '" href="' . get_delete_post_link( $post->ID ) . '">' . __( 'Trash' ) . '</a></span>';
+
+		// Display a View or a Preview link depending on whether the post has been published or not
+		if ( in_array( $post->post_status, array( 'publish' ) ) )
+			$output .= '<span class="view"> | <a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;' ), $post_title ) ) . '" rel="permalink">' . __( 'View' ) . '</a></span>';
+		else if ( $can_edit_post )
+			$output .= '<span class="previewpost"> | <a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $post_title ) ) . '" rel="permalink">' . __( 'Preview' ) . '</a></span>';
 		$output .= '</div>';
+
 		return $output;
-		
 	}
 	
 	/**

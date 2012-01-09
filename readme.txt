@@ -12,15 +12,15 @@ Redefining your editorial workflow.
 
 Edit Flow empowers you to collaborate with your editorial team inside WordPress. We've made it modular so you can customize it to your needs:
 
-* [Custom Statuses](http://editflow.org/features/custom-statuses/) - Define the important stages of your workflow.
+* [Calendar](http://editflow.org/features/calendar/) - A convenient month-by-month look at your content.
+* [Custom Statuses](http://editflow.org/features/custom-statuses/) - Define the key stages to your workflow.
 * [Editorial Comments](http://editflow.org/features/editorial-comments/) - Threaded commenting in the admin for private discussion between writers and editors.
+* [Editorial Metadata](http://editflow.org/features/editorial-metadata/) - Keep track of the important details.
 * [Notifications](http://editflow.org/features/notifications/) - Receive timely updates on the content you're following.
-* [User Groups](http://editflow.org/features/user-groups/) - For publishers with many users working in the admin, user groups help you keep them organized.
-* [Calendar](http://editflow.org/features/calendar/) - A convenient week-by-week or month-by-month look at your content.
-* [Editorial Metadata](http://editflow.org/features/editorial-metadata/) - Keep track of the interview location, required word count, and other important details.
-* [Story Budget](http://editflow.org/features/story-budget/) - View all of your upcoming posts in a more traditional story budget view, and hit the print button to take it to your planning meeting.
+* [Story Budget](http://editflow.org/features/story-budget/) - View your upcoming content budget.
+* [User Groups](http://editflow.org/features/user-groups/) - Keep your users organized by department or function.
 
-More details and documentation can be found on [our website](http://www.editflow.org/).
+More details for each feature, screenshots and documentation can be found on [our website](http://www.editflow.org/).
 
 We'd love to hear from you! For support questions, feedback and ideas, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10), which we look at often. If you'd like to contribute code, [we'd love to have you involved](http://editflow.org/contribute/).
 
@@ -33,17 +33,6 @@ If the automatic process above fails, follow these simple steps to do a manual i
 1. Extract the contents of the zip file into your `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Write and enjoy the merits of a structured editorial workflow!
-
-== Screenshots ==
-
-1. The ability to Add, Edit, and Delete Custom Statuses
-2. Custom Statuses are automatically added to Status dropdown on the Edit Post and Quick Edit Post screens
-3. A new column is added to the Edit Posts screen and the ability to filter by status
-4. Threaded editorial commenting and additional metadata for posts
-5. See posts your upcoming posts on the Calendar
-6. Get a sense of your upcoming content on the Story Budget
-7. Editorial metadata comes with a bunch of built-in terms, but these can be changed to your heart's content
-8. Within each post you can modify the metadata recorded for the post
 
 == Frequently Asked Questions ==
 
@@ -76,7 +65,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
-= 0.7 (Dec. ???, 2011) =
+= 0.7 (Jan. 9, 2012) =
 * Entire plugin was rewritten into a modular architecture (e.g. each feature is broken into a module you can enable or disable). One point of the modular architecture is to make it much easier for others to contribute new features. For the end user, there’s a brand new settings page where you can manage your modules. Each module then registers a configuration view for module settings. Most have options to choose which post types you’d like it activated for, along with other configuration options.
 * Calendar is far more functional. Content is viewed in a six week view by default, and number of weeks is configurable in screen options. Posts can be dragged and dropped between dates. Click on a post title to get the details about the post, including editorial metadata.
 * Custom statuses can be drag and drop ordered with AJAX. All statuses (including core ‘draft’ and ‘pending’) can be edited or deleted.
@@ -84,7 +73,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Story Budget shows “viewable” editorial metadata and fixes a few bugs, including not showing posts in a subcategory of a parent category.
 * Notifications/subscriptions are filtered so you can disable the auto-subscribing of authors or editorial commenters.
 * Important note: If upgrading from pre-v0.6, please upgrade to v0.6.5 first to ensure all of your data remains intact.
-* [tk link to release post]
+* [Read the full release post](http://editflow.org/2012/01/09/edit-flow-v0-7-modular-architecture-monthly-calendar-and-sortable-statuses/)
 
 = 0.6.5 (Sept. 19, 2011) =
 * Bug fix: Workaround for a bug in core where the timestamp is set when a post is saved with a custom status. Instead, we update the timestamp on publish to current time if a custom post date hasn't been set. Thanks saomay for [help tracking the bug down](http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem/).

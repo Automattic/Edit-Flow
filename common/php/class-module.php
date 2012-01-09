@@ -488,6 +488,7 @@ class EF_Module {
 				'display_name',
 				'user_email'
 			),
+			'orderby' => 'display_name',
 		);
 		$users = get_users( $args );
 
@@ -501,8 +502,8 @@ class EF_Module {
 					<li>
 						<label for="<?php echo esc_attr( $input_id .'-'. $user->ID ) ?>">
 							<input type="checkbox" id="<?php echo esc_attr( $input_id .'-'. $user->ID ) ?>" name="<?php echo esc_attr( $input_id ) ?>[]" value="<?php echo esc_attr( $user->ID ); ?>" <?php echo $checked; ?> />
-							<span class="ef-user-displayname"><?php echo esc_html( $user->display_name ); ?></span>
-							<span class="ef-user-useremail"><?php echo esc_html( $user->user_email ); ?></span>
+							<span class="ef-user_displayname"><?php echo esc_html( $user->display_name ); ?></span>
+							<span class="ef-user_useremail"><?php echo esc_html( $user->user_email ); ?></span>
 						</label>
 					</li>
 				<?php endforeach; ?>
@@ -531,6 +532,32 @@ class EF_Module {
 			$role =& get_role( $role );
 			foreach ( $caps as $cap )
 				$role->add_cap( $cap );
+		}
+	}
+
+	/**
+	 * Add settings help menus to our module screens if the values exist
+	 * Auto-registered in Edit_Flow::register_module()
+	 *
+	 * @since 0.7
+	 */
+	function action_settings_help_menu() {
+		
+		$screen = get_current_screen();
+		
+		if ( !method_exists( $screen, 'add_help_tab' ) ) 
+			return;
+		
+		if ( $screen->id != 'edit-flow_page_' . $this->module->settings_slug ) 
+			return;
+
+		// Make sure we have all of the required values for our tab
+		if ( isset( $this->module->settings_help_tab['id'], $this->module->settings_help_tab['title'], $this->module->settings_help_tab['content'] ) ) {
+			$screen->add_help_tab( $this->module->settings_help_tab );
+		
+			if ( isset( $this->module->settings_help_sidebar ) ) {
+				$screen->set_help_sidebar( $this->module->settings_help_sidebar );
+			}
 		}
 	}
 	

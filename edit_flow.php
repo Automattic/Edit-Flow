@@ -4,10 +4,10 @@ Plugin Name: Edit Flow
 Plugin URI: http://editflow.org/
 Description: Remixing the WordPress admin for better editorial workflow options.
 Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Automattic, and others
-Version: 0.7-beta4
+Version: 0.7-beta5
 Author URI: http://editflow.org/
 
-Copyright 2009-2011 Mohammad Jangda, Daniel Bachhuber, et al.
+Copyright 2009-2012 Mohammad Jangda, Daniel Bachhuber, et al.
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
 
@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 // Define contants
-define( 'EDIT_FLOW_VERSION' , '0.7-beta4' );
+define( 'EDIT_FLOW_VERSION' , '0.7-beta5' );
 define( 'EDIT_FLOW_ROOT' , dirname(__FILE__) );
 define( 'EDIT_FLOW_FILE_PATH' , EDIT_FLOW_ROOT . '/' . basename(__FILE__) );
 define( 'EDIT_FLOW_URL' , plugins_url( '/', __FILE__ ) );
@@ -202,6 +202,11 @@ class edit_flow {
 			$args['settings_slug'] = 'ef-' . $args['slug'] . '-settings';
 		if ( empty( $args['post_type_support'] ) )
 			$args['post_type_support'] = 'ef_' . $name;
+		// If there's a Help Screen registered for the module, make sure we
+		// auto-load it
+		if ( !empty( $args['settings_help_tab'] ) )
+			 add_action( 'load-edit-flow_page_' . $args['settings_slug'], array( &$this->$name, 'action_settings_help_menu' ) );
+		
 		$this->modules->$name = (object) $args;
 		do_action( 'ef_module_registered', $name );
 		return $this->modules->$name;

@@ -44,10 +44,16 @@ class EF_Calendar extends EF_Module {
 			'messages' => array(
 				'post-date-updated' => __( "Post date updated.", 'edit-flow' ),
 				'update-error' => __( 'There was an error updating the post. Please try again.', 'edit-flow' ),
-				'published-post-ajax' => __( "AJAX doesn't work for published content.", 'edit-flow' ),
+				'published-post-ajax' => __( "Updating the post date dynamically doesn't work for published content. Please <a href='%s'>edit the post</a>.", 'edit-flow' ),
 			),
 			'configure_page_cb' => 'print_configure_view',
-			'configure_link_text' => __( 'Calendar Options', 'edit-flow' ),		
+			'configure_link_text' => __( 'Calendar Options', 'edit-flow' ),
+			'settings_help_tab' => array(
+				'id' => 'ef-calendar-overview',
+				'title' => __('Overview', 'edit-flow'),
+				'content' => __('<p>The calendar is a convenient week-by-week or month-by-month view into your content. Quickly see which stories are on track to being published on time, and which will need extra effort.</p>', 'edit-flow'),
+				),
+			'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/calendar/">Calendar Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
 		);
 		$this->module = $edit_flow->register_module( 'calendar', $args );		
 		
@@ -255,7 +261,7 @@ class EF_Calendar extends EF_Module {
 			'private',
 		);
 		if ( in_array( $post->post_status, $published_statuses ) )
-			$this->print_ajax_response( 'error', $this->module->messages['published-post-ajax'] );
+			$this->print_ajax_response( 'error', sprintf( $this->module->messages['published-post-ajax'], get_edit_post_link( $post_id ) ) );
 		
 		// Check that the new date passed is a valid one
 		$next_date_full = strtotime( $_POST['next_date'] );
@@ -630,6 +636,12 @@ class EF_Calendar extends EF_Module {
 							<div class="item-inner">
 							<table class="item-information">
 								<?php foreach( $ef_calendar_item_information_fields as $field => $values ): ?>
+									<?php
+										// Allow filters to hide empty fields or to hide any given individual field. Hide empty fields by default.
+										if ( ( apply_filters( 'ef_calendar_hide_empty_item_information_fields', true, $post->ID ) && empty( $values['value'] ) )
+												|| apply_filters( "ef_calendar_hide_{$field}_item_information_field", false, $post->ID ) )
+											continue;
+									?>
 									<tr class="item-field item-information-<?php echo esc_attr( $field ); ?>">
 										<th class="label"><?php echo esc_html( $values['label'] ); ?>:</th>
 										<?php if ( $values['value'] ): ?>
@@ -778,16 +790,16 @@ class EF_Calendar extends EF_Module {
 			</li>
 
 			<?php /** Previous and next navigation items (translatable so they can be increased if needed )**/ ?>
-			<li class="next-week">
+			<li class="date-change next-week">
 				<a title="<?php printf( __( 'Forward 1 week', 'edit-flow' ) ); ?>" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters, 1 ) ); ?>"><?php _e( '&rsaquo;', 'edit-flow' ); ?></a>
 				<?php if ( $this->total_weeks > 1): ?>			
 				<a title="<?php printf( __( 'Forward %d weeks', 'edit-flow' ), $this->total_weeks ); ?>" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters ) ); ?>"><?php _e( '&raquo;', 'edit-flow' ); ?></a>
 				<?php endif; ?>
 			</li>
-			<li class="today">
+			<li class="date-change today">
 				<a title="<?php printf( __( 'Today is %s', 'edit-flow' ), date( get_option( 'date_format' ) ) ); ?>" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters, 0 ) ); ?>"><?php _e( 'Today', 'edit-flow' ); ?></a>
 			</li>
-			<li class="previous-week">
+			<li class="date-change previous-week">
 				<?php if ( $this->total_weeks > 1): ?>				
 				<a title="<?php printf( __( 'Back %d weeks', 'edit-flow' ), $this->total_weeks ); ?>"  href="<?php echo esc_url( $this->get_pagination_link( 'previous', $filters ) ); ?>"><?php _e( '&laquo;', 'edit-flow' ); ?></a>
 				<?php endif; ?>
@@ -1032,6 +1044,7 @@ class EF_Calendar extends EF_Module {
 		
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
 			add_settings_field( 'post_types', 'Post types to show', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'number_of_weeks', 'Number of weeks to show', array( &$this, 'settings_number_weeks_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 
 	}
 	
@@ -1043,6 +1056,16 @@ class EF_Calendar extends EF_Module {
 	function settings_post_types_option() {
 		global $edit_flow;
 		$edit_flow->settings->helper_option_custom_post_type( $this->module );
+	}
+
+	/**
+	 * Give a bit of helper text to indicate the user can change
+	 * number of weeks in the screen options
+	 *
+	 * @since 0.7
+	 */
+	function settings_number_weeks_option() {
+		echo '<span class="description">' . __( 'The number of weeks shown on the calendar can be changed on a user-by-user basis using the calendar\'s screen options.', 'edit-flow' ) . '</span>';
 	}
 	
 	/**

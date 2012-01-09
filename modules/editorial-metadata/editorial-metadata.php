@@ -61,6 +61,12 @@ class EF_Editorial_Metadata extends EF_Module {
 				'term-visibility-changed' => __( "Term visibility changed.", 'edit-flow' ),
 			),
 			'configure_page_cb' => 'print_configure_view',
+			'settings_help_tab' => array(
+				'id' => 'ef-editorial-metadata-overview',
+				'title' => __('Overview', 'edit-flow'),
+				'content' => __('<p>Keep track of important details about your content with editorial metadata. This feature allows you to create as many date, text, number, etc. fields as you like, and then use them to store information like contact details, required word count, or the location of an interview.</p><p>Once you’ve set your fields up, editorial metadata integrates with both the calendar and the story budget. Make an editorial metadata item visible to have it appear to the rest of your team. Keep it hidden to restrict the information between the writer and their editor.</p>', 'edit-flow'),
+				),
+			'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/editorial-metadata/">Editorial Metadata Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
 		);
 		$edit_flow->register_module( $this->module_name, $args );		
 		
@@ -121,16 +127,16 @@ class EF_Editorial_Metadata extends EF_Module {
 		// Our default metadata fields
 		$default_metadata = array(
 			array(
-				'name' => __( 'Due Date', 'edit-flow' ),
-				'slug' => 'duedate',
+				'name' => __( 'First Draft Date', 'edit-flow' ),
+				'slug' => 'first-draft-date',
 				'type' => 'date',
-				'description' => __( 'Deadline for this post to be published.', 'edit-flow' ),
+				'description' => __( 'When the first draft needs to be ready.', 'edit-flow' ),
 			),
 			array(
-				'name' => __( 'Assignment Description', 'edit-flow' ),
-				'slug' => 'description',
+				'name' => __( 'Assignment', 'edit-flow' ),
+				'slug' => 'assignment',
 				'type' => 'paragraph',
-				'description' => __( 'What the post needs to be cover.', 'edit-flow' ),
+				'description' => __( 'What the post needs to cover.', 'edit-flow' ),
 			),
 			array(
 				'name' => __( 'Needs Photo', 'edit-flow' ),
@@ -307,18 +313,24 @@ class EF_Editorial_Metadata extends EF_Module {
 		);
 	}
 	
-	/**
+	/*****************************************************
 	 * Post meta box generation and processing
-	 */
+	 ****************************************************/
 	
 	/**
 	 * Load the post metaboxes for all of the post types that are supported
 	 */
 	function handle_post_metaboxes() {
+		$title = __( 'Editorial Metadata', 'edit-flow' );
+		if ( current_user_can( 'manage_options' ) ) {
+			// Make the metabox title include a link to edit the Editorial Metadata terms. Logic similar to how Core dashboard widgets work.
+			$url = add_query_arg( 'page', 'ef-editorial-metadata-settings', get_admin_url( null, 'admin.php' ) );
+			$title .= ' <span class="postbox-title-action"><a href="' . esc_url( $url ) . '" class="edit-box open-box">' . __( 'Configure' ) . '</a></span>';
+		}
 
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		foreach ( $supported_post_types as $post_type ) {
-			add_meta_box( self::metadata_taxonomy, __( 'Editorial Metadata', 'edit-flow' ), array( &$this, 'display_meta_box' ), $post_type, 'side' );
+			add_meta_box( self::metadata_taxonomy, $title, array( &$this, 'display_meta_box' ), $post_type, 'side' );
 		}
 	}
 	
@@ -358,14 +370,10 @@ class EF_Editorial_Metadata extends EF_Module {
 							// Turn timestamp into a human-readable date
 							$current_metadata = date( 'M d Y' , intval( $current_metadata ) );	
 						}
-						echo "<div class='" . self::metadata_taxonomy ."-item'>";
 						echo "<label for='$postmeta_key'>{$term->name}</label>";
-						echo "<span class='description'>";
-						if ( $description )
-							echo "$description&nbsp;&nbsp;&nbsp;";
-						echo "<a class='clear-date' href='#'>Clear</a></span>";
+						if ( $description_span )
+							echo "<label for='$postmeta_key'>$description_span</label>";
 						echo "<input id='$postmeta_key' name='$postmeta_key' type='text' class='date-pick' value='$current_metadata' />";
-						echo "</div>";
 						break;
 					case "location":
 						echo "<label for='$postmeta_key'>{$term->name}</label>";
@@ -639,8 +647,6 @@ class EF_Editorial_Metadata extends EF_Module {
 				case "date":
 					if ( !empty( $current_metadata ) )
 						$current_metadata = date( get_option( 'date_format' ), intval( $current_metadata ) );
-					echo esc_html( $current_metadata );
-					break;
 				case "location":
 				case "text":
 				case "number":
