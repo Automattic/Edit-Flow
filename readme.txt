@@ -65,7 +65,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
-= 0.7 (Dec. ???, 2011) =
+= 0.7 (Jan. 9, 2012) =
 * Entire plugin was rewritten into a modular architecture (e.g. each feature is broken into a module you can enable or disable). One point of the modular architecture is to make it much easier for others to contribute new features. For the end user, there’s a brand new settings page where you can manage your modules. Each module then registers a configuration view for module settings. Most have options to choose which post types you’d like it activated for, along with other configuration options.
 * Calendar is far more functional. Content is viewed in a six week view by default, and number of weeks is configurable in screen options. Posts can be dragged and dropped between dates. Click on a post title to get the details about the post, including editorial metadata.
 * Custom statuses can be drag and drop ordered with AJAX. All statuses (including core ‘draft’ and ‘pending’) can be edited or deleted.
@@ -73,7 +73,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Story Budget shows “viewable” editorial metadata and fixes a few bugs, including not showing posts in a subcategory of a parent category.
 * Notifications/subscriptions are filtered so you can disable the auto-subscribing of authors or editorial commenters.
 * Important note: If upgrading from pre-v0.6, please upgrade to v0.6.5 first to ensure all of your data remains intact.
-* [tk link to release post]
+* [Read the full release post](http://editflow.org/2012/01/09/edit-flow-v0-7-modular-architecture-monthly-calendar-and-sortable-statuses/)
 
 = 0.6.5 (Sept. 19, 2011) =
 * Bug fix: Workaround for a bug in core where the timestamp is set when a post is saved with a custom status. Instead, we update the timestamp on publish to current time if a custom post date hasn't been set. Thanks saomay for [help tracking the bug down](http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem/).
