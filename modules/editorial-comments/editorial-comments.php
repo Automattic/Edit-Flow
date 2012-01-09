@@ -59,8 +59,9 @@ class EF_Editorial_Comments extends EF_Module
 		add_action( 'wp_ajax_editflow_ajax_insert_comment', array( &$this, 'ajax_insert_comment' ) );
 
 		// Add Editorial Comments to the calendar if the calendar is activated
-		if ( $this->module_enabled( 'calendar' ) )
+		if ( $this->module_enabled( 'calendar' ) ) {
 			add_filter( 'ef_calendar_item_information_fields', array( &$this, 'filter_calendar_item_fields' ), null, 2 );
+		}
 	}
 
 	/**
@@ -262,13 +263,10 @@ class EF_Editorial_Comments extends EF_Module
 
 			<div class="post-comment-wrap">
 				<h5 class="comment-meta">
-				
-					<span class="comment-author">
-						<?php comment_author_email_link($comment->comment_author) ?>
-					</span>
-					<span class="meta">
-						<?php printf( __(' said on %s at %s', 'edit-flow'), get_comment_date( get_option('date_format') ), get_comment_time() ); ?>
-					</span>
+					<?php printf( __('<span class="comment-author">%1$s</span><span class="meta"> said on %2$s at %3$s</span>', 'edit-flow'),
+							comment_author_email_link( $comment->comment_author ),
+							get_comment_date( get_option( 'date_format' ) ),
+							get_comment_time() ); ?>
 				</h5>
 	
 				<div class="comment-content"><?php comment_text(); ?></div>
