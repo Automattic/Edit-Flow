@@ -12,15 +12,15 @@ Redefining your editorial workflow.
 
 Edit Flow empowers you to collaborate with your editorial team inside WordPress. We've made it modular so you can customize it to your needs:
 
-* [Custom Statuses](http://editflow.org/features/custom-statuses/) - Define the important stages of your workflow.
+* [Calendar](http://editflow.org/features/calendar/) - A convenient month-by-month look at your content.
+* [Custom Statuses](http://editflow.org/features/custom-statuses/) - Define the key stages to your workflow.
 * [Editorial Comments](http://editflow.org/features/editorial-comments/) - Threaded commenting in the admin for private discussion between writers and editors.
 * [Notifications](http://editflow.org/features/notifications/) - Receive timely updates on the content you're following.
-* [User Groups](http://editflow.org/features/user-groups/) - For publishers with many users working in the admin, user groups help you keep them organized.
-* [Calendar](http://editflow.org/features/calendar/) - A convenient week-by-week or month-by-month look at your content.
-* [Editorial Metadata](http://editflow.org/features/editorial-metadata/) - Keep track of the interview location, required word count, and other important details.
-* [Story Budget](http://editflow.org/features/story-budget/) - View all of your upcoming posts in a more traditional story budget view, and hit the print button to take it to your planning meeting.
+* [User Groups](http://editflow.org/features/user-groups/) - Keep your users organized by department or function.
+* [Editorial Metadata](http://editflow.org/features/editorial-metadata/) - Keep track of the important details.
+* [Story Budget](http://editflow.org/features/story-budget/) - View your upcoming content budget.
 
-More details and documentation can be found on [our website](http://www.editflow.org/).
+More details for each feature, screenshots and documentation can be found on [our website](http://www.editflow.org/).
 
 We'd love to hear from you! For support questions, feedback and ideas, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10), which we look at often. If you'd like to contribute code, [we'd love to have you involved](http://editflow.org/contribute/).
 
