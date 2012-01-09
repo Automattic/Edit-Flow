@@ -60,7 +60,8 @@ class EF_Editorial_Comments extends EF_Module
 
 		// Add Editorial Comments to the calendar if the calendar is activated
 		if ( $this->module_enabled( 'calendar' ) ) {
-			add_filter( 'ef_calendar_item_information_fields', array( &$this, 'filter_calendar_item_fields' ), null, 2 );
+			// Still in progress. See: https://www.pivotaltracker.com/story/show/5930884 and https://www.pivotaltracker.com/story/show/5930895
+			//add_filter( 'ef_calendar_item_information_fields', array( &$this, 'filter_calendar_item_fields' ), null, 2 );
 		}
 	}
 
