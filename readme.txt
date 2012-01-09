@@ -15,10 +15,10 @@ Edit Flow empowers you to collaborate with your editorial team inside WordPress.
 * [Calendar](http://editflow.org/features/calendar/) - A convenient month-by-month look at your content.
 * [Custom Statuses](http://editflow.org/features/custom-statuses/) - Define the key stages to your workflow.
 * [Editorial Comments](http://editflow.org/features/editorial-comments/) - Threaded commenting in the admin for private discussion between writers and editors.
-* [Notifications](http://editflow.org/features/notifications/) - Receive timely updates on the content you're following.
-* [User Groups](http://editflow.org/features/user-groups/) - Keep your users organized by department or function.
 * [Editorial Metadata](http://editflow.org/features/editorial-metadata/) - Keep track of the important details.
+* [Notifications](http://editflow.org/features/notifications/) - Receive timely updates on the content you're following.
 * [Story Budget](http://editflow.org/features/story-budget/) - View your upcoming content budget.
+* [User Groups](http://editflow.org/features/user-groups/) - Keep your users organized by department or function.
 
 More details for each feature, screenshots and documentation can be found on [our website](http://www.editflow.org/).
 
