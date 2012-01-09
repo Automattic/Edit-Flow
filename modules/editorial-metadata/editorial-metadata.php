@@ -127,16 +127,16 @@ class EF_Editorial_Metadata extends EF_Module {
 		// Our default metadata fields
 		$default_metadata = array(
 			array(
-				'name' => __( 'Due Date', 'edit-flow' ),
-				'slug' => 'duedate',
+				'name' => __( 'First Draft Date', 'edit-flow' ),
+				'slug' => 'first-draft-date',
 				'type' => 'date',
-				'description' => __( 'Deadline for this post to be published.', 'edit-flow' ),
+				'description' => __( 'When the first draft needs to be ready by.', 'edit-flow' ),
 			),
 			array(
-				'name' => __( 'Assignment Description', 'edit-flow' ),
-				'slug' => 'description',
+				'name' => __( 'Assignment', 'edit-flow' ),
+				'slug' => 'assignment',
 				'type' => 'paragraph',
-				'description' => __( 'What the post needs to be cover.', 'edit-flow' ),
+				'description' => __( 'What the post needs to cover.', 'edit-flow' ),
 			),
 			array(
 				'name' => __( 'Needs Photo', 'edit-flow' ),
