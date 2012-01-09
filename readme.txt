@@ -34,17 +34,6 @@ If the automatic process above fails, follow these simple steps to do a manual i
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Write and enjoy the merits of a structured editorial workflow!
 
-== Screenshots ==
-
-1. The ability to Add, Edit, and Delete Custom Statuses
-2. Custom Statuses are automatically added to Status dropdown on the Edit Post and Quick Edit Post screens
-3. A new column is added to the Edit Posts screen and the ability to filter by status
-4. Threaded editorial commenting and additional metadata for posts
-5. See posts your upcoming posts on the Calendar
-6. Get a sense of your upcoming content on the Story Budget
-7. Editorial metadata comes with a bunch of built-in terms, but these can be changed to your heart's content
-8. Within each post you can modify the metadata recorded for the post
-
 == Frequently Asked Questions ==
 
 = Edit Flow doesn't do X, Y, and Z. That makes me sad. =
