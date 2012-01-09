@@ -130,7 +130,7 @@ class EF_Editorial_Metadata extends EF_Module {
 				'name' => __( 'First Draft Date', 'edit-flow' ),
 				'slug' => 'first-draft-date',
 				'type' => 'date',
-				'description' => __( 'When the first draft needs to be ready by.', 'edit-flow' ),
+				'description' => __( 'When the first draft needs to be ready.', 'edit-flow' ),
 			),
 			array(
 				'name' => __( 'Assignment', 'edit-flow' ),
