@@ -994,9 +994,17 @@ class EF_Calendar extends EF_Module {
 	 */
 	function calendar_time_range() {
 		
-		$first_date = date( 'F jS', strtotime( $this->start_date ) );
+		$first_datetime = strtotime( $this->start_date );
+		if ( date( 'Y' ) != date( 'Y', $first_datetime ) )
+			$first_date = date( 'F jS, Y', $first_datetime );
+		else	
+			$first_date = date( 'F jS', $first_datetime );
 		$total_days = ( $this->total_weeks * 7 ) - 1;
-		$last_date = date( 'F jS', strtotime( "+" . $total_days . " days", date( 'U', strtotime( $this->start_date ) ) ) );
+		$last_datetime = strtotime( "+" . $total_days . " days", date( 'U', strtotime( $this->start_date ) ) );
+		if ( date( 'Y' ) != date( 'Y', $last_datetime ) )
+			$last_date = date( 'F jS, Y', $last_datetime );
+		else
+			$last_date = date( 'F jS', $last_datetime );
 		echo sprintf( __( 'for %1$s through %2$s'), $first_date, $last_date );
 	}
 	
