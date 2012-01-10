@@ -328,15 +328,15 @@ class EF_Calendar extends EF_Module {
 		$current_user = wp_get_current_user();
 		$filters = array();
 		$old_filters = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
-	
-		// Set the proper keys to empty so we don't thr
-		if ( empty( $old_filters ) ) {
-			$old_filters['post_status'] = '';
-			$old_filters['post_type'] = '';		
-			$old_filters['cat'] = '';
-			$old_filters['author'] = '';
-			$old_filters['start_date'] = '';
-		}
+
+		$default_filters = array(
+				'post_status' => '',
+				'post_type' => '',
+				'cat' => '',
+				'author' => '',
+				'start_date' => date( 'Y-m-d' ),
+			);
+		$old_filters = array_merge( $default_filters, (array)$old_filters );
 		
 		// Post status
 		if ( isset( $_GET['post_status'] ) ) {
