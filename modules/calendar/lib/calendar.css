@@ -1,0 +1,400 @@
+#ef-calendar-title h2 span {
+	color: #999999;
+}
+
+#ef-calendar-wrap {
+	min-width:900px;
+	width: 100%;
+	position: relative;
+}
+
+table#ef-calendar-view {
+	border: 1px solid #e1e1e1;
+	border-collapse: collapse;
+	width: 100%;
+}
+
+#ef-calendar-view .day-unit {
+	border-right: 1px solid #e1e1e1;
+	vertical-align: top;
+	height: 100px;
+}
+
+#ef-calendar-view.one-week-showing .day-unit {
+	height: 500px;
+}
+
+#ef-calendar-view.two-weeks-showing .day-unit {
+	height: 250px;
+}
+
+#ef-calendar-view.three-weeks-showing .day-unit {
+	height: 150px;
+}
+
+table#ef-calendar-view .day-unit.weekend-day {
+	background-color: #F9F9F9;
+}
+
+#ef-calendar-view .day-unit .day-unit-label {
+	float: right;
+	display: inline-block;
+	color: #666666;
+	padding-right: 3px;
+}
+
+#ef-calendar-view .day-unit .day-unit-today {
+	float: left;
+	display: inline-block;
+	color: #666666;
+	padding-left: 3px;	
+}
+
+#ef-calendar-view .day-unit.weekend-day .day-unit-label,
+#ef-calendar-view .day-unit.weekend-day .month-label {
+	color: #999999;
+}
+
+#ef-calendar-view .calendar-heading {
+	height: 28px;
+	background: #DFDFDF url('menu-bits.gif') repeat-x scroll left top;
+	-webkit-border-top-left-radius: 6px;	/*** Adds the rounded effect to fit with WP styles ***/
+	-webkit-border-top-right-radius: 6px;
+	-moz-border-radius-topleft: 6px;
+	-moz-border-radius-topright: 6px;
+	border-radius-topleft: 6px;
+	border-radius-topright: 6px;
+	margin-top:5px;
+}
+
+#ef-calendar-view tr th.column-heading {
+	width: 12%;
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+	color: #333333;
+	line-height: 1.3em;
+	font-size: 11px;
+}
+
+#ef-calendar-view .day-heading span {
+	font-weight: normal;
+}
+
+#ef-calendar-view .month-marker {
+	color: #666666;
+	border-bottom: 1px solid #E1E1E1;
+	font-size: 11px;
+	line-height: 15px;
+}
+
+#ef-calendar-view .month-marker td {
+	padding-top: 0;
+	padding-bottom: 0;
+}
+
+#ef-calendar-view .month-marker-previous {
+	text-align: right;
+	padding-right: 8px;
+	border-right: 1px solid #E1E1E1;	
+}
+
+#ef-calendar-view .month-marker-current {
+	padding-left: 8px;
+}
+
+table#ef-calendar-view .week-unit {
+	border-bottom: 1px solid #E1E1E1;
+}
+
+table#ef-calendar-view .day-unit.today {
+	border-top: 1px solid #000;
+}
+
+table#ef-calendar-view .day-unit .ui-state-highlight {
+	min-height: 20px;
+}
+
+table#ef-calendar-view .day-unit.ui-wrapper-highlight {
+	/* background-color: #fcffb5; */
+	background-color: #FFFFE0;
+}
+
+table#ef-calendar-view .day-unit.ui-wrapper-highlight ul li {
+	border-color: #FFFFE0;
+}
+
+table#ef-calendar-view .day-unit.weekend-day.ui-wrapper-highlight {
+	background-color: #FFFFE0;
+}
+
+table#ef-calendar-view .day-unit.weekend-day ul li.is-published:hover {
+	border-color: #FBFBFB;
+}
+
+table#ef-calendar-view .day-unit.weekend-day.ui-wrapper-highlight ul li.sortable {
+	
+}
+
+table#ef-calendar-view .day-unit ul {
+	margin-top: 17px;
+	margin-bottom: 0;
+	padding: 0;
+	min-height: 70px;
+}
+
+table#ef-calendar-view .day-unit ul li {
+	list-style-type: none;
+	margin: 0;
+	word-wrap: break-word;
+	padding: 1px;
+	border: 1px solid #FFF;
+	margin-bottom: 5px;
+}
+
+table#ef-calendar-view .day-unit.weekend-day ul li {
+	border-color: #FBFBFB;
+}
+
+table#ef-calendar-view .day-unit ul li:hover {
+	border-color: #DDD;	
+}
+
+table#ef-calendar-view .day-unit ul li:hover {
+	border-color: #DDD;
+}
+
+table#ef-calendar-view .day-unit ul li .item-status {
+	font-size: 11px;
+	line-height: 13px;
+	color: #999999;
+	word-wrap: break-word;
+	width: 55px;
+	float: right;
+	padding-right: 2px;
+	text-align: right;
+	padding-top: 2px;
+}
+
+table#ef-calendar-view .day-unit ul li .inner {
+	margin-right: 57px;
+	padding-left: 3px;
+}
+
+table#ef-calendar-view .day-unit ul li .item-headline {
+	font-size: 12px;
+	line-height: 15px;
+	margin-top:0;	
+	margin-bottom:0;
+	color: #21759B;
+}
+
+table#ef-calendar-view .day-unit ul li.is-published:hover {
+	border-color: #FFF;
+	cursor: pointer;
+}
+
+table#ef-calendar-view .day-unit ul li.sortable:hover {
+	border-color: #21759B;
+	background-color: #F7F7F7;
+	cursor: pointer;
+}
+
+table#ef-calendar-view .day-unit ul li .item-headline:hover {
+	cursor: pointer;
+}
+
+table#ef-calendar-view .day-unit ul li.sortable.ui-sortable-helper {
+	cursor: move;
+	border-color: #21759B;
+	background-color: #F7F7F7;
+}
+
+table#ef-calendar-view .day-unit ul li .item-inner {
+	display: none;
+}
+
+table#ef-calendar-view .day-unit ul li .item-information {
+	margin-top: 5px;
+	border-top: 1px solid #CCC;
+	padding-top: 3px;
+	width: 100%;
+}
+
+table#ef-calendar-view .day-unit ul li .item-information .item-field {
+	margin-top: 5px;
+	margin-bottom: 5px;
+	clear:left;
+}
+
+table#ef-calendar-view .day-unit ul li .item-information .item-field .label {
+	vertical-align: top;
+	max-width: 70px;
+	text-align: right;
+	font-weight: bold;
+	word-wrap: normal;
+	padding-right: 5px;
+}
+
+table#ef-calendar-view .day-unit ul li .item-information .item-field .value {
+}
+
+table#ef-calendar-view .day-unit ul li .item-information .item-field em.none {
+	color: #999999;
+}
+
+table#ef-calendar-view .day-unit ul li.is-published .item-headline {
+	color: #777;
+}
+
+table#ef-calendar-view .day-unit ul li.item-overlay-active {
+	position:relative;
+}
+
+table#ef-calendar-view .day-unit ul li .item-overlay {
+	min-width: 250px;
+	max-width: 350px;
+	background-color: #FFF;
+	padding: 5px;
+	position: absolute;
+	z-index: 999;
+	top: -5px;
+	left: -5px;
+	border: 1px solid #CCC;
+	-moz-box-shadow:5px 5px 5px #888;
+	-webkit-box-shadow:5px 5px 5px #888;
+	box-shadow:5px 5px 5px #888;
+}
+
+table#ef-calendar-view .day-unit.last-day ul li .item-overlay {
+	right: -5px;
+	left: auto;
+}
+
+table#ef-calendar-view .day-unit ul li .item-overlay .item-inner {
+	display: block;
+	min-width: 170px;
+	max-width: 270px;
+}
+
+table#ef-calendar-view .day-unit ul li .item-overlay .item-inner {
+	cursor: default;
+}
+
+table#ef-calendar-view .day-unit ul li .item-overlay .item-actions {
+	padding-left: 3px;
+	padding-right: 3px;
+	border-top: 1px solid #CCC;
+	padding-top: 3px;
+	margin-top: 4px;
+}
+
+table#ef-calendar-view .day-unit ul li .item-overlay .item-actions a {
+	text-decoration: none;
+}
+
+#ef-calendar-view .day-unit .show-more {
+	margin-right: 5px;
+	margin-bottom: 5px;
+	display: block;
+	text-align: right;
+	color: #999;
+	font-size: 11px;
+}
+
+/*** Week Navigation Links ***/
+
+.ef-calendar-navigation {
+	padding:0;
+	display:block;
+	height:20px;
+	margin-top:10px;
+	margin-bottom:15px;
+}
+
+.ef-calendar-navigation li #post-query-submit.button-primary,
+.ef-calendar-navigation li .button-secondary {
+	margin-left: 8px;
+	margin-right: 0;
+}
+
+.ef-calendar-navigation li.date-change a {
+	text-decoration:none;
+	-moz-border-radius:5px 5px 5px 5px;
+	-webkit-border-radius:5px 5px 5px 5px;
+	border-radius: 5px 5px 5px 5px;
+	border: 1px solid #E3E3E3;
+	padding: 3px 6px;
+	color:#21759B;
+	font-weight: bold;
+	font-size: 12px;
+	line-height: 30px;
+	background: url("menu-bits.gif") repeat-x scroll left -379px #EEEEEE;
+}
+
+.ef-calendar-navigation li.today a {
+	font-weight: normal;	
+}
+
+.ef-calendar-navigation a:hover {
+	text-decoration:none;
+	border-color: #D54321;
+	color: #D54E21;
+}
+
+.ef-calendar-navigation li {
+	list-style-type:none;
+	margin-bottom: 0;
+	display: inline-block;
+}
+
+.ef-calendar-navigation li#calendar-filter {
+	margin-top: 2px;
+}
+
+.ef-calendar-navigation li.performing-ajax {
+	position: relative;
+	display:none;
+}
+
+.ef-calendar-navigation li.performing-ajax img {
+	position: absolute;
+	top: -12px;
+	margin-left: 5px;
+}
+
+.ef-calendar-navigation li.ajax-actions,
+.ef-calendar-navigation li.date-change {
+	float:right;
+}
+
+.ef-calendar-navigation li.ajax-actions img.waiting {
+	padding-top: 8px;
+	vertical-align:middle;
+}
+
+.ef-calendar-navigation li.ajax-actions,
+.ef-calendar-navigation li.previous-week,
+.ef-calendar-navigation li.today {
+	margin-right: 15px;
+}
+
+.edit-flow-message {
+	margin-top: 2px;
+	font-weight:normal;
+	padding-left: 25px;
+	padding-right: 25px;	
+	padding-top: 5px;
+	padding-bottom: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;	
+}
+
+.edit-flow-updated-message {
+	background-color: #FFFFE0;
+	border: 1px solid #E6DB55;
+}
+
+.edit-flow-error-message {
+	background-color: #FFEBE8;
+	border: 1px solid #CC0000;
+}

@@ -1,0 +1,73 @@
+/** Story Budget **/
+#ef-story-budget-tablenav {
+	height: auto;
+	overflow: hidden;
+}
+
+#ef-story-budget-title h2 span {
+	color: #999999;
+}
+
+#ef-story-budget-title h2 form {
+	display: inline;
+	position: relative;
+}
+
+#ef-story-budget-title h2 form input {
+	display:none;
+}
+
+#ef-story-budget-title h2 a.change-date {
+	display:inline-block;
+}
+
+#ef-story-budget-title h2 a.change-date,
+#ef-story-budget-title h2 a.change-date-cancel {
+	font-size: 14px;
+}
+
+
+.postbox-container {
+	float: left;
+	padding-right: 0;
+}
+
+.postbox {
+	display: block;
+	margin-bottom: 10px;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+
+.postbox .inside {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.story-budget thead tr th {
+	background: #f1f1f1 !important;
+}
+
+.ef-updated {
+	background-color: #FFFFE0;
+	border-color: #E6DB55;
+	-moz-border-radius: 3px 3px 3px 3px;
+	border-style: solid;
+	border-width: 1px;
+	margin: 5px 15px 2px;
+	padding: 0 0.6em;
+}
+
+.wrap .ef-updated  {
+	margin: 5px 0 15px;
+}
+
+.ef-updated p {
+	line-height: 1;
+	margin: 0.5em 0;
+	padding: 2px;
+}
+
+#start_date, #end_date {
+	width: 100px;
+}

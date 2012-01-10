@@ -1,0 +1,131 @@
+/** Editorial Metadata **/
+
+#ef_editorial_meta h3 {
+	padding-left: 22px;
+	background-image: url( editorial_metadata_s16.png );
+	background-repeat: no-repeat;
+	background-position: 5px 5px;
+}
+
+/* Position the Configure link on the metabox title line to the right */
+#ef_editorial_meta h3 .postbox-title-action {
+    padding: 0;
+    position: absolute;
+    right: 30px;
+    top: 5px;
+}
+
+/* Spacing between each term */
+#ef_editorial_meta_meta_box div.ef_editorial_meta {
+	margin-bottom: 10px;
+}
+
+#ef_editorial_meta_meta_box div.ef_editorial_meta label,
+#ef_editorial_meta_meta_box div.ef_editorial_meta span.description {
+	display: block;
+}
+
+#ef_editorial_meta_meta_box div.ef_editorial_meta label {
+	font-weight: bold;
+	line-height: 1.3em;
+	margin-top: 5px;
+	padding-left: 2px;
+}
+
+#ef_editorial_meta_meta_box div.ef_editorial_meta_date label:first-child  {
+	background: transparent url("date-button.gif") no-repeat scroll 2px 0;
+	padding-left: 20px;
+}
+	#ef_editorial_meta_meta_box div.ef_editorial_meta_date input[readonly] {
+		background: #fff;
+		cursor: pointer;
+	}
+
+#ef_editorial_meta_meta_box div.ef_editorial_meta_location label:first-child {
+	background: transparent url("globe-V3.png") no-repeat scroll 2px 0;
+}
+
+#ef_editorial_meta_meta_box div.ef_editorial_meta_location label:first-child,
+#ef_editorial_meta_meta_box div.ef_editorial_meta_date label:first-child {
+	padding-left: 20px;
+	margin-left: 2px;
+}
+
+/* Spacing for Google Maps link */
+#ef_editorial_meta_meta_box div.ef_editorial_meta_location div {
+	margin-top: 5px;
+	margin-left: 2px;
+}
+
+#ef_editorial_meta_meta_box span.description {
+	font-size: 1em;
+	font-style: normal;
+	font-weight: normal;
+	line-height: 1.4em;
+	margin: 3px 0 5px;
+}
+
+#ef_editorial_meta_meta_box .ef_editorial_meta_checkbox input[type=checkbox] {
+	margin-top: 8px;
+}
+
+#ef_editorial_meta_meta_box .ef_editorial_meta_checkbox label span.description {
+	margin-top: 6px;
+}
+
+/*
+ * If editorial metadata is in the main post column, allow the metadata to be laid out in
+ * multiple columns in browsers that support it.
+ */
+div#normal-sortables #ef_editorial_meta_meta_box {
+	-webkit-column-width: 250px;
+	-webkit-column-span: 50px;
+	-moz-column-width: 250px;
+	-moz-column-span: 50px;
+	column-width: 250px;
+	column-span: 50px;
+}
+div#normal-sortables #ef_editorial_meta_meta_box .ef_editorial_meta {
+	/* Get the items within the columns to break at reasonable points */
+	-webkit-column-break-inside: avoid;
+	-moz-column-break-inside: avoid;
+	column-break-inside: avoid;
+	/*
+	 * Because the above isn't supported in some browsers yet, even those that support columns (Firefox), break
+	 * properly in another way, per http://forrst.com/posts/Fixing_column_break_inside_avoid_in_CSS3_multi-tIz
+	 */
+	display: inline-block;
+}
+
+div#normal-sortables #ef_editorial_meta_meta_box input[type=text],
+div#normal-sortables #ef_editorial_meta_meta_box textarea,
+div#normal-sortables #ef_editorial_meta_meta_box select,
+div#normal-sortables #ef_editorial_meta_meta_box label {
+	min-width: 250px;
+}
+
+div#side-sortables #ef_editorial_meta_meta_box input[type=text],
+div#side-sortables #ef_editorial_meta_meta_box textarea,
+div#side-sortables #ef_editorial_meta_meta_box select {
+	width: 98%;
+}
+
+div#side-sortables .ef_editorial_meta_checkbox label span.description {
+	float: right;
+	display: inline-block;
+	margin-bottom: 10px;
+	width: 90%;
+}
+
+div#normal-sortables .ef_editorial_meta_checkbox label span.description {
+	float: right;
+	width: 93%;
+}
+
+div#normal-sortables .ef_editorial_meta_checkbox label {
+	width: 96%;
+}
+
+div#side-sortables .ef_editorial_meta_checkbox input {
+	margin-left: 4px;
+}

@@ -1,0 +1,95 @@
+/* Post Status Widget - Dashboard */
+
+#post_status_widget .sub {margin-bottom:10px;font:20px Georgia, Times, serif;margin-top:5px;}
+
+#post_status_widget a {font-size:14px;font-weight:bold;}
+
+#post_status_widget .table table tbody tr {line-height:22px; border-bottom:1px solid #e5e5e5; }
+
+#post_status_widget td.b a {color:#ba2000;margin-right:10px; font-family: Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif; font-size: 18px; padding-right: 6px; text-align: right;}
+
+#post_status_widget span.small a {color:#989898;font-weight:normal;font-style:normal;line-height:22px;}
+
+#post_status_widget span.small a:hover {border-bottom:1px dotted #989898;}
+
+/* QuickPitch */
+
+.quick-pitch-notice {
+	background-color: #ffffe0;
+	padding: 5px 10px;
+	margin-top: 5px;
+	margin-bottom: 10px;
+	border: 1px solid #e6db55;
+	-moz-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+}
+
+#quick-pitch-notification h3 {
+	background: none;
+	text-shadow: none;
+	font: italic normal normal 16px/20px Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
+	padding-bottom: 0;
+}
+
+#quick-pitch-notification p {
+	padding-left: 10px;
+}
+
+#quick_pitch_widget h4 {
+	font-family: "Lucida Grande", Verdana, Arial, "Bitstream Vera Sans", sans-serif !important;
+	float: left;
+	width: 5.5em;
+	clear: both;
+	font-weight: normal;
+	text-align: right;
+	padding-top: 3px !important;
+	font-size: 12px !important;
+	line-height: 1.2em;
+}
+
+#quick_pitch_widget h4 label {
+	margin-right: 10px;
+}
+
+#ef_author_div {
+	padding-bottom: 9px;
+	padding-right: 3px;
+}
+
+#quick_pitch_widget .input-text-wrap,
+#quick_pitch_widget .textarea-wrap {
+	margin: 0 0 1em 5em;
+}
+
+#ef_description_div {
+	width: 200px;
+}
+
+.ef_location_div input {
+	padding: 2px !important;
+}
+
+.ef-submit {
+	height: 20px;
+	text-align: right;
+}
+
+/* Posts I'm Following */
+
+.ef-myposts li {
+	list-style-type: none;
+	padding-bottom: 5px;
+}
+
+.ef-myposts li a {
+	font-weight: normal;
+}
+
+.ef-myposts li .ef-myposts-timestamp {
+	color: #999;
+	font-style: italic;
+	font-family: "Lucida Grande",Verdana,Arial,"Bitstream Vera Sans",sans-serif;
+	font-size: 10px;
+}

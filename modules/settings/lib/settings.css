@@ -1,0 +1,222 @@
+/* @override http://localhost:8888/wpplugindev/wp-content/plugins/edit-flow/css/settings.css?ver=0.6.4 */
+
+.float-right {
+	float:right;
+}
+
+.float-left {
+	float: left;
+}
+
+.clear-left {
+	clear: left;
+}
+
+.clear-right {
+	clear: right;
+}
+
+.clear-both {
+	clear: both;
+}
+
+.edit-flow-modules {
+	min-width: 740px;
+	width: 100%;
+	overflow: hidden;
+	margin-top: 20px;
+}
+
+.edit-flow-modules .edit-flow-module {
+	width: 210px;
+	min-height: 150px;
+	position: relative;
+	float: left;
+	border: 1px solid #e1e1e1;
+	padding: 10px;
+	background-color: #f1f1f1;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	margin-right: 15px;
+	margin-bottom: 15px;
+}
+
+.edit-flow-modules .edit-flow-module p {
+	font-size: 12px;
+	color: #3d3d3d;
+	line-height: 150%;
+	font-family: "Helvetica Neue",Helvetica,Arial,"Lucida Grande",Verdana,"Bitstream Vera Sans",sans-serif;
+}
+
+.edit-flow-modules .edit-flow-module h4 {
+	color: #000000;
+    font-family: "Helvetica Neue",Helvetica,Arial,"Lucida Grande",Verdana,"Bitstream Vera Sans",sans-serif;
+    font-size: 17px;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1.1;
+    margin: 0;
+    padding: 0;
+}
+
+.edit-flow-modules .edit-flow-module .edit-flow-module-actions {
+	position: absolute;
+	bottom: 0px;
+	left: 10px;
+	width: 210px;
+}
+
+.edit-flow-modules .edit-flow-module .button-primary {
+	color: #f1f1f1;
+	border: solid 1px #538312;
+	background: #64991e;
+	background: -webkit-gradient(linear, left top, left bottom, from(#86C67C), to(#3D8B37));
+	background: -moz-linear-gradient(top,  #86C67C,  #3D8B37);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#86C67C', endColorstr='#3D8B37');
+}
+
+.edit-flow-modules .edit-flow-module .button-primary:hover {
+	color: #FFFFFF;
+	border-color: #3B5D0C;
+}
+
+.edit-flow-modules .edit-flow-module .button-primary.configure-edit-flow-module {
+	color: #f1f1f1;
+	border: solid 1px #666;
+	background: #DDD;
+	background: -webkit-gradient(linear, left top, left bottom, from(#BBB), to(#888));
+	background: -moz-linear-gradient(top,  #BBB,  #888);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#BBB', endColorstr='#888');
+}
+
+.edit-flow-modules .edit-flow-module .button-primary.configure-edit-flow-module:hover {
+	color: #FFF;
+	border-color: #444;
+}
+
+.edit-flow-admin a.cancel-settings-link {
+	margin-left: 10px;
+}
+
+.edit-flow-admin .inline-edit-row fieldset label span.title {
+	width: 6em;
+}
+
+.edit-flow-admin .inline-edit-row fieldset label span.input-text-wrap {
+	margin-left: 6em;
+}
+
+.edit-flow-admin .explanation,
+.edit-flow-admin .explanation p {
+	font-size: 16px;
+	line-height: 22px;
+}
+
+.edit-flow-admin .explanation {
+	margin-bottom: 1em;
+}
+
+.edit-flow-admin .explanation p {
+	margin: 0.5em 0;
+}
+
+.edit-flow-admin .tablenav {
+	display: none;
+}
+
+/* Display drag handles for the cursor on sortable list tables for our custom taxonomies */
+.edit-flow-admin table.wp-list-table tbody.ui-sortable tr.term-static {
+	cursor: move;
+}
+
+.edit-flow-admin table.wp-list-table tbody.ui-sortable tr.ui-sortable-helper td,
+.edit-flow-admin table.wp-list-table tbody.ui-sortable tr.ui-sortable-helper .row-actions {
+	visibility: hidden;
+}
+
+.edit-flow-admin table.wp-list-table tbody.ui-sortable tr.ui-sortable-helper {
+	border: 1px solid #DFDFDF;
+}
+
+.edit-flow-admin table.wp-list-table tbody.ui-sortable tr.ui-sortable-helper td.column-name {
+	visibility: visible;
+	border-bottom: none;
+}
+
+/* Display disabled inputs with a very light gray background */
+.edit-flow-admin input[disabled] {
+	background-color: #eee;
+}
+
+.edit-flow-modules .edit-flow-module input.button,
+.edit-flow-modules .edit-flow-module a.button {
+	font-weight: normal;
+	margin: 0;
+}
+
+.edit-flow-modules .edit-flow-module a.button-primary {
+	float: right;
+}
+
+.credits {
+	color: #666666;
+	font-size: 11px;
+}
+
+.credits a {
+	color: #666666;
+}
+
+/* Module specific image styles */
+
+.button-inline-block {
+	display: inline-block;
+}
+
+h3.nav-tab-wrapper {
+	margin-top: 0;
+}
+
+.form-wrap .form-field {
+	margin: 0;
+	padding-top: 3px;
+	padding-bottom: 3px;
+	padding-left: 0;
+	padding-right: 0;
+}
+
+.form-error p {
+	font-weight:bold;
+	color: #CC0000;
+}
+
+.form-wrap p.submit a {
+	font-style: normal;
+}
+
+.edit-flow-message {
+	position: relative;
+	top: -5px;
+	margin-left: 25px;
+	font-weight:normal;
+	font-size: 12px;
+	line-height: 20px;
+	padding-left: 25px;
+	padding-right: 25px;	
+	padding-top: 5px;
+	padding-bottom: 4px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;	
+}
+
+.edit-flow-updated-message {
+	background-color: #FFFFE0;
+	border: 1px solid #E6DB55;
+}
+
+.edit-flow-error-message {
+	background-color: #FFEBE8;
+	border: 1px solid #CC0000;
+}

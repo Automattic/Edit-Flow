@@ -1,0 +1,99 @@
+/* Print styles for Edit Flow's Story Budget view */
+
+/* Hide the styles that we don't need */
+#ef-story-budget-tablenav,
+#adminmenu,
+#wpadminbar,
+#adminmenuback,
+#screen-meta-links,
+#wphead,
+#footer,
+#screen-meta,
+#ef-story-budget-wrap .change-date-buttons,
+#ef-story-budget-wrap .time-range input,
+#ef-story-budget-wrap .module-icon,
+.row-actions {
+	display: none;
+}
+
+#ef-story-budget-wrap .time-range form {
+	display: inline;
+}
+
+body {
+	font: 12pt/16pt Georgia, Times, serif;
+	padding: 10px;
+}
+
+a {
+	color: #000000;
+}
+
+#wpbody {
+	margin-left: 0px;
+	margin-top: -20px;
+}
+
+#wpcontent {
+	margin-left: 1em;
+	margin-right: 2em;
+}
+
+#wpbody #wpbody-content,
+#wpbody #wpbody-content .postbox-container,
+.postbox,
+.inside,
+.widefat,
+.meta-box-sortables {
+	float: none !important; /* Hack to prevent Gecko from cutting off floated elements in print */
+}
+
+.icon32 {
+	display: block;
+	float: none;
+}
+
+.wrap h2 {
+	font-style: normal;
+}
+
+.meta-box-sortables .postbox {
+	width: 100% !important; /* Important hack to override the inline styles applied to .postbox */
+}
+
+.postbox,
+.widefat,
+.widefat td {
+	border-color: #ffffff;
+}
+
+.widefat td {
+	padding-top: 10px !important;
+}
+
+.widefat td,
+.widefat th,
+.row-title {
+	font-size: 13px !important;
+	line-height: 17px;
+}
+
+.widefat td p {
+	color: #3d3d3d;
+}
+
+.postbox {
+	margin-bottom: 30px;
+}
+
+.postbox .hndle {
+	background-image: none;
+}
+
+.meta-box-sortables .postbox h3 {
+	border-bottom: 1px solid #e1e1e1;
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 20px;
+	font-weight: normal;
+	text-shadow: none;
+}
