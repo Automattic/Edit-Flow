@@ -66,7 +66,7 @@ class EF_Notifications extends EF_Module {
 		$this->register_taxonomies();
 		
 		// Set up metabox and related actions
-		add_action( 'admin_init', array( &$this, 'add_post_meta_box' ) );
+		add_action( 'add_meta_boxes', array( &$this, 'add_post_meta_box' ) );
 	
 		// Saving post actions
 		// self::save_post_subscriptions() is hooked into transition_post_status so we can ensure usergroup data
@@ -204,7 +204,7 @@ class EF_Notifications extends EF_Module {
 		
 		$usergroup_post_types = $this->get_post_types_for_module( $this->module );
 		foreach ( $usergroup_post_types as $post_type ) {
-			add_meta_box( 'edit-flow-notifications', __( 'Notifications', 'edit-flow'), array( &$this, 'notifications_meta_box'), $post_type, 'advanced', 'high');
+			add_meta_box( 'edit-flow-notifications', __( 'Notifications', 'edit-flow'), array( &$this, 'notifications_meta_box'), $post_type, 'advanced' );
 		}
 	}
 	

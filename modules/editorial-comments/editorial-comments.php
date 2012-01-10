@@ -53,7 +53,7 @@ class EF_Editorial_Comments extends EF_Module
 		// Register our notification event with the notifications class
 		add_action( 'ef_modules_loaded', array( &$this, 'register_notification_event' ) );
 		
-		add_action( 'admin_init', array ( &$this, 'add_post_meta_box' ) );
+		add_action( 'add_meta_boxes', array ( &$this, 'add_post_meta_box' ) );
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );		
 		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );
 		add_action( 'wp_ajax_editflow_ajax_insert_comment', array( &$this, 'ajax_insert_comment' ) );
@@ -116,7 +116,7 @@ class EF_Editorial_Comments extends EF_Module
 		
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		foreach ( $supported_post_types as $post_type )
-			add_meta_box('edit-flow-editorial-comments', __('Editorial Comments', 'edit-flow'), array(&$this, 'editorial_comments_meta_box'), $post_type, 'normal', 'high');
+			add_meta_box('edit-flow-editorial-comments', __('Editorial Comments', 'edit-flow'), array(&$this, 'editorial_comments_meta_box'), $post_type, 'normal' );
 			
 	}
 	
