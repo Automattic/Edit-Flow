@@ -65,6 +65,12 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
+= 0.7.1 (??? ?, 2012) =
+* Show the year on the calendar and story budget if it's not the current year
+* Allow users to save post subscriptions the first time they save the post. This also fixes the bug where a user wouldn't be subscribed until they saved the post twice
+* Bug fix: Auto-subscribe the post author to their posts by default but make it filterable
+* Bug fix: If a user hasn't ever opened the calendar before, the date should default to today, not the Unix Epoch
+
 = 0.7 (Jan. 9, 2012) =
 * Entire plugin was rewritten into a modular architecture (e.g. each feature is broken into a module you can enable or disable). One point of the modular architecture is to make it much easier for others to contribute new features. For the end user, there’s a brand new settings page where you can manage your modules. Each module then registers a configuration view for module settings. Most have options to choose which post types you’d like it activated for, along with other configuration options.
 * Calendar is far more functional. Content is viewed in a six week view by default, and number of weeks is configurable in screen options. Posts can be dragged and dropped between dates. Click on a post title to get the details about the post, including editorial metadata.
