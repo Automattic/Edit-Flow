@@ -286,6 +286,10 @@ class EF_Notifications extends EF_Module {
 		$user = wp_get_current_user();
 		if ( $user && apply_filters( 'ef_notification_auto_subscribe_current_user', true, 'subscription_action' ) )
 			$users[] = $user->ID;
+
+		// Add post author to following users
+		if ( apply_filters( 'ef_notification_auto_subscribe_post_author', true, 'subscription_action' ) )
+			$users[] = $post->post_author;
 		
 		$users = array_unique( array_map( 'intval', $users ) );
 
@@ -455,6 +459,10 @@ class EF_Notifications extends EF_Module {
 		// Set user to follow post, but make it filterable
 		if ( apply_filters( 'ef_notification_auto_subscribe_current_user', true, 'comment' ) )
 			$this->follow_post_user($post, (int) $current_user->ID);
+
+		// Set the post author to follow the post but make it filterable
+		if ( apply_filters( 'ef_notification_auto_subscribe_post_author', true, 'comment' ) )
+			$this->follow_post_user( $post, (int) $post->post_author );
 	
 		$blogname = get_option('blogname');
 	
