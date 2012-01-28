@@ -212,18 +212,9 @@ class EF_Notifications extends EF_Module {
 	 * Outputs box used to subscribe users and usergroups to Posts
 	 *
 	 * @todo add_cap to set subscribers for posts; default to Admin and editors
-	 * @todo Remove dependency on post being saved already
 	 */	
 	function notifications_meta_box() {
 		global $post, $post_ID, $edit_flow;
-
-		// Only show on posts that have been saved
-		if( in_array( $post->post_status, array( 'new', 'auto-draft' ) ) ) {
-			?>
-			<p><?php _e( 'Notifications can be added to a post after the post has been saved for the first time.', 'edit-flow' ); ?></p>
-			<?php
-			return;
-		}
 
 		?>
 		<div id="ef-post_following_box">
