@@ -68,6 +68,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 = 0.7.1 (??? ?, 2012) =
 * Show the year on the calendar and story budget if it's not the current year
 * Allow users to save post subscriptions the first time they save the post. This also fixes the bug where a user wouldn't be subscribed until they saved the post twice
+* New Italian localization thanks to Luca Patané
 * Bug fix: Auto-subscribe the post author to their posts by default but make it filterable
 * Bug fix: If a user hasn't ever opened the calendar before, the date should default to today, not the Unix Epoch
 
