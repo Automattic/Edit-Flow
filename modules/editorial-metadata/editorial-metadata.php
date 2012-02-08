@@ -1279,7 +1279,7 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */
 	function register_settings() {
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', 'Add to these post types:', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', __( 'Add to these post types:', 'edit-flow' ), array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 	}	
 
 	/**
@@ -1491,7 +1491,7 @@ class EF_Editorial_Metadata extends EF_Module {
 			</div>
 			<?php wp_nonce_field( 'editorial-metadata-add-nonce' );?>
 			<input type="hidden" id="form-action" name="form-action" value="add-term" />
-			<p class="submit"><?php submit_button( __( 'Add New Metadata Term', 'edit-flow' ), 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow' ); ?></a></p>
+			<p class="submit"><?php submit_button( __( 'Add New Metadata Term', 'edit-flow' ), 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
 			</form>
 		<?php endif; ?>
 			</div>
@@ -1572,9 +1572,9 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		
 		$columns = array(
 			'position'	  => __( 'Position', 'edit-flow' ),
-			'name'        => __( 'Name' ),
+			'name'        => __( 'Name', 'edit-flow' ),
 			'type'		  => __( 'Metadata Type', 'edit-flow' ),
-			'description' => __( 'Description' ),
+			'description' => __( 'Description', 'edit-flow' ),
 			'viewable'    => __( 'Viewable', 'edit-flow' ),
 		);		
 		return $columns;

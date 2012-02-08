@@ -33,7 +33,7 @@ class EF_Editorial_Comments extends EF_Module
 				),
 			),
 			'configure_page_cb' => 'print_configure_view',
-			'configure_link_text' => __( 'Choose Post Types' ),
+			'configure_link_text' => __( 'Choose Post Types', 'edit-flow' ),
 			'autoload' => false,
 			'settings_help_tab' => array(
 				'id' => 'ef-editorial-comments-overview',
@@ -369,7 +369,7 @@ class EF_Editorial_Comments extends EF_Module
 	 */
 	function register_settings() {
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', 'Enable for these post types:', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', __( 'Enable for these post types:', 'edit-flow' ), array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 	}
 
 	/**
@@ -412,7 +412,7 @@ class EF_Editorial_Comments extends EF_Module
 			<?php
 				echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';				
 			?>
-			<p class="submit"><?php submit_button( null, 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow' ); ?></a></p>
+			<p class="submit"><?php submit_button( null, 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
 
 		</form>
 		<?php

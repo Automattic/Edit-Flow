@@ -489,7 +489,7 @@ class EF_User_Groups extends EF_Module {
 	 */
 	function register_settings() {
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', 'Add to these post types:', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', __( 'Add to these post types:', 'edit-flow' ), array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 	}
 	
 	/**
@@ -614,7 +614,7 @@ class EF_User_Groups extends EF_Module {
 					</div>
 					<?php wp_nonce_field( 'add-usergroup' ); ?>
 					<?php echo '<input id="form-action" name="form-action" type="hidden" value="add-usergroup" />'; ?>
-					<p class="submit"><?php submit_button( __( 'Add New User Group', 'edit-flow' ), 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow' ); ?></a></p>
+					<p class="submit"><?php submit_button( __( 'Add New User Group', 'edit-flow' ), 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
 					</form>
 				<?php endif; ?>
 			</div></div></div>

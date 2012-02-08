@@ -43,7 +43,7 @@ class EF_Custom_Status extends EF_Module {
 			),
 			'post_type_support' => 'ef_custom_statuses', // This has been plural in all of our docs
 			'configure_page_cb' => 'print_configure_view',
-			'configure_link_text' => __( 'Edit Statuses' ),
+			'configure_link_text' => __( 'Edit Statuses', 'edit-flow' ),
 			'messages' => array(
 				'status-added' => __( 'Post status created.', 'edit-flow' ),
 				'status-missing' => __( "Post status doesn't exist.", 'edit-flow' ),
@@ -975,8 +975,8 @@ class EF_Custom_Status extends EF_Module {
 	function register_settings() {
 		
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', 'Use on these post types:', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-			add_settings_field( 'always_show_dropdown', 'Always show dropdown:', array( &$this, 'settings_always_show_dropdown_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', __( 'Use on these post types:', 'edit-flow' ), array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'always_show_dropdown', __( 'Always show dropdown:', 'edit-flow' ), array( &$this, 'settings_always_show_dropdown_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 
 	}
 	
@@ -1131,7 +1131,7 @@ class EF_Custom_Status extends EF_Module {
 					</div>
 					<?php wp_nonce_field( 'custom-status-add-nonce' ); ?>
 					<?php echo '<input id="action" name="action" type="hidden" value="add-new" />'; ?>					
-					<p class="submit"><?php submit_button( __( 'Add New Status', 'edit-flow' ), 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow' ); ?></a></p>
+					<p class="submit"><?php submit_button( __( 'Add New Status', 'edit-flow' ), 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
 					</form>
 				<?php endif; ?>
 				</div>
