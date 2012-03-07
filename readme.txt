@@ -71,6 +71,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 * New Italian localization thanks to Luca Patané
 * Bug fix: Auto-subscribe the post author to their posts by default but make it filterable
 * Bug fix: If a user hasn't ever opened the calendar before, the date should default to today, not the Unix Epoch
+* Bug fix: Prevent editorial metadata filters from stomping on others' uses by actually returning the original value when we don't want to manipulate it.
 
 = 0.7 (Jan. 9, 2012) =
 * Entire plugin was rewritten into a modular architecture (e.g. each feature is broken into a module you can enable or disable). One point of the modular architecture is to make it much easier for others to contribute new features. For the end user, there’s a brand new settings page where you can manage your modules. Each module then registers a configuration view for module settings. Most have options to choose which post types you’d like it activated for, along with other configuration options.

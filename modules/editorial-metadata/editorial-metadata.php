@@ -776,17 +776,17 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */
 	function filter_story_budget_term_column_values( $column_name, $post, $parent_term ) {
 		
-		$column_name = str_replace( '_', '-', $column_name );
+		$local_column_name = str_replace( '_', '-', $column_name );
 		// Don't accidentally handle values not our own
-		if ( false === strpos( $column_name, $this->module->slug ) )
-			return;
+		if ( false === strpos( $local_column_name, $this->module->slug ) )
+			return $column_name;
 			
-		$term_slug = str_replace( $this->module->slug . '-', '', $column_name );
+		$term_slug = str_replace( $this->module->slug . '-', '', $local_column_name );
 		$term = $this->get_editorial_metadata_term_by( 'slug', $term_slug );
 		
 		// Don't allow non-viewable term data to be displayed
 		if ( !$term->viewable )
-			return;
+			return $column_name;
 			
 		$output = '';
 		$postmeta_key = $this->get_postmeta_key( $term );
