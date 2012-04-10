@@ -658,6 +658,7 @@ class EF_User_Groups extends EF_Module {
 				</script>
 			</td>
 		</tr></tbody></table>
+		<?php wp_nonce_field( 'ef_edit_profile_usergroups_nonce', 'ef_edit_profile_usergroups_nonce' ); ?>
 	<?php 
 	}
 	
@@ -676,12 +677,8 @@ class EF_User_Groups extends EF_Module {
 		
 		if ( !$update )
 			return array( &$errors, $update, &$user );
-			
-		// @todo Noncify
-		if ( !current_user_can('edit_user', $user->ID ) )
-			wp_die( $this->module->messages['invalid-permissions'] );
 
-		if ( current_user_can( $this->manage_usergroups_cap ) ) {
+		if ( current_user_can( $this->manage_usergroups_cap ) && wp_verify_nonce( $_POST['ef_edit_profile_usergroups_nonce'], 'ef_edit_profile_usergroups_nonce' ) ) {
 			// Sanitize the data and save
 			// Gracefully handle the case where the user was unsubscribed from all usergroups
 			$usergroups = isset( $_POST['ef_usergroups'] ) ? array_map( 'intval', (array)$_POST['ef_usergroups'] ) : array();
