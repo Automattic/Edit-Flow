@@ -601,13 +601,18 @@ class EF_Notifications extends EF_Module {
 		// Merge arrays and filter any duplicates
 		$recipients = array_merge( $authors, $admins, $users, $usergroup_users );
 		$recipients = array_unique( $recipients );
-		
-		// Get rid of empty email entries
-		for ( $i = 0; $i < count( $recipients ); $i++ ) {
-			if ( empty( $recipients[$i] ) ) unset( $recipients[$i] );
+
+		// Process the recipients for this email to be sent
+		foreach( $recipients as $key => $user_email ) {
+			// Get rid of empty email entries
+			if ( empty( $recipients[$key] ) )
+				unset( $recipients[$key] );
+			// Don't send the email to the current user unless we've explicitly indicated they should receive it
+			if ( false === apply_filters( 'ef_notification_email_current_user', false ) && wp_get_current_user()->user_email == $user_email )
+				unset( $recipients[$key] );
 		}
 		
-		// Filter to allow modification of recipients
+		// Filter to allow further modification of recipients
 		$recipients = apply_filters( 'ef_notification_recipients', $recipients, $post, $string );
 		
 		// If string set to true, return comma-delimited

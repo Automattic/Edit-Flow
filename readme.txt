@@ -68,6 +68,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 = 0.7.1 (??? ?, 2012) =
 * Show the year on the calendar and story budget if it's not the current year
 * Allow users to save post subscriptions the first time they save the post. This also fixes the bug where a user wouldn't be subscribed until they saved the post twice
+* Changed the behavior of notifications for the user changing a status or leaving a comment. Previously, they'd receive an email with the action they just performed; now they do not. This can be changed with a filter
 * New Italian localization thanks to Luca Patané
 * Bug fix: Auto-subscribe the post author to their posts by default but make it filterable
 * Bug fix: Only show authors in the user dropdown for the calendar and the story budget. This new behavior can be filtered out however.
