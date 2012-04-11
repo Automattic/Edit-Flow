@@ -42,6 +42,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 
 == Upgrade Notice ==
 
+= 0.7.1 =
+Enhancements and bug fixes, including defaulting to the proper date in the calendar and an Italian localization.
+
 = 0.7 = 
 Complete rewrite into a modular architecture. Lots of polish added. Important note: If upgrading from pre-v0.6, please upgrade to v0.6.5 first
 
@@ -65,15 +68,16 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
-= 0.7.1 (??? ?, 2012) =
+= 0.7.1 (Apr. 11, 2012) =
 * Show the year on the calendar and story budget if it's not the current year
 * Allow users to save post subscriptions the first time they save the post. This also fixes the bug where a user wouldn't be subscribed until they saved the post twice
 * Changed the behavior of notifications for the user changing a status or leaving a comment. Previously, they'd receive an email with the action they just performed; now they do not. This can be changed with a filter
 * New Italian localization thanks to Luca Patané
 * Bug fix: Auto-subscribe the post author to their posts by default but make it filterable
-* Bug fix: Only show authors in the user dropdown for the calendar and the story budget. This new behavior can be filtered out however.
+* Bug fix: Only show authors in the user dropdown for the calendar and the story budget. This new behavior can be filtered out however
+* Bug fix: Metaboxes are registered with proper priority. Props benbalter
 * Bug fix: If a user hasn't ever opened the calendar before, the date should default to today, not the Unix Epoch
-* Bug fix: Prevent editorial metadata filters from stomping on others' uses by actually returning the original value when we don't want to manipulate it.
+* Bug fix: Prevent editorial metadata filters from stomping on others' uses by actually returning the original value when we don't want to manipulate it
 * Bug fix: Specify a max-width on `<select>` dropdowns in the calendar and story budget so long values don't break formatting
 
 = 0.7 (Jan. 9, 2012) =
