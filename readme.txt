@@ -70,6 +70,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Allow users to save post subscriptions the first time they save the post. This also fixes the bug where a user wouldn't be subscribed until they saved the post twice
 * New Italian localization thanks to Luca Patané
 * Bug fix: Auto-subscribe the post author to their posts by default but make it filterable
+* Bug fix: Only show authors in the user dropdown for the calendar and the story budget. This new behavior can be filtered out however.
 * Bug fix: If a user hasn't ever opened the calendar before, the date should default to today, not the Unix Epoch
 * Bug fix: Prevent editorial metadata filters from stomping on others' uses by actually returning the original value when we don't want to manipulate it.
 * Bug fix: Specify a max-width on `<select>` dropdowns in the calendar and story budget so long values don't break formatting

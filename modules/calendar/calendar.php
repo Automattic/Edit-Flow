@@ -752,12 +752,14 @@ class EF_Calendar extends EF_Module {
 						wp_dropdown_categories( $category_dropdown_args );
 					}
 					
-					$user_dropdown_args = array(
-						'show_option_all' => __( 'View all users', 'edit-flow' ),
-						'name'     => 'author',
-						'selected' => $filters['author']
+					$users_dropdown_args = array(
+						'show_option_all'   => __( 'View all users', 'edit-flow' ),
+						'name'              => 'author',
+						'selected'          => $filters['author'],
+						'who'               => 'authors',
 						);
-					wp_dropdown_users( $user_dropdown_args );
+					$users_dropdown_args = apply_filters( 'ef_calendar_filter_users_dropdown_args', $users_dropdown_args );
+					wp_dropdown_users( $users_dropdown_args );
 			
 					if ( count( $supported_post_types ) > 1 ) {
 					?>
