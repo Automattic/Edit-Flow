@@ -629,7 +629,7 @@ class EF_Story_Budget extends EF_Module {
 						'selected' => $this->user_filters['author'],
 						'who' => 'authors',
 						);
-					$users_dropdown_args = apply_filters( 'ef_story_budget_filter_users_dropdown_args', $users_dropdown_args );
+					$users_dropdown_args = apply_filters( 'ef_story_budget_users_dropdown_args', $users_dropdown_args );
 					wp_dropdown_users( $users_dropdown_args );
 				?>
 				<input type="submit" id="post-query-submit" value="<?php _e( 'Filter', 'edit-flow' ); ?>" class="button-primary button" />

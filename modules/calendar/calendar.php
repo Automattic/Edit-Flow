@@ -758,7 +758,7 @@ class EF_Calendar extends EF_Module {
 						'selected'          => $filters['author'],
 						'who'               => 'authors',
 						);
-					$users_dropdown_args = apply_filters( 'ef_calendar_filter_users_dropdown_args', $users_dropdown_args );
+					$users_dropdown_args = apply_filters( 'ef_calendar_users_dropdown_args', $users_dropdown_args );
 					wp_dropdown_users( $users_dropdown_args );
 			
 					if ( count( $supported_post_types ) > 1 ) {
