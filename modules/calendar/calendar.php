@@ -538,7 +538,8 @@ class EF_Calendar extends EF_Module {
 					<ul class="post-list">
 						<?php
 						$hidden = 0;
-						if ( !empty( $week_posts[$week_single_date] ) ): 
+						if ( !empty( $week_posts[$week_single_date] ) ):
+						$week_posts[$week_single_date] = apply_filters( 'ef_calendar_posts_for_week', $week_posts[$week_single_date] );
 						foreach ( $week_posts[$week_single_date] as $num => $post ) :
 							$post_id = $post->ID;
 							$edit_post_link = get_edit_post_link( $post_id );
