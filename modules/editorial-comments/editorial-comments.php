@@ -33,7 +33,7 @@ class EF_Editorial_Comments extends EF_Module
 				),
 			),
 			'configure_page_cb' => 'print_configure_view',
-			'configure_link_text' => __( 'Choose Post Types' ),
+			'configure_link_text' => __( 'Choose Post Types', 'edit-flow' ),
 			'autoload' => false,
 			'settings_help_tab' => array(
 				'id' => 'ef-editorial-comments-overview',
@@ -53,7 +53,7 @@ class EF_Editorial_Comments extends EF_Module
 		// Register our notification event with the notifications class
 		add_action( 'ef_modules_loaded', array( &$this, 'register_notification_event' ) );
 		
-		add_action( 'admin_init', array ( &$this, 'add_post_meta_box' ) );
+		add_action( 'add_meta_boxes', array ( &$this, 'add_post_meta_box' ) );
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );		
 		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );
 		add_action( 'wp_ajax_editflow_ajax_insert_comment', array( &$this, 'ajax_insert_comment' ) );
@@ -116,7 +116,7 @@ class EF_Editorial_Comments extends EF_Module
 		
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		foreach ( $supported_post_types as $post_type )
-			add_meta_box('edit-flow-editorial-comments', __('Editorial Comments', 'edit-flow'), array(&$this, 'editorial_comments_meta_box'), $post_type, 'normal', 'high');
+			add_meta_box('edit-flow-editorial-comments', __('Editorial Comments', 'edit-flow'), array(&$this, 'editorial_comments_meta_box'), $post_type, 'normal' );
 			
 	}
 	
@@ -369,7 +369,7 @@ class EF_Editorial_Comments extends EF_Module
 	 */
 	function register_settings() {
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', 'Enable for these post types:', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', __( 'Enable for these post types:', 'edit-flow' ), array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 	}
 
 	/**
@@ -412,7 +412,7 @@ class EF_Editorial_Comments extends EF_Module
 			<?php
 				echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';				
 			?>
-			<p class="submit"><?php submit_button( null, 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow' ); ?></a></p>
+			<p class="submit"><?php submit_button( null, 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
 
 		</form>
 		<?php

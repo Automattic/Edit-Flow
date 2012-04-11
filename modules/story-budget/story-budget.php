@@ -623,12 +623,14 @@ class EF_Story_Budget extends EF_Module {
 						wp_dropdown_categories( $category_dropdown_args );
 					}
 
-					$user_dropdown_args = array(
+					$users_dropdown_args = array(
 						'show_option_all' => __( 'View all users', 'edit-flow' ),
 						'name'     => 'author',
-						'selected' => $this->user_filters['author']
+						'selected' => $this->user_filters['author'],
+						'who' => 'authors',
 						);
-					wp_dropdown_users( $user_dropdown_args );
+					$users_dropdown_args = apply_filters( 'ef_story_budget_users_dropdown_args', $users_dropdown_args );
+					wp_dropdown_users( $users_dropdown_args );
 				?>
 				<input type="submit" id="post-query-submit" value="<?php _e( 'Filter', 'edit-flow' ); ?>" class="button-primary button" />
 			</form>

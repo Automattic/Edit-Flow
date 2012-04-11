@@ -23,6 +23,8 @@ class EF_User_Groups extends EF_Module {
 	const taxonomy_key = 'ef_usergroup';
 	const term_prefix = 'ef-usergroup-';
 
+	var $manage_usergroups_cap = 'edit_usergroups';
+
 	/**
 	 * Register the module with Edit Flow but don't do anything else
 	 *
@@ -81,6 +83,8 @@ class EF_User_Groups extends EF_Module {
 		
 		// Register the objects where we'll be storing data and relationships
 		$this->register_usergroup_objects();
+
+		$this->manage_usergroups_cap = apply_filters( 'ef_manage_usergroups_cap', $this->manage_usergroups_cap );
 		
 		// Register our settings
 		add_action( 'admin_init', array( &$this, 'register_settings' ) );		
@@ -265,7 +269,7 @@ class EF_User_Groups extends EF_Module {
 		if ( !wp_verify_nonce( $_POST['_wpnonce'], 'add-usergroup' ) )
 			wp_die( $this->module->messages['nonce-failed'] );
 			
-		if ( !current_user_can( 'manage_options' ) )
+		if ( !current_user_can( $this->manage_usergroups_cap ) )
 			wp_die( $this->module->messages['invalid-permissions'] );			
 		
 		// Sanitize all of the user-entered values
@@ -331,7 +335,7 @@ class EF_User_Groups extends EF_Module {
 		if ( !wp_verify_nonce( $_POST['_wpnonce'], 'edit-usergroup' ) )
 			wp_die( $this->module->messages['nonce-failed'] );
 			
-		if ( !current_user_can( 'manage_options' ) )
+		if ( !current_user_can( $this->manage_usergroups_cap ) )
 			wp_die( $this->module->messages['invalid-permissions'] );
 			
 		if ( !$existing_usergroup = $this->get_usergroup_by( 'id', (int)$_POST['usergroup_id'] ) )
@@ -403,7 +407,7 @@ class EF_User_Groups extends EF_Module {
 		if ( !wp_verify_nonce( $_GET['nonce'], 'delete-usergroup' ) )
 			wp_die( $this->module->messages['nonce-failed'] );
 			
-		if ( !current_user_can( 'manage_options' ) )
+		if ( !current_user_can( $this->manage_usergroups_cap ) )
 			wp_die( $this->module->messages['invalid-permissions'] );			
 			
 		$result = $this->delete_usergroup( (int)$_GET['usergroup-id'] );
@@ -425,7 +429,7 @@ class EF_User_Groups extends EF_Module {
 		if ( !wp_verify_nonce( $_POST['inline_edit'], 'usergroups-inline-edit-nonce' ) )
 			die( $this->module->messages['nonce-failed'] );
 			
-		if ( !current_user_can( 'manage_options') )
+		if ( !current_user_can( $this->manage_usergroups_cap ) )
 			die( $this->module->messages['invalid-permissions'] );
 		
 		$usergroup_id = (int) $_POST['usergroup_id'];
@@ -489,7 +493,7 @@ class EF_User_Groups extends EF_Module {
 	 */
 	function register_settings() {
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', 'Add to these post types:', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', __( 'Add to these post types:', 'edit-flow' ), array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 	}
 	
 	/**
@@ -614,7 +618,7 @@ class EF_User_Groups extends EF_Module {
 					</div>
 					<?php wp_nonce_field( 'add-usergroup' ); ?>
 					<?php echo '<input id="form-action" name="form-action" type="hidden" value="add-usergroup" />'; ?>
-					<p class="submit"><?php submit_button( __( 'Add New User Group', 'edit-flow' ), 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow' ); ?></a></p>
+					<p class="submit"><?php submit_button( __( 'Add New User Group', 'edit-flow' ), 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
 					</form>
 				<?php endif; ?>
 			</div></div></div>
@@ -628,7 +632,7 @@ class EF_User_Groups extends EF_Module {
 	function user_profile_page() {
 		global $user_id, $profileuser;
 		
-		if ( !$user_id || !current_user_can( 'edit_usergroups' ) )
+		if ( !$user_id || !current_user_can( $this->manage_usergroups_cap ) )
 			return;
 		
 		// Assemble all necessary data
@@ -654,6 +658,7 @@ class EF_User_Groups extends EF_Module {
 				</script>
 			</td>
 		</tr></tbody></table>
+		<?php wp_nonce_field( 'ef_edit_profile_usergroups_nonce', 'ef_edit_profile_usergroups_nonce' ); ?>
 	<?php 
 	}
 	
@@ -672,12 +677,8 @@ class EF_User_Groups extends EF_Module {
 		
 		if ( !$update )
 			return array( &$errors, $update, &$user );
-			
-		// @todo Noncify
-		if ( !current_user_can('edit_user', $user->ID ) )
-			wp_die( $this->module->messages['invalid-permissions'] );
 
-		if ( current_user_can( 'edit_usergroups' ) ) {
+		if ( current_user_can( $this->manage_usergroups_cap ) && wp_verify_nonce( $_POST['ef_edit_profile_usergroups_nonce'], 'ef_edit_profile_usergroups_nonce' ) ) {
 			// Sanitize the data and save
 			// Gracefully handle the case where the user was unsubscribed from all usergroups
 			$usergroups = isset( $_POST['ef_usergroups'] ) ? array_map( 'intval', (array)$_POST['ef_usergroups'] ) : array();

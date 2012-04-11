@@ -19,6 +19,8 @@ class EF_Notifications extends EF_Module {
 	var $following_usergroups_taxonomy = EF_User_Groups::taxonomy_key;
 	
 	var $module;
+
+	var $edit_post_subscriptions_cap = 'edit_post_subscriptions';
 	
 	/**
 	 * Register the module with Edit Flow but don't do anything else
@@ -64,9 +66,12 @@ class EF_Notifications extends EF_Module {
 
 		// Register our taxonomies for managing relationships
 		$this->register_taxonomies();
+
+		// Allow users to use a different user capability for editing post subscriptions
+		$this->edit_post_subscriptions_cap = apply_filters( 'ef_edit_post_subscriptions_cap', $this->edit_post_subscriptions_cap );
 		
 		// Set up metabox and related actions
-		add_action( 'admin_init', array( &$this, 'add_post_meta_box' ) );
+		add_action( 'add_meta_boxes', array( &$this, 'add_post_meta_box' ) );
 	
 		// Saving post actions
 		// self::save_post_subscriptions() is hooked into transition_post_status so we can ensure usergroup data
@@ -197,14 +202,13 @@ class EF_Notifications extends EF_Module {
 	 * Add the subscriptions meta box to relevant post types
 	 */
 	function add_post_meta_box() {
-		
-		$post_subscriptions_cap = apply_filters( 'ef_edit_post_subscriptions_cap', 'edit_post_subscriptions' );
-		if ( !current_user_can( $post_subscriptions_cap ) ) 
+
+		if ( !current_user_can( $this->edit_post_subscriptions_cap ) ) 
 			return;		
 		
 		$usergroup_post_types = $this->get_post_types_for_module( $this->module );
 		foreach ( $usergroup_post_types as $post_type ) {
-			add_meta_box( 'edit-flow-notifications', __( 'Notifications', 'edit-flow'), array( &$this, 'notifications_meta_box'), $post_type, 'advanced', 'high');
+			add_meta_box( 'edit-flow-notifications', __( 'Notifications', 'edit-flow'), array( &$this, 'notifications_meta_box'), $post_type, 'advanced' );
 		}
 	}
 	
@@ -212,18 +216,9 @@ class EF_Notifications extends EF_Module {
 	 * Outputs box used to subscribe users and usergroups to Posts
 	 *
 	 * @todo add_cap to set subscribers for posts; default to Admin and editors
-	 * @todo Remove dependency on post being saved already
 	 */	
 	function notifications_meta_box() {
 		global $post, $post_ID, $edit_flow;
-
-		// Only show on posts that have been saved
-		if( in_array( $post->post_status, array( 'new', 'auto-draft' ) ) ) {
-			?>
-			<p><?php _e( 'Notifications can be added to a post after the post has been saved for the first time.', 'edit-flow' ); ?></p>
-			<?php
-			return;
-		}
 
 		?>
 		<div id="ef-post_following_box">
@@ -263,7 +258,7 @@ class EF_Notifications extends EF_Module {
 	function save_post_subscriptions( $new_status, $old_status, $post ) {
 		global $edit_flow;
 		// only if has edit_post_subscriptions cap
-		if( ( !wp_is_post_revision($post) && !wp_is_post_autosave($post) ) && isset($_POST['ef-save_followers']) && current_user_can('edit_post_subscriptions') ) {
+		if( ( !wp_is_post_revision($post) && !wp_is_post_autosave($post) ) && isset($_POST['ef-save_followers']) && current_user_can( $this->edit_post_subscriptions_cap ) ) {
 			$users = isset( $_POST['ef-selected-users'] ) ? $_POST['ef-selected-users'] : array();
 			$usergroups = isset( $_POST['following_usergroups'] ) ? $_POST['following_usergroups'] : array();
 			$this->save_post_following_users( $post, $users );
@@ -286,6 +281,10 @@ class EF_Notifications extends EF_Module {
 		$user = wp_get_current_user();
 		if ( $user && apply_filters( 'ef_notification_auto_subscribe_current_user', true, 'subscription_action' ) )
 			$users[] = $user->ID;
+
+		// Add post author to following users
+		if ( apply_filters( 'ef_notification_auto_subscribe_post_author', true, 'subscription_action' ) )
+			$users[] = $post->post_author;
 		
 		$users = array_unique( array_map( 'intval', $users ) );
 
@@ -455,6 +454,10 @@ class EF_Notifications extends EF_Module {
 		// Set user to follow post, but make it filterable
 		if ( apply_filters( 'ef_notification_auto_subscribe_current_user', true, 'comment' ) )
 			$this->follow_post_user($post, (int) $current_user->ID);
+
+		// Set the post author to follow the post but make it filterable
+		if ( apply_filters( 'ef_notification_auto_subscribe_post_author', true, 'comment' ) )
+			$this->follow_post_user( $post, (int) $post->post_author );
 	
 		$blogname = get_option('blogname');
 	
@@ -598,13 +601,18 @@ class EF_Notifications extends EF_Module {
 		// Merge arrays and filter any duplicates
 		$recipients = array_merge( $authors, $admins, $users, $usergroup_users );
 		$recipients = array_unique( $recipients );
-		
-		// Get rid of empty email entries
-		for ( $i = 0; $i < count( $recipients ); $i++ ) {
-			if ( empty( $recipients[$i] ) ) unset( $recipients[$i] );
+
+		// Process the recipients for this email to be sent
+		foreach( $recipients as $key => $user_email ) {
+			// Get rid of empty email entries
+			if ( empty( $recipients[$key] ) )
+				unset( $recipients[$key] );
+			// Don't send the email to the current user unless we've explicitly indicated they should receive it
+			if ( false === apply_filters( 'ef_notification_email_current_user', false ) && wp_get_current_user()->user_email == $user_email )
+				unset( $recipients[$key] );
 		}
 		
-		// Filter to allow modification of recipients
+		// Filter to allow further modification of recipients
 		$recipients = apply_filters( 'ef_notification_recipients', $recipients, $post, $string );
 		
 		// If string set to true, return comma-delimited
@@ -879,8 +887,8 @@ class EF_Notifications extends EF_Module {
 	 */
 	function register_settings() {
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', 'Post types for notifications:', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-			add_settings_field( 'always_notify_admin', 'Always notify blog admin', array( &$this, 'settings_always_notify_admin_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', __( 'Post types for notifications:', 'edit-flow' ), array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'always_notify_admin', __( 'Always notify blog admin', 'edit-flow' ), array( &$this, 'settings_always_notify_admin_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 	}
 	
 	/**

@@ -99,18 +99,18 @@ class EF_Editorial_Metadata extends EF_Module {
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		foreach( $supported_post_types as $post_type ) {
 			add_action( "manage_{$post_type}_posts_columns", array( &$this, 'filter_manage_posts_columns' ) );
-			add_action( 'manage_posts_custom_column', array( &$this, 'action_manage_posts_custom_column' ), null, 2 );
+			add_action( 'manage_posts_custom_column', array( &$this, 'action_manage_posts_custom_column' ), 10, 2 );
 		}
 		
 		// Add Editorial Metadata to the calendar if the calendar is activated
 		if ( $this->module_enabled( 'calendar' ) )
-			add_filter( 'ef_calendar_item_information_fields', array( &$this, 'filter_calendar_item_fields' ), null, 2 );
+			add_filter( 'ef_calendar_item_information_fields', array( &$this, 'filter_calendar_item_fields' ), 10, 2 );
 		
 		// Add Editorial Metadata columns to the Story Budget if it exists
 		if ( $this->module_enabled( 'story_budget' ) ) {
 			add_filter( 'ef_story_budget_term_columns', array( &$this, 'filter_story_budget_term_columns' ) );
 			// Register an action to handle this data later
-			add_filter( 'ef_story_budget_term_column_value', array( &$this, 'filter_story_budget_term_column_values' ), null, 3 );
+			add_filter( 'ef_story_budget_term_column_value', array( &$this, 'filter_story_budget_term_column_values' ), 10, 3 );
 		}		
 		
 		// Load necessary scripts and stylesheets
@@ -776,17 +776,17 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */
 	function filter_story_budget_term_column_values( $column_name, $post, $parent_term ) {
 		
-		$column_name = str_replace( '_', '-', $column_name );
+		$local_column_name = str_replace( '_', '-', $column_name );
 		// Don't accidentally handle values not our own
-		if ( false === strpos( $column_name, $this->module->slug ) )
-			return;
+		if ( false === strpos( $local_column_name, $this->module->slug ) )
+			return $column_name;
 			
-		$term_slug = str_replace( $this->module->slug . '-', '', $column_name );
+		$term_slug = str_replace( $this->module->slug . '-', '', $local_column_name );
 		$term = $this->get_editorial_metadata_term_by( 'slug', $term_slug );
 		
 		// Don't allow non-viewable term data to be displayed
 		if ( !$term->viewable )
-			return;
+			return $column_name;
 			
 		$output = '';
 		$postmeta_key = $this->get_postmeta_key( $term );
@@ -1279,7 +1279,7 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */
 	function register_settings() {
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', 'Add to these post types:', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', __( 'Add to these post types:', 'edit-flow' ), array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 	}	
 
 	/**
@@ -1491,7 +1491,7 @@ class EF_Editorial_Metadata extends EF_Module {
 			</div>
 			<?php wp_nonce_field( 'editorial-metadata-add-nonce' );?>
 			<input type="hidden" id="form-action" name="form-action" value="add-term" />
-			<p class="submit"><?php submit_button( __( 'Add New Metadata Term', 'edit-flow' ), 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow' ); ?></a></p>
+			<p class="submit"><?php submit_button( __( 'Add New Metadata Term', 'edit-flow' ), 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
 			</form>
 		<?php endif; ?>
 			</div>
@@ -1572,9 +1572,9 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		
 		$columns = array(
 			'position'	  => __( 'Position', 'edit-flow' ),
-			'name'        => __( 'Name' ),
+			'name'        => __( 'Name', 'edit-flow' ),
 			'type'		  => __( 'Metadata Type', 'edit-flow' ),
-			'description' => __( 'Description' ),
+			'description' => __( 'Description', 'edit-flow' ),
 			'viewable'    => __( 'Viewable', 'edit-flow' ),
 		);		
 		return $columns;

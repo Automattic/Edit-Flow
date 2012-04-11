@@ -328,15 +328,15 @@ class EF_Calendar extends EF_Module {
 		$current_user = wp_get_current_user();
 		$filters = array();
 		$old_filters = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
-	
-		// Set the proper keys to empty so we don't thr
-		if ( empty( $old_filters ) ) {
-			$old_filters['post_status'] = '';
-			$old_filters['post_type'] = '';		
-			$old_filters['cat'] = '';
-			$old_filters['author'] = '';
-			$old_filters['start_date'] = '';
-		}
+
+		$default_filters = array(
+				'post_status' => '',
+				'post_type' => '',
+				'cat' => '',
+				'author' => '',
+				'start_date' => date( 'Y-m-d' ),
+			);
+		$old_filters = array_merge( $default_filters, (array)$old_filters );
 		
 		// Post status
 		if ( isset( $_GET['post_status'] ) ) {
@@ -538,7 +538,8 @@ class EF_Calendar extends EF_Module {
 					<ul class="post-list">
 						<?php
 						$hidden = 0;
-						if ( !empty( $week_posts[$week_single_date] ) ): 
+						if ( !empty( $week_posts[$week_single_date] ) ):
+						$week_posts[$week_single_date] = apply_filters( 'ef_calendar_posts_for_week', $week_posts[$week_single_date] );
 						foreach ( $week_posts[$week_single_date] as $num => $post ) :
 							$post_id = $post->ID;
 							$edit_post_link = get_edit_post_link( $post_id );
@@ -752,12 +753,14 @@ class EF_Calendar extends EF_Module {
 						wp_dropdown_categories( $category_dropdown_args );
 					}
 					
-					$user_dropdown_args = array(
-						'show_option_all' => __( 'View all users', 'edit-flow' ),
-						'name'     => 'author',
-						'selected' => $filters['author']
+					$users_dropdown_args = array(
+						'show_option_all'   => __( 'View all users', 'edit-flow' ),
+						'name'              => 'author',
+						'selected'          => $filters['author'],
+						'who'               => 'authors',
 						);
-					wp_dropdown_users( $user_dropdown_args );
+					$users_dropdown_args = apply_filters( 'ef_calendar_users_dropdown_args', $users_dropdown_args );
+					wp_dropdown_users( $users_dropdown_args );
 			
 					if ( count( $supported_post_types ) > 1 ) {
 					?>
@@ -994,9 +997,17 @@ class EF_Calendar extends EF_Module {
 	 */
 	function calendar_time_range() {
 		
-		$first_date = date( 'F jS', strtotime( $this->start_date ) );
+		$first_datetime = strtotime( $this->start_date );
+		if ( date( 'Y' ) != date( 'Y', $first_datetime ) )
+			$first_date = date( 'F jS, Y', $first_datetime );
+		else	
+			$first_date = date( 'F jS', $first_datetime );
 		$total_days = ( $this->total_weeks * 7 ) - 1;
-		$last_date = date( 'F jS', strtotime( "+" . $total_days . " days", date( 'U', strtotime( $this->start_date ) ) ) );
+		$last_datetime = strtotime( "+" . $total_days . " days", date( 'U', strtotime( $this->start_date ) ) );
+		if ( date( 'Y' ) != date( 'Y', $last_datetime ) )
+			$last_date = date( 'F jS, Y', $last_datetime );
+		else
+			$last_date = date( 'F jS', $last_datetime );
 		echo sprintf( __( 'for %1$s through %2$s'), $first_date, $last_date );
 	}
 	
@@ -1043,8 +1054,8 @@ class EF_Calendar extends EF_Module {
 	function register_settings() {
 		
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', 'Post types to show', array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-			add_settings_field( 'number_of_weeks', 'Number of weeks to show', array( &$this, 'settings_number_weeks_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', __( 'Post types to show', 'edit-flow' ), array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'number_of_weeks', __( 'Number of weeks to show', 'edit-flow' ), array( &$this, 'settings_number_weeks_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 
 	}
 	
