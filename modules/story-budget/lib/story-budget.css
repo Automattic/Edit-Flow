@@ -4,6 +4,10 @@
 	overflow: hidden;
 }
 
+#ef-story-budget-tablenav select {
+	max-width: 300px;
+}
+
 #ef-story-budget-title h2 span {
 	color: #999999;
 }

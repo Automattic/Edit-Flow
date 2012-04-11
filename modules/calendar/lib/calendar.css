@@ -310,6 +310,10 @@ table#ef-calendar-view .day-unit ul li .item-overlay .item-actions a {
 	margin-bottom:15px;
 }
 
+.ef-calendar-navigation select {
+	max-width: 300px;
+}
+
 .ef-calendar-navigation li #post-query-submit.button-primary,
 .ef-calendar-navigation li .button-secondary {
 	margin-left: 8px;
