@@ -291,6 +291,10 @@ table#ef-calendar-view .day-unit ul li .item-overlay .item-actions a {
 	text-decoration: none;
 }
 
+table#ef-calendar-view .day-unit ul li .item-overlay .item-actions span.trash a {
+	color: #BC0B0B;
+}
+
 #ef-calendar-view .day-unit .show-more {
 	margin-right: 5px;
 	margin-bottom: 5px;

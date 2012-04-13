@@ -430,6 +430,27 @@ class EF_Calendar extends EF_Module {
 				<h2><?php _e( 'Calendar', 'edit-flow' ); ?>&nbsp;<span class="time-range"><?php $this->calendar_time_range(); ?></span></h2>
 			</div><!-- /Calendar Title -->
 
+			<?php
+				// Handle posts that have been trashed or untrashed
+				if ( isset( $_GET['trashed'] ) || isset( $_GET['untrashed'] ) ) {
+
+					echo '<div id="trashed-message" class="updated"><p>';
+					if ( isset( $_GET['trashed'] ) && (int) $_GET['trashed'] ) {
+						printf( _n( 'Post moved to the trash.', '%s posts moved to the trash.', $_GET['trashed'] ), number_format_i18n( $_GET['trashed'] ) );
+						$ids = isset($_GET['ids']) ? $_GET['ids'] : 0;
+						$pid = explode( ',', $ids );
+						$post_type = get_post_type( $pid[0] );
+						echo ' <a href="' . esc_url( wp_nonce_url( "edit.php?post_type=$post_type&doaction=undo&action=untrash&ids=$ids", "bulk-posts" ) ) . '">' . __( 'Undo', 'edit-flow' ) . '</a><br />';
+						unset( $_GET['trashed'] );
+					}
+					if ( isset($_GET['untrashed'] ) && (int) $_GET['untrashed'] ) {
+						printf( _n( 'Post restored from the Trash.', '%s posts restored from the Trash.', $_GET['untrashed'] ), number_format_i18n( $_GET['untrashed'] ) );
+						unset( $_GET['undeleted'] );
+					}
+					echo '</p></div>';
+				}
+			?>
+
 			<div id="ef-calendar-wrap"><!-- Calendar Wrapper -->
 					
 			<?php $this->print_top_navigation( $filters, $dates ); ?>
@@ -660,6 +681,8 @@ class EF_Calendar extends EF_Module {
 								if ( $this->current_user_can_modify_post( $post ) ) {
 									// Edit this post
 									$item_actions['edit'] = '<a href="' . get_edit_post_link( $post->ID, true ) . '" title="' . esc_attr( __( 'Edit this item' ) ) . '">' . __( 'Edit', 'edit-flow' ) . '</a>';
+									// Trash this post
+									$item_actions['trash'] = '<a href="'. get_delete_post_link( $post->ID) . '" title="' . esc_attr( __( 'Trash this item' ), 'edit-flow' ) . '">' . __( 'Trash', 'edit-flow' ) . '</a>';
 									// Preview/view this post
 									if ( !in_array( $post->post_status, $published_statuses ) ) {
 										$item_actions['view'] = '<a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" rel="permalink">' . __( 'Preview', 'edit-flow' ) . '</a>';

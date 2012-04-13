@@ -68,6 +68,9 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
+= 0.7.2 (??? ??, ????) =
+* Support for trashing posts from the calendar. Thanks danyork for the idea and a bit of code
+
 = 0.7.1 (Apr. 11, 2012) =
 * Show the year on the calendar and story budget if it's not the current year
 * Allow users to save post subscriptions the first time they save the post. This also fixes the bug where a user wouldn't be subscribed until they saved the post twice
