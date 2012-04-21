@@ -436,7 +436,7 @@ class EF_Calendar extends EF_Module {
 
 					echo '<div id="trashed-message" class="updated"><p>';
 					if ( isset( $_GET['trashed'] ) && (int) $_GET['trashed'] ) {
-						printf( _n( 'Post moved to the trash.', '%s posts moved to the trash.', $_GET['trashed'] ), number_format_i18n( $_GET['trashed'] ) );
+						printf( _n( 'Post moved to the trash.', '%d posts moved to the trash.', $_GET['trashed'] ), number_format_i18n( $_GET['trashed'] ) );
 						$ids = isset($_GET['ids']) ? $_GET['ids'] : 0;
 						$pid = explode( ',', $ids );
 						$post_type = get_post_type( $pid[0] );
@@ -444,7 +444,7 @@ class EF_Calendar extends EF_Module {
 						unset( $_GET['trashed'] );
 					}
 					if ( isset($_GET['untrashed'] ) && (int) $_GET['untrashed'] ) {
-						printf( _n( 'Post restored from the Trash.', '%s posts restored from the Trash.', $_GET['untrashed'] ), number_format_i18n( $_GET['untrashed'] ) );
+						printf( _n( 'Post restored from the Trash.', '%d posts restored from the Trash.', $_GET['untrashed'] ), number_format_i18n( $_GET['untrashed'] ) );
 						unset( $_GET['undeleted'] );
 					}
 					echo '</p></div>';
