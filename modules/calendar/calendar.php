@@ -680,7 +680,7 @@ class EF_Calendar extends EF_Module {
 								$item_actions = array();
 								if ( $this->current_user_can_modify_post( $post ) ) {
 									// Edit this post
-									$item_actions['edit'] = '<a href="' . get_edit_post_link( $post->ID, true ) . '" title="' . esc_attr( __( 'Edit this item' ) ) . '">' . __( 'Edit', 'edit-flow' ) . '</a>';
+									$item_actions['edit'] = '<a href="' . get_edit_post_link( $post->ID, true ) . '" title="' . esc_attr( __( 'Edit this item', 'edit-flow' ) ) . '">' . __( 'Edit', 'edit-flow' ) . '</a>';
 									// Trash this post
 									$item_actions['trash'] = '<a href="'. get_delete_post_link( $post->ID) . '" title="' . esc_attr( __( 'Trash this item' ), 'edit-flow' ) . '">' . __( 'Trash', 'edit-flow' ) . '</a>';
 									// Preview/view this post
@@ -709,7 +709,7 @@ class EF_Calendar extends EF_Module {
 						endif; ?>
 					</ul>
 					<?php if ( $hidden ): ?>
-						<a class="show-more" href="#"><?php printf( __( 'Show %1$s more ' ), $hidden ); ?></a>
+						<a class="show-more" href="#"><?php printf( __( 'Show %1$s more ', 'edit-flow' ), $hidden ); ?></a>
 					<?php endif; ?>
 					</td>
 					<?php endforeach; ?>
