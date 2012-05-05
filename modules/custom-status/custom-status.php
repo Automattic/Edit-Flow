@@ -260,7 +260,8 @@ class EF_Custom_Status extends EF_Module {
 			/* Hide post status dropdown by default in case of JS issues **/
 			label[for=post_status],
 			#post-status-display,
-			#post-status-select {
+			#post-status-select,
+			#publish {
 				display: none;
 			}
 			</style>		
@@ -304,7 +305,6 @@ class EF_Custom_Status extends EF_Module {
 		if ( !empty( $post ) && $this->is_whitelisted_page() ) {
 			
 			$custom_statuses = $this->get_custom_statuses();
-			$custom_statuses = apply_filters( 'ef_custom_status_list', $custom_statuses, $post );			
 	
 			// Get the status of the current post		
 			if ( $post->ID == 0 || $post->post_status == 'auto-draft' || $pagenow == 'edit.php' ) {
@@ -314,6 +314,17 @@ class EF_Custom_Status extends EF_Module {
 			} else {
 				$selected = $post->post_status;
 			}
+			
+			// Get the current post status name
+			$selected_name = '';
+
+			foreach ($custom_statuses as $status) {
+				if ($status->slug == $selected) {
+					$selected_name = $status->name;
+				}
+			}
+
+			$custom_statuses = apply_filters( 'ef_custom_status_list', $custom_statuses, $post );			
 
 			// All right, we want to set up the JS var which contains all custom statuses
 			$all_statuses = array(); 
@@ -353,8 +364,10 @@ class EF_Custom_Status extends EF_Module {
 				var ef_text_no_change = '<?php echo esc_js( __( "&mdash; No Change &mdash;" ) ); ?>';
 				var ef_default_custom_status = '<?php echo esc_js( $this->get_default_custom_status()->slug ); ?>';
 				var current_status = '<?php echo esc_js( $selected ); ?>';
+				var current_status_name = '<?php echo esc_js( $selected_name ); ?>';
 				var status_dropdown_visible = <?php echo esc_js( $always_show_dropdown ); ?>;
 				var current_user_can_publish_posts = <?php echo current_user_can( 'publish_posts' ) ? 1 : 0; ?>;
+				var current_user_can_edit_published_posts = <?php echo current_user_can( 'edit_published_posts' ) ? 1 : 0; ?>;
 			</script>
 			
 			<?php
