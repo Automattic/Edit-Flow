@@ -3,6 +3,44 @@ jQuery(document).ready(function() {
 	jQuery('label[for=post_status]').show();
 	jQuery('#post-status-display').show();
 
+	if ( jQuery('select[name="_status"]').length == 0 ) { // not on quick edit
+		
+		if ( current_user_can_publish_posts || ( current_status == 'publish' && current_user_can_edit_published_posts ) ) {
+			// show publish button if allowed to publish
+			jQuery('#publish').show();
+		} else {
+			// mimic default post status dropdown
+			jQuery('<span>&nbsp;<a href="#post_status" class="edit-post-status" tabindex=\'4\'>Edit</a></span>' + 
+			' <div id="post-status-select">' +
+			' <input type="hidden" name="hidden_post_status" id="hidden_post_status" value="in-progress" />' +
+			' <select name=\'post_status\' id=\'post_status\' tabindex=\'4\'>' +
+			' </select>' +
+			'  <a href="#post_status" class="save-post-status button">OK</a>' +
+			'  <a href="#post_status" class="cancel-post-status">Cancel</a>' +
+			' </div>').insertAfter('#post-status-display');
+		
+			if (!status_dropdown_visible) {
+				jQuery('#post-status-select').hide();
+				jQuery('.edit-post-status').show();
+			}
+		
+			jQuery('.edit-post-status').click(function() {
+				jQuery('#post-status-select').slideDown();
+				jQuery('.edit-post-status').hide();
+				return false;
+			});
+			jQuery('.cancel-post-status, .save-post-status').click(function() {
+				jQuery('#post-status-select').slideUp();
+				jQuery('.edit-post-status').show();
+				return false;
+			});
+			jQuery('.save-post-status').click(function() {
+				jQuery('#post-status-display').text(jQuery('select[name="post_status"] :selected').text());
+				return false;
+			});
+		}
+	}
+
 	// 1. Add custom statuses to post.php Status dropdown
 	// Or 2. Add custom statuses to quick-edit status dropdowns on edit.php
 	// Or 3. Hide two inputs with the default workflow status to override 'Draft' as the default contributor status
@@ -25,6 +63,17 @@ jQuery(document).ready(function() {
 			jQuery('.edit-post-status').hide();
 		}
 		
+		// Hide status dropdown if not allowed to edit
+		if ( !ef_can_change_status(current_status) ) {
+			jQuery('#post-status-select').hide();
+			jQuery('.edit-post-status').hide();
+			
+			// set the current status as the selected one
+			var $option = jQuery('<option></option>').text(current_status_name).attr('value', current_status).attr('selected', 'selected');
+
+			$option.appendTo('select[name="post_status"]');
+		}
+		
 		// If custom status set for post, then set is as #post-status-display
 		jQuery('#post-status-display').text(ef_get_status_name(current_status));
 
@@ -39,18 +88,13 @@ jQuery(document).ready(function() {
 		jQuery( '#bulk-edit' ).find( 'select[name="_status"] option' ).removeAttr('selected');
 		jQuery( '#bulk-edit' ).find( 'select[name="_status"] option[value="future"]').remove();
 	} else {
-		if ( !jQuery('input[name="hidden_post_status"]').length ) {
-			jQuery('.misc-pub-section').append(jQuery('<input>')
-				.attr('type', 'hidden')
-				.attr('id', 'hidden_post_status')
-				.attr('name', 'hidden_post_status')
-				.attr('value', ef_default_custom_status));
-			jQuery('.misc-pub-section').append(jQuery('<input>')
-				.attr('type', 'hidden')
-				.attr('id', 'post_status')
-				.attr('name', 'post_status')
-				.attr('value', ef_default_custom_status ));
-		}
+
+		// Set the Save button to generic text by default
+		ef_update_save_button('Save');
+
+		// If custom status set for post, then set is as #post-status-display
+		jQuery('#post-status-display').text(ef_get_status_name(current_status));
+		
 	}
 		
 	if (jQuery('ul.subsubsub')) {
@@ -91,6 +135,18 @@ jQuery(document).ready(function() {
 		});
 	}
 	
+	function ef_can_change_status(slug) {
+		var change = false;
+
+		jQuery.each(custom_statuses, function() {
+			if(this.slug==slug) change = true;
+		});
+		if (slug == 'publish' && !current_user_can_publish_posts) {
+			change = false;
+		}
+		return change;
+	}
+	
 	function ef_add_tooltips_to_filter_links(selector) {	
 		jQuery.each(custom_statuses, function() {
 			jQuery(selector + ':contains("'+ this.name +'")')
@@ -111,6 +167,11 @@ jQuery(document).ready(function() {
 		jQuery.each(custom_statuses, function() {
 			if(this.slug==slug) name = this.name;
 		});
+		
+		if (!name) {
+			name = current_status_name;
+		}
+		
 		return name;
 	}
 
