@@ -69,7 +69,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 == Changelog ==
 
 = 0.7.2 (??? ??, ????) =
-* Support for trashing posts from the calendar. Thanks danyork for the idea and a bit of code
+* Support for trashing posts from the calendar. Thanks [Dan York](https://github.com/danyork) for the idea and a bit of code
 
 = 0.7.1 (Apr. 11, 2012) =
 * Show the year on the calendar and story budget if it's not the current year
