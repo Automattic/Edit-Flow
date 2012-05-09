@@ -82,39 +82,39 @@ class EF_Editorial_Metadata extends EF_Module {
 		$this->register_taxonomy();
 		
 		// Register our settings
-		add_action( 'admin_init', array( &$this, 'register_settings' ) );		
+		add_action( 'admin_init', array( $this, 'register_settings' ) );		
 		
 		// Actions relevant to the configuration view (adding, editing, or sorting existing Editorial Metadata)
-		add_action( 'admin_init', array( &$this, 'handle_add_editorial_metadata' ) );
-		add_action( 'admin_init', array( &$this, 'handle_edit_editorial_metadata' ) );
-		add_action( 'admin_init', array( &$this, 'handle_change_editorial_metadata_visibility' ) );	
-		add_action( 'admin_init', array( &$this, 'handle_delete_editorial_metadata' ) );
-		add_action( 'wp_ajax_inline_save_term', array( &$this, 'handle_ajax_inline_save_term' ) );
-		add_action( 'wp_ajax_update_term_positions', array( &$this, 'handle_ajax_update_term_positions' ) );
+		add_action( 'admin_init', array( $this, 'handle_add_editorial_metadata' ) );
+		add_action( 'admin_init', array( $this, 'handle_edit_editorial_metadata' ) );
+		add_action( 'admin_init', array( $this, 'handle_change_editorial_metadata_visibility' ) );	
+		add_action( 'admin_init', array( $this, 'handle_delete_editorial_metadata' ) );
+		add_action( 'wp_ajax_inline_save_term', array( $this, 'handle_ajax_inline_save_term' ) );
+		add_action( 'wp_ajax_update_term_positions', array( $this, 'handle_ajax_update_term_positions' ) );
 		
-		add_action( 'add_meta_boxes', array( &$this, 'handle_post_metaboxes' ) );
-		add_action( 'save_post', array( &$this, 'save_meta_box' ), 10, 2 );
+		add_action( 'add_meta_boxes', array( $this, 'handle_post_metaboxes' ) );
+		add_action( 'save_post', array( $this, 'save_meta_box' ), 10, 2 );
 		
 		// Add Editorial Metadata columns to the Manage Posts view
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		foreach( $supported_post_types as $post_type ) {
-			add_action( "manage_{$post_type}_posts_columns", array( &$this, 'filter_manage_posts_columns' ) );
-			add_action( 'manage_posts_custom_column', array( &$this, 'action_manage_posts_custom_column' ), 10, 2 );
+			add_action( "manage_{$post_type}_posts_columns", array( $this, 'filter_manage_posts_columns' ) );
+			add_action( 'manage_posts_custom_column', array( $this, 'action_manage_posts_custom_column' ), 10, 2 );
 		}
 		
 		// Add Editorial Metadata to the calendar if the calendar is activated
 		if ( $this->module_enabled( 'calendar' ) )
-			add_filter( 'ef_calendar_item_information_fields', array( &$this, 'filter_calendar_item_fields' ), 10, 2 );
+			add_filter( 'ef_calendar_item_information_fields', array( $this, 'filter_calendar_item_fields' ), 10, 2 );
 		
 		// Add Editorial Metadata columns to the Story Budget if it exists
 		if ( $this->module_enabled( 'story_budget' ) ) {
-			add_filter( 'ef_story_budget_term_columns', array( &$this, 'filter_story_budget_term_columns' ) );
+			add_filter( 'ef_story_budget_term_columns', array( $this, 'filter_story_budget_term_columns' ) );
 			// Register an action to handle this data later
-			add_filter( 'ef_story_budget_term_column_value', array( &$this, 'filter_story_budget_term_column_values' ), 10, 3 );
+			add_filter( 'ef_story_budget_term_column_value', array( $this, 'filter_story_budget_term_column_values' ), 10, 3 );
 		}		
 		
 		// Load necessary scripts and stylesheets
-		add_action( 'admin_enqueue_scripts', array( &$this, 'add_admin_scripts' ) );	
+		add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_scripts' ) );	
 		
 	}
 	
@@ -330,7 +330,7 @@ class EF_Editorial_Metadata extends EF_Module {
 
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		foreach ( $supported_post_types as $post_type ) {
-			add_meta_box( self::metadata_taxonomy, $title, array( &$this, 'display_meta_box' ), $post_type, 'side' );
+			add_meta_box( self::metadata_taxonomy, $title, array( $this, 'display_meta_box' ), $post_type, 'side' );
 		}
 	}
 	
@@ -1279,7 +1279,7 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */
 	function register_settings() {
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', __( 'Add to these post types:', 'edit-flow' ), array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', __( 'Add to these post types:', 'edit-flow' ), array( $this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 	}	
 
 	/**

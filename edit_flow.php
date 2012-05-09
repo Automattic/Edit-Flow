@@ -52,12 +52,12 @@ class edit_flow {
 
 		// Load all of our modules. 'ef_loaded' happens after 'plugins_loaded' so other plugins can
 		// hook into the action we have at the end
-		add_action( 'ef_loaded', array( &$this, 'action_ef_loaded_load_modules' ) );
+		add_action( 'ef_loaded', array( $this, 'action_ef_loaded_load_modules' ) );
 		
 		// Load the module options later on, and offer a function to happen way after init
-		add_action( 'init', array( &$this, 'action_init' ) );
-		add_action( 'init', array( &$this, 'action_init_after' ), 1000 );
-		add_action( 'admin_init', array( &$this, 'action_admin_init' ) );
+		add_action( 'init', array( $this, 'action_init' ) );
+		add_action( 'init', array( $this, 'action_init_after' ), 1000 );
+		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
 		
 	}
 
@@ -205,7 +205,7 @@ class edit_flow {
 		// If there's a Help Screen registered for the module, make sure we
 		// auto-load it
 		if ( !empty( $args['settings_help_tab'] ) )
-			 add_action( 'load-edit-flow_page_' . $args['settings_slug'], array( &$this->$name, 'action_settings_help_menu' ) );
+			add_action( 'load-edit-flow_page_' . $args['settings_slug'], array( &$this->$name, 'action_settings_help_menu' ) );
 		
 		$this->modules->$name = (object) $args;
 		do_action( 'ef_module_registered', $name );

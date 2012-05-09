@@ -75,33 +75,33 @@ class EF_Custom_Status extends EF_Module {
 		$this->register_custom_statuses();
 		
 		// Register our settings
-		add_action( 'admin_init', array( &$this, 'register_settings' ) );
+		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		
 		// Load CSS and JS resources that we probably need
-		add_action( 'admin_enqueue_scripts', array( &$this, 'action_admin_enqueue_scripts' ) );
-		add_action( 'admin_notices', array( &$this, 'no_js_notice' ) );
-		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'action_admin_enqueue_scripts' ) );
+		add_action( 'admin_notices', array( $this, 'no_js_notice' ) );
+		add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
 		
 		// Methods for handling the actions of creating, making default, and deleting post stati
-		add_action( 'admin_init', array( &$this, 'handle_add_custom_status' ) );
-		add_action( 'admin_init', array( &$this, 'handle_edit_custom_status' ) );
-		add_action( 'admin_init', array( &$this, 'handle_make_default_custom_status' ) );
-		add_action( 'admin_init', array( &$this, 'handle_delete_custom_status' ) );
-		add_action( 'wp_ajax_update_status_positions', array( &$this, 'handle_ajax_update_status_positions' ) );
-		add_action( 'wp_ajax_inline_save_status', array( &$this, 'ajax_inline_save_status' ) );
+		add_action( 'admin_init', array( $this, 'handle_add_custom_status' ) );
+		add_action( 'admin_init', array( $this, 'handle_edit_custom_status' ) );
+		add_action( 'admin_init', array( $this, 'handle_make_default_custom_status' ) );
+		add_action( 'admin_init', array( $this, 'handle_delete_custom_status' ) );
+		add_action( 'wp_ajax_update_status_positions', array( $this, 'handle_ajax_update_status_positions' ) );
+		add_action( 'wp_ajax_inline_save_status', array( $this, 'ajax_inline_save_status' ) );
 		
 		// Hook to add the status column to Manage Posts
 		
-		add_filter( 'manage_posts_columns', array( &$this, '_filter_manage_posts_columns') );
-		add_action( 'manage_posts_custom_column', array( &$this, '_filter_manage_posts_custom_column') );
+		add_filter( 'manage_posts_columns', array( $this, '_filter_manage_posts_columns') );
+		add_action( 'manage_posts_custom_column', array( $this, '_filter_manage_posts_custom_column') );
 		
 		// We need these for pages (http://core.trac.wordpress.org/browser/tags/3.3.1/wp-admin/includes/class-wp-posts-list-table.php#L283)
-		add_filter( 'manage_pages_columns', array( &$this, '_filter_manage_posts_columns' ) );
-		add_action( 'manage_pages_custom_column', array( &$this, '_filter_manage_posts_custom_column' ) );	
+		add_filter( 'manage_pages_columns', array( $this, '_filter_manage_posts_columns' ) );
+		add_action( 'manage_pages_custom_column', array( $this, '_filter_manage_posts_custom_column' ) );	
 		
 		// These two methods are hacks for fixing bugs in WordPress core
-		add_action( 'admin_init', array( &$this, 'check_timestamp_on_publish' ) );
-		add_filter( 'wp_insert_post_data', array( &$this, 'fix_custom_status_timestamp' ) );
+		add_action( 'admin_init', array( $this, 'check_timestamp_on_publish' ) );
+		add_filter( 'wp_insert_post_data', array( $this, 'fix_custom_status_timestamp' ) );
 		
 	}
 	
@@ -988,8 +988,8 @@ class EF_Custom_Status extends EF_Module {
 	function register_settings() {
 		
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', __( 'Use on these post types:', 'edit-flow' ), array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-			add_settings_field( 'always_show_dropdown', __( 'Always show dropdown:', 'edit-flow' ), array( &$this, 'settings_always_show_dropdown_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', __( 'Use on these post types:', 'edit-flow' ), array( $this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'always_show_dropdown', __( 'Always show dropdown:', 'edit-flow' ), array( $this, 'settings_always_show_dropdown_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 
 	}
 	

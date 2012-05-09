@@ -72,16 +72,16 @@ class EF_Calendar extends EF_Module {
 		if ( !current_user_can( $view_calendar_cap ) ) return false;
 		
 		require_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
-		add_screen_options_panel( self::usermeta_key_prefix . 'screen_options', __( 'Calendar Options', 'edit-flow' ), array( &$this, 'generate_screen_options' ), self::screen_id, false, true );
-		add_action( 'admin_init', array( &$this, 'handle_save_screen_options' ) );
+		add_screen_options_panel( self::usermeta_key_prefix . 'screen_options', __( 'Calendar Options', 'edit-flow' ), array( $this, 'generate_screen_options' ), self::screen_id, false, true );
+		add_action( 'admin_init', array( $this, 'handle_save_screen_options' ) );
 		
-		add_action( 'admin_init', array( &$this, 'register_settings' ) );
-		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );		
-		add_action( 'admin_print_styles', array( &$this, 'add_admin_styles' ) );
-		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
+		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		add_action( 'admin_menu', array( $this, 'action_admin_menu' ) );		
+		add_action( 'admin_print_styles', array( $this, 'add_admin_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		
 		// Ajax manipulation for the calendar
-		add_action( 'wp_ajax_ef_calendar_drag_and_drop', array( &$this, 'handle_ajax_drag_and_drop' ) );
+		add_action( 'wp_ajax_ef_calendar_drag_and_drop', array( $this, 'handle_ajax_drag_and_drop' ) );
 	}
 	
 	/**
@@ -135,7 +135,7 @@ class EF_Calendar extends EF_Module {
 	 * @uses add_submenu_page
 	 */
 	function action_admin_menu() {	
-		add_submenu_page('index.php', __('Calendar', 'edit-flow'), __('Calendar', 'edit-flow'), apply_filters( 'ef_view_calendar_cap', 'ef_view_calendar' ), $this->module->slug, array( &$this, 'view_calendar' ) );
+		add_submenu_page('index.php', __('Calendar', 'edit-flow'), __('Calendar', 'edit-flow'), apply_filters( 'ef_view_calendar_cap', 'ef_view_calendar' ), $this->module->slug, array( $this, 'view_calendar' ) );
 	}
 	
 	/**
@@ -902,9 +902,9 @@ class EF_Calendar extends EF_Module {
 		// Filter for an end user to implement any of their own query args
 		$args = apply_filters( 'ef_calendar_posts_query_args', $args );
 		
-		add_filter( 'posts_where', array( &$this, 'posts_where_week_range' ) );
+		add_filter( 'posts_where', array( $this, 'posts_where_week_range' ) );
 		$post_results = new WP_Query( $args );
-		remove_filter( 'posts_where', array( &$this, 'posts_where_week_range' ) );
+		remove_filter( 'posts_where', array( $this, 'posts_where_week_range' ) );
 		
 		$posts = array();
 		while ( $post_results->have_posts() ) {
@@ -1077,8 +1077,8 @@ class EF_Calendar extends EF_Module {
 	function register_settings() {
 		
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', __( 'Post types to show', 'edit-flow' ), array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-			add_settings_field( 'number_of_weeks', __( 'Number of weeks to show', 'edit-flow' ), array( &$this, 'settings_number_weeks_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', __( 'Post types to show', 'edit-flow' ), array( $this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'number_of_weeks', __( 'Number of weeks to show', 'edit-flow' ), array( $this, 'settings_number_weeks_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 
 	}
 	

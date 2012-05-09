@@ -36,14 +36,14 @@ class EF_Settings extends EF_Module {
 	 */
 	function init() {
 		
-		add_action( 'admin_init', array( &$this, 'helper_settings_validate_and_save' ), 100 );		
+		add_action( 'admin_init', array( $this, 'helper_settings_validate_and_save' ), 100 );		
 		
-		add_action( 'admin_print_styles', array( &$this, 'action_admin_print_styles' ) );
-		add_action( 'admin_print_scripts', array( &$this, 'action_admin_print_scripts' ) );
-		add_action( 'admin_enqueue_scripts', array( &$this, 'action_admin_enqueue_scripts' ) );
-		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );
+		add_action( 'admin_print_styles', array( $this, 'action_admin_print_styles' ) );
+		add_action( 'admin_print_scripts', array( $this, 'action_admin_print_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'action_admin_enqueue_scripts' ) );
+		add_action( 'admin_menu', array( $this, 'action_admin_menu' ) );
 		
-		add_action( 'wp_ajax_change_edit_flow_module_state', array( &$this, 'ajax_change_edit_flow_module_state' ) );
+		add_action( 'wp_ajax_change_edit_flow_module_state', array( $this, 'ajax_change_edit_flow_module_state' ) );
 		
 	}
 	
@@ -53,12 +53,12 @@ class EF_Settings extends EF_Module {
 	function action_admin_menu() {
 		global $edit_flow;
 		
-		add_menu_page( $this->module->title, $this->module->title, 'manage_options', $this->module->settings_slug, array( &$this, 'settings_page_controller' ), $this->module->module_url . 'lib/eflogo_s16.png' ) ;
+		add_menu_page( $this->module->title, $this->module->title, 'manage_options', $this->module->settings_slug, array( $this, 'settings_page_controller' ), $this->module->module_url . 'lib/eflogo_s16.png' ) ;
 		
 		foreach ( $edit_flow->modules as $mod_name => $mod_data ) {
 			if ( isset( $mod_data->options->enabled ) && $mod_data->options->enabled == 'on'
 				&& $mod_data->configure_page_cb && $mod_name != $this->module->name )
-				add_submenu_page( $this->module->settings_slug, $mod_data->title, $mod_data->title, 'manage_options', $mod_data->settings_slug, array( &$this, 'settings_page_controller' ) ) ;
+				add_submenu_page( $this->module->settings_slug, $mod_data->title, $mod_data->title, 'manage_options', $mod_data->settings_slug, array( $this, 'settings_page_controller' ) ) ;
 		}
 	}
 	

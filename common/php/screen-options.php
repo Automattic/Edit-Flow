@@ -27,8 +27,8 @@ class wsScreenOptions10 {
 		$this->registered_panels = array();
 		$this->page_panels = array();
 		
-		add_filter('screen_settings', array(&$this, 'append_screen_settings'), 10, 2);
-		add_action('admin_print_scripts', array(&$this, 'add_autosave_script'));
+		add_filter('screen_settings', array( $this, 'append_screen_settings' ), 10, 2);
+		add_action('admin_print_scripts', array( $this, 'add_autosave_script' ) );
 	} 
 
 	/**
@@ -47,7 +47,7 @@ class wsScreenOptions10 {
 			$page = array($page);
 		}
 		//Convert page hooks/slugs to screen IDs
-		$page = array_map(array(&$this, 'page_to_screen_id'), $page);
+		$page = array_map( array( $this, 'page_to_screen_id' ), $page);
 		$page = array_unique($page);
 		
 		$new_panel = array(
@@ -59,7 +59,7 @@ class wsScreenOptions10 {
 		);
 		
 		if ( $save_callback ){
-			add_action('wp_ajax_save_settings-' . $id, array(&$this, 'ajax_save_callback'));
+			add_action('wp_ajax_save_settings-' . $id, array( $this, 'ajax_save_callback' ) );
 		}
 		
 		//Store the panel ID in each relevant page's list

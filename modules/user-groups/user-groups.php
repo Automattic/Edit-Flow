@@ -87,22 +87,22 @@ class EF_User_Groups extends EF_Module {
 		$this->manage_usergroups_cap = apply_filters( 'ef_manage_usergroups_cap', $this->manage_usergroups_cap );
 		
 		// Register our settings
-		add_action( 'admin_init', array( &$this, 'register_settings' ) );		
+		add_action( 'admin_init', array( $this, 'register_settings' ) );		
 		
 		// Handle any adding, editing or saving
-		add_action( 'admin_init', array( &$this, 'handle_add_usergroup' ) );
-		add_action( 'admin_init', array( &$this, 'handle_edit_usergroup' ) );
-		add_action( 'admin_init', array( &$this, 'handle_delete_usergroup' ) );
-		add_action( 'wp_ajax_inline_save_usergroup', array( &$this, 'handle_ajax_inline_save_usergroup' ) );
+		add_action( 'admin_init', array( $this, 'handle_add_usergroup' ) );
+		add_action( 'admin_init', array( $this, 'handle_edit_usergroup' ) );
+		add_action( 'admin_init', array( $this, 'handle_delete_usergroup' ) );
+		add_action( 'wp_ajax_inline_save_usergroup', array( $this, 'handle_ajax_inline_save_usergroup' ) );
 	
 		// Usergroups can be managed from the User profile view
-		add_action( 'show_user_profile', array( &$this, 'user_profile_page' ) );
-		add_action( 'edit_user_profile', array( &$this, 'user_profile_page' ) );
-		add_action( 'user_profile_update_errors', array( &$this, 'user_profile_update' ), 10, 3 );
+		add_action( 'show_user_profile', array( $this, 'user_profile_page' ) );
+		add_action( 'edit_user_profile', array( $this, 'user_profile_page' ) );
+		add_action( 'user_profile_update_errors', array( $this, 'user_profile_update' ), 10, 3 );
 
 		// Javascript and CSS if we need it
-		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
-		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_styles' ) );	
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );	
 		
 	}
 	
@@ -493,7 +493,7 @@ class EF_User_Groups extends EF_Module {
 	 */
 	function register_settings() {
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', __( 'Add to these post types:', 'edit-flow' ), array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', __( 'Add to these post types:', 'edit-flow' ), array( $this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 	}
 	
 	/**

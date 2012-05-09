@@ -71,22 +71,22 @@ class EF_Notifications extends EF_Module {
 		$this->edit_post_subscriptions_cap = apply_filters( 'ef_edit_post_subscriptions_cap', $this->edit_post_subscriptions_cap );
 		
 		// Set up metabox and related actions
-		add_action( 'add_meta_boxes', array( &$this, 'add_post_meta_box' ) );
+		add_action( 'add_meta_boxes', array( $this, 'add_post_meta_box' ) );
 	
 		// Saving post actions
 		// self::save_post_subscriptions() is hooked into transition_post_status so we can ensure usergroup data
 		// is properly saved before sending notifs
-		add_action( 'transition_post_status', array( &$this, 'save_post_subscriptions' ), 0, 3 );
-		add_action( 'transition_post_status', array( &$this, 'notification_status_change' ), 10, 3 );
-		add_action( 'ef_post_insert_editorial_comment', array( &$this, 'notification_comment') );
-		add_action( 'delete_user',  array(&$this, 'delete_user_action') );
-		add_action( 'ef_send_scheduled_email', array( &$this, 'send_single_email' ), 10, 4 );
+		add_action( 'transition_post_status', array( $this, 'save_post_subscriptions' ), 0, 3 );
+		add_action( 'transition_post_status', array( $this, 'notification_status_change' ), 10, 3 );
+		add_action( 'ef_post_insert_editorial_comment', array( $this, 'notification_comment') );
+		add_action( 'delete_user',  array($this, 'delete_user_action') );
+		add_action( 'ef_send_scheduled_email', array( $this, 'send_single_email' ), 10, 4 );
 		
-		add_action( 'admin_init', array( &$this, 'register_settings' ) );
+		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		
 		// Javascript and CSS if we need it
-		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
-		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_styles' ) );	
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );	
 		
 	}
 	
@@ -208,7 +208,7 @@ class EF_Notifications extends EF_Module {
 		
 		$usergroup_post_types = $this->get_post_types_for_module( $this->module );
 		foreach ( $usergroup_post_types as $post_type ) {
-			add_meta_box( 'edit-flow-notifications', __( 'Notifications', 'edit-flow'), array( &$this, 'notifications_meta_box'), $post_type, 'advanced' );
+			add_meta_box( 'edit-flow-notifications', __( 'Notifications', 'edit-flow'), array( $this, 'notifications_meta_box'), $post_type, 'advanced' );
 		}
 	}
 	
@@ -887,8 +887,8 @@ class EF_Notifications extends EF_Module {
 	 */
 	function register_settings() {
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', __( 'Post types for notifications:', 'edit-flow' ), array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-			add_settings_field( 'always_notify_admin', __( 'Always notify blog admin', 'edit-flow' ), array( &$this, 'settings_always_notify_admin_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', __( 'Post types for notifications:', 'edit-flow' ), array( $this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'always_notify_admin', __( 'Always notify blog admin', 'edit-flow' ), array( $this, 'settings_always_notify_admin_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 	}
 	
 	/**
