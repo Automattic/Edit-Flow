@@ -1204,8 +1204,9 @@ class EF_Custom_Status extends EF_Module {
 			return $data;
 		$custom_statuses = get_terms( 'post_status', array( 'get' => 'all' ) );
 		$status_slugs = array();
-		foreach( $custom_statuses as $custom_status )
-		    $status_slugs[] = $custom_status->slug;
+		foreach( $custom_statuses as $custom_status ) {
+			$status_slugs[] = $custom_status->slug;
+		}
 		$ef_normalize_post_date_gmt = true;
 		// We're only going to normalize the post_date_gmt if the user hasn't set a custom date in the metabox
 		// and the current post_date_gmt isn't already future or past-ized
