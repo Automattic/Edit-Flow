@@ -162,7 +162,7 @@ class EF_Notifications extends EF_Module {
 			'rewrite' => false,
 			'show_ui' => false
 		);
-		foreach( array( $this->following_users_taxonomy, $this->following_users_taxonomy ) as $taxonomy ) {
+		foreach( array( $this->following_users_taxonomy, $this->unfollowing_users_taxonomy ) as $taxonomy ) {
 			register_taxonomy( $taxonomy, $supported_post_types, $args );
 		}
 	}
