@@ -1045,8 +1045,8 @@ class EF_User_Groups extends EF_Module {
 				if ( !in_array( $user_id, $usergroup->user_ids ) )
 					continue;
 				if ( $ids_or_objects == 'ids' )
-					$usergroup_objects_or_ids[] = $usergroup->term_id;
-				else if ( $ids_or_objects == 'ids' )
+					$usergroup_objects_or_ids[] = (int)$usergroup->term_id;
+				else if ( $ids_or_objects == 'objects' )
 					$usergroup_objects_or_ids[] = $usergroup;			
 			}
 			return $usergroup_objects_or_ids;
