@@ -24,14 +24,14 @@ class EF_Calendar extends EF_Module {
 	function __construct() {
 		global $edit_flow;
 	
-		$module_url = $this->get_module_url( __FILE__ );
+		$this->module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow	
 		$args = array(
 			'title' => __( 'Calendar', 'edit-flow' ),
 			'short_description' => __( 'View upcoming content in a customizable calendar.', 'edit-flow' ),
 			'extended_description' => __( 'Edit Flow’s calendar lets you see your posts over a customizable date range. Filter by status or click on the post title to see its details. Drag and drop posts between days to change their publication date date.', 'edit-flow' ),
-			'module_url' => $module_url,
-			'img_url' => $module_url . 'lib/calendar_s128.png',
+			'module_url' => $this->module_url,
+			'img_url' => $this->module_url . 'lib/calendar_s128.png',
 			'slug' => 'calendar',
 			'post_type_support' => 'ef_calendar',
 			'default_options' => array(
@@ -147,7 +147,7 @@ class EF_Calendar extends EF_Module {
 		global $pagenow;
 		// Only load calendar styles on the calendar page
 		if ( $pagenow == 'index.php' && isset( $_GET['page'] ) && $_GET['page'] == 'calendar' )
-			wp_enqueue_style( 'edit-flow-calendar-css', EDIT_FLOW_URL . 'modules/calendar/lib/calendar.css', false, EDIT_FLOW_VERSION );
+			wp_enqueue_style( 'edit-flow-calendar-css', $this->module_url . 'lib/calendar.css', false, EDIT_FLOW_VERSION );
 	}
 	
 	/**
@@ -169,7 +169,7 @@ class EF_Calendar extends EF_Module {
 			foreach( $js_libraries as $js_library ) {
 				wp_enqueue_script( $js_library );
 			}
-			wp_enqueue_script( 'edit-flow-calendar-js', EDIT_FLOW_URL . 'modules/calendar/lib/calendar.js', $js_libraries, EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-calendar-js', $this->module_url . 'lib/calendar.js', $js_libraries, EDIT_FLOW_VERSION, true );
 		}
 		
 	}

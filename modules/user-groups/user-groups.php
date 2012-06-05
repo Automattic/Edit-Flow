@@ -33,15 +33,15 @@ class EF_User_Groups extends EF_Module {
 	function __construct( ) {
 		global $edit_flow;
 		
-		$module_url = $this->get_module_url( __FILE__ );
+		$this->module_url = $this->get_module_url( __FILE__ );
 		
 		// Register the User Groups module with Edit Flow
 		$args = array(
 			'title' => __( 'User Groups', 'edit-flow' ),
 			'short_description' => __( 'Organize your users into groups to mimic your organizational structure.', 'edit-flow' ),
 			'extended_description' => __( 'Configure user groups to organize all of the users on your site. Each user can be in many user groups and you can change them at any time.', 'edit-flow' ),
-			'module_url' => $module_url,
-			'img_url' => $module_url . 'lib/usergroups_s128.png',
+			'module_url' => $this->module_url,
+			'img_url' => $this->module_url . 'lib/usergroups_s128.png',
 			'slug' => 'user-groups',
 			'default_options' => array(
 				'enabled' => 'on',
@@ -226,11 +226,11 @@ class EF_User_Groups extends EF_Module {
 		if ( $this->is_whitelisted_functional_view() || $this->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-listfilterizer' );
 			wp_enqueue_script( 'jquery-quicksearch' );
-			wp_enqueue_script( 'edit-flow-user-groups-js', $this->module->module_url . 'lib/user-groups.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-user-groups-js', $this->module_url . 'lib/user-groups.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
 		}
 			
 		if ( $this->is_whitelisted_settings_view( $this->module->name ) )	
-			wp_enqueue_script( 'edit-flow-user-groups-configure-js', $this->module->module_url . 'lib/user-groups-configure.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-user-groups-configure-js', $this->module_url . 'lib/user-groups-configure.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 	}
 	
 	/**
@@ -245,7 +245,7 @@ class EF_User_Groups extends EF_Module {
 		
 		if ( $this->is_whitelisted_functional_view() || $this->is_whitelisted_settings_view() ) {
 			wp_enqueue_style( 'jquery-listfilterizer' );
-			wp_enqueue_style( 'edit-flow-user-groups-css', $this->module->module_url . 'lib/user-groups.css', false, EDIT_FLOW_VERSION );
+			wp_enqueue_style( 'edit-flow-user-groups-css', $this->module_url . 'lib/user-groups.css', false, EDIT_FLOW_VERSION );
 		}
 	}
 	

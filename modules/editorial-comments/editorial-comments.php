@@ -16,14 +16,14 @@ class EF_Editorial_Comments extends EF_Module
 	function __construct() {
 		global $edit_flow;
 		
-		$module_url = $this->get_module_url( __FILE__ );
+		$this->module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Editorial Comments', 'edit-flow' ),
 			'short_description' => __( 'Share internal notes with your team.', 'edit-flow' ),
 			'extended_description' => __( 'Use editorial comments to hold a private discussion about a post. Communicate directly with your writers or editors about what works and what needs to be improved for each piece.', 'edit-flow' ),
-			'module_url' => $module_url,
-			'img_url' => $module_url . 'lib/editorial_comments_s128.png',
+			'module_url' => $this->module_url,
+			'img_url' => $this->module_url . 'lib/editorial_comments_s128.png',
 			'slug' => 'editorial-comments',
 			'default_options' => array(
 				'enabled' => 'on',
@@ -95,8 +95,8 @@ class EF_Editorial_Comments extends EF_Module
 		if ( !in_array( $pagenow, array( 'post.php', 'page.php', 'post-new.php', 'page-new.php' ) ) )
 			return;
 		
-		wp_enqueue_script( 'edit_flow-post_comment', $this->module->module_url . '/lib/editorial-comments.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
-		wp_enqueue_style( 'edit-flow-editorial-comments-css', $this->module->module_url . '/lib/editorial-comments.css', false, EDIT_FLOW_VERSION, 'all' );
+		wp_enqueue_script( 'edit_flow-post_comment', $this->module_url . 'lib/editorial-comments.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
+		wp_enqueue_style( 'edit-flow-editorial-comments-css', $this->module_url . 'lib/editorial-comments.css', false, EDIT_FLOW_VERSION, 'all' );
 				
 		$thread_comments = (int) get_option('thread_comments');
 		?>

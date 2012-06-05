@@ -36,14 +36,14 @@ class EF_Editorial_Metadata extends EF_Module {
 	function __construct() {
 		global $edit_flow;
 		
-		$module_url = $this->get_module_url( __FILE__ );
+		$this->module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Editorial Metadata', 'edit-flow' ),
 			'short_description' => __( 'Track details about your posts in progress.', 'edit-flow' ),
 			'extended_description' => __( 'Log details on every assignment using configurable editorial metadata. It’s completely customizable; create fields for everything from due date to location to contact information to role assignments.', 'edit-flow' ),
-			'module_url' => $module_url,
-			'img_url' => $module_url . 'lib/editorial_metadata_s128.png',
+			'module_url' => $this->module_url,
+			'img_url' => $this->module_url . 'lib/editorial_metadata_s128.png',
 			'slug' => 'editorial-metadata',
 			'default_options' => array(
 				'enabled' => 'on',
@@ -221,7 +221,7 @@ class EF_Editorial_Metadata extends EF_Module {
 			$this->enqueue_datepicker_resources();
 
 			// Now add the rest of the metabox CSS
-			wp_enqueue_style( 'edit_flow-editorial_metadata-styles', EDIT_FLOW_URL . 'modules/editorial-metadata/lib/editorial-metadata.css', false, EDIT_FLOW_VERSION, 'all' );
+			wp_enqueue_style( 'edit_flow-editorial_metadata-styles', $this->module_url . 'lib/editorial-metadata.css', false, EDIT_FLOW_VERSION, 'all' );
 		}
 		// A bit of custom CSS for the Manage Posts view if we have viewable metadata
 		if ( $current_screen->base == 'edit' && in_array( $current_post_type, $supported_post_types ) ) {

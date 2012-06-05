@@ -34,14 +34,14 @@ class EF_Story_Budget extends EF_Module {
 	
 		global $edit_flow;
 		
-		$module_url = $this->get_module_url( __FILE__ );
+		$this->module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Story Budget', 'edit-flow' ),
 			'short_description' => __( 'View the status of all your content at a glance.', 'edit-flow' ),
 			'extended_description' => __( 'Use the story budget to see how content on your site is progressing. Filter by specific categories or date ranges to see details about each post in progress.', 'edit-flow' ),
-			'module_url' => $module_url,
-			'img_url' => $module_url . 'lib/story_budget_s128.png',
+			'module_url' => $this->module_url,
+			'img_url' => $this->module_url . 'lib/story_budget_s128.png',
 			'slug' => 'story-budget',
 			'default_options' => array(
 				'enabled' => 'on',
@@ -150,7 +150,7 @@ class EF_Story_Budget extends EF_Module {
 		echo '<script type="text/javascript"> var ef_story_budget_number_of_columns="' . esc_js( $this->num_columns ) . '";</script>';
 		
 		$this->enqueue_datepicker_resources();
-		wp_enqueue_script( 'edit_flow-story_budget', $this->module->module_url . '/lib/story-budget.js', array( 'edit_flow-date_picker' ), EDIT_FLOW_VERSION, true );
+		wp_enqueue_script( 'edit_flow-story_budget', $this->module_url . 'lib/story-budget.js', array( 'edit_flow-date_picker' ), EDIT_FLOW_VERSION, true );
 	}
 	
 	/**
@@ -162,8 +162,8 @@ class EF_Story_Budget extends EF_Module {
 		if ( $current_screen->id != self::screen_id )
 			return;
 		
-		wp_enqueue_style( 'edit_flow-story_budget-styles', $this->module->module_url . '/lib/story-budget.css', false, EDIT_FLOW_VERSION, 'screen' );
-		wp_enqueue_style( 'edit_flow-story_budget-print-styles', $this->module->module_url . '/lib/story-budget-print.css', false, EDIT_FLOW_VERSION, 'print' );
+		wp_enqueue_style( 'edit_flow-story_budget-styles', $this->module_url . 'lib/story-budget.css', false, EDIT_FLOW_VERSION, 'screen' );
+		wp_enqueue_style( 'edit_flow-story_budget-print-styles', $this->module_url . 'lib/story-budget-print.css', false, EDIT_FLOW_VERSION, 'print' );
 	}
 	
 	/**

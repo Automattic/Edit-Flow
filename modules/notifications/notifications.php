@@ -29,13 +29,13 @@ class EF_Notifications extends EF_Module {
 		global $edit_flow;
 		
 		// Register the module with Edit Flow
-		$module_url = $this->get_module_url( __FILE__ );
+		$this->module_url = $this->get_module_url( __FILE__ );
 		$args = array(
 			'title' => __( 'Notifications', 'edit-flow' ),
 			'short_description' => __( 'Update your team of important changes to your content.', 'edit-flow' ),
 			'extended_description' => __( 'With email notifications, you can keep everyone updated about what’s happening with a given content. Each status change or editorial comment sends out an email notification to users subscribed to a post. User groups can be used to manage who receives notifications on what.', 'edit-flow' ),
-			'module_url' => $module_url,
-			'img_url' => $module_url . 'lib/notifications_s128.png',
+			'module_url' => $this->module_url,
+			'img_url' => $this->module_url . 'lib/notifications_s128.png',
 			'slug' => 'notifications',
 			'default_options' => array(
 				'enabled' => 'on',
@@ -179,7 +179,7 @@ class EF_Notifications extends EF_Module {
 		if ( $this->is_whitelisted_functional_view() ) {
 			wp_enqueue_script( 'jquery-listfilterizer' );
 			wp_enqueue_script( 'jquery-quicksearch' );
-			wp_enqueue_script( 'edit-flow-notifications-js', $this->module->module_url . 'lib/notifications.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-notifications-js', $this->module_url . 'lib/notifications.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
 		}
 	}
 	
@@ -311,7 +311,7 @@ class EF_Notifications extends EF_Module {
 	 */
 	function notification_status_change( $new_status, $old_status, $post ) {
 		global $edit_flow;
-		
+
 		// Kill switch for notification
 		if ( ! apply_filters( 'ef_notification_status_change', $new_status, $old_status, $post ) || ! apply_filters( "ef_notification_{$post->post_type}_status_change", $new_status, $old_status, $post ) )
 			return false;

@@ -23,14 +23,14 @@ class EF_Custom_Status extends EF_Module {
 	function __construct() {
 		global $edit_flow;
 		
-		$module_url = $this->get_module_url( __FILE__ );
+		$this->module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Custom Statuses', 'edit-flow' ),
 			'short_description' => __( 'Create custom post statuses to define the stages of your workflow.', 'edit-flow' ),
 			'extended_description' => __( 'Create your own post statuses to add structure your publishing workflow. You can change existing or add new ones anytime, and drag and drop to change their order.', 'edit-flow' ),
-			'module_url' => $module_url,
-			'img_url' => $module_url . 'lib/custom_status_s128.png',
+			'module_url' => $this->module_url,
+			'img_url' => $this->module_url . 'lib/custom_status_s128.png',
 			'slug' => 'custom-status',
 			'default_options' => array(
 				'enabled' => 'on',
@@ -239,13 +239,13 @@ class EF_Custom_Status extends EF_Module {
 		// Load Javascript we need to use on the configuration views (jQuery Sortable and Quick Edit)
 		if ( $this->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-ui-sortable' );			
-			wp_enqueue_script( 'edit-flow-custom-status-configure', EDIT_FLOW_URL . 'modules/custom-status/lib/custom-status-configure.js', array( 'jquery', 'jquery-ui-sortable', 'edit-flow-settings-js' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-custom-status-configure', $this->module_url . 'lib/custom-status-configure.js', array( 'jquery', 'jquery-ui-sortable', 'edit-flow-settings-js' ), EDIT_FLOW_VERSION, true );
 		}
 		
 		// Custom javascript to modify the post status dropdown where it shows up
 		if ( $this->is_whitelisted_page() ) {
-			wp_enqueue_script( 'edit_flow-custom_status', EDIT_FLOW_URL . 'modules/custom-status/lib/custom-status.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
-			wp_enqueue_style( 'edit_flow-custom_status', EDIT_FLOW_URL . 'modules/custom-status/lib/custom-status.css', false, EDIT_FLOW_VERSION, 'all' );
+			wp_enqueue_script( 'edit_flow-custom_status', $this->module_url . 'lib/custom-status.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_style( 'edit_flow-custom_status', $this->module_url . 'lib/custom-status.css', false, EDIT_FLOW_VERSION, 'all' );
 		}
 	}
 	

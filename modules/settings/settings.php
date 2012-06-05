@@ -13,13 +13,13 @@ class EF_Settings extends EF_Module {
 		global $edit_flow;
 		
 		// Register the module with Edit Flow
-		$module_url = $this->get_module_url( __FILE__ );
+		$this->module_url = $this->get_module_url( __FILE__ );
 		$args = array(
 			'title' => __( 'Edit Flow', 'edit-flow' ),
 			'short_description' => __( 'Edit Flow redefines your WordPress publishing workflow.', 'edit-flow' ),
 			'extended_description' => __( 'Enable any of the features below to take control of your workflow. Custom statuses, email notifications, editorial comments, and more help you and your team save time so everyone can focus on what matters most: the content.', 'edit-flow' ),
-			'module_url' => $module_url,
-			'img_url' => $module_url . 'lib/eflogo_s128.png',
+			'module_url' => $this->module_url,
+			'img_url' => $this->module_url . 'lib/eflogo_s128.png',
 			'slug' => 'settings',
 			'settings_slug' => 'ef-settings',
 			'default_options' => array(
@@ -65,7 +65,7 @@ class EF_Settings extends EF_Module {
 	function action_admin_enqueue_scripts() {
 		
 		if ( $this->is_whitelisted_settings_view() )
-			wp_enqueue_script( 'edit-flow-settings-js', EDIT_FLOW_URL . 'modules/settings/lib/settings.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-settings-js', $this->module_url . 'lib/settings.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 			
 	}
 	
@@ -75,7 +75,7 @@ class EF_Settings extends EF_Module {
 	function action_admin_print_styles() {		
 		
 		if ( $this->is_whitelisted_settings_view() )
-			wp_enqueue_style( 'edit_flow-settings-css', EDIT_FLOW_URL.'modules/settings/lib/settings.css', false, EDIT_FLOW_VERSION );
+			wp_enqueue_style( 'edit_flow-settings-css', $this->module_url . 'lib/settings.css', false, EDIT_FLOW_VERSION );
 		
 		
 	}

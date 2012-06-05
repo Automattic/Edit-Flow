@@ -22,13 +22,13 @@ class EF_Dashboard extends EF_Module {
 		global $edit_flow;
 		
 		// Register the module with Edit Flow
-		$module_url = $this->get_module_url( __FILE__ );
+		$this->module_url = $this->get_module_url( __FILE__ );
 		$args = array(
 			'title' => __( 'Dashboard Widgets', 'edit-flow' ),
 			'short_description' => __( 'Track your content from the WordPress dashboard.', 'edit-flow' ),
 			'extended_description' => __( 'Enable dashboard widgets to quickly get an overview of what state your content is in.', 'edit-flow' ),
-			'module_url' => $module_url,
-			'img_url' => $module_url . 'lib/dashboard_s128.png',
+			'module_url' => $this->module_url,
+			'img_url' => $this->module_url . 'lib/dashboard_s128.png',
 			'slug' => 'dashboard',
 			'post_type_support' => 'ef_dashboard',
 			'default_options' => array(
@@ -104,7 +104,7 @@ class EF_Dashboard extends EF_Module {
 		if ( !current_user_can('edit_posts') ) 
 			return;
 		
-		wp_enqueue_style( 'edit-flow-dashboard-css', EDIT_FLOW_URL . 'modules/dashboard/lib/dashboard.css', false, EDIT_FLOW_VERSION, 'all' );			
+		wp_enqueue_style( 'edit-flow-dashboard-css', $this->module_url . 'lib/dashboard.css', false, EDIT_FLOW_VERSION, 'all' );			
 			
 		// Set up Post Status widget but, first, check to see if it's enabled
 		if ( $this->module->options->post_status_widget == 'on')
