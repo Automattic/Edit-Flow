@@ -1058,7 +1058,7 @@ class EF_Calendar extends EF_Module {
 		if ( current_user_can( $post_type_object->cap->edit_others_posts, $post->ID ) )
 			return true;
 		// Authors and contributors can move their own stuff if it's not published
-		if ( current_user_can( $post_type_object->cap->edit_posts, $post->ID ) && wp_get_current_user()->ID == $post->post_author && !in_array( $post->post_status, $published_statuses ) )
+		if ( current_user_can( $post_type_object->cap->edit_post, $post->ID ) && wp_get_current_user()->ID == $post->post_author && !in_array( $post->post_status, $published_statuses ) )
 			return true;
 		// Those who can publish posts can move any of their own stuff
 		if ( current_user_can( $post_type_object->cap->publish_posts, $post->ID ) && wp_get_current_user()->ID == $post->post_author )
