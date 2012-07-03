@@ -306,13 +306,7 @@ class EF_Settings extends EF_Module {
 			'post' => __( 'Posts' ),
 			'page' => __( 'Pages' ),
 		);
-		
-		// Don't load any of the default post types because we've already created an array of the two we use
-		$pt_args = array(
-			'_builtin' => false,
-			'public' => true,
-		);
-		$custom_post_types = get_post_types( $pt_args, 'objects' );		
+		$custom_post_types = $this->get_supported_post_types_for_module();
 		if ( count( $custom_post_types ) ) {
 			foreach( $custom_post_types as $custom_post_type => $args ) {
 				$all_post_types[$custom_post_type] = $args->label;
