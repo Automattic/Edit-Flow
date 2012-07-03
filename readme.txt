@@ -4,7 +4,7 @@ Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 3.1
 Tested up to: 3.4.1
-Stable tag: 0.7.1
+Stable tag: 0.7.2
 
 Redefining your editorial workflow.
 
@@ -42,6 +42,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 
 == Upgrade Notice ==
 
+= 0.7.2 =
+Contributors and other users without the 'publish_posts' capability can access custom statuses.
+
 = 0.7.1 =
 Enhancements and bug fixes, including defaulting to the proper date in the calendar and an Italian localization.
 
@@ -68,10 +71,12 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
-= 0.7.2 (??? ??, ????) =
-* Support for trashing posts from the calendar. Thanks [Dan York](https://github.com/danyork) for the idea and a bit of code
+= 0.7.2 (Jul. 3, 2012) =
 * Users without the 'publish_posts' capability can now use and change custom statuses. Props [Daniel Chesterton](https://github.com/dchesterton)
+* Support for trashing posts from the calendar. Thanks [Dan York](https://github.com/danyork) for the idea and a bit of code
 * Updated codebase to use PHP5-style OOP references
+* Fixed some script and stylesheet references that had a double '//' in the URI path
+* New `edit_flow_supported_module_post_types_args` filter allows you to enable custom statuses and other modules for private post types
 
 = 0.7.1 (Apr. 11, 2012) =
 * Show the year on the calendar and story budget if it's not the current year

@@ -39,10 +39,7 @@ class EF_Module {
 	 */
 	function clean_post_type_options( $module_post_types = array(), $post_type_support = null ) {
 		$normalized_post_type_options = array();
-		$pt_args = array(
-			'_builtin' => false,
-		);
-		$all_post_types = get_post_types( $pt_args, 'names' );
+		$all_post_types = wp_list_pluck( $this->get_supported_post_types_for_module(), 'name' );
 		array_push( $all_post_types, 'post', 'page' );
 		$all_post_types = array_merge( $all_post_types, array_keys( $module_post_types ) );
 		foreach( $all_post_types as $post_type ) {
@@ -52,6 +49,24 @@ class EF_Module {
 				$normalized_post_type_options[$post_type] = 'off';
 		}
 		return $normalized_post_type_options;
+	}
+
+	/**
+	 * Get all of the possible post types that can be used with a given module
+	 *
+	 * @param object $module The full module
+	 * @return array $post_types An array of post type objects
+	 *
+	 * @since 0.7.2
+	 */
+	function get_supported_post_types_for_module( $module = null ) {
+
+		$pt_args = array(
+				'_builtin' => false,
+				'public' => true,
+			);
+		$pt_args = apply_filters( 'edit_flow_supported_module_post_types_args', $pt_args, $module );
+		return get_post_types( $pt_args, 'objects' );
 	}
 	
 	/**
