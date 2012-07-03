@@ -42,6 +42,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 
 == Upgrade Notice ==
 
+= 0.7.3 =
+Support PHP 5.2.x by removing the anonymous functions we mistakenly added
+
 = 0.7.2 =
 Contributors and other users without the 'publish_posts' capability can access custom statuses.
 
@@ -72,7 +75,8 @@ New features, including story budget and editorial metadata, a completely rewrit
 == Changelog ==
 
 = 0.7.3 (Jul. 3, 2012) =
-* Bug fix: Support PHP 5.2.x by removing the anonymous function we mistakenly added
+* Bug fix: Support PHP 5.2.x by removing the anonymous functions we mistakenly added
+* Bug fix: Only update user's Story Budget saved filters when the Story Budget is being viewed, to avoid other views setting the filter values
 
 = 0.7.2 (Jul. 3, 2012) =
 * Users without the 'publish_posts' capability can now use and change custom statuses. Props [Daniel Chesterton](https://github.com/dchesterton)
