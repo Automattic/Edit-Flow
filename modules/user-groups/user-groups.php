@@ -210,6 +210,7 @@ class EF_User_Groups extends EF_Module {
 		// Use a taxonomy to manage relationships between posts and usergroups
 		$args = array(
 			'public' => false,
+			'rewrite' => false,
 		);
 		register_taxonomy( self::taxonomy_key, $supported_post_types, $args );
 	}

@@ -308,7 +308,8 @@ class EF_Editorial_Metadata extends EF_Module {
 						'update_item' => __( 'Update Editorial Metadata', 'edit-flow' ),
 						'add_new_item' => __( 'Add New Editorial Metadata', 'edit-flow' ),
 						'new_item_name' => __( 'New Editorial Metadata', 'edit-flow' ),
-					)
+					),
+				'rewrite' => false,
 			)
 		);
 	}
