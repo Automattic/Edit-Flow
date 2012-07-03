@@ -689,9 +689,6 @@ class EF_Calendar extends EF_Module {
 									} elseif ( 'trash' != $post->post_status ) {
 										$item_actions['view'] = '<a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" rel="permalink">' . __( 'View', 'edit-flow' ) . '</a>';
 									}
-									
-									// Move this post to the trash
-									$item_actions['trash'] = '<a href="'. get_delete_post_link( $post->ID) . '" title="' . esc_attr( __( 'Move this item to the Trash' ) ) . '">' . __( 'Trash', 'edit-flow' ) . '</a>';
 								}
 								// Allow other plugins to add actions
 								$item_actions = apply_filters( 'ef_calendar_item_actions', $item_actions, $post->ID );
