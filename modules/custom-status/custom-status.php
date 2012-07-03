@@ -1182,7 +1182,21 @@ class EF_Custom_Status extends EF_Module {
 			// Set the post_status as 'pending' only when there's no timestamp set for $post_date_gmt
 			if ( isset( $_POST['post_ID'] ) ) {
 				$post_id = (int) $_POST['post_ID'];
-				$wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array( 'ID' => $post_id, 'post_date_gmt' => '0000-00-00 00:00:00' ) );
+				$ret = $wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array( 'ID' => $post_id, 'post_date_gmt' => '0000-00-00 00:00:00' ) );
+				foreach ( array('aa', 'mm', 'jj', 'hh', 'mn') as $timeunit ) {
+					if ( !empty( $_POST['hidden_' . $timeunit] ) && $_POST['hidden_' . $timeunit] != $_POST[$timeunit] ) {
+						$edit_date = '1';
+						break;
+					}
+				}
+				if ( $ret && empty( $edit_date ) ) {
+					add_filter( 'pre_post_date', function() {
+						return current_time('mysql');
+					});
+					add_filter( 'pre_post_date_gmt', function() {
+						return '';
+					});
+				}
 			}
 		}
 		
