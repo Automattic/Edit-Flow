@@ -71,6 +71,9 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
+= 0.7.3 (Jul. 3, 2012) =
+* Bug fix: Support PHP 5.2.x by removing the anonymous function we mistakenly added
+
 = 0.7.2 (Jul. 3, 2012) =
 * Users without the 'publish_posts' capability can now use and change custom statuses. Props [Daniel Chesterton](https://github.com/dchesterton)
 * Support for trashing posts from the calendar. Thanks [Dan York](https://github.com/danyork) for the idea and a bit of code
