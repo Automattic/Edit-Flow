@@ -65,8 +65,6 @@ class EF_Story_Budget extends EF_Module {
 		$this->num_columns = $this->get_num_columns();
 		$this->max_num_columns = apply_filters( 'ef_story_budget_max_num_columns', 3 );
 		
-		// Update the current user's filters with the variables set in $_GET
-		$this->user_filters = $this->update_user_filters();
 		add_action( 'admin_init', array( $this, 'handle_form_date_range_change' ) );
 		
 		include_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
@@ -257,6 +255,9 @@ class EF_Story_Budget extends EF_Module {
 	 * get_num_columns(), which will in turn print the stories themselves.
 	 */
 	function story_budget() {
+
+		// Update the current user's filters with the variables set in $_GET
+		$this->user_filters = $this->update_user_filters();
 		
 		if ( !empty( $this->user_filters['cat'] ) ) {
 			$terms = array();
