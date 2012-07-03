@@ -1190,16 +1190,21 @@ class EF_Custom_Status extends EF_Module {
 					}
 				}
 				if ( $ret && empty( $edit_date ) ) {
-					add_filter( 'pre_post_date', function() {
-						return current_time('mysql');
-					});
-					add_filter( 'pre_post_date_gmt', function() {
-						return '';
-					});
+					add_filter( 'pre_post_date', array( $this, 'helper_timestamp_hack' ) );
+					add_filter( 'pre_post_date_gmt', array( $this, 'helper_timestamp_hack' ) );
 				}
 			}
 		}
 		
+	}
+	/**
+	 * PHP < 5.3.x doesn't support anonymous functions
+	 * This helper is only used for the check_timestamp_on_publish method above
+	 *
+	 * @since 0.7.3
+	 */
+	function helper_timestamp_hack() {
+		return ( 'pre_post_date' == current_filter() ) ? current_time('mysql') : '';
 	}
 	/**
 	 * This is a hack! hack! hack! until core is fixed/better supports custom statuses
