@@ -34,14 +34,14 @@ class EF_Story_Budget extends EF_Module {
 	
 		global $edit_flow;
 		
-		$module_url = $this->get_module_url( __FILE__ );
+		$this->module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Story Budget', 'edit-flow' ),
 			'short_description' => __( 'View the status of all your content at a glance.', 'edit-flow' ),
 			'extended_description' => __( 'Use the story budget to see how content on your site is progressing. Filter by specific categories or date ranges to see details about each post in progress.', 'edit-flow' ),
-			'module_url' => $module_url,
-			'img_url' => $module_url . 'lib/story_budget_s128.png',
+			'module_url' => $this->module_url,
+			'img_url' => $this->module_url . 'lib/story_budget_s128.png',
 			'slug' => 'story-budget',
 			'default_options' => array(
 				'enabled' => 'on',
@@ -67,20 +67,20 @@ class EF_Story_Budget extends EF_Module {
 		
 		// Update the current user's filters with the variables set in $_GET
 		$this->user_filters = $this->update_user_filters();
-		add_action( 'admin_init', array( &$this, 'handle_form_date_range_change' ) );
+		add_action( 'admin_init', array( $this, 'handle_form_date_range_change' ) );
 		
 		include_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
 		if ( function_exists( 'add_screen_options_panel' ) )
-			add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', __( 'Screen Layout', 'edit-flow' ), array( &$this, 'print_column_prefs' ), self::screen_id, array( &$this, 'save_column_prefs' ), true );
+			add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', __( 'Screen Layout', 'edit-flow' ), array( $this, 'print_column_prefs' ), self::screen_id, array( $this, 'save_column_prefs' ), true );
 		
 		// Register the columns of data appearing on every term. This is hooked into admin_init
 		// so other Edit Flow modules can register their filters if needed
-		add_action( 'admin_init', array( &$this, 'register_term_columns' ) );
+		add_action( 'admin_init', array( $this, 'register_term_columns' ) );
 		
-		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );
+		add_action( 'admin_menu', array( $this, 'action_admin_menu' ) );
 		// Load necessary scripts and stylesheets
-		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
-		add_action( 'admin_enqueue_scripts', array( &$this, 'action_enqueue_admin_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'action_enqueue_admin_styles' ) );
 		
 	}
 	
@@ -132,7 +132,7 @@ class EF_Story_Budget extends EF_Module {
 	 * @uses add_submenu_page()
 	 */
 	function action_admin_menu() {
-		add_submenu_page( 'index.php', __('Story Budget', 'edit-flow'), __('Story Budget', 'edit-flow'), apply_filters( 'ef_view_story_budget_cap', 'ef_view_story_budget' ), $this->module->slug, array( &$this, 'story_budget') );
+		add_submenu_page( 'index.php', __('Story Budget', 'edit-flow'), __('Story Budget', 'edit-flow'), apply_filters( 'ef_view_story_budget_cap', 'ef_view_story_budget' ), $this->module->slug, array( $this, 'story_budget') );
 	}
 	
 	/**
@@ -150,7 +150,7 @@ class EF_Story_Budget extends EF_Module {
 		echo '<script type="text/javascript"> var ef_story_budget_number_of_columns="' . esc_js( $this->num_columns ) . '";</script>';
 		
 		$this->enqueue_datepicker_resources();
-		wp_enqueue_script( 'edit_flow-story_budget', $this->module->module_url . '/lib/story-budget.js', array( 'edit_flow-date_picker' ), EDIT_FLOW_VERSION, true );
+		wp_enqueue_script( 'edit_flow-story_budget', $this->module_url . 'lib/story-budget.js', array( 'edit_flow-date_picker' ), EDIT_FLOW_VERSION, true );
 	}
 	
 	/**
@@ -162,8 +162,8 @@ class EF_Story_Budget extends EF_Module {
 		if ( $current_screen->id != self::screen_id )
 			return;
 		
-		wp_enqueue_style( 'edit_flow-story_budget-styles', $this->module->module_url . '/lib/story-budget.css', false, EDIT_FLOW_VERSION, 'screen' );
-		wp_enqueue_style( 'edit_flow-story_budget-print-styles', $this->module->module_url . '/lib/story-budget-print.css', false, EDIT_FLOW_VERSION, 'print' );
+		wp_enqueue_style( 'edit_flow-story_budget-styles', $this->module_url . 'lib/story-budget.css', false, EDIT_FLOW_VERSION, 'screen' );
+		wp_enqueue_style( 'edit_flow-story_budget-print-styles', $this->module_url . 'lib/story-budget-print.css', false, EDIT_FLOW_VERSION, 'print' );
 	}
 	
 	/**
@@ -386,9 +386,9 @@ class EF_Story_Budget extends EF_Module {
 		// Filter by post_author if it's set
 		if ( $args['author'] === '0' ) unset( $args['author'] );
 		
-		add_filter( 'posts_where', array( &$this, 'posts_where_range' ) );
+		add_filter( 'posts_where', array( $this, 'posts_where_range' ) );
 		$term_posts_query_results = new WP_Query( $args );
-		remove_filter( 'posts_where', array( &$this, 'posts_where_range' ) );
+		remove_filter( 'posts_where', array( $this, 'posts_where_range' ) );
 		
 		$term_posts = array();
 		while ( $term_posts_query_results->have_posts() ) {
@@ -470,7 +470,7 @@ class EF_Story_Budget extends EF_Module {
 		<tr id='post-<?php echo esc_attr( $post->ID ); ?>' class='alternate' valign="top">
 			<?php foreach( (array)$this->term_columns as $key => $name ) {
 				echo '<td>';
-				if ( method_exists( &$this, 'term_column_' . $key ) ) {
+				if ( method_exists( $this, 'term_column_' . $key ) ) {
 					$method = 'term_column_' . $key;
 					echo $this->$method( $post, $parent_term );
 				} else {

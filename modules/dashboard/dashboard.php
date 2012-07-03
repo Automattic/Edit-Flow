@@ -22,13 +22,13 @@ class EF_Dashboard extends EF_Module {
 		global $edit_flow;
 		
 		// Register the module with Edit Flow
-		$module_url = $this->get_module_url( __FILE__ );
+		$this->module_url = $this->get_module_url( __FILE__ );
 		$args = array(
 			'title' => __( 'Dashboard Widgets', 'edit-flow' ),
 			'short_description' => __( 'Track your content from the WordPress dashboard.', 'edit-flow' ),
 			'extended_description' => __( 'Enable dashboard widgets to quickly get an overview of what state your content is in.', 'edit-flow' ),
-			'module_url' => $module_url,
-			'img_url' => $module_url . 'lib/dashboard_s128.png',
+			'module_url' => $this->module_url,
+			'img_url' => $this->module_url . 'lib/dashboard_s128.png',
 			'slug' => 'dashboard',
 			'post_type_support' => 'ef_dashboard',
 			'default_options' => array(
@@ -48,10 +48,10 @@ class EF_Dashboard extends EF_Module {
 	function init() {
 		
 		// Add the widgets to the dashboard
-		add_action( 'wp_dashboard_setup', array( &$this, 'add_dashboard_widgets') );
+		add_action( 'wp_dashboard_setup', array( $this, 'add_dashboard_widgets') );
 		
 		// Register our settings
-		add_action( 'admin_init', array( &$this, 'register_settings' ) );		
+		add_action( 'admin_init', array( $this, 'register_settings' ) );		
 		
 	}
 
@@ -104,15 +104,15 @@ class EF_Dashboard extends EF_Module {
 		if ( !current_user_can('edit_posts') ) 
 			return;
 		
-		wp_enqueue_style( 'edit-flow-dashboard-css', EDIT_FLOW_URL . 'modules/dashboard/lib/dashboard.css', false, EDIT_FLOW_VERSION, 'all' );			
+		wp_enqueue_style( 'edit-flow-dashboard-css', $this->module_url . 'lib/dashboard.css', false, EDIT_FLOW_VERSION, 'all' );			
 			
 		// Set up Post Status widget but, first, check to see if it's enabled
 		if ( $this->module->options->post_status_widget == 'on')
-			wp_add_dashboard_widget( 'post_status_widget', __( 'Unpublished Content', 'edit-flow' ), array( &$this, 'post_status_widget' ) );
+			wp_add_dashboard_widget( 'post_status_widget', __( 'Unpublished Content', 'edit-flow' ), array( $this, 'post_status_widget' ) );
 			
 		// Add the MyPosts widget, if enabled
 		if ( $this->module->options->my_posts_widget == 'on' && $this->module_enabled( 'notifications' ) )
-			wp_add_dashboard_widget( 'myposts_widget', __( 'Posts I\'m Following', 'edit-flow' ), array( &$this, 'myposts_widget' ) );
+			wp_add_dashboard_widget( 'myposts_widget', __( 'Posts I\'m Following', 'edit-flow' ), array( $this, 'myposts_widget' ) );
 
 	}
 	
@@ -204,8 +204,8 @@ class EF_Dashboard extends EF_Module {
 	function register_settings() {
 		
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_status_widget', __( 'Post Status Widget', 'edit-flow' ), array( &$this, 'settings_post_status_widget_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-			add_settings_field( 'my_posts_widget',__( 'Posts I\'m Following', 'edit-flow' ), array( &$this, 'settings_my_posts_widget_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_status_widget', __( 'Post Status Widget', 'edit-flow' ), array( $this, 'settings_post_status_widget_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'my_posts_widget',__( 'Posts I\'m Following', 'edit-flow' ), array( $this, 'settings_my_posts_widget_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 
 	}
 	

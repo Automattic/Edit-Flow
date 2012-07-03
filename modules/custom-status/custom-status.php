@@ -23,14 +23,14 @@ class EF_Custom_Status extends EF_Module {
 	function __construct() {
 		global $edit_flow;
 		
-		$module_url = $this->get_module_url( __FILE__ );
+		$this->module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Custom Statuses', 'edit-flow' ),
 			'short_description' => __( 'Create custom post statuses to define the stages of your workflow.', 'edit-flow' ),
 			'extended_description' => __( 'Create your own post statuses to add structure your publishing workflow. You can change existing or add new ones anytime, and drag and drop to change their order.', 'edit-flow' ),
-			'module_url' => $module_url,
-			'img_url' => $module_url . 'lib/custom_status_s128.png',
+			'module_url' => $this->module_url,
+			'img_url' => $this->module_url . 'lib/custom_status_s128.png',
 			'slug' => 'custom-status',
 			'default_options' => array(
 				'enabled' => 'on',
@@ -75,33 +75,33 @@ class EF_Custom_Status extends EF_Module {
 		$this->register_custom_statuses();
 		
 		// Register our settings
-		add_action( 'admin_init', array( &$this, 'register_settings' ) );
+		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		
 		// Load CSS and JS resources that we probably need
-		add_action( 'admin_enqueue_scripts', array( &$this, 'action_admin_enqueue_scripts' ) );
-		add_action( 'admin_notices', array( &$this, 'no_js_notice' ) );
-		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'action_admin_enqueue_scripts' ) );
+		add_action( 'admin_notices', array( $this, 'no_js_notice' ) );
+		add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
 		
 		// Methods for handling the actions of creating, making default, and deleting post stati
-		add_action( 'admin_init', array( &$this, 'handle_add_custom_status' ) );
-		add_action( 'admin_init', array( &$this, 'handle_edit_custom_status' ) );
-		add_action( 'admin_init', array( &$this, 'handle_make_default_custom_status' ) );
-		add_action( 'admin_init', array( &$this, 'handle_delete_custom_status' ) );
-		add_action( 'wp_ajax_update_status_positions', array( &$this, 'handle_ajax_update_status_positions' ) );
-		add_action( 'wp_ajax_inline_save_status', array( &$this, 'ajax_inline_save_status' ) );
+		add_action( 'admin_init', array( $this, 'handle_add_custom_status' ) );
+		add_action( 'admin_init', array( $this, 'handle_edit_custom_status' ) );
+		add_action( 'admin_init', array( $this, 'handle_make_default_custom_status' ) );
+		add_action( 'admin_init', array( $this, 'handle_delete_custom_status' ) );
+		add_action( 'wp_ajax_update_status_positions', array( $this, 'handle_ajax_update_status_positions' ) );
+		add_action( 'wp_ajax_inline_save_status', array( $this, 'ajax_inline_save_status' ) );
 		
 		// Hook to add the status column to Manage Posts
 		
-		add_filter( 'manage_posts_columns', array( &$this, '_filter_manage_posts_columns') );
-		add_action( 'manage_posts_custom_column', array( &$this, '_filter_manage_posts_custom_column') );
+		add_filter( 'manage_posts_columns', array( $this, '_filter_manage_posts_columns') );
+		add_action( 'manage_posts_custom_column', array( $this, '_filter_manage_posts_custom_column') );
 		
 		// We need these for pages (http://core.trac.wordpress.org/browser/tags/3.3.1/wp-admin/includes/class-wp-posts-list-table.php#L283)
-		add_filter( 'manage_pages_columns', array( &$this, '_filter_manage_posts_columns' ) );
-		add_action( 'manage_pages_custom_column', array( &$this, '_filter_manage_posts_custom_column' ) );	
+		add_filter( 'manage_pages_columns', array( $this, '_filter_manage_posts_columns' ) );
+		add_action( 'manage_pages_custom_column', array( $this, '_filter_manage_posts_custom_column' ) );	
 		
 		// These two methods are hacks for fixing bugs in WordPress core
-		add_action( 'admin_init', array( &$this, 'check_timestamp_on_publish' ) );
-		add_filter( 'wp_insert_post_data', array( &$this, 'fix_custom_status_timestamp' ) );
+		add_action( 'admin_init', array( $this, 'check_timestamp_on_publish' ) );
+		add_filter( 'wp_insert_post_data', array( $this, 'fix_custom_status_timestamp' ) );
 		
 	}
 	
@@ -239,13 +239,13 @@ class EF_Custom_Status extends EF_Module {
 		// Load Javascript we need to use on the configuration views (jQuery Sortable and Quick Edit)
 		if ( $this->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-ui-sortable' );			
-			wp_enqueue_script( 'edit-flow-custom-status-configure', EDIT_FLOW_URL . 'modules/custom-status/lib/custom-status-configure.js', array( 'jquery', 'jquery-ui-sortable', 'edit-flow-settings-js' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-custom-status-configure', $this->module_url . 'lib/custom-status-configure.js', array( 'jquery', 'jquery-ui-sortable', 'edit-flow-settings-js' ), EDIT_FLOW_VERSION, true );
 		}
 		
 		// Custom javascript to modify the post status dropdown where it shows up
 		if ( $this->is_whitelisted_page() ) {
-			wp_enqueue_script( 'edit_flow-custom_status', EDIT_FLOW_URL . 'modules/custom-status/lib/custom-status.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
-			wp_enqueue_style( 'edit_flow-custom_status', EDIT_FLOW_URL . 'modules/custom-status/lib/custom-status.css', false, EDIT_FLOW_VERSION, 'all' );
+			wp_enqueue_script( 'edit_flow-custom_status', $this->module_url . 'lib/custom-status.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_style( 'edit_flow-custom_status', $this->module_url . 'lib/custom-status.css', false, EDIT_FLOW_VERSION, 'all' );
 		}
 	}
 	
@@ -260,7 +260,8 @@ class EF_Custom_Status extends EF_Module {
 			/* Hide post status dropdown by default in case of JS issues **/
 			label[for=post_status],
 			#post-status-display,
-			#post-status-select {
+			#post-status-select,
+			#publish {
 				display: none;
 			}
 			</style>		
@@ -304,7 +305,6 @@ class EF_Custom_Status extends EF_Module {
 		if ( !empty( $post ) && $this->is_whitelisted_page() ) {
 			
 			$custom_statuses = $this->get_custom_statuses();
-			$custom_statuses = apply_filters( 'ef_custom_status_list', $custom_statuses, $post );			
 	
 			// Get the status of the current post		
 			if ( $post->ID == 0 || $post->post_status == 'auto-draft' || $pagenow == 'edit.php' ) {
@@ -314,6 +314,17 @@ class EF_Custom_Status extends EF_Module {
 			} else {
 				$selected = $post->post_status;
 			}
+			
+			// Get the current post status name
+			$selected_name = '';
+
+			foreach ($custom_statuses as $status) {
+				if ($status->slug == $selected) {
+					$selected_name = $status->name;
+				}
+			}
+
+			$custom_statuses = apply_filters( 'ef_custom_status_list', $custom_statuses, $post );			
 
 			// All right, we want to set up the JS var which contains all custom statuses
 			$all_statuses = array(); 
@@ -353,8 +364,10 @@ class EF_Custom_Status extends EF_Module {
 				var ef_text_no_change = '<?php echo esc_js( __( "&mdash; No Change &mdash;" ) ); ?>';
 				var ef_default_custom_status = '<?php echo esc_js( $this->get_default_custom_status()->slug ); ?>';
 				var current_status = '<?php echo esc_js( $selected ); ?>';
+				var current_status_name = '<?php echo esc_js( $selected_name ); ?>';
 				var status_dropdown_visible = <?php echo esc_js( $always_show_dropdown ); ?>;
 				var current_user_can_publish_posts = <?php echo current_user_can( 'publish_posts' ) ? 1 : 0; ?>;
+				var current_user_can_edit_published_posts = <?php echo current_user_can( 'edit_published_posts' ) ? 1 : 0; ?>;
 			</script>
 			
 			<?php
@@ -975,8 +988,8 @@ class EF_Custom_Status extends EF_Module {
 	function register_settings() {
 		
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', __( 'Use on these post types:', 'edit-flow' ), array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-			add_settings_field( 'always_show_dropdown', __( 'Always show dropdown:', 'edit-flow' ), array( &$this, 'settings_always_show_dropdown_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', __( 'Use on these post types:', 'edit-flow' ), array( $this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'always_show_dropdown', __( 'Always show dropdown:', 'edit-flow' ), array( $this, 'settings_always_show_dropdown_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 
 	}
 	
@@ -1169,7 +1182,21 @@ class EF_Custom_Status extends EF_Module {
 			// Set the post_status as 'pending' only when there's no timestamp set for $post_date_gmt
 			if ( isset( $_POST['post_ID'] ) ) {
 				$post_id = (int) $_POST['post_ID'];
-				$wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array( 'ID' => $post_id, 'post_date_gmt' => '0000-00-00 00:00:00' ) );
+				$ret = $wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array( 'ID' => $post_id, 'post_date_gmt' => '0000-00-00 00:00:00' ) );
+				foreach ( array('aa', 'mm', 'jj', 'hh', 'mn') as $timeunit ) {
+					if ( !empty( $_POST['hidden_' . $timeunit] ) && $_POST['hidden_' . $timeunit] != $_POST[$timeunit] ) {
+						$edit_date = '1';
+						break;
+					}
+				}
+				if ( $ret && empty( $edit_date ) ) {
+					add_filter( 'pre_post_date', function() {
+						return current_time('mysql');
+					});
+					add_filter( 'pre_post_date_gmt', function() {
+						return '';
+					});
+				}
 			}
 		}
 		
@@ -1191,8 +1218,9 @@ class EF_Custom_Status extends EF_Module {
 			return $data;
 		$custom_statuses = get_terms( 'post_status', array( 'get' => 'all' ) );
 		$status_slugs = array();
-		foreach( $custom_statuses as $custom_status )
-		    $status_slugs[] = $custom_status->slug;
+		foreach( $custom_statuses as $custom_status ) {
+			$status_slugs[] = $custom_status->slug;
+		}
 		$ef_normalize_post_date_gmt = true;
 		// We're only going to normalize the post_date_gmt if the user hasn't set a custom date in the metabox
 		// and the current post_date_gmt isn't already future or past-ized

@@ -24,14 +24,14 @@ class EF_Calendar extends EF_Module {
 	function __construct() {
 		global $edit_flow;
 	
-		$module_url = $this->get_module_url( __FILE__ );
+		$this->module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow	
 		$args = array(
 			'title' => __( 'Calendar', 'edit-flow' ),
 			'short_description' => __( 'View upcoming content in a customizable calendar.', 'edit-flow' ),
 			'extended_description' => __( 'Edit Flow’s calendar lets you see your posts over a customizable date range. Filter by status or click on the post title to see its details. Drag and drop posts between days to change their publication date date.', 'edit-flow' ),
-			'module_url' => $module_url,
-			'img_url' => $module_url . 'lib/calendar_s128.png',
+			'module_url' => $this->module_url,
+			'img_url' => $this->module_url . 'lib/calendar_s128.png',
 			'slug' => 'calendar',
 			'post_type_support' => 'ef_calendar',
 			'default_options' => array(
@@ -72,16 +72,16 @@ class EF_Calendar extends EF_Module {
 		if ( !current_user_can( $view_calendar_cap ) ) return false;
 		
 		require_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
-		add_screen_options_panel( self::usermeta_key_prefix . 'screen_options', __( 'Calendar Options', 'edit-flow' ), array( &$this, 'generate_screen_options' ), self::screen_id, false, true );
-		add_action( 'admin_init', array( &$this, 'handle_save_screen_options' ) );
+		add_screen_options_panel( self::usermeta_key_prefix . 'screen_options', __( 'Calendar Options', 'edit-flow' ), array( $this, 'generate_screen_options' ), self::screen_id, false, true );
+		add_action( 'admin_init', array( $this, 'handle_save_screen_options' ) );
 		
-		add_action( 'admin_init', array( &$this, 'register_settings' ) );
-		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );		
-		add_action( 'admin_print_styles', array( &$this, 'add_admin_styles' ) );
-		add_action( 'admin_enqueue_scripts', array( &$this, 'enqueue_admin_scripts' ) );
+		add_action( 'admin_init', array( $this, 'register_settings' ) );
+		add_action( 'admin_menu', array( $this, 'action_admin_menu' ) );		
+		add_action( 'admin_print_styles', array( $this, 'add_admin_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		
 		// Ajax manipulation for the calendar
-		add_action( 'wp_ajax_ef_calendar_drag_and_drop', array( &$this, 'handle_ajax_drag_and_drop' ) );
+		add_action( 'wp_ajax_ef_calendar_drag_and_drop', array( $this, 'handle_ajax_drag_and_drop' ) );
 	}
 	
 	/**
@@ -135,7 +135,7 @@ class EF_Calendar extends EF_Module {
 	 * @uses add_submenu_page
 	 */
 	function action_admin_menu() {	
-		add_submenu_page('index.php', __('Calendar', 'edit-flow'), __('Calendar', 'edit-flow'), apply_filters( 'ef_view_calendar_cap', 'ef_view_calendar' ), $this->module->slug, array( &$this, 'view_calendar' ) );
+		add_submenu_page('index.php', __('Calendar', 'edit-flow'), __('Calendar', 'edit-flow'), apply_filters( 'ef_view_calendar_cap', 'ef_view_calendar' ), $this->module->slug, array( $this, 'view_calendar' ) );
 	}
 	
 	/**
@@ -147,7 +147,7 @@ class EF_Calendar extends EF_Module {
 		global $pagenow;
 		// Only load calendar styles on the calendar page
 		if ( $pagenow == 'index.php' && isset( $_GET['page'] ) && $_GET['page'] == 'calendar' )
-			wp_enqueue_style( 'edit-flow-calendar-css', EDIT_FLOW_URL . 'modules/calendar/lib/calendar.css', false, EDIT_FLOW_VERSION );
+			wp_enqueue_style( 'edit-flow-calendar-css', $this->module_url . 'lib/calendar.css', false, EDIT_FLOW_VERSION );
 	}
 	
 	/**
@@ -169,7 +169,7 @@ class EF_Calendar extends EF_Module {
 			foreach( $js_libraries as $js_library ) {
 				wp_enqueue_script( $js_library );
 			}
-			wp_enqueue_script( 'edit-flow-calendar-js', EDIT_FLOW_URL . 'modules/calendar/lib/calendar.js', $js_libraries, EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-calendar-js', $this->module_url . 'lib/calendar.js', $js_libraries, EDIT_FLOW_VERSION, true );
 		}
 		
 	}
@@ -430,6 +430,27 @@ class EF_Calendar extends EF_Module {
 				<h2><?php _e( 'Calendar', 'edit-flow' ); ?>&nbsp;<span class="time-range"><?php $this->calendar_time_range(); ?></span></h2>
 			</div><!-- /Calendar Title -->
 
+			<?php
+				// Handle posts that have been trashed or untrashed
+				if ( isset( $_GET['trashed'] ) || isset( $_GET['untrashed'] ) ) {
+
+					echo '<div id="trashed-message" class="updated"><p>';
+					if ( isset( $_GET['trashed'] ) && (int) $_GET['trashed'] ) {
+						printf( _n( 'Post moved to the trash.', '%d posts moved to the trash.', $_GET['trashed'] ), number_format_i18n( $_GET['trashed'] ) );
+						$ids = isset($_GET['ids']) ? $_GET['ids'] : 0;
+						$pid = explode( ',', $ids );
+						$post_type = get_post_type( $pid[0] );
+						echo ' <a href="' . esc_url( wp_nonce_url( "edit.php?post_type=$post_type&doaction=undo&action=untrash&ids=$ids", "bulk-posts" ) ) . '">' . __( 'Undo', 'edit-flow' ) . '</a><br />';
+						unset( $_GET['trashed'] );
+					}
+					if ( isset($_GET['untrashed'] ) && (int) $_GET['untrashed'] ) {
+						printf( _n( 'Post restored from the Trash.', '%d posts restored from the Trash.', $_GET['untrashed'] ), number_format_i18n( $_GET['untrashed'] ) );
+						unset( $_GET['undeleted'] );
+					}
+					echo '</p></div>';
+				}
+			?>
+
 			<div id="ef-calendar-wrap"><!-- Calendar Wrapper -->
 					
 			<?php $this->print_top_navigation( $filters, $dates ); ?>
@@ -659,7 +680,9 @@ class EF_Calendar extends EF_Module {
 								$item_actions = array();
 								if ( $this->current_user_can_modify_post( $post ) ) {
 									// Edit this post
-									$item_actions['edit'] = '<a href="' . get_edit_post_link( $post->ID, true ) . '" title="' . esc_attr( __( 'Edit this item' ) ) . '">' . __( 'Edit', 'edit-flow' ) . '</a>';
+									$item_actions['edit'] = '<a href="' . get_edit_post_link( $post->ID, true ) . '" title="' . esc_attr( __( 'Edit this item', 'edit-flow' ) ) . '">' . __( 'Edit', 'edit-flow' ) . '</a>';
+									// Trash this post
+									$item_actions['trash'] = '<a href="'. get_delete_post_link( $post->ID) . '" title="' . esc_attr( __( 'Trash this item' ), 'edit-flow' ) . '">' . __( 'Trash', 'edit-flow' ) . '</a>';
 									// Preview/view this post
 									if ( !in_array( $post->post_status, $published_statuses ) ) {
 										$item_actions['view'] = '<a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" rel="permalink">' . __( 'Preview', 'edit-flow' ) . '</a>';
@@ -686,7 +709,7 @@ class EF_Calendar extends EF_Module {
 						endif; ?>
 					</ul>
 					<?php if ( $hidden ): ?>
-						<a class="show-more" href="#"><?php printf( __( 'Show %1$s more ' ), $hidden ); ?></a>
+						<a class="show-more" href="#"><?php printf( __( 'Show %1$s more ', 'edit-flow' ), $hidden ); ?></a>
 					<?php endif; ?>
 					</td>
 					<?php endforeach; ?>
@@ -879,9 +902,9 @@ class EF_Calendar extends EF_Module {
 		// Filter for an end user to implement any of their own query args
 		$args = apply_filters( 'ef_calendar_posts_query_args', $args );
 		
-		add_filter( 'posts_where', array( &$this, 'posts_where_week_range' ) );
+		add_filter( 'posts_where', array( $this, 'posts_where_week_range' ) );
 		$post_results = new WP_Query( $args );
-		remove_filter( 'posts_where', array( &$this, 'posts_where_week_range' ) );
+		remove_filter( 'posts_where', array( $this, 'posts_where_week_range' ) );
 		
 		$posts = array();
 		while ( $post_results->have_posts() ) {
@@ -1035,7 +1058,7 @@ class EF_Calendar extends EF_Module {
 		if ( current_user_can( $post_type_object->cap->edit_others_posts, $post->ID ) )
 			return true;
 		// Authors and contributors can move their own stuff if it's not published
-		if ( current_user_can( $post_type_object->cap->edit_posts, $post->ID ) && wp_get_current_user()->ID == $post->post_author && !in_array( $post->post_status, $published_statuses ) )
+		if ( current_user_can( $post_type_object->cap->edit_post, $post->ID ) && wp_get_current_user()->ID == $post->post_author && !in_array( $post->post_status, $published_statuses ) )
 			return true;
 		// Those who can publish posts can move any of their own stuff
 		if ( current_user_can( $post_type_object->cap->publish_posts, $post->ID ) && wp_get_current_user()->ID == $post->post_author )
@@ -1054,8 +1077,8 @@ class EF_Calendar extends EF_Module {
 	function register_settings() {
 		
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', __( 'Post types to show', 'edit-flow' ), array( &$this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-			add_settings_field( 'number_of_weeks', __( 'Number of weeks to show', 'edit-flow' ), array( &$this, 'settings_number_weeks_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', __( 'Post types to show', 'edit-flow' ), array( $this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'number_of_weeks', __( 'Number of weeks to show', 'edit-flow' ), array( $this, 'settings_number_weeks_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 
 	}
 	

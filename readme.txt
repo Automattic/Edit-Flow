@@ -3,7 +3,7 @@ Contributors: batmoo, danielbachhuber, sbressler, automattic
 Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 3.1
-Tested up to: 3.3.1
+Tested up to: 3.4.1
 Stable tag: 0.7.1
 
 Redefining your editorial workflow.
@@ -67,6 +67,11 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 == Changelog ==
+
+= 0.7.2 (??? ??, ????) =
+* Support for trashing posts from the calendar. Thanks [Dan York](https://github.com/danyork) for the idea and a bit of code
+* Users without the 'publish_posts' capability can now use and change custom statuses. Props [Daniel Chesterton](https://github.com/dchesterton)
+* Updated codebase to use PHP5-style OOP references
 
 = 0.7.1 (Apr. 11, 2012) =
 * Show the year on the calendar and story budget if it's not the current year

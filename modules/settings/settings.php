@@ -13,13 +13,13 @@ class EF_Settings extends EF_Module {
 		global $edit_flow;
 		
 		// Register the module with Edit Flow
-		$module_url = $this->get_module_url( __FILE__ );
+		$this->module_url = $this->get_module_url( __FILE__ );
 		$args = array(
 			'title' => __( 'Edit Flow', 'edit-flow' ),
 			'short_description' => __( 'Edit Flow redefines your WordPress publishing workflow.', 'edit-flow' ),
 			'extended_description' => __( 'Enable any of the features below to take control of your workflow. Custom statuses, email notifications, editorial comments, and more help you and your team save time so everyone can focus on what matters most: the content.', 'edit-flow' ),
-			'module_url' => $module_url,
-			'img_url' => $module_url . 'lib/eflogo_s128.png',
+			'module_url' => $this->module_url,
+			'img_url' => $this->module_url . 'lib/eflogo_s128.png',
 			'slug' => 'settings',
 			'settings_slug' => 'ef-settings',
 			'default_options' => array(
@@ -36,14 +36,14 @@ class EF_Settings extends EF_Module {
 	 */
 	function init() {
 		
-		add_action( 'admin_init', array( &$this, 'helper_settings_validate_and_save' ), 100 );		
+		add_action( 'admin_init', array( $this, 'helper_settings_validate_and_save' ), 100 );		
 		
-		add_action( 'admin_print_styles', array( &$this, 'action_admin_print_styles' ) );
-		add_action( 'admin_print_scripts', array( &$this, 'action_admin_print_scripts' ) );
-		add_action( 'admin_enqueue_scripts', array( &$this, 'action_admin_enqueue_scripts' ) );
-		add_action( 'admin_menu', array( &$this, 'action_admin_menu' ) );
+		add_action( 'admin_print_styles', array( $this, 'action_admin_print_styles' ) );
+		add_action( 'admin_print_scripts', array( $this, 'action_admin_print_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'action_admin_enqueue_scripts' ) );
+		add_action( 'admin_menu', array( $this, 'action_admin_menu' ) );
 		
-		add_action( 'wp_ajax_change_edit_flow_module_state', array( &$this, 'ajax_change_edit_flow_module_state' ) );
+		add_action( 'wp_ajax_change_edit_flow_module_state', array( $this, 'ajax_change_edit_flow_module_state' ) );
 		
 	}
 	
@@ -53,19 +53,19 @@ class EF_Settings extends EF_Module {
 	function action_admin_menu() {
 		global $edit_flow;
 		
-		add_menu_page( $this->module->title, $this->module->title, 'manage_options', $this->module->settings_slug, array( &$this, 'settings_page_controller' ), $this->module->module_url . 'lib/eflogo_s16.png' ) ;
+		add_menu_page( $this->module->title, $this->module->title, 'manage_options', $this->module->settings_slug, array( $this, 'settings_page_controller' ), $this->module->module_url . 'lib/eflogo_s16.png' ) ;
 		
 		foreach ( $edit_flow->modules as $mod_name => $mod_data ) {
 			if ( isset( $mod_data->options->enabled ) && $mod_data->options->enabled == 'on'
 				&& $mod_data->configure_page_cb && $mod_name != $this->module->name )
-				add_submenu_page( $this->module->settings_slug, $mod_data->title, $mod_data->title, 'manage_options', $mod_data->settings_slug, array( &$this, 'settings_page_controller' ) ) ;
+				add_submenu_page( $this->module->settings_slug, $mod_data->title, $mod_data->title, 'manage_options', $mod_data->settings_slug, array( $this, 'settings_page_controller' ) ) ;
 		}
 	}
 	
 	function action_admin_enqueue_scripts() {
 		
 		if ( $this->is_whitelisted_settings_view() )
-			wp_enqueue_script( 'edit-flow-settings-js', EDIT_FLOW_URL . 'modules/settings/lib/settings.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-settings-js', $this->module_url . 'lib/settings.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 			
 	}
 	
@@ -75,7 +75,7 @@ class EF_Settings extends EF_Module {
 	function action_admin_print_styles() {		
 		
 		if ( $this->is_whitelisted_settings_view() )
-			wp_enqueue_style( 'edit_flow-settings-css', EDIT_FLOW_URL.'modules/settings/lib/settings.css', false, EDIT_FLOW_VERSION );
+			wp_enqueue_style( 'edit_flow-settings-css', $this->module_url . 'lib/settings.css', false, EDIT_FLOW_VERSION );
 		
 		
 	}
