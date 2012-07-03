@@ -4,7 +4,7 @@ Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 3.1
 Tested up to: 3.4.1
-Stable tag: 0.7.2
+Stable tag: 0.7.3
 
 Redefining your editorial workflow.
 
