@@ -486,7 +486,6 @@ class EF_Module {
 	 * @param ???
 	 */
 	function users_select_form( $selected = null, $args = null ) {
-		global $blog_id;
 
 		// Set up arguments
 		$defaults = array(
