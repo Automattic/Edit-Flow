@@ -136,13 +136,13 @@ class EF_Dashboard extends EF_Module {
 		<div class="table">
 			<table>
 				<tbody>
+					<?php $post_count = wp_count_posts( 'post' ); ?>
 					<?php foreach($statuses as $status) : ?>
 						<?php $filter_link = esc_url($this->filter_posts_link($status->slug)) ?>
 						<tr>
 							<td class="b">
 								<a href="<?php echo $filter_link; ?>">
 									<?php
-									$post_count = wp_count_posts( 'post' );
 									$slug = $status->slug;
 									echo esc_html( $post_count->$slug ); ?>
 								</a>
