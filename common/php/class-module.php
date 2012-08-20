@@ -504,6 +504,7 @@ class EF_Module {
 			),
 			'orderby' => 'display_name',
 		);
+		$args = apply_filters( 'ef_users_select_form_get_users_args', $args );
 		$users = get_users( $args );
 
 		if ( !is_array($selected) ) $selected = array();
