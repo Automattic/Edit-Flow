@@ -80,6 +80,9 @@ class EF_Editorial_Metadata extends EF_Module {
 		
 		// Register the taxonomy we use for Editorial Metadata with WordPress core
 		$this->register_taxonomy();
+
+		// Anything that needs to happen in the admin
+		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
 		
 		// Register our settings
 		add_action( 'admin_init', array( $this, 'register_settings' ) );		
@@ -173,6 +176,17 @@ class EF_Editorial_Metadata extends EF_Module {
 			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
 		}
 		
+	}
+
+	/**
+	 * Anything that needs to happen on the 'admin_init' hook
+	 *
+	 * @since 0.7.4
+	 */
+	function action_admin_init() {
+
+		// Parse the query when we're ordering by an editorial metadata term
+		add_action( 'parse_query', array( $this, 'action_parse_query' ) );
 	}
 	
 	/**
@@ -519,9 +533,10 @@ class EF_Editorial_Metadata extends EF_Module {
 	 * Get all of the editorial metadata terms as objects and sort by position
 	 * @todo Figure out what we should do with the filter...
 	 * 
+	 * @param array $filter_args Filter to specific arguments
 	 * @return array $ordered_terms The terms as they should be ordered
 	 */ 
-	function get_editorial_metadata_terms() {
+	function get_editorial_metadata_terms( $filter_args = array() ) {
 
 		
 		$args = array(
@@ -565,6 +580,9 @@ class EF_Editorial_Metadata extends EF_Module {
 		// Append all of the terms that didn't have an existing position
 		foreach( $hold_to_end as $unpositioned_term )
 			$ordered_terms[] = $unpositioned_term;
+
+		// If filter arguments were passed, do our filtering
+		$ordered_terms = wp_filter_object_list( $ordered_terms, $filter_args );
 		return $ordered_terms;
 	}
 	
@@ -609,17 +627,52 @@ class EF_Editorial_Metadata extends EF_Module {
 	 * @param array $posts_columns Previous post columns with the new values
 	 */
 	function filter_manage_posts_columns( $posts_columns ) {
-		
-		$terms = $this->get_editorial_metadata_terms();
+		$screen = get_current_screen();
+
+		add_filter( "manage_{$screen->id}_sortable_columns", array( $this, 'filter_manage_posts_sortable_columns' ) );
+
+		$terms = $this->get_editorial_metadata_terms( array( 'viewable' => true ) );
 		foreach( $terms as $term ) {
-			// Don't show if the term isn't viewable
-			if ( !$term->viewable )
-				continue;
 			// Prefixing slug with module slug because it isn't stored prefixed and we want to avoid collisions
 			$key = $this->module->slug . '-' . $term->slug;
 			$posts_columns[$key] = $term->name;
 		}
 		return $posts_columns;
+	}
+
+	/**
+	 * Register any viewable date editorial metadata as a sortable column
+	 *
+	 * @since 0.7.4
+	 *
+	 * @param array $sortable_columns Any existing sortable columns (e.g. Title)
+	 * @return array $sortable_columms Sortable columns with editorial metadata date fields added
+	 */
+	function filter_manage_posts_sortable_columns( $sortable_columns ) {
+
+		$terms = $this->get_editorial_metadata_terms( array( 'viewable' => true, 'type' => 'date' ) );
+		foreach( $terms as $term ) {
+			// Prefixing slug with module slug because it isn't stored prefixed and we want to avoid collisions
+			$key = $this->module->slug . '-' . $term->slug;
+			$sortable_columns[$key] = $key;
+		}
+		return $sortable_columns;
+	}
+
+	/**
+	 * If we're ordering by a sortable column, let's modify the query
+	 *
+	 * @since 0.7.4
+	 */
+	function action_parse_query( $query ) {
+
+		if ( is_admin() && false !== stripos( get_query_var( 'orderby' ), $this->module->slug ) ) {
+			$term_slug = sanitize_key( str_replace( $this->module->slug . '-', '', get_query_var( 'orderby') ) );
+			$term = $this->get_editorial_metadata_term_by( 'slug', $term_slug );
+			$meta_key = $this->get_postmeta_key( $term );
+			set_query_var( 'meta_key', $meta_key );
+			set_query_var( 'orderby', 'meta_value_num' );
+		}
 	}
 	
 	/**
@@ -690,12 +743,10 @@ class EF_Editorial_Metadata extends EF_Module {
 		if ( !in_array( get_post_type( $post_id ), $this->get_post_types_for_module( $this->module ) ) )
 			return $calendar_fields;
 			
-		$terms = $this->get_editorial_metadata_terms();
+		$terms = $this->get_editorial_metadata_terms( array( 'viewable' => true ) );
 		
 		foreach( $terms as $term ) {
 			$key = $this->module->slug . '-' . $term->slug;
-			if ( !$term->viewable )
-				continue;
 
 			// Default values
 			$term_data = array(
@@ -750,11 +801,8 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */
 	function filter_story_budget_term_columns( $term_columns ) {
 		
-		$terms = $this->get_editorial_metadata_terms();
+		$terms = $this->get_editorial_metadata_terms( array( 'viewable' => true ) );
 		foreach( $terms as $term ) {
-			// Don't show if the term isn't viewable
-			if ( !$term->viewable )
-				continue;
 			// Prefixing slug with module slug because it isn't stored prefixed and we want to avoid collisions
 			$key = $this->module->slug . '-' . $term->slug;
 			// Switch to underscores
