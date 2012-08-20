@@ -98,7 +98,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		// Add Editorial Metadata columns to the Manage Posts view
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		foreach( $supported_post_types as $post_type ) {
-			add_action( "manage_{$post_type}_posts_columns", array( $this, 'filter_manage_posts_columns' ) );
+			add_filter( "manage_{$post_type}_posts_columns", array( $this, 'filter_manage_posts_columns' ) );
 			add_action( 'manage_posts_custom_column', array( $this, 'action_manage_posts_custom_column' ), 10, 2 );
 		}
 		
