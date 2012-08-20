@@ -74,6 +74,9 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
+= 0.7.4 (??? ? 2012) =
+* Add 'Scheduled' as one of the statuses you see in the 'Posts At A Glance' widget. 'Private' and other core statuses can be added with a filter
+
 = 0.7.3 (Jul. 3, 2012) =
 * Bug fix: Support PHP 5.2.x by removing the anonymous functions we mistakenly added
 * Bug fix: Only update user's Story Budget saved filters when the Story Budget is being viewed, to avoid other views setting the filter values
