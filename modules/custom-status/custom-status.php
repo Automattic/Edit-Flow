@@ -481,7 +481,7 @@ class EF_Custom_Status extends EF_Module {
 	 *
 	 * @param array|string $statuses
 	 * @param array $args
-	 * @return object $statuses All of the statuses
+	 * @return array $statuses All of the statuses
 	 */
 	function get_custom_statuses( $args = array() ) {
 		
