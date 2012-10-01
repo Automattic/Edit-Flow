@@ -517,7 +517,7 @@ class EF_Story_Budget extends EF_Module {
 				return $output;
 				break;
 			case 'post_modified':
-				$modified_time_gmt = strtotime( $post->post_modified_gmt );
+				$modified_time_gmt = strtotime( $post->post_modified_gmt . " GMT" );
 				return $this->timesince( $modified_time_gmt );
 				break;
 			default:
