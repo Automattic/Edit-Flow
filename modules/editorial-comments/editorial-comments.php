@@ -49,10 +49,7 @@ class EF_Editorial_Comments extends EF_Module
 	 * Initialize the rest of the stuff in the class if the module is active
 	 */	
 	function init() {
-		
-		// Register our notification event with the notifications class
-		add_action( 'ef_modules_loaded', array( $this, 'register_notification_event' ) );
-		
+
 		add_action( 'add_meta_boxes', array ( $this, 'add_post_meta_box' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );		
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_scripts' ) );
