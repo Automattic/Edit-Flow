@@ -28,7 +28,7 @@ class EF_Settings extends EF_Module {
 			'configure_page_cb' => 'print_default_settings',
 			'autoload' => true,
 		);
-		$this->module = $edit_flow->register_module( 'settings', $args );
+		$this->module = EditFlow()->register_module( 'settings', $args );
 	}
 	
 	/**

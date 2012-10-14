@@ -39,7 +39,7 @@ class EF_Dashboard extends EF_Module {
 			'configure_page_cb' => 'print_configure_view',
 			'configure_link_text' => __( 'Widget Options', 'edit-flow' ),		
 		);
-		$this->module = $edit_flow->register_module( 'dashboard', $args );
+		$this->module = EditFlow()->register_module( 'dashboard', $args );
 	}
 	
 	/**

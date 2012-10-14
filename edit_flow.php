@@ -42,29 +42,51 @@ class edit_flow {
 	var $options_group_name = 'edit_flow_options';
 
 	/**
-	 * Constructor
+	 * @var EditFlow The one true EditFlow
 	 */
-	function __construct() {
-		
-		load_plugin_textdomain( 'edit-flow', null, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+	private static $instance;
 
-		$this->modules = (object)array();
+	/**
+	 * Main EditFlow Instance
+	 *
+	 * Insures that only one instance of EditFlow exists in memory at any one
+	 * time. Also prevents needing to define globals all over the place.
+	 *
+	 * @since EditFlow 0.7.4
+	 * @staticvar array $instance
+	 * @uses EditFlow::setup_globals() Setup the globals needed
+	 * @uses EditFlow::includes() Include the required files
+	 * @uses EditFlow::setup_actions() Setup the hooks and actions
+	 * @see EditFlow()
+	 * @return The one true EditFlow
+	 */
+	public static function instance() {
+		if ( ! isset( self::$instance ) ) {
+			self::$instance = new edit_flow;
+			self::$instance->setup_globals();
+			self::$instance->load_modules();
+			self::$instance->setup_actions();
+			// Backwards compat for when we promoted use of the $edit_flow global
+			global $edit_flow;
+			$edit_flow = self::$instance;
+		}
+		return self::$instance;
+	}
 
-		// Load all of our modules. 'ef_loaded' happens after 'plugins_loaded' so other plugins can
-		// hook into the action we have at the end
-		add_action( 'ef_loaded', array( $this, 'action_ef_loaded_load_modules' ) );
-		
-		// Load the module options later on, and offer a function to happen way after init
-		add_action( 'init', array( $this, 'action_init' ) );
-		add_action( 'init', array( $this, 'action_init_after' ), 1000 );
-		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
-		
+	private function __construct() {
+		/** Do nothing **/
+	}
+
+	private function setup_globals() {
+
+		$this->modules = new stdClass();
+
 	}
 
 	/**
 	 * Include the common resources to Edit Flow and dynamically load the modules
 	 */
-	function action_ef_loaded_load_modules() {
+	private function load_modules() {
 
 		// We use the WP_List_Table API for some of the table gen
 		if ( !class_exists( 'WP_List_Table' ) )
@@ -112,12 +134,28 @@ class edit_flow {
 		do_action( 'ef_modules_loaded' );
 		
 	}
-	
+
+	/**
+	 * Setup the default hooks and actions
+	 *
+	 * @since EditFlow 0.7.4
+	 * @access private
+	 * @uses add_action() To add various actions
+	 */
+	private function setup_actions() {
+		add_action( 'init', array( $this, 'action_init' ) );
+		add_action( 'init', array( $this, 'action_init_after' ), 1000 );
+
+		do_action_ref_array( 'editflow_after_setup_actions', array( &$this ) );
+	}
+
 	/**
 	 * Inititalizes the Edit Flows!
 	 * Loads options for each registered module and then initializes it if it's active
 	 */
 	function action_init() {
+
+		load_plugin_textdomain( 'edit-flow', null, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 		
 		// Load all of the module options
 		$this->load_module_options();
@@ -130,7 +168,7 @@ class edit_flow {
 		
 		do_action( 'ef_init' );
 	}
-	
+
 	/**
 	 * Initialize the plugin for the admin 
 	 */
@@ -308,17 +346,7 @@ class edit_flow {
 
 }
 
-// Create new instance of the edit_flow object
-global $edit_flow;
-$edit_flow = new edit_flow();
-
-/**
- * ef_loaded()
- * Allow dependent plugins and core actions to attach themselves in a safe way
- */
-function ef_loaded() {
-	do_action( 'ef_loaded' );
+function EditFlow() {
+	return edit_flow::instance();
 }
-add_action( 'plugins_loaded', 'ef_loaded', 20 );
-
-?>
+add_action( 'plugins_loaded', 'EditFlow' );

@@ -61,7 +61,7 @@ class EF_Custom_Status extends EF_Module {
 				),
 			'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/custom-statuses/">Custom Status Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
 		);
-		$this->module = $edit_flow->register_module( 'custom_status', $args );		
+		$this->module = EditFlow()->register_module( 'custom_status', $args );		
 		
 	}
 		

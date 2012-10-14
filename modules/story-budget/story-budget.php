@@ -49,7 +49,7 @@ class EF_Story_Budget extends EF_Module {
 			'configure_page_cb' => false,
 			'autoload' => false,
 		);
-		$this->module = $edit_flow->register_module( 'story_budget', $args );
+		$this->module = EditFlow()->register_module( 'story_budget', $args );
 	
 	}
 	
