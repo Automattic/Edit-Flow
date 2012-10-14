@@ -224,8 +224,8 @@ class edit_flow {
 			'messages' => array(
 				'settings-updated' => __( 'Settings updated.', 'edit-flow' ),
 				'form-error' => __( 'Please correct your form errors below and try again.', 'edit-flow' ),
-				'nonce-failed' => __( 'Cheatin&#8217; uh?' ),
-				'invalid-permissions' => __( 'You do not have necessary permissions to complete this action.' ),
+				'nonce-failed' => __( 'Cheatin&#8217; uh?', 'edit-flow' ),
+				'invalid-permissions' => __( 'You do not have necessary permissions to complete this action.', 'edit-flow' ),
 				'missing-post' => __( 'Post does not exist', 'edit-flow' ),
 			),
 			'autoload' => false, // autoloading a module will remove the ability to enable or disable it
