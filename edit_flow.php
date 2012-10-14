@@ -229,7 +229,6 @@ class edit_flow {
 				'missing-post' => __( 'Post does not exist', 'edit-flow' ),
 			),
 			'autoload' => false, // autoloading a module will remove the ability to enable or disable it
-			'load_frontend' => false, // Whether or not the module should be loaded on the frontend too
 		);
 		if ( isset( $args['messages'] ) )
 			$args['messages'] = array_merge( (array)$args['messages'], $defaults['messages'] );
@@ -255,11 +254,9 @@ class edit_flow {
 	 * If a given option isn't yet set, then set it to the module's default (upgrades, etc.)
 	 */
 	function load_module_options() {
+
 		foreach ( $this->modules as $mod_name => $mod_data ) {
-			// Don't load modules on the frontend unless they're explictly defined as such
-			if ( !is_admin() && !$mod_data->load_frontend )
-				continue;
-			
+
 			$this->modules->$mod_name->options = get_option( $this->options_group . $mod_name . '_options' );
 			foreach ( $mod_data->default_options as $default_key => $default_value ) {
 				if ( !isset( $this->modules->$mod_name->options->$default_key ) )
@@ -281,9 +278,6 @@ class edit_flow {
 	 */
 	function action_init_after() {
 		foreach ( $this->modules as $mod_name => $mod_data ) {
-			// Don't load modules on the frontend unless they're explictly defined as such
-			if ( !is_admin() && !$mod_data->load_frontend )
-				continue;
 
 			if ( isset( $this->modules->$mod_name->options->post_types ) )
 				$this->modules->$mod_name->options->post_types = $this->helpers->clean_post_type_options( $this->modules->$mod_name->options->post_types, $mod_data->post_type_support );	

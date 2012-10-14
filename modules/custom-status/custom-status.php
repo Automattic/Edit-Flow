@@ -53,7 +53,6 @@ class EF_Custom_Status extends EF_Module {
 				'status-position-updated' => __( "Status order updated.", 'edit-flow' ),
 			),					
 			'autoload' => false,
-			'load_frontend' => true, // Load on the frontend so that previewing posts with custom statuses works
 			'settings_help_tab' => array(
 				'id' => 'ef-custom-status-overview',
 				'title' => __('Overview', 'edit-flow'),

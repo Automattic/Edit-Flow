@@ -592,7 +592,6 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */
 	function get_editorial_metadata_term_by( $field, $value ) {
 
-		
 		$term = get_term_by( $field, $value, self::metadata_taxonomy );
 		if ( ! $term || is_wp_error( $term ) )
 			return $term;
