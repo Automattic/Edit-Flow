@@ -146,6 +146,8 @@ class edit_flow {
 		add_action( 'init', array( $this, 'action_init' ) );
 		add_action( 'init', array( $this, 'action_init_after' ), 1000 );
 
+		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
+
 		do_action_ref_array( 'editflow_after_setup_actions', array( &$this ) );
 	}
 
