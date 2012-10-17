@@ -111,26 +111,13 @@ class EF_Custom_Status extends EF_Module {
 	 */
 	function install() {
 			
-		$default_terms = array( 
-			array(
-				'term' => __( 'Draft', 'edit-flow' ),
-				'args' => array(
-					'slug' => 'draft',
-					'description' => __( 'Post is a draft; not ready for review or publication.', 'edit-flow' ),
-				),
-			),
-			array(
-				'term' => __( 'Pending Review' ),
-				'args' => array(
-					'slug' => 'pending',
-					'description' => __( 'Post needs to be reviewed by an editor.', 'edit-flow' ),
-				),
-			),
+		$default_terms = array(
 			array( 
 				'term' => __( 'Pitch', 'edit-flow' ),
 				'args' => array(
 					'slug' => 'pitch',
 					'description' => __( 'Idea proposed; waiting for acceptance.', 'edit-flow' ),
+					'position' => 1,
 				),
 			),
 			array(
@@ -138,6 +125,7 @@ class EF_Custom_Status extends EF_Module {
 				'args' => array(
 					'slug' => 'assigned',
 					'description' => __( 'Post idea assigned to writer.', 'edit-flow' ),
+					'position' => 2,
 				),
 			),
 			array(
@@ -145,8 +133,25 @@ class EF_Custom_Status extends EF_Module {
 				'args' => array(
 					'slug' => 'in-progress',
 					'description' => __( 'Writer is working on the post.', 'edit-flow' ),
+					'position' => 3,
 				),
 			), 
+			array(
+				'term' => __( 'Draft', 'edit-flow' ),
+				'args' => array(
+					'slug' => 'draft',
+					'description' => __( 'Post is a draft; not ready for review or publication.', 'edit-flow' ),
+					'position' => 4,
+				),
+			),
+			array(
+				'term' => __( 'Pending Review' ),
+				'args' => array(
+					'slug' => 'pending',
+					'description' => __( 'Post needs to be reviewed by an editor.', 'edit-flow' ),
+					'position' => 5,
+				),
+			),
 		);
 
 		// Okay, now add the default statuses to the db if they don't already exist 
@@ -392,8 +397,10 @@ class EF_Custom_Status extends EF_Module {
 	 * @return array|WP_Error $response The Term ID and Term Taxonomy ID
 	 */
 	function add_custom_status( $term, $args = array() ) {
-		// Don't reallly need to encode the description here because our helper method handles plain strings
-		$response = wp_insert_term( $term, self::taxonomy_key, $args );
+		$slug = ( ! empty( $args['slug'] ) ) ? $args['slug'] : sanitize_title( $term );
+		unset( $args['slug'] );
+		$encoded_description = $this->get_encoded_description( $args );
+		$response = wp_insert_term( $term, self::taxonomy_key, array( 'slug' => $slug, 'description' => $encoded_description ) );
 		return $response;
 		
 	}
