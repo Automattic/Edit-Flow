@@ -64,6 +64,9 @@ class EF_Story_Budget extends EF_Module {
 	
 		$this->num_columns = $this->get_num_columns();
 		$this->max_num_columns = apply_filters( 'ef_story_budget_max_num_columns', 3 );
+
+		// Filter to allow users to pick a taxonomy other than 'category' for sorting their posts
+		$this->taxonomy_used = apply_filters( 'ef_story_budget_taxonomy_used', $this->taxonomy_used );
 		
 		add_action( 'admin_init', array( $this, 'handle_form_date_range_change' ) );
 		
@@ -259,9 +262,9 @@ class EF_Story_Budget extends EF_Module {
 		// Update the current user's filters with the variables set in $_GET
 		$this->user_filters = $this->update_user_filters();
 		
-		if ( !empty( $this->user_filters['cat'] ) ) {
+		if ( !empty( $this->user_filters[$this->taxonomy_used] ) ) {
 			$terms = array();
-			$terms[] = get_term( $this->user_filters['cat'], $this->taxonomy_used );
+			$terms[] = get_term( $this->user_filters[$this->taxonomy_used], $this->taxonomy_used );
 		} else {
 			// Get all of the terms from the taxonomy, regardless whether there are published posts
 			$args = array(
