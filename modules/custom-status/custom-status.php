@@ -187,6 +187,11 @@ class EF_Custom_Status extends EF_Module {
 			// Technically we've run this code before so we don't want to auto-install new data
 			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
 		}
+		// Upgrade path to v0.7.4
+		if ( version_compare( $previous_version, '0.7.4', '<' ) ) {
+			// Custom status descriptions become base64_encoded, instead of maybe json_encoded.
+			$this->upgrade_074_term_descriptions( self::taxonomy_key );
+		}
 		
 	}
 	

@@ -353,39 +353,16 @@ class EF_Module {
 	
 	/**
 	 * This is a hack, Hack, HACK!!!
-	 * Encode all of the given arguments as JSON.
+	 * Encode all of the given arguments as a serialized array, and then base64_encode
 	 * Used to store extra data in a term's description field
-	 * @todo This is ghetto ghetto because so so brittle. Base64 the description instead?
 	 *
 	 * @since 0.7
 	 *
 	 * @param array $args The arguments to encode
-	 * @param string $metadata_type Metadata type
-	 * @return string $encoded Type and description encoded as JSON
+	 * @return string Arguments encoded in base64
 	 */
 	function get_encoded_description( $args = array() ) {
-		
-		$sanitized_args = array();
-		foreach( $args as $key => $value ) {
-			// Arrays make it through scot-free because we assume its just a set of integers
-			if ( is_array( $value ) ) {
-				$sanitized_args[$key] = $value;
-				continue;
-			}
-			// Damn pesky carriage returns...
-			$sanitized_args[$key] = str_replace( "\r\n", "\n", $value );
-			$sanitized_args[$key] = str_replace( "\r", "\n", $sanitized_args[$key] );
-			// Convert all newlines to <br /> for storage (and because it's the proper way to present them)
-			$sanitized_args[$key] = str_replace("\n", "<br />", $sanitized_args[$key]);		
-			$allowed_tags = '<b><a><strong><i><ul><li><ol><blockquote><em><br>';
-			$sanitized_args[$key] = strip_tags( $sanitized_args[$key], $allowed_tags );
-			// Escape any special characters (', ", <, >, &)
-			$sanitized_args[$key] = esc_attr( $sanitized_args[$key] );
-			$sanitized_args[$key] = htmlentities( $sanitized_args[$key], ENT_QUOTES );
-		}
-		$encoded = json_encode( $args );
-		
-		return $encoded;
+		return base64_encode( maybe_serialize( $args ) );
 	}
 	
 	/**
@@ -395,25 +372,10 @@ class EF_Module {
 	 * @since 0.7
 	 *
 	 * @param string $string_to_unencode Possibly encoded string
-	 * @return array $string_or_unencoded_array Array if string was encoded, otherwise the string as the 'description' field
+	 * @return array Array if string was encoded, otherwise the string as the 'description' field
 	 */
 	function get_unencoded_description( $string_to_unencode ) {
-		$string_to_unencode = stripslashes( htmlspecialchars_decode( $string_to_unencode ) );
-		$unencoded_array = json_decode( $string_to_unencode, true );
-		$string_or_unencoded_array = array();
-		// Only continue processing if it actually was an array. Otherwise, set to the original string
-		if ( is_array( $unencoded_array ) ) {
-			foreach( $unencoded_array as $key => $value ) {
-				// html_entity_decode only works on strings but sometimes we store nested arrays
-				if ( !is_array( $value ) )
-					$string_or_unencoded_array[$key] = html_entity_decode( $value, ENT_QUOTES );
-				else
-					$string_or_unencoded_array[$key] = $value;
-			}
-		} else {
-			$string_or_unencoded_array['description'] = $string_to_unencode;
-		}
-		return $string_or_unencoded_array;
+		return maybe_unserialize( base64_decode( $string_to_unencode ) );
 	}
 	
 	/**
@@ -573,6 +535,43 @@ class EF_Module {
 			if ( isset( $this->module->settings_help_sidebar ) ) {
 				$screen->set_help_sidebar( $this->module->settings_help_sidebar );
 			}
+		}
+	}
+
+	/**
+	 * Upgrade the term descriptions for all of the terms in a given taxonomy
+	 */
+	function upgrade_074_term_descriptions( $taxonomy ) {
+		$args = array(
+			'hide_empty' => false,
+		);
+		$terms = get_terms( $taxonomy, $args );
+		foreach( $terms as $term ) {
+			// If we can detect that this term already follows the new scheme, let's skip it
+			$maybe_serialized = base64_decode( $term->description );
+			if ( is_serialized( $maybe_serialized ) )
+				continue;
+
+			$description_args = array();
+			// This description has been JSON-encoded, so let's decode it
+			if ( 0 === strpos( $term->description, '{' ) ) {
+				$string_to_unencode = stripslashes( htmlspecialchars_decode( $term->description ) );
+				$unencoded_array = json_decode( $string_to_unencode, true );
+				// Only continue processing if it actually was an array. Otherwise, set to the original string
+				if ( is_array( $unencoded_array ) ) {
+					foreach( $unencoded_array as $key => $value ) {
+						// html_entity_decode only works on strings but sometimes we store nested arrays
+						if ( !is_array( $value ) )
+							$description_args[$key] = html_entity_decode( $value, ENT_QUOTES );
+						else
+							$description_args[$key] = $value;
+					}
+				}
+			} else {
+				$description_args['description'] = $term->description;
+			}
+			$new_description = $this->get_encoded_description( $description_args );
+			wp_update_term( $term->term_id, $taxonomy, array( 'description' => $new_description ) );
 		}
 	}
 	

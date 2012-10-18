@@ -190,7 +190,12 @@ class EF_User_Groups extends EF_Module {
 			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
 
 		}
-		
+		// Upgrade path to v0.7.4
+		if ( version_compare( $previous_version, '0.7.4', '<' ) ) {
+			// Usergroup descriptions become base64_encoded, instead of maybe json_encoded.
+			$this->upgrade_074_term_descriptions( self::taxonomy_key );
+		}
+
 	}
 	
 	/**
