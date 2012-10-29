@@ -162,7 +162,7 @@ class EF_User_Groups extends EF_Module {
 			$wpdb->update( $wpdb->term_taxonomy, array( 'taxonomy' => self::taxonomy_key ), array( 'taxonomy' => 'following_usergroups' ) );
 
 			// Get all of the users who are a part of user groups and assign them to their new user group values
-			$query = $wpdb->prepare( "SELECT * FROM $wpdb->usermeta WHERE meta_key='wp_ef_usergroups';" );
+			$query = "SELECT * FROM $wpdb->usermeta WHERE meta_key='wp_ef_usergroups';";
 			$usergroup_users = $wpdb->get_results( $query );
 
 			// Sort all of the users based on their usergroup(s)
