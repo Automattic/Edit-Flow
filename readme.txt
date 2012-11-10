@@ -80,6 +80,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Bug fix: Proper support for unicode characters in custom status and editorial metadata descriptions
 * Bug fix: Show the proper last modified value on the story budget when the server's timezone is not set to GMT. Props [danls](https://github.com/danls)
 * Bug fix: Make the jQuery UI theme for Edit Flow more specific so it doesn't conflict with core modals
+* Bug fix: Use the proper singlular label for a post type when generating notification text
 
 = 0.7.3 (Jul. 3, 2012) =
 * Bug fix: Support PHP 5.2.x by removing the anonymous functions we mistakenly added
