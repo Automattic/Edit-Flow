@@ -1297,8 +1297,6 @@ class EF_Custom_Status extends EF_Module {
 
 		$post = get_post( get_the_ID() );
 
-		static $do_once;
-
 		// Only modify if we're using a pre-publish status on a supported custom post type
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
 		if ( 'post.php' != $pagenow
@@ -1307,9 +1305,8 @@ class EF_Custom_Status extends EF_Module {
 			|| ! empty( $post->post_name ) )
 			return $slug;
 
-		if ( ! $do_once )
-			$slug = sanitize_title( $post->post_title );
-		$do_once = true;
+		$slug = sanitize_title( $post->post_title );
+		remove_filter( current_filter(), array( $this, __FUNCTION__ ) );
 
 		return $slug;
 
