@@ -98,11 +98,13 @@ class EF_Custom_Status extends EF_Module {
 		add_filter( 'manage_pages_columns', array( $this, '_filter_manage_posts_columns' ) );
 		add_action( 'manage_pages_custom_column', array( $this, '_filter_manage_posts_custom_column' ) );	
 		
-		// These four methods are hacks for fixing bugs in WordPress core
+		// These six methods are hacks for fixing bugs in WordPress core
 		add_action( 'admin_init', array( $this, 'check_timestamp_on_publish' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'fix_custom_status_timestamp' ) );
 		add_action( 'wp_insert_post', array( $this, 'fix_post_name' ), 10, 2 );
 		add_filter( 'editable_slug', array( $this, 'fix_editable_slug' ) );
+		add_filter( 'preview_post_link', array( $this, 'fix_preview_link_part_one' ) );
+		add_filter( 'post_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
 		
 	}
 	
@@ -1312,7 +1314,63 @@ class EF_Custom_Status extends EF_Module {
 
 	}
 
-		
+	/**
+	 * Another hack! hack! hack! until core better supports custom statuses
+	 *
+	 * @since 0.7.4
+	 *
+	 * The preview link for an unpublished post should always be ?p=
+	 */
+	public function fix_preview_link_part_one( $preview_link ) {
+		global $pagenow;
+
+		$post = get_post( get_the_ID() );
+
+		// Only modify if we're using a pre-publish status on a supported custom post type
+		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
+		if ( ! is_admin()
+			|| 'post.php' != $pagenow
+			|| ! in_array( $post->post_status, $status_slugs ) 
+			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
+			return $preview_link;
+
+		$args = array(
+				'p'        => $post->ID,
+				'preview'  => 'true',
+			);
+		$preview_link = add_query_arg( $args, home_url() );
+		return $preview_link;
+	}
+
+	/**
+	 * Another hack! hack! hack! until core better supports custom statuses
+	 *
+	 * @since 0.7.4
+	 *
+	 * The preview link for an unpublished post should always be ?p=
+	 * The code used to trigger a post preview doesn't also apply the 'preview_post_link' filter
+	 * So we can't do a targeted filter. Instead, we can even more hackily filter get_permalink
+	 * @see http://core.trac.wordpress.org/ticket/19378
+	 */
+	public function fix_preview_link_part_two( $permalink, $post, $leavename ) {
+		global $pagenow;
+
+		// Only modify if we're using a pre-publish status on a supported custom post type
+		// while doing the preview POST action
+		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
+		if ( ! is_admin()
+			|| 'post.php' != $pagenow
+			|| ( empty( $_POST['wp-preview'] ) || 'dopreview' != $_POST['wp-preview'] )
+			|| ! in_array( $post->post_status, $status_slugs ) 
+			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
+			return $permalink;
+
+		$args = array(
+				'p'        => $post->ID,
+			);
+		$permalink = add_query_arg( $args, home_url() );
+		return $permalink;
+	}
 }
 
 }
