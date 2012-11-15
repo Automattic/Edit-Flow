@@ -98,13 +98,15 @@ class EF_Custom_Status extends EF_Module {
 		add_filter( 'manage_pages_columns', array( $this, '_filter_manage_posts_columns' ) );
 		add_action( 'manage_pages_custom_column', array( $this, '_filter_manage_posts_custom_column' ) );	
 		
-		// These six methods are hacks for fixing bugs in WordPress core
+		// These seven-ish methods are hacks for fixing bugs in WordPress core
 		add_action( 'admin_init', array( $this, 'check_timestamp_on_publish' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'fix_custom_status_timestamp' ) );
 		add_action( 'wp_insert_post', array( $this, 'fix_post_name' ), 10, 2 );
 		add_filter( 'editable_slug', array( $this, 'fix_editable_slug' ) );
 		add_filter( 'preview_post_link', array( $this, 'fix_preview_link_part_one' ) );
 		add_filter( 'post_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
+		add_filter( 'post_row_actions', array( $this, 'fix_post_row_actions' ), 10, 2 );
+		add_filter( 'page_row_actions', array( $this, 'fix_post_row_actions' ), 10, 2 );
 		
 	}
 	
@@ -1370,6 +1372,38 @@ class EF_Custom_Status extends EF_Module {
 			);
 		$permalink = add_query_arg( $args, home_url() );
 		return $permalink;
+	}
+
+	/**
+	 * Another hack! hack! hack! until core better supports custom statuses
+	 *
+	 * @since 0.7.4
+	 *
+	 * The preview link for an unpublished post should always be ?p=, even in the list table
+	 * @see http://core.trac.wordpress.org/ticket/19378
+	 */
+	public function fix_post_row_actions( $actions, $post ) {
+		global $pagenow;
+
+		// Only modify if we're using a pre-publish status on a supported custom post type
+		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
+		if ( 'edit.php' != $pagenow
+			|| ! in_array( $post->post_status, $status_slugs ) 
+			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
+			return $actions;
+
+		// 'view' is only set if the user has permission to post
+		if ( empty( $actions['view'] ) )
+			return $actions;
+
+		$args = array(
+				'p'        => $post->ID,
+				'preview'  => 'true',
+			);
+		$preview_link = add_query_arg( $args, home_url() );
+
+		$actions['view'] = '<a href="' . esc_url( $preview_link ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $post->post_title ) ) . '" rel="permalink">' . __( 'Preview' ) . '</a>';
+		return $actions;
 	}
 }
 
