@@ -1232,11 +1232,7 @@ class EF_Custom_Status extends EF_Module {
 		// Don't run this if Edit Flow isn't active, or we're on some other page
 		if ( !isset( $edit_flow ) || $pagenow != 'post.php' || !isset( $_POST ) )
 			return $data;
-		$custom_statuses = get_terms( 'post_status', array( 'get' => 'all' ) );
-		$status_slugs = array();
-		foreach( $custom_statuses as $custom_status ) {
-			$status_slugs[] = $custom_status->slug;
-		}
+		$status_slugs = wp_list_pluck( get_terms( 'post_status', array( 'get' => 'all' ) ), 'slug' );
 		$ef_normalize_post_date_gmt = true;
 		// We're only going to normalize the post_date_gmt if the user hasn't set a custom date in the metabox
 		// and the current post_date_gmt isn't already future or past-ized
