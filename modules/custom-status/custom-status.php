@@ -105,6 +105,8 @@ class EF_Custom_Status extends EF_Module {
 		add_filter( 'editable_slug', array( $this, 'fix_editable_slug' ) );
 		add_filter( 'preview_post_link', array( $this, 'fix_preview_link_part_one' ) );
 		add_filter( 'post_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
+		add_filter( 'page_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
+		add_filter( 'post_type_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
 		add_filter( 'post_row_actions', array( $this, 'fix_post_row_actions' ), 10, 2 );
 		add_filter( 'page_row_actions', array( $this, 'fix_post_row_actions' ), 10, 2 );
 		
@@ -1336,10 +1338,21 @@ class EF_Custom_Status extends EF_Module {
 			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
 			return $preview_link;
 
-		$args = array(
-				'p'        => $post->ID,
-				'preview'  => 'true',
-			);
+		if ( 'page' == $post->post_type ) {
+			$args = array(
+					'page_id'    => $post->ID,
+				);
+		} else if ( 'post' == $post->post_type ) {
+			$args = array(
+					'p'          => $post->ID,
+				);
+		} else {
+			$args = array(
+					'p'          => $post->ID,
+					'post_type'  => $post->post_type,
+				);
+		}
+		$args['preview'] = 'true';
 		$preview_link = add_query_arg( $args, home_url() );
 		return $preview_link;
 	}
@@ -1367,9 +1380,20 @@ class EF_Custom_Status extends EF_Module {
 			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
 			return $permalink;
 
-		$args = array(
-				'p'        => $post->ID,
-			);
+		if ( 'page' == $post->post_type ) {
+			$args = array(
+					'page_id'    => $post->ID,
+				);
+		} else if ( 'post' == $post->post_type ) {
+			$args = array(
+					'p'          => $post->ID,
+				);
+		} else {
+			$args = array(
+					'p'          => $post->ID,
+					'post_type'  => $post->post_type,
+				);
+		}
 		$permalink = add_query_arg( $args, home_url() );
 		return $permalink;
 	}
@@ -1396,10 +1420,21 @@ class EF_Custom_Status extends EF_Module {
 		if ( empty( $actions['view'] ) )
 			return $actions;
 
-		$args = array(
-				'p'        => $post->ID,
-				'preview'  => 'true',
-			);
+		if ( 'page' == $post->post_type ) {
+			$args = array(
+					'page_id'    => $post->ID,
+				);
+		} else if ( 'post' == $post->post_type ) {
+			$args = array(
+					'p'          => $post->ID,
+				);
+		} else {
+			$args = array(
+					'p'          => $post->ID,
+					'post_type'  => $post->post_type,
+				);
+		}
+		$args['preview'] = 'true';
 		$preview_link = add_query_arg( $args, home_url() );
 
 		$actions['view'] = '<a href="' . esc_url( $preview_link ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $post->post_title ) ) . '" rel="permalink">' . __( 'Preview' ) . '</a>';
