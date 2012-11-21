@@ -83,6 +83,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Bug fix: Make the jQuery UI theme for Edit Flow more specific so it doesn't conflict with core modals
 * Bug fix: Use the proper singlular label for a post type when generating notification text
 * Bug fix: Post slug now updates when the post has a custom status.
+* Bug fix: When determining whether a user can change a post's status, check the 'edit_posts' cap for the post type.
 
 = 0.7.3 (Jul. 3, 2012) =
 * Bug fix: Support PHP 5.2.x by removing the anonymous functions we mistakenly added
