@@ -3,7 +3,7 @@ Contributors: batmoo, danielbachhuber, sbressler, automattic
 Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 3.1
-Tested up to: 3.4.1
+Tested up to: 3.4.2
 Stable tag: 0.7.3
 
 Redefining your editorial workflow.
@@ -41,6 +41,9 @@ If the automatic process above fails, follow these simple steps to do a manual i
 For support questions, feedback and ideas, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10), which we look at often. For everything else, say [hello@editflow.org](mailto:hello@editflow.org).
 
 == Upgrade Notice ==
+
+= 0.7.4 =
+Support for non-Latin characters in custom statuses and editorial metadata; various bug fixes
 
 = 0.7.3 =
 Support PHP 5.2.x by removing the anonymous functions we mistakenly added
