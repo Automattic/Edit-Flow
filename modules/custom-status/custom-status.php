@@ -299,8 +299,10 @@ class EF_Custom_Status extends EF_Module {
 		
 		if ( !in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $this->module ) ) )
 			return false;
+
+		$post_type_obj = get_post_type_object( $this->get_current_post_type() );
 		
-		if( ! current_user_can('edit_posts') )
+		if( ! current_user_can( $post_type_obj->cap->edit_posts ) )
 			return false;
 		
 		// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
@@ -373,6 +375,8 @@ class EF_Custom_Status extends EF_Module {
 			}
 			
  			$always_show_dropdown = ( $this->module->options->always_show_dropdown == 'on' ) ? 1 : 0;
+
+ 			$post_type_obj = get_post_type_object( $this->get_current_post_type() );
 			
 			// Now, let's print the JS vars
 			?>
@@ -383,8 +387,8 @@ class EF_Custom_Status extends EF_Module {
 				var current_status = '<?php echo esc_js( $selected ); ?>';
 				var current_status_name = '<?php echo esc_js( $selected_name ); ?>';
 				var status_dropdown_visible = <?php echo esc_js( $always_show_dropdown ); ?>;
-				var current_user_can_publish_posts = <?php echo current_user_can( 'publish_posts' ) ? 1 : 0; ?>;
-				var current_user_can_edit_published_posts = <?php echo current_user_can( 'edit_published_posts' ) ? 1 : 0; ?>;
+				var current_user_can_publish_posts = <?php echo current_user_can( $post_type_obj->cap->publish_posts ) ? 1 : 0; ?>;
+				var current_user_can_edit_published_posts = <?php echo current_user_can( $post_type_obj->cap->edit_published_posts ) ? 1 : 0; ?>;
 			</script>
 			
 			<?php
