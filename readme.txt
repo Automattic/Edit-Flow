@@ -4,7 +4,7 @@ Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 3.1
 Tested up to: 3.4.2
-Stable tag: 0.7.3
+Stable tag: 0.7.4
 
 Redefining your editorial workflow.
 
@@ -77,7 +77,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
-= 0.7.4 (??? ? 2012) =
+= 0.7.4 (Nov. 21, 2012) =
 * Added 'Scheduled' as one of the statuses you see in the 'Posts At A Glance' widget. 'Private' and other core statuses can be added with a filter
 * Sort posts on the Manage Posts view by visible editorial metadata date fields
 * Modify email notifications with two filters
