@@ -569,6 +569,8 @@ class EF_Custom_Status extends EF_Module {
 	 */
 	function get_default_custom_status() {
 		$default_status = $this->get_custom_status_by( 'slug', $this->module->options->default_status );
+		if ( ! $default_status )
+			$default_status = array_shift( $this->get_custom_statuses() );
 		return $default_status;
 		
 	}
