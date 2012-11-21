@@ -1370,11 +1370,12 @@ class EF_Custom_Status extends EF_Module {
 	public function fix_preview_link_part_two( $permalink, $post, $leavename ) {
 		global $pagenow;
 
-		// Only modify if we're using a pre-publish status on a supported custom post type
-		// while doing the preview POST action
+		// Core has apply_filters( 'page_link', $link, $post->ID, $sample ); too :(
 		if ( is_int( $post ) )
 			$post = get_post( $post );
 
+		// Only modify if we're using a pre-publish status on a supported custom post type
+		// while doing the preview POST action
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
 		if ( ! is_admin()
 			|| 'post.php' != $pagenow
