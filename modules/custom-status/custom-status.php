@@ -1307,11 +1307,12 @@ class EF_Custom_Status extends EF_Module {
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX )
 			return $slug;
 
-		$post = get_post( get_the_ID() );
+		$post = get_post();
 
 		// Only modify if we're using a pre-publish status on a supported custom post type
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
-		if ( 'post.php' != $pagenow
+		if ( ! $post
+			|| 'post.php' != $pagenow
 			|| ! in_array( $post->post_status, $status_slugs ) 
 			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) )
 			|| ! empty( $post->post_name ) )
@@ -1334,11 +1335,12 @@ class EF_Custom_Status extends EF_Module {
 	public function fix_preview_link_part_one( $preview_link ) {
 		global $pagenow;
 
-		$post = get_post( get_the_ID() );
+		$post = get_post();
 
 		// Only modify if we're using a pre-publish status on a supported custom post type
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
-		if ( ! is_admin()
+		if ( ! $post
+			|| ! is_admin()
 			|| 'post.php' != $pagenow
 			|| ! in_array( $post->post_status, $status_slugs ) 
 			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
