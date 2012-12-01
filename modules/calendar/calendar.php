@@ -82,6 +82,9 @@ class EF_Calendar extends EF_Module {
 		
 		// Ajax manipulation for the calendar
 		add_action( 'wp_ajax_ef_calendar_drag_and_drop', array( $this, 'handle_ajax_drag_and_drop' ) );
+
+		// Ajax insert post placeholder for a specific date
+		add_action( 'wp_ajax_ef_insert_post', array( $this, 'ajax_insert_post_placeholder') );
 	}
 	
 	/**
@@ -552,6 +555,7 @@ class EF_Calendar extends EF_Module {
 					$td_classes = apply_filters( 'ef_calendar_table_td_classes', $td_classes, $week_single_date );
 				?>
 				<td class="<?php echo esc_attr( implode( ' ', $td_classes ) ); ?>" id="<?php echo esc_attr( $week_single_date ); ?>">
+					<button class='button schedule-new-post-button'>+</button>
 					<?php if ( $week_single_date == date( 'Y-m-d' ) ): ?>
 						<div class="day-unit-today"><?php _e( 'Today', 'edit-flow' ); ?></div>
 					<?php endif; ?>
@@ -1133,7 +1137,61 @@ class EF_Calendar extends EF_Module {
 		</form>
 		<?php
 	}
+
+
+	/**
+	 * Ajax callback to insert a post placeholder for a particular date
+	 */
+	function ajax_insert_post_placeholder() {
+
+		// Nonce check!
+		if ( !wp_verify_nonce( $_POST['nonce'], 'ef-calendar-modify' ) )
+			$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
+
+		// Check that the user can modify the post
+		if ( !current_user_can( 'edit_others_posts' ) )
+			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
+
+		// Check for post values
+		if( !isset( $_POST['ef_insert_title']) || !$_POST['ef_insert_title'] )
+			$this->print_ajax_response( 'error', 'No title supplied' );
+
+		if( !isset( $_POST['ef_insert_date']) || !$_POST['ef_insert_date'] )
+			$this->print_ajax_response( 'error', 'No date supplied' );
+
+		// Sanitize post values
+		$post_title = filter_var($_POST['ef_insert_title'], FILTER_SANITIZE_STRING);
+		$post_date = filter_var($_POST['ef_insert_date'], FILTER_SANITIZE_STRING);
+
+		// Set post parameters
+		$post_placeholder = array(
+			'post_title' => $post_title,
+			'post_status' => 'future',
+			'post_date' => date( 'Y-m-d H:i:s', strtotime( $post_date ) )
+		);
+
+
+		// Create the post
+		$post_id = wp_insert_post( $post_placeholder );
+
+		if( is_int($post_id) && $post_id > 0 ) { // success!
+			
+			// reset post status to draft to prevent auto-publish
+			// ToDo: access default custom post status from Edit Flow and use it instead of draft
+			$status_update = wp_update_post( array( 'ID' => $post_id, 'post_status' => 'draft' ) );
+			
+			// announce success
+			$this->print_ajax_response( 'success', 'Post was created successfully' );
+			
+		} else {
+
+			// announce error
+			$this->print_ajax_response( 'error', 'Post could not be created' );
+
+		}
+
+	}   // ajax_insert_post_placeholder
 	
-}
+} // EF_Calendar
 	
-}
+} // class_exists('EF_Calendar')

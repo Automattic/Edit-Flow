@@ -59,7 +59,7 @@ jQuery(document).ready(function () {
 	 */
 	function edit_flow_calendar_bind_overlay() {
 		jQuery('td.day-unit ul li').bind({
-			'click.ef-calendar-show-overlay': edit_flow_calendar_show_overlay,
+			'click.ef-calendar-show-overlay': edit_flow_calendar_show_overlay
 		});
 	}
 	edit_flow_calendar_bind_overlay();
@@ -99,7 +99,7 @@ jQuery(document).ready(function () {
 					post_id: post_id,
 					prev_date: prev_date,
 					next_date: next_date,
-					nonce: nonce,
+					nonce: nonce
 				};
 				jQuery.post(ajaxurl, params,
 					function(response) {
@@ -119,8 +119,86 @@ jQuery(document).ready(function () {
 			jQuery(this).enableSelection();
 			// Allow the overlays to show up again
 			setTimeout( edit_flow_calendar_bind_overlay, 250 );
-		},
-	});	
+		}
+	});
+
+	// Popup form for quickly scheduling a post for a specific day
+	jQuery('td.day-unit .schedule-new-post-button').on('click.editFlow', function(e){
+
+		// Close other overlays
+		edit_flow_calendar_close_overlays();
+
+		// Get the current calendar square
+		var $date_square = jQuery(this).parent();
+
+		// Get the square's date from the ID
+		var date = $date_square.attr('id');
+
+		// Define the html for our popup form
+		// ToDo: better date formatting
+		var $box = jQuery('<form class="post-insert-dialog item-overlay"><em>Schedule a post for '+date+'</em><br><input type="text" class="post-insert-dialog-post-title" name="post-insert-dialog-post-title" placeholder="Post Title"><input type="submit" class="button left" value="&raquo"><div class="spinner">&nbsp;</div></form>');
+
+		// Add it to the calendar (it will automatically be removed on click-away because of its 'item-overlay' class)
+		$date_square.append($box);
+		
+		// Get the form and input for this calendar square
+		var $form = $date_square.find('form.post-insert-dialog');
+		var $post_title_input = $form.find('.post-insert-dialog-post-title').focus();
+
+		// Setup the ajax mechanism for form submit
+		$form.on('submit', function(e){
+
+			e.preventDefault();
+
+			var $submit_button = jQuery(this).find('input.button');
+			var $spinner = jQuery(this).find('.spinner');
+
+			// Set loading animation
+			$submit_button.hide();
+			$spinner.show();
+
+			// Delay submit to prevent spinner flashing
+			setTimeout( function(){
+			
+				jQuery.ajax({
+
+					type: 'POST',
+					url: ajaxurl,
+					dataType: 'json',
+					data: {
+						action: 'ef_insert_post',
+						ef_insert_date: date,
+						ef_insert_title: $post_title_input.val(),
+						nonce: jQuery(document).find('#ef-calendar-modify').val()
+					},
+					success: function(response, textStatus, XMLHttpRequest) {
+						if( response.status == 'success'){
+							// Since we created a post, refresh the page to see it in the calendar
+							window.location.reload(false);
+						} else {
+							// Show an error message
+							$submit_button.show();
+							$spinner.hide();
+							$box.append('<div class="error">Error: '+response.message+'</div>');
+						}
+					},
+					error: function(MLHttpRequest, textStatus, errorThrown) {
+						$submit_button.show();
+						$spinner.hide();
+						$box.append('<div class="error">Network Error: '+errorThrown+'</div>');
+					}
+
+				}); // .ajax
+
+				return false; // prevent bubbling up
+
+			}, 200); // setTimout
+
+		}); // .submit
+		
+		return false; // prevent bubbling up
+
+	}); // add new post click event
 	
 });
 
