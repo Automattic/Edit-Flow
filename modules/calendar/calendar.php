@@ -1180,8 +1180,8 @@ class EF_Calendar extends EF_Module {
 			// ToDo: access default custom post status from Edit Flow and use it instead of draft
 			$status_update = wp_update_post( array( 'ID' => $post_id, 'post_status' => 'draft' ) );
 			
-			// announce success
-			$this->print_ajax_response( 'success', 'Post was created successfully' );
+			// announce success and send back edit link
+			$this->print_ajax_response( 'success', get_edit_post_link( $post_id , '&') );
 			
 		} else {
 

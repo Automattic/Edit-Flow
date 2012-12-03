@@ -122,39 +122,77 @@ jQuery(document).ready(function () {
 		}
 	});
 
-	// Popup form for quickly scheduling a post for a specific day
-	jQuery('td.day-unit .schedule-new-post-button').on('click.editFlow', function(e){
+	// Enables quick creation/edit of drafts on a particular date from the calendar
+	var EFQuickPublish = {
+		/**
+		 * Binds event listeners to UI buttons
+		 */
+		init : function(){
 
-		// Close other overlays
-		edit_flow_calendar_close_overlays();
+			// Bind click event to '+' button
+			jQuery('td.day-unit .schedule-new-post-button').on('click.editFlow', function(e){
 
-		// Get the current calendar square
-		var $date_square = jQuery(this).parent();
+					// Close other overlays
+					edit_flow_calendar_close_overlays();
 
-		// Get the square's date from the ID
-		var date = $date_square.attr('id');
+					// Get the current calendar square
+					EFQuickPublish.$current_date_square = jQuery(this).parent();
 
-		// Define the html for our popup form
-		// ToDo: better date formatting
-		var $box = jQuery('<form class="post-insert-dialog item-overlay"><em>Schedule a post for '+date+'</em><br><input type="text" class="post-insert-dialog-post-title" name="post-insert-dialog-post-title" placeholder="Post Title"><input type="submit" class="button left" value="&raquo"><div class="spinner">&nbsp;</div></form>');
+					// Get the square's date from the ID
+					EFQuickPublish.date = EFQuickPublish.$current_date_square.attr('id');
 
-		// Add it to the calendar (it will automatically be removed on click-away because of its 'item-overlay' class)
-		$date_square.append($box);
-		
-		// Get the form and input for this calendar square
-		var $form = $date_square.find('form.post-insert-dialog');
-		var $post_title_input = $form.find('.post-insert-dialog-post-title').focus();
+					// Define the html for our popup form
+					// ToDo: better date formatting
+					var schedule_draft_form_html="";
+					schedule_draft_form_html += "<form class=\"post-insert-dialog item-overlay\">";
+					schedule_draft_form_html += "	<h1>Schedule a draft for "+EFQuickPublish.date+"<\/h1>";
+					schedule_draft_form_html += "	<input type=\"text\" class=\"post-insert-dialog-post-title\" name=\"post-insert-dialog-post-title\" placeholder=\"Post Title\">";
+					schedule_draft_form_html += "	<div class=\"post-insert-dialog-controls\">";
+					schedule_draft_form_html += "		<input type=\"submit\" class=\"button left\" value=\"Schedule Draft\">";
+					schedule_draft_form_html += "		<a class=\"post-insert-dialog-edit-post-link\" href=\"#\">Edit Post &raquo;<\/a>";
+					schedule_draft_form_html += "	<\/div>";
+					schedule_draft_form_html += "	<div class=\"spinner\">&nbsp;<\/div>";
+					schedule_draft_form_html += "<\/form>";
 
-		// Setup the ajax mechanism for form submit
-		$form.on('submit', function(e){
+					var $box = jQuery(schedule_draft_form_html);
 
-			e.preventDefault();
+					// Add it to the calendar (it will automatically be removed on click-away because of its 'item-overlay' class)
+					EFQuickPublish.$current_date_square.append($box);
+					
+					// Get the form and input for this calendar square
+					var $form = EFQuickPublish.$current_date_square.find('form.post-insert-dialog');
+					var $edit_post_link = EFQuickPublish.$current_date_square.find('.post-insert-dialog-edit-post-link');
+					EFQuickPublish.$post_title_input = $form.find('.post-insert-dialog-post-title').focus();
 
-			var $submit_button = jQuery(this).find('input.button');
-			var $spinner = jQuery(this).find('.spinner');
+					// Setup the ajax mechanism for form submit
+					$form.on( 'submit', function(e){
+						e.preventDefault();
+						EFQuickPublish.ajax_ef_create_draft(false);
+					});
+
+					// Setup direct link to new draft
+					$edit_post_link.on( 'click', function(e){
+						e.preventDefault();
+						EFQuickPublish.ajax_ef_create_draft(true);
+					} );
+
+					return false; // prevent bubbling up
+
+				}); // add new post click event
+
+		}, // init
+		/**
+		 * Sends an ajax request to create a new post
+		 * @param  bool redirect_to_draft Whether or not we should be redirected to the post's edit screen on success
+		 */
+		ajax_ef_create_draft : function( redirect_to_draft ){
+
+			// Get some of the form elements for later use
+			var $submit_controls = EFQuickPublish.$current_date_square.find('.post-insert-dialog-controls');
+			var $spinner = EFQuickPublish.$current_date_square.find('.spinner');
 
 			// Set loading animation
-			$submit_button.hide();
+			$submit_controls.hide();
 			$spinner.show();
 
 			// Delay submit to prevent spinner flashing
@@ -167,25 +205,51 @@ jQuery(document).ready(function () {
 					dataType: 'json',
 					data: {
 						action: 'ef_insert_post',
-						ef_insert_date: date,
-						ef_insert_title: $post_title_input.val(),
+						ef_insert_date: EFQuickPublish.date,
+						ef_insert_title: EFQuickPublish.$post_title_input.val(),
 						nonce: jQuery(document).find('#ef-calendar-modify').val()
 					},
 					success: function(response, textStatus, XMLHttpRequest) {
-						if( response.status == 'success'){
-							// Since we created a post, refresh the page to see it in the calendar
-							window.location.reload(false);
+
+						if( response.status == 'success' ){
+
+							/**
+							 * We created a draft on the given date, now we should either go to the edit
+							 * URL for the new post which is provided by response.message, or we should refresh
+							 * to show the updated calendar.
+							 */
+							
+							if( redirect_to_draft ){
+
+								//For security, tack the path of the received edit URL onto our current domain
+								a = document.createElement('a');
+								a.href = response.message;
+								var edit_path = a.pathname + a.search;
+
+								//Go to the new draft's edit screen
+								window.location = window.location.origin + edit_path;
+
+							} else {
+								//Refresh the page to see the new draft on the calendar
+								window.location.reload(false);
+							}
+
 						} else {
 							// Show an error message
-							$submit_button.show();
+							// ToDo: DRY the error clearing
+							$submit_controls.show();
 							$spinner.hide();
-							$box.append('<div class="error">Error: '+response.message+'</div>');
+							EFQuickPublish.$current_date_square.find('.error').remove();
+							$submit_controls.before('<div class="error">Error: '+response.message+'</div>');
 						}
 					},
 					error: function(MLHttpRequest, textStatus, errorThrown) {
-						$submit_button.show();
+						//Show an error message
+						// ToDo: DRY the error clearing
+						$submit_controls.show();
 						$spinner.hide();
-						$box.append('<div class="error">Network Error: '+errorThrown+'</div>');
+						EFQuickPublish.$current_date_square.find('.error').remove();
+						$submit_controls.before('<div class="error">Network Error: '+errorThrown+'</div>');
 					}
 
 				}); // .ajax
@@ -194,11 +258,9 @@ jQuery(document).ready(function () {
 
 			}, 200); // setTimout
 
-		}); // .submit
-		
-		return false; // prevent bubbling up
+		} // ajax_ef_create_draft
 
-	}); // add new post click event
+	}; EFQuickPublish.init();
 	
 });
 

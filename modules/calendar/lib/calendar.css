@@ -150,21 +150,27 @@ table#ef-calendar-view .day-unit.weekend-day.ui-wrapper-highlight ul li.sortable
 }
 
 table#ef-calendar-view .day-unit .post-insert-dialog{
-	width: 210px;
 	background-color: #FFF;
-	padding: 5px;
-	position: absolute;
-	z-index: 999;
-	top: -5px;
-	left: -5px;
 	border: 1px solid #CCC;
 	-moz-box-shadow:5px 5px 5px #888;
 	-webkit-box-shadow:5px 5px 5px #888;
 	box-shadow:5px 5px 5px #888;
+	left: -5px;
+	padding: 5px;
+	position: absolute;
+	top: -5px;
+	width: 210px;
+	z-index: 999;
 }
 
-table#ef-calendar-view .day-unit .post-insert-dialog .post-insert-dialog-post-name{
-	width: 175px;
+table#ef-calendar-view .day-unit .post-insert-dialog h1{
+	font-size: 13px;
+	font-weight: normal;
+	font-style: italic;
+}
+
+table#ef-calendar-view .day-unit .post-insert-dialog .post-insert-dialog-post-title{
+	margin-bottom: 10px;
 }
 
 table#ef-calendar-view .day-unit ul {
