@@ -125,11 +125,12 @@ jQuery(document).ready(function () {
 	// Enables quick creation/edit of drafts on a particular date from the calendar
 	var EFQuickPublish = {
 		/**
-		 * Binds event listeners to UI buttons
+		 * When user clicks the '+' on an individual calendar date,
+		 * show a form that allows them to create a post for that date
 		 */
 		init : function(){
 
-			// Bind click event to '+' button
+			// Bind the form display to '+' button
 			jQuery('td.day-unit .schedule-new-post-button').on('click.editFlow', function(e){
 
 					e.preventDefault();
@@ -143,13 +144,10 @@ jQuery(document).ready(function () {
 					//Get our form content
 					var $new_post_form_content = EFQuickPublish.$current_date_square.find('.post-insert-dialog');
 
-					// Get the square's date from the ID
-					EFQuickPublish.date = EFQuickPublish.$current_date_square.attr('id');
-
 					//Inject the form (it will automatically be removed on click-away because of its 'item-overlay' class)
 					EFQuickPublish.$new_post_form = $new_post_form_content.clone().addClass('item-overlay').appendTo(EFQuickPublish.$current_date_square);
 					
-					// Get the inputs and controls for this calendar square and focus the cursor into the post title box
+					// Get the inputs and controls for this injected form and focus the cursor on the post title box
 					var $edit_post_link = EFQuickPublish.$new_post_form.find('.post-insert-dialog-edit-post-link');
 					EFQuickPublish.$post_title_input = EFQuickPublish.$new_post_form.find('.post-insert-dialog-post-title').focus();
 
@@ -170,6 +168,7 @@ jQuery(document).ready(function () {
 				}); // add new post click event
 
 		}, // init
+
 		/**
 		 * Sends an ajax request to create a new post
 		 * @param  bool redirect_to_draft Whether or not we should be redirected to the post's edit screen on success
@@ -198,47 +197,30 @@ jQuery(document).ready(function () {
 						ef_insert_title: EFQuickPublish.$post_title_input.val(),
 						nonce: jQuery(document).find('#ef-calendar-modify').val()
 					},
-					success: function(response, textStatus, XMLHttpRequest) {
+					success: function( response, textStatus, XMLHttpRequest ) {
 
 						if( response.status == 'success' ){
 
-							/**
-							 * We created a draft on the given date, now we should either go to the edit
-							 * URL for the new post which is provided by response.message, or we should refresh
-							 * to show the updated calendar.
-							 */
-							
-							if( redirect_to_draft ){
+							//The response message on success is the html for the a post list item
+							var $new_post = jQuery(response.message);
 
-								//For security, tack the path of the received edit URL onto our current domain
-								a = document.createElement('a');
-								a.href = response.message;
-								var edit_path = a.pathname + a.search;
-
-								//Go to the new draft's edit screen
-								window.location = window.location.origin + edit_path;
-
+							if( redirect_to_draft ) {
+								//If user clicked on the 'edit post' link, let's send them to the new post
+								var edit_url =  $new_post.find('.item-actions .edit a').attr('href');
+								window.location = edit_url;
 							} else {
-								//Refresh the page to see the new draft on the calendar
-								window.location.reload(false);
+								// Otherwise, inject the new post and bind the appropriate click event
+								$new_post.appendTo( EFQuickPublish.$current_date_square.find('ul.post-list') );
+								$new_post.on('click.ef-calendar-show-overlay', edit_flow_calendar_show_overlay );
+								edit_flow_calendar_close_overlays();
 							}
 
 						} else {
-							// Show an error message
-							// ToDo: DRY the error clearing
-							$submit_controls.show();
-							$spinner.hide();
-							EFQuickPublish.$current_date_square.find('.error').remove();
-							$submit_controls.before('<div class="error">Error: '+response.message+'</div>');
+							EFQuickPublish.display_errors( EFQuickPublish.$new_post_form, response.message );
 						}
 					},
-					error: function(MLHttpRequest, textStatus, errorThrown) {
-						//Show an error message
-						// ToDo: DRY the error clearing
-						$submit_controls.show();
-						$spinner.hide();
-						EFQuickPublish.$current_date_square.find('.error').remove();
-						$submit_controls.before('<div class="error">Network Error: '+errorThrown+'</div>');
+					error: function( XMLHttpRequest, textStatus, errorThrown ) {
+						EFQuickPublish.display_errors( EFQuickPublish.$new_post_form, errorThrown );
 					}
 
 				}); // .ajax
@@ -247,7 +229,22 @@ jQuery(document).ready(function () {
 
 			}, 200); // setTimout
 
-		} // ajax_ef_create_post
+		}, // ajax_ef_create_post
+
+		/**
+		 * Displays form errors and resets the UI
+		 * @param  jQueryObj $form The form to display the errors in
+		 * @param  str error_msg Error message
+		 */
+		display_errors : function( $form, error_msg ){
+
+			$form.find('.error').remove(); // clear out old errors
+			$form.find('.spinner').hide(); // stop the loading animation
+
+			// show submit controls and the error
+			$form.find('.post-insert-dialog-controls').show().before('<div class="error">Error: '+error_msg+'</div>');
+
+		} // display_errors
 
 	}; EFQuickPublish.init();
 	

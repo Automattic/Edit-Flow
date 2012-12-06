@@ -562,154 +562,16 @@ class EF_Calendar extends EF_Module {
 					<ul class="post-list">
 						<?php
 						$hidden = 0;
-						if ( !empty( $week_posts[$week_single_date] ) ):
-						$week_posts[$week_single_date] = apply_filters( 'ef_calendar_posts_for_week', $week_posts[$week_single_date] );
-						foreach ( $week_posts[$week_single_date] as $num => $post ) :
-							$post_id = $post->ID;
-							$edit_post_link = get_edit_post_link( $post_id );
-							
-							$post_classes = array(
-								'day-item',
-								'custom-status-' . esc_attr( $post->post_status ),
-							);
-							// Only allow the user to drag the post if they have permissions to
-							// or if it's in an approved post status
-							// This is checked on the ajax request too.
-							$published_statuses = array(
-								'publish',
-								'future',
-								'private',
-							);
-							if ( $this->current_user_can_modify_post( $post ) && !in_array( $post->post_status, $published_statuses ) )
-								$post_classes[] = 'sortable';
-							
-							if ( in_array( $post->post_status, $published_statuses ) )
-								$post_classes[] = 'is-published';
-							
-							// Don't hide posts for just a couple of weeks
-							if ( $num > 3 && $this->total_weeks > 2 ) {
-								$post_classes[] = 'hidden';
-								$hidden++;
-							}
-							$post_classes = apply_filters( 'ef_calendar_table_td_li_classes', $post_classes, $week_single_date, $post->ID );
-						?>
-						<li class="<?php echo esc_attr( implode( ' ', $post_classes ) ); ?>" id="post-<?php echo esc_attr( $post->ID ); ?>">
-							<div class="item-default-visible">
-							<div class="item-status"><span class="status-text"><?php echo esc_html( $this->get_post_status_friendly_name( get_post_status( $post_id ) ) ); ?></span></div>
-							<div class="inner">
-								<span class="item-headline post-title"><strong><?php echo esc_html( $post->post_title ); ?></strong></span>
-							</div>
-							<?php
-								// All of the item information we're going to display
-								$ef_calendar_item_information_fields = array();
-								// Post author
-								$ef_calendar_item_information_fields['author'] = array(
-									'label' => __( 'Author', 'edit-flow' ),
-									'value' => get_the_author_meta( 'display_name', $post->post_author ),
-								);
-								// If the calendar supports more than one post type, show the post type label
-								if ( count( $this->get_post_types_for_module( $this->module ) ) > 1 ) {
-									$ef_calendar_item_information_fields['post_type'] = array(
-										'label' => __( 'Post Type', 'edit-flow' ),
-										'value' => get_post_type_object( $post->post_type )->labels->singular_name,
-									);
-								}
-								// Publication time for published statuses
-								if ( in_array( $post->post_status, $published_statuses ) ) {
-									if ( $post->post_status == 'future' ) {
-										$ef_calendar_item_information_fields['post_date'] = array(
-											'label' => __( 'Scheduled', 'edit-flow' ),
-											'value' => get_the_time( null, $post->ID ),
-										);
-									} else {
-										$ef_calendar_item_information_fields['post_date'] = array(
-											'label' => __( 'Published', 'edit-flow' ),
-											'value' => get_the_time( null, $post->ID ),
-										);
-									}
-								}
-								// Taxonomies and their values
-								$args = array(
-									'post_type' => $post->post_type,
-								);
-								$taxonomies = get_object_taxonomies( $args, 'object' );
-								foreach( (array)$taxonomies as $taxonomy ) {
-									// Sometimes taxonomies skip by, so let's make sure it has a label too
-									if ( !$taxonomy->public || !$taxonomy->label )
-										continue;
-									$terms = wp_get_object_terms( $post->ID, $taxonomy->name );
-									$key = 'tax_' . $taxonomy->name;
-									if ( count( $terms ) ) {
-										$value = '';
-										foreach( (array)$terms as $term ) {
-											$value .= $term->name . ', ';
-										}
-										$value = rtrim( $value, ', ' );
-									} else {
-										$value = '';
-									}
-									$ef_calendar_item_information_fields[$key] = array(
-										'label' => $taxonomy->label,
-										'value' => $value,
-									);
-								}
-								
-								$ef_calendar_item_information_fields = apply_filters( 'ef_calendar_item_information_fields', $ef_calendar_item_information_fields, $post->ID );
-							?>
-							</div>
-							<div style="clear:right;"></div>
-							<div class="item-inner">
-							<table class="item-information">
-								<?php foreach( $ef_calendar_item_information_fields as $field => $values ): ?>
-									<?php
-										// Allow filters to hide empty fields or to hide any given individual field. Hide empty fields by default.
-										if ( ( apply_filters( 'ef_calendar_hide_empty_item_information_fields', true, $post->ID ) && empty( $values['value'] ) )
-												|| apply_filters( "ef_calendar_hide_{$field}_item_information_field", false, $post->ID ) )
-											continue;
-									?>
-									<tr class="item-field item-information-<?php echo esc_attr( $field ); ?>">
-										<th class="label"><?php echo esc_html( $values['label'] ); ?>:</th>
-										<?php if ( $values['value'] ): ?>
-										<td class="value"><?php echo esc_html( $values['value'] ); ?></td>
-										<?php else: ?>
-										<td class="value"><em class="none"><?php echo _e( 'None', 'edit-flow' ); ?></em></td>
-										<?php endif; ?>
-									</tr>
-								<?php endforeach; ?>
-								<?php do_action( 'ef_calendar_item_additional_html', $post->ID ); ?>
-							</table>
-							<?php
-								$post_type_object = get_post_type_object( $post->post_type );
-								$item_actions = array();
-								if ( $this->current_user_can_modify_post( $post ) ) {
-									// Edit this post
-									$item_actions['edit'] = '<a href="' . get_edit_post_link( $post->ID, true ) . '" title="' . esc_attr( __( 'Edit this item', 'edit-flow' ) ) . '">' . __( 'Edit', 'edit-flow' ) . '</a>';
-									// Trash this post
-									$item_actions['trash'] = '<a href="'. get_delete_post_link( $post->ID) . '" title="' . esc_attr( __( 'Trash this item' ), 'edit-flow' ) . '">' . __( 'Trash', 'edit-flow' ) . '</a>';
-									// Preview/view this post
-									if ( !in_array( $post->post_status, $published_statuses ) ) {
-										$item_actions['view'] = '<a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" rel="permalink">' . __( 'Preview', 'edit-flow' ) . '</a>';
-									} elseif ( 'trash' != $post->post_status ) {
-										$item_actions['view'] = '<a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" rel="permalink">' . __( 'View', 'edit-flow' ) . '</a>';
-									}
-								}
-								// Allow other plugins to add actions
-								$item_actions = apply_filters( 'ef_calendar_item_actions', $item_actions, $post->ID );
-								if ( count( $item_actions ) ) {
-									echo '<div class="item-actions">';
-									$html = '';
-									foreach ( $item_actions as $class => $item_action ) {
-										$html .= '<span class="' . esc_attr( $class ) . '">' . $item_action . '</span> | ';
-									}
-									echo rtrim( $html, '| ' );
-									echo '</div>';
-								}
-							?>
-							<div style="clear:right;"></div>
-							</div>
-						</li>
-						<?php endforeach;
-						endif; ?>
+						if ( !empty( $week_posts[$week_single_date] ) ) {
+
+							$week_posts[$week_single_date] = apply_filters( 'ef_calendar_posts_for_week', $week_posts[$week_single_date] );
+
+							foreach ( $week_posts[$week_single_date] as $num => $post ){ 
+								echo $this->generate_post_li_html( $post, $week_single_date, $num ); 
+							} 
+
+						 } 
+						 ?>
 					</ul>
 					<?php if ( $hidden ): ?>
 						<a class="show-more" href="#"><?php printf( __( 'Show %1$s more ', 'edit-flow' ), $hidden ); ?></a>
@@ -752,6 +614,169 @@ class EF_Calendar extends EF_Module {
 		<?php 
 		
 	}
+
+	/**
+	 * Generates the HTML for a single post item in the calendar
+	 * @param  obj $post The WordPress post in question
+	 * @param  str $post_date The date of the post
+	 * @param  int $num The index of the post
+	 *
+	 * @return str HTML for a single post item
+	 */
+	function generate_post_li_html( $post, $post_date, $num = 0){
+
+		$post_id = $post->ID;
+		$edit_post_link = get_edit_post_link( $post_id );
+		
+		$post_classes = array(
+			'day-item',
+			'custom-status-' . esc_attr( $post->post_status ),
+		);
+		// Only allow the user to drag the post if they have permissions to
+		// or if it's in an approved post status
+		// This is checked on the ajax request too.
+		$published_statuses = array(
+			'publish',
+			'future',
+			'private',
+		);
+		if ( $this->current_user_can_modify_post( $post ) && !in_array( $post->post_status, $published_statuses ) )
+			$post_classes[] = 'sortable';
+		
+		if ( in_array( $post->post_status, $published_statuses ) )
+			$post_classes[] = 'is-published';
+		
+		// Don't hide posts for just a couple of weeks
+		if ( $num > 3 && $this->total_weeks > 2 ) {
+			$post_classes[] = 'hidden';
+			$hidden++;
+		}
+		$post_classes = apply_filters( 'ef_calendar_table_td_li_classes', $post_classes, $post_date, $post->ID );
+
+		ob_start();
+
+		?>
+		<li class="<?php echo esc_attr( implode( ' ', $post_classes ) ); ?>" id="post-<?php echo esc_attr( $post->ID ); ?>">
+			<div class="item-default-visible">
+			<div class="item-status"><span class="status-text"><?php echo esc_html( $this->get_post_status_friendly_name( get_post_status( $post_id ) ) ); ?></span></div>
+			<div class="inner">
+				<span class="item-headline post-title"><strong><?php echo esc_html( $post->post_title ); ?></strong></span>
+			</div>
+			<?php
+			// All of the item information we're going to display
+			$ef_calendar_item_information_fields = array();
+			// Post author
+			$ef_calendar_item_information_fields['author'] = array(
+				'label' => __( 'Author', 'edit-flow' ),
+				'value' => get_the_author_meta( 'display_name', $post->post_author ),
+			);
+			// If the calendar supports more than one post type, show the post type label
+			if ( count( $this->get_post_types_for_module( $this->module ) ) > 1 ) {
+				$ef_calendar_item_information_fields['post_type'] = array(
+					'label' => __( 'Post Type', 'edit-flow' ),
+					'value' => get_post_type_object( $post->post_type )->labels->singular_name,
+				);
+			}
+			// Publication time for published statuses
+			if ( in_array( $post->post_status, $published_statuses ) ) {
+				if ( $post->post_status == 'future' ) {
+					$ef_calendar_item_information_fields['post_date'] = array(
+						'label' => __( 'Scheduled', 'edit-flow' ),
+						'value' => get_the_time( null, $post->ID ),
+					);
+				} else {
+					$ef_calendar_item_information_fields['post_date'] = array(
+						'label' => __( 'Published', 'edit-flow' ),
+						'value' => get_the_time( null, $post->ID ),
+					);
+				}
+			}
+			// Taxonomies and their values
+			$args = array(
+				'post_type' => $post->post_type,
+			);
+			$taxonomies = get_object_taxonomies( $args, 'object' );
+			foreach( (array)$taxonomies as $taxonomy ) {
+				// Sometimes taxonomies skip by, so let's make sure it has a label too
+				if ( !$taxonomy->public || !$taxonomy->label )
+					continue;
+				$terms = wp_get_object_terms( $post->ID, $taxonomy->name );
+				$key = 'tax_' . $taxonomy->name;
+				if ( count( $terms ) ) {
+					$value = '';
+					foreach( (array)$terms as $term ) {
+						$value .= $term->name . ', ';
+					}
+					$value = rtrim( $value, ', ' );
+				} else {
+					$value = '';
+				}
+				$ef_calendar_item_information_fields[$key] = array(
+					'label' => $taxonomy->label,
+					'value' => $value,
+				);
+			}
+			
+			$ef_calendar_item_information_fields = apply_filters( 'ef_calendar_item_information_fields', $ef_calendar_item_information_fields, $post->ID );
+		?>
+			</div>
+			<div style="clear:right;"></div>
+			<div class="item-inner">
+			<table class="item-information">
+				<?php foreach( $ef_calendar_item_information_fields as $field => $values ): ?>
+					<?php
+						// Allow filters to hide empty fields or to hide any given individual field. Hide empty fields by default.
+						if ( ( apply_filters( 'ef_calendar_hide_empty_item_information_fields', true, $post->ID ) && empty( $values['value'] ) )
+								|| apply_filters( "ef_calendar_hide_{$field}_item_information_field", false, $post->ID ) )
+							continue;
+					?>
+					<tr class="item-field item-information-<?php echo esc_attr( $field ); ?>">
+						<th class="label"><?php echo esc_html( $values['label'] ); ?>:</th>
+						<?php if ( $values['value'] ): ?>
+						<td class="value"><?php echo esc_html( $values['value'] ); ?></td>
+						<?php else: ?>
+						<td class="value"><em class="none"><?php echo _e( 'None', 'edit-flow' ); ?></em></td>
+						<?php endif; ?>
+					</tr>
+				<?php endforeach; ?>
+				<?php do_action( 'ef_calendar_item_additional_html', $post->ID ); ?>
+			</table>
+			<?php
+				$post_type_object = get_post_type_object( $post->post_type );
+				$item_actions = array();
+				if ( $this->current_user_can_modify_post( $post ) ) {
+					// Edit this post
+					$item_actions['edit'] = '<a href="' . get_edit_post_link( $post->ID, true ) . '" title="' . esc_attr( __( 'Edit this item', 'edit-flow' ) ) . '">' . __( 'Edit', 'edit-flow' ) . '</a>';
+					// Trash this post
+					$item_actions['trash'] = '<a href="'. get_delete_post_link( $post->ID) . '" title="' . esc_attr( __( 'Trash this item' ), 'edit-flow' ) . '">' . __( 'Trash', 'edit-flow' ) . '</a>';
+					// Preview/view this post
+					if ( !in_array( $post->post_status, $published_statuses ) ) {
+						$item_actions['view'] = '<a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" rel="permalink">' . __( 'Preview', 'edit-flow' ) . '</a>';
+					} elseif ( 'trash' != $post->post_status ) {
+						$item_actions['view'] = '<a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" rel="permalink">' . __( 'View', 'edit-flow' ) . '</a>';
+					}
+				}
+				// Allow other plugins to add actions
+				$item_actions = apply_filters( 'ef_calendar_item_actions', $item_actions, $post->ID );
+				if ( count( $item_actions ) ) {
+					echo '<div class="item-actions">';
+					$html = '';
+					foreach ( $item_actions as $class => $item_action ) {
+						$html .= '<span class="' . esc_attr( $class ) . '">' . $item_action . '</span> | ';
+					}
+					echo rtrim( $html, '| ' );
+					echo '</div>';
+				}
+			?>
+			<div style="clear:right;"></div>
+			</div>
+		</li>
+
+		<?php
+
+		return ob_get_clean();
+
+	} // generate_post_li_html()
 	
 	/**
 	 * Generates the filtering and navigation options for the top of the calendar
@@ -1206,8 +1231,13 @@ class EF_Calendar extends EF_Module {
 
 		if( $post_id ) { // success!
 
-			// announce success and send back edit link
-			$this->print_ajax_response( 'success', get_edit_post_link( $post_id , '&') );
+			$post = get_post( $post_id );
+
+			// Generate the HTML for the post item so it can be injected
+			$post_li_html = $this->generate_post_li_html( $post, $post_date );
+
+			// announce success and send back the html to inject
+			$this->print_ajax_response( 'success', $post_li_html );
 			
 		} else {
 
