@@ -159,14 +159,20 @@ table#ef-calendar-view .day-unit .post-insert-dialog{
 	padding: 5px;
 	position: absolute;
 	top: -5px;
-	width: 210px;
+	width: 225px;
 	z-index: 999;
+	display: none;
+}
+
+table#ef-calendar-view .day-unit .post-insert-dialog.item-overlay{
+	display: block;
 }
 
 table#ef-calendar-view .day-unit .post-insert-dialog h1{
 	font-size: 13px;
 	font-weight: normal;
 	font-style: italic;
+	margin-bottom: 2px;
 }
 
 table#ef-calendar-view .day-unit .post-insert-dialog .post-insert-dialog-post-title{

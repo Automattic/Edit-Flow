@@ -555,7 +555,6 @@ class EF_Calendar extends EF_Module {
 					$td_classes = apply_filters( 'ef_calendar_table_td_classes', $td_classes, $week_single_date );
 				?>
 				<td class="<?php echo esc_attr( implode( ' ', $td_classes ) ); ?>" id="<?php echo esc_attr( $week_single_date ); ?>">
-					<button class='button schedule-new-post-button'>+</button>
 					<?php if ( $week_single_date == date( 'Y-m-d' ) ): ?>
 						<div class="day-unit-today"><?php _e( 'Today', 'edit-flow' ); ?></div>
 					<?php endif; ?>
@@ -715,6 +714,24 @@ class EF_Calendar extends EF_Module {
 					<?php if ( $hidden ): ?>
 						<a class="show-more" href="#"><?php printf( __( 'Show %1$s more ', 'edit-flow' ), $hidden ); ?></a>
 					<?php endif; ?>
+
+					<?php if( current_user_can('publish_posts') ) : 
+						$date_formatted = date( 'D, M jS, Y', strtotime( $week_single_date ) );
+					?>
+						<button class='button schedule-new-post-button'>+</button>
+
+						<form medthod="GET" class="post-insert-dialog">
+							<h1><?php echo sprintf( __( 'Create post for %s', 'edit-flow' ), $date_formatted ); ?></h1>	
+							<input type="text" class="post-insert-dialog-post-title" name="post-insert-dialog-post-title" placeholder="<?php echo esc_attr( __( 'Post Title', 'edit-flow' ) ); ?>">
+							<input type="hidden" class="post-insert-dialog-post-date" name="post-insert-dialog-post-title" value="<?php echo esc_attr( $week_single_date ); ?>">
+							<div class="post-insert-dialog-controls">		
+								<input type="submit" class="button left" value="<?php echo esc_attr( __( 'Create Post', 'edit-flow' ) ); ?>">
+								<a class="post-insert-dialog-edit-post-link" href="#"><?php _e( 'Edit Post', 'edit-flow'); ?>&nbsp;&raquo;</a>
+							</div>	
+							<div class="spinner">&nbsp;</div>
+						</form>
+					<?php endif; ?>
+					
 					</td>
 					<?php endforeach; ?>
 					</tr>
@@ -1153,33 +1170,42 @@ class EF_Calendar extends EF_Module {
 			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
 
 		// Check for post values
-		if( !isset( $_POST['ef_insert_title']) || !$_POST['ef_insert_title'] )
+		if ( empty( $_POST['ef_insert_title'] ) )
 			$this->print_ajax_response( 'error', 'No title supplied' );
 
-		if( !isset( $_POST['ef_insert_date']) || !$_POST['ef_insert_date'] )
+		if ( empty( $_POST['ef_insert_date'] ) )
 			$this->print_ajax_response( 'error', 'No date supplied' );
 
 		// Sanitize post values
-		$post_title = filter_var($_POST['ef_insert_title'], FILTER_SANITIZE_STRING);
-		$post_date = filter_var($_POST['ef_insert_date'], FILTER_SANITIZE_STRING);
+		$post_title = sanitize_text_field( $_POST['ef_insert_title'] );
+		$post_date = sanitize_text_field( $_POST['ef_insert_date'] );
 
-		// Set post parameters
+		// Get default custom status
+		$custom_status_module = EditFlow()->custom_status->module->options;
+		
+		if( $custom_status_module->enabled == 'on' )
+			$post_status = $custom_status_module->default_status;
+		else
+			$post_status = 'draft';
+
+		// Set new post parameters
 		$post_placeholder = array(
 			'post_title' => $post_title,
-			'post_status' => 'future',
+			'post_status' => $post_status,
 			'post_date' => date( 'Y-m-d H:i:s', strtotime( $post_date ) )
 		);
 
+		// By default, adding a post to the calendar won't set the timestamp.
+		// If the user desires that to be the behavior, they can set the result of this filter to 'true'
+		// With how WordPress works internally, setting 'post_date_gmt' will set the timestamp
+		if ( apply_filters( 'ef_calendar_allow_ajax_to_set_timestamp', false ) )
+			$post_placeholder['post_date_gmt'] = date( 'Y-m-d H:i:s', strtotime( $post_date ) );
 
 		// Create the post
 		$post_id = wp_insert_post( $post_placeholder );
 
-		if( is_int($post_id) && $post_id > 0 ) { // success!
-			
-			// reset post status to draft to prevent auto-publish
-			// ToDo: access default custom post status from Edit Flow and use it instead of draft
-			$status_update = wp_update_post( array( 'ID' => $post_id, 'post_status' => 'draft' ) );
-			
+		if( $post_id ) { // success!
+
 			// announce success and send back edit link
 			$this->print_ajax_response( 'success', get_edit_post_link( $post_id , '&') );
 			

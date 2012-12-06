@@ -132,48 +132,37 @@ jQuery(document).ready(function () {
 			// Bind click event to '+' button
 			jQuery('td.day-unit .schedule-new-post-button').on('click.editFlow', function(e){
 
+					e.preventDefault();
+
 					// Close other overlays
 					edit_flow_calendar_close_overlays();
 
 					// Get the current calendar square
 					EFQuickPublish.$current_date_square = jQuery(this).parent();
 
+					//Get our form content
+					var $new_post_form_content = EFQuickPublish.$current_date_square.find('.post-insert-dialog');
+
 					// Get the square's date from the ID
 					EFQuickPublish.date = EFQuickPublish.$current_date_square.attr('id');
 
-					// Define the html for our popup form
-					// ToDo: better date formatting
-					var schedule_draft_form_html="";
-					schedule_draft_form_html += "<form class=\"post-insert-dialog item-overlay\">";
-					schedule_draft_form_html += "	<h1>Schedule a draft for "+EFQuickPublish.date+"<\/h1>";
-					schedule_draft_form_html += "	<input type=\"text\" class=\"post-insert-dialog-post-title\" name=\"post-insert-dialog-post-title\" placeholder=\"Post Title\">";
-					schedule_draft_form_html += "	<div class=\"post-insert-dialog-controls\">";
-					schedule_draft_form_html += "		<input type=\"submit\" class=\"button left\" value=\"Schedule Draft\">";
-					schedule_draft_form_html += "		<a class=\"post-insert-dialog-edit-post-link\" href=\"#\">Edit Post &raquo;<\/a>";
-					schedule_draft_form_html += "	<\/div>";
-					schedule_draft_form_html += "	<div class=\"spinner\">&nbsp;<\/div>";
-					schedule_draft_form_html += "<\/form>";
-
-					var $box = jQuery(schedule_draft_form_html);
-
-					// Add it to the calendar (it will automatically be removed on click-away because of its 'item-overlay' class)
-					EFQuickPublish.$current_date_square.append($box);
+					//Inject the form (it will automatically be removed on click-away because of its 'item-overlay' class)
+					EFQuickPublish.$new_post_form = $new_post_form_content.clone().addClass('item-overlay').appendTo(EFQuickPublish.$current_date_square);
 					
-					// Get the form and input for this calendar square
-					var $form = EFQuickPublish.$current_date_square.find('form.post-insert-dialog');
-					var $edit_post_link = EFQuickPublish.$current_date_square.find('.post-insert-dialog-edit-post-link');
-					EFQuickPublish.$post_title_input = $form.find('.post-insert-dialog-post-title').focus();
+					// Get the inputs and controls for this calendar square and focus the cursor into the post title box
+					var $edit_post_link = EFQuickPublish.$new_post_form.find('.post-insert-dialog-edit-post-link');
+					EFQuickPublish.$post_title_input = EFQuickPublish.$new_post_form.find('.post-insert-dialog-post-title').focus();
 
 					// Setup the ajax mechanism for form submit
-					$form.on( 'submit', function(e){
+					EFQuickPublish.$new_post_form.on( 'submit', function(e){
 						e.preventDefault();
-						EFQuickPublish.ajax_ef_create_draft(false);
+						EFQuickPublish.ajax_ef_create_post(false);
 					});
 
 					// Setup direct link to new draft
 					$edit_post_link.on( 'click', function(e){
 						e.preventDefault();
-						EFQuickPublish.ajax_ef_create_draft(true);
+						EFQuickPublish.ajax_ef_create_post(true);
 					} );
 
 					return false; // prevent bubbling up
@@ -185,11 +174,11 @@ jQuery(document).ready(function () {
 		 * Sends an ajax request to create a new post
 		 * @param  bool redirect_to_draft Whether or not we should be redirected to the post's edit screen on success
 		 */
-		ajax_ef_create_draft : function( redirect_to_draft ){
+		ajax_ef_create_post : function( redirect_to_draft ){
 
 			// Get some of the form elements for later use
-			var $submit_controls = EFQuickPublish.$current_date_square.find('.post-insert-dialog-controls');
-			var $spinner = EFQuickPublish.$current_date_square.find('.spinner');
+			var $submit_controls = EFQuickPublish.$new_post_form.find('.post-insert-dialog-controls');
+			var $spinner = EFQuickPublish.$new_post_form.find('.spinner');
 
 			// Set loading animation
 			$submit_controls.hide();
@@ -205,7 +194,7 @@ jQuery(document).ready(function () {
 					dataType: 'json',
 					data: {
 						action: 'ef_insert_post',
-						ef_insert_date: EFQuickPublish.date,
+						ef_insert_date: EFQuickPublish.$new_post_form.find('input.post-insert-dialog-post-date').val(),
 						ef_insert_title: EFQuickPublish.$post_title_input.val(),
 						nonce: jQuery(document).find('#ef-calendar-modify').val()
 					},
@@ -258,7 +247,7 @@ jQuery(document).ready(function () {
 
 			}, 200); // setTimout
 
-		} // ajax_ef_create_draft
+		} // ajax_ef_create_post
 
 	}; EFQuickPublish.init();
 	
