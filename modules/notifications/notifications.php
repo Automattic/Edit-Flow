@@ -521,6 +521,7 @@ class EF_Notifications extends EF_Module {
 
 		$subject = apply_filters( 'ef_notification_send_email_subject', $subject, $action, $post );
 		$message = apply_filters( 'ef_notification_send_email_message', $message, $action, $post );
+		$message_headers = apply_filters( 'ef_notification_send_email_message_headers', $message_headers, $action, $post );
 		
 		if( EF_NOTIFICATION_USE_CRON ) {
 			$this->schedule_emails( $recipients, $subject, $message, $message_headers );
