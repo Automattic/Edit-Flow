@@ -78,6 +78,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 == Changelog ==
 
 = 0.7.5 (??? ??, 2013) =
+* New French localization thanks to [boris-hocde](https://github.com/boris-hocde)
 * Bug fix: Pagination functional again when filtering to a post type
 
 = 0.7.4 (Nov. 21, 2012) =
