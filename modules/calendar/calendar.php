@@ -331,7 +331,7 @@ class EF_Calendar extends EF_Module {
 
 		$default_filters = array(
 				'post_status' => '',
-				'post_type' => '',
+				'cpt' => '',
 				'cat' => '',
 				'author' => '',
 				'start_date' => date( 'Y-m-d' ),
@@ -358,7 +358,7 @@ class EF_Calendar extends EF_Module {
 		}
 		
 		// Post type
-		$filters['post_type'] = sanitize_key( ( count( $supported_post_types ) > 1 && isset( $_GET['type'] ) ) ? $_GET['type'] : $old_filters['post_type'] );
+		$filters['cpt'] = sanitize_key( ( count( $supported_post_types ) > 1 && isset( $_GET['cpt'] ) ) ? $_GET['cpt'] : $old_filters['cpt'] );
 		
 		// Category
 		 $filters['cat'] = (int)( isset( $_GET['cat'] ) ) ? $_GET['cat'] : $old_filters['cat'];
@@ -404,7 +404,7 @@ class EF_Calendar extends EF_Module {
 		// For generating the WP Query objects later on
 		$post_query_args = array(
 			'post_status' => $filters['post_status'],
-			'post_type' => $filters['post_type'],
+			'post_type'   => $filters['cpt'],
 			'cat'         => $filters['cat'],
 			'author'      => $filters['author']
 		);
@@ -541,7 +541,7 @@ class EF_Calendar extends EF_Module {
 					
 					if ( in_array( $day_name, $dotw ) )
 						$td_classes[] = 'weekend-day';
-						
+					
 					if ( $week_single_date == date( 'Y-m-d' ) )
 						$td_classes[] = 'today';
 						
@@ -787,12 +787,12 @@ class EF_Calendar extends EF_Module {
 			
 					if ( count( $supported_post_types ) > 1 ) {
 					?>
-					<select id="type" name="type">
+					<select id="type" name="cpt">
 						<option value=""><?php _e( 'View all types', 'edit-flow' ); ?></option>
 					<?php
 						foreach ( $supported_post_types as $key => $post_type_name ) {
 							$all_post_types = get_post_types( null, 'objects' );
-							echo '<option value="' . esc_attr( $post_type_name ) . '"' . selected( $post_type_name, $filters['post_type'] ) . '>' . esc_html( $all_post_types[$post_type_name]->labels->name ) . '</option>';
+							echo '<option value="' . esc_attr( $post_type_name ) . '"' . selected( $post_type_name, $filters['cpt'] ) . '>' . esc_html( $all_post_types[$post_type_name]->labels->name ) . '</option>';
 						}
 					?>
 					</select>
@@ -808,7 +808,7 @@ class EF_Calendar extends EF_Module {
 					<input type="hidden" name="page" value="calendar" />
 					<input type="hidden" name="start_date" value="<?php echo esc_attr( $filters['start_date'] ); ?>"/>
 					<input type="hidden" name="post_status" value="" />
-					<input type="hidden" name="type" value="" />					
+					<input type="hidden" name="cpt" value="" />					
 					<input type="hidden" name="cat" value="" />
 					<input type="hidden" name="author" value="" />
 					<input type="submit" id="post-query-clear" class="button-secondary button" value="<?php _e( 'Reset', 'edit-flow' ); ?>"/>
@@ -960,7 +960,7 @@ class EF_Calendar extends EF_Module {
 		$url = add_query_arg( $filters, menu_page_url( $this->module->slug, false ) );
 
 		if ( count( $supported_post_types ) > 1 )
-			$url = add_query_arg( 'post_type', $filters['post_type'] , $url );
+			$url = add_query_arg( 'cpt', $filters['cpt'] , $url );
 		
 		return $url;
 		

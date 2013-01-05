@@ -77,6 +77,9 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
+= 0.7.5 (??? ??, 2013) =
+* Bug fix: Pagination functional again when filtering to a post type
+
 = 0.7.4 (Nov. 21, 2012) =
 * Added 'Scheduled' as one of the statuses you see in the 'Posts At A Glance' widget. 'Private' and other core statuses can be added with a filter
 * Sort posts on the Manage Posts view by visible editorial metadata date fields
