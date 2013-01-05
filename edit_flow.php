@@ -64,7 +64,6 @@ class edit_flow {
 		if ( ! isset( self::$instance ) ) {
 			self::$instance = new edit_flow;
 			self::$instance->setup_globals();
-			self::$instance->load_modules();
 			self::$instance->setup_actions();
 			// Backwards compat for when we promoted use of the $edit_flow global
 			global $edit_flow;
@@ -158,6 +157,8 @@ class edit_flow {
 	function action_init() {
 
 		load_plugin_textdomain( 'edit-flow', null, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+
+		$this->load_modules();
 		
 		// Load all of the module options
 		$this->load_module_options();
