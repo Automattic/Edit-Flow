@@ -82,6 +82,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Bug fix: Load modules on 'init' so the strings associated with each class can be properly translated
 * Bug fix: Pagination functional again when filtering to a post type
 * Bug fix: Pre-PHP 5.2.9 array_unique() compatibility
+* Bug fix: Respect the timezone when indicating which day is Today
 
 = 0.7.4 (Nov. 21, 2012) =
 * Added 'Scheduled' as one of the statuses you see in the 'Posts At A Glance' widget. 'Private' and other core statuses can be added with a filter

@@ -334,7 +334,7 @@ class EF_Calendar extends EF_Module {
 				'cpt' => '',
 				'cat' => '',
 				'author' => '',
-				'start_date' => date( 'Y-m-d' ),
+				'start_date' => date( 'Y-m-d', current_time( 'timestamp' ) ),
 			);
 		$old_filters = array_merge( $default_filters, (array)$old_filters );
 		
@@ -542,7 +542,7 @@ class EF_Calendar extends EF_Module {
 					if ( in_array( $day_name, $dotw ) )
 						$td_classes[] = 'weekend-day';
 					
-					if ( $week_single_date == date( 'Y-m-d' ) )
+					if ( $week_single_date == date( 'Y-m-d', current_time( 'timestamp' ) ) )
 						$td_classes[] = 'today';
 						
 					// Last day of the week
@@ -552,7 +552,7 @@ class EF_Calendar extends EF_Module {
 					$td_classes = apply_filters( 'ef_calendar_table_td_classes', $td_classes, $week_single_date );
 				?>
 				<td class="<?php echo esc_attr( implode( ' ', $td_classes ) ); ?>" id="<?php echo esc_attr( $week_single_date ); ?>">
-					<?php if ( $week_single_date == date( 'Y-m-d' ) ): ?>
+					<?php if ( $week_single_date == date( 'Y-m-d', current_time( 'timestamp' ) ) ): ?>
 						<div class="day-unit-today"><?php _e( 'Today', 'edit-flow' ); ?></div>
 					<?php endif; ?>
 					<div class="day-unit-label"><?php echo esc_html( date( 'j', strtotime( $week_single_date ) ) ); ?></div>
@@ -823,7 +823,7 @@ class EF_Calendar extends EF_Module {
 				<?php endif; ?>
 			</li>
 			<li class="date-change today">
-				<a title="<?php printf( __( 'Today is %s', 'edit-flow' ), date( get_option( 'date_format' ) ) ); ?>" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters, 0 ) ); ?>"><?php _e( 'Today', 'edit-flow' ); ?></a>
+				<a title="<?php printf( __( 'Today is %s', 'edit-flow' ), date( get_option( 'date_format' ), current_time( 'timestamp' ) ) ); ?>" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters, 0 ) ); ?>"><?php _e( 'Today', 'edit-flow' ); ?></a>
 			</li>
 			<li class="date-change previous-week">
 				<?php if ( $this->total_weeks > 1): ?>				
@@ -951,7 +951,7 @@ class EF_Calendar extends EF_Module {
 		if ( !isset( $weeks_offset ) )
 			$weeks_offset = $this->total_weeks;
 		else if ( $weeks_offset == 0 )
-			$filters['start_date'] = $this->get_beginning_of_week( date( 'Y-m-d' ) );
+			$filters['start_date'] = $this->get_beginning_of_week( date( 'Y-m-d', current_time( 'timestamp' ) ) );
 			
 		if ( $direction == 'previous' )
 			$weeks_offset = '-' . $weeks_offset;
@@ -1021,13 +1021,13 @@ class EF_Calendar extends EF_Module {
 	function calendar_time_range() {
 		
 		$first_datetime = strtotime( $this->start_date );
-		if ( date( 'Y' ) != date( 'Y', $first_datetime ) )
+		if ( date( 'Y', current_time( 'timestamp' ) ) != date( 'Y', $first_datetime ) )
 			$first_date = date( 'F jS, Y', $first_datetime );
 		else	
 			$first_date = date( 'F jS', $first_datetime );
 		$total_days = ( $this->total_weeks * 7 ) - 1;
 		$last_datetime = strtotime( "+" . $total_days . " days", date( 'U', strtotime( $this->start_date ) ) );
-		if ( date( 'Y' ) != date( 'Y', $last_datetime ) )
+		if ( date( 'Y', current_time( 'timestamp' ) ) != date( 'Y', $last_datetime ) )
 			$last_date = date( 'F jS, Y', $last_datetime );
 		else
 			$last_date = date( 'F jS', $last_datetime );
