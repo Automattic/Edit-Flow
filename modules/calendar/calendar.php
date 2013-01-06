@@ -331,7 +331,7 @@ class EF_Calendar extends EF_Module {
 
 		$default_filters = array(
 				'post_status' => '',
-				'cpt' => '',
+				'cpt' => $supported_post_types,
 				'cat' => '',
 				'author' => '',
 				'start_date' => date( 'Y-m-d', current_time( 'timestamp' ) ),
@@ -358,7 +358,7 @@ class EF_Calendar extends EF_Module {
 		}
 		
 		// Post type
-		$filters['cpt'] = sanitize_key( ( count( $supported_post_types ) > 1 && isset( $_GET['cpt'] ) ) ? $_GET['cpt'] : $old_filters['cpt'] );
+		$filters['cpt'] = sanitize_key( ( isset( $_GET['cpt'] ) ) ? $_GET['cpt'] : $old_filters['cpt'] );
 		
 		// Category
 		 $filters['cat'] = (int)( isset( $_GET['cat'] ) ) ? $_GET['cat'] : $old_filters['cat'];
@@ -863,7 +863,7 @@ class EF_Calendar extends EF_Module {
 	 * @param array $args Any filter arguments we want to pass
 	 * @return array $posts All of the posts as an array sorted by date
 	 */
-	function get_calendar_posts_for_week( $args = null ) {
+	function get_calendar_posts_for_week( $args = array() ) {
 		global $wpdb;
 		
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
@@ -894,10 +894,9 @@ class EF_Calendar extends EF_Module {
 		// unset those arguments.
 		if ( $args['cat'] === '0' ) unset( $args['cat'] );
 		if ( $args['author'] === '0' ) unset( $args['author'] );
-		
-		if ( count( $supported_post_types ) > 1 && !$args['post_type'] ) {
+
+		if ( empty( $args['post_type'] ) || ! in_array( $args['post_type'], $supported_post_types ) )
 			$args['post_type'] = $supported_post_types;
-		}
 		
 		// Filter for an end user to implement any of their own query args
 		$args = apply_filters( 'ef_calendar_posts_query_args', $args );
