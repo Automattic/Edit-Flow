@@ -79,6 +79,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 = 0.7.5 (??? ??, 2013) =
 * New French localization thanks to [boris-hocde](https://github.com/boris-hocde)
+* Allow custom post statuses to be completely disabled for a post type, preventing situations where 'draft' posts could disappear when the draft status was deleted.
 * Bug fix: Load modules on 'init' so the strings associated with each class can be properly translated
 * Bug fix: Pagination functional again when filtering to a post type
 * Bug fix: Pre-PHP 5.2.9 array_unique() compatibility

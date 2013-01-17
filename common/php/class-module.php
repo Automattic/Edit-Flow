@@ -157,7 +157,8 @@ class EF_Module {
 		);
 		
 		// Custom statuses only handles workflow statuses
-		if ( $this->module_enabled( 'custom_status' ) && !in_array( $status, array( 'publish', 'future', 'private', 'trash' ) ) ) {
+		if ( $this->module_enabled( 'custom_status' )
+			&& !in_array( $status, array( 'publish', 'future', 'private', 'trash' ) ) ) {
 			$status_object = $edit_flow->custom_status->get_custom_status_by( 'slug', $status );
 			if( $status_object && !is_wp_error( $status_object ) ) {
 				$status_friendly_name = $status_object->name;
@@ -204,6 +205,12 @@ class EF_Module {
 			$post_type = $current_screen->post_type;
 		elseif ( isset( $_REQUEST['post_type'] ) )
 			$post_type = sanitize_key( $_REQUEST['post_type'] );
+		elseif ( 'post.php' == $pagenow
+			&& isset( $_REQUEST['post'] ) 
+			&& ! empty( get_post( (int)$_REQUEST['post'] )->post_type ) )
+			$post_type = get_post( (int)$_REQUEST['post'] )->post_type;
+		elseif ( 'edit.php' == $pagenow && empty( $_REQUEST['post_type'] ) )
+			$post_type = 'post';
 		else
 			$post_type = null;
 
