@@ -1361,6 +1361,17 @@ class EF_Custom_Status extends EF_Module {
 	public function fix_editable_slug( $slug ) {
 		global $pagenow;
 
+		// If 'all_admin_notices' hasn't happened yet, we're not even close to the UI yet.
+		if ( ! did_action( 'all_admin_notices' ) )
+			return $slug;
+
+		// The AJAX-y edit your slug UI happens right below the title,
+		// so we can remove the filter after it's done.
+		if ( did_action( 'edit_form_after_title' ) ) {
+			remove_filter( current_filter(), array( $this, __FUNCTION__ ) );
+			return $slug;
+		}
+
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX )
 			return $slug;
 
@@ -1375,8 +1386,16 @@ class EF_Custom_Status extends EF_Module {
 			|| ! empty( $post->post_name ) )
 			return $slug;
 
+		// For hierarchical post types, we only want to modify the last time 'editable_slug' filter runs.
+		$ptype = get_post_type_object( $post->post_type );
+		if ( $ptype->hierarchical ) {
+			static $i;
+			$i++;
+			if ( count( $post->ancestors ) >= $i )
+				return $slug;
+		}
+
 		$slug = sanitize_title( $post->post_title );
-		remove_filter( current_filter(), array( $this, __FUNCTION__ ) );
 
 		return $slug;
 
