@@ -1253,6 +1253,7 @@ class EF_Custom_Status extends EF_Module {
 				$post_ids = array_map( 'intval', (array) $_REQUEST['post'] );
 				foreach ( $post_ids as $post_id ) {		
 					$wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array( 'ID' => $post_id, 'post_date_gmt' => '0000-00-00 00:00:00' ) );
+					clean_post_cache( $post_id );
 				}
 			}
 		}
@@ -1263,6 +1264,7 @@ class EF_Custom_Status extends EF_Module {
 			if ( isset( $_POST['post_ID'] ) ) {
 				$post_id = (int) $_POST['post_ID'];
 				$ret = $wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array( 'ID' => $post_id, 'post_date_gmt' => '0000-00-00 00:00:00' ) );
+				clean_post_cache( $post_id );
 				foreach ( array('aa', 'mm', 'jj', 'hh', 'mn') as $timeunit ) {
 					if ( !empty( $_POST['hidden_' . $timeunit] ) && $_POST['hidden_' . $timeunit] != $_POST[$timeunit] ) {
 						$edit_date = '1';
