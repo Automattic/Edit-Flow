@@ -260,7 +260,7 @@ class edit_flow {
 
 		foreach ( $this->modules as $mod_name => $mod_data ) {
 
-			$this->modules->$mod_name->options = get_option( $this->options_group . $mod_name . '_options' );
+			$this->modules->$mod_name->options = get_option( $this->options_group . $mod_name . '_options', new stdClass );
 			foreach ( $mod_data->default_options as $default_key => $default_value ) {
 				if ( !isset( $this->modules->$mod_name->options->$default_key ) )
 					$this->modules->$mod_name->options->$default_key = $default_value;
