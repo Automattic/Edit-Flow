@@ -86,6 +86,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 == Changelog ==
 
 = 0.7.5 (??? ??, 2013) =
+* New Japanese localization thanks to [naokomc](https://github.com/naokomc)
 * New French localization thanks to [boris-hocde](https://github.com/boris-hocde)
 * Allow custom post statuses to be completely disabled for a post type, preventing situations where 'draft' posts could disappear when the draft status was deleted.
 * Better implementation of the hack we have to employ for editable slugs in the post edit screen.
