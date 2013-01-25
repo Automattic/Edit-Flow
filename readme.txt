@@ -40,6 +40,14 @@ If the automatic process above fails, follow these simple steps to do a manual i
 
 For support questions, feedback and ideas, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10), which we look at often. For everything else, say [hello@editflow.org](mailto:hello@editflow.org).
 
+== Screenshots ==
+
+1. The calendar view shows all your posts and allows you to move posts around.
+2. Clicking on a post shows you the title, author, categories and status and allows you to perform actions on the post.
+3. You can filter the calendar view based on the status, category or author of each post.
+4. Easily move a post from one date to the other.
+5. The Story Board view shows you the posts that are in each category, allowing you to get a sense of how much you are covering each topic over the defined date range.
+
 == Upgrade Notice ==
 
 = 0.7.4 =
