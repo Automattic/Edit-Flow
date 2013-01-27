@@ -175,9 +175,6 @@ class EF_Dashboard extends EF_Module {
 	function myposts_widget() {
 		global $edit_flow;
 
-		if ( !$this->module_enabled( 'notifications' ) )
-			return;
-		
 		$myposts = $edit_flow->notifications->get_user_following_posts();
 		
 		?>
