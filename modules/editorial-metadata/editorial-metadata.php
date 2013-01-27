@@ -1037,9 +1037,9 @@ class EF_Editorial_Metadata extends EF_Module {
 		if ( $this->get_editorial_metadata_term_by( 'slug', $term_slug ) )
 			$_REQUEST['form-errors']['slug'] = __( 'Slug already in use. Please choose another.', 'edit-flow' );
 		// Check to make sure the status doesn't already exist as another term because otherwise we'd get a weird slug
-		// Check that the term name doesn't exceed 50 chars
-		if ( strlen( $term_name ) > 50 )
-			$_REQUEST['form-errors']['name'] = __( 'Name cannot exceed 50 characters. Please try a shorter name.', 'edit-flow' );
+		// Check that the term name doesn't exceed 200 chars
+		if ( strlen( $term_name ) > 200 )
+			$_REQUEST['form-errors']['name'] = __( 'Name cannot exceed 200 characters. Please try a shorter name.', 'edit-flow' );
 		// Metadata type needs to pass our whitelist check
 		$metadata_types = $this->get_supported_metadata_types();
 		if ( empty( $_POST['metadata_type'] ) || !isset( $metadata_types[$_POST['metadata_type'] ] ) )
@@ -1121,9 +1121,9 @@ class EF_Editorial_Metadata extends EF_Module {
 		if ( is_object( $search_term ) && $search_term->term_id != $existing_term->term_id )
 			$_REQUEST['form-errors']['name'] = __( 'Name conflicts with slug for another term. Please choose something else.', 'edit-flow' );					
 		
-		// Check that the term name doesn't exceed 50 chars
-		if ( strlen( $new_name ) > 50 )
-			$_REQUEST['form-errors']['name'] = __( 'Name cannot exceed 50 characters. Please try a shorter name.', 'edit-flow' );
+		// Check that the term name doesn't exceed 200 chars
+		if ( strlen( $new_name ) > 200 )
+			$_REQUEST['form-errors']['name'] = __( 'Name cannot exceed 200 characters. Please try a shorter name.', 'edit-flow' );
 		// Make sure the viewable state is valid
 		$new_viewable = false;
 		if ( $_POST['viewable'] == 'yes' )
@@ -1222,9 +1222,9 @@ class EF_Editorial_Metadata extends EF_Module {
 			die( $change_error->get_error_message() );
 		}
 		
-		// Check that the term name doesn't exceed 50 chars
-		if ( strlen( $metadata_name ) > 50 ) {
-			$change_error = new WP_Error( 'invalid', __( 'Name cannot exceed 50 characters. Please try a shorter name.' ) );
+		// Check that the term name doesn't exceed 200 chars
+		if ( strlen( $metadata_name ) > 200 ) {
+			$change_error = new WP_Error( 'invalid', __( 'Name cannot exceed 200 characters. Please try a shorter name.' ) );
 			die( $change_error->get_error_message() );
 		}
 		
@@ -1497,12 +1497,12 @@ class EF_Editorial_Metadata extends EF_Module {
 			<form class="add:the-list:" action="<?php echo esc_url( add_query_arg( array( 'page' => $this->module->settings_slug ), get_admin_url( null, 'admin.php' ) ) ); ?>" method="post" id="addmetadata" name="addmetadata">
 			<div class="form-field form-required">
 				<label for="metadata_name"><?php _e( 'Name', 'edit-flow' ); ?></label>
-				<input type="text" aria-required="true" size="20" maxlength="20" id="metadata_name" name="metadata_name" value="<?php if ( !empty( $_POST['metadata_name'] ) ) echo esc_attr( stripslashes( $_POST['metadata_name'] ) ) ?>" />
+				<input type="text" aria-required="true" size="20" maxlength="200" id="metadata_name" name="metadata_name" value="<?php if ( !empty( $_POST['metadata_name'] ) ) echo esc_attr( stripslashes( $_POST['metadata_name'] ) ) ?>" />
 				<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is for labeling the metadata field.', 'edit-flow' ) ); ?>
 			</div>
 			<div class="form-field form-required">
 				<label for="metadata_slug"><?php _e( 'Slug', 'edit-flow' ); ?></label>
-				<input type="text" aria-required="true" size="20" maxlength="20" id="metadata_slug" name="metadata_slug" value="<?php if ( !empty( $_POST['metadata_slug'] ) ) echo esc_attr( $_POST['metadata_slug'] ) ?>" />
+				<input type="text" aria-required="true" size="20" maxlength="200" id="metadata_slug" name="metadata_slug" value="<?php if ( !empty( $_POST['metadata_slug'] ) ) echo esc_attr( $_POST['metadata_slug'] ) ?>" />
 				<?php $edit_flow->settings->helper_print_error_or_description( 'slug', __( 'The "slug" is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.', 'edit-flow' ) ); ?>
 			</div>
 			<div class="form-field">
@@ -1723,7 +1723,7 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 				<h4><?php _e( 'Quick Edit' ); ?></h4>
 				<label>
 					<span class="title"><?php _e( 'Name', 'edit-flow' ); ?></span>
-					<span class="input-text-wrap"><input type="text" name="name" class="ptitle" value="" maxlength="20" /></span>
+					<span class="input-text-wrap"><input type="text" name="name" class="ptitle" value="" maxlength="200" /></span>
 				</label>
 				<label>
 					<span class="title"><?php _e( 'Description', 'edit-flow' ); ?></span>
