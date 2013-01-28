@@ -101,14 +101,14 @@ class EF_Custom_Status extends EF_Module {
 		// These seven-ish methods are hacks for fixing bugs in WordPress core
 		add_action( 'admin_init', array( $this, 'check_timestamp_on_publish' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'fix_custom_status_timestamp' ) );
-		add_action( 'wp_insert_post', array( $this, 'fix_post_name' ), 10, 2 );
-		add_filter( 'editable_slug', array( $this, 'fix_editable_slug' ) );
+		//add_filter( 'editable_slug', array( $this, 'fix_editable_slug' ) );
 		add_filter( 'preview_post_link', array( $this, 'fix_preview_link_part_one' ) );
 		add_filter( 'post_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
 		add_filter( 'page_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
 		add_filter( 'post_type_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
 		add_filter( 'post_row_actions', array( $this, 'fix_post_row_actions' ), 10, 2 );
 		add_filter( 'page_row_actions', array( $this, 'fix_post_row_actions' ), 10, 2 );
+		add_action( 'wp_insert_post', array( $this, 'fix_post_name' ), 10, 2 );
 		
 	}
 	
@@ -1333,7 +1333,7 @@ class EF_Custom_Status extends EF_Module {
 	 * @see http://core.trac.wordpress.org/browser/tags/3.4.2/wp-includes/post.php#L2646
 	 */
 	public function fix_post_name( $post_id, $post ) {
-		global $pagenow;
+		global $pagenow, $wpdb;
 
 		// Only modify if we're using a pre-publish status on a supported custom post type
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
@@ -1342,17 +1342,38 @@ class EF_Custom_Status extends EF_Module {
 			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
 			return;
 
-		// The slug has been set by the meta box
-		if ( ! empty( $_POST['post_name'] ) )
-			return;
-
-		global $wpdb;
-
-		$wpdb->update( $wpdb->posts, array( 'post_name' => '' ), array( 'ID' => $post_id ) );
-		clean_post_cache( $post_id );
+		//Simulate how permalink changes normally work on WP, but always have post_name filled.
+		//When the permalink hasn't been explicitly edited, the permalink will update when the 
+		//the post/page title updates. As soon as the permalink is explicitly modified/edited, it will
+		//stop updating with changes in the post/page title, and can only be updated with explicit changes
+		//to the permalink (in the area below the title). This should follow how WordPress handles changes
+		//in permalinks, except where WordPress only fills in post_name after change of permalink, post_name
+		//is always filled in.
+		if ( !get_post_meta($post->ID, 'edit_flo_change_on_permalink', true) ){
+			if( empty( $_POST['post_name'] ) ) {
+				update_post_meta( $post->ID, 'edit_flo_post_name', sanitize_title( $post->post_title ) );
+				$wpdb->update( $wpdb->posts, array( 'post_name' => sanitize_title( $post->post_title ) ), array( 'ID' => $post_id ) );
+				clean_post_cache( $post_id );
+			} else if ( $post->post_name != $post->post_title && $post->post_name == get_post_meta( $post->ID, 'edit_flo_post_name', true ) ) { 
+				update_post_meta( $post->ID, 'edit_flo_post_name', sanitize_title( $post->post_title ) );
+				$wpdb->update( $wpdb->posts, array( 'post_name' => sanitize_title( $post->post_title ) ), array( 'ID' => $post_id ) );
+				clean_post_cache( $post_id );
+			} else {
+				update_post_meta( $post->ID, 'edit_flo_post_name', $_POST['post_name'] );
+				update_post_meta( $post->ID, 'edit_flo_change_on_permalink', true );
+				$wpdb->update( $wpdb->posts, array( 'post_name' => $_POST['post_name'] ), array( 'ID' => $post_id ) );
+				clean_post_cache( $post_id );
+			}
+		} else {
+			update_post_meta( $post->ID, 'edit_flo_post_name', $_POST['post_name'] );
+			$wpdb->update( $wpdb->posts, array( 'post_name' => $_POST['post_name'] ), array( 'ID' => $post_id ) );
+			clean_post_cache( $post_id );
+		}
 	}
 	/**
-	 * Another hack! hack! hack! until core better supports custom statuses
+	 * Deprecated.
+	 * 
+	 * Another hack! hack! hack! until core better supports custom statuses.
 	 *
 	 * @since 0.7.4
 	 *
