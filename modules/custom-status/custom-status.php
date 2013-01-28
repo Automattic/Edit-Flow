@@ -1344,7 +1344,7 @@ class EF_Custom_Status extends EF_Module {
 
 		//Simulate how permalink changes normally work on WP, but always have post_name filled.
 		//When the permalink hasn't been explicitly edited, the permalink will update when the 
-		//the post/page title updates. As soon as the permalink is explicitly modified/edited, it will
+		//the post/page title is updated. As soon as the permalink is explicitly modified/edited, it will
 		//stop updating with changes in the post/page title, and can only be updated with explicit changes
 		//to the permalink (in the area below the title). This should follow how WordPress handles changes
 		//in permalinks, except where WordPress only fills in post_name after change of permalink, post_name
