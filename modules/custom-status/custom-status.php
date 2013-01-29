@@ -1330,29 +1330,29 @@ class EF_Custom_Status extends EF_Module {
 	 * 	
 	 */
 	function fix_post_slugs($data, $post){
-		//Don't run if Edit Flow isn't active, or we're on some other page
-		if ( $this->disable_custom_statuses_for_post_type()
-			|| ! isset( $edit_flow )
-			|| ! isset( $_POST ) )
-			return $data;
-
+		
 		$current_post = get_post($post['ID']);
-
-		if( !get_post_meta( $post['ID'], 'edit_flow_changed_slug', true ) ) {
-			if ( !empty( $post['post_name'] ) ) {
+		/**
+		 * Once again, making this overly complicated. We check for two things:
+		 * 1) Did the title change
+		 * 2) Did the permalink change
+		 */
+		if( !get_post_meta($post['ID'], 'edit_flow_changed_slug', true ) ){
+			//The title has been changed
+			if( $post['post_title'] != $current_post->post_title ) {
 				$unique_slug = wp_unique_post_slug( $post['post_title'], $post['ID'], $post['post_status'], $post['post_type'], $post['post_parent'] );
-
-				if( $post['post_title'] != $current_post->post_title ) {
-					$data['post_name'] = sanitize_title( $unique_slug );
-				} else if( $current_post->post_title == $data['post_title'] && $current_post->post_name != $data['post_name'] && !empty( $current_post->post_name ) ) {
-					//Our post name has changed. What should we do?
-					$data['post_name'] = sanitize_title( $post['post_name'] );
-					update_post_meta( $post['ID'], 'edit_flow_changed_slug', true );
-				} else
-					$data['post_name'] = sanitize_title( $unique_slug );
+				$data['post_name'] = sanitize_title( $unique_slug );
+			} else if ($current_post->post_name != $data['post_name'] && !empty( $current_post->post_name ) ) {
+				//Our post name has changed. What should we do?
+				$data['post_name'] = sanitize_title( $post['post_name'] );
+				update_post_meta( $post['ID'], 'edit_flow_changed_slug', true );
 			}
 		} else {
-			$data['post_name'] = sanitize_title( $post['post_name'] );
+			if ($current_post->post_name != $data['post_name'] && !empty( $current_post->post_name ) ) {
+				//Our post name has changed. What should we do?
+				$data['post_name'] = sanitize_title( $post['post_name'] );
+				update_post_meta( $post['ID'], 'edit_flow_changed_slug', true );
+			}
 		}
 		return $data;
 	}
