@@ -1333,9 +1333,17 @@ class EF_Custom_Status extends EF_Module {
 	public function fix_post_slugs($data, $post){
 		
 		if ( $this->disable_custom_statuses_for_post_type() )
-			return;
-		
+			return $data;
+
 		$current_post = get_post($post['ID']);
+
+		//Check if post is published. In WordPress, if a post is published
+		//then brought back to a Draft or Pending Review status, the permalink
+		//no longer updates with the title.
+		if($current_post->post_status == "publish"){
+			update_post_meta( $post['ID'], 'edit_flow_changed_slug', true );
+			return $data;
+		}
 		/**
 		 * Once again, making this overly complicated. We check for two things:
 		 * 1) Did the title change
