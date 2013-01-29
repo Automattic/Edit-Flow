@@ -1288,6 +1288,7 @@ class EF_Custom_Status extends EF_Module {
 	function helper_timestamp_hack() {
 		return ( 'pre_post_date' == current_filter() ) ? current_time('mysql') : '';
 	}
+
 	/**
 	 * This is a hack! hack! hack! until core is fixed/better supports custom statuses
 	 *
@@ -1329,7 +1330,10 @@ class EF_Custom_Status extends EF_Module {
 	 * Make post permalinks at least kind of normal when custom post statuses are involved.
 	 * 	
 	 */
-	function fix_post_slugs($data, $post){
+	public function fix_post_slugs($data, $post){
+		
+		if ( $this->disable_custom_statuses_for_post_type() )
+			return;
 		
 		$current_post = get_post($post['ID']);
 		/**
@@ -1389,6 +1393,7 @@ class EF_Custom_Status extends EF_Module {
 		$wpdb->update( $wpdb->posts, array( 'post_name' => '' ), array( 'ID' => $post_id ) );
 		clean_post_cache( $post_id );
 	}
+
 	/**
 	 * Deprecated.
 	 * 
