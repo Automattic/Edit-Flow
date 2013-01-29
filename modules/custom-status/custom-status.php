@@ -101,8 +101,8 @@ class EF_Custom_Status extends EF_Module {
 		// These seven-ish methods are hacks for fixing bugs in WordPress core
 		add_action( 'admin_init', array( $this, 'check_timestamp_on_publish' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'fix_custom_status_timestamp' ) );
-		add_action( 'wp_insert_post', array( $this, 'fix_post_name' ), 10, 2 );
-		add_filter( 'editable_slug', array( $this, 'fix_editable_slug' ) );
+		add_filter( 'wp_insert_post_data', array( $this, 'fix_post_slugs' ), 10, 2 );
+		//add_filter( 'editable_slug', array( $this, 'fix_editable_slug' ) );
 		add_filter( 'preview_post_link', array( $this, 'fix_preview_link_part_one' ) );
 		add_filter( 'post_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
 		add_filter( 'page_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
@@ -1288,6 +1288,7 @@ class EF_Custom_Status extends EF_Module {
 	function helper_timestamp_hack() {
 		return ( 'pre_post_date' == current_filter() ) ? current_time('mysql') : '';
 	}
+
 	/**
 	 * This is a hack! hack! hack! until core is fixed/better supports custom statuses
 	 *
@@ -1322,18 +1323,66 @@ class EF_Custom_Status extends EF_Module {
 	}
 
 	/**
+	 * This is a hack! hack! hack! until core is fixed/better supports custom statuses
+	 *
+	 * @since 0.7.5
+	 *	
+	 * Make post permalinks at least kind of normal when custom post statuses are involved.
+	 * 	
+	 */
+	public function fix_post_slugs($data, $post){
+		
+		if ( $this->disable_custom_statuses_for_post_type() )
+			return $data;
+
+		$current_post = get_post($post['ID']);
+
+		//Check if post is published. In WordPress, if a post is published
+		//then brought back to a Draft or Pending Review status, the permalink
+		//no longer updates with the title.
+		if($current_post->post_status == "publish"){
+			update_post_meta( $post['ID'], 'edit_flow_changed_slug', true );
+			return $data;
+		}
+		/**
+		 * Once again, making this overly complicated. We check for two things:
+		 * 1) Did the title change
+		 * 2) Did the permalink change
+		 */
+		if( !get_post_meta($post['ID'], 'edit_flow_changed_slug', true ) ){
+			if( $post['post_title'] != $current_post->post_title ) {
+				$unique_slug = wp_unique_post_slug( sanitize_title($post['post_title']), $post['ID'], $post['post_status'], $post['post_type'], $post['post_parent'] );
+				$data['post_name'] = sanitize_title( $unique_slug );
+			} else if ($current_post->post_name != $data['post_name'] && (!empty( $current_post->post_name ) && $current_post->post_name != "auto-draft" ) ) {
+				//Our post name has changed. What should we do?
+				$data['post_name'] = sanitize_title( $post['post_name'] );
+				update_post_meta( $post['ID'], 'edit_flow_changed_slug', true );
+			} else if( wp_unique_post_slug( sanitize_title($current_post->post_name, $post['ID'], $post['post_status'], $post['post_type'], $post['post_parent'] ) == $data['post_name'] ) ) {
+				$data['post_name'] = $data['post_name'];
+			} 
+		} else {
+				//Our post name has changed. What should we do?
+				$data['post_name'] = sanitize_title( $post['post_name'] );
+				update_post_meta( $post['ID'], 'edit_flow_changed_slug', true );
+			}
+		return $data;
+	}
+
+	/**
+	 * Deprecated
+	 * 
 	 * Another hack! hack! hack! until core better supports custom statuses
 	 *
 	 * @since 0.7.4 
 	 *
-	 * Keep the post_name value empty for posts with custom statuses
-	 * Unless they've set it customly
+	 * Simulate how WordPress displays and stores permalink structures for normal posts/pages with 
+	 * normal statuses.
 	 * @see https://github.com/danielbachhuber/Edit-Flow/issues/123
 	 * @see http://core.trac.wordpress.org/browser/tags/3.4.2/wp-includes/post.php#L2530
 	 * @see http://core.trac.wordpress.org/browser/tags/3.4.2/wp-includes/post.php#L2646
 	 */
 	public function fix_post_name( $post_id, $post ) {
-		global $pagenow;
+			global $pagenow;
 
 		// Only modify if we're using a pre-publish status on a supported custom post type
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
@@ -1351,8 +1400,11 @@ class EF_Custom_Status extends EF_Module {
 		$wpdb->update( $wpdb->posts, array( 'post_name' => '' ), array( 'ID' => $post_id ) );
 		clean_post_cache( $post_id );
 	}
+
 	/**
-	 * Another hack! hack! hack! until core better supports custom statuses
+	 * Deprecated.
+	 * 
+	 * Another hack! hack! hack! until core better supports custom statuses.
 	 *
 	 * @since 0.7.4
 	 *
