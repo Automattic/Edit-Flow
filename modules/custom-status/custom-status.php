@@ -1350,22 +1350,21 @@ class EF_Custom_Status extends EF_Module {
 		 * 2) Did the permalink change
 		 */
 		if( !get_post_meta($post['ID'], 'edit_flow_changed_slug', true ) ){
-			//The title has been changed
 			if( $post['post_title'] != $current_post->post_title ) {
-				$unique_slug = wp_unique_post_slug( $post['post_title'], $post['ID'], $post['post_status'], $post['post_type'], $post['post_parent'] );
+				$unique_slug = wp_unique_post_slug( sanitize_title($post['post_title']), $post['ID'], $post['post_status'], $post['post_type'], $post['post_parent'] );
 				$data['post_name'] = sanitize_title( $unique_slug );
-			} else if ($current_post->post_name != $data['post_name'] && !empty( $current_post->post_name ) ) {
+			} else if ($current_post->post_name != $data['post_name'] && (!empty( $current_post->post_name ) && $current_post->post_name != "auto-draft" ) ) {
 				//Our post name has changed. What should we do?
 				$data['post_name'] = sanitize_title( $post['post_name'] );
 				update_post_meta( $post['ID'], 'edit_flow_changed_slug', true );
-			}
+			} else if( wp_unique_post_slug( sanitize_title($current_post->post_name, $post['ID'], $post['post_status'], $post['post_type'], $post['post_parent'] ) == $data['post_name'] ) ) {
+				$data['post_name'] = $data['post_name'];
+			} 
 		} else {
-			if ($current_post->post_name != $data['post_name'] && !empty( $current_post->post_name ) ) {
 				//Our post name has changed. What should we do?
 				$data['post_name'] = sanitize_title( $post['post_name'] );
 				update_post_meta( $post['ID'], 'edit_flow_changed_slug', true );
 			}
-		}
 		return $data;
 	}
 
