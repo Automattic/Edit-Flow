@@ -636,6 +636,7 @@ class EF_Notifications extends EF_Module {
 	 * @param $append bool Whether users should be added to following_users list or replace existing list
 	 */
 	function follow_post_user( $post, $users, $append = true ) {
+		
 		// Clean up data we're using
 		$post_id = ( is_int($post) ) ? $post : $post->ID;
 		if( !is_array($users) ) $users = array($users);
