@@ -46,11 +46,11 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 
 == Screenshots ==
 
-1. The calendar view shows all your posts and allows you to move posts around.
-2. Clicking on a post shows you the title, author, categories and status and allows you to perform actions on the post.
-3. You can filter the calendar view based on the status, category or author of each post.
-4. Easily move a post from one date to the other.
-5. The Story Board view shows you the posts that are in each category, allowing you to get a sense of how much you are covering each topic over the defined date range.
+1. The calendar is a convenient month-by-month look at your content. Filter to specific statuses or categories to drill down.
+2. Custom statuses allow you to define the key stages of your workflow.
+3. Editorial comments allow for private discussion between writers and editors on a post-by-post basis.
+4. Keep track of the important details with editorial metadata.
+5. View all of your upcoming posts with the more traditional story budget view, and hit the print button to take it to your planning meeting.
 
 == Upgrade Notice ==
 
