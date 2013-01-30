@@ -154,13 +154,13 @@ class EF_Notifications extends EF_Module {
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		
 		$args = array(
-			'hierarchical' => false,
-			'update_count_callback' =>
-			'_update_post_term_count',
-			'label' => false,
-			'query_var' => false,
-			'rewrite' => false,
-			'show_ui' => false
+			'hierarchical'           => false,
+			'update_count_callback'  => '_update_post_term_count',
+			'label'                  => false,
+			'query_var'              => false,
+			'rewrite'                => false,
+			'public'                 => false,
+			'show_ui'                => false
 		);
 		foreach( array( $this->following_users_taxonomy, $this->unfollowing_users_taxonomy ) as $taxonomy ) {
 			register_taxonomy( $taxonomy, $supported_post_types, $args );
