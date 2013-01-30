@@ -1393,8 +1393,13 @@ class EF_Custom_Status extends EF_Module {
 		if ( $ptype->hierarchical ) {
 			static $i;
 			$i++;
-			if ( count( $post->ancestors ) >= $i )
+
+			if ( $i >= count( $post->ancestors ) - 1 ){
+				return sanitize_title( $post->post_title );
+			}
+			else {
 				return $slug;
+			}
 		}
 
 		$slug = sanitize_title( $post->post_title );
