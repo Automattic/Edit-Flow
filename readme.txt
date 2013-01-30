@@ -92,6 +92,9 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
+= 0.7.6 (Jan. 30, 2013) =
+* Bug fix for 3.4.2 compatibility.
+
 = 0.7.5 (Jan. 29, 2013) =
 * New Japanese localization thanks to [naokomc](https://github.com/naokomc)
 * New French localization thanks to [boris-hocde](https://github.com/boris-hocde)
