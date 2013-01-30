@@ -1393,7 +1393,6 @@ class EF_Custom_Status extends EF_Module {
 		if ( $ptype->hierarchical ) {
 			static $i;
 			$i++;
-			//Check if on second filter call
 			if ( $i > 1 ){
 				return sanitize_title( $post->post_title );
 			}
