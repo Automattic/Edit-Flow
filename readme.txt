@@ -93,7 +93,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 * New Japanese localization thanks to [naokomc](https://github.com/naokomc)
 * New French localization thanks to [boris-hocde](https://github.com/boris-hocde)
 * Allow custom post statuses to be completely disabled for a post type, preventing situations where 'draft' posts could disappear when the draft status was deleted.
-* Better implementation of the hack we have to employ for editable slugs in the post edit screen.
+* Better implementation of the hack we have to employ for editable slugs in the post edit screen. Thanks [cojennin](https://github.com/cojennin) for the assist.
 * Editorial metadata names can now be up to 200 characters (instead of 20 previously). Props [cojennin](https://github.com/cojennin)
 * Bug fix: Load modules on 'init' so the strings associated with each class can be properly translated
 * Bug fix: Pagination functional again when filtering to a post type
