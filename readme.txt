@@ -4,7 +4,7 @@ Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 3.1
 Tested up to: 3.5.1
-Stable tag: 0.7.4
+Stable tag: 0.7.5
 
 Redefining your editorial workflow.
 
@@ -54,6 +54,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 
 == Upgrade Notice ==
 
+= 0.7.5 =
+New localizations; myriad of bug fixes
+
 = 0.7.4 =
 Support for non-Latin characters in custom statuses and editorial metadata; various bug fixes
 
@@ -89,7 +92,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
-= 0.7.5 (??? ??, 2013) =
+= 0.7.5 (Jan. 29, 2013) =
 * New Japanese localization thanks to [naokomc](https://github.com/naokomc)
 * New French localization thanks to [boris-hocde](https://github.com/boris-hocde)
 * Allow custom post statuses to be completely disabled for a post type, preventing situations where 'draft' posts could disappear when the draft status was deleted.
