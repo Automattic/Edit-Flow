@@ -1394,12 +1394,10 @@ class EF_Custom_Status extends EF_Module {
 			static $i;
 			$i++;
 
-			if ( $i >= count( $post->ancestors ) - 1 ){
+			if ( $i >= count( $post->ancestors ) - 1 )
 				return sanitize_title( $post->post_title );
-			}
-			else {
+			else
 				return $slug;
-			}
 		}
 
 		$slug = sanitize_title( $post->post_title );
