@@ -1393,7 +1393,7 @@ class EF_Custom_Status extends EF_Module {
 		if ( $ptype->hierarchical ) {
 			static $i;
 			$i++;
-			
+			//Check were on second time editable_filter has run
 			if ( $i > 1 ){
 				return sanitize_title( $post->post_title );
 			}
