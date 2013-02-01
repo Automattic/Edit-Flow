@@ -1,0 +1,123 @@
+/* Activity Feed */
+
+.ef-myposts li, #af-inner-wrap li {
+	list-style-type: none;
+	padding-bottom: 5px;
+}
+
+.ef-myposts li a, #af-inner-wrap li a {
+	font-weight: normal;
+}
+
+.ef-myposts li .ef-myposts-timestamp, #af-inner-wrap ul li .af-timestamp {
+	color: #999;
+	font-family: "Lucida Grande",Verdana,Arial,"Bitstream Vera Sans",sans-serif;
+	font-size: 11px;
+}
+
+#af-inner-wrap li h4 .af-status-name {
+	color: #333;
+	font-family: "Lucida Grande",Verdana,Arial,"Bitstream Vera Sans", sans-serif;
+	font-size:12px;
+}
+
+#af-inner-wrap li .af-comment-from {
+	color: #777;
+}
+
+#af-inner-wrap li .af-comment-content {
+	margin: 3px 0px;
+	color: #333;
+	font-family: "Lucida Grande",Verdana,Arial,"Bitstream Vera Sans", sans-serif;
+	font-size:12px;
+}
+
+#af-inner-wrap li .publish {
+	color: red !important
+}
+
+#af-inner-wrap .af-row-actions {
+	margin: .3em 0 0 0;
+}
+
+#af-inner-wrap .af-outer-comment-wrap {
+	background-color: #eee;
+    padding: 6px 0px;
+}
+
+#af-inner-wrap .af-inner-comment-wrap {
+	background-color: white;
+    padding: 6px;
+    margin:0px;
+    border-left: 5px solid #e5e5e5;
+    border-right: 5px solid #e5e5e5;
+    border-top: 1px solid #e5e5e5;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+#af-inner-wrap .af-comment-user-time {
+	margin: 2px 0 0 0;
+    text-align: right;
+    color: #999;
+}
+
+#af-inner-wrap .af-bigger {
+	font-size:14px !important;
+}
+
+#af-inner-wrap #ef-replycontent {
+	width:100%;
+	margin-top:5px;
+}
+
+#af-inner-wrap .ef-replysave {
+	margin-left:3px;
+}
+
+#af-inner-wrap .af-light {
+	color:#999;
+}
+
+.af-row-hidden {
+	visibility:hidden;
+}
+
+.af-row-dont-show {
+	display:none;
+}
+
+.red {
+	color:red;
+}
+
+.ef-metacancel {margin-right:10px !important;}
+
+.af-comment-indent{margin-left:10px;}
+
+/* Taken from editorial-comments.css */
+#af-inner-wrap #ef-comments {
+	margin-bottom: 10px;
+	border-top: 1px solid #e5e5e5;
+	background: #eee;
+}
+
+.hide-af-feed-info{display:none;}
+
+.af-ed-metadata {
+	margin-bottom: 15px;
+}
+
+.af-ed-metadata tr {
+	max-width: 70px;
+	word-wrap: normal;
+}
+
+.af-ed-metadata th {
+	text-align: right;
+	vertical-align: top;
+}
+
+.af-ed-metadata td {
+	padding-left: 10px;
+	padding-left: 10px;
+}

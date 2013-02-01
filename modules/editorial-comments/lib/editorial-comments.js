@@ -101,6 +101,7 @@ editorialCommentReply = {
 		post.parent = (jQuery("#ef-comment_parent").val()=='') ? 0 : jQuery("#ef-comment_parent").val();
 		post._nonce = jQuery("#ef_comment_nonce").val();
 		post.post_id = jQuery("#ef-post_id").val();
+		post.send_response = 'no';
 		
 		// Send the request
 		jQuery.ajax({

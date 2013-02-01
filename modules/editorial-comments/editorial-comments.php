@@ -185,12 +185,13 @@ class EF_Editorial_Comments extends EF_Module
 	/**
 	 * Displays the main commenting form
 	 */
-	function the_comment_form( ) {
+	function the_comment_form( $dashboard = false ) {
 		global $post;
-		
+		$post_id = ($dashboard) ? "" : esc_attr($post->ID);
 		?>
-		<a href="#" id="ef-comment_respond" onclick="editorialCommentReply.open();return false;" class="button-primary alignright hide-if-no-js" title=" <?php _e( 'Respond to this post', 'edit-flow' ); ?>"><span><?php _e( 'Respond to this Post', 'edit-flow' ); ?></span></a>
-		
+		<?php if(!$dashboard) { ?>
+			<a href="#" id="ef-comment_respond" onclick="editorialCommentReply.open();return false;" class="button-primary alignright hide-if-no-js" title=" <?php _e( 'Respond to this post', 'edit-flow' ); ?>"><span><?php _e( 'Respond to this Post', 'edit-flow' ); ?></span></a>
+		<?php } ?>
 		<!-- Reply form, hidden until reply clicked by user -->
 		<div id="ef-replyrow" style="display: none;">
 			<div id="ef-replycontainer">
@@ -208,7 +209,7 @@ class EF_Editorial_Comments extends EF_Module
 			</p>
 		
 			<input type="hidden" value="" id="ef-comment_parent" name="ef-comment_parent" />
-			<input type="hidden" name="ef-post_id" id="ef-post_id" value="<?php echo esc_attr( $post->ID ); ?>" />
+			<input type="hidden" name="ef-post_id" id="ef-post_id" value="<?php echo $post_id ?>" />
 			
 			<?php wp_nonce_field('comment', 'ef_comment_nonce', false); ?>
 			
@@ -291,10 +292,16 @@ class EF_Editorial_Comments extends EF_Module
       	// Set up comment data
 		$post_id = absint( $_POST['post_id'] );
 		$parent = absint( $_POST['parent'] );
+		if($_POST['send_response'] == 'no' ) 
+			$send_response = false;
+		else if($_POST['send_response'] == 'yes')
+			$send_response = true;
+		else
+			$send_response = false;
       	
       	// Only allow the comment if user can edit post
       	// @TODO: allow contributers to add comments as well (?)
-		if ( ! current_user_can( 'edit_post', $post_id ) )
+		if ( ! current_user_can( 'edit_post', $_POST['post_id'] ) )
 			die( __('Sorry, you don\'t have the privileges to add editorial comments. Please talk to your Administrator.', 'edit-flow' ) );
 		
 		// Verify that comment was actually entered
@@ -330,6 +337,12 @@ class EF_Editorial_Comments extends EF_Module
 			
 			// Insert Comment
 			$comment_id = wp_insert_comment($data);
+
+			if($send_response){
+				return $comment_id;
+				die();
+			}
+
 			$comment = get_comment($comment_id);
 			
 			// Register actions -- will be used to set up notifications and other modules can hook into this
@@ -440,7 +453,6 @@ class EF_Editorial_Comments extends EF_Module
 
 		return $calendar_fields;
 	}
-
 }
 
 }
