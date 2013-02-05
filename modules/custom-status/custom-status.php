@@ -69,7 +69,7 @@ class EF_Custom_Status extends EF_Module {
 	 */
 	function init() {
 		global $edit_flow;
-		
+
 		// Register custom statuses as a taxonomy
 		$this->register_custom_statuses();
 		
@@ -209,7 +209,10 @@ class EF_Custom_Status extends EF_Module {
 	 */
 	function register_custom_statuses() {
 		global $wp_post_statuses;
-		
+
+		if ( $this->disable_custom_statuses_for_post_type() )
+			return;
+
 		// Register new taxonomy so that we can store all our fancy new custom statuses (or is it stati?)
 		if ( !taxonomy_exists( self::taxonomy_key ) ) {
 			$args = array(	'hierarchical' => false, 
@@ -245,6 +248,30 @@ class EF_Custom_Status extends EF_Module {
 			}
 		}
 	}
+
+	/**
+	 * Whether custom post statuses should be disabled for this post type.
+	 * Used to stop custom statuses from being registered for post types that don't support them.
+	 *
+	 * @since 0.7.5
+	 *
+	 * @return bool
+	 */
+	function disable_custom_statuses_for_post_type( $post_type = null ) {
+		global $pagenow;
+
+		// Only allow deregistering on 'edit.php' and 'post.php'
+		if ( ! in_array( $pagenow, array( 'edit.php', 'post.php', 'post-new.php' ) ) )
+			return false;
+
+		if ( is_null( $post_type ) )
+			$post_type = $this->get_current_post_type();
+
+		if ( $post_type && ! in_array( $post_type, $this->get_post_types_for_module( $this->module ) ) )
+			return true;
+
+		return false;
+	}
 	
 	/**
 	 * Enqueue Javascript resources that we need in the admin:
@@ -253,6 +280,11 @@ class EF_Custom_Status extends EF_Module {
 	 * - We have other custom code for Quick Edit and JS niceties
 	 */
 	function action_admin_enqueue_scripts() {
+		global $pagenow;
+
+		if ( $this->disable_custom_statuses_for_post_type() )
+			return;
+
 		// Load Javascript we need to use on the configuration views (jQuery Sortable and Quick Edit)
 		if ( $this->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-ui-sortable' );			
@@ -316,6 +348,9 @@ class EF_Custom_Status extends EF_Module {
 	 */
 	function post_admin_header() {
 		global $post, $edit_flow, $pagenow, $current_user;
+
+		if ( $this->disable_custom_statuses_for_post_type() )
+			return;
 		
 		// Get current user
 		get_currentuserinfo() ;
@@ -507,6 +542,23 @@ class EF_Custom_Status extends EF_Module {
 	 * @return array $statuses All of the statuses
 	 */
 	function get_custom_statuses( $args = array() ) {
+		global $wp_post_statuses;
+
+		// If this post type doesn't support custom statuses, we should return WP
+		// default in our format.
+		if ( $this->disable_custom_statuses_for_post_type() ) {
+			$draft = $wp_post_statuses['draft'];
+			$draft->slug = 'draft';
+			$draft->position = 1;
+
+			$pending = $wp_post_statuses['pending'];
+			$pending->slug = 'pending';
+			$pending->position = 2;
+			return array(
+					$draft,
+					$pending
+				);
+		}
 		
 		$default = array(
 			'hide_empty' => false,
@@ -1190,6 +1242,9 @@ class EF_Custom_Status extends EF_Module {
 	 */
 	function check_timestamp_on_publish() {
 		global $edit_flow, $pagenow, $wpdb;
+
+		if ( $this->disable_custom_statuses_for_post_type() )
+			return;
 		
 		// Handles the transition to 'publish' on edit.php
 		if ( isset( $edit_flow ) && $pagenow == 'edit.php' && isset( $_REQUEST['bulk_edit'] ) ) {
@@ -1198,6 +1253,7 @@ class EF_Custom_Status extends EF_Module {
 				$post_ids = array_map( 'intval', (array) $_REQUEST['post'] );
 				foreach ( $post_ids as $post_id ) {		
 					$wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array( 'ID' => $post_id, 'post_date_gmt' => '0000-00-00 00:00:00' ) );
+					clean_post_cache( $post_id );
 				}
 			}
 		}
@@ -1208,6 +1264,7 @@ class EF_Custom_Status extends EF_Module {
 			if ( isset( $_POST['post_ID'] ) ) {
 				$post_id = (int) $_POST['post_ID'];
 				$ret = $wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array( 'ID' => $post_id, 'post_date_gmt' => '0000-00-00 00:00:00' ) );
+				clean_post_cache( $post_id );
 				foreach ( array('aa', 'mm', 'jj', 'hh', 'mn') as $timeunit ) {
 					if ( !empty( $_POST['hidden_' . $timeunit] ) && $_POST['hidden_' . $timeunit] != $_POST[$timeunit] ) {
 						$edit_date = '1';
@@ -1242,11 +1299,13 @@ class EF_Custom_Status extends EF_Module {
 	 * @see Core ticket: http://core.trac.wordpress.org/ticket/18362	
 	 */
 	function fix_custom_status_timestamp( $data ) {
-		global $edit_flow, $pagenow;
+		global $edit_flow;
 		// Don't run this if Edit Flow isn't active, or we're on some other page
-		if ( !isset( $edit_flow ) || $pagenow != 'post.php' || !isset( $_POST ) )
+		if ( $this->disable_custom_statuses_for_post_type()
+			|| ! isset( $edit_flow )
+			|| ! isset( $_POST ) )
 			return $data;
-		$status_slugs = wp_list_pluck( get_terms( 'post_status', array( 'get' => 'all' ) ), 'slug' );
+		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
 		$ef_normalize_post_date_gmt = true;
 		// We're only going to normalize the post_date_gmt if the user hasn't set a custom date in the metabox
 		// and the current post_date_gmt isn't already future or past-ized
@@ -1304,10 +1363,21 @@ class EF_Custom_Status extends EF_Module {
 	public function fix_editable_slug( $slug ) {
 		global $pagenow;
 
+		// If 'all_admin_notices' hasn't happened yet, we're not even close to the UI yet.
+		if ( ! did_action( 'all_admin_notices' ) )
+			return $slug;
+
+		// The AJAX-y edit your slug UI happens right below the title,
+		// so we can remove the filter after it's done.
+		if ( did_action( 'edit_form_after_title' ) ) {
+			remove_filter( current_filter(), array( $this, __FUNCTION__ ) );
+			return $slug;
+		}
+
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX )
 			return $slug;
 
-		$post = get_post();
+		$post = get_post( get_the_ID() );
 
 		// Only modify if we're using a pre-publish status on a supported custom post type
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
@@ -1318,8 +1388,18 @@ class EF_Custom_Status extends EF_Module {
 			|| ! empty( $post->post_name ) )
 			return $slug;
 
+		// For hierarchical post types, we only want to modify the last time 'editable_slug' filter runs.
+		$ptype = get_post_type_object( $post->post_type );
+		if ( $ptype->hierarchical ) {
+			static $i;
+			$i++;
+			if ( $i > 1 )
+				return sanitize_title( $post->post_title );
+			else
+				return $slug;
+		}
+
 		$slug = sanitize_title( $post->post_title );
-		remove_filter( current_filter(), array( $this, __FUNCTION__ ) );
 
 		return $slug;
 
@@ -1335,7 +1415,7 @@ class EF_Custom_Status extends EF_Module {
 	public function fix_preview_link_part_one( $preview_link ) {
 		global $pagenow;
 
-		$post = get_post();
+		$post = get_post( get_the_ID() );
 
 		// Only modify if we're using a pre-publish status on a supported custom post type
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );

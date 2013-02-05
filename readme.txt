@@ -2,9 +2,9 @@
 Contributors: batmoo, danielbachhuber, sbressler, automattic
 Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
-Requires at least: 3.1
-Tested up to: 3.4.2
-Stable tag: 0.7.4
+Requires at least: 3.4
+Tested up to: 3.5.1
+Stable tag: 0.7.6
 
 Redefining your editorial workflow.
 
@@ -36,11 +36,26 @@ If the automatic process above fails, follow these simple steps to do a manual i
 
 == Frequently Asked Questions ==
 
+= Does Edit Flow work with multisite? =
+
+Yep, in the sense that you can activate Edit Flow on each subsite. Edit Flow doesn't yet offer the ability to manage content across a network of sites.
+
 = Edit Flow doesn't do X, Y, and Z. That makes me sad. =
 
 For support questions, feedback and ideas, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10), which we look at often. For everything else, say [hello@editflow.org](mailto:hello@editflow.org).
 
+== Screenshots ==
+
+1. The calendar is a convenient month-by-month look at your content. Filter to specific statuses or categories to drill down.
+2. Custom statuses allow you to define the key stages of your workflow.
+3. Editorial comments allow for private discussion between writers and editors on a post-by-post basis.
+4. Keep track of the important details with editorial metadata.
+5. View all of your upcoming posts with the more traditional story budget view, and hit the print button to take it to your planning meeting.
+
 == Upgrade Notice ==
+
+= 0.7.5 =
+New localizations; myriad of bug fixes
 
 = 0.7.4 =
 Support for non-Latin characters in custom statuses and editorial metadata; various bug fixes
@@ -76,6 +91,21 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 == Changelog ==
+
+= 0.7.6 (Jan. 30, 2013) =
+* Bug fix for 3.4.2 compatibility.
+
+= 0.7.5 (Jan. 29, 2013) =
+* New Japanese localization thanks to [naokomc](https://github.com/naokomc)
+* New French localization thanks to [boris-hocde](https://github.com/boris-hocde)
+* Allow custom post statuses to be completely disabled for a post type, preventing situations where 'draft' posts could disappear when the draft status was deleted.
+* Better implementation of the hack we have to employ for editable slugs in the post edit screen. Thanks [cojennin](https://github.com/cojennin) for the assist.
+* Editorial metadata names can now be up to 200 characters (instead of 20 previously). Props [cojennin](https://github.com/cojennin)
+* Bug fix: Load modules on 'init' so the strings associated with each class can be properly translated
+* Bug fix: Pagination functional again when filtering to a post type
+* Bug fix: Pre-PHP 5.2.9 array_unique() compatibility
+* Bug fix: Respect the timezone when indicating which day is Today
+* Bug fix: Calendar should work for all post types, regardless of which are supposed to be added to it
 
 = 0.7.4 (Nov. 21, 2012) =
 * Added 'Scheduled' as one of the statuses you see in the 'Posts At A Glance' widget. 'Private' and other core statuses can be added with a filter

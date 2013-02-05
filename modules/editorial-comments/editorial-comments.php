@@ -317,7 +317,7 @@ class EF_Editorial_Comments extends EF_Module
 			    'comment_content' => wp_kses($comment_content, array('a' => array('href' => array(),'title' => array()),'b' => array(),'i' => array(),'strong' => array(),'em' => array(),'u' => array(),'del' => array(), 'blockquote' => array(), 'sub' => array(), 'sup' => array() )),
 			    'comment_type' => self::comment_type,
 			    'comment_parent' => (int) $parent,
-			    'user_ID' => (int) $user_ID,
+			    'user_id' => (int) $user_ID,
 			    'comment_author_IP' => esc_sql($_SERVER['REMOTE_ADDR']),
 			    'comment_agent' => esc_sql($_SERVER['HTTP_USER_AGENT']),
 			    'comment_date' => $time,

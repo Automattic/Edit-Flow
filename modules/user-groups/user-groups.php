@@ -869,7 +869,7 @@ class EF_User_Groups extends EF_Module {
 		// Encode our extra fields and then store them in the description field
 		$args_to_encode = array(
 			'description' => $args['description'],
-			'user_ids' => array_unique( $user_ids, SORT_NUMERIC ),
+			'user_ids' => array_unique( $user_ids ),
 		);
 		$encoded_description = $this->get_encoded_description( $args_to_encode );
 		$args['description'] = $encoded_description;
@@ -905,7 +905,7 @@ class EF_User_Groups extends EF_Module {
 		$args_to_encode = array();
 		$args_to_encode['description'] = ( isset( $args['description'] ) ) ? $args['description'] : $existing_usergroup->description;
 		$args_to_encode['user_ids'] = ( is_array( $users ) ) ? $users : $existing_usergroup->user_ids;
-		$args_to_encode['user_ids'] = array_unique( $args_to_encode['user_ids'], SORT_NUMERIC );
+		$args_to_encode['user_ids'] = array_unique( $args_to_encode['user_ids'] );
 		$encoded_description = $this->get_encoded_description( $args_to_encode );
 		$args['description'] = $encoded_description;
 		

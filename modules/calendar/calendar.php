@@ -334,10 +334,10 @@ class EF_Calendar extends EF_Module {
 
 		$default_filters = array(
 				'post_status' => '',
-				'post_type' => '',
+				'cpt' => $supported_post_types,
 				'cat' => '',
 				'author' => '',
-				'start_date' => date( 'Y-m-d' ),
+				'start_date' => date( 'Y-m-d', current_time( 'timestamp' ) ),
 			);
 		$old_filters = array_merge( $default_filters, (array)$old_filters );
 		
@@ -361,7 +361,7 @@ class EF_Calendar extends EF_Module {
 		}
 		
 		// Post type
-		$filters['post_type'] = sanitize_key( ( count( $supported_post_types ) > 1 && isset( $_GET['type'] ) ) ? $_GET['type'] : $old_filters['post_type'] );
+		$filters['cpt'] = sanitize_key( ( isset( $_GET['cpt'] ) ) ? $_GET['cpt'] : $old_filters['cpt'] );
 		
 		// Category
 		 $filters['cat'] = (int)( isset( $_GET['cat'] ) ) ? $_GET['cat'] : $old_filters['cat'];
@@ -407,7 +407,7 @@ class EF_Calendar extends EF_Module {
 		// For generating the WP Query objects later on
 		$post_query_args = array(
 			'post_status' => $filters['post_status'],
-			'post_type' => $filters['post_type'],
+			'post_type'   => $filters['cpt'],
 			'cat'         => $filters['cat'],
 			'author'      => $filters['author']
 		);
@@ -544,8 +544,8 @@ class EF_Calendar extends EF_Module {
 					
 					if ( in_array( $day_name, $dotw ) )
 						$td_classes[] = 'weekend-day';
-						
-					if ( $week_single_date == date( 'Y-m-d' ) )
+					
+					if ( $week_single_date == date( 'Y-m-d', current_time( 'timestamp' ) ) )
 						$td_classes[] = 'today';
 						
 					// Last day of the week
@@ -555,7 +555,7 @@ class EF_Calendar extends EF_Module {
 					$td_classes = apply_filters( 'ef_calendar_table_td_classes', $td_classes, $week_single_date );
 				?>
 				<td class="<?php echo esc_attr( implode( ' ', $td_classes ) ); ?>" id="<?php echo esc_attr( $week_single_date ); ?>">
-					<?php if ( $week_single_date == date( 'Y-m-d' ) ): ?>
+					<?php if ( $week_single_date == date( 'Y-m-d', current_time( 'timestamp' ) ) ): ?>
 						<div class="day-unit-today"><?php _e( 'Today', 'edit-flow' ); ?></div>
 					<?php endif; ?>
 					<div class="day-unit-label"><?php echo esc_html( date( 'j', strtotime( $week_single_date ) ) ); ?></div>
@@ -833,12 +833,12 @@ class EF_Calendar extends EF_Module {
 			
 					if ( count( $supported_post_types ) > 1 ) {
 					?>
-					<select id="type" name="type">
+					<select id="type" name="cpt">
 						<option value=""><?php _e( 'View all types', 'edit-flow' ); ?></option>
 					<?php
 						foreach ( $supported_post_types as $key => $post_type_name ) {
 							$all_post_types = get_post_types( null, 'objects' );
-							echo '<option value="' . esc_attr( $post_type_name ) . '"' . selected( $post_type_name, $filters['post_type'] ) . '>' . esc_html( $all_post_types[$post_type_name]->labels->name ) . '</option>';
+							echo '<option value="' . esc_attr( $post_type_name ) . '"' . selected( $post_type_name, $filters['cpt'] ) . '>' . esc_html( $all_post_types[$post_type_name]->labels->name ) . '</option>';
 						}
 					?>
 					</select>
@@ -854,7 +854,7 @@ class EF_Calendar extends EF_Module {
 					<input type="hidden" name="page" value="calendar" />
 					<input type="hidden" name="start_date" value="<?php echo esc_attr( $filters['start_date'] ); ?>"/>
 					<input type="hidden" name="post_status" value="" />
-					<input type="hidden" name="type" value="" />					
+					<input type="hidden" name="cpt" value="" />					
 					<input type="hidden" name="cat" value="" />
 					<input type="hidden" name="author" value="" />
 					<input type="submit" id="post-query-clear" class="button-secondary button" value="<?php _e( 'Reset', 'edit-flow' ); ?>"/>
@@ -869,7 +869,7 @@ class EF_Calendar extends EF_Module {
 				<?php endif; ?>
 			</li>
 			<li class="date-change today">
-				<a title="<?php printf( __( 'Today is %s', 'edit-flow' ), date( get_option( 'date_format' ) ) ); ?>" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters, 0 ) ); ?>"><?php _e( 'Today', 'edit-flow' ); ?></a>
+				<a title="<?php printf( __( 'Today is %s', 'edit-flow' ), date( get_option( 'date_format' ), current_time( 'timestamp' ) ) ); ?>" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters, 0 ) ); ?>"><?php _e( 'Today', 'edit-flow' ); ?></a>
 			</li>
 			<li class="date-change previous-week">
 				<?php if ( $this->total_weeks > 1): ?>				
@@ -909,7 +909,7 @@ class EF_Calendar extends EF_Module {
 	 * @param array $args Any filter arguments we want to pass
 	 * @return array $posts All of the posts as an array sorted by date
 	 */
-	function get_calendar_posts_for_week( $args = null ) {
+	function get_calendar_posts_for_week( $args = array() ) {
 		global $wpdb;
 		
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
@@ -940,10 +940,9 @@ class EF_Calendar extends EF_Module {
 		// unset those arguments.
 		if ( $args['cat'] === '0' ) unset( $args['cat'] );
 		if ( $args['author'] === '0' ) unset( $args['author'] );
-		
-		if ( count( $supported_post_types ) > 1 && !$args['post_type'] ) {
+
+		if ( empty( $args['post_type'] ) || ! in_array( $args['post_type'], $supported_post_types ) )
 			$args['post_type'] = $supported_post_types;
-		}
 		
 		// Filter for an end user to implement any of their own query args
 		$args = apply_filters( 'ef_calendar_posts_query_args', $args );
@@ -997,7 +996,7 @@ class EF_Calendar extends EF_Module {
 		if ( !isset( $weeks_offset ) )
 			$weeks_offset = $this->total_weeks;
 		else if ( $weeks_offset == 0 )
-			$filters['start_date'] = $this->get_beginning_of_week( date( 'Y-m-d' ) );
+			$filters['start_date'] = $this->get_beginning_of_week( date( 'Y-m-d', current_time( 'timestamp' ) ) );
 			
 		if ( $direction == 'previous' )
 			$weeks_offset = '-' . $weeks_offset;
@@ -1006,7 +1005,7 @@ class EF_Calendar extends EF_Module {
 		$url = add_query_arg( $filters, menu_page_url( $this->module->slug, false ) );
 
 		if ( count( $supported_post_types ) > 1 )
-			$url = add_query_arg( 'post_type', $filters['post_type'] , $url );
+			$url = add_query_arg( 'cpt', $filters['cpt'] , $url );
 		
 		return $url;
 		
@@ -1067,13 +1066,13 @@ class EF_Calendar extends EF_Module {
 	function calendar_time_range() {
 		
 		$first_datetime = strtotime( $this->start_date );
-		if ( date( 'Y' ) != date( 'Y', $first_datetime ) )
+		if ( date( 'Y', current_time( 'timestamp' ) ) != date( 'Y', $first_datetime ) )
 			$first_date = date( 'F jS, Y', $first_datetime );
 		else	
 			$first_date = date( 'F jS', $first_datetime );
 		$total_days = ( $this->total_weeks * 7 ) - 1;
 		$last_datetime = strtotime( "+" . $total_days . " days", date( 'U', strtotime( $this->start_date ) ) );
-		if ( date( 'Y' ) != date( 'Y', $last_datetime ) )
+		if ( date( 'Y', current_time( 'timestamp' ) ) != date( 'Y', $last_datetime ) )
 			$last_date = date( 'F jS, Y', $last_datetime );
 		else
 			$last_date = date( 'F jS', $last_datetime );

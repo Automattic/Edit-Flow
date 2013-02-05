@@ -154,13 +154,13 @@ class EF_Notifications extends EF_Module {
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		
 		$args = array(
-			'hierarchical' => false,
-			'update_count_callback' =>
-			'_update_post_term_count',
-			'label' => false,
-			'query_var' => false,
-			'rewrite' => false,
-			'show_ui' => false
+			'hierarchical'           => false,
+			'update_count_callback'  => '_update_post_term_count',
+			'label'                  => false,
+			'query_var'              => false,
+			'rewrite'                => false,
+			'public'                 => false,
+			'show_ui'                => false
 		);
 		foreach( array( $this->following_users_taxonomy, $this->unfollowing_users_taxonomy ) as $taxonomy ) {
 			register_taxonomy( $taxonomy, $supported_post_types, $args );
@@ -521,6 +521,7 @@ class EF_Notifications extends EF_Module {
 
 		$subject = apply_filters( 'ef_notification_send_email_subject', $subject, $action, $post );
 		$message = apply_filters( 'ef_notification_send_email_message', $message, $action, $post );
+		$message_headers = apply_filters( 'ef_notification_send_email_message_headers', $message_headers, $action, $post );
 		
 		if( EF_NOTIFICATION_USE_CRON ) {
 			$this->schedule_emails( $recipients, $subject, $message, $message_headers );
@@ -956,7 +957,7 @@ class EF_Notifications extends EF_Module {
 			<?php
 				echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';				
 			?>
-			<p class="submit"><?php submit_button( null, 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow' ); ?></a></p>
+			<p class="submit"><?php submit_button( null, 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
 		</form>
 		<?php
 	}	
