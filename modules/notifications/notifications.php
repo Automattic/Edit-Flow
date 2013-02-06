@@ -874,7 +874,7 @@ class EF_Notifications extends EF_Module {
 		$post_args = array(
 			'tax_query' => array(
 					array(
-						'taxonomy' => 'following_users',
+						'taxonomy' => $this->following_users_taxonomy,
 						'field' => 'slug',
 						'terms' => $user,
 					)
