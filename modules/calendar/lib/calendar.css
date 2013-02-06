@@ -109,6 +109,21 @@ table#ef-calendar-view .day-unit.today {
 	border-top: 1px solid #000;
 }
 
+table#ef-calendar-view .day-unit{
+	position: relative;
+}
+
+table#ef-calendar-view .day-unit .schedule-new-post-button{
+	display: none;
+	position: absolute;
+	bottom: 2px;
+	right: 2px;
+}
+
+table#ef-calendar-view .day-unit:hover .schedule-new-post-button{
+	display: block;
+}
+
 table#ef-calendar-view .day-unit .ui-state-highlight {
 	min-height: 20px;
 }
@@ -132,6 +147,36 @@ table#ef-calendar-view .day-unit.weekend-day ul li.is-published:hover {
 
 table#ef-calendar-view .day-unit.weekend-day.ui-wrapper-highlight ul li.sortable {
 	
+}
+
+table#ef-calendar-view .day-unit .post-insert-dialog{
+	background-color: #FFF;
+	border: 1px solid #CCC;
+	-moz-box-shadow:5px 5px 5px #888;
+	-webkit-box-shadow:5px 5px 5px #888;
+	box-shadow:5px 5px 5px #888;
+	left: -5px;
+	padding: 5px;
+	position: absolute;
+	top: -5px;
+	width: 225px;
+	z-index: 999;
+	display: none;
+}
+
+table#ef-calendar-view .day-unit .post-insert-dialog.item-overlay{
+	display: block;
+}
+
+table#ef-calendar-view .day-unit .post-insert-dialog h1{
+	font-size: 13px;
+	font-weight: normal;
+	font-style: italic;
+	margin-bottom: 2px;
+}
+
+table#ef-calendar-view .day-unit .post-insert-dialog .post-insert-dialog-post-title{
+	margin-bottom: 10px;
 }
 
 table#ef-calendar-view .day-unit ul {
