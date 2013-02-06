@@ -872,7 +872,17 @@ class EF_Notifications extends EF_Module {
 			$user = get_userdata($user)->user_login;
 
 		$post_args = array(
-			$this->following_users_taxonomy => $user,
+			'tax_query' => array(
+					array(
+						'taxonomy' => 'following_users',
+						'field' => 'slug',
+						'terms' => $user,
+					)
+			),
+			'posts_per_page' => '10',
+			'orderby' => 'modified',
+			'order' => 'DESC',
+			'post_status' => 'any',
 			'posts_per_page' => '10',
 			'orderby' => 'modified',
 			'order' => 'DESC',
