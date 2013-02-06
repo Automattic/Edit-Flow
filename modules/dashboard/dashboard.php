@@ -14,6 +14,8 @@
 if ( !class_exists('EF_Dashboard') ) {
 
 class EF_Dashboard extends EF_Module {
+
+	const notepad_post_type = 'dashboard-note';
 	
 	/**
 	 * Load the EF_Dashboard class as an Edit Flow module
@@ -35,6 +37,7 @@ class EF_Dashboard extends EF_Module {
 				'enabled' => 'on',
 				'post_status_widget' => 'on',
 				'my_posts_widget' => 'on',
+				'notepad_widget' => 'on',
 			),
 			'configure_page_cb' => 'print_configure_view',
 			'configure_link_text' => __( 'Widget Options', 'edit-flow' ),		
@@ -51,8 +54,11 @@ class EF_Dashboard extends EF_Module {
 		add_action( 'wp_dashboard_setup', array( $this, 'add_dashboard_widgets') );
 		
 		// Register our settings
-		add_action( 'admin_init', array( $this, 'register_settings' ) );		
-		
+		add_action( 'admin_init', array( $this, 'register_settings' ) );
+
+		add_action( 'admin_init', array( $this, 'handle_notepad_update' ) );
+
+		register_post_type( self::notepad_post_type );
 	}
 
 	/**
@@ -109,11 +115,53 @@ class EF_Dashboard extends EF_Module {
 		// Set up Post Status widget but, first, check to see if it's enabled
 		if ( $this->module->options->post_status_widget == 'on')
 			wp_add_dashboard_widget( 'post_status_widget', __( 'Unpublished Content', 'edit-flow' ), array( $this, 'post_status_widget' ) );
+
+		// Set up the Notepad widget if it's enabled
+		if ( 'on' == $this->module->options->notepad_widget )
+			wp_add_dashboard_widget( 'notepad_widget', __( 'Notepad', 'edit-flow' ), array( $this, 'notepad_widget' ) );
 			
 		// Add the MyPosts widget, if enabled
 		if ( $this->module->options->my_posts_widget == 'on' && $this->module_enabled( 'notifications' ) )
 			wp_add_dashboard_widget( 'myposts_widget', __( 'Posts I\'m Following', 'edit-flow' ), array( $this, 'myposts_widget' ) );
 
+	}
+
+	/**
+	 * Handle a dashboard note being created or updated
+	 */
+	public function handle_notepad_update() {
+		global $pagenow;
+
+		if ( 'index.php' != $pagenow
+		|| ( empty( $_REQUEST['action'] ) || 'dashboard-notepad' != $_REQUEST['action'] ) )
+			return;
+
+		check_admin_referer( 'dashboard-notepad' );
+
+		if ( ! current_user_can( apply_filters( 'ef_dashboard_notepad_edit_cap', 'edit_others_posts' ) ) )
+			wp_die( $this->module->messages['invalid-permissions'] );
+
+		$current_id = (int)$_REQUEST['notepad-id'];
+		$current_notepad = get_post( $current_id );
+		$new_note = array(
+				'post_content'           => wp_filter_nohtml_kses( $_REQUEST['note'] ),
+				'post_type'              => self::notepad_post_type,
+				'post_status'            => 'draft',
+				'post_author'            => get_current_user_id(),
+			);
+		if ( $current_notepad
+			&& self::notepad_post_type == $current_notepad->post_type
+			&& ! isset ( $_REQUEST['create-note'] ) ) {
+			$new_note['ID'] = $current_id;
+			wp_update_post( $new_note );
+		} else {
+			if ( ! empty( $_REQUEST['create-note'] ) )
+				$new_note['post_content'] = ' ';
+			wp_insert_post( $new_note );
+		}
+
+		wp_safe_redirect( wp_get_referer() );
+		exit;
 	}
 	
 	/**
@@ -167,6 +215,45 @@ class EF_Dashboard extends EF_Module {
 		</div>
 		<?php
 	}
+
+	/**
+	 * Notepad Widget
+	 * Editors can leave notes in the dashboard for authors and contributors
+	 *
+	 * @since 0.8
+	 */
+	public function notepad_widget() {
+
+		$args = array(
+				'posts_per_page'   => 1,
+				'post_status'      => 'draft',
+				'post_type'        => self::notepad_post_type,
+			);
+		$posts = get_posts( $args );
+		$current_note = ( ! empty( $posts[0]->post_content ) ) ? $posts[0]->post_content : '';
+		$current_id = ( ! empty( $posts[0]->ID ) ) ? $posts[0]->ID : 0;
+
+		if ( current_user_can( apply_filters( 'ef_dashboard_notepad_edit_cap', 'edit_others_posts' ) ) ) {
+			echo '<form id="dashboard-notepad">';
+			echo '<input type="hidden" name="action" value="dashboard-notepad" />';
+			echo '<input type="hidden" name="notepad-id" value="' . esc_attr( $current_id ) . '" />';
+			echo '<textarea style="width:100%" rows="10" name="note">';
+			echo esc_textarea( trim( $current_note ) );
+			echo '</textarea>';
+			echo '<p class="submit">';
+			if ( ! empty( $current_id ) )
+				echo submit_button( __( 'New Note', 'edit-flow' ), 'secondary', 'create-note', false, false ) . '&nbsp;&nbsp;&nbsp;';
+			submit_button( __( 'Update Note', 'edit-flow' ), 'primary', 'update-note', false );
+			wp_nonce_field( 'dashboard-notepad' );
+			echo '</form>';
+		} else {
+			echo '<form id="dashboard-notepad">';
+			echo '<textarea style="width:100%" rows="10" name="note" disabled="disabled">';
+			echo esc_textarea( trim( $current_note ) );
+			echo '</textarea>';
+			echo '</form>';
+		}
+	}
 	
 	/**
 	 * Creates My Posts widget
@@ -209,6 +296,7 @@ class EF_Dashboard extends EF_Module {
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
 			add_settings_field( 'post_status_widget', __( 'Post Status Widget', 'edit-flow' ), array( $this, 'settings_post_status_widget_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 			add_settings_field( 'my_posts_widget',__( 'Posts I\'m Following', 'edit-flow' ), array( $this, 'settings_my_posts_widget_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'notepad_widget',__( 'Notepad', 'edit-flow' ), array( $this, 'settings_notepad_widget_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 
 	}
 	
@@ -258,6 +346,25 @@ class EF_Dashboard extends EF_Module {
 		if ( !$this->module_enabled('notifications') ) {
 			echo '&nbsp;&nbsp;&nbsp;<span class="description">' . __( 'The notifications module will need to be enabled for this widget to display.', 'edit-flow' );
 		}
+	}
+
+	/**
+	 * Enable or disable the Notepad widget for the dashboard
+	 *
+	 * @since 0.8
+	 */
+	function settings_notepad_widget_option() {
+		$options = array(
+			'off' => __( 'Disabled', 'edit-flow' ),			
+			'on' => __( 'Enabled', 'edit-flow' ),
+		);
+		echo '<select id="notepad_widget" name="' . $this->module->options_group_name . '[notepad_widget]">';
+		foreach ( $options as $value => $label ) {
+			echo '<option value="' . esc_attr( $value ) . '"';
+			echo selected( $this->module->options->notepad_widget, $value );			
+			echo '>' . esc_html( $label ) . '</option>';
+		}
+		echo '</select>';
 	}
 	
 	/**
