@@ -124,6 +124,12 @@ table#ef-calendar-view .day-unit .schedule-new-post-button{
 	font-size: 10px;
 }
 
+table#ef-calendar-view .day-unit .schedule-new-post-button:hover{
+
+	background-color: rgb(220,220,220);
+
+}
+
 table#ef-calendar-view .day-unit .ui-state-highlight {
 	min-height: 20px;
 }
