@@ -133,7 +133,7 @@ jQuery(document).ready(function () {
 
 			var $day_units = jQuery('td.day-unit');
 
-			// Bind the form display to '+' button
+			// Bind the form display to the '+' button
 			// or to a double click on the calendar square
 			$day_units.find('.schedule-new-post-button').on('click.editFlow.quickPublish', EFQuickPublish.open_quickpost_dialogue );
 			$day_units.on('dblclick.editFlow.quickPublish', EFQuickPublish.open_quickpost_dialogue );
