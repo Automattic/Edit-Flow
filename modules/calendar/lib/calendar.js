@@ -125,49 +125,69 @@ jQuery(document).ready(function () {
 	// Enables quick creation/edit of drafts on a particular date from the calendar
 	var EFQuickPublish = {
 		/**
-		 * When user clicks the '+' on an individual calendar date,
-		 * show a form that allows them to create a post for that date
+		 * When user clicks the '+' on an individual calendar date or
+		 * double clicks on a calendar square pop up a form that allows
+		 * them to create a post for that date
 		 */
 		init : function(){
 
+			var $day_units = jQuery('td.day-unit');
+
 			// Bind the form display to '+' button
-			jQuery('td.day-unit .schedule-new-post-button').on('click.editFlow', function(e){
-
-					e.preventDefault();
-
-					// Close other overlays
-					edit_flow_calendar_close_overlays();
-
-					// Get the current calendar square
-					EFQuickPublish.$current_date_square = jQuery(this).parent();
-
-					//Get our form content
-					var $new_post_form_content = EFQuickPublish.$current_date_square.find('.post-insert-dialog');
-
-					//Inject the form (it will automatically be removed on click-away because of its 'item-overlay' class)
-					EFQuickPublish.$new_post_form = $new_post_form_content.clone().addClass('item-overlay').appendTo(EFQuickPublish.$current_date_square);
-					
-					// Get the inputs and controls for this injected form and focus the cursor on the post title box
-					var $edit_post_link = EFQuickPublish.$new_post_form.find('.post-insert-dialog-edit-post-link');
-					EFQuickPublish.$post_title_input = EFQuickPublish.$new_post_form.find('.post-insert-dialog-post-title').focus();
-
-					// Setup the ajax mechanism for form submit
-					EFQuickPublish.$new_post_form.on( 'submit', function(e){
-						e.preventDefault();
-						EFQuickPublish.ajax_ef_create_post(false);
-					});
-
-					// Setup direct link to new draft
-					$edit_post_link.on( 'click', function(e){
-						e.preventDefault();
-						EFQuickPublish.ajax_ef_create_post(true);
-					} );
-
-					return false; // prevent bubbling up
-
-				}); // add new post click event
-
+			// or to a double click on the calendar square
+			$day_units.find('.schedule-new-post-button').on('click.editFlow.quickPublish', EFQuickPublish.open_quickpost_dialogue );
+			$day_units.on('dblclick.editFlow.quickPublish', EFQuickPublish.open_quickpost_dialogue );
+			$day_units.hover(
+				function(){ jQuery(this).find('.schedule-new-post-button').stop().delay(500).fadeIn(100);},
+				function(){ jQuery(this).find('.schedule-new-post-button').stop().hide();}
+			);
 		}, // init
+
+		/**
+		 * Callback for click and double click events that open the
+		 * quickpost dialogue
+		 * @param  Event e The user interaction event
+		 */
+		open_quickpost_dialogue : function(e){
+
+			e.preventDefault();
+
+			// Close other overlays
+			edit_flow_calendar_close_overlays();
+
+			$this = jQuery(this);
+
+			// Get the current calendar square
+			if( $this.is('td.day-unit') )
+				EFQuickPublish.$current_date_square = $this;
+			else if( $this.is('.schedule-new-post-button') )
+				EFQuickPublish.$current_date_square = $this.parent();
+
+			//Get our form content
+			var $new_post_form_content = EFQuickPublish.$current_date_square.find('.post-insert-dialog');
+
+			//Inject the form (it will automatically be removed on click-away because of its 'item-overlay' class)
+			EFQuickPublish.$new_post_form = $new_post_form_content.clone().addClass('item-overlay').appendTo(EFQuickPublish.$current_date_square);
+			
+			// Get the inputs and controls for this injected form and focus the cursor on the post title box
+			var $edit_post_link = EFQuickPublish.$new_post_form.find('.post-insert-dialog-edit-post-link');
+			EFQuickPublish.$post_title_input = EFQuickPublish.$new_post_form.find('.post-insert-dialog-post-title').focus();
+
+			// Setup the ajax mechanism for form submit
+			EFQuickPublish.$new_post_form.on( 'submit', function(e){
+				e.preventDefault();
+				EFQuickPublish.ajax_ef_create_post(false);
+			});
+
+			// Setup direct link to new draft
+			$edit_post_link.on( 'click', function(e){
+				e.preventDefault();
+				EFQuickPublish.ajax_ef_create_post(true);
+			} );
+
+			return false; // prevent bubbling up
+
+		},
 
 		/**
 		 * Sends an ajax request to create a new post

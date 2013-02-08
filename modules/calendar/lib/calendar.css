@@ -114,14 +114,14 @@ table#ef-calendar-view .day-unit{
 }
 
 table#ef-calendar-view .day-unit .schedule-new-post-button{
+	
+	background: none;
+	border: 1px solid rgb(180,180,180);
+	border-top: none;
+	border-left: none;
 	display: none;
-	position: absolute;
-	bottom: 2px;
-	right: 2px;
-}
-
-table#ef-calendar-view .day-unit:hover .schedule-new-post-button{
-	display: block;
+	float:left;
+	font-size: 10px;
 }
 
 table#ef-calendar-view .day-unit .ui-state-highlight {
@@ -180,7 +180,7 @@ table#ef-calendar-view .day-unit .post-insert-dialog .post-insert-dialog-post-ti
 }
 
 table#ef-calendar-view .day-unit ul {
-	margin-top: 17px;
+	margin-top: 22px;
 	margin-bottom: 0;
 	padding: 0;
 	min-height: 70px;

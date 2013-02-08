@@ -16,7 +16,8 @@ class EF_Calendar extends EF_Module {
 	
 	var $start_date = '';
 	var $current_week = 1;
-	var $total_weeks = 6;	
+	var $total_weeks = 6;
+	var $hidden = 0;	
 	
 	/**
 	 * Construct the EF_Calendar class
@@ -556,13 +557,14 @@ class EF_Calendar extends EF_Module {
 					$td_classes = apply_filters( 'ef_calendar_table_td_classes', $td_classes, $week_single_date );
 				?>
 				<td class="<?php echo esc_attr( implode( ' ', $td_classes ) ); ?>" id="<?php echo esc_attr( $week_single_date ); ?>">
+					<button class='schedule-new-post-button'>+</button>
 					<?php if ( $week_single_date == date( 'Y-m-d', current_time( 'timestamp' ) ) ): ?>
 						<div class="day-unit-today"><?php _e( 'Today', 'edit-flow' ); ?></div>
 					<?php endif; ?>
 					<div class="day-unit-label"><?php echo esc_html( date( 'j', strtotime( $week_single_date ) ) ); ?></div>
 					<ul class="post-list">
 						<?php
-						$hidden = 0;
+						$this->hidden = 0;
 						if ( !empty( $week_posts[$week_single_date] ) ) {
 
 							$week_posts[$week_single_date] = apply_filters( 'ef_calendar_posts_for_week', $week_posts[$week_single_date] );
@@ -574,14 +576,13 @@ class EF_Calendar extends EF_Module {
 						 } 
 						 ?>
 					</ul>
-					<?php if ( $hidden ): ?>
-						<a class="show-more" href="#"><?php printf( __( 'Show %1$s more ', 'edit-flow' ), $hidden ); ?></a>
+					<?php if ( $this->hidden ): ?>
+						<a class="show-more" href="#"><?php printf( __( 'Show %1$s more ', 'edit-flow' ), $this->hidden ); ?></a>
 					<?php endif; ?>
 
 					<?php if( current_user_can('publish_posts') ) : 
 						$date_formatted = date( 'D, M jS, Y', strtotime( $week_single_date ) );
 					?>
-						<button class='button schedule-new-post-button'>+</button>
 
 						<form method="GET" class="post-insert-dialog">
 							<h1><?php echo sprintf( __( 'Create post for %s', 'edit-flow' ), $date_formatted ); ?></h1>	
@@ -650,7 +651,7 @@ class EF_Calendar extends EF_Module {
 		// Don't hide posts for just a couple of weeks
 		if ( $num > 3 && $this->total_weeks > 2 ) {
 			$post_classes[] = 'hidden';
-			$hidden++;
+			$this->hidden++;
 		}
 		$post_classes = apply_filters( 'ef_calendar_table_td_li_classes', $post_classes, $post_date, $post->ID );
 		
@@ -1193,15 +1194,15 @@ class EF_Calendar extends EF_Module {
 		if ( !current_user_can( 'edit_others_posts' ) )
 			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
 
-		// Check for post values
-		if ( empty( $_POST['ef_insert_title'] ) )
-			$this->print_ajax_response( 'error', 'No title supplied' );
-
 		if ( empty( $_POST['ef_insert_date'] ) )
 			$this->print_ajax_response( 'error', 'No date supplied' );
 
 		// Sanitize post values
 		$post_title = sanitize_text_field( $_POST['ef_insert_title'] );
+
+		if( ! $post_title )
+			$post_title = 'Untitled';
+
 		$post_date = sanitize_text_field( $_POST['ef_insert_date'] );
 
 		// Get default custom status
