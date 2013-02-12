@@ -333,11 +333,12 @@ class EF_Calendar extends EF_Module {
 				'post_status' => '',
 				'cpt' => $supported_post_types,
 				'cat' => '',
+				'tax_query' => '',
 				'author' => '',
 				'start_date' => date( 'Y-m-d', current_time( 'timestamp' ) ),
 			);
 		$old_filters = array_merge( $default_filters, (array)$old_filters );
-		
+
 		// Post status
 		if ( isset( $_GET['post_status'] ) ) {
 			$filters['post_status'] = $_GET['post_status'];
@@ -358,11 +359,14 @@ class EF_Calendar extends EF_Module {
 		}
 		
 		// Post type
-		$filters['cpt'] = sanitize_key( ( isset( $_GET['cpt'] ) ) ? $_GET['cpt'] : $old_filters['cpt'] );
+		 $filters['cpt'] = sanitize_key( ( isset( $_GET['cpt'] ) ) ? $_GET['cpt'] : $old_filters['cpt'] );
 		
 		// Category
 		 $filters['cat'] = (int)( isset( $_GET['cat'] ) ) ? $_GET['cat'] : $old_filters['cat'];
 		
+		// Taxonomy
+		 $filters['tax_query'] = (int)( isset ( $_GET['tax_query' ] ) ) ? $_GET['tax_query'] : $old_filters['tax_query'];
+
 		// Author
 		 $filters['author'] = (int)( isset( $_GET['author'] ) ) ? $_GET['author'] : $old_filters['author'];
 		
@@ -406,6 +410,7 @@ class EF_Calendar extends EF_Module {
 			'post_status' => $filters['post_status'],
 			'post_type'   => $filters['cpt'],
 			'cat'         => $filters['cat'],
+			'tax_query'	  => $filters['tax_query'],
 			'author'      => $filters['author']
 		);
 		$this->start_date = $filters['start_date'];
@@ -799,6 +804,21 @@ class EF_Calendar extends EF_Module {
 					<?php
 					}
 					?>
+					<?php $custom_tax = get_object_vars($this->get_all_custom_taxonomies()); ?>
+					<select id="tax_query" name="tax_query">
+						<option value=""><?php _e( 'View all taxonomy', 'edit-flow' ); ?></option>
+						<?php 
+							foreach( $custom_tax as $tax_key => $single_tax ) {
+									echo '<optgroup label="' . esc_attr($tax_key) . '" >';
+								foreach(get_object_vars($single_tax) as $term => $term_elements) {
+									foreach($term_elements as $element) {
+										echo '<option value="' . esc_attr($term) . '.' . esc_attr($element) .'"' . selected($term.'.'.$element, $filters['tax_query'], false) . '>' . esc_html( $element ) . '</option>';
+									}
+								}
+									echo '</optgroup>';
+							}
+					 	?>
+					</select>
 					<input type="submit" id="post-query-submit" class="button-primary button" value="<?php _e( 'Filter', 'edit-flow' ); ?>"/>
 				</form>
 			</li>
@@ -811,6 +831,7 @@ class EF_Calendar extends EF_Module {
 					<input type="hidden" name="cpt" value="" />					
 					<input type="hidden" name="cat" value="" />
 					<input type="hidden" name="author" value="" />
+					<input type="hidden" name="tax_query" value="" />
 					<input type="submit" id="post-query-clear" class="button-secondary button" value="<?php _e( 'Reset', 'edit-flow' ); ?>"/>
 				</form>
 			</li>
@@ -856,6 +877,37 @@ class EF_Calendar extends EF_Module {
 		return $html;
 		
 	}
+
+	function get_all_custom_taxonomies() {
+		$args = array(
+		  'public'   => true,
+		  '_builtin' => false, 
+		); 
+		$output = 'array';
+		$operator = 'and';
+		$list_of_tax_terms = new stdClass();
+		
+		$taxonomies = get_taxonomies( $args, $output, $operator );
+		$taxonomy_keys = array_keys($taxonomies);
+		$terms = get_terms( $taxonomy_keys, array( 'hide_empty' => 0 ) );
+
+
+		foreach($terms as $term) {
+			if($term->taxonomy == 'post_status')
+				continue;
+			//Get name of taxonomy
+			$tax_name = $taxonomies[$term->taxonomy]->labels->name;
+			$slug = $taxonomies[$term->taxonomy]->rewrite['slug'];
+			if( $tax_name && !property_exists($list_of_tax_terms, $tax_name) ){
+				$list_of_tax_terms->$tax_name->$slug = array($term->name);
+			} else {
+				$temp = $list_of_tax_terms->$tax_name->$slug;
+				$temp[] = $term->name;
+				$list_of_tax_terms->$tax_name->$slug = $temp;
+			}
+		}
+		return $list_of_tax_terms; 
+	}
 		
 	/**
 	 * Query to get all of the calendar posts for a given day
@@ -870,6 +922,7 @@ class EF_Calendar extends EF_Module {
 		$defaults = array(
 			'post_status'      => null,
 			'cat'              => null,
+			'tax_query' 	   => null,
 			'author'           => null,
 			'post_type'        => $supported_post_types,
 			'posts_per_page'   => -1,
@@ -894,6 +947,20 @@ class EF_Calendar extends EF_Module {
 		// unset those arguments.
 		if ( $args['cat'] === '0' ) unset( $args['cat'] );
 		if ( $args['author'] === '0' ) unset( $args['author'] );
+
+		//Parse tax_query
+		if($args['tax_query']) {
+			$tax_position = strpos($args['tax_query'], '.');
+			$taxonomy = substr($args['tax_query'], 0, $tax_position);
+			$term = substr($args['tax_query'], $tax_position + 1);
+			$args['tax_query'] = array (
+					array(
+						'taxonomy' => $taxonomy,
+						'field' => 'slug',
+						'terms' => $term,
+					)
+				);
+		}
 
 		if ( empty( $args['post_type'] ) || ! in_array( $args['post_type'], $supported_post_types ) )
 			$args['post_type'] = $supported_post_types;
