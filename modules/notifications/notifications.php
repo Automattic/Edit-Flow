@@ -883,9 +883,6 @@ class EF_Notifications extends EF_Module {
 			'orderby' => 'modified',
 			'order' => 'DESC',
 			'post_status' => 'any',
-			'posts_per_page' => '10',
-			'orderby' => 'modified',
-			'order' => 'DESC',
 		);
 		$post_args = apply_filters( 'ef_user_following_posts_query_args', $post_args );
 		$posts = get_posts( $post_args );
