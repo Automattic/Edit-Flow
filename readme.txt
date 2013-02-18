@@ -93,7 +93,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 == Changelog ==
 
 = 0.8 (???? ??, 2013) =
-* New Russian localization thanks to [DeeKey](https://github.com/DeeKey)
+* New Russian localization thanks to [te-st.ru](https://github.com/Teplitsa)
 
 = 0.7.6 (Jan. 30, 2013) =
 * Bug fix for 3.4.2 compatibility.
