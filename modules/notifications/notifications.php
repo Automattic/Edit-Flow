@@ -87,6 +87,9 @@ class EF_Notifications extends EF_Module {
 		// Javascript and CSS if we need it
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );	
+
+		//Ajax for saving notifiction updates
+		add_action( 'wp_ajax_save_notifications', array( $this, 'ajax_save_post_subscriptions' ) );
 		
 	}
 	
@@ -250,6 +253,27 @@ class EF_Notifications extends EF_Module {
 		<?php
 	}
 	
+	/**
+	 * Called when a notification editorial metadata checkbox is checked. Handles saving of a user/usergroup to a post.
+	 */
+	function ajax_save_post_subscriptions() {
+		global $wpdb, $edit_flow;
+		
+		$post_id = (int)$_POST['post_id'];
+		$user_usergroup_ids = $_POST['user_group_ids'];
+		if( ( !wp_is_post_revision( $post_id ) && !wp_is_post_autosave( $post_id ) )  && current_user_can( $this->edit_post_subscriptions_cap ) ) {
+			if( $_POST['ef_notifications_name'] === 'ef-selected-users[]' ) {
+				$this->save_post_following_users( $post_id, $user_usergroup_ids );
+			}
+			else if ( $_POST['ef_notifications_name'] == 'following_usergroups[]' ) {
+				if ( $this->module_enabled( 'user_groups' ) && in_array( get_post_type( $post_id ), $this->get_post_types_for_module( $edit_flow->user_groups->module ) ) ) {
+					$this->save_post_following_usergroups( $post_id, $user_usergroup_ids );
+				}
+			}
+		}
+		die();
+	}
+
 	/**
 	 * Called when post is saved. Handles saving of user/usergroup followers
 	 *
