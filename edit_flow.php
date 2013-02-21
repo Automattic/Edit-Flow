@@ -341,6 +341,24 @@ class edit_flow {
 			wp_register_script( 'jquery-ui-datepicker', EDIT_FLOW_URL . 'common/js/jquery.ui.datepicker.min.js', array( 'jquery', 'jquery-ui-core'), '1.8.16', true );		
 	}
 
+	/**
+	 * Gets the name of the default custom status. If custom statuses are disabled,
+	 * returns false.
+	 * 
+	 * @return str|bool If custom statuses are enabled, return the name of the status.
+	 */
+	function get_default_custom_status(){
+
+		// Check if custom status module is enabled
+		$custom_status_module = $this->custom_status->module->options;
+		
+		if( $custom_status_module->enabled == 'on' )
+			return $custom_status_module->default_status;
+		else
+			return false;
+
+	}
+
 }
 
 function EditFlow() {
