@@ -179,6 +179,9 @@ class EF_Calendar extends EF_Module {
 				wp_enqueue_script( $js_library );
 			}
 			wp_enqueue_script( 'edit-flow-calendar-js', $this->module_url . 'lib/calendar.js', $js_libraries, EDIT_FLOW_VERSION, true );
+			
+			$ef_cal_js_params = array( 'can_add_posts' => current_user_can( $this->create_post_cap ) ? 'true' : 'false' );
+			wp_localize_script( 'edit-flow-calendar-js', 'ef_calendar_params', $ef_cal_js_params );
 		}
 		
 	}
@@ -1196,7 +1199,7 @@ class EF_Calendar extends EF_Module {
 		if ( !wp_verify_nonce( $_POST['nonce'], 'ef-calendar-modify' ) )
 			$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
 
-		// Check that the user has the right capabilities to add posts to the calendar
+		// Check that the user has the right capabilities to add posts to the calendar (defaults to 'edit_posts')
 		if ( !current_user_can( $this->create_post_cap ) )
 			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
 

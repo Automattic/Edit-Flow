@@ -266,7 +266,10 @@ jQuery(document).ready(function () {
 
 		} // display_errors
 
-	}; EFQuickPublish.init();
+	};
+
+	if( ef_calendar_params.can_add_posts === 'true' )
+		EFQuickPublish.init();
 	
 });
 
