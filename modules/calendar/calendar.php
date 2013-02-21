@@ -72,6 +72,9 @@ class EF_Calendar extends EF_Module {
 		$view_calendar_cap = 'ef_view_calendar';
 		$view_calendar_cap = apply_filters( 'ef_view_calendar_cap', $view_calendar_cap );
 		if ( !current_user_can( $view_calendar_cap ) ) return false;
+
+		// Define the create-post capability
+		$this->create_post_cap = apply_filters( 'ef_calendar_create_post_cap', 'edit_posts' );
 		
 		require_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
 		add_screen_options_panel( self::usermeta_key_prefix . 'screen_options', __( 'Calendar Options', 'edit-flow' ), array( $this, 'generate_screen_options' ), self::screen_id, false, true );
@@ -1193,8 +1196,8 @@ class EF_Calendar extends EF_Module {
 		if ( !wp_verify_nonce( $_POST['nonce'], 'ef-calendar-modify' ) )
 			$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
 
-		// Check that the user can modify the post
-		if ( !current_user_can( 'edit_others_posts' ) )
+		// Check that the user has the right capabilities to add posts to the calendar
+		if ( !current_user_can( $this->create_post_cap ) )
 			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
 
 		if ( empty( $_POST['ef_insert_date'] ) )
