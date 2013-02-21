@@ -16,8 +16,9 @@ class EF_Calendar extends EF_Module {
 	
 	var $start_date = '';
 	var $current_week = 1;
-	var $total_weeks = 6;
-	var $hidden = 0;	
+	var $total_weeks = 6; // default number of weeks to show per screen
+	var $hidden = 0; // counter of hidden posts per date square
+	var $max_visible_posts_per_date = 4; // total number of posts to be shown per square before 'more' link
 	
 	/**
 	 * Construct the EF_Calendar class
@@ -648,8 +649,10 @@ class EF_Calendar extends EF_Module {
 		if ( in_array( $post->post_status, $published_statuses ) )
 			$post_classes[] = 'is-published';
 		
-		// Don't hide posts for just a couple of weeks
-		if ( $num > 3 && $this->total_weeks > 2 ) {
+		// Hide posts over a certain number to prevent clutter, unless user is only viewing 1 or 2 weeks
+		$max_visible_posts = apply_filters( 'ef_calendar_max_visible_posts_per_date', $this->max_visible_posts_per_date);
+
+		if ( $num >= $max_visible_posts && $this->total_weeks > 2 ) {
 			$post_classes[] = 'hidden';
 			$this->hidden++;
 		}
