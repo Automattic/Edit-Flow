@@ -584,7 +584,7 @@ class EF_Calendar extends EF_Module {
 						$date_formatted = date( 'D, M jS, Y', strtotime( $week_single_date ) );
 					?>
 
-						<form method="GET" class="post-insert-dialog">
+						<form method="POST" class="post-insert-dialog">
 							<h1><?php echo sprintf( __( 'Create post for %s', 'edit-flow' ), $date_formatted ); ?></h1>	
 							<input type="text" class="post-insert-dialog-post-title" name="post-insert-dialog-post-title" placeholder="<?php echo esc_attr( __( 'Post Title', 'edit-flow' ) ); ?>">
 							<input type="hidden" class="post-insert-dialog-post-date" name="post-insert-dialog-post-title" value="<?php echo esc_attr( $week_single_date ); ?>">
@@ -632,7 +632,7 @@ class EF_Calendar extends EF_Module {
 		
 		$post_classes = array(
 			'day-item',
-			'custom-status-' . esc_attr( $post->post_status ),
+			'custom-status-' . $post->post_status,
 		);
 		// Only allow the user to drag the post if they have permissions to
 		// or if it's in an approved post status
