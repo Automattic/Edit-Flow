@@ -1214,7 +1214,7 @@ class EF_Calendar extends EF_Module {
 
 		$post_date = sanitize_text_field( $_POST['ef_insert_date'] );
 
-		$post_status = EditFlow()->get_default_custom_status() ?: 'draft';
+		$post_status = EditFlow()->get_default_post_status();
 		
 		// Set new post parameters
 		$post_placeholder = array(

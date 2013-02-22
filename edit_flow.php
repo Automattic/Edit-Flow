@@ -343,11 +343,11 @@ class edit_flow {
 
 	/**
 	 * Gets the name of the default custom status. If custom statuses are disabled,
-	 * returns false.
+	 * returns 'draft'.
 	 * 
-	 * @return str|bool If custom statuses are enabled, return the name of the status.
+	 * @return str Name of the status
 	 */
-	function get_default_custom_status(){
+	function get_default_post_status(){
 
 		// Check if custom status module is enabled
 		$custom_status_module = $this->custom_status->module->options;
@@ -355,7 +355,7 @@ class edit_flow {
 		if( $custom_status_module->enabled == 'on' )
 			return $custom_status_module->default_status;
 		else
-			return false;
+			return 'draft';
 
 	}
 
