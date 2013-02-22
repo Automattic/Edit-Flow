@@ -93,6 +93,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 == Changelog ==
 
 = 0.8 (???? ??, 2013) =
+* Double-click to create a new post on the calendar. Thanks [bbrooks](https://github.com/bbrooks)
 * New Russian localization thanks to [te-st.ru](https://github.com/Teplitsa)
 
 = 0.7.6 (Jan. 30, 2013) =
