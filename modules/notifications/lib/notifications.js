@@ -10,6 +10,7 @@ jQuery(document).ready(function($) {
 		var user_group_ids = [];
 		var parent_this = $(this);
 		params.ef_notifications_name = $(this).attr('name');
+		params._nonce = $("#ef_notifications_nonce").val();
 
 		$(this)
 			.parent()
@@ -26,9 +27,13 @@ jQuery(document).ready(function($) {
 			type : 'POST',
 			url : (ajaxurl) ? ajaxurl : wpListL10n.url,
 			data : params,
-			success : function(x) { },
+			success : function(x) { 
+				$(parent_this.parent().parent())
+					.animate( { 'backgroundColor':'#CCEEBB' }, 200 )
+					.animate( { 'backgroundColor':'#fff' }, 200 );
+			},
 			error : function(r) { 
-				$('#ef-post_following_users_box').prev().insertAfter('There was an error. Please reload the page.');
+				$('#ef-post_following_users_box').prev().append(' <p class="error">There was an error. Please reload the page.</p>');
 			}
 		});
 	});

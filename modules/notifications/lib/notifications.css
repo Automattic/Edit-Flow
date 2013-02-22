@@ -44,6 +44,10 @@
 		-moz-border-radius: 3px;
 	}
 
+	#ef-post_following_box .error{
+		color:red;
+	}
+
 	#ef-post_following_box label.ef-select_all_box {
 		float: right;
 		margin: -20px 10px;
