@@ -386,6 +386,8 @@ class EF_Calendar extends EF_Module {
 
 		// Set the start date as the beginning of the week, according to blog settings
 		$filters['start_date'] = $this->get_beginning_of_week( $filters['start_date'] );
+
+		$filters = apply_filters( 'modify_filters', $filters, $old_filters );
 		
 		$this->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $filters );
 		
@@ -795,9 +797,6 @@ class EF_Calendar extends EF_Module {
 	 * @param array $dates All of the days of the week. Used for generating navigation links
 	 */
 	function print_top_navigation( $filters, $dates ) {
-		
-		$supported_post_types = $this->get_post_types_for_module( $this->module );
-		$post_statuses = $this->get_post_statuses();
 		?>
 		<ul class="ef-calendar-navigation">
 			<li id="calendar-filter">
@@ -805,56 +804,9 @@ class EF_Calendar extends EF_Module {
 					<input type="hidden" name="page" value="calendar" />
 					<input type="hidden" name="start_date" value="<?php echo esc_attr( $filters['start_date'] ); ?>"/>
 					<!-- Filter by status -->
-					<select id="post_status" name="post_status">
-						<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
-						<?php
-							foreach ( $post_statuses as $post_status ) {
-								echo "<option value='" . esc_attr( $post_status->slug ) . "' " . selected( $post_status->slug, $filters['post_status'] ) . ">" . esc_html( $post_status->name ) . "</option>";
-							}
-							echo "<option value='future'" . selected( 'future', $filters['post_status'] ) . ">" . __( 'Scheduled', 'edit-flow' ) . "</option>";
-							echo "<option value='unpublish'" . selected( 'unpublish', $filters['post_status'] ) . ">" . __( 'Unpublished', 'edit-flow' ) . "</option>";
-							echo "<option value='publish'" . selected( 'publish', $filters['post_status'] ) . ">" . __( 'Published', 'edit-flow' ) . "</option>";
-						?>
-					</select>
-					
-					<?php
-								
-					// Filter by categories, borrowed from wp-admin/edit.php
-					if ( taxonomy_exists('category') ) {
-						$category_dropdown_args = array(
-							'show_option_all' => __( 'View all categories', 'edit-flow' ),
-							'hide_empty' => 0,
-							'hierarchical' => 1,
-							'show_count' => 0,
-							'orderby' => 'name',
-							'selected' => $filters['cat']
-							);
-						wp_dropdown_categories( $category_dropdown_args );
-					}
-					
-					$users_dropdown_args = array(
-						'show_option_all'   => __( 'View all users', 'edit-flow' ),
-						'name'              => 'author',
-						'selected'          => $filters['author'],
-						'who'               => 'authors',
-						);
-					$users_dropdown_args = apply_filters( 'ef_calendar_users_dropdown_args', $users_dropdown_args );
-					wp_dropdown_users( $users_dropdown_args );
-			
-					if ( count( $supported_post_types ) > 1 ) {
-					?>
-					<select id="type" name="cpt">
-						<option value=""><?php _e( 'View all types', 'edit-flow' ); ?></option>
-					<?php
-						foreach ( $supported_post_types as $key => $post_type_name ) {
-							$all_post_types = get_post_types( null, 'objects' );
-							echo '<option value="' . esc_attr( $post_type_name ) . '"' . selected( $post_type_name, $filters['cpt'] ) . '>' . esc_html( $all_post_types[$post_type_name]->labels->name ) . '</option>';
-						}
-					?>
-					</select>
-					<?php
-					}
-					?>
+					<?php foreach( $this->calendar_filters() as $select_id => $select_name ) { ?>
+							<?php echo $this->calendar_filter_options( $select_id, $select_name, $filters ) ?>
+					<?php } ?>
 					<input type="submit" id="post-query-submit" class="button-primary button" value="<?php _e( 'Filter', 'edit-flow' ); ?>"/>
 				</form>
 			</li>
@@ -863,10 +815,10 @@ class EF_Calendar extends EF_Module {
 				<form method="GET">
 					<input type="hidden" name="page" value="calendar" />
 					<input type="hidden" name="start_date" value="<?php echo esc_attr( $filters['start_date'] ); ?>"/>
-					<input type="hidden" name="post_status" value="" />
-					<input type="hidden" name="cpt" value="" />					
-					<input type="hidden" name="cat" value="" />
-					<input type="hidden" name="author" value="" />
+					<?php 
+					foreach( $this->calendar_filters() as $select_id => $select_name )
+						echo '<input type="hidden" name="'.$select_name.'" value="" />';
+					?>
 					<input type="submit" id="post-query-clear" class="button-secondary button" value="<?php _e( 'Reset', 'edit-flow' ); ?>"/>
 				</form>
 			</li>
@@ -956,7 +908,6 @@ class EF_Calendar extends EF_Module {
 		
 		// Filter for an end user to implement any of their own query args
 		$args = apply_filters( 'ef_calendar_posts_query_args', $args );
-		
 		add_filter( 'posts_where', array( $this, 'posts_where_week_range' ) );
 		$post_results = new WP_Query( $args );
 		remove_filter( 'posts_where', array( $this, 'posts_where_week_range' ) );
@@ -1189,7 +1140,6 @@ class EF_Calendar extends EF_Module {
 		<?php
 	}
 
-
 	/**
 	 * Ajax callback to insert a post placeholder for a particular date
 	 */
@@ -1250,6 +1200,81 @@ class EF_Calendar extends EF_Module {
 		}
 
 	}   // ajax_insert_post_placeholder
+
+	function calendar_filters() {		
+		$select_filter_names = array();
+
+		$select_filter_names['post_status'] = 'post_status';
+		$select_filter_names['cat'] = 'cat';
+		$select_filter_names['author'] = 'author';
+		$select_filter_names['type'] = 'cpt';
+
+		return apply_filters( 'calendar_filter_names', $select_filter_names );
+	}
+
+	function calendar_filter_options( $select_id, $select_name, $filters ) {
+		switch( $select_id ){ 
+			case 'post_status':
+				$post_statuses = $this->get_post_statuses();
+			?>
+				<select id="<?php echo $select_id; ?>" name="<?php echo $select_name; ?>" >
+					<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
+					<?php 
+						foreach ( $post_statuses as $post_status ) { 
+							echo "<option value='" . esc_attr( $post_status->slug ) . "' " . selected( $post_status->slug, $filters['post_status'] ) . ">" . esc_html( $post_status->name ) . "</option>";
+						}
+					?>
+					<option value="future" <?php selected( 'future', $filters['post_status'] ) ?> > <?php echo __( 'Scheduled', 'edit-flow' ) ?> </option>
+					<option value="unpublish" <?php selected( 'unpublish', $filters['post_status'] ) ?> > <?php echo __( 'Unpublished', 'edit-flow' ) ?> </option>
+					<option value="publish" <?php selected( 'publish', $filters['post_status'] ) ?> > <?php echo __( 'Published', 'edit-flow' ) ?> </option>
+				</select>
+				<?php
+			break;
+			case 'cat':
+				// Filter by categories, borrowed from wp-admin/edit.php
+				if ( taxonomy_exists( 'category' ) ) {
+					$category_dropdown_args = array(
+						'show_option_all' => __( 'View all categories', 'edit-flow' ),
+						'hide_empty' => 0,
+						'hierarchical' => 1,
+						'show_count' => 0,
+						'orderby' => 'name',
+						'selected' => $filters['cat']
+						);
+					wp_dropdown_categories( $category_dropdown_args );
+				}
+			break;
+			case 'author':
+				$users_dropdown_args = array(
+					'show_option_all'   => __( 'View all users', 'edit-flow' ),
+					'name'              => 'author',
+					'selected'          => $filters['author'],
+					'who'               => 'authors',
+					);
+				$users_dropdown_args = apply_filters( 'ef_calendar_users_dropdown_args', $users_dropdown_args );
+				wp_dropdown_users( $users_dropdown_args );
+			break;
+			case 'type':
+				$supported_post_types = $this->get_post_types_for_module( $this->module );
+				if ( count( $supported_post_types ) > 1 ) {
+				?>
+					<select id="type" name="cpt">
+						<option value=""><?php _e( 'View all types', 'edit-flow' ); ?></option>
+					<?php
+						foreach ( $supported_post_types as $key => $post_type_name ) {
+							$all_post_types = get_post_types( null, 'objects' );
+							echo '<option value="' . esc_attr( $post_type_name ) . '"' . selected( $post_type_name, $filters['cpt'] ) . '>' . esc_html( $all_post_types[$post_type_name]->labels->name ) . '</option>';
+						}
+					?>
+					</select>
+				<?php
+				}
+			break;
+			default:
+				do_action( 'manage_calendar_filters', $select_id, $select_name, $filters );
+			break;
+		}
+	}
 	
 } // EF_Calendar
 	
