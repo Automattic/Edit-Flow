@@ -59,7 +59,7 @@ jQuery(document).ready(function () {
 	 */
 	function edit_flow_calendar_bind_overlay() {
 		jQuery('td.day-unit ul li').bind({
-			'click.ef-calendar-show-overlay': edit_flow_calendar_show_overlay,
+			'click.ef-calendar-show-overlay': edit_flow_calendar_show_overlay
 		});
 	}
 	edit_flow_calendar_bind_overlay();
@@ -99,7 +99,7 @@ jQuery(document).ready(function () {
 					post_id: post_id,
 					prev_date: prev_date,
 					next_date: next_date,
-					nonce: nonce,
+					nonce: nonce
 				};
 				jQuery.post(ajaxurl, params,
 					function(response) {
@@ -119,8 +119,157 @@ jQuery(document).ready(function () {
 			jQuery(this).enableSelection();
 			// Allow the overlays to show up again
 			setTimeout( edit_flow_calendar_bind_overlay, 250 );
+		}
+	});
+
+	// Enables quick creation/edit of drafts on a particular date from the calendar
+	var EFQuickPublish = {
+		/**
+		 * When user clicks the '+' on an individual calendar date or
+		 * double clicks on a calendar square pop up a form that allows
+		 * them to create a post for that date
+		 */
+		init : function(){
+
+			var $day_units = jQuery('td.day-unit');
+
+			// Bind the form display to the '+' button
+			// or to a double click on the calendar square
+			$day_units.find('.schedule-new-post-button').on('click.editFlow.quickPublish', EFQuickPublish.open_quickpost_dialogue );
+			$day_units.on('dblclick.editFlow.quickPublish', EFQuickPublish.open_quickpost_dialogue );
+			$day_units.hover(
+				function(){ jQuery(this).find('.schedule-new-post-button').stop().delay(500).fadeIn(100);},
+				function(){ jQuery(this).find('.schedule-new-post-button').stop().hide();}
+			);
+		}, // init
+
+		/**
+		 * Callback for click and double click events that open the
+		 * quickpost dialogue
+		 * @param  Event e The user interaction event
+		 */
+		open_quickpost_dialogue : function(e){
+
+			e.preventDefault();
+
+			// Close other overlays
+			edit_flow_calendar_close_overlays();
+
+			$this = jQuery(this);
+
+			// Get the current calendar square
+			if( $this.is('td.day-unit') )
+				EFQuickPublish.$current_date_square = $this;
+			else if( $this.is('.schedule-new-post-button') )
+				EFQuickPublish.$current_date_square = $this.parent();
+
+			//Get our form content
+			var $new_post_form_content = EFQuickPublish.$current_date_square.find('.post-insert-dialog');
+
+			//Inject the form (it will automatically be removed on click-away because of its 'item-overlay' class)
+			EFQuickPublish.$new_post_form = $new_post_form_content.clone().addClass('item-overlay').appendTo(EFQuickPublish.$current_date_square);
+			
+			// Get the inputs and controls for this injected form and focus the cursor on the post title box
+			var $edit_post_link = EFQuickPublish.$new_post_form.find('.post-insert-dialog-edit-post-link');
+			EFQuickPublish.$post_title_input = EFQuickPublish.$new_post_form.find('.post-insert-dialog-post-title').focus();
+
+			// Setup the ajax mechanism for form submit
+			EFQuickPublish.$new_post_form.on( 'submit', function(e){
+				e.preventDefault();
+				EFQuickPublish.ajax_ef_create_post(false);
+			});
+
+			// Setup direct link to new draft
+			$edit_post_link.on( 'click', function(e){
+				e.preventDefault();
+				EFQuickPublish.ajax_ef_create_post(true);
+			} );
+
+			return false; // prevent bubbling up
+
 		},
-	});	
+
+		/**
+		 * Sends an ajax request to create a new post
+		 * @param  bool redirect_to_draft Whether or not we should be redirected to the post's edit screen on success
+		 */
+		ajax_ef_create_post : function( redirect_to_draft ){
+
+			// Get some of the form elements for later use
+			var $submit_controls = EFQuickPublish.$new_post_form.find('.post-insert-dialog-controls');
+			var $spinner = EFQuickPublish.$new_post_form.find('.spinner');
+
+			// Set loading animation
+			$submit_controls.hide();
+			$spinner.show();
+
+			// Delay submit to prevent spinner flashing
+			setTimeout( function(){
+			
+				jQuery.ajax({
+
+					type: 'POST',
+					url: ajaxurl,
+					dataType: 'json',
+					data: {
+						action: 'ef_insert_post',
+						ef_insert_date: EFQuickPublish.$new_post_form.find('input.post-insert-dialog-post-date').val(),
+						ef_insert_title: EFQuickPublish.$post_title_input.val(),
+						nonce: jQuery(document).find('#ef-calendar-modify').val()
+					},
+					success: function( response, textStatus, XMLHttpRequest ) {
+
+						if( response.status == 'success' ){
+
+							//The response message on success is the html for the a post list item
+							var $new_post = jQuery(response.message);
+
+							if( redirect_to_draft ) {
+								//If user clicked on the 'edit post' link, let's send them to the new post
+								var edit_url =  $new_post.find('.item-actions .edit a').attr('href');
+								window.location = edit_url;
+							} else {
+								// Otherwise, inject the new post and bind the appropriate click event
+								$new_post.appendTo( EFQuickPublish.$current_date_square.find('ul.post-list') );
+								$new_post.on('click.ef-calendar-show-overlay', edit_flow_calendar_show_overlay );
+								edit_flow_calendar_close_overlays();
+							}
+
+						} else {
+							EFQuickPublish.display_errors( EFQuickPublish.$new_post_form, response.message );
+						}
+					},
+					error: function( XMLHttpRequest, textStatus, errorThrown ) {
+						EFQuickPublish.display_errors( EFQuickPublish.$new_post_form, errorThrown );
+					}
+
+				}); // .ajax
+
+				return false; // prevent bubbling up
+
+			}, 200); // setTimout
+
+		}, // ajax_ef_create_post
+
+		/**
+		 * Displays form errors and resets the UI
+		 * @param  jQueryObj $form The form to display the errors in
+		 * @param  str error_msg Error message
+		 */
+		display_errors : function( $form, error_msg ){
+
+			$form.find('.error').remove(); // clear out old errors
+			$form.find('.spinner').hide(); // stop the loading animation
+
+			// show submit controls and the error
+			$form.find('.post-insert-dialog-controls').show().before('<div class="error">Error: '+error_msg+'</div>');
+
+		} // display_errors
+
+	};
+
+	if( ef_calendar_params.can_add_posts === 'true' )
+		EFQuickPublish.init();
 	
 });
 
