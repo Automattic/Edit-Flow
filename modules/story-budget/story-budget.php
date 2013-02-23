@@ -597,7 +597,6 @@ class EF_Story_Budget extends EF_Module {
 	 * Print the table navigation and filter controls, using the current user's filters if any are set.
 	 */
 	function table_navigation() {
-		$post_statuses = $this->get_post_statuses();
 	?>
 	<div class="tablenav" id="ef-story-budget-tablenav">
 		<div class="alignleft actions">
@@ -719,6 +718,7 @@ class EF_Story_Budget extends EF_Module {
 	function story_budget_filter_options( $select_id, $select_name, $filters ) {
 		switch( $select_id ) {
 			case 'post_status': 
+			$post_statuses = $this->get_post_statuses();
 			?>
 				<select id="post_status" name="post_status"><!-- Status selectors -->
 						<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
