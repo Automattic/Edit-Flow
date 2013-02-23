@@ -804,9 +804,11 @@ class EF_Calendar extends EF_Module {
 					<input type="hidden" name="page" value="calendar" />
 					<input type="hidden" name="start_date" value="<?php echo esc_attr( $filters['start_date'] ); ?>"/>
 					<!-- Filter by status -->
-					<?php foreach( $this->calendar_filters() as $select_id => $select_name ) { ?>
-							<?php echo $this->calendar_filter_options( $select_id, $select_name, $filters ) ?>
-					<?php } ?>
+					<?php 
+						foreach( $this->calendar_filters() as $select_id => $select_name ) {
+							echo $this->calendar_filter_options( $select_id, $select_name, $filters );
+						} 
+					?>
 					<input type="submit" id="post-query-submit" class="button-primary button" value="<?php _e( 'Filter', 'edit-flow' ); ?>"/>
 				</form>
 			</li>
