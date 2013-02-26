@@ -28,9 +28,10 @@ jQuery(document).ready(function($) {
 			url : (ajaxurl) ? ajaxurl : wpListL10n.url,
 			data : params,
 			success : function(x) { 
+				var backgroundColor = parent_this.css( 'background-color' );
 				$(parent_this.parent().parent())
 					.animate( { 'backgroundColor':'#CCEEBB' }, 200 )
-					.animate( { 'backgroundColor':'#fff' }, 200 );
+					.animate( { 'backgroundColor':backgroundColor }, 200 );
 			},
 			error : function(r) { 
 				$('#ef-post_following_users_box').prev().append(' <p class="error">There was an error. Please reload the page.</p>');
