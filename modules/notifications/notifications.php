@@ -265,14 +265,15 @@ class EF_Notifications extends EF_Module {
 			die( __( "Nonce check failed. Please ensure you can add users or user groups to a post.", 'edit-flow' ) );
 
 		$post_id = (int)$_POST['post_id'];
+		$post = get_post( $post_id );
 		$user_usergroup_ids = array_map( 'intval', $_POST['user_group_ids'] );
 		if( ( !wp_is_post_revision( $post_id ) && !wp_is_post_autosave( $post_id ) )  && current_user_can( $this->edit_post_subscriptions_cap ) ) {
 			if( $_POST['ef_notifications_name'] === 'ef-selected-users[]' ) {
-				$this->save_post_following_users( $post_id, $user_usergroup_ids );
+				$this->save_post_following_users( $post, $user_usergroup_ids );
 			}
 			else if ( $_POST['ef_notifications_name'] == 'following_usergroups[]' ) {
 				if ( $this->module_enabled( 'user_groups' ) && in_array( get_post_type( $post_id ), $this->get_post_types_for_module( $edit_flow->user_groups->module ) ) ) {
-					$this->save_post_following_usergroups( $post_id, $user_usergroup_ids );
+					$this->save_post_following_usergroups( $post, $user_usergroup_ids );
 				}
 			}
 		}
