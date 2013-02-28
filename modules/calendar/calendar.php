@@ -385,7 +385,7 @@ class EF_Calendar extends EF_Module {
 		// Set the start date as the beginning of the week, according to blog settings
 		$filters['start_date'] = $this->get_beginning_of_week( $filters['start_date'] );
 
-		$filters = apply_filters( 'ef_calendar_modify_filters', $filters, $old_filters );
+		$filters = apply_filters( 'ef_calendar_filter_values', $filters, $old_filters );
 		
 		$this->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $filters );
 		
@@ -1271,7 +1271,7 @@ class EF_Calendar extends EF_Module {
 				}
 			break;
 			default:
-				do_action( 'ef_calendar_manage_filters', $select_id, $select_name, $filters );
+				do_action( 'ef_calendar_filter_display', $select_id, $select_name, $filters );
 			break;
 		}
 	}
