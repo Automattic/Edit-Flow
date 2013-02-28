@@ -419,7 +419,8 @@ class EF_Editorial_Metadata extends EF_Module {
 								'show_option_all' => __( '-- Select a user --', 'edit-flow' ), 
 								'name'     => $postmeta_key,
 								'selected' => $current_metadata 
-							); 
+							);
+						$user_dropdown_args = apply_filters( 'ef_editorial_metadata_user_dropdown_args', $user_dropdown_args );
 						wp_dropdown_users( $user_dropdown_args );
 						break;
 					case "number":
