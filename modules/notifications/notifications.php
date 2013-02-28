@@ -624,7 +624,7 @@ class EF_Notifications extends EF_Module {
 				$usergroup = $edit_flow->user_groups->get_usergroup_by( 'id', $usergroup_id );
 				foreach( (array)$usergroup->user_ids as $user_id ) {
 					$usergroup_user = get_user_by( 'id', $user_id );
-					if ( $usergroup_user )
+					if ( $usergroup_user && is_user_member_of_blog( $user_id ) )
 						$usergroup_users[] = $usergroup_user->user_email;
 				}
 			}
@@ -840,7 +840,7 @@ class EF_Notifications extends EF_Module {
 					break;
 			}
 			$new_user = get_user_by( $search, $user );
-			if ( !$new_user )
+			if ( ! $new_user || ! is_user_member_of_blog( $new_user->ID ) )
 				continue;
 			switch( $return ) {
 				case 'user_login':
