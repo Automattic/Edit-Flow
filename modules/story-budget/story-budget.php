@@ -664,7 +664,7 @@ class EF_Story_Budget extends EF_Module {
 		if ( !$user_filters['number_days'] )
 			$user_filters['number_days'] = 10;
 		
-		$user_filters = apply_filters('ef_story_budget_modify_filters', $user_filters, $current_user_filters);
+		$user_filters = apply_filters('ef_story_budget_filter_values', $user_filters, $current_user_filters);
 
 		$this->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $user_filters );
 		return $user_filters;
@@ -758,7 +758,7 @@ class EF_Story_Budget extends EF_Module {
 				wp_dropdown_users( $users_dropdown_args );
 			break;
 			default:
-				do_action( 'ef_story_budget_manage_filters', $select_id, $select_name, $filters);
+				do_action( 'ef_story_budget_filter_display', $select_id, $select_name, $filters);
 			break;
 		}
 	}
