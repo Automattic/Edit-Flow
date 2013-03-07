@@ -96,6 +96,10 @@ class EF_Calendar extends EF_Module {
 		//Update metadata
 		add_action( 'wp_ajax_ef_calendar_update_metadata', array( $this, 'handle_ajax_update_metadata' ) );
 
+		// .ics calendar subscriptions
+		add_action( 'wp_ajax_ef_calendar_ics_subscription', array( $this, 'handle_ics_subscription' ) );
+		add_action( 'wp_ajax_no_priv_ef_calendar_ics_subscription', array( $this, 'handle_ics_subscription' ) );
+
 	}
 	
 	/**
@@ -308,6 +312,99 @@ class EF_Calendar extends EF_Module {
 		$this->print_ajax_response( 'success', $this->module->messages['post-date-updated'] );
 		exit;
 	}
+
+	/**
+	 * After checking that the request is valid, do an .ics file
+	 *
+	 * @since 0.8
+	 */
+	function handle_ics_subscription() {
+
+		// Only do .ics subscriptions when the option is active
+		if ( 'on' != $this->module->options->ics_subscription )
+			die(); // @todo return accepted response value.
+
+		// Confirm this is a valid request
+
+		// Set the MIME type
+
+		// Set up the post data to be printed
+		$post_query_args = array();
+		$calendar_filters = $this->calendar_filters();
+		foreach( $calendar_filters as $filter ) {
+			if ( isset( $_GET[$filter] ) && $value = $this->sanitize_filter( $filter, $_GET[$filter] ) )
+				$post_query_args[$filter] = $value;
+		}
+
+		// Set the start date for the posts_where filter
+		$this->start_date = apply_filters( 'ef_calendar_ics_subscription_start_date', $this->get_beginning_of_week( date( 'Y-m-d', current_time( 'timestamp' ) ) ) );
+
+		$this->total_weeks = apply_filters( 'ef_calendar_total_weeks', $this->total_weeks, 'ics_subscription' );
+
+		$formatted_posts = array();
+		for( $current_week = 1; $current_week <= $this->total_weeks; $current_week++ ) {
+			// We need to set the object variable for our posts_where filter
+			$this->current_week = $current_week;
+			$week_posts = $this->get_calendar_posts_for_week( $post_query_args, 'ics_subscription' );
+			foreach( $week_posts as $date => $day_posts ) {
+				foreach( $day_posts as $num => $post ) {
+
+					$start_date = date( 'Ymd', strtotime( $post->post_date ) ) . 'T' . date( 'His', strtotime( $post->post_date ) ) . 'Z';
+					$last_modified = date( 'Ymd', strtotime( $post->post_modified_gmt ) ) . 'T' . date( 'His', strtotime( $post->post_modified_gmt ) ) . 'Z';
+
+					$formatted_post = array(
+						'BEGIN'           => 'VEVENT',
+						'UID'             => $post->guid,
+						'SUMMARY'         => apply_filters( 'the_title', $post->post_title ),
+						'LAST-MODIFIED'   => $last_modified,
+						'URL'             => get_edit_post_link( $post->ID ),
+					);
+
+					// Description should include everything visible in the calendar popup
+					$information_fields = $this->get_post_information_fields( $post );
+					$formatted_post['DESCRIPTION'] = '';
+					if ( ! empty( $information_fields ) ) {
+						foreach( $information_fields as $key => $values ) {
+							$formatted_post['DESCRIPTION'] .= $values['label'] . ': ' . $values['value'] . '\n';
+						}
+						$formatted_post['DESCRIPTION'] = rtrim( $formatted_post['DESCRIPTION'] );
+					}
+
+					$formatted_post['END'] = 'VEVENT';
+
+					// @todo auto format any field longer than 75 bytes
+
+					$formatted_posts[] = $formatted_post;
+				}
+			}
+		}
+
+		// Other template data
+		$header = array(
+				'BEGIN'             => 'VCALENDAR',
+				'VERSION'           => '2.0',
+				'PRODID'            => '-//Edit Flow//Edit Flow ' . EDIT_FLOW_VERSION . '//EN',
+			);
+
+		$footer = array(
+				'END'               => 'VCALENDAR',
+			);
+
+		// Render the .ics template
+		header( 'Content-type: text/calendar' );
+		foreach( array( $header, $formatted_posts, $footer ) as $section ) {
+			foreach( $section as $key => $value ) {
+				if ( is_string( $value ) )
+					echo $key . ':' . $value . "\r\n";
+				else
+					foreach( $value as $k => $v ) {
+						echo $k . ':' . $v . "\r\n";
+					}
+			}
+		}
+		die();
+
+	}
 	
 	/**
 	 * Get a user's screen options
@@ -350,39 +447,13 @@ class EF_Calendar extends EF_Module {
 			);
 		$old_filters = array_merge( $default_filters, (array)$old_filters );
 		
-		// Post status
-		if ( isset( $_GET['post_status'] ) ) {
-			$filters['post_status'] = $_GET['post_status'];
-			// Whitelist-based validation for this parameter
-			$all_valid_statuses = array(
-				'future',
-				'unpublish',
-				'publish'
-			);
-			foreach ( $this->get_post_statuses() as $post_status ) {
-				$all_valid_statuses[] = $post_status->slug;
-			}
-			if ( !in_array( $filters['post_status'], $all_valid_statuses ) ) {
-				$filters['post_status'] = '';
-			}
-		} else {
-			$filters['post_status'] = $old_filters['post_status'];
+		// Sanitize and validate any newly added filters
+		foreach( $old_filters as $key => $old_value ) {
+			if ( isset( $_GET[$key] ) && $new_value = $this->sanitize_filter( $key, $_GET[$key] ) )
+				$filters[$key] = $new_value;
+			else
+				$filters[$key] = $old_value;
 		}
-		
-		// Post type
-		$filters['cpt'] = sanitize_key( ( isset( $_GET['cpt'] ) ) ? $_GET['cpt'] : $old_filters['cpt'] );
-		
-		// Category
-		 $filters['cat'] = (int)( isset( $_GET['cat'] ) ) ? $_GET['cat'] : $old_filters['cat'];
-		
-		// Author
-		 $filters['author'] = (int)( isset( $_GET['author'] ) ) ? $_GET['author'] : $old_filters['author'];
-		
-		// Start date
-		if ( isset( $_GET['start_date'] ) && !empty( $_GET['start_date'] ) )
-			$filters['start_date'] = date( 'Y-m-d', strtotime( $_GET['start_date'] ) );
-		else
-			$filters['start_date'] = $old_filters['start_date'];
 
 		// Set the start date as the beginning of the week, according to blog settings
 		$filters['start_date'] = $this->get_beginning_of_week( $filters['start_date'] );
@@ -407,7 +478,7 @@ class EF_Calendar extends EF_Module {
 		$screen_options = $this->get_screen_options();
 		// Total number of weeks to display on the calendar. Run it through a filter in case we want to override the
 		// user's standard
-		$this->total_weeks = apply_filters( 'ef_calendar_total_weeks', $screen_options['num_weeks'] );
+		$this->total_weeks = apply_filters( 'ef_calendar_total_weeks', $screen_options['num_weeks'], 'dashboard' );
 		
 		$dotw = array(
 			'Sat',
@@ -795,13 +866,7 @@ class EF_Calendar extends EF_Module {
 	function get_inner_information( $ef_calendar_item_information_fields, $post ) {
 		?>
 			<table class="item-information">
-				<?php foreach( $ef_calendar_item_information_fields as $field => $values ): ?>
-					<?php
-						// Allow filters to hide empty fields or to hide any given individual field. Hide empty fields by default.
-						if ( ( apply_filters( 'ef_calendar_hide_empty_item_information_fields', true, $post->ID ) && empty( $values['value'] ) )
-								|| apply_filters( "ef_calendar_hide_{$field}_item_information_field", false, $post->ID ) )
-							continue;
-					?>
+				<?php foreach( $this->get_post_information_fields( $post ) as $field => $values ): ?>
 					<tr class="item-field item-information-<?php echo esc_attr( $field ); ?>">
 						<th class="label"><?php echo esc_html( $values['label'] ); ?>:</th>
 						<?php if ( $values['value'] && isset($values['type']) ): ?>
@@ -850,6 +915,85 @@ class EF_Calendar extends EF_Module {
 			?>
 			<div style="clear:right;"></div>
 		<?php
+
+	} // generate_post_li_html()
+
+	/**
+	 * Get the information fields to be presented with each post popup
+	 *
+	 * @since 0.8
+	 *
+	 * @param obj $post Post to gather information fields for
+	 * @return array $information_fields All of the information fields to be presented
+	 */
+	function get_post_information_fields( $post ) {
+
+		$information_fields = array();
+		// Post author
+		$information_fields['author'] = array(
+			'label' => __( 'Author', 'edit-flow' ),
+			'value' => get_the_author_meta( 'display_name', $post->post_author ),
+		);
+		// If the calendar supports more than one post type, show the post type label
+		if ( count( $this->get_post_types_for_module( $this->module ) ) > 1 ) {
+			$information_fields['post_type'] = array(
+				'label' => __( 'Post Type', 'edit-flow' ),
+				'value' => get_post_type_object( $post->post_type )->labels->singular_name,
+			);
+		}
+		// Publication time for published statuses
+		$published_statuses = array(
+			'publish',
+			'future',
+			'private',
+		);
+		if ( in_array( $post->post_status, $published_statuses ) ) {
+			if ( $post->post_status == 'future' ) {
+				$information_fields['post_date'] = array(
+					'label' => __( 'Scheduled', 'edit-flow' ),
+					'value' => get_the_time( null, $post->ID ),
+				);
+			} else {
+				$information_fields['post_date'] = array(
+					'label' => __( 'Published', 'edit-flow' ),
+					'value' => get_the_time( null, $post->ID ),
+				);
+			}
+		}
+		// Taxonomies and their values
+		$args = array(
+			'post_type' => $post->post_type,
+		);
+		$taxonomies = get_object_taxonomies( $args, 'object' );
+		foreach( (array)$taxonomies as $taxonomy ) {
+			// Sometimes taxonomies skip by, so let's make sure it has a label too
+			if ( !$taxonomy->public || !$taxonomy->label )
+				continue;
+			$terms = wp_get_object_terms( $post->ID, $taxonomy->name );
+			$key = 'tax_' . $taxonomy->name;
+			if ( count( $terms ) ) {
+				$value = '';
+				foreach( (array)$terms as $term ) {
+					$value .= $term->name . ', ';
+				}
+				$value = rtrim( $value, ', ' );
+			} else {
+				$value = '';
+			}
+			$information_fields[$key] = array(
+				'label' => $taxonomy->label,
+				'value' => $value,
+			);
+		}
+		
+		$information_fields = apply_filters( 'ef_calendar_item_information_fields', $information_fields, $post->ID );
+		foreach( $information_fields as $field => $values ) {
+			// Allow filters to hide empty fields or to hide any given individual field. Hide empty fields by default.
+			if ( ( apply_filters( 'ef_calendar_hide_empty_item_information_fields', true, $post->ID ) && empty( $values['value'] ) )
+					|| apply_filters( "ef_calendar_hide_{$field}_item_information_field", false, $post->ID ) )
+				unset( $information_fields[$field] );
+		}
+		return $information_fields;
 	}
 	
 	/**
@@ -933,9 +1077,10 @@ class EF_Calendar extends EF_Module {
 	 * Query to get all of the calendar posts for a given day
 	 *
 	 * @param array $args Any filter arguments we want to pass
+	 * @param string $request_context Where the query is coming from, to distinguish dashboard and subscriptions
 	 * @return array $posts All of the posts as an array sorted by date
 	 */
-	function get_calendar_posts_for_week( $args = array() ) {
+	function get_calendar_posts_for_week( $args = array(), $context = 'dashboard' ) {
 		global $wpdb;
 		
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
@@ -971,7 +1116,7 @@ class EF_Calendar extends EF_Module {
 			$args['post_type'] = $supported_post_types;
 		
 		// Filter for an end user to implement any of their own query args
-		$args = apply_filters( 'ef_calendar_posts_query_args', $args );
+		$args = apply_filters( 'ef_calendar_posts_query_args', $args, $context );
 		add_filter( 'posts_where', array( $this, 'posts_where_week_range' ) );
 		$post_results = new WP_Query( $args );
 		remove_filter( 'posts_where', array( $this, 'posts_where_week_range' ) );
@@ -1419,6 +1564,50 @@ class EF_Calendar extends EF_Module {
 		$select_filter_names['type'] = 'cpt';
 
 		return apply_filters( 'ef_calendar_filter_names', $select_filter_names );
+	}
+
+	/**
+	 * Sanitize a $_GET or similar filter being used on the calendar
+	 *
+	 * @since 0.8
+	 *
+	 * @param string $key Filter being sanitized
+	 * @param string $dirty_value Value to be sanitized
+	 * @return string $sanitized_value Safe to use value 
+	 */
+	function sanitize_filter( $key, $dirty_value ) {
+
+		switch( $key ) {
+			case 'post_status':
+				// Whitelist-based validation for this parameter
+				$valid_statuses = wp_list_pluck( $this->get_post_statuses(), 'slug' );
+				$valid_statuses[] = 'future';
+				$valid_statuses[] = 'unpublish';
+				$valid_statuses[] = 'publish';
+				if ( in_array( $dirty_value, $valid_statuses ) )
+					return $dirty_value;
+				else
+					return '';
+				break;
+			case 'cpt':
+				$cpt = sanitize_key( $dirty_value );
+				$supported_post_types = $this->get_post_types_for_module( $this->module );
+				if ( $cpt && in_array( $cpt, $supported_post_types ) )
+					return $cpt;
+				else
+					return '';
+				break;
+			case 'start_date':
+				return date( 'Y-m-d', strtotime( $dirty_value ) );
+				break;
+			case 'cat':
+			case 'author':
+				return intval( $dirty_value );
+				break;
+			default:
+				return '';
+				break;
+		}
 	}
 
 	function calendar_filter_options( $select_id, $select_name, $filters ) {
