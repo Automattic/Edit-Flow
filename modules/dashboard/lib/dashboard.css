@@ -93,3 +93,18 @@
 	font-family: "Lucida Grande",Verdana,Arial,"Bitstream Vera Sans",sans-serif;
 	font-size: 10px;
 }
+
+/** Dashboard Notepad **/
+#dashboard-notepad #dashboard-notepad-submit-buttons {
+	float: right;
+}
+
+#dashboard-notepad #dashboard-notepad-last-updated {
+	font-size: 12px;
+	line-height: 18px;
+	color: #999;
+}
+
+#dashboard-notepad .submit #dashboard-notepad-last-updated {
+	float: left;
+}

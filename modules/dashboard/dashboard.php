@@ -232,6 +232,12 @@ class EF_Dashboard extends EF_Module {
 		$posts = get_posts( $args );
 		$current_note = ( ! empty( $posts[0]->post_content ) ) ? $posts[0]->post_content : '';
 		$current_id = ( ! empty( $posts[0]->ID ) ) ? $posts[0]->ID : 0;
+		$current_post = ( ! empty( $posts[0] ) ) ? $posts[0] : false;
+
+		if ( $current_post )
+			$last_updated = '<span id="dashboard-notepad-last-updated">' . sprintf( __( '%1$s last updated on %2$s', 'edit-flow' ), get_user_by( 'id', $current_post->post_author )->display_name, get_the_time( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $current_post ) ) . '</span>';
+		else
+			$last_updated = '';
 
 		if ( current_user_can( apply_filters( 'ef_dashboard_notepad_edit_cap', 'edit_others_posts' ) ) ) {
 			echo '<form id="dashboard-notepad">';
@@ -241,9 +247,13 @@ class EF_Dashboard extends EF_Module {
 			echo esc_textarea( trim( $current_note ) );
 			echo '</textarea>';
 			echo '<p class="submit">';
+			echo $last_updated;
+			echo '<span id="dashboard-notepad-submit-buttons">';
 			if ( ! empty( $current_id ) )
 				echo submit_button( __( 'New Note', 'edit-flow' ), 'secondary', 'create-note', false, false ) . '&nbsp;&nbsp;&nbsp;';
 			submit_button( __( 'Update Note', 'edit-flow' ), 'primary', 'update-note', false );
+			echo '</span>';
+			echo '<div style="clear:both;"></div>';
 			wp_nonce_field( 'dashboard-notepad' );
 			echo '</form>';
 		} else {
@@ -251,6 +261,7 @@ class EF_Dashboard extends EF_Module {
 			echo '<textarea style="width:100%" rows="10" name="note" disabled="disabled">';
 			echo esc_textarea( trim( $current_note ) );
 			echo '</textarea>';
+			echo $last_updated;
 			echo '</form>';
 		}
 	}
