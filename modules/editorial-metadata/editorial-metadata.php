@@ -492,6 +492,7 @@ class EF_Editorial_Metadata extends EF_Module {
 				// Add the slugs of the terms with non-empty new metadata to an array
 				$term_slugs[] = $term->slug;
 			}
+			do_action( 'ef_editorial_metadata_field_updated', $key, $new_metdata, $id, $type );
 		}
 		
 		// Relate the post to the terms used and taxonomy type (wp_term_relationships table).
