@@ -352,6 +352,8 @@ class EF_Editorial_Comments extends EF_Module
 			));
 		
 			$response->send();
+
+			die();
 						
 		} else {
 			die( __('There was a problem of some sort. Try again or contact your administrator.', 'edit-flow') );
