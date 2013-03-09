@@ -196,6 +196,9 @@ jQuery(document).ready(function () {
 	 * Change the input/select/textarea back to normal static text
 	 */
 	function reset_to_normal_html() {
+		//Always hide the save button
+		jQuery('.save-metadata-hide').hide();
+
 		//Haven't chosen a metadata? Kill this function.
 		if(jQuery('#actively-editing').length === 0)
 			return;
@@ -204,7 +207,6 @@ jQuery(document).ready(function () {
 		var current_td = jQuery('#actively-editing').closest('td');
 		jQuery('#actively-editing').remove();
 		current_td.html(current_text);
-		jQuery('.save-metadata-hide').hide();
 	}
 
 	/**
