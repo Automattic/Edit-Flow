@@ -1246,7 +1246,7 @@ class EF_Calendar extends EF_Module {
 			$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
 		
 		// Check that we got a proper post
-		$post_id = (int)$_POST['post_id'];
+		$post_id = ( int )$_POST['post_id'];
 		$post = get_post( $post_id );
 		if ( !$post )
 			$this->print_ajax_response( 'error', $this->module->messages['missing-post'] );
@@ -1264,23 +1264,23 @@ class EF_Calendar extends EF_Module {
 		);
 
 		//If there was a problem
-		$current_post_meta = get_post_meta($_POST['post_id'], $post_meta_key, true);
+		$current_post_meta = get_post_meta( $_POST['post_id'], $post_meta_key, true );
 
 		//Javascript date parsing is terrible, so use strtotime in php
-		if($_POST['attr_type'] == 'date')
-			$metadata_value = strtotime($_POST['metadata_value']);
+		if( $_POST['attr_type'] == 'date' )
+			$metadata_value = strtotime( $_POST['metadata_value'] );
 		else
 			$metadata_value = $_POST['metadata_value'];
 
 		//If the metadata hasn't been changed, don't update anything
-		if($_POST['metadata_value'] != $current_post_meta) {
+		if( $_POST['metadata_value'] != $current_post_meta ) {
 			if( !update_post_meta( intval( $_POST['post_id'] ), $post_meta_key, $metadata_value ) )
-				$this->print_ajax_response( 'error', 'Metadata could not be updated.' . $this->get_inner_information( $this->get_calendar_information_fields($post, $published_statuses), $post, $published_statuses ) );
+				$this->print_ajax_response( 'error', 'Metadata could not be updated.' . $this->get_inner_information( $this->get_calendar_information_fields( $post, $published_statuses ), $post, $published_statuses ) );
 			else {
-				$this->print_ajax_response('success', $this->get_inner_information( $this->get_calendar_information_fields($post, $published_statuses), $post, $published_statuses ) );
+				$this->print_ajax_response('success', $this->get_inner_information( $this->get_calendar_information_fields( $post, $published_statuses ), $post, $published_statuses ) );
 			}
 		} else {
-			$this->print_ajax_response('success', $this->get_inner_information( $this->get_calendar_information_fields($post, $published_statuses), $post, $published_statuses ) );
+			$this->print_ajax_response( 'success', $this->get_inner_information( $this->get_calendar_information_fields( $post, $published_statuses ), $post, $published_statuses ) );
 		}
 
 		die();
@@ -1303,15 +1303,15 @@ class EF_Calendar extends EF_Module {
 
 		$users = get_users( array('blog_id' => $GLOBALS['blog_id'] ) );
 		$user_list = '<select id="actively-editing" name="ef-alter-text" class="metadata-edit">';
-		foreach($users as $user ) {
-			if($user->data->user_login == $_POST['current_user'])
+		foreach( $users as $user ) {
+			if( $user->data->user_login == $_POST['current_user'] )
 				$selected = 'selected="selected"';
 			else
 				$selected = "";
 			$user_list .= '<option value="' . $user->data->ID . '" ' . $selected . '>' . $user->data->user_login . '</option>';
 		}
 		$user_list .= '</select>';
-		$this->print_ajax_response('success', $user_list );
+		$this->print_ajax_response( 'success', $user_list );
 		
 		die();
 	}
