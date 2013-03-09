@@ -132,15 +132,15 @@ jQuery(document).ready(function () {
 			case 'number':
 			case 'location':
 				current_text = current_value = metadata_value_element.text();
-				jQuery(top_level_selector + ' td.'+ type).html(jQuery('<input type="text" id="actively-editing" name="ef-alter-text" value="' + current_value + '" class="metadata-edit-'+ type+ '"/>'));
+				jQuery(top_level_selector + ' td.'+ type).html('<input type="text" id="actively-editing" name="ef-alter-text" value="' + current_value + '" class="metadata-edit-'+ type+ '"/>');
 			break;
 			case 'paragraph':
 				current_text = current_value = metadata_value_element.text();
-				jQuery(top_level_selector + ' td.'+ type).html(jQuery('<textarea type="text" id="actively-editing" name="ef-alter-text" class="metadata-edit-'+ type+ '">'+current_value+'</textarea>'));
+				jQuery(top_level_selector + ' td.'+ type).html('<textarea type="text" id="actively-editing" name="ef-alter-text" class="metadata-edit-'+ type+ '">'+current_value+'</textarea>');
 			break;
 			case 'date':
 				current_text = current_value = metadata_value_element.text();
-				jQuery(top_level_selector + ' td.'+ type).html(jQuery('<input type="text" id="actively-editing" name="ef-alter-text" value="' + current_value + '" class="metadata-edit-' + type + ' date-pick"/>'));
+				jQuery(top_level_selector + ' td.'+ type).html('<input type="text" id="actively-editing" name="ef-alter-text" value="' + current_value + '" class="metadata-edit-' + type + ' date-pick"/>');
 				//Always be traversin the DOM and rebinding necessary functionality
 				jQuery(top_level_selector + ' td.'+ type + ' #actively-editing').datepicker({dateFormat: 'M dd yy', firstDay: ef_week_first_day,});
 			break;
@@ -151,7 +151,7 @@ jQuery(document).ready(function () {
 				else
 					current_value = '<option>Yes</option><option>No</option>';
 
-				jQuery(top_level_selector + ' td.'+type).html(jQuery('<select id="actively-editing" name="ef-alter-text" class="metadata-edit">' + current_value + '</select>'));
+				jQuery(top_level_selector + ' td.'+type).html('<select id="actively-editing" name="ef-alter-text" class="metadata-edit">' + current_value + '</select>');
 			break;
 			case 'user':
 				var user_list;
