@@ -152,7 +152,7 @@ jQuery(document).ready(function () {
 					current_value = '<option>Yes</option><option>No</option>';
 
 				jQuery(top_level_selector + ' td.'+type).html(jQuery('<select id="actively-editing" name="ef-alter-text" class="metadata-edit">' + current_value + '</select>'));
-			break
+			break;
 			case 'user':
 				var user_list;
 				var user_info = {};
@@ -210,6 +210,7 @@ jQuery(document).ready(function () {
 	/**
 	 * replace_inner_information
 	 * Replace the overlay with the content received from the ajax call.
+	 * 
 	 * @param  string xml
 	 */
 	function replace_inner_information(content) {
