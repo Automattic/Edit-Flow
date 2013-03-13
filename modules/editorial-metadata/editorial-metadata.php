@@ -472,12 +472,12 @@ class EF_Editorial_Metadata extends EF_Module {
 			//$current_metadata = get_post_meta( $id, $key, true );
 			
 			$new_metadata = isset( $_POST[$key] ) ? $_POST[$key] : '';
-			
+
+			$type = $term->type;
 			if ( empty ( $new_metadata ) ) {
 				delete_post_meta( $id, $key );
 			} else {
-				
-				$type = $term->type;
+
 				// TODO: Move this to a function
 				if ( $type == 'date' ) {
 					$new_metadata = strtotime( $new_metadata );
