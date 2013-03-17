@@ -1014,7 +1014,7 @@ class EF_Notifications extends EF_Module {
 			$date = date_i18n( get_option( 'date_format' ), $scheduled_ts );
 			$time = date_i18n( get_option( 'time_format' ), $scheduled_ts );
 
-			return "$date at $time";
+			return sprintf( __( '%1$s at %2$s', 'edit-flow' ), $date, $time );
 	}
 }
 
