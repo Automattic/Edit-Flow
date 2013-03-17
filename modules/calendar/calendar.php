@@ -72,6 +72,10 @@ class EF_Calendar extends EF_Module {
 	 */
 	function init() {
 		
+		// .ics calendar subscriptions
+		add_action( 'wp_ajax_ef_calendar_ics_subscription', array( $this, 'handle_ics_subscription' ) );
+		add_action( 'wp_ajax_nopriv_ef_calendar_ics_subscription', array( $this, 'handle_ics_subscription' ) );
+
 		// Check whether the user should have the ability to view the calendar
 		$view_calendar_cap = 'ef_view_calendar';
 		$view_calendar_cap = apply_filters( 'ef_view_calendar_cap', $view_calendar_cap );
@@ -98,9 +102,7 @@ class EF_Calendar extends EF_Module {
 		//Update metadata
 		add_action( 'wp_ajax_ef_calendar_update_metadata', array( $this, 'handle_ajax_update_metadata' ) );
 
-		// .ics calendar subscriptions
-		add_action( 'wp_ajax_ef_calendar_ics_subscription', array( $this, 'handle_ics_subscription' ) );
-		add_action( 'wp_ajax_no_priv_ef_calendar_ics_subscription', array( $this, 'handle_ics_subscription' ) );
+		// Action to regenerate the calendar feed sekret
 		add_action( 'admin_init', array( $this, 'handle_regenerate_calendar_feed_secret' ) );
 	}
 	
