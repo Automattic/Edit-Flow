@@ -372,14 +372,17 @@ class EF_Calendar extends EF_Module {
 				foreach( $day_posts as $num => $post ) {
 
 					$start_date = date( 'Ymd', strtotime( $post->post_date ) ) . 'T' . date( 'His', strtotime( $post->post_date ) ) . 'Z';
+					$end_date = date( 'Ymd', strtotime( $post->post_date ) + (5 * 60) ) . 'T' . date( 'His', strtotime( $post->post_date ) + (5 * 60) ) . 'Z';
 					$last_modified = date( 'Ymd', strtotime( $post->post_modified_gmt ) ) . 'T' . date( 'His', strtotime( $post->post_modified_gmt ) ) . 'Z';
 
 					$formatted_post = array(
 						'BEGIN'           => 'VEVENT',
 						'UID'             => $post->guid,
 						'SUMMARY'         => apply_filters( 'the_title', $post->post_title ),
+						'DTSTART'         => $start_date,
+						'DTEND'           => $end_date,
 						'LAST-MODIFIED'   => $last_modified,
-						'URL'             => get_edit_post_link( $post->ID ),
+						'URL'             => get_post_permalink( $post->ID ),
 					);
 
 					// Description should include everything visible in the calendar popup
@@ -417,15 +420,43 @@ class EF_Calendar extends EF_Module {
 		foreach( array( $header, $formatted_posts, $footer ) as $section ) {
 			foreach( $section as $key => $value ) {
 				if ( is_string( $value ) )
-					echo $key . ':' . $value . "\r\n";
+					echo $this->do_ics_line_folding( $key . ':' . $value );
 				else
 					foreach( $value as $k => $v ) {
-						echo $k . ':' . $v . "\r\n";
+						echo $this->do_ics_line_folding( $k . ':' . $v );
 					}
 			}
 		}
 		die();
 
+	}
+
+	/**
+	 * Perform line folding according to RFC 5545.
+	 *
+	 * @param string $line The line without trailing CRLF
+	 * @return string The line after line-folding with all necessary CRLF.
+	 */
+	function do_ics_line_folding( $line ) {
+		$len = mb_strlen( $line );
+		if ( $len <= 75) {
+			return $line . "\r\n";
+		}
+
+		$chunks = array();
+		$start = 0;
+		while( true ) {
+			$chunk = mb_substr( $line, $start, 75 );
+			$chunkLen = mb_strlen( $chunk );
+			$start += $chunkLen;
+			if ( $start < $len ) {
+				$chunks[] = $chunk . "\r\n ";
+			}
+			else {
+				$chunks[] = $chunk ."\r\n";
+				return implode( "", $chunks );
+			}
+		}
 	}
 
 	/**
