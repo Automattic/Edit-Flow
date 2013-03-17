@@ -53,8 +53,6 @@ class EF_Dashboard_Notepad_Widget {
 			$new_note['ID'] = $current_id;
 			wp_update_post( $new_note );
 		} else {
-			if ( ! empty( $_REQUEST['create-note'] ) )
-				$new_note['post_content'] = ' ';
 			wp_insert_post( $new_note );
 		}
 
@@ -95,8 +93,6 @@ class EF_Dashboard_Notepad_Widget {
 			echo '<p class="submit">';
 			echo $last_updated;
 			echo '<span id="dashboard-notepad-submit-buttons">';
-			if ( ! empty( $current_id ) )
-				echo submit_button( __( 'New Note', 'edit-flow' ), 'secondary', 'create-note', false, false ) . '&nbsp;&nbsp;&nbsp;';
 			submit_button( __( 'Update Note', 'edit-flow' ), 'primary', 'update-note', false );
 			echo '</span>';
 			echo '<div style="clear:both;"></div>';
