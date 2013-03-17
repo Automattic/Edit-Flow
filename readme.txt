@@ -96,6 +96,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Double-click to create a new post on the calendar. Thanks [bbrooks](https://github.com/bbrooks)
 * Post subscriptions are now saved via AJAX, which means you can add or remove subscribers without hitting "Save Post". This is especially useful for editorial comments. Thanks [cojennin](https://github.com/cojennin)
 * Modify which filters are used on the calendar and story budget, or add your own. Thanks [cojennin](https://github.com/cojennin)
+* Scheduled publication time is now included in relevant email notifications. Props [mattoperry](https://github.com/mattoperry)
 * New Russian localization thanks to [te-st.ru](https://github.com/Teplitsa)
 
 = 0.7.6 (Jan. 30, 2013) =
