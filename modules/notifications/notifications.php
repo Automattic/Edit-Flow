@@ -397,8 +397,8 @@ class EF_Notifications extends EF_Module {
 			} else if ( $new_status == 'future' ) {
 				/* translators: 1: site name, 2: post type, 3. post title */
 				$subject = sprintf( __('[%1$s] %2$s Scheduled: "%3$s"'), $blogname, $post_type, $post_title );
-				/* translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user email */
-				$body .= sprintf( __( '%1$s #%2$s "%3$s" was scheduled by %4$s %5$s' ), $post_type, $post_id, $post_title, $current_user_display_name, $current_user_email ) . "\r\n";
+				/* translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user email 6. scheduled date  */
+				$body .= sprintf( __( '%1$s #%2$s "%3$s" was scheduled by %4$s %5$s.  It will be published on %6$s' ), $post_type, $post_id, $post_title, $current_user_display_name, $current_user_email, $this->get_scheduled_datetime( $post ) ) . "\r\n";
 			} else if ( $new_status == 'publish' ) {
 				/* translators: 1: site name, 2: post type, 3. post title */
 				$subject = sprintf( __( '[%1$s] %2$s Published: "%3$s"', 'edit-flow' ), $blogname, $post_type, $post_title );
@@ -998,7 +998,22 @@ class EF_Notifications extends EF_Module {
 		</form>
 		<?php
 	}	
+
+	/**
+	* Gets a simple phrase contaning the formatted date and time that the post is scheduled for.
+	* 
+	* @param $post Post object
+	*/
 	
+	function get_scheduled_datetime( $post ) {
+			
+			$scheduled_ts = strtotime( $post->post_date_gmt );
+
+			$date =  date_i18n( get_option( 'date_format' ), $scheduled_ts );
+			$time =  date_i18n( get_option( 'time_format' ), $scheduled_ts );
+
+			return "$date at $time";
+	}
 }
 
 }
