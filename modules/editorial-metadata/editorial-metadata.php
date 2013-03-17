@@ -386,12 +386,12 @@ class EF_Editorial_Metadata extends EF_Module {
 						// TODO: Move this to a function
 						if ( !empty( $current_metadata ) ) {
 							// Turn timestamp into a human-readable date
-							$current_metadata = date( 'M d Y' , intval( $current_metadata ) );	
+							$current_metadata = $this->show_date_or_datetime( intval( $current_metadata ) );	
 						}
 						echo "<label for='$postmeta_key'>{$term->name}</label>";
 						if ( $description_span )
 							echo "<label for='$postmeta_key'>$description_span</label>";
-						echo "<input id='$postmeta_key' name='$postmeta_key' type='text' class='date-pick' value='$current_metadata' />";
+						echo "<input id='$postmeta_key' name='$postmeta_key' type='text' class='date-time-pick' value='$current_metadata' />";
 						break;
 					case "location":
 						echo "<label for='$postmeta_key'>{$term->name}</label>";
@@ -437,6 +437,20 @@ class EF_Editorial_Metadata extends EF_Module {
 		echo "</div>";
 	}
 	
+	/**
+	 * Show date or datetime
+	 * @param  int $current_date
+	 * @return string
+	 * @since 0.8
+	 */
+	private function show_date_or_datetime( $current_date ) {
+
+		if( date( 'Hi', $current_date ) == '0000')
+			return date( 'M d Y', $current_date );
+		else
+			return date( 'M d Y H:i', $current_date );
+	}
+
 	/**
 	 * Save any values in the editorial metadata post meta box
 	 * 
