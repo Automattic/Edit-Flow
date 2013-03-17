@@ -43,11 +43,13 @@ class EF_Calendar extends EF_Module {
 					'page' => 'off',
 				),
 				'ics_subscription' => 'off',
+				'ics_secret_key' => '',
 			),
 			'messages' => array(
 				'post-date-updated' => __( "Post date updated.", 'edit-flow' ),
 				'update-error' => __( 'There was an error updating the post. Please try again.', 'edit-flow' ),
 				'published-post-ajax' => __( "Updating the post date dynamically doesn't work for published content. Please <a href='%s'>edit the post</a>.", 'edit-flow' ),
+				'key-regenerated' => __( 'iCal secret key regenerated. Please inform all users they will need to resubscribe.', 'edit-flow' ),
 			),
 			'configure_page_cb' => 'print_configure_view',
 			'configure_link_text' => __( 'Calendar Options', 'edit-flow' ),
@@ -95,7 +97,7 @@ class EF_Calendar extends EF_Module {
 		// .ics calendar subscriptions
 		add_action( 'wp_ajax_ef_calendar_ics_subscription', array( $this, 'handle_ics_subscription' ) );
 		add_action( 'wp_ajax_no_priv_ef_calendar_ics_subscription', array( $this, 'handle_ics_subscription' ) );
-
+		add_action( 'admin_init', array( $this, 'handle_regenerate_calendar_feed_secret' ) );
 	}
 	
 	/**
@@ -403,6 +405,28 @@ class EF_Calendar extends EF_Module {
 		}
 		die();
 
+	}
+
+	/**
+	 * Handle a request to regenerate the calendar feed secret
+	 *
+	 * @since 0.8
+	 */
+	public function handle_regenerate_calendar_feed_secret() {
+
+		if ( ! isset( $_GET['action'] ) || 'ef_calendar_regenerate_calendar_feed_secret' != $_GET['action'] )
+			return;
+
+		if ( ! current_user_can( 'manage_options' ) )
+			wp_die( $this->module->messages['invalid-permissions'] );
+
+		if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'ef-regenerate-ics-key' ) )
+			wp_die( $this->module->messages['nonce-failed'] );
+
+		EditFlow()->update_module_option( $this->module->name, 'ics_secret_key', wp_generate_password() );
+
+		wp_safe_redirect( add_query_arg( 'message', 'key-regenerated', menu_page_url( $this->module->settings_slug, false ) ) );
+		exit;
 	}
 	
 	/**
@@ -1214,6 +1238,15 @@ class EF_Calendar extends EF_Module {
 			echo '>' . esc_html( $label ) . '</option>';
 		}
 		echo '</select>';
+
+
+		$regenerate_url = add_query_arg( 'action', 'ef_calendar_regenerate_calendar_feed_secret', admin_url( 'index.php' ) );
+		$regenerate_url = wp_nonce_url( $regenerate_url, 'ef-regenerate-ics-key' );
+		echo '&nbsp;&nbsp;&nbsp;<a href="' . esc_url( $regenerate_url ) . '">' . __( 'Regenerate calendar feed secret', 'edit-flow' ) . '</a>';
+
+		// If our secret key doesn't exist, create a new one
+		if ( empty( $this->module->options->ics_secret_key ) )
+			EditFlow()->update_module_option( $this->module->name, 'ics_secret_key', wp_generate_password() );
 	}
 
 	/**
