@@ -211,6 +211,18 @@ class EF_Calendar extends EF_Module {
 		$output .= '</select>';
 		
 		$output .= '&nbsp;&nbsp;&nbsp;<input id="screen-options-apply" name="screen-options-apply" type="submit" value="' . __( 'Apply' ) . '" class="button-secondary" />';
+
+		if ( 'on' == $this->module->options->ics_subscription && $this->module->options->ics_secret_key ) {
+			$args = array(
+					'action'       => 'ef_calendar_ics_subscription',
+					'user'         => wp_get_current_user()->user_login,
+					'user_key'     => md5( wp_get_current_user()->user_login . $this->module->options->ics_secret_key ),
+				);
+			$subscription_link = add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
+			$output .= '<br />';
+			$output .= __( 'Subscribe in iCal or Google Calendar', 'edit-flow' );
+			$output .= ':<br /><input type="text" size="100" value="' . esc_attr( $subscription_link ) . '" />';
+		}
 		
 		return $output;	
 	}
@@ -325,9 +337,16 @@ class EF_Calendar extends EF_Module {
 		if ( 'on' != $this->module->options->ics_subscription )
 			die(); // @todo return accepted response value.
 
-		// Confirm this is a valid request
+		// Confirm all of the arguments are present
+		if ( ! isset( $_GET['user'], $_GET['user_key'] ) )
+			die(); // @todo return an error response
 
-		// Set the MIME type
+		// Confirm this is a valid request
+		$user = sanitize_user( $_GET['user'] );
+		$user_key = sanitize_user( $_GET['user_key'] );
+		$ics_secret_key = $this->module->options->ics_secret_key;
+		if ( ! $ics_secret_key || md5( $user . $ics_secret_key ) !== $user_key )
+			die( $this->module->messages['nonce-failed'] );
 
 		// Set up the post data to be printed
 		$post_query_args = array();
@@ -391,7 +410,7 @@ class EF_Calendar extends EF_Module {
 				'END'               => 'VCALENDAR',
 			);
 
-		// Render the .ics template
+		// Render the .ics template and set the content type
 		header( 'Content-type: text/calendar' );
 		foreach( array( $header, $formatted_posts, $footer ) as $section ) {
 			foreach( $section as $key => $value ) {
