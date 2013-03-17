@@ -1000,17 +1000,19 @@ class EF_Notifications extends EF_Module {
 	}	
 
 	/**
-	* Gets a simple phrase contaning the formatted date and time that the post is scheduled for.
+	* Gets a simple phrase containing the formatted date and time that the post is scheduled for.
+	*
+	* @since 0.8
 	* 
-	* @param $post Post object
+	* @param  obj    $post               Post object
+	* @return str    $scheduled_datetime The scheduled datetime in human-readable format
 	*/
-	
-	function get_scheduled_datetime( $post ) {
+	private function get_scheduled_datetime( $post ) {
 			
 			$scheduled_ts = strtotime( $post->post_date_gmt );
 
-			$date =  date_i18n( get_option( 'date_format' ), $scheduled_ts );
-			$time =  date_i18n( get_option( 'time_format' ), $scheduled_ts );
+			$date = date_i18n( get_option( 'date_format' ), $scheduled_ts );
+			$time = date_i18n( get_option( 'time_format' ), $scheduled_ts );
 
 			return "$date at $time";
 	}
