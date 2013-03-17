@@ -756,33 +756,40 @@ class EF_Editorial_Metadata extends EF_Module {
 			$term_data = array(
 				'label' => $term->name,
 				'value' => '',
+				'type' => '',
 			);
 			$postmeta_key = $this->get_postmeta_key( $term );
 			$current_metadata = $this->get_postmeta_value( $term, $post_id );
 			$type = $term->type;
+			$term_data['editable'] = true;
 			switch( $type ) {
 				case "date":
 					if ( !empty( $current_metadata ) )
 						$current_metadata = date( get_option( 'date_format' ), intval( $current_metadata ) );
 					$term_data['value'] = esc_html( $current_metadata );
+					$term_data['type'] = $type;
 					break;
 				case "location":
 				case "text":
 				case "number":
 				case "paragraph":
-					if ( $current_metadata )
+					if ( $current_metadata ) {
 						$term_data['value'] = esc_html( $current_metadata );
+						$term_data['type'] = $type; 
+					}
 					break;
 				case "checkbox":
 					if ( $current_metadata )
 						$term_data['value'] = __( 'Yes', 'edit-flow' );
 					else
 						$term_data['value'] = __( 'No', 'edit-flow' );
+					$term_data['type'] = $type;
 					break;
 				case "user": 
 					$userdata = get_userdata( $current_metadata );
 					if ( is_object( $userdata ) )
 						$term_data['value'] = esc_html( $userdata->display_name );
+					$term_data['type'] = $type;
 					break;
 				default:
 					break;
