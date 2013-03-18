@@ -1176,6 +1176,10 @@ class EF_Calendar extends EF_Module {
 		if ( empty( $_POST['ef_insert_date'] ) )
 			$this->print_ajax_response( 'error', 'No date supplied' );
 
+		// Post type has to be visible on the calendar to create a placeholder
+		if ( ! in_array( $this->module->options->quick_create_post_type, $this->get_post_types_for_module( $this->module ) ) )
+			$this->print_ajax_response( 'error', __( 'Please change Quick Create to use a post type viewable on the calendar.', 'edit-flow' ) );
+
 		// Sanitize post values
 		$post_title = sanitize_text_field( $_POST['ef_insert_title'] );
 
