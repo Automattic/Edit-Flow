@@ -15,10 +15,12 @@ jQuery(document).ready(function () {
 	var post_selector;
 
 	//.day-item does not get replaced, so good anchor for DOM traversal
-	jQuery('.day-item').on('click', 'a.edit-calendar-metadata', function() {
+	jQuery('.day-item').on('click', '.editable-value', function() {
+		jQuery(this).removeClass('editable-value');
 		//Input types allowed for editorial metadata
 		//Is it possible to add more select "types" with a filter?
-		var input_types = ['date', 'location', 'text', 'number', 'paragraph', 'checkbox', 'user'];
+		//Add these in with php and tack on extra?
+		var input_types = ['date', 'location', 'text', 'number', 'paragraph', 'checkbox', 'user', 'author', 'taxonomy'];
 		var tr_classes = jQuery(event.target).closest('tr.item-field').attr('class').split(' ');
 		post_selector = '#'+jQuery(event.target).closest('.day-item').attr('id');
 		
@@ -32,7 +34,7 @@ jQuery(document).ready(function () {
 		//Retrieve the correct selector for what we're looking to replace
 		top_level_selector = post_selector + ' .item-overlay .item-inner' + ' .' + metadata_term;
 		th_label = jQuery(jQuery(top_level_selector).children('th.label')[0]);
-		metadata_value_element = th_label.next('td.value');
+		metadata_value_element = jQuery(this);
 
 		var metadata_value_classes = metadata_value_element.attr('class').split(' ');
 
@@ -64,7 +66,6 @@ jQuery(document).ready(function () {
 	 */
 	function save_editorial_metadata(post_id) {
 		var metadata_info = {}
-		
 		//Get active input type
 		switch(prev_input_type) {
 			case 'text':
@@ -93,6 +94,16 @@ jQuery(document).ready(function () {
 				metadata_info.attr_type = 'user';
 				metadata_info.metadata_value = jQuery('#actively-editing').val();
 				metadata_info.metadata_term = metadata_term.replace('item-information-editorial-metadata-', '');
+			break;
+			case 'author':
+				metadata_info.attr_type = 'author';
+				metadata_info.metadata_value = jQuery('#actively-editing').val();
+				metadata_info.metadata_term = 'author';
+			break;
+			case 'taxonomy':
+				metadata_info.attr_type = 'taxonomy';
+				metadata_info.metadata_value = jQuery('#actively-editing').val();
+				metadata_info.metadata_term = metadata_term.replace('item-information-tax_', '');
 			break;
 		}
 
@@ -132,15 +143,15 @@ jQuery(document).ready(function () {
 			case 'number':
 			case 'location':
 				current_text = current_value = metadata_value_element.text();
-				jQuery(top_level_selector + ' td.'+ type).html(jQuery('<input type="text" id="actively-editing" name="ef-alter-text" value="' + current_value + '" class="metadata-edit-'+ type+ '"/>'));
+				jQuery(top_level_selector + ' td.'+ type).html('<input type="text" id="actively-editing" name="ef-alter-text" value="' + current_value + '" class="metadata-edit-'+ type+ '"/>');
 			break;
 			case 'paragraph':
 				current_text = current_value = metadata_value_element.text();
-				jQuery(top_level_selector + ' td.'+ type).html(jQuery('<textarea type="text" id="actively-editing" name="ef-alter-text" class="metadata-edit-'+ type+ '">'+current_value+'</textarea>'));
+				jQuery(top_level_selector + ' td.'+ type).html('<textarea type="text" id="actively-editing" name="ef-alter-text" class="metadata-edit-'+ type+ '">'+current_value+'</textarea>');
 			break;
 			case 'date':
 				current_text = current_value = metadata_value_element.text();
-				jQuery(top_level_selector + ' td.'+ type).html(jQuery('<input type="text" id="actively-editing" name="ef-alter-text" value="' + current_value + '" class="metadata-edit-' + type + ' date-pick"/>'));
+				jQuery(top_level_selector + ' td.'+ type).html('<input type="text" id="actively-editing" name="ef-alter-text" value="' + current_value + '" class="metadata-edit-' + type + ' date-pick"/>');
 				//Always be traversin the DOM and rebinding necessary functionality
 				jQuery(top_level_selector + ' td.'+ type + ' #actively-editing').datepicker({dateFormat: 'M dd yy', firstDay: ef_week_first_day,});
 			break;
@@ -151,10 +162,10 @@ jQuery(document).ready(function () {
 				else
 					current_value = '<option>Yes</option><option>No</option>';
 
-				jQuery(top_level_selector + ' td.'+type).html(jQuery('<select id="actively-editing" name="ef-alter-text" class="metadata-edit">' + current_value + '</select>'));
-			break
+				jQuery(top_level_selector + ' td.'+type).html('<select id="actively-editing" name="ef-alter-text" class="metadata-edit">' + current_value + '</select>');
+			break;
 			case 'user':
-				var user_list;
+			case 'author':
 				var user_info = {};
 				current_text = current_value = metadata_value_element.text();
 				//Is there a more efficient way to get user list?
@@ -167,8 +178,27 @@ jQuery(document).ready(function () {
 					type : 'POST',
 					url : (ajaxurl) ? ajaxurl : wpListL10n.url,
 					data : user_info,
-					success : function(x) { load_user_list(type, x); },
+					success : function(x) { insert_dropdown(type, x); },
 					error : function(r) { jQuery(post_selector + ' .'+metadata_term).html('Error fetching user list.'); }
+				});
+			break;
+			case 'taxonomy':
+				//Need to establish what kind of taxonomy it is (hierarchical?)
+				var taxonomy = {};
+				current_text = current_value = metadata_value_element.text();
+
+				taxonomy.action = 'editflow_ajax_get_category_list';
+				taxonomy.nonce = jQuery("#ef-calendar-modify").val();
+				taxonomy.current_terms = current_text;
+				taxonomy.tax_name = metadata_term.replace('item-information-tax_', '');
+
+				// Send the request
+				jQuery.ajax({
+						type : 'POST',
+						url : (ajaxurl) ? ajaxurl : wpListL10n.url,
+						data : taxonomy,
+						success : function(x) { insert_dropdown(type, x); },
+						error : function(r) { jQuery(post_selector + ' .'+metadata_term).html('Error fetching user list.'); }
 				});
 			break;
 		}
@@ -182,12 +212,12 @@ jQuery(document).ready(function () {
 	}
 
 	/**
-	 * load_user_list
-	 * Handler function for loading user select list.
+	 * insert_dropdown
+	 * Handler function for loading lists.
 	 * @param  string type
 	 * @param  string user_list
 	 */
-	function load_user_list(type, user_list) {
+	function insert_dropdown(type, user_list) {
 		jQuery(top_level_selector + ' td.'+type).html(jQuery(user_list.message));
 	}
 
@@ -196,24 +226,32 @@ jQuery(document).ready(function () {
 	 * Change the input/select/textarea back to normal static text
 	 */
 	function reset_to_normal_html() {
+		//Always hide the save button
+		jQuery('.save-metadata-hide').hide();
+
 		//Haven't chosen a metadata? Kill this function.
 		if(jQuery('#actively-editing').length === 0)
 			return;
+
+		jQuery('#actively-editing').closest('td').addClass('editable-value');
 
 		jQuery('#actively-editing').attr('class').replace('metadata-edit-', '');
 		var current_td = jQuery('#actively-editing').closest('td');
 		jQuery('#actively-editing').remove();
 		current_td.html(current_text);
-		jQuery('.save-metadata-hide').hide();
 	}
 
 	/**
 	 * replace_inner_information
 	 * Replace the overlay with the content received from the ajax call.
+	 * 
 	 * @param  string xml
 	 */
 	function replace_inner_information(content) {
-		jQuery(post_selector + ' .'+metadata_term).closest('.item-inner').html(content.message);
+		if(content.message === false)
+			reset_to_normal_html();
+		else
+			jQuery(post_selector + ' .'+metadata_term).closest('.item-inner').html(content.message);
 	}
 	
 	// Hide a message. Used by setTimeout()
@@ -485,4 +523,3 @@ jQuery(document).ready(function () {
 		EFQuickPublish.init();
 	
 });
-
