@@ -27,11 +27,10 @@ class EF_Calendar extends EF_Module {
 		global $edit_flow;
 	
 		$this->module_url = $this->get_module_url( __FILE__ );
-		// Register the module with Edit Flow	
-		$cal_link = 'index.php?page=calendar';	
+		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Calendar', 'edit-flow' ),
-			'short_description' => sprintf( 'View upcoming content in a <a href="%s">customizable calendar</a>.', $cal_link, 'edit-flow' ),
+			'short_description' => sprintf( __( 'View upcoming content in a <a href="%s">customizable calendar</a>.', 'edit-flow' ), admin_url( 'index.php?page=calendar' ) ),
 			'extended_description' => __( 'Edit Flow’s calendar lets you see your posts over a customizable date range. Filter by status or click on the post title to see its details. Drag and drop posts between days to change their publication date date.', 'edit-flow' ),
 			'module_url' => $this->module_url,
 			'img_url' => $this->module_url . 'lib/calendar_s128.png',
