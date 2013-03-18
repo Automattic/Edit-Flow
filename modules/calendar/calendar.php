@@ -1107,36 +1107,12 @@ class EF_Calendar extends EF_Module {
 	 */
 	function settings_quick_create_post_type_option() {
 		
-		$allowed_post_types = $this->get_allowed_post_types();
+		$allowed_post_types = $this->get_all_post_types();
 
 		echo "<select name='" . $this->module->options_group_name . "[quick_create_post_type]'>";
 		foreach( $allowed_post_types as $post_type => $title ) 
 			echo "<option value='" . esc_attr( $post_type ) . "' " . selected( $post_type, $this->module->options->quick_create_post_type, false ) . ">".esc_html( $title )."</option>";
 		echo "</select>";
-
-	}
-
-	/**
-	 * Gets an array of allowed post types that can be created for the calendar. 
-	 * 
-	 * @return array post-type-slug => post-type-label
-	 */
-	function get_allowed_post_types(){
-
-		global $edit_flow;
-
-		$allowed_post_types = array(
-			'post' => __( 'Post' ),
-			'page' => __( 'Page' ),
-		);
-
-		$custom_post_types = $edit_flow->settings->get_supported_post_types_for_module();
-		
-		foreach( $custom_post_types as $custom_post_type => $args ) {
-			$allowed_post_types[$custom_post_type] = $args->label;
-		}
-
-		return $allowed_post_types;
 
 	}
 
@@ -1156,22 +1132,15 @@ class EF_Calendar extends EF_Module {
 	 * @since 0.7
 	 */
 	function settings_validate( $new_options ) {
-		
-		// Whitelist validation for the post type options
-		if ( !isset( $new_options['post_types'] ) )
-			$new_options['post_types'] = array();
 
-		$new_options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
+		$options = (array)$this->module->options;
 
-		// Whitelist validation for the quick_create_post_type option
-		if( 
-			! isset( $new_options['quick_create_post_type'] ) 
-			|| ! in_array( $new_options['quick_create_post_type'], array_keys( $this->get_allowed_post_types() ) ) 
-		) {
-			$new_options['quick_create_post_type'] = 'post';
-		}
+		$options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
 
-		return $new_options;
+		if ( in_array( $new_options['quick_create_post_type'], array_keys( $this->get_all_post_types() ) ) )
+			$options['quick_create_post_type'] = $new_options['quick_create_post_type'];
+
+		return $options;
 	}
 	
 	/**

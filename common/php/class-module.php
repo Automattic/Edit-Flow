@@ -27,6 +27,25 @@ class EF_Module {
 	}
 
 	/**
+	 * Gets an array of allowed post types for a module
+	 * 
+	 * @return array post-type-slug => post-type-label
+	 */
+	function get_all_post_types() {
+
+		$allowed_post_types = array(
+			'post' => __( 'Post' ),
+			'page' => __( 'Page' ),
+		);
+		$custom_post_types = $this->get_supported_post_types_for_module();
+		
+		foreach( $custom_post_types as $custom_post_type => $args ) {
+			$allowed_post_types[$custom_post_type] = $args->label;
+		}
+		return $allowed_post_types;
+	}
+
+	/**
 	 * Cleans up the 'on' and 'off' for post types on a given module (so we don't get warnings all over)
 	 * For every post type that doesn't explicitly have the 'on' value, turn it 'off'
 	 * If add_post_type_support() has been used anywhere (legacy support), inherit the state
@@ -39,9 +58,7 @@ class EF_Module {
 	 */
 	function clean_post_type_options( $module_post_types = array(), $post_type_support = null ) {
 		$normalized_post_type_options = array();
-		$all_post_types = wp_list_pluck( $this->get_supported_post_types_for_module(), 'name' );
-		array_push( $all_post_types, 'post', 'page' );
-		$all_post_types = array_merge( $all_post_types, array_keys( $module_post_types ) );
+		$all_post_types = array_keys( $this->get_all_post_types() );
 		foreach( $all_post_types as $post_type ) {
 			if ( ( isset( $module_post_types[$post_type] ) && $module_post_types[$post_type] == 'on' ) || post_type_supports( $post_type, $post_type_support ) )
 				$normalized_post_type_options[$post_type] = 'on';
