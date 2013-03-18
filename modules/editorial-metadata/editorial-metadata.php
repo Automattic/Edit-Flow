@@ -991,9 +991,9 @@ class EF_Editorial_Metadata extends EF_Module {
 			wp_die( $this->module->messages['invalid-permissions'] );			
 		
 		// Sanitize all of the user-entered values
-		$term_name = strip_tags( trim( $_POST['metadata_name'] ) );
+		$term_name = sanitize_text_field( trim( $_POST['metadata_name'] ) );
 		$term_slug = ( !empty( $_POST['metadata_slug'] ) ) ? sanitize_title( $_POST['metadata_slug'] ) : sanitize_title( $term_name );
-		$term_description = strip_tags( trim( $_POST['metadata_description'] ) );
+		$term_description = stripslashes( wp_filter_post_kses( trim( $_POST['metadata_description'] ) ) );
 		$term_type = sanitize_key( $_POST['metadata_type'] );
 		
 		$_REQUEST['form-errors'] = array();
@@ -1072,8 +1072,8 @@ class EF_Editorial_Metadata extends EF_Module {
 		if ( !$existing_term = $this->get_editorial_metadata_term_by( 'id', (int)$_GET['term-id'] ) )
 			wp_die( $this->module->messsage['term-error'] );			
 		
-		$new_name = strip_tags( trim( $_POST['name'] ) );
-		$new_description = stripslashes( strip_tags( trim( $_POST['description'] ) ) );
+		$new_name = sanitize_text_field( trim( $_POST['name'] ) );
+		$new_description = stripslashes( wp_filter_post_kses( strip_tags( trim( $_POST['description'] ) ) ) );
 			
 		/**
 		 * Form validation for editing editorial metadata term
@@ -1187,8 +1187,8 @@ class EF_Editorial_Metadata extends EF_Module {
 		if ( !$existing_term = $this->get_editorial_metadata_term_by( 'id', $term_id ) )
 			die( $this->module->messsage['term-error'] );
 		
-		$metadata_name = strip_tags( trim( $_POST['name'] ) );
-		$metadata_description = stripslashes( strip_tags( trim( $_POST['description'] ) ) );
+		$metadata_name = sanitize_text_field( trim( $_POST['name'] ) );
+		$metadata_description = stripslashes( wp_filter_post_kses( trim( $_POST['description'] ) ) );
 		
 		/**
 		 * Form validation for editing editorial metadata term
