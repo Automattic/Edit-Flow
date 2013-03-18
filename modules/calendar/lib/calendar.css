@@ -457,3 +457,5 @@ table#ef-calendar-view .day-unit ul li .item-overlay .item-actions span.trash a 
 	background-color: #FFEBE8;
 	border: 1px solid #CC0000;
 }
+
+.save-metadata-hide {display:none;}

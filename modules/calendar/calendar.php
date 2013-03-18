@@ -92,6 +92,12 @@ class EF_Calendar extends EF_Module {
 		// Ajax insert post placeholder for a specific date
 		add_action( 'wp_ajax_ef_insert_post', array( $this, 'ajax_insert_post_placeholder') );
 
+		//Update metadata
+		add_action( 'wp_ajax_editflow_ajax_update_metadata', array( $this, 'ajax_ef_calendar_update_metadata') );
+
+		//Get user list
+		add_action( 'wp_ajax_editflow_ajax_get_user_list', array( $this, 'calendar_get_user_list' ) );
+
 	}
 	
 	/**
@@ -167,7 +173,9 @@ class EF_Calendar extends EF_Module {
 	 * @uses wp_enqueue_script()
 	 */
 	function enqueue_admin_scripts() {
-		
+		//Load datepicker resources to be used when editing metadata
+		$this->enqueue_datepicker_resources();
+
 		if ( $this->is_whitelisted_functional_view() ) {
 			$js_libraries = array(
 				'jquery',
@@ -670,70 +678,91 @@ class EF_Calendar extends EF_Module {
 		?>
 		<li class="<?php echo esc_attr( implode( ' ', $post_classes ) ); ?>" id="post-<?php echo esc_attr( $post->ID ); ?>">
 			<div class="item-default-visible">
-			<div class="item-status"><span class="status-text"><?php echo esc_html( $this->get_post_status_friendly_name( get_post_status( $post_id ) ) ); ?></span></div>
-			<div class="inner">
-				<span class="item-headline post-title"><strong><?php echo esc_html( $post->post_title ); ?></strong></span>
-			</div>
-			<?php
-				// All of the item information we're going to display
-				$ef_calendar_item_information_fields = array();
-				// Post author
-				$ef_calendar_item_information_fields['author'] = array(
-					'label' => __( 'Author', 'edit-flow' ),
-					'value' => get_the_author_meta( 'display_name', $post->post_author ),
-				);
-				// If the calendar supports more than one post type, show the post type label
-				if ( count( $this->get_post_types_for_module( $this->module ) ) > 1 ) {
-					$ef_calendar_item_information_fields['post_type'] = array(
-						'label' => __( 'Post Type', 'edit-flow' ),
-						'value' => get_post_type_object( $post->post_type )->labels->singular_name,
-					);
-				}
-				// Publication time for published statuses
-				if ( in_array( $post->post_status, $published_statuses ) ) {
-					if ( $post->post_status == 'future' ) {
-						$ef_calendar_item_information_fields['post_date'] = array(
-							'label' => __( 'Scheduled', 'edit-flow' ),
-							'value' => get_the_time( null, $post->ID ),
-						);
-					} else {
-						$ef_calendar_item_information_fields['post_date'] = array(
-							'label' => __( 'Published', 'edit-flow' ),
-							'value' => get_the_time( null, $post->ID ),
-						);
-					}
-				}
-				// Taxonomies and their values
-				$args = array(
-					'post_type' => $post->post_type,
-				);
-				$taxonomies = get_object_taxonomies( $args, 'object' );
-				foreach( (array)$taxonomies as $taxonomy ) {
-					// Sometimes taxonomies skip by, so let's make sure it has a label too
-					if ( !$taxonomy->public || !$taxonomy->label )
-						continue;
-					$terms = wp_get_object_terms( $post->ID, $taxonomy->name );
-					$key = 'tax_' . $taxonomy->name;
-					if ( count( $terms ) ) {
-						$value = '';
-						foreach( (array)$terms as $term ) {
-							$value .= $term->name . ', ';
-						}
-						$value = rtrim( $value, ', ' );
-					} else {
-						$value = '';
-					}
-					$ef_calendar_item_information_fields[$key] = array(
-						'label' => $taxonomy->label,
-						'value' => $value,
-					);
-				}
-				
-				$ef_calendar_item_information_fields = apply_filters( 'ef_calendar_item_information_fields', $ef_calendar_item_information_fields, $post->ID );
-			?>
+				<div class="item-status"><span class="status-text"><?php echo esc_html( $this->get_post_status_friendly_name( get_post_status( $post_id ) ) ); ?></span></div>
+				<div class="inner">
+					<span class="item-headline post-title"><strong><?php echo esc_html( $post->post_title ); ?></strong></span>
+				</div>
 			</div>
 			<div style="clear:right;"></div>
 			<div class="item-inner">
+				<?php echo $this->get_inner_information( $this->get_calendar_information_fields($post, $published_statuses), $post, $published_statuses ); ?>
+			</div>
+		</li>
+		<?php
+
+		return ob_get_clean();
+
+	} // generate_post_li_html()
+
+	//This function's functionality was originally in generate_post_li_html.
+	//Moved here so that it could be leveraged by ajax calls when updating metadata
+	//from the calendar.
+	function get_calendar_information_fields($post, $published_statuses) {
+		// All of the item information we're going to display
+		$ef_calendar_item_information_fields = array();
+		// Post author
+		$ef_calendar_item_information_fields['author'] = array(
+			'label' => __( 'Author', 'edit-flow' ),
+			'value' => get_the_author_meta( 'display_name', $post->post_author ),
+		);
+		// If the calendar supports more than one post type, show the post type label
+		if ( count( $this->get_post_types_for_module( $this->module ) ) > 1 ) {
+			$ef_calendar_item_information_fields['post_type'] = array(
+				'label' => __( 'Post Type', 'edit-flow' ),
+				'value' => get_post_type_object( $post->post_type )->labels->singular_name,
+			);
+		}
+		// Publication time for published statuses
+		if ( in_array( $post->post_status, $published_statuses ) ) {
+			if ( $post->post_status == 'future' ) {
+				$ef_calendar_item_information_fields['post_date'] = array(
+					'label' => __( 'Scheduled', 'edit-flow' ),
+					'value' => get_the_time( null, $post->ID ),
+				);
+			} else {
+				$ef_calendar_item_information_fields['post_date'] = array(
+					'label' => __( 'Published', 'edit-flow' ),
+					'value' => get_the_time( null, $post->ID ),
+				);
+			}
+		}
+		// Taxonomies and their values
+		$args = array(
+			'post_type' => $post->post_type,
+		);
+		$taxonomies = get_object_taxonomies( $args, 'object' );
+		foreach( (array)$taxonomies as $taxonomy ) {
+			// Sometimes taxonomies skip by, so let's make sure it has a label too
+			if ( !$taxonomy->public || !$taxonomy->label )
+				continue;
+			$terms = wp_get_object_terms( $post->ID, $taxonomy->name );
+			$key = 'tax_' . $taxonomy->name;
+			if ( count( $terms ) ) {
+				$value = '';
+				foreach( (array)$terms as $term ) {
+					$value .= $term->name . ', ';
+				}
+				$value = rtrim( $value, ', ' );
+			} else {
+				$value = '';
+			}
+			$ef_calendar_item_information_fields[$key] = array(
+				'label' => $taxonomy->label,
+				'value' => $value,
+			);
+		}
+		
+		$ef_calendar_item_information_fields = apply_filters( 'ef_calendar_item_information_fields', $ef_calendar_item_information_fields, $post->ID );
+
+		return $ef_calendar_item_information_fields;
+	}
+
+	//This function's functionality was originally in generate_post_li_html.
+	//Moved here so that it could be leveraged by ajax calls when updating metadata
+	//from the calendar.
+	function get_inner_information( $ef_calendar_item_information_fields, $post, $published_statuses ) {
+		ob_start();
+		?>
 			<table class="item-information">
 				<?php foreach( $ef_calendar_item_information_fields as $field => $values ): ?>
 					<?php
@@ -743,9 +772,16 @@ class EF_Calendar extends EF_Module {
 							continue;
 					?>
 					<tr class="item-field item-information-<?php echo esc_attr( $field ); ?>">
-						<th class="label"><?php echo esc_html( $values['label'] ); ?>:</th>
-						<?php if ( $values['value'] ): ?>
-						<td class="value"><?php echo esc_html( $values['value'] ); ?></td>
+						<th class="label">
+							<?php if( isset( $values['editable'] ) && $this->current_user_can_modify_post( $post ) ) : ?>
+								<a href="#edit-metadata" class="edit-calendar-metadata"><?php echo esc_html( $values['label'] ); ?>:</a></th>
+							<?php else : ?>
+								<?php echo esc_html( $values['label'] ); ?>:</th>
+							<?php endif; ?>
+						<?php if ( $values['value'] && isset($values['type']) ): ?>
+							<td class="value <?php echo $values['type']; ?>"><?php echo esc_html( $values['value'] ); ?></td>
+						<?php elseif( $values['value'] ): ?>
+							<td class="value"><?php echo esc_html( $values['value'] ); ?></td>
 						<?php else: ?>
 						<td class="value"><em class="none"><?php echo _e( 'None', 'edit-flow' ); ?></em></td>
 						<?php endif; ?>
@@ -767,6 +803,8 @@ class EF_Calendar extends EF_Module {
 					} elseif ( 'trash' != $post->post_status ) {
 						$item_actions['view'] = '<a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" rel="permalink">' . __( 'View', 'edit-flow' ) . '</a>';
 					}
+					//Save metadata
+					$item_actions['save-metadata-hide'] = '<a href="#savemetadata" id="save-editorial-metadata" class="post-'. $post->ID .'" title="'. esc_attr( sprintf( __( 'Save &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" >' . __( 'Save', 'edit-flow') . '</a>';
 				}
 				// Allow other plugins to add actions
 				$item_actions = apply_filters( 'ef_calendar_item_actions', $item_actions, $post->ID );
@@ -781,13 +819,9 @@ class EF_Calendar extends EF_Module {
 				}
 			?>
 			<div style="clear:right;"></div>
-			</div>
-		</li>
 		<?php
-
 		return ob_get_clean();
-
-	} // generate_post_li_html()
+	}
 	
 	/**
 	 * Generates the filtering and navigation options for the top of the calendar
@@ -1234,6 +1268,87 @@ class EF_Calendar extends EF_Module {
 		$post_type_obj = get_post_type_object( $post_type_slug );
 
 		return $post_type_obj->labels->singular_name ?: $post_type_slug;
+	}
+
+	/*
+	 * ajax_ef_calendar_update_metadata
+	 * Update the metadata from the calendar.
+	 * @return string representing the overlay
+	 */
+	function ajax_ef_calendar_update_metadata() {
+		// Nonce check!
+		if ( !wp_verify_nonce( $_POST['nonce'], 'ef-calendar-modify' ) )
+			$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
+		
+		// Check that we got a proper post
+		$post_id = (int)$_POST['post_id'];
+		$post = get_post( $post_id );
+		if ( !$post )
+			$this->print_ajax_response( 'error', $this->module->messages['missing-post'] );
+			
+		// Check that the user can modify the post
+		if ( !$this->current_user_can_modify_post( $post ) )
+			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
+
+		$post_meta_key = '_ef_editorial_meta_'.$_POST['attr_type'].'_'.$_POST['metadata_term'];
+
+		$published_statuses = array(
+			'publish',
+			'future',
+			'private',
+		);
+
+		//If there was a problem
+		$current_post_meta = get_post_meta($_POST['post_id'], $post_meta_key, true);
+
+		//Javascript date parsing is terrible, so use strtotime in php
+		if($_POST['attr_type'] == 'date')
+			$metadata_value = strtotime($_POST['metadata_value']);
+		else
+			$metadata_value = $_POST['metadata_value'];
+
+		//If the metadata hasn't been changed, don't update anything
+		if($_POST['metadata_value'] != $current_post_meta) {
+			if( !update_post_meta( intval( $_POST['post_id'] ), $post_meta_key, $metadata_value ) )
+				$this->print_ajax_response( 'error', 'Metadata could not be updated.' . $this->get_inner_information( $this->get_calendar_information_fields($post, $published_statuses), $post, $published_statuses ) );
+			else {
+				$this->print_ajax_response('success', $this->get_inner_information( $this->get_calendar_information_fields($post, $published_statuses), $post, $published_statuses ) );
+			}
+		} else {
+			$this->print_ajax_response('success', $this->get_inner_information( $this->get_calendar_information_fields($post, $published_statuses), $post, $published_statuses ) );
+		}
+
+		die();
+	}
+
+	/**
+	 * calendar_get_user_list
+	 * Helper function for generating the user list for use in the calendar single item overlay.
+	 * @return string representing the user list
+	 */
+	function calendar_get_user_list() {
+		// Nonce check!
+		// Only retrieving list of users, but do we need more checks?
+		if ( !wp_verify_nonce( $_POST['nonce'], 'ef-calendar-modify' ) )
+			$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
+
+		//This is a problem, since the filter for users is ef_calendar_users_dropdown_args but wp_users_list
+		//echos some data in users.php, so errors of "Header information already sent" occur.
+		//apply_filters( 'ef_calendar_users_dropdown_args', $users_dropdown_args );
+
+		$users = get_users( array('blog_id' => $GLOBALS['blog_id'] ) );
+		$user_list = '<select id="actively-editing" name="ef-alter-text" class="metadata-edit">';
+		foreach($users as $user ) {
+			if($user->data->user_login == $_POST['current_user'])
+				$selected = 'selected="selected"';
+			else
+				$selected = "";
+			$user_list .= '<option value="' . $user->data->ID . '" ' . $selected . '>' . $user->data->user_login . '</option>';
+		}
+		$user_list .= '</select>';
+		$this->print_ajax_response('success', $user_list );
+		
+		die();
 	}
 
 	function calendar_filters() {		
