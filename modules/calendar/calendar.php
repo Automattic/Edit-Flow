@@ -597,8 +597,8 @@ class EF_Calendar extends EF_Module {
 							<input type="text" class="post-insert-dialog-post-title" name="post-insert-dialog-post-title" placeholder="<?php echo esc_attr( sprintf( __( '%s Title', 'edit-flow' ), $this->get_quick_create_post_type_name() ) ); ?>">
 							<input type="hidden" class="post-insert-dialog-post-date" name="post-insert-dialog-post-title" value="<?php echo esc_attr( $week_single_date ); ?>">
 							<div class="post-insert-dialog-controls">		
-								<input type="submit" class="button left" value="<?php echo esc_attr( __( 'Create Post', 'edit-flow' ) ); ?>">
-								<a class="post-insert-dialog-edit-post-link" href="#"><?php echo sprintf( __( 'Edit %s', 'edit-flow' ), $this->get_quick_create_post_type_name() ); ?>&nbsp;&raquo;</a>
+								<input type="submit" class="button left" value="<?php echo esc_html( sprintf( __( 'Create %s', 'edit-flow' ), $this->get_quick_create_post_type_name() ) ); ?>">
+								<a class="post-insert-dialog-edit-post-link" href="#"><?php echo esc_html( sprintf( __( 'Edit %s', 'edit-flow' ), $this->get_quick_create_post_type_name() ) ); ?>&nbsp;&raquo;</a>
 							</div>	
 							<div class="spinner">&nbsp;</div>
 						</form>
