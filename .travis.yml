@@ -31,6 +31,12 @@ script: phpunit
 
 # wordpress-plugin-tests specific config
 # Tells Travis CI not to run unit tests against the setup branch
+## blacklist
+##branches:
+##  except:
+##    - setup
+## whitelist
 branches:
-  except:
-    - setup
+  only:
+    - travis-ci
+##    - master
