@@ -42,6 +42,7 @@ class EF_Calendar extends EF_Module {
 					'post' => 'on',
 					'page' => 'off',
 				),
+				'quick_create_post_type' => 'post',
 			),
 			'messages' => array(
 				'post-date-updated' => __( "Post date updated.", 'edit-flow' ),
@@ -592,12 +593,12 @@ class EF_Calendar extends EF_Module {
 					?>
 
 						<form method="POST" class="post-insert-dialog">
-							<h1><?php echo sprintf( __( 'Schedule a %s for %s', 'edit-flow' ), $this->get_post_type_to_create_name(), $date_formatted ); ?></h1>	
-							<input type="text" class="post-insert-dialog-post-title" name="post-insert-dialog-post-title" placeholder="<?php echo esc_attr( sprintf( __( '%s Title', 'edit-flow' ), $this->get_post_type_to_create_name() ) ); ?>">
+							<h1><?php echo sprintf( __( 'Schedule a %s for %s', 'edit-flow' ), $this->get_quick_create_post_type_name(), $date_formatted ); ?></h1>	
+							<input type="text" class="post-insert-dialog-post-title" name="post-insert-dialog-post-title" placeholder="<?php echo esc_attr( sprintf( __( '%s Title', 'edit-flow' ), $this->get_quick_create_post_type_name() ) ); ?>">
 							<input type="hidden" class="post-insert-dialog-post-date" name="post-insert-dialog-post-title" value="<?php echo esc_attr( $week_single_date ); ?>">
 							<div class="post-insert-dialog-controls">		
 								<input type="submit" class="button left" value="<?php echo esc_attr( __( 'Create Post', 'edit-flow' ) ); ?>">
-								<a class="post-insert-dialog-edit-post-link" href="#"><?php echo sprintf( __( 'Edit %s', 'edit-flow' ), $this->get_post_type_to_create_name() ); ?>&nbsp;&raquo;</a>
+								<a class="post-insert-dialog-edit-post-link" href="#"><?php echo sprintf( __( 'Edit %s', 'edit-flow' ), $this->get_quick_create_post_type_name() ); ?>&nbsp;&raquo;</a>
 							</div>	
 							<div class="spinner">&nbsp;</div>
 						</form>
@@ -1085,7 +1086,7 @@ class EF_Calendar extends EF_Module {
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
 			add_settings_field( 'number_of_weeks', __( 'Number of weeks to show', 'edit-flow' ), array( $this, 'settings_number_weeks_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 			add_settings_field( 'post_types', __( 'Post types to show', 'edit-flow' ), array( $this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-			add_settings_field( 'post_type_to_create', __( 'Post type to create directly from calendar', 'edit-flow' ), array( $this, 'settings_post_type_to_create_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'quick_create_post_type', __( 'Post type to create directly from calendar', 'edit-flow' ), array( $this, 'settings_quick_create_post_type_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 
 	}
 	
@@ -1104,13 +1105,13 @@ class EF_Calendar extends EF_Module {
 	 *
 	 * @since 0.8
 	 */
-	function settings_post_type_to_create_option() {
+	function settings_quick_create_post_type_option() {
 		
 		$allowed_post_types = $this->get_allowed_post_types();
 
-		echo "<select name='".$this->module->options_group_name."[post_type_to_create]'>";
+		echo "<select name='" . $this->module->options_group_name . "[quick_create_post_type]'>";
 		foreach( $allowed_post_types as $post_type => $title ) 
-			echo "<option value='".esc_attr( $post_type )."' ".selected($post_type, $this->get_post_type_to_create())." >".esc_html( $title )."</option>";
+			echo "<option value='" . esc_attr( $post_type ) . "' " . selected( $post_type, $this->module->options->quick_create_post_type, false ) . ">".esc_html( $title )."</option>";
 		echo "</select>";
 
 	}
@@ -1162,12 +1163,12 @@ class EF_Calendar extends EF_Module {
 
 		$new_options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
 
-		// Whitelist validation for the post_type_to_create option
+		// Whitelist validation for the quick_create_post_type option
 		if( 
-			! isset( $new_options['post_type_to_create'] ) 
-			|| ! in_array( $new_options['post_type_to_create'], array_keys( $this->get_allowed_post_types() ) ) 
+			! isset( $new_options['quick_create_post_type'] ) 
+			|| ! in_array( $new_options['quick_create_post_type'], array_keys( $this->get_allowed_post_types() ) ) 
 		) {
-			$new_options['post_type_to_create'] = 'post';
+			$new_options['quick_create_post_type'] = 'post';
 		}
 
 		return $new_options;
@@ -1221,7 +1222,7 @@ class EF_Calendar extends EF_Module {
 			'post_title' => $post_title,
 			'post_status' => $post_status,
 			'post_date' => date( 'Y-m-d H:i:s', strtotime( $post_date ) ),
-			'post_type' => $this->get_post_type_to_create()
+			'post_type' => $this->module->options->quick_create_post_type,
 		);
 
 		// By default, adding a post to the calendar won't set the timestamp.
@@ -1252,27 +1253,15 @@ class EF_Calendar extends EF_Module {
 
 	}   // ajax_insert_post_placeholder
 
-
-	/**
-	 * Returns the kind of object that should be quick-created from the calendar
-	 * @return str Name of the post-type that should be created in the calendar
-	 */
-	function get_post_type_to_create(){
-		if( isset( $this->module->options->post_type_to_create ) )
-			return $this->module->options->post_type_to_create;
-		else
-			return 'post';
-	}
-
 	/**
 	 * Returns the singular label for the posts that are
 	 * quick-created on the calendar
 	 * 
 	 * @return str Singular label for a post-type
 	 */
-	function get_post_type_to_create_name(){
+	function get_quick_create_post_type_name(){
 
-		$post_type_slug = $this->get_post_type_to_create();
+		$post_type_slug = $this->module->options->quick_create_post_type;
 		$post_type_obj = get_post_type_object( $post_type_slug );
 
 		return $post_type_obj->labels->singular_name ?: $post_type_slug;
