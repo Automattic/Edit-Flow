@@ -375,7 +375,7 @@ class EF_Editorial_Metadata extends EF_Module {
 				$postmeta_key = $this->get_postmeta_key( $term );
 				$current_metadata = esc_attr( $this->get_postmeta_value( $term, $post->ID ) );
 				$type = $term->type;
-				$description = $term->description;
+				$description = stripslashes( $term->description );
 				if ( $description )
 					$description_span = "<span class='description'>$description</span>";
 				else
@@ -1422,7 +1422,7 @@ class EF_Editorial_Metadata extends EF_Module {
 			$edit_term_link = $this->get_link( array( 'action' => 'edit-term', 'term-id' => $term->term_id ) );
 			
 			$name = ( isset( $_POST['name'] ) ) ? stripslashes( $_POST['name'] ) : $term->name;
-			$description = ( isset( $_POST['description'] ) ) ? stripslashes( $_POST['description'] ) : $term->description;
+			$description = stripslashes( ( isset( $_POST['description'] ) ) ? $_POST['description'] : $term->description );
 			if ( $term->viewable )
 				$viewable = 'yes';
 			else
@@ -1679,7 +1679,7 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 			case 'position':
 			case 'type':
 			case 'description':
-				return esc_html( $item->$column_name );
+				return stripslashes( esc_html( $item->$column_name ) );
 				break;
 			case 'viewable':
 				if ( $item->viewable )

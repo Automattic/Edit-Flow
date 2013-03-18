@@ -1139,7 +1139,7 @@ class EF_Custom_Status extends EF_Module {
 			$edit_status_link = $this->get_link( array( 'action' => 'edit-status', 'term-id' => $term_id ) );
 			
 			$name = ( isset( $_POST['name'] ) ) ? stripslashes( $_POST['name'] ) : $status->name;
-			$description = ( isset( $_POST['description'] ) ) ? stripslashes( strip_tags( $_POST['description'] ) ) : $status->description;
+			$description = stripslashes( ( isset( $_POST['description'] ) ) ? stripslashes( strip_tags( $_POST['description'] ) ) : $status->description );
 		?>
 		
 		<div id="ajax-response"></div>
@@ -1721,7 +1721,7 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 	 * @return string $output What will be rendered
 	 */
 	function column_description( $item ) {
-		return esc_html( $item->description );
+		return stripslashes( esc_html( $item->description ) );
 	}
 	
 	/**
