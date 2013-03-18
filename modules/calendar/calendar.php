@@ -90,7 +90,7 @@ class EF_Calendar extends EF_Module {
 		add_action( 'wp_ajax_ef_calendar_drag_and_drop', array( $this, 'handle_ajax_drag_and_drop' ) );
 		
 		// Ajax insert post placeholder for a specific date
-		add_action( 'wp_ajax_ef_insert_post', array( $this, 'ajax_insert_post_placeholder') );
+		add_action( 'wp_ajax_ef_insert_post', array( $this, 'handle_ajax_insert_post' ) );
 
 	}
 	
@@ -1162,8 +1162,10 @@ class EF_Calendar extends EF_Module {
 
 	/**
 	 * Ajax callback to insert a post placeholder for a particular date
+	 *
+	 * @since 0.8
 	 */
-	function ajax_insert_post_placeholder() {
+	function handle_ajax_insert_post() {
 
 		// Nonce check!
 		if ( !wp_verify_nonce( $_POST['nonce'], 'ef-calendar-modify' ) )
@@ -1218,13 +1220,9 @@ class EF_Calendar extends EF_Module {
 			$this->print_ajax_response( 'success', $post_li_html );
 			
 		} else {
-
-			// announce error
 			$this->print_ajax_response( 'error', __( 'Post could not be created', 'edit-flow' ) );
-
 		}
-
-	}   // ajax_insert_post_placeholder
+	}
 
 	/**
 	 * Returns the singular label for the posts that are
