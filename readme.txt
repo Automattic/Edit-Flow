@@ -99,6 +99,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Assign a date and time to editorial metadata's date field. Thanks [cojennin](https://github.com/cojennin)
 * Modify which filters are used on the calendar and story budget, or add your own. Thanks [cojennin](https://github.com/cojennin)
 * Scheduled publication time is now included in relevant email notifications. Props [mattoperry](https://github.com/mattoperry)
+* Calendar and story budget module descriptions link to their respective pages in the admin for usability. Props [rgalindo05](https://github.com/rgalindo05)
 * New Russian localization thanks to [te-st.ru](https://github.com/Teplitsa)
 
 = 0.7.6 (Jan. 30, 2013) =
