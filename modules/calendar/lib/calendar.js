@@ -178,7 +178,7 @@ jQuery(document).ready(function () {
 					type : 'POST',
 					url : (ajaxurl) ? ajaxurl : wpListL10n.url,
 					data : user_info,
-					success : function(x) { insert_dropdown(type, x); },
+					success : function(x) { insert_list(type, x); },
 					error : function(r) { jQuery(post_selector + ' .'+metadata_term).html('Error fetching user list.'); }
 				});
 			break;
@@ -197,7 +197,7 @@ jQuery(document).ready(function () {
 						type : 'POST',
 						url : (ajaxurl) ? ajaxurl : wpListL10n.url,
 						data : taxonomy,
-						success : function(x) { insert_dropdown(type, x); },
+						success : function(x) { insert_list(type, x); },
 						error : function(r) { jQuery(post_selector + ' .'+metadata_term).html('Error fetching user list.'); }
 				});
 			break;
@@ -211,14 +211,14 @@ jQuery(document).ready(function () {
 		prev_input_type = type;
 	}
 
-	/**
-	 * insert_dropdown
-	 * Handler function for loading lists.
+	/*
+	 * insert_list
+	 * Handler function for loading a select list.
 	 * @param  string type
 	 * @param  string user_list
 	 */
-	function insert_dropdown(type, user_list) {
-		jQuery(top_level_selector + ' td.'+type).html(jQuery(user_list.message));
+	function insert_list(type, list) {
+		jQuery(top_level_selector + ' td.'+type).html(jQuery(list.message));
 	}
 
 	/**

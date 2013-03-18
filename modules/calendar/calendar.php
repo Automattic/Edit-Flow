@@ -1438,7 +1438,7 @@ class EF_Calendar extends EF_Module {
 			$taxonomy_list = '<select id="actively-editing" class="metadata-edit-taxonomy" multiple>';
 
 			foreach( $taxonomy as $term ) {
-				if( in_array( $term->name, $selected_terms ) || $term->name == 'Uncategorized' )
+				if( in_array( $term->name, $selected_terms ) || in_array( 'Uncategorized', $selected_terms) )
 					$taxonomy_list .= '<option selected="selected">'.$term->name.'</option>';
 				else
 					$taxonomy_list .= '<option>'.$term->name.'</option>';
