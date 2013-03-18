@@ -13,8 +13,6 @@ class EF_Notifications extends EF_Module {
 	
 	// Taxonomy name used to store users following posts
 	var $following_users_taxonomy = 'following_users';
-	// Taxonomy name used to store users that have opted out of notifications
-	var $unfollowing_users_taxonomy = 'unfollowing_users';
 	// Taxonomy name used to store user groups following posts
 	var $following_usergroups_taxonomy = EF_User_Groups::taxonomy_key;
 	
@@ -88,8 +86,21 @@ class EF_Notifications extends EF_Module {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );	
 
+		// Add a "Follow" link to posts
+		if ( apply_filters( 'ef_notifications_show_follow_link', true ) ) {
+			// A little extra JS for the follow button
+			add_action( 'admin_head', array( $this, 'action_admin_head_follow_js' ) );
+			// Manage Posts
+			add_filter( 'post_row_actions', array( $this, 'filter_post_row_actions' ), 10, 2 );
+			add_filter( 'page_row_actions', array( $this, 'filter_post_row_actions' ), 10, 2 );
+			// Calendar and Story Budget
+			add_filter( 'ef_calendar_item_actions', array( $this, 'filter_post_row_actions' ), 10, 2 );
+			add_filter( 'ef_story_budget_item_actions', array( $this, 'filter_post_row_actions' ), 10, 2 );
+		}
+
 		//Ajax for saving notifiction updates
 		add_action( 'wp_ajax_save_notifications', array( $this, 'ajax_save_post_subscriptions' ) );
+		add_action( 'wp_ajax_ef_notifications_user_post_subscription', array( $this, 'handle_user_post_subscription' ) );
 		
 	}
 	
@@ -165,9 +176,7 @@ class EF_Notifications extends EF_Module {
 			'public'                 => false,
 			'show_ui'                => false
 		);
-		foreach( array( $this->following_users_taxonomy, $this->unfollowing_users_taxonomy ) as $taxonomy ) {
-			register_taxonomy( $taxonomy, $supported_post_types, $args );
-		}
+		register_taxonomy( $this->following_users_taxonomy, $supported_post_types, $args );
 	}
 	
 	/**
@@ -199,6 +208,97 @@ class EF_Notifications extends EF_Module {
 			wp_enqueue_style( 'jquery-listfilterizer' );
 			wp_enqueue_style( 'edit-flow-notifications-css', $this->module->module_url . 'lib/notifications.css', false, EDIT_FLOW_VERSION );
 		}
+	}
+
+	/**
+	 * JS required for the Follow link to work
+	 *
+	 * @since 0.8
+	 */
+	public function action_admin_head_follow_js() {
+		?>
+<script type='text/Javascript'>
+jQuery(document).ready(function($) {
+	/**
+	 * Action to Follow / Unfollow posts on the manage posts screen
+	 */
+	$('.ef_follow_link a').on( 'click', function(e){
+
+		var link = $(this);
+
+		$.ajax({
+			type : 'GET',
+			url : link.attr( 'href' ),
+			success : function( data ) {
+				if ( 'success' == data.status ) {
+					link.attr( 'href', data.message.link );
+					link.attr( 'title', data.message.title );
+					link.text( data.message.text );
+				}
+				// @todo expose the error somehow
+			}
+		});
+		e.preventDefault();
+	});
+});
+</script><?php
+	}
+
+	/**
+	 * Add a "Follow" link to supported post types Manage Posts view
+	 *
+	 * @since 0.8
+	 *
+	 * @param array      $actions   Any existing item actions
+	 * @param int|object $post      Post id or object
+	 * @return array     $actions   The follow link has been appended
+	 */
+	public function filter_post_row_actions( $actions, $post ) {
+
+		$post = get_post( $post );
+
+		if ( ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
+			return $actions;
+
+		if ( ! current_user_can( $this->edit_post_subscriptions_cap ) || ! current_user_can( 'edit_post', $post->ID ) )
+			return $actions;
+
+		$parts = $this->get_follow_action_parts( $post );
+		$actions['ef_follow_link'] = '<a title="' . esc_attr( $parts['title'] ) . '" href="' . esc_url( $parts['link'] ) . '">' . $parts['text'] . '</a>';
+
+		return $actions;
+	}
+
+	/**
+	 * Get an action parts for a user to follow or unfollow a post
+	 *
+	 * @since 0.8
+	 */
+	private function get_follow_action_parts( $post ) {
+
+		$args = array(
+				'action'     => 'ef_notifications_user_post_subscription',
+				'post_id'    => $post->ID,
+			);
+		$following_users = $this->get_following_users( $post->ID );
+		if ( in_array( wp_get_current_user()->user_login, $following_users ) ) {
+			$args['method'] = 'unfollow';
+			$title_text = __( 'Click to unfollow updates to this post', 'edit-flow' );
+			$follow_text = __( 'Following', 'edit-flow' );
+		} else {
+			$args['method'] = 'follow';
+			$title_text = __( 'Follow updates to this post', 'edit-flow' );
+			$follow_text = __( 'Follow', 'edit-flow' );
+		}
+
+		// wp_nonce_url() has encoding issues: http://core.trac.wordpress.org/ticket/20771
+		$args['_wpnonce'] = wp_create_nonce( 'ef_notifications_user_post_subscription' );
+
+		return array(
+				'title'     => $title_text,
+				'text'      => $follow_text,
+				'link'      => add_query_arg( $args, admin_url( 'admin-ajax.php' ) ),
+			);
 	}
 	
 	/**
@@ -279,6 +379,36 @@ class EF_Notifications extends EF_Module {
 		}
 		die();
 	}
+
+	/**
+	 * Handle a request to update a user's post subscription
+	 *
+	 * @since 0.8
+	 */
+	public function handle_user_post_subscription() {
+
+		if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'ef_notifications_user_post_subscription' ) )
+			$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
+
+		if ( ! current_user_can( $this->edit_post_subscriptions_cap ) )
+			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
+
+		$post = get_post( (int)$_GET['post_id'] );
+
+		if ( ! $post )
+			$this->print_ajax_response( 'error', $this->module->messages['missing-post'] );
+
+		if ( 'follow' == $_GET['method'] )
+			$retval = $this->follow_post_user( $post, get_current_user_id() );
+		else
+			$retval = $this->unfollow_post_user( $post, get_current_user_id() );
+
+		if ( is_wp_error( $retval ) )
+			$this->print_ajax_response( 'error', $retval->get_error_message() );
+
+		$this->print_ajax_response( 'success', (object)$this->get_follow_action_parts( $post ) );
+	}
+
 
 	/**
 	 * Called when post is saved. Handles saving of user/usergroup followers
@@ -658,93 +788,93 @@ class EF_Notifications extends EF_Module {
 	}
 	
 	/**
-	 * Set set user to follow posts
+	 * Set a user or users to follow a post
 	 *
-	 * @param $post Post object
-	 * @param $users array (optional) List of users to be added. If not included, the current user is added.
-	 * @param $append bool Whether users should be added to following_users list or replace existing list
+	 * @param int|object         $post      Post object or ID
+	 * @param string|array       $users     User or users to subscribe to post updates
+	 * @param bool               $append    Whether users should be added to following_users list or replace existing list
+	 *
+	 * @return true|WP_Error     $response  True on success, WP_Error on failure
 	 */
 	function follow_post_user( $post, $users, $append = true ) {
 
-		// Clean up data we're using
-		$post_id = ( is_int($post) ) ? $post : $post->ID;
-		if( !is_array($users) ) $users = array($users);
+		$post = get_post( $post );
+		if ( ! $post )
+			return new WP_Error( 'missing-post', $this->module->messages['missing-post'] );
+
+		if ( ! is_array( $users ) )
+			$users = array( $users );
 
 		$user_terms = array();
-		
 		foreach( $users as $user ) {
-			if( is_int($user) ) 
-				$user_data = get_userdata($user);
-			else if( is_string($user) )
-				$user_data = get_userdatabylogin($user);
-			else
-				$user_data = $user;
+
+			if ( is_int( $user ) ) 
+				$user = get_user_by( 'id', $user );
+			elseif ( is_string( $user ) )
+				$user = get_user_by( 'login', $user );
+
+			if ( ! is_object( $user ) )
+				continue;
+
+			$name = $user->user_login;
+
+			// Add user as a term if they don't exist
+			$term = $this->add_term_if_not_exists( $name, $this->following_users_taxonomy );
 			
-			if( $user_data ) {
-				// Name and slug of term are the username;
-				$name = $user_data->user_login;
-				
-				/** TODO: ONLY ADD IF USER IS NOT PART OF $this->exclude_users_taxonomy for the post **/
-				// if( !user_excluding_post($post_id, $user) )
-				
-				// Add user as a term if they don't exist
-				$term = $this->add_term_if_not_exists($name, $this->following_users_taxonomy);
-				
-				if(!is_wp_error($term)) {
-					$user_terms[] = $name;
-				}
+			if ( ! is_wp_error( $term ) ) {
+				$user_terms[] = $name;
 			}
 		}
-		$set = wp_set_object_terms( $post_id, $user_terms, $this->following_users_taxonomy, $append );
-		
-		return;
+		$set = wp_set_object_terms( $post->ID, $user_terms, $this->following_users_taxonomy, $append );
+
+		if ( is_wp_error( $set ) )
+			return $set;
+		else
+			return true;
 	}
 
 	/**
-	 * Removes user from following_users taxonomy for the given Post, so they no longer receive future notifications
-	 * Called when delete_user action is fired
+	 * Removes user from following_users taxonomy for the given Post, 
+	 * so they no longer receive future notifications.
 	 *
-	 * @param $post Post object
+	 * @param object             $post      Post object or ID
+	 * @param int|string|array   $users     One or more users to unfollow from the post
+	 * @return true|WP_Error     $response  True on success, WP_Error on failure
 	 */
-	 function unfollow_post_user( $post, $user = 0 ) {
-		global $current_user;
-		
-		// TODO: Finish this
-		
-		$post_id = $post->ID;
-		//if(!$user) $user = wp_get_current_user();
+	 function unfollow_post_user( $post, $users ) {
 
-        if(!$post_id || !$user || $user->ID == 0)
-			return;
-			
-		// Name and slug of term are the username;  
-		$name = $user->user_login;
-		
-		// Remove the user from the following_users taxonomy
-		if( term_exists($name, $this->following_users_taxonomy) ) {
-			$set = wp_set_object_terms( $post->ID, $name, $this->following_users_taxonomy, true );
-			$old_term_ids =  wp_get_object_terms($post_id, $this->following_users_taxonomy, array('fields' => 'ids', 'orderby' => 'none'));
-	
-/*			
-			$delete_terms = array_diff($old_tt_ids, $tt_ids);
-			if ( $delete_terms ) {
-				$in_delete_terms = "'" . implode("', '", $delete_terms) . "'";
-				do_action( 'delete_term_relationships', $object_id, $delete_terms );
-				$wpdb->query( $wpdb->prepare("DELETE FROM $wpdb->term_relationships WHERE object_id = %d AND term_taxonomy_id IN ($in_delete_terms)", $object_id) );
-				do_action( 'deleted_term_relationships', $object_id, $delete_terms );
-				wp_update_term_count($delete_terms, $taxonomy);
-			}
-*/
+		$post = get_post( $post );
+		if ( ! $post )
+			return new WP_Error( 'missing-post', $this->module->messages['missing-post'] );
+
+		if ( ! is_array( $users ) )
+			$users = array( $users );
+
+		$terms = get_the_terms( $post->ID, $this->following_users_taxonomy );
+		if ( is_wp_error( $terms ) )
+			return $terms;
+
+		$user_terms = wp_list_pluck( $terms, 'slug' );
+		foreach( $users as $user ) {
+
+			if ( is_int( $user ) ) 
+				$user = get_user_by( 'id', $user );
+			elseif ( is_string( $user ) )
+				$user = get_user_by( 'login', $user );
+
+			if ( ! is_object( $user ) )
+				continue;
+
+			$key = array_search( $user->user_login, $user_terms );
+			if ( false !== $key )
+				unset( $user_terms[$key] );
 		}
-		
-		// Add user to the unfollowing_users taxonomy
-		$insert = $this->add_term_if_not_exists($name, $this->unfollowing_users_taxonomy);
-		
-		if(!is_wp_error($insert)) {
-			$exclude = wp_set_object_terms( $post_id, $name, $this->unfollowing_users_taxonomy, true );
-		}
-		
-		return;
+		$set = wp_set_object_terms( $post->ID, $user_terms, $this->following_users_taxonomy, false );
+
+		if ( is_wp_error( $set ) )
+			return $set;
+		else
+			return true;
 	}
 
 	/** 
@@ -786,9 +916,6 @@ class EF_Notifications extends EF_Module {
 			// Delete term from the following_users taxonomy
 			$user_following_term = get_term_by('name', $user->user_login, $this->following_users_taxonomy);
 			if( $user_following_term ) wp_delete_term($user_following_term->term_id, $this->following_users_taxonomy);
-			// Delete term from the unfollowing_users taxonomy
-			$user_unfollowing_term = get_term_by('name', $user->user_login, $this->unfollowing_users_taxonomy);
-			if( $user_unfollowing_term ) wp_delete_term($user_unfollowing_term->term_id, $this->unfollowing_users_taxonomy);
 		}
 		return;
 	}

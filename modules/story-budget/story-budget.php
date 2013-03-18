@@ -549,17 +549,28 @@ class EF_Story_Budget extends EF_Module {
 		
 		// Edit or Trash or View
 		$output .= '<div class="row-actions">';
+		$item_actions = array();
 		if ( $can_edit_post )
-			$output .= '<span class="edit"><a title="' . __( 'Edit this post', 'edit-flow' ) . '" href="' . get_edit_post_link( $post->ID ) . '">' . __( 'Edit' ) . '</a> | </span>';
+			$item_actions['edit'] = '<a title="' . __( 'Edit this post', 'edit-flow' ) . '" href="' . get_edit_post_link( $post->ID ) . '">' . __( 'Edit', 'edit-flow' ) . '</a>';
 		if ( EMPTY_TRASH_DAYS > 0 && current_user_can( $post_type_object->cap->delete_post, $post->ID ) )
-			$output .= '<span class="trash"><a class="submitdelete" title="' . __( 'Move this item to the Trash', 'edit-flow' ) . '" href="' . get_delete_post_link( $post->ID ) . '">' . __( 'Trash' ) . '</a></span>';
+			$item_actions['trash'] = '<a class="submitdelete" title="' . __( 'Move this item to the Trash', 'edit-flow' ) . '" href="' . get_delete_post_link( $post->ID ) . '">' . __( 'Trash', 'edit-flow' ) . '</a>';
 
 		// Display a View or a Preview link depending on whether the post has been published or not
 		if ( in_array( $post->post_status, array( 'publish' ) ) )
-			$output .= '<span class="view"> | <a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;' ), $post_title ) ) . '" rel="permalink">' . __( 'View' ) . '</a></span>';
+			$item_actions['view'] = '<a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'edit-flow' ), $post_title ) ) . '" rel="permalink">' . __( 'View', 'edit-flow' ) . '</a>';
 		else if ( $can_edit_post )
-			$output .= '<span class="previewpost"> | <a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $post_title ) ) . '" rel="permalink">' . __( 'Preview' ) . '</a></span>';
-		$output .= '</div>';
+			$item_actions['previewpost'] = '<a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;', 'edit-flow' ), $post_title ) ) . '" rel="permalink">' . __( 'Preview', 'edit-flow' ) . '</a>';
+
+		$item_actions = apply_filters( 'ef_story_budget_item_actions', $item_actions, $post->ID );
+		if ( count( $item_actions ) ) {
+			$output .= '<div class="row-actions">';
+			$html = '';
+			foreach ( $item_actions as $class => $item_action ) {
+				$html .= '<span class="' . esc_attr( $class ) . '">' . $item_action . '</span> | ';
+			}
+			$output .= rtrim( $html, '| ' );
+			$output .= '</div>';
+		}
 
 		return $output;
 	}
