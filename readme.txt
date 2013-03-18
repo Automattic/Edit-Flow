@@ -94,7 +94,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 = 0.8 (???? ??, 2013) =
 * New feature: Dashboard Notepad. Editors and admins can use a notepad widget on the dashboard to leave instructions, important announcements, etc. for every WordPress user.
-* Double-click to create a new post on the calendar. Thanks [bbrooks](https://github.com/bbrooks)
+* New feature: Double-click to create a new post on the calendar. Thanks [bbrooks](https://github.com/bbrooks)
 * Post subscriptions are now saved via AJAX, which means you can add or remove subscribers without hitting "Save Post". This is especially useful for editorial comments. Thanks [cojennin](https://github.com/cojennin)
 * Modify which filters are used on the calendar and story budget, or add your own. Thanks [cojennin](https://github.com/cojennin)
 * Scheduled publication time is now included in relevant email notifications. Props [mattoperry](https://github.com/mattoperry)
