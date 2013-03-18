@@ -732,9 +732,9 @@ class EF_Custom_Status extends EF_Module {
 			wp_die( $this->module->messages['nonce-failed'] );
 		
 		// Validate and sanitize the form data
-		$status_name = strip_tags( trim( $_POST['status_name'] ) );
+		$status_name = sanitize_text_field( trim( $_POST['status_name'] ) );
 		$status_slug = sanitize_title( $status_name );
-		$status_description = strip_tags( trim( $_POST['status_description'] ) );
+		$status_description = stripslashes( wp_filter_nohtml_kses( trim( $_POST['status_description'] ) ) );
 			
 		/**
 		 * Form validation
@@ -798,8 +798,8 @@ class EF_Custom_Status extends EF_Module {
 		if ( !$existing_status = $this->get_custom_status_by( 'id', (int)$_GET['term-id'] ) )
 			wp_die( $this->module->messsage['term-error'] );			
 		
-		$name = strip_tags( trim( $_POST['name'] ) );
-		$description = stripslashes( strip_tags( trim( $_POST['description'] ) ) );
+		$name = sanitize_text_field( trim( $_POST['name'] ) );
+		$description = stripslashes( wp_filter_nohtml_kses( trim( $_POST['description'] ) ) );
 			
 		/**
 		 * Form validation for editing custom status
@@ -995,9 +995,9 @@ class EF_Custom_Status extends EF_Module {
 			die( $this->module->messages['invalid-permissions'] );		
 		
 		$term_id = (int) $_POST['status_id'];
-		$status_name = strip_tags( trim( $_POST['name'] ) );
+		$status_name = sanitize_text_field( trim( $_POST['name'] ) );
 		$status_slug = sanitize_title( $_POST['name'] );		
-		$status_description = stripslashes( strip_tags( trim( $_POST['description'] ) ) );
+		$status_description = stripslashes( wp_filter_nohtml_kses( trim( $_POST['description'] ) ) );
 		
 		// Check if name field was filled in
 		if ( empty( $status_name ) ) {
