@@ -95,7 +95,10 @@ class EF_Calendar extends EF_Module {
 		add_action( 'wp_ajax_editflow_ajax_update_metadata', array( $this, 'ajax_ef_calendar_update_metadata') );
 
 		//Get user list
-		add_action( 'wp_ajax_editflow_ajax_get_user_list', array( $this, 'calendar_get_user_list' ) );
+		add_action( 'wp_ajax_editflow_ajax_get_user_list', array( $this, 'ajax_ef_calendar_get_user_list' ) );
+
+		//Get category dropdown (or text field)
+		add_action( 'wp_ajax_editflow_ajax_get_category_list', array($this, 'ajax_ef_calendar_get_category_dropdown' ) );
 
 	}
 	
@@ -684,17 +687,15 @@ class EF_Calendar extends EF_Module {
 			</div>
 			<div style="clear:right;"></div>
 			<div class="item-inner">
-				<?php echo $this->get_inner_information( $this->get_calendar_information_fields($post, $published_statuses), $post, $published_statuses ); ?>
+				<?php $this->get_inner_information( $this->get_calendar_information_fields($post, $published_statuses), $post, $published_statuses ); ?>
 			</div>
 		</li>
 		<?php
 
-		return ob_get_clean();
-
 	} // generate_post_li_html()
 
 	//This function's functionality was originally in generate_post_li_html.
-	//Moved here so that it could be leveraged by ajax calls when updating metadata
+	//Moved here so that it could be leveraged by ajax calls looking to update data
 	//from the calendar.
 	function get_calendar_information_fields($post, $published_statuses) {
 		// All of the item information we're going to display
@@ -703,6 +704,8 @@ class EF_Calendar extends EF_Module {
 		$ef_calendar_item_information_fields['author'] = array(
 			'label' => __( 'Author', 'edit-flow' ),
 			'value' => get_the_author_meta( 'display_name', $post->post_author ),
+			'type' => 'author',
+			'editable' => true,
 		);
 		// If the calendar supports more than one post type, show the post type label
 		if ( count( $this->get_post_types_for_module( $this->module ) ) > 1 ) {
@@ -748,6 +751,8 @@ class EF_Calendar extends EF_Module {
 			$ef_calendar_item_information_fields[$key] = array(
 				'label' => $taxonomy->label,
 				'value' => $value,
+				'type' => 'taxonomy',
+				'editable' => true,
 			);
 		}
 		
@@ -760,7 +765,6 @@ class EF_Calendar extends EF_Module {
 	//Moved here so that it could be leveraged by ajax calls when updating metadata
 	//from the calendar.
 	function get_inner_information( $ef_calendar_item_information_fields, $post, $published_statuses ) {
-		ob_start();
 		?>
 			<table class="item-information">
 				<?php foreach( $ef_calendar_item_information_fields as $field => $values ): ?>
@@ -818,7 +822,6 @@ class EF_Calendar extends EF_Module {
 			?>
 			<div style="clear:right;"></div>
 		<?php
-		return ob_get_clean();
 	}
 	
 	/**
@@ -1254,13 +1257,20 @@ class EF_Calendar extends EF_Module {
 		if ( !$this->current_user_can_modify_post( $post ) )
 			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
 
-		$post_meta_key = '_ef_editorial_meta_'.$_POST['attr_type'].'_'.$_POST['metadata_term'];
-
 		$published_statuses = array(
 			'publish',
 			'future',
 			'private',
 		);
+
+		$metadata_types = EditFlow()->editorial_metadata->get_supported_metadata_types();
+
+		//Not updating metadata, updating something normal
+		//let's bail out of here and go do that instead
+		if( !in_array( $_POST['attr_type'], array_keys($metadata_types) ) ) 
+			$this->ajax_ef_calendar_update_normal_data( $post, $published_statuses );
+
+		$post_meta_key = '_ef_editorial_meta_'.$_POST['attr_type'].'_'.$_POST['metadata_term'];
 
 		//If there was a problem
 		$current_post_meta = get_post_meta( $_POST['post_id'], $post_meta_key, true );
@@ -1271,16 +1281,68 @@ class EF_Calendar extends EF_Module {
 		else
 			$metadata_value = $_POST['metadata_value'];
 
-		//If the metadata hasn't been changed, don't update anything
+		//If the metadata hasn't been changed, don't update anything and don't bother with ajax
 		if( $_POST['metadata_value'] != $current_post_meta ) {
-			if( !update_post_meta( intval( $_POST['post_id'] ), $post_meta_key, $metadata_value ) )
-				$this->print_ajax_response( 'error', 'Metadata could not be updated.' . $this->get_inner_information( $this->get_calendar_information_fields( $post, $published_statuses ), $post, $published_statuses ) );
-			else {
-				$this->print_ajax_response('success', $this->get_inner_information( $this->get_calendar_information_fields( $post, $published_statuses ), $post, $published_statuses ) );
-			}
+			//If there was a problem, inform the user, else output correctly
+			if( !update_post_meta( intval( $_POST['post_id'] ), $post_meta_key, $metadata_value ) ) 
+				$response = 'error';
+			else
+				$response = 'success';
 		} else {
-			$this->print_ajax_response( 'success', $this->get_inner_information( $this->get_calendar_information_fields( $post, $published_statuses ), $post, $published_statuses ) );
+			$this->print_ajax_response('success', false, $post, $published_statuses );
+			die();
 		}
+
+		ob_start();
+			$this->get_inner_information( $this->get_calendar_information_fields( $post, $published_statuses ), $post, $published_statuses );
+			$inner_info = ob_get_contents();
+		ob_end_clean();
+
+		if( $response == 'success' )
+			$this->print_ajax_response($response, $inner_info, $post, $published_statuses );
+		else
+			$this->print_ajax_response( 'error', 'Metadata could not be updated.' . $inner_info, $post, $published_statuses );
+
+		die();
+	}
+
+	private function ajax_ef_calendar_update_normal_data( $post, $published_statuses ) {
+		//All the nuance checks have already been satisfied at this point,
+		//so continuing on. Need to determine what we have
+		$post_information = array();
+		
+		switch( $_POST['attr_type'] ) {
+			case 'author':
+				$post_information['ID'] = $post->ID;
+				$post_information['post_author'] = $_POST['metadata_value'];
+				$response = wp_update_post( $post_information );
+			break;
+			case 'taxonomy':
+				if( is_array( $_POST['metadata_value'] ) ) {
+					$array_of_categories = array();
+					foreach( $_POST['metadata_value'] as $category_name ) {
+						$temp_term = term_exists( $category_name, $_POST['metadata_term'] );
+						$array_of_categories[] = $temp_term['term_id'];
+					}
+					$response = wp_set_post_terms( $post->ID, implode( ',', $array_of_categories ), $_POST['metadata_term'] );
+				} else {
+					$response = wp_set_post_terms( $post->ID, $_POST['metadata_value'], $_POST['metadata_term'] );
+				}
+			break;
+		}
+
+		if($response || is_array( $response ) )
+			$post = get_post( $post->ID );
+
+		ob_start();
+			$this->get_inner_information( $this->get_calendar_information_fields( $post, $published_statuses ), $post, $published_statuses );
+			$inner_info = ob_get_contents();
+		ob_end_clean();
+
+		if( $response || is_array( $response )  )
+			$this->print_ajax_response('success', $inner_info, $post, $published_statuses );
+		else
+			$this->print_ajax_response( 'error', 'Metadata could not be updated.' . $inner_info, $post, $published_statuses );
 
 		die();
 	}
@@ -1290,7 +1352,7 @@ class EF_Calendar extends EF_Module {
 	 * Helper function for generating the user list for use in the calendar single item overlay.
 	 * @return string representing the user list
 	 */
-	function calendar_get_user_list() {
+	function ajax_ef_calendar_get_user_list() {
 		// Nonce check!
 		// Only retrieving list of users, but do we need more checks?
 		if ( !wp_verify_nonce( $_POST['nonce'], 'ef-calendar-modify' ) )
@@ -1320,6 +1382,44 @@ class EF_Calendar extends EF_Module {
 
 		$this->print_ajax_response( 'success', $user_list );
 		
+		die();
+	}
+
+	function ajax_ef_calendar_get_category_dropdown() {
+		// Nonce check!
+		// Only retrieving list of categories, but do we need more checks?
+		if ( !wp_verify_nonce( $_POST['nonce'], 'ef-calendar-modify' ) )
+			$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
+
+		$current_taxonomy = get_taxonomy( $_POST['tax_name'] );
+		
+		//If it's hierarchical, make it a multi-select list, else input
+		//with comma deliminated values
+		if( $current_taxonomy->hierarchical ) {
+			//Can taxonomy names have commas in them?
+			$selected_terms = array_map( 'trim', array_map( 'esc_html', explode( ',', $_POST['current_terms'] ) ) );
+			$taxonomy = get_terms( $_POST['tax_name'], 
+				array(
+	 				'orderby'    => 'count',
+	 				'hide_empty' => 0
+	 			)
+	 		);
+
+			$taxonomy_list = '<select id="actively-editing" class="metadata-edit-taxonomy" multiple>';
+
+			foreach( $taxonomy as $term ) {
+				if( in_array( $term->name, $selected_terms ) || $term->name == 'Uncategorized' )
+					$taxonomy_list .= '<option selected="selected">'.$term->name.'</option>';
+				else
+					$taxonomy_list .= '<option>'.$term->name.'</option>';
+			}
+			$taxonomy_list .= '</select>';
+		} else {
+			$taxonomy_list = '<input type="text" id="actively-editing" class="metadata-edit-taxonomy" value="'. esc_html( $_POST['current_terms'] ) .'" />';
+		}
+
+		$this->print_ajax_response( 'success', $taxonomy_list );
+
 		die();
 	}
 

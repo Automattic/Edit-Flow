@@ -16,9 +16,11 @@ jQuery(document).ready(function () {
 
 	//.day-item does not get replaced, so good anchor for DOM traversal
 	jQuery('.day-item').on('click', '.editable-value', function() {
+		jQuery(this).removeClass('editable-value');
 		//Input types allowed for editorial metadata
 		//Is it possible to add more select "types" with a filter?
-		var input_types = ['date', 'location', 'text', 'number', 'paragraph', 'checkbox', 'user'];
+		//Add these in with php and tack on extra?
+		var input_types = ['date', 'location', 'text', 'number', 'paragraph', 'checkbox', 'user', 'author', 'taxonomy'];
 		var tr_classes = jQuery(event.target).closest('tr.item-field').attr('class').split(' ');
 		post_selector = '#'+jQuery(event.target).closest('.day-item').attr('id');
 		
@@ -64,7 +66,6 @@ jQuery(document).ready(function () {
 	 */
 	function save_editorial_metadata(post_id) {
 		var metadata_info = {}
-		
 		//Get active input type
 		switch(prev_input_type) {
 			case 'text':
@@ -93,6 +94,16 @@ jQuery(document).ready(function () {
 				metadata_info.attr_type = 'user';
 				metadata_info.metadata_value = jQuery('#actively-editing').val();
 				metadata_info.metadata_term = metadata_term.replace('item-information-editorial-metadata-', '');
+			break;
+			case 'author':
+				metadata_info.attr_type = 'author';
+				metadata_info.metadata_value = jQuery('#actively-editing').val();
+				metadata_info.metadata_term = 'author';
+			break;
+			case 'taxonomy':
+				metadata_info.attr_type = 'taxonomy';
+				metadata_info.metadata_value = jQuery('#actively-editing').val();
+				metadata_info.metadata_term = metadata_term.replace('item-information-tax_', '');
 			break;
 		}
 
@@ -154,7 +165,7 @@ jQuery(document).ready(function () {
 				jQuery(top_level_selector + ' td.'+type).html('<select id="actively-editing" name="ef-alter-text" class="metadata-edit">' + current_value + '</select>');
 			break;
 			case 'user':
-				var user_list;
+			case 'author':
 				var user_info = {};
 				current_text = current_value = metadata_value_element.text();
 				//Is there a more efficient way to get user list?
@@ -169,6 +180,25 @@ jQuery(document).ready(function () {
 					data : user_info,
 					success : function(x) { load_user_list(type, x); },
 					error : function(r) { jQuery(post_selector + ' .'+metadata_term).html('Error fetching user list.'); }
+				});
+			break;
+			case 'taxonomy':
+				//Need to establish what kind of taxonomy it is (hierarchical?)
+				var taxonomy = {};
+				current_text = current_value = metadata_value_element.text();
+
+				taxonomy.action = 'editflow_ajax_get_category_list';
+				taxonomy.nonce = jQuery("#ef-calendar-modify").val();
+				taxonomy.current_terms = current_text;
+				taxonomy.tax_name = metadata_term.replace('item-information-tax_', '');
+
+				// Send the request
+				jQuery.ajax({
+						type : 'POST',
+						url : (ajaxurl) ? ajaxurl : wpListL10n.url,
+						data : taxonomy,
+						success : function(x) { load_categories_list(type, x); },
+						error : function(r) { jQuery(post_selector + ' .'+metadata_term).html('Error fetching user list.'); }
 				});
 			break;
 		}
@@ -191,6 +221,10 @@ jQuery(document).ready(function () {
 		jQuery(top_level_selector + ' td.'+type).html(jQuery(user_list.message));
 	}
 
+	function load_categories_list(type, categories_list) {
+		jQuery(top_level_selector + ' td.'+type).html(jQuery(categories_list.message));
+	}
+
 	/**
 	 * reset_to_normal_html
 	 * Change the input/select/textarea back to normal static text
@@ -202,6 +236,8 @@ jQuery(document).ready(function () {
 		//Haven't chosen a metadata? Kill this function.
 		if(jQuery('#actively-editing').length === 0)
 			return;
+
+		jQuery('#actively-editing').closest('td').addClass('editable-value');
 
 		jQuery('#actively-editing').attr('class').replace('metadata-edit-', '');
 		var current_td = jQuery('#actively-editing').closest('td');
@@ -216,7 +252,10 @@ jQuery(document).ready(function () {
 	 * @param  string xml
 	 */
 	function replace_inner_information(content) {
-		jQuery(post_selector + ' .'+metadata_term).closest('.item-inner').html(content.message);
+		if(content.message === false)
+			reset_to_normal_html();
+		else
+			jQuery(post_selector + ' .'+metadata_term).closest('.item-inner').html(content.message);
 	}
 	
 	// Hide a message. Used by setTimeout()
