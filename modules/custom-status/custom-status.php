@@ -799,7 +799,7 @@ class EF_Custom_Status extends EF_Module {
 			wp_die( $this->module->messsage['term-error'] );			
 		
 		$name = strip_tags( trim( $_POST['name'] ) );
-		$description = strip_tags( trim( $_POST['description'] ) );
+		$description = stripslashes( strip_tags( trim( $_POST['description'] ) ) );
 			
 		/**
 		 * Form validation for editing custom status
@@ -997,7 +997,7 @@ class EF_Custom_Status extends EF_Module {
 		$term_id = (int) $_POST['status_id'];
 		$status_name = strip_tags( trim( $_POST['name'] ) );
 		$status_slug = sanitize_title( $_POST['name'] );		
-		$status_description = strip_tags( trim( $_POST['description'] ) );		
+		$status_description = stripslashes( strip_tags( trim( $_POST['description'] ) ) );
 		
 		// Check if name field was filled in
 		if ( empty( $status_name ) ) {
@@ -1139,7 +1139,7 @@ class EF_Custom_Status extends EF_Module {
 			$edit_status_link = $this->get_link( array( 'action' => 'edit-status', 'term-id' => $term_id ) );
 			
 			$name = ( isset( $_POST['name'] ) ) ? stripslashes( $_POST['name'] ) : $status->name;
-			$description = stripslashes( ( isset( $_POST['description'] ) ) ? stripslashes( strip_tags( $_POST['description'] ) ) : $status->description );
+			$description = ( isset( $_POST['description'] ) ) ? strip_tags( stripslashes( $_POST['description'] ) ) : $status->description;
 		?>
 		
 		<div id="ajax-response"></div>
@@ -1721,7 +1721,7 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 	 * @return string $output What will be rendered
 	 */
 	function column_description( $item ) {
-		return stripslashes( esc_html( $item->description ) );
+		return esc_html( $item->description );
 	}
 	
 	/**

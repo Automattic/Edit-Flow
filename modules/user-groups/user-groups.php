@@ -280,7 +280,7 @@ class EF_User_Groups extends EF_Module {
 		
 		// Sanitize all of the user-entered values
 		$name = strip_tags( trim( $_POST['name'] ) );
-		$description = strip_tags( trim( $_POST['description'] ) );
+		$description = stripslashes( strip_tags( trim( $_POST['description'] ) ) );
 		
 		$_REQUEST['form-errors'] = array();
 		
@@ -349,7 +349,7 @@ class EF_User_Groups extends EF_Module {
 		
 		// Sanitize all of the user-entered values
 		$name = strip_tags( trim( $_POST['name'] ) );
-		$description = strip_tags( trim( $_POST['description'] ) );
+		$description = stripslashes( strip_tags( trim( $_POST['description'] ) ) );
 		
 		$_REQUEST['form-errors'] = array();
 		
@@ -443,7 +443,7 @@ class EF_User_Groups extends EF_Module {
 			die( $this->module->messsage['usergroup-error'] );
 		
 		$name = strip_tags( trim( $_POST['name'] ) );
-		$description = strip_tags( trim( $_POST['description'] ) );
+		$description = stripslashes( strip_tags( trim( $_POST['description'] ) ) );
 		
 		/**
 		 * Form validation for editing Usergroup
@@ -549,7 +549,7 @@ class EF_User_Groups extends EF_Module {
 				return; 
 			}
 			$name = ( isset( $_POST['name'] ) ) ? stripslashes( $_POST['name'] ) : $usergroup->name;
-			$description = stripslashes( ( isset( $_POST['description'] ) ) ? $_POST['description'] : $usergroup->description );
+			$description = ( isset( $_POST['description'] ) ) ? stripslashes( $_POST['description'] ) : $usergroup->description;
 		?>
 		<form method="post" action="<?php echo esc_url( $this->get_link( array( 'action' => 'edit-usergroup', 'usergroup-id' => $usergroup_id ) ) ); ?>">
 		<div id="col-right"><div class="col-wrap"><div id="ef-usergroup-users" class="form-wrap">
@@ -1178,7 +1178,7 @@ class EF_Usergroups_List_Table extends WP_List_Table
 	 * @since 0.7
 	 */
 	function column_description( $usergroup ) {
-		return stripslashes( esc_html( $usergroup->description ) );
+		return esc_html( $usergroup->description );
 	}
 	
 	/**

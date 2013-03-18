@@ -375,7 +375,7 @@ class EF_Editorial_Metadata extends EF_Module {
 				$postmeta_key = $this->get_postmeta_key( $term );
 				$current_metadata = esc_attr( $this->get_postmeta_value( $term, $post->ID ) );
 				$type = $term->type;
-				$description = stripslashes( $term->description );
+				$description = $term->description;
 				if ( $description )
 					$description_span = "<span class='description'>$description</span>";
 				else
@@ -1073,7 +1073,7 @@ class EF_Editorial_Metadata extends EF_Module {
 			wp_die( $this->module->messsage['term-error'] );			
 		
 		$new_name = strip_tags( trim( $_POST['name'] ) );
-		$new_description = strip_tags( trim( $_POST['description'] ) );
+		$new_description = stripslashes( strip_tags( trim( $_POST['description'] ) ) );
 			
 		/**
 		 * Form validation for editing editorial metadata term
@@ -1120,7 +1120,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		
 		// Try to add the metadata term
 		$args = array(
-			'name' => $new_name,			
+			'name' => $new_name,
 			'description' => $new_description,
 			'viewable' => $new_viewable,
 		);
@@ -1188,7 +1188,7 @@ class EF_Editorial_Metadata extends EF_Module {
 			die( $this->module->messsage['term-error'] );
 		
 		$metadata_name = strip_tags( trim( $_POST['name'] ) );
-		$metadata_description = strip_tags( trim( $_POST['description'] ) );
+		$metadata_description = stripslashes( strip_tags( trim( $_POST['description'] ) ) );
 		
 		/**
 		 * Form validation for editing editorial metadata term
@@ -1389,7 +1389,7 @@ class EF_Editorial_Metadata extends EF_Module {
 			$edit_term_link = $this->get_link( array( 'action' => 'edit-term', 'term-id' => $term->term_id ) );
 			
 			$name = ( isset( $_POST['name'] ) ) ? stripslashes( $_POST['name'] ) : $term->name;
-			$description = stripslashes( ( isset( $_POST['description'] ) ) ? $_POST['description'] : $term->description );
+			$description = ( isset( $_POST['description'] ) ) ? stripslashes( $_POST['description'] ) : $term->description;
 			if ( $term->viewable )
 				$viewable = 'yes';
 			else
@@ -1646,7 +1646,7 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 			case 'position':
 			case 'type':
 			case 'description':
-				return stripslashes( esc_html( $item->$column_name ) );
+				return esc_html( $item->$column_name );
 				break;
 			case 'viewable':
 				if ( $item->viewable )
