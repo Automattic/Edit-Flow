@@ -712,34 +712,8 @@ class EF_Editorial_Metadata extends EF_Module {
 			if ( $column_name != $key )
 				continue;
 
-			$postmeta_key = $this->get_postmeta_key( $term );
 			$current_metadata = $this->get_postmeta_value( $term, $post_id );
-			$type = $term->type;
-			switch( $type ) {
-				case "date":
-					if ( !empty( $current_metadata ) )
-						$current_metadata = date( get_option( 'date_format' ), intval( $current_metadata ) );
-				case "location":
-				case "text":
-				case "number":
-				case "paragraph":
-					echo esc_html( $current_metadata );
-					break;
-				case "checkbox":
-					if ( $current_metadata )
-						echo __( 'Yes', 'edit-flow' );
-					else
-						echo __( 'No', 'edit-flow' );
-					break;
-				case "user": 
-					$userdata = get_userdata( $current_metadata );
-					if ( is_object( $userdata ) )
-						echo esc_html( $userdata->display_name );
-					break;
-				default:
-					break;
-			}
-
+			echo $this->generate_editorial_metadata_term_output( $term, $current_metadata );
 		}
 		
 	}
@@ -767,41 +741,11 @@ class EF_Editorial_Metadata extends EF_Module {
 			$key = $this->module->slug . '-' . $term->slug;
 
 			// Default values
+			$current_metadata = $this->get_postmeta_value( $term, $post_id );
 			$term_data = array(
 				'label' => $term->name,
-				'value' => '',
+				'value' => $this->generate_editorial_metadata_term_output( $term, $current_metadata ),
 			);
-			$postmeta_key = $this->get_postmeta_key( $term );
-			$current_metadata = $this->get_postmeta_value( $term, $post_id );
-			$type = $term->type;
-			switch( $type ) {
-				case "date":
-					if ( !empty( $current_metadata ) )
-						$current_metadata = date( get_option( 'date_format' ), intval( $current_metadata ) );
-					$term_data['value'] = esc_html( $current_metadata );
-					break;
-				case "location":
-				case "text":
-				case "number":
-				case "paragraph":
-					if ( $current_metadata )
-						$term_data['value'] = esc_html( $current_metadata );
-					break;
-				case "checkbox":
-					if ( $current_metadata )
-						$term_data['value'] = __( 'Yes', 'edit-flow' );
-					else
-						$term_data['value'] = __( 'No', 'edit-flow' );
-					break;
-				case "user": 
-					$userdata = get_userdata( $current_metadata );
-					if ( is_object( $userdata ) )
-						$term_data['value'] = esc_html( $userdata->display_name );
-					break;
-				default:
-					break;
-			}
-			
 			$calendar_fields[$key] = $term_data;
 		}
 		return $calendar_fields;
@@ -854,31 +798,55 @@ class EF_Editorial_Metadata extends EF_Module {
 		// Don't allow non-viewable term data to be displayed
 		if ( !$term->viewable )
 			return $column_name;
-			
-		$output = '';
-		$postmeta_key = $this->get_postmeta_key( $term );
+
 		$current_metadata = $this->get_postmeta_value( $term, $post->ID );
+		$output = $this->generate_editorial_metadata_term_output( $term, $current_metadata );
+
+		return $output;
+	}
+
+	/**
+	 * Generate the presentational output for an editorial metadata term
+	 *
+	 * @since 0.8
+	 *
+	 * @param object      $term    The editorial metadata term
+	 * @return string     $html    How the term should be rendered
+	 */
+	private function generate_editorial_metadata_term_output( $term, $pm_value ) {
+
+		$output = '';
 		switch( $term->type ) {
 			case "date":
-				if ( !empty( $current_metadata ) )
-					$current_metadata = date( get_option( 'date_format' ), intval( $current_metadata ) );
-				$output = esc_html( $current_metadata );
+				if ( empty( $pm_value ) )
+					break;
+
+				// All day vs. day and time
+				$date = date( get_option( 'date_format' ), $pm_value );
+				$time = date( get_option( 'time_format' ), $pm_value );
+				if( date( 'Hi', $pm_value ) == '0000' )
+					$pm_value = $date;
+				else
+					$pm_value = sprintf( __( '%1$s at %2$s', 'edit-flow' ), $date, $time );
+				$output = esc_html( $pm_value );
 				break;
 			case "location":
 			case "text":
 			case "number":
 			case "paragraph":
-				if ( $current_metadata )
-					$output = esc_html( $current_metadata );
+				if ( $pm_value )
+					$output = esc_html( $pm_value );
 				break;
 			case "checkbox":
-				if ( $current_metadata )
+				if ( $pm_value )
 					$output = __( 'Yes', 'edit-flow' );
 				else
 					$output = __( 'No', 'edit-flow' );
 				break;
-			case "user": 
-				$userdata = get_userdata( $current_metadata );
+			case "user":
+				if ( empty( $pm_value ) )
+					break;
+				$userdata = get_user_by( 'id', $pm_value );
 				if ( is_object( $userdata ) )
 					$output = esc_html( $userdata->display_name );
 				break;
@@ -886,7 +854,6 @@ class EF_Editorial_Metadata extends EF_Module {
 				break;
 		}
 		return $output;
-		
 	}
 	
 	/**
