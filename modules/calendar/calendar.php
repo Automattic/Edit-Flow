@@ -1174,7 +1174,7 @@ class EF_Calendar extends EF_Module {
 			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
 
 		if ( empty( $_POST['ef_insert_date'] ) )
-			$this->print_ajax_response( 'error', 'No date supplied' );
+			$this->print_ajax_response( 'error', __( 'No date supplied.', 'edit-flow' ) );
 
 		// Post type has to be visible on the calendar to create a placeholder
 		if ( ! in_array( $this->module->options->quick_create_post_type, $this->get_post_types_for_module( $this->module ) ) )
@@ -1184,7 +1184,7 @@ class EF_Calendar extends EF_Module {
 		$post_title = sanitize_text_field( $_POST['ef_insert_title'] );
 
 		if( ! $post_title )
-			$post_title = 'Untitled';
+			$post_title = __( 'Untitled', 'edit-flow' );
 
 		$post_date = sanitize_text_field( $_POST['ef_insert_date'] );
 
@@ -1220,7 +1220,7 @@ class EF_Calendar extends EF_Module {
 		} else {
 
 			// announce error
-			$this->print_ajax_response( 'error', 'Post could not be created' );
+			$this->print_ajax_response( 'error', __( 'Post could not be created', 'edit-flow' ) );
 
 		}
 
