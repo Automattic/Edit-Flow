@@ -288,6 +288,10 @@ table#ef-calendar-view .day-unit ul li .item-information .item-field .label {
 table#ef-calendar-view .day-unit ul li .item-information .item-field .value {
 }
 
+table#ef-calendar-view .day-unit ul li .item-information .item-field .editable-value {
+	cursor: pointer;
+}
+
 table#ef-calendar-view .day-unit ul li .item-information .item-field em.none {
 	color: #999999;
 }

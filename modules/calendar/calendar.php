@@ -771,14 +771,13 @@ class EF_Calendar extends EF_Module {
 							continue;
 					?>
 					<tr class="item-field item-information-<?php echo esc_attr( $field ); ?>">
-						<th class="label">
-							<?php if( isset( $values['editable'] ) && $this->current_user_can_modify_post( $post ) ) : ?>
-								<a href="#edit-metadata" class="edit-calendar-metadata"><?php echo esc_html( $values['label'] ); ?>:</a></th>
-							<?php else : ?>
-								<?php echo esc_html( $values['label'] ); ?>:</th>
-							<?php endif; ?>
+						<th class="label"><?php echo esc_html( $values['label'] ); ?>:</th>
 						<?php if ( $values['value'] && isset($values['type']) ): ?>
-							<td class="value <?php echo $values['type']; ?>"><?php echo esc_html( $values['value'] ); ?></td>
+							<?php if( isset( $values['editable'] ) && $this->current_user_can_modify_post( $post ) ) : ?>
+								<td class="editable-value value <?php echo $values['type']; ?>"><?php echo esc_html( $values['value'] ); ?></td>
+							<?php else: ?>
+								<td class="value <?php echo $values['type']; ?>"><?php echo esc_html( $values['value'] ); ?></td>
+							<?php endif; ?>
 						<?php elseif( $values['value'] ): ?>
 							<td class="value"><?php echo esc_html( $values['value'] ); ?></td>
 						<?php else: ?>

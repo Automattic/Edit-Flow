@@ -15,7 +15,7 @@ jQuery(document).ready(function () {
 	var post_selector;
 
 	//.day-item does not get replaced, so good anchor for DOM traversal
-	jQuery('.day-item').on('click', 'a.edit-calendar-metadata', function() {
+	jQuery('.day-item').on('click', '.editable-value', function() {
 		//Input types allowed for editorial metadata
 		//Is it possible to add more select "types" with a filter?
 		var input_types = ['date', 'location', 'text', 'number', 'paragraph', 'checkbox', 'user'];
@@ -32,7 +32,7 @@ jQuery(document).ready(function () {
 		//Retrieve the correct selector for what we're looking to replace
 		top_level_selector = post_selector + ' .item-overlay .item-inner' + ' .' + metadata_term;
 		th_label = jQuery(jQuery(top_level_selector).children('th.label')[0]);
-		metadata_value_element = th_label.next('td.value');
+		metadata_value_element = jQuery(this);
 
 		var metadata_value_classes = metadata_value_element.attr('class').split(' ');
 
