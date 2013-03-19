@@ -40,6 +40,7 @@ class EF_Story_Budget extends EF_Module {
 		$args = array(
 			'title' => __( 'Story Budget', 'edit-flow' ),
 			'short_description' => sprintf( 'View the status of all your content <a href="%s">at a glance</a>.', $story_link, 'edit-flow' ),
+			'alt_short_description' => __('View the status of all your content at a glance.'),
 			'extended_description' => __( 'Use the story budget to see how content on your site is progressing. Filter by specific categories or date ranges to see details about each post in progress.', 'edit-flow' ),
 			'module_url' => $this->module_url,
 			'img_url' => $this->module_url . 'lib/story_budget_s128.png',
