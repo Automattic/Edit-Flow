@@ -746,6 +746,8 @@ class EF_Editorial_Metadata extends EF_Module {
 				'label' => $term->name,
 				'value' => $this->generate_editorial_metadata_term_output( $term, $current_metadata ),
 			);
+			$term_data['editable'] = true;
+			$term_data['type'] = $term->type;
 			$calendar_fields[$key] = $term_data;
 		}
 		return $calendar_fields;
