@@ -17,7 +17,6 @@ class EF_Settings extends EF_Module {
 		$args = array(
 			'title' => __( 'Edit Flow', 'edit-flow' ),
 			'short_description' => __( 'Edit Flow redefines your WordPress publishing workflow.', 'edit-flow' ),
-			'alt_short_description' => '',
 			'extended_description' => __( 'Enable any of the features below to take control of your workflow. Custom statuses, email notifications, editorial comments, and more help you and your team save time so everyone can focus on what matters most: the content.', 'edit-flow' ),
 			'module_url' => $this->module_url,
 			'img_url' => $this->module_url . 'lib/eflogo_s128.png',
@@ -255,7 +254,7 @@ class EF_Settings extends EF_Module {
 					echo '<p>' . wp_kses($mod_data->short_description, 'a') . '</p>';
 				}
 				elseif (condition) {
-					echo '<p>' . esc_html( $mod_data->alt_short_description ) . '</p>';
+					echo '<p>' . strip_tags( $mod_data->short_description ) . '</p>';
 				}
 				echo '<p class="edit-flow-module-actions">';
 				if ( $mod_data->configure_page_cb ) {
