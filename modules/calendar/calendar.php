@@ -838,7 +838,7 @@ class EF_Calendar extends EF_Module {
 					echo '<div class="item-actions">';
 					$html = '';
 					foreach ( $item_actions as $class => $item_action ) {
-						$html .= '<span class="' . esc_attr( $class ) . '">' . $item_action . '</span> | ';
+						$html .= '<span class="' . esc_attr( $class ) . '">' . $item_action . ' | </span> ';
 					}
 					echo rtrim( $html, '| ' );
 					echo '</div>';
