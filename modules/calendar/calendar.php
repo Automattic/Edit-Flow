@@ -707,9 +707,15 @@ class EF_Calendar extends EF_Module {
 
 	} // generate_post_li_html()
 
-	//This function's functionality was originally in generate_post_li_html.
-	//Moved here so that it could be leveraged by ajax calls looking to update data
-	//from the calendar.
+	/**
+	 * get_calendar_information_fields description
+	 * This function was moved out of generate_post_li_html
+	 * so that it could be called independently of list item.
+	 * @param  WP_Post $post               
+	 * @param  array $published_statuses 
+	 * 
+	 * @since 0.8
+	 */
 	function get_calendar_information_fields($post, $published_statuses) {
 		// All of the item information we're going to display
 		$ef_calendar_item_information_fields = array();
@@ -785,9 +791,17 @@ class EF_Calendar extends EF_Module {
 		return $ef_calendar_item_information_fields;
 	}
 
-	//This function's functionality was originally in generate_post_li_html.
-	//Moved here so that it could be leveraged by ajax calls when updating metadata
-	//from the calendar.
+	/**
+	 * get_inner_information description
+	 * Functionality for generating the inner html elements on the calendar
+	 * has been separated out so various ajax functions can reload certain
+	 * parts of an inner html element.
+	 * @param  array $ef_calendar_item_information_fields
+	 * @param  WP_Post $post                               
+	 * @param  array $published_statuses                 
+	 * 
+	 * @since 0.8
+	 */
 	function get_inner_information( $ef_calendar_item_information_fields, $post, $published_statuses ) {
 		?>
 			<table class="item-information">
@@ -1304,6 +1318,8 @@ class EF_Calendar extends EF_Module {
 	 * ajax_ef_calendar_update_metadata
 	 * Update the metadata from the calendar.
 	 * @return string representing the overlay
+	 *
+	 * @since 0.8
 	 */
 	function ajax_ef_calendar_update_metadata() {
 		// Nonce check!
@@ -1369,6 +1385,16 @@ class EF_Calendar extends EF_Module {
 		die();
 	}
 
+	/**
+	 * ajax_ef_calendar_update_normal_data
+	 * There are two kinds of data that can be updated from the calendar. 
+	 * Editorial Metadata and normal post related data. This function deals with
+	 * the latter
+	 * @param  WP_Post $post
+	 * @param  array $published_statuses
+	 * 
+	 * @since 0.8
+	 */
 	private function ajax_ef_calendar_update_normal_data( $post, $published_statuses ) {
 		//All the nuance checks have already been satisfied at this point,
 		//so continuing on. Need to determine what we have

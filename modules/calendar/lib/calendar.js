@@ -14,12 +14,14 @@ jQuery(document).ready(function () {
 	var prev_input_type;
 	var post_selector;
 
-	//.day-unit does not get replaced, so good anchor
+	/**
+	 * Listen for click event and subsitute correct type of replacement
+	 * html given the input type
+	 */
 	jQuery('.day-unit').on('click', '.editable-value', function( event ) {		
 		jQuery(this).removeClass('editable-value');
+		
 		//Input types allowed for editorial metadata
-		//Is it possible to add more select "types" with a filter?
-		//Add these in with php and tack on extra?
 		var input_types = ['date', 'location', 'text', 'number', 'paragraph', 'checkbox', 'user', 'author', 'taxonomy'];
 		var tr_classes = jQuery(event.target).closest('tr.item-field').attr('class').split(' ');
 		post_selector = '#'+jQuery(event.target).closest('.day-item').attr('id');
@@ -136,13 +138,12 @@ jQuery(document).ready(function () {
 
 	/**
 	 * subsitute_input
-	 * Change the static text value back to it's corresponding input/select/textarea type.
+	 * Change the static text value to it's corresponding input/select/textarea type.
 	 * @param  string type
 	 * @param  jQuery metadata_value_element
 	 * @param  string top_level_selector
 	 */
 	function subsitute_input(type, metadata_value_element, top_level_selector) {
-		var current_value;
 
 		//If the user hasn't clicked on any metadata to edit, kill this function
 		if(current_text !== undefined)
@@ -153,33 +154,33 @@ jQuery(document).ready(function () {
 			case 'text':
 			case 'number':
 			case 'location':
-				current_text = current_value = metadata_value_element.text();
-				jQuery(top_level_selector + ' td.'+ type).html('<input type="text" id="actively-editing" name="ef-alter-text" value="' + current_value + '" class="metadata-edit-'+ type+ '"/>');
+				current_text = metadata_value_element.text();
+				jQuery(top_level_selector + ' td.'+ type).html('<input type="text" id="actively-editing" name="ef-alter-text" value="' + current_text + '" class="metadata-edit-'+ type + '"/>');
 			break;
 			case 'paragraph':
-				current_text = current_value = metadata_value_element.text();
-				jQuery(top_level_selector + ' td.'+ type).html('<textarea type="text" id="actively-editing" name="ef-alter-text" class="metadata-edit-'+ type+ '">'+current_value+'</textarea>');
+				current_text = metadata_value_element.text();
+				jQuery(top_level_selector + ' td.'+ type).html('<textarea type="text" id="actively-editing" name="ef-alter-text" class="metadata-edit-'+ type + '">' + current_text + '</textarea>');
 			break;
 			case 'date':
-				current_text = current_value = metadata_value_element.text();
-				jQuery(top_level_selector + ' td.'+ type).html('<input type="text" id="actively-editing" name="ef-alter-text" value="' + current_value + '" class="metadata-edit-' + type + ' date-pick"/>');
+				current_text = metadata_value_element.text();
+				jQuery(top_level_selector + ' td.'+ type).html('<input type="text" id="actively-editing" name="ef-alter-text" value="' + current_text + '" class="metadata-edit-' + type + ' date-pick"/>');
 				//Always be traversin the DOM and rebinding necessary functionality
 				jQuery(top_level_selector + ' td.'+ type + ' #actively-editing').datetimepicker({dateFormat: 'M dd yy', firstDay: ef_week_first_day,});
 			break;
 			case 'checkbox':
-				current_text = current_value = metadata_value_element.text();
-				if(current_value === 'No')
-					current_value = '<option>No</option><option>Yes</option>';
+				current_text = metadata_value_element.text();
+				if(current_text === 'No')
+					current_text = '<option>No</option><option>Yes</option>';
 				else
-					current_value = '<option>Yes</option><option>No</option>';
+					current_text = '<option>Yes</option><option>No</option>';
 
-				jQuery(top_level_selector + ' td.'+type).html('<select id="actively-editing" name="ef-alter-text" class="metadata-edit">' + current_value + '</select>');
+				jQuery(top_level_selector + ' td.'+type).html('<select id="actively-editing" name="ef-alter-text" class="metadata-edit">' + current_text + '</select>');
 			break;
 			case 'user':
 			case 'author':
 				var selected_index;
 
-				current_text = current_value = metadata_value_element.text();
+				current_text = metadata_value_element.text();
 				jQuery('.ef_calendar_user_dropdown option').each(function(i) {
 					if(current_text == jQuery(this).text()) {
 						selected_index = jQuery(this).val();
@@ -199,7 +200,7 @@ jQuery(document).ready(function () {
 				//Determine if we have a hierarchical taxonomy or a regular
 				//one. Need to know if a list is being subsituted or not
 				if(metadata_value_element.hasClass('hierarchical')) {
-					current_text = current_value = metadata_value_element.text();
+					current_text = metadata_value_element.text();
 					tax_name = metadata_term.replace('item-information-tax_', '');
 					tax_selector = '.tax_dropdown-'+tax_name;
 					array_of_terms = current_text.split(',');
@@ -220,14 +221,13 @@ jQuery(document).ready(function () {
 					jQuery(tax_selector).attr('id', 'actively-editing');
 					jQuery(top_level_selector + ' td.'+type).html(jQuery(tax_selector));
 				} else {
-					current_text = current_value = metadata_value_element.text();
+					current_text = metadata_value_element.text();
 					jQuery(top_level_selector + ' td.'+ type).html('<input type="text" id="actively-editing" name="ef-alter-text" value="' + current_value + '" class="metadata-edit-'+ type+ '"/>');
 				}
 			break;
 		}
-		//Focus on the metadata
-		//Some wonky stuff going on with double clicking, might want to make an exception for
-		//double clicks when user is clicking on inputs.
+		
+		//Focus on the metadata. Avoid double clicking the input
 		jQuery('#actively-editing').focus();
 		prev_top_level_selector = top_level_selector
 		normal_html = jQuery(top_level_selector + ' td').html();
@@ -250,6 +250,7 @@ jQuery(document).ready(function () {
 
 		var current_td = jQuery('#actively-editing').closest('td');
 
+		//If it's a select list, deal with it accordingly
 		if(jQuery('#actively-editing').hasClass('ef_user_tax_dropdown'))
 			jQuery('#tax_user_dropdown_lists').append(jQuery('#actively-editing').attr('id', ''));
 		else
@@ -263,7 +264,7 @@ jQuery(document).ready(function () {
 	 * replace_inner_information
 	 * Replace the overlay with the content received from the ajax call.
 	 * 
-	 * @param  string xml
+	 * @param  string
 	 */
 	function replace_inner_information(content) {
 		if(content.message === false)
@@ -311,7 +312,9 @@ jQuery(document).ready(function () {
 	 */
 	function edit_flow_calendar_show_overlay( event ) {	
 		//If we've clicked on the original overlay (not the top part!), don't close it
-		if(jQuery(this).hasClass('item-overlay-active') && ( jQuery(event.target).hasClass('inner') ||  jQuery(event.target).hasClass('item-status') || jQuery(event.target).hasClass('item-overlay') || jQuery(event.target).hasClass('status-text')) ) {
+		if(jQuery(this).hasClass('item-overlay-active') && ( jQuery(event.target).hasClass('inner') 
+			||  jQuery(event.target).hasClass('item-status') || jQuery(event.target).hasClass('item-overlay') 
+			|| jQuery(event.target).hasClass('status-text') ) ) {
 			edit_flow_calendar_close_overlays();
 		} 
 		else if ( !jQuery(this).hasClass('item-overlay-active' ) ) {
