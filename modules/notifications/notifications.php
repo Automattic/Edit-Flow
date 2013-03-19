@@ -222,7 +222,9 @@ jQuery(document).ready(function($) {
 	/**
 	 * Action to Follow / Unfollow posts on the manage posts screen
 	 */
-	$('.ef_follow_link a').on( 'click', function(e){
+	$('#ef-calendar-view').on( 'click', '.ef_follow_link a', function(e){
+
+		e.preventDefault();
 
 		var link = $(this);
 
@@ -238,7 +240,7 @@ jQuery(document).ready(function($) {
 				// @todo expose the error somehow
 			}
 		});
-		e.preventDefault();
+		return false;
 	});
 });
 </script><?php
