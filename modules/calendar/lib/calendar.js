@@ -222,7 +222,7 @@ jQuery(document).ready(function () {
 					jQuery(top_level_selector + ' td.'+type).html(jQuery(tax_selector));
 				} else {
 					current_text = metadata_value_element.text();
-					jQuery(top_level_selector + ' td.'+ type).html('<input type="text" id="actively-editing" name="ef-alter-text" value="' + current_value + '" class="metadata-edit-'+ type+ '"/>');
+					jQuery(top_level_selector + ' td.'+ type).html('<input type="text" id="actively-editing" name="ef-alter-text" value="' + current_text + '" class="metadata-edit-'+ type+ '"/>');
 				}
 			break;
 		}
