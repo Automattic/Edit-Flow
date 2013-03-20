@@ -288,6 +288,15 @@ table#ef-calendar-view .day-unit ul li .item-information .item-field .label {
 table#ef-calendar-view .day-unit ul li .item-information .item-field .value {
 }
 
+table#ef-calendar-view .day-unit ul li .item-information .item-field .editable-value {
+	cursor: pointer;
+}
+
+table#ef-calendar-view .day-unit ul li .item-information .item-field .spinner-calendar {
+	margin: 0px;
+	float: none;
+}
+
 table#ef-calendar-view .day-unit ul li .item-information .item-field em.none {
 	color: #999999;
 }
@@ -456,4 +465,12 @@ table#ef-calendar-view .day-unit ul li .item-overlay .item-actions span.trash a 
 .edit-flow-error-message {
 	background-color: #FFEBE8;
 	border: 1px solid #CC0000;
+}
+
+.ef_calendar_hidden_list {
+	display: none;
+}
+
+.save-metadata-hide {
+	display: none;
 }
