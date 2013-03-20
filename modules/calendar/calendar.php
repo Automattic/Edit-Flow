@@ -273,12 +273,7 @@ class EF_Calendar extends EF_Module {
 			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
 			
 		// Check that it's not yet published
-		$published_statuses = array(
-			'publish',
-			'future',
-			'private',
-		);
-		if ( in_array( $post->post_status, $published_statuses ) )
+		if ( in_array( $post->post_status, $this->published_statuses ) )
 			$this->print_ajax_response( 'error', sprintf( $this->module->messages['published-post-ajax'], get_edit_post_link( $post_id ) ) );
 		
 		// Check that the new date passed is a valid one
@@ -670,15 +665,10 @@ class EF_Calendar extends EF_Module {
 		// Only allow the user to drag the post if they have permissions to
 		// or if it's in an approved post status
 		// This is checked on the ajax request too.
-		$published_statuses = array(
-			'publish',
-			'future',
-			'private',
-		);
-		if ( $this->current_user_can_modify_post( $post ) && !in_array( $post->post_status, $published_statuses ) )
+		if ( $this->current_user_can_modify_post( $post ) && !in_array( $post->post_status, $this->published_statuses ) )
 			$post_classes[] = 'sortable';
 		
-		if ( in_array( $post->post_status, $published_statuses ) )
+		if ( in_array( $post->post_status, $this->published_statuses ) )
 			$post_classes[] = 'is-published';
 		
 		// Hide posts over a certain number to prevent clutter, unless user is only viewing 1 or 2 weeks
@@ -700,7 +690,7 @@ class EF_Calendar extends EF_Module {
 			</div>
 			<div style="clear:right;"></div>
 			<div class="item-inner">
-				<?php $this->get_inner_information( $this->get_calendar_information_fields($post, $published_statuses), $post, $published_statuses ); ?>
+				<?php $this->get_inner_information( $this->get_calendar_information_fields( $post ), $post ); ?>
 			</div>
 		</li>
 		<?php
@@ -712,11 +702,10 @@ class EF_Calendar extends EF_Module {
 	 * This function was moved out of generate_post_li_html
 	 * so that it could be called independently of list item.
 	 * @param  WP_Post $post               
-	 * @param  array $published_statuses 
 	 * 
 	 * @since 0.8
 	 */
-	function get_calendar_information_fields($post, $published_statuses) {
+	function get_calendar_information_fields( $post ) {
 		// All of the item information we're going to display
 		$ef_calendar_item_information_fields = array();
 		// Post author
@@ -734,7 +723,7 @@ class EF_Calendar extends EF_Module {
 			);
 		}
 		// Publication time for published statuses
-		if ( in_array( $post->post_status, $published_statuses ) ) {
+		if ( in_array( $post->post_status, $this->published_statuses ) ) {
 			if ( $post->post_status == 'future' ) {
 				$ef_calendar_item_information_fields['post_date'] = array(
 					'label' => __( 'Scheduled', 'edit-flow' ),
@@ -802,7 +791,7 @@ class EF_Calendar extends EF_Module {
 	 * 
 	 * @since 0.8
 	 */
-	function get_inner_information( $ef_calendar_item_information_fields, $post, $published_statuses ) {
+	function get_inner_information( $ef_calendar_item_information_fields, $post ) {
 		?>
 			<table class="item-information">
 				<?php foreach( $ef_calendar_item_information_fields as $field => $values ): ?>
@@ -838,7 +827,7 @@ class EF_Calendar extends EF_Module {
 					// Trash this post
 					$item_actions['trash'] = '<a href="'. get_delete_post_link( $post->ID) . '" title="' . esc_attr( __( 'Trash this item' ), 'edit-flow' ) . '">' . __( 'Trash', 'edit-flow' ) . '</a>';
 					// Preview/view this post
-					if ( !in_array( $post->post_status, $published_statuses ) ) {
+					if ( !in_array( $post->post_status, $this->published_statuses ) ) {
 						$item_actions['view'] = '<a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" rel="permalink">' . __( 'Preview', 'edit-flow' ) . '</a>';
 					} elseif ( 'trash' != $post->post_status ) {
 						$item_actions['view'] = '<a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" rel="permalink">' . __( 'View', 'edit-flow' ) . '</a>';
@@ -1128,17 +1117,12 @@ class EF_Calendar extends EF_Module {
 			return false;
 			
 		$post_type_object = get_post_type_object( $post->post_type );
-			
-		$published_statuses = array(
-			'publish',
-			'future',
-			'private',
-		);
+
 		// Editors and admins are fine
 		if ( current_user_can( $post_type_object->cap->edit_others_posts, $post->ID ) )
 			return true;
 		// Authors and contributors can move their own stuff if it's not published
-		if ( current_user_can( $post_type_object->cap->edit_post, $post->ID ) && wp_get_current_user()->ID == $post->post_author && !in_array( $post->post_status, $published_statuses ) )
+		if ( current_user_can( $post_type_object->cap->edit_post, $post->ID ) && wp_get_current_user()->ID == $post->post_author && !in_array( $post->post_status, $this->published_statuses ) )
 			return true;
 		// Those who can publish posts can move any of their own stuff
 		if ( current_user_can( $post_type_object->cap->publish_posts, $post->ID ) && wp_get_current_user()->ID == $post->post_author )
@@ -1322,121 +1306,83 @@ class EF_Calendar extends EF_Module {
 	 * @since 0.8
 	 */
 	function handle_ajax_update_metadata() {
-		// Nonce check!
-		if ( !wp_verify_nonce( $_POST['nonce'], 'ef-calendar-modify' ) )
+		global $wpdb;
+
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'ef-calendar-modify' ) )
 			$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
 		
 		// Check that we got a proper post
 		$post_id = ( int )$_POST['post_id'];
 		$post = get_post( $post_id );
-		if ( !$post )
+		if ( ! $post )
 			$this->print_ajax_response( 'error', $this->module->messages['missing-post'] );
 			
 		// Check that the user can modify the post
-		if ( !$this->current_user_can_modify_post( $post ) )
+		if ( ! $this->current_user_can_modify_post( $post ) )
 			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
 
-		$published_statuses = array(
-			'publish',
-			'future',
-			'private',
-		);
+		$default_types = array(
+				'author',
+				'taxonomy',
+			);
+		$metadata_types = array();
+		if ( $this->module_enabled( 'editorial_metadata' ) )
+			$metadata_types = array_keys( EditFlow()->editorial_metadata->get_supported_metadata_types() );
 
-		$metadata_types = EditFlow()->editorial_metadata->get_supported_metadata_types();
+		$valid_types = array_merge( $default_types, $metadata_types );
 
-		//Not updating metadata, updating something normal
-		//let's bail out of here and go do that instead
-		if( !in_array( $_POST['attr_type'], array_keys($metadata_types) ) ) 
-			$this->update_post_data( $post, $published_statuses );
+		if ( empty( $_POST['attr_type'] ) || ! in_array( $_POST['attr_type'], $valid_types ) )
+			$this->print_ajax_response( 'error', __( 'Invalid post metadata type', 'edit-flow' ) );
 
-		$post_meta_key = '_ef_editorial_meta_'.$_POST['attr_type'].'_'.$_POST['metadata_term'];
-
-		//If there was a problem
-		$current_post_meta = get_post_meta( $_POST['post_id'], $post_meta_key, true );
-
-		//Javascript date parsing is terrible, so use strtotime in php
-		if( $_POST['attr_type'] == 'date' )
-			$metadata_value = strtotime( $_POST['metadata_value'] );
-		else
-			$metadata_value = $_POST['metadata_value'];
-
-		//If the metadata hasn't been changed, don't update anything and don't bother with ajax
-		if( $_POST['metadata_value'] != $current_post_meta ) {
-			//If there was a problem, inform the user, else output correctly
-			if( !update_post_meta( intval( $_POST['post_id'] ), $post_meta_key, $metadata_value ) ) 
-				$response = 'error';
+		// Update an editorial metadata field
+		if ( in_array( $_POST['attr_type'], $metadata_types ) ) {
+			$post_meta_key = sanitize_text_field( '_ef_editorial_meta_' . $_POST['attr_type'] . '_' . $_POST['metadata_term'] );
+			//Javascript date parsing is terrible, so use strtotime in php
+			if ( $_POST['attr_type'] == 'date' )
+				$metadata_value = strtotime( $_POST['metadata_value'] );
 			else
-				$response = 'success';
+				$metadata_value = sanitize_text_field( $_POST['metadata_value'] );
+			update_post_meta( $post->ID, $post_meta_key, $metadata_value );
+			$response = 'success';
 		} else {
-			$this->print_ajax_response('success', false, $post, $published_statuses );
-			die();
-		}
 
-		ob_start();
-			$this->get_inner_information( $this->get_calendar_information_fields( $post, $published_statuses ), $post, $published_statuses );
-			$inner_info = ob_get_contents();
-		ob_end_clean();
-
-		if( $response == 'success' )
-			$this->print_ajax_response($response, $inner_info, $post, $published_statuses );
-		else
-			$this->print_ajax_response( 'error', 'Metadata could not be updated.' . $inner_info, $post, $published_statuses );
-
-		die();
-	}
-
-	/**
-	 * ajax_ef_calendar_update_normal_data
-	 * There are two kinds of data that can be updated from the calendar. 
-	 * Editorial Metadata and normal post related data. This function deals with
-	 * the latter
-	 * @param  WP_Post $post
-	 * @param  array $published_statuses
-	 * 
-	 * @since 0.8
-	 */
-	private function update_post_data( $post, $published_statuses ) {
-		//All the nuance checks have already been satisfied at this point,
-		//so continuing on. Need to determine what we have
-		$post_information = array();
-		
-		switch( $_POST['attr_type'] ) {
-			case 'author':
-				$post_information['ID'] = $post->ID;
-				$post_information['post_author'] = $_POST['metadata_value'];
-				$response = wp_update_post( $post_information );
-			break;
-			case 'taxonomy':
-				//This makes it nice and easy, becuase $_POST['metadata_value']
-				//will either be a comma separated string or a list of ids, one is needed
-				//for updating hierarchical structure, the other is used when not hierarchical
-				if( is_array( $_POST['metadata_value'] ) ) {
-					$array_of_terms = array();
-					foreach( $_POST['metadata_value'] as $term_id ) {
-						$array_of_terms[] = $term_id;
+			switch( $_POST['attr_type'] ) {
+				case 'author':
+					$ret = $wpdb->update( $wpdb->posts, array( 'post_author' => (int)$_POST['metadata_value'] ), array( 'ID' => $post->ID ) );
+					if ( $ret ) {
+						$response = 'success';
+						clean_post_cache( $post->ID );
+					} else {
+						$response = new WP_Error( 'invalid-type', __( 'Error updating post author.', 'edit-flow' ) );;
 					}
-					$response = wp_set_post_terms( $post->ID, implode( ',', $array_of_terms ), $_POST['metadata_term'] );
-				} else {
-					$response = wp_set_post_terms( $post->ID, $_POST['metadata_value'], $_POST['metadata_term'] );
-				}
-			break;
+					break;
+				case 'taxonomy':
+					//This makes it nice and easy, becuase $_POST['metadata_value']
+					//will either be a comma separated string or a list of ids, one is needed
+					//for updating hierarchical structure, the other is used when not hierarchical
+					$taxonomy = sanitize_text_field( $_POST['metadata_term'] );
+					if ( ! is_array( $_POST['metadata_value'] ) )
+						$array_of_terms = explode( ',', $_POST['metadata_value'] );
+					else
+						$array_of_terms = $_POST['metadata_value'];
+					$array_of_terms = array_map( 'intval', $array_of_terms );
+
+					$response = wp_set_post_terms( $post->ID, $array_of_terms, $taxonomy );
+				default:
+					$response = new WP_Error( 'invalid-type', __( 'Invalid metadata type', 'edit-flow' ) );
+				break;
+			}
 		}
-		
-		//wp_set_post_terms can sometimes return an empty array, which means trouble
-		if($response || ( is_array( $response ) && !empty( $response) ) )
-			$post = get_post( $post->ID );
 
 		ob_start();
-			$this->get_inner_information( $this->get_calendar_information_fields( $post, $published_statuses ), $post, $published_statuses );
+			$this->get_inner_information( $this->get_calendar_information_fields( $post ), $post );
 			$inner_info = ob_get_contents();
 		ob_end_clean();
 
-		if( $response || ( is_array( $response ) && !empty( $response ) ) )
-			$this->print_ajax_response('success', $inner_info, $post, $published_statuses );
+		if ( ! is_wp_error( $response ) )
+			$this->print_ajax_response( 'success', $inner_info );
 		else
-			$this->print_ajax_response( 'error', 'Metadata could not be updated.' . $inner_info, $post, $published_statuses );
-
-		die();
+			$this->print_ajax_response( 'error', __( 'Metadata could not be updated.', 'edit-flow' ) );
 	}
 
 	function calendar_filters() {		
