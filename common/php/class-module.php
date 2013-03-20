@@ -8,9 +8,14 @@
 if ( !class_exists( 'EF_Module' ) ) {
 	
 class EF_Module {
+
+	var $published_statuses = array(
+								'publish',
+								'future',
+								'private',
+							);
 	
-	function __construct() {
-	}
+	function __construct() {}
 
 	/**
 	 * Returns whether the module with the given name is enabled.
