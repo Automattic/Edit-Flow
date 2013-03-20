@@ -1368,9 +1368,10 @@ class EF_Calendar extends EF_Module {
 					$array_of_terms = array_map( 'intval', $array_of_terms );
 
 					$response = wp_set_post_terms( $post->ID, $array_of_terms, $taxonomy );
+					break;
 				default:
 					$response = new WP_Error( 'invalid-type', __( 'Invalid metadata type', 'edit-flow' ) );
-				break;
+					break;
 			}
 		}
 
