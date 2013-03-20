@@ -43,6 +43,7 @@ class EF_Calendar extends EF_Module {
 					'page' => 'off',
 				),
 				'quick_create_post_type' => 'post',
+				'ics_subscription' => 'off',
 			),
 			'messages' => array(
 				'post-date-updated' => __( "Post date updated.", 'edit-flow' ),
@@ -1144,6 +1145,7 @@ class EF_Calendar extends EF_Module {
 			add_settings_field( 'number_of_weeks', __( 'Number of weeks to show', 'edit-flow' ), array( $this, 'settings_number_weeks_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 			add_settings_field( 'post_types', __( 'Post types to show', 'edit-flow' ), array( $this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 			add_settings_field( 'quick_create_post_type', __( 'Post type to create directly from calendar', 'edit-flow' ), array( $this, 'settings_quick_create_post_type_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'ics_subscription', __( 'Subscription in iCal or Google Calendar', 'edit-flow' ), array( $this, 'settings_ics_subscription_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 
 	}
 	
@@ -1182,7 +1184,26 @@ class EF_Calendar extends EF_Module {
 	function settings_number_weeks_option() {
 		echo '<span class="description">' . __( 'The number of weeks shown on the calendar can be changed on a user-by-user basis using the calendar\'s screen options.', 'edit-flow' ) . '</span>';
 	}
-	
+
+	/**
+	 * Enable calendar subscriptions via .ics in iCal or Google Calendar
+	 *
+	 * @since 0.8
+	 */
+	function settings_ics_subscription_option() {
+		$options = array(
+			'off'       => __( 'Disabled', 'edit-flow' ),
+			'on'        => __( 'Enabled', 'edit-flow' ),
+		);
+		echo '<select id="ics_subscription" name="' . $this->module->options_group_name . '[ics_subscription]">';
+		foreach ( $options as $value => $label ) {
+			echo '<option value="' . esc_attr( $value ) . '"';
+			echo selected( $this->module->options->ics_subscription, $value );
+			echo '>' . esc_html( $label ) . '</option>';
+		}
+		echo '</select>';
+	}
+
 	/**
 	 * Validate the data submitted by the user in calendar settings
 	 *
@@ -1196,6 +1217,9 @@ class EF_Calendar extends EF_Module {
 
 		if ( in_array( $new_options['quick_create_post_type'], array_keys( $this->get_all_post_types() ) ) )
 			$options['quick_create_post_type'] = $new_options['quick_create_post_type'];
+
+		if ( 'on' != $new_options['ics_subscription'] )
+			$new_options['ics_subscription'] = 'off';
 
 		return $options;
 	}
