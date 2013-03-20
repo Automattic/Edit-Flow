@@ -119,7 +119,7 @@ jQuery(document).ready(function () {
 		jQuery('.save-metadata-hide').hide();
 
 		//Setup information used in saving
-		metadata_info.action = 'editflow_ajax_update_metadata';
+		metadata_info.action = 'ef_calendar_update_metadata';
 		metadata_info.nonce = jQuery("#ef-calendar-modify").val();
 		metadata_info.post_id = post_id;
 

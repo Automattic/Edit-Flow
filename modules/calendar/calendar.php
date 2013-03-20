@@ -93,7 +93,7 @@ class EF_Calendar extends EF_Module {
 		add_action( 'wp_ajax_ef_insert_post', array( $this, 'handle_ajax_insert_post' ) );
 
 		//Update metadata
-		add_action( 'wp_ajax_editflow_ajax_update_metadata', array( $this, 'ajax_ef_calendar_update_metadata') );
+		add_action( 'wp_ajax_ef_calendar_update_metadata', array( $this, 'handle_ajax_update_metadata' ) );
 
 	}
 	
@@ -1321,7 +1321,7 @@ class EF_Calendar extends EF_Module {
 	 *
 	 * @since 0.8
 	 */
-	function ajax_ef_calendar_update_metadata() {
+	function handle_ajax_update_metadata() {
 		// Nonce check!
 		if ( !wp_verify_nonce( $_POST['nonce'], 'ef-calendar-modify' ) )
 			$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
