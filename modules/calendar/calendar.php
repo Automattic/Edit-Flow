@@ -1347,7 +1347,7 @@ class EF_Calendar extends EF_Module {
 		//Not updating metadata, updating something normal
 		//let's bail out of here and go do that instead
 		if( !in_array( $_POST['attr_type'], array_keys($metadata_types) ) ) 
-			$this->ajax_ef_calendar_update_normal_data( $post, $published_statuses );
+			$this->update_post_data( $post, $published_statuses );
 
 		$post_meta_key = '_ef_editorial_meta_'.$_POST['attr_type'].'_'.$_POST['metadata_term'];
 
@@ -1395,7 +1395,7 @@ class EF_Calendar extends EF_Module {
 	 * 
 	 * @since 0.8
 	 */
-	private function ajax_ef_calendar_update_normal_data( $post, $published_statuses ) {
+	private function update_post_data( $post, $published_statuses ) {
 		//All the nuance checks have already been satisfied at this point,
 		//so continuing on. Need to determine what we have
 		$post_information = array();
