@@ -292,6 +292,10 @@ table#ef-calendar-view .day-unit ul li .item-information .item-field .editable-v
 	cursor: pointer;
 }
 
+table#ef-calendar-view .day-unit ul li .item-information .item-field .editable-value:hover {
+	text-decoration: underline;
+}
+
 table#ef-calendar-view .day-unit ul li .item-information .item-field .spinner-calendar {
 	margin: 0px;
 	float: none;
