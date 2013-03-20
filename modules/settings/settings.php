@@ -250,7 +250,10 @@ class EF_Settings extends EF_Module {
 					echo '<img src="' . esc_url( $mod_data->img_url ) . '" height="24px" width="24px" class="float-right module-icon" />';
 				echo '<form method="get" action="' . get_admin_url( null, 'options.php' ) . '">';
 				echo '<h4>' . esc_html( $mod_data->title ) . '</h4>';
-				echo '<p>' . wp_kses($mod_data->short_description, 'a') . '</p>';
+				if ( 'on' == $mod_data->options->enabled )
+					echo '<p>' . wp_kses($mod_data->short_description, 'a') . '</p>';
+				else
+					echo '<p>' . strip_tags( $mod_data->short_description ) . '</p>';
 				echo '<p class="edit-flow-module-actions">';
 				if ( $mod_data->configure_page_cb ) {
 					$configure_url = add_query_arg( 'page', $mod_data->settings_slug, get_admin_url( null, 'admin.php' ) );
