@@ -838,95 +838,12 @@ class EF_Calendar extends EF_Module {
 			</div>
 			<div style="clear:right;"></div>
 			<div class="item-inner">
-				<?php $this->get_inner_information( $this->get_calendar_information_fields( $post ), $post ); ?>
+				<?php $this->get_inner_information( $this->get_post_information_fields( $post ), $post ); ?>
 			</div>
 		</li>
 		<?php
 
 	} // generate_post_li_html()
-
-	/**
-	 * get_calendar_information_fields description
-	 * This function was moved out of generate_post_li_html
-	 * so that it could be called independently of list item.
-	 * @param  WP_Post $post               
-	 * 
-	 * @since 0.8
-	 */
-	function get_calendar_information_fields( $post ) {
-		// All of the item information we're going to display
-		$ef_calendar_item_information_fields = array();
-		// Post author
-		$ef_calendar_item_information_fields['author'] = array(
-			'label' => __( 'Author', 'edit-flow' ),
-			'value' => get_the_author_meta( 'display_name', $post->post_author ),
-			'type' => 'author',
-			'editable' => true,
-		);
-		// If the calendar supports more than one post type, show the post type label
-		if ( count( $this->get_post_types_for_module( $this->module ) ) > 1 ) {
-			$ef_calendar_item_information_fields['post_type'] = array(
-				'label' => __( 'Post Type', 'edit-flow' ),
-				'value' => get_post_type_object( $post->post_type )->labels->singular_name,
-			);
-		}
-		// Publication time for published statuses
-		if ( in_array( $post->post_status, $this->published_statuses ) ) {
-			if ( $post->post_status == 'future' ) {
-				$ef_calendar_item_information_fields['post_date'] = array(
-					'label' => __( 'Scheduled', 'edit-flow' ),
-					'value' => get_the_time( null, $post->ID ),
-				);
-			} else {
-				$ef_calendar_item_information_fields['post_date'] = array(
-					'label' => __( 'Published', 'edit-flow' ),
-					'value' => get_the_time( null, $post->ID ),
-				);
-			}
-		}
-		// Taxonomies and their values
-		$args = array(
-			'post_type' => $post->post_type,
-		);
-		$taxonomies = get_object_taxonomies( $args, 'object' );
-		foreach( (array)$taxonomies as $taxonomy ) {
-			// Sometimes taxonomies skip by, so let's make sure it has a label too
-			if ( !$taxonomy->public || !$taxonomy->label )
-				continue;
-			$terms = wp_get_object_terms( $post->ID, $taxonomy->name );
-			$key = 'tax_' . $taxonomy->name;
-			if ( count( $terms ) ) {
-				$value = '';
-				foreach( (array)$terms as $term ) {
-					$value .= $term->name . ', ';
-				}
-				$value = rtrim( $value, ', ' );
-			} else {
-				$value = '';
-			}
-			//Used when editing editorial metadata and post meta
-			if( is_taxonomy_hierarchical($taxonomy->name ) )
-				$type = 'taxonomy hierarchical';
-			else
-				$type = 'taxonomy';
-
-			$ef_calendar_item_information_fields[$key] = array(
-				'label' => $taxonomy->label,
-				'value' => $value,
-				'type' => $type,
-				'editable' => true,
-			);
-
-			//Does this need to be filtered?
-			if( is_taxonomy_hierarchical( $taxonomy->name ) ) {
-				$this->dropdown_taxonomies[$taxonomy->label] = $taxonomy->name;
-			}
-		}
-		
-		$ef_calendar_item_information_fields = apply_filters( 'ef_calendar_item_information_fields', $ef_calendar_item_information_fields, $post->ID );
-
-		return $ef_calendar_item_information_fields;
-	}
 
 	/**
 	 * get_inner_information description
@@ -1007,8 +924,10 @@ class EF_Calendar extends EF_Module {
 		$information_fields = array();
 		// Post author
 		$information_fields['author'] = array(
-			'label' => __( 'Author', 'edit-flow' ),
-			'value' => get_the_author_meta( 'display_name', $post->post_author ),
+			'label'        => __( 'Author', 'edit-flow' ),
+			'value'        => get_the_author_meta( 'display_name', $post->post_author ),
+			'type'         => 'author',
+			'editable'     => true,
 		);
 		// If the calendar supports more than one post type, show the post type label
 		if ( count( $this->get_post_types_for_module( $this->module ) ) > 1 ) {
@@ -1056,9 +975,17 @@ class EF_Calendar extends EF_Module {
 			} else {
 				$value = '';
 			}
+			 //Used when editing editorial metadata and post meta
+			if ( is_taxonomy_hierarchical( $taxonomy->name ) )
+				$type = 'taxonomy hierarchical';
+			else
+				$type = 'taxonomy';
+
 			$information_fields[$key] = array(
 				'label' => $taxonomy->label,
 				'value' => $value,
+				'type' => $type,
+				'editable' => true,
 			);
 		}
 		
@@ -1630,7 +1557,7 @@ class EF_Calendar extends EF_Module {
 		}
 
 		ob_start();
-			$this->get_inner_information( $this->get_calendar_information_fields( $post ), $post );
+			$this->get_inner_information( $this->get_post_information_fields( $post ), $post );
 			$inner_info = ob_get_contents();
 		ob_end_clean();
 
