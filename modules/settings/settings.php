@@ -315,7 +315,7 @@ class EF_Settings extends EF_Module {
 				$all_post_types[$custom_post_type] = $args->label;
 			}
 		}
-		
+
 		foreach( $all_post_types as $post_type => $title ) {
 			echo '<label for="' . esc_attr( $post_type ) . '">';
 			echo '<input id="' . esc_attr( $post_type ) . '" name="'
@@ -366,7 +366,7 @@ class EF_Settings extends EF_Module {
 		
 		// Redirect back to the settings page that was submitted without any previous messages
 		$goback = add_query_arg( 'message', 'settings-updated',  remove_query_arg( array( 'message'), wp_get_referer() ) );
-		wp_redirect( $goback );
+		wp_safe_redirect( $goback );
 		exit;	
 
 	}
