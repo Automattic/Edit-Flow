@@ -266,9 +266,6 @@ class edit_flow {
 					$this->modules->$mod_name->options->$default_key = $default_value;
 			}
 
-			if ( isset( $this->modules->$mod_name->options->post_types ) )
-				$this->modules->$mod_name->options->post_types = $this->helpers->clean_post_type_options( $this->modules->$mod_name->options->post_types, $mod_data->post_type_support );	
-			
 			$this->$mod_name->module = $this->modules->$mod_name;
 		}
 		do_action( 'ef_module_options_loaded' );
