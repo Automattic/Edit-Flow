@@ -1,4 +1,5 @@
-=== Edit Flow ===
+Edit Flow
+========
 
 [![Build Status](https://travis-ci.org/mbijon/Edit-Flow.png?branch=master)](https://travis-ci.org/mbijon/Edit-Flow)
 
