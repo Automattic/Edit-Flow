@@ -10,16 +10,17 @@ class WP_Test_Edit_Flow_Starter_Tests extends WP_UnitTestCase {
 	 */
 	function test_editflow_exists() {
 		 
-		$this->assertTrue( true );
+		$this->assertTrue( class_exists( 'edit_flow' ) );
 		 
 	}
 	
 	/**
-	 * Verify thae minimum version of WordPress is installed
+	 * Verify a minimum version of WordPress is installed
 	 */
 	function test_wp_version() {
 		
-		$running_version = getenv( 'WP_VERSION' );
+		$minimum_version = '3.3.0';
+		$running_version = get_bloginfo( 'version' );
 		
 		//trunk is always "master" in github terms, but WordPress has a specific way of describing it
 		//grab the exact version number to verify that we're on trunk
@@ -29,7 +30,7 @@ class WP_Test_Edit_Flow_Starter_Tests extends WP_UnitTestCase {
 			$running_version = $matches[1];
 		}
 		
-		$this->assertTrue( $running_version > '3.3.3' );
+		$this->assertTrue( version_compare( $running_version, $minimum_version, '>=' ) );
 	
 	}
 	
