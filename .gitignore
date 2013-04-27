@@ -2,3 +2,5 @@
 edit-flow.php
 wpcom-helper.php
 wp-tests-config.php
+test-results.xml
+tests/lib/*
