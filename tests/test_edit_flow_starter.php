@@ -34,4 +34,18 @@ class WP_Test_Edit_Flow_Starter_Tests extends WP_UnitTestCase {
 	
 	}
 	
+	/**
+	 * Test modules loading
+	 */
+	function test_editflow_register_module() {
+		
+		$EditFlow = EditFlow();
+		
+		$module_real = strtolower( 'calendar' );
+		$module_args = array ( 'title' => $module_real );
+		$module_return = $EditFlow->register_module( $module_real, $module_args );
+		$this->assertTrue( $module_real == $module_return->name );
+		
+	}
+	
 }
