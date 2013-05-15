@@ -1388,7 +1388,7 @@ class EF_Custom_Status extends EF_Module {
 		if ( ! $post
 			|| ! in_array( $post->post_status, $status_slugs ) 
 			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) )
-			|| ! empty( $post->post_name ) )
+			|| ( ! empty( $post->post_name ) && $post->post_name === sanitize_title( $post->post_title ) ) )
 			return $slug;
 
 		// For hierarchical post types, we only want to modify the last time 'editable_slug' filter runs.
