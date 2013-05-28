@@ -102,6 +102,7 @@ class EF_Custom_Status extends EF_Module {
 		add_action( 'admin_init', array( $this, 'check_timestamp_on_publish' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'fix_custom_status_timestamp' ) );
 		add_action( 'wp_insert_post', array( $this, 'fix_post_name' ), 10, 2 );
+		add_action( 'edit_form_after_title', array( $this, 'action_edit_form_after_title' ) );
 		add_filter( 'editable_slug', array( $this, 'fix_editable_slug' ) );
 		add_filter( 'preview_post_link', array( $this, 'fix_preview_link_part_one' ) );
 		add_filter( 'post_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
@@ -1279,6 +1280,16 @@ class EF_Custom_Status extends EF_Module {
 		}
 		
 	}
+
+	/**
+	 * Remove the editable_slug filter after it has run for the sample permalink box (slug editor)
+	 *
+	 * @since 0.7.7
+	 */
+	function action_edit_form_after_title() {
+		remove_filter( 'editable_slug', array( $this, 'fix_editable_slug' ) );
+	}
+
 	/**
 	 * PHP < 5.3.x doesn't support anonymous functions
 	 * This helper is only used for the check_timestamp_on_publish method above
@@ -1367,13 +1378,6 @@ class EF_Custom_Status extends EF_Module {
 		if ( ! did_action( 'all_admin_notices' ) )
 			return $slug;
 
-		// The AJAX-y edit your slug UI happens right below the title,
-		// so we can remove the filter after it's done.
-		if ( did_action( 'edit_form_after_title' ) ) {
-			remove_filter( current_filter(), array( $this, __FUNCTION__ ) );
-			return $slug;
-		}
-
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX )
 			return $slug;
 
@@ -1388,7 +1392,7 @@ class EF_Custom_Status extends EF_Module {
 		if ( ! $post
 			|| ! in_array( $post->post_status, $status_slugs ) 
 			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) )
-			|| ( ! empty( $post->post_name ) && $post->post_name === sanitize_title( $post->post_title ) ) )
+			|| ! empty( $post->post_name ) )
 			return $slug;
 
 		// For hierarchical post types, we only want to modify the last time 'editable_slug' filter runs.

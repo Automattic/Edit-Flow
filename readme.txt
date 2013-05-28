@@ -104,6 +104,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 * New Russian localization thanks to [te-st.ru](https://github.com/Teplitsa)
 * Bug fix: User group selection no longer appears in network admin.
 * Improved slug generation when changing title of Drafts thanks to [natebot](https://github.com/natebot)
+* Bug fix: Permalink slugs are now editable after initial save
 
 = 0.7.6 (Jan. 30, 2013) =
 * Bug fix for 3.4.2 compatibility.
