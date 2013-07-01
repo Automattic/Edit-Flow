@@ -69,10 +69,10 @@ Contributors and other users without the 'publish_posts' capability can access c
 ### 0.7.1 ###
 Enhancements and bug fixes, including defaulting to the proper date in the calendar and an Italian localization.
 
-### 0.7 ### 
+### 0.7 ###
 Complete rewrite into a modular architecture. Lots of polish added. Important note: If upgrading from pre-v0.6, please upgrade to v0.6.5 first
 
-### 0.6.5 ### 
+### 0.6.5 ###
 Fixes an issue where the post timestamp would be set as soon as a custom status was used.
 
 ### 0.6.4 ###
