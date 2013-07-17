@@ -545,9 +545,19 @@ class EF_Custom_Status extends EF_Module {
 	function get_custom_statuses( $args = array() ) {
 		global $wp_post_statuses;
 
-		// If this post type doesn't support custom statuses, we should return WP
-		// default in our format.
-		if ( $this->disable_custom_statuses_for_post_type() ) {
+		$disable_custom_statuses = $this->disable_custom_statuses_for_post_type();
+		if ( ! $disable_custom_statuses ) {
+
+			// Handle if the requested taxonomy doesn't exist
+			$args     = array_merge( array( 'hide_empty' => false ), $args );
+			$statuses = get_terms( self::taxonomy_key, $args );
+
+			if ( is_wp_error( $statuses ) )
+				$disable_custom_statuses = true;
+		}
+
+		// If this post type doesn't support custom statuses, we should return WP default in our format.
+		if ( $disable_custom_statuses ) {
 			$draft = $wp_post_statuses['draft'];
 			$draft->slug = 'draft';
 			$draft->position = 1;
@@ -555,17 +565,13 @@ class EF_Custom_Status extends EF_Module {
 			$pending = $wp_post_statuses['pending'];
 			$pending->slug = 'pending';
 			$pending->position = 2;
+
 			return array(
 					$draft,
 					$pending
 				);
 		}
-		
-		$default = array(
-			'hide_empty' => false,
-		);
-		$args = array_merge( $default, $args );
-		$statuses = get_terms( self::taxonomy_key, $args );
+
 		// Expand and order the statuses		
 		$ordered_statuses = array();
 		$hold_to_end = array();
