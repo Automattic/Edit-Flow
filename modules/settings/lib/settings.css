@@ -220,3 +220,9 @@ h3.nav-tab-wrapper {
 	background-color: #FFEBE8;
 	border: 1px solid #CC0000;
 }
+
+/* Admin Menu Icon */
+#adminmenu .toplevel_page_ef-settings .wp-menu-image img {
+	width: 16px;
+	height: 16px;
+}
