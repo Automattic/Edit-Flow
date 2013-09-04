@@ -8,20 +8,20 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2013-09-04 07:17+0100\n"
+"PO-Revision-Date: 2013-09-04 22:26+0100\n"
 "Last-Translator: \n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language-Team: Karim <info@kar.im>\n"
 "X-Generator: Poedit 1.5.7\n"
 
 #: common/php/class-module.php:107 common/php/class-module.php:152
 #: modules/custom-status/custom-status.php:148
 msgid "Draft"
-msgstr ""
+msgstr "Concept"
 
 #: common/php/class-module.php:112 common/php/class-module.php:155
 #: modules/custom-status/custom-status.php:156
 msgid "Pending Review"
-msgstr ""
+msgstr "Wachtend op review"
 
 #: common/php/class-module.php:151 modules/calendar/calendar.php:623
 #: modules/calendar/calendar.php:760
@@ -49,19 +49,19 @@ msgstr "Prullenbak"
 
 #: common/php/class-module.php:333
 msgid "Invalid Taxonomy"
-msgstr ""
+msgstr "Verkeerde Taxonomie"
 
 #: common/php/util.php:14
 msgid "(no title)"
-msgstr ""
+msgstr "(geen titel)"
 
 #: edit_flow.php:224 modules/editorial-metadata/editorial-metadata.php:346
 msgid "Configure"
-msgstr ""
+msgstr "Configureren"
 
 #: edit_flow.php:227
 msgid "Settings updated."
-msgstr ""
+msgstr "Instellingen bijgewerkt"
 
 #: edit_flow.php:228
 msgid "Please correct your form errors below and try again."
@@ -78,12 +78,12 @@ msgstr ""
 
 #: edit_flow.php:231
 msgid "Post does not exist"
-msgstr ""
+msgstr "Bericht bestaat niet"
 
 #: modules/calendar/calendar.php:30 modules/calendar/calendar.php:138
 #: modules/calendar/calendar.php:430
 msgid "Calendar"
-msgstr ""
+msgstr "Calender"
 
 #: modules/calendar/calendar.php:31
 msgid "View upcoming content in a customizable calendar."
@@ -98,7 +98,7 @@ msgstr ""
 
 #: modules/calendar/calendar.php:45
 msgid "Post date updated."
-msgstr ""
+msgstr "Bericht datum bijgewerkt"
 
 #: modules/calendar/calendar.php:46
 msgid "There was an error updating the post. Please try again."
@@ -207,19 +207,19 @@ msgstr ""
 #: modules/custom-status/custom-status.php:1450
 #: modules/story-budget/story-budget.php:558
 msgid "Preview"
-msgstr ""
+msgstr "Voorbeeld"
 
 #: modules/calendar/calendar.php:690 modules/story-budget/story-budget.php:556
 msgid "View &#8220;%s&#8221;"
-msgstr ""
+msgstr "Bekijk &#8220;%s&#8221;"
 
 #: modules/calendar/calendar.php:690 modules/story-budget/story-budget.php:556
 msgid "View"
-msgstr ""
+msgstr "Bekijk"
 
 #: modules/calendar/calendar.php:712
 msgid "Show %1$s more "
-msgstr ""
+msgstr "Bekijk %1$s meer "
 
 #: modules/calendar/calendar.php:753 modules/story-budget/story-budget.php:605
 msgid "View all statuses"
@@ -243,15 +243,15 @@ msgstr ""
 
 #: modules/calendar/calendar.php:802 modules/story-budget/story-budget.php:639
 msgid "Filter"
-msgstr ""
+msgstr "Filter"
 
 #: modules/calendar/calendar.php:814 modules/story-budget/story-budget.php:646
 msgid "Reset"
-msgstr ""
+msgstr "Opnieuw instellen"
 
 #: modules/calendar/calendar.php:820
 msgid "Forward 1 week"
-msgstr ""
+msgstr "1 week vooruit"
 
 #: modules/calendar/calendar.php:820
 msgid "&rsaquo;"
@@ -259,7 +259,7 @@ msgstr ""
 
 #: modules/calendar/calendar.php:822
 msgid "Forward %d weeks"
-msgstr ""
+msgstr "%d weken vooruit"
 
 #: modules/calendar/calendar.php:822
 msgid "&raquo;"
@@ -271,7 +271,7 @@ msgstr ""
 
 #: modules/calendar/calendar.php:830
 msgid "Back %d weeks"
-msgstr ""
+msgstr "%d weken terug"
 
 #: modules/calendar/calendar.php:830
 msgid "&laquo;"
