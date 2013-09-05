@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2013-09-04 22:26+0100\n"
+"PO-Revision-Date: 2013-09-05 23:40+0100\n"
 "Last-Translator: \n"
 "Language-Team: Karim <info@kar.im>\n"
 "X-Generator: Poedit 1.5.7\n"
@@ -65,12 +65,12 @@ msgstr "Instellingen bijgewerkt"
 
 #: edit_flow.php:228
 msgid "Please correct your form errors below and try again."
-msgstr ""
+msgstr "Verbeter onderstaande fouten en probeer het nogmaals."
 
 #: edit_flow.php:229 modules/settings/settings.php:100
 #: modules/settings/settings.php:352
 msgid "Cheatin&#8217; uh?"
-msgstr ""
+msgstr "Valsspelen, hè?"
 
 #: edit_flow.php:230
 msgid "You do not have necessary permissions to complete this action."
@@ -112,7 +112,7 @@ msgstr ""
 
 #: modules/calendar/calendar.php:50 modules/calendar/calendar.php:75
 msgid "Calendar Options"
-msgstr ""
+msgstr "Kalender Opties"
 
 #: modules/calendar/calendar.php:53 modules/custom-status/custom-status.php:58
 #: modules/editorial-comments/editorial-comments.php:40
@@ -120,7 +120,7 @@ msgstr ""
 #: modules/notifications/notifications.php:53
 #: modules/user-groups/user-groups.php:64
 msgid "Overview"
-msgstr ""
+msgstr "Overzicht"
 
 #: modules/calendar/calendar.php:54
 msgid ""
@@ -139,25 +139,24 @@ msgstr ""
 
 #: modules/calendar/calendar.php:187
 msgid "Number of Weeks: "
-msgstr ""
+msgstr "Aantal Weken:"
 
 #: modules/calendar/calendar.php:194
 msgid "Apply"
-msgstr ""
+msgstr "toepassen"
 
 #: modules/calendar/calendar.php:269
 msgid "Something is wrong with the format for the new date."
-msgstr ""
+msgstr "Er is iets verkeerd met het format voor de nieuwe datum"
 
 #: modules/calendar/calendar.php:439
 msgid "Post moved to the trash."
 msgid_plural "%d posts moved to the trash."
 msgstr[0] ""
-msgstr[1] ""
 
 #: modules/calendar/calendar.php:443 modules/story-budget/story-budget.php:580
 msgid "Undo"
-msgstr ""
+msgstr "Ongedaan maken"
 
 #: modules/calendar/calendar.php:447
 msgid "Post restored from the Trash."
@@ -167,23 +166,23 @@ msgstr[1] ""
 
 #: modules/calendar/calendar.php:556 modules/calendar/calendar.php:826
 msgid "Today"
-msgstr ""
+msgstr "Vandaag"
 
 #: modules/calendar/calendar.php:604 modules/story-budget/story-budget.php:181
 msgid "Author"
-msgstr ""
+msgstr "Auteur"
 
 #: modules/calendar/calendar.php:610
 msgid "Post Type"
-msgstr ""
+msgstr "Bericht Type"
 
 #: modules/calendar/calendar.php:672
 msgid "None"
-msgstr ""
+msgstr "Geen"
 
 #: modules/calendar/calendar.php:683
 msgid "Edit this item"
-msgstr ""
+msgstr "Bewerk dit item"
 
 #: modules/calendar/calendar.php:683
 #: modules/custom-status/custom-status.php:1612
@@ -191,11 +190,11 @@ msgstr ""
 #: modules/story-budget/story-budget.php:550
 #: modules/user-groups/user-groups.php:1160
 msgid "Edit"
-msgstr ""
+msgstr "Bewerk"
 
 #: modules/calendar/calendar.php:685
 msgid "Trash this item"
-msgstr ""
+msgstr "Verwijder dit item"
 
 #: modules/calendar/calendar.php:688
 #: modules/custom-status/custom-status.php:1450
@@ -227,19 +226,19 @@ msgstr ""
 
 #: modules/calendar/calendar.php:759 modules/story-budget/story-budget.php:611
 msgid "Unpublished"
-msgstr ""
+msgstr "Ongepubliceerd"
 
 #: modules/calendar/calendar.php:769 modules/story-budget/story-budget.php:620
 msgid "View all categories"
-msgstr ""
+msgstr "Bekijk alle categorieën"
 
 #: modules/calendar/calendar.php:780 modules/story-budget/story-budget.php:631
 msgid "View all users"
-msgstr ""
+msgstr "Bekijk alle gebruikers"
 
 #: modules/calendar/calendar.php:791
 msgid "View all types"
-msgstr ""
+msgstr "Bekijk alle types"
 
 #: modules/calendar/calendar.php:802 modules/story-budget/story-budget.php:639
 msgid "Filter"
@@ -255,7 +254,7 @@ msgstr "1 week vooruit"
 
 #: modules/calendar/calendar.php:820
 msgid "&rsaquo;"
-msgstr ""
+msgstr "&rsaquo;"
 
 #: modules/calendar/calendar.php:822
 msgid "Forward %d weeks"
@@ -263,11 +262,11 @@ msgstr "%d weken vooruit"
 
 #: modules/calendar/calendar.php:822
 msgid "&raquo;"
-msgstr ""
+msgstr "&raquo;"
 
 #: modules/calendar/calendar.php:826
 msgid "Today is %s"
-msgstr ""
+msgstr "Vandaag is het %s"
 
 #: modules/calendar/calendar.php:830
 msgid "Back %d weeks"
@@ -275,27 +274,27 @@ msgstr "%d weken terug"
 
 #: modules/calendar/calendar.php:830
 msgid "&laquo;"
-msgstr ""
+msgstr "&laquo;"
 
 #: modules/calendar/calendar.php:832
 msgid "Back 1 week"
-msgstr ""
+msgstr "1 week terug"
 
 #: modules/calendar/calendar.php:832
 msgid "&lsaquo;"
-msgstr ""
+msgstr "&lsaquo;"
 
 #: modules/calendar/calendar.php:1034
 msgid "for %1$s through %2$s"
-msgstr ""
+msgstr "for %1$s through %2$s"
 
 #: modules/calendar/calendar.php:1080
 msgid "Post types to show"
-msgstr ""
+msgstr "Bericht types om te bekijken"
 
 #: modules/calendar/calendar.php:1081
 msgid "Number of weeks to show"
-msgstr ""
+msgstr "Aantal weken om te bekijken"
 
 #: modules/calendar/calendar.php:1102
 msgid ""
@@ -1606,7 +1605,7 @@ msgstr ""
 
 #: modules/user-groups/user-groups.php:127
 msgid "Copy Editors"
-msgstr ""
+msgstr "Kopie Redacteur"
 
 #: modules/user-groups/user-groups.php:128
 msgid "Making sure the quality is top-notch."
@@ -1622,7 +1621,7 @@ msgstr ""
 
 #: modules/user-groups/user-groups.php:135
 msgid "Reporters"
-msgstr ""
+msgstr "Verslaggevers"
 
 #: modules/user-groups/user-groups.php:136
 msgid "Out in the field, writing stories."
@@ -1630,7 +1629,7 @@ msgstr ""
 
 #: modules/user-groups/user-groups.php:139
 msgid "Section Editors"
-msgstr ""
+msgstr "Sectie Redacteurs"
 
 #: modules/user-groups/user-groups.php:140
 msgid "Providing feedback and direction."
