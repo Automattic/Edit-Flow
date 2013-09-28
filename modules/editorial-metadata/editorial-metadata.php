@@ -646,18 +646,18 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */
 	function filter_manage_posts_columns( $posts_columns ) {
 		$screen = get_current_screen();
-
-		add_filter( "manage_{$screen->id}_sortable_columns", array( $this, 'filter_manage_posts_sortable_columns' ) );
-
-		$terms = $this->get_editorial_metadata_terms( array( 'viewable' => true ) );
-		foreach( $terms as $term ) {
-			// Prefixing slug with module slug because it isn't stored prefixed and we want to avoid collisions
-			$key = $this->module->slug . '-' . $term->slug;
-			$posts_columns[$key] = $term->name;
+		if ( $screen ) {
+			add_filter( "manage_{$screen->id}_sortable_columns", array( $this, 'filter_manage_posts_sortable_columns' ) );
+			$terms = $this->get_editorial_metadata_terms( array( 'viewable' => true ) );
+			foreach( $terms as $term ) {
+				// Prefixing slug with module slug because it isn't stored prefixed and we want to avoid collisions
+				$key = $this->module->slug . '-' . $term->slug;
+				$posts_columns[$key] = $term->name;
+			}
 		}
 		return $posts_columns;
 	}
-
+	
 	/**
 	 * Register any viewable date editorial metadata as a sortable column
 	 *
