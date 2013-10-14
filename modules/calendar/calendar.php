@@ -355,7 +355,7 @@ class EF_Calendar extends EF_Module {
 		$post_query_args = array();
 		$calendar_filters = $this->calendar_filters();
 		foreach( $calendar_filters as $filter ) {
-			if ( isset( $_GET[$filter] ) && $value = $this->sanitize_filter( $filter, $_GET[$filter] ) )
+			if ( isset( $_GET[$filter] ) && false !== ( $value = $this->sanitize_filter( $filter, $_GET[$filter] ) ) )
 				$post_query_args[$filter] = $value;
 		}
 
@@ -525,7 +525,7 @@ class EF_Calendar extends EF_Module {
 		
 		// Sanitize and validate any newly added filters
 		foreach( $old_filters as $key => $old_value ) {
-			if ( isset( $_GET[$key] ) && $new_value = $this->sanitize_filter( $key, $_GET[$key] ) )
+			if ( isset( $_GET[$key] ) && false !== ( $new_value = $this->sanitize_filter( $key, $_GET[$key] ) ) )
 				$filters[$key] = $new_value;
 			else
 				$filters[$key] = $old_value;
@@ -1617,7 +1617,7 @@ class EF_Calendar extends EF_Module {
 				return intval( $dirty_value );
 				break;
 			default:
-				return '';
+				return false;
 				break;
 		}
 	}
