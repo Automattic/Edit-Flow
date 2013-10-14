@@ -1,0 +1,5 @@
+/* Admin menu icon size */
+#adminmenu .toplevel_page_ef-settings .wp-menu-image img {
+	width: 16px;
+	height: 16px;
+}

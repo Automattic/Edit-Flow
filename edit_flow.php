@@ -326,6 +326,8 @@ class edit_flow {
 	 * Registers commonly used scripts + styles for easy enqueueing
 	 */	
 	function register_scripts_and_styles() {
+		wp_enqueue_style( 'ef-admin-css', EDIT_FLOW_URL . 'common/css/edit-flow-admin.css', false, EDIT_FLOW_VERSION, 'all' );
+
 		wp_register_script( 'jquery-listfilterizer', EDIT_FLOW_URL . 'common/js/jquery.listfilterizer.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 		wp_register_style( 'jquery-listfilterizer', EDIT_FLOW_URL . 'common/css/jquery.listfilterizer.css', false, EDIT_FLOW_VERSION, 'all' );
 
