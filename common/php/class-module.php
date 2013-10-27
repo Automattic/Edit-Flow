@@ -561,7 +561,7 @@ class EF_Module {
 		global $wp_roles;
 		
 		if ( $wp_roles->is_role( $role ) ) {
-			$role =& get_role( $role );
+			$role = &get_role( $role );
 			foreach ( $caps as $cap )
 				$role->add_cap( $cap );
 		}
