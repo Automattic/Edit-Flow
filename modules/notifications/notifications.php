@@ -222,7 +222,7 @@ jQuery(document).ready(function($) {
 	/**
 	 * Action to Follow / Unfollow posts on the manage posts screen
 	 */
-	$('.wp-list-table, #ef-calendar-view').on( 'click', '.ef_follow_link a', function(e){
+	$('.wp-list-table, #ef-calendar-view, #ef-story-budget-wrap').on( 'click', '.ef_follow_link a', function(e){
 
 		e.preventDefault();
 
