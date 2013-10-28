@@ -569,8 +569,7 @@ jQuery(document).ready(function($) {
 			
 			$edit_link = htmlspecialchars_decode( get_edit_post_link( $post_id ) );
 			if ( $new_status != 'publish' ) {
-				$preview_nonce = wp_create_nonce( 'post_preview_' . $post_id );
-				$view_link = add_query_arg( array( 'preview' => true, 'preview_id' => $post_id, 'preview_nonce' => $preview_nonce ), get_permalink($post_id) );
+				$view_link = add_query_arg( array( 'preview' => 'true' ), get_permalink($post_id) );
 			} else {
 				$view_link = htmlspecialchars_decode( get_permalink( $post_id ) );
 			}
