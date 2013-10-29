@@ -109,6 +109,10 @@ table#ef-calendar-view .day-unit.today {
 	border-top: 1px solid #000;
 }
 
+table#ef-calendar-view .day-item {
+	position: relative;
+}
+
 table#ef-calendar-view .day-unit{
 	position: relative;
 }
@@ -182,6 +186,10 @@ table#ef-calendar-view .day-unit .post-insert-dialog h1{
 }
 
 table#ef-calendar-view .day-unit .post-insert-dialog .post-insert-dialog-post-title{
+	margin-bottom: 10px;
+}
+
+table#ef-calendar-view .day-unit .post-insert-dialog .post-type-dropdown {
 	margin-bottom: 10px;
 }
 
@@ -259,7 +267,7 @@ table#ef-calendar-view .day-unit ul li.sortable.ui-sortable-helper {
 	background-color: #F7F7F7;
 }
 
-table#ef-calendar-view .day-unit ul li .item-inner {
+table#ef-calendar-view .day-unit ul li .item-static .item-inner {
 	display: none;
 }
 
