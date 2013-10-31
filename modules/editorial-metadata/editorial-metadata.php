@@ -436,6 +436,80 @@ class EF_Editorial_Metadata extends EF_Module {
 		}		
 		echo "</div>";
 	}
+
+	function show_meta_form_item($term, $post ) {
+
+		if(is_int($post))
+			$post_id = $post;
+		else
+			$post_id = $post->ID;
+
+		$postmeta_key = $this->get_postmeta_key( $term );
+		$current_metadata = esc_attr( $this->get_postmeta_value( $term, $post_id ) );
+		$type = $term->type;
+		$description = $term->description;
+		if ( $description )
+			$description_span = "<span class='description'>$description</span>";
+		else
+			$description_span = '';
+		
+		$form_item = "<div class='" . self::metadata_taxonomy . " " . self::metadata_taxonomy . "_$type'>";
+
+		switch( $type ) {
+			case "date":
+				// TODO: Move this to a function
+				if ( !empty( $current_metadata ) ) {
+					// Turn timestamp into a human-readable date
+					$current_metadata = date( 'M d Y' , intval( $current_metadata ) );	
+				}
+				$form_item .= "<label for='$postmeta_key'>{$term->name}</label>";
+				if ( $description_span )
+					$form_item .= "<label for='$postmeta_key'>$description_span</label>";
+				$form_item .= "<input id='$postmeta_key' name='$postmeta_key' type='text' class='date-pick' value='$current_metadata' />";
+				break;
+			case "location":
+				$form_item .= "<label for='$postmeta_key'>{$term->name}</label>";
+				if ( $description_span )
+					$form_item .= "<label for='$postmeta_key'>$description_span</label>";
+				$form_item .= "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
+				if ( !empty( $current_metadata ) )
+					$form_item .= "<div><a href='http://maps.google.com/?q={$current_metadata}&t=m' target='_blank'>" . sprintf( __( 'View &#8220;%s&#8221; on Google Maps', 'edit-flow' ), $current_metadata ) . "</a></div>";
+				break;
+			case "text":
+				$form_item .= "<label for='$postmeta_key'>{$term->name}$description_span</label>";
+				$form_item .= "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
+				break;
+			case "paragraph":
+				$form_item .= "<label for='$postmeta_key'>{$term->name}$description_span</label>";
+				$form_item .= "<textarea id='$postmeta_key' name='$postmeta_key'>$current_metadata</textarea>";
+				break;
+			case "checkbox":
+				$form_item .= "<label for='$postmeta_key'>{$term->name}$description_span</label>";
+				$form_item .= "<input id='$postmeta_key' name='$postmeta_key' type='checkbox' value='1' " . checked($current_metadata, 1, false) . " />";
+				break;
+			case "user": 
+				$form_item .= "<label for='$postmeta_key'>{$term->name}$description_span</label>";
+				$user_dropdown_args = array( 
+						'show_option_all' => __( '-- Select a user --', 'edit-flow' ), 
+						'name'     => $postmeta_key,
+						'selected' => $current_metadata ,
+						'echo' => false,
+					); 
+				$form_item .= wp_dropdown_users( $user_dropdown_args );
+				break;
+			case "number":
+				$form_item .= "<label for='$postmeta_key'>{$term->name}$description_span</label>";
+				$form_item .= "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
+				break;					
+			default:
+				$form_item .= "<p>" . __( 'This editorial metadata type is not yet supported.', 'edit-flow' ) . "</p>";
+		}
+
+		$form_item .= "</div>";
+		$form_item .= "<div class='clear'></div>";
+
+		return $form_item;
+	}
 	
 	/**
 	 * Show date or datetime
@@ -815,7 +889,7 @@ class EF_Editorial_Metadata extends EF_Module {
 	 * @param object      $term    The editorial metadata term
 	 * @return string     $html    How the term should be rendered
 	 */
-	private function generate_editorial_metadata_term_output( $term, $pm_value ) {
+	public function generate_editorial_metadata_term_output( $term, $pm_value ) {
 
 		$output = '';
 		switch( $term->type ) {

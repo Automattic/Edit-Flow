@@ -806,6 +806,11 @@ jQuery(document).ready(function($) {
 		if ( ! is_array( $users ) )
 			$users = array( $users );
 
+		// Clean up data we're using
+		$post_id = ( is_int($post) ) ? $post : $post->ID;
+
+		if( !is_array($users) ) $users = array($users);
+
 		$user_terms = array();
 		foreach( $users as $user ) {
 
@@ -1022,7 +1027,7 @@ jQuery(document).ready(function($) {
 	 * @param array $args  
 	 * @return array $posts Posts a user is following
 	 */
-	function get_user_following_posts( $user = 0, $args = null ) {
+	function get_user_following_posts( $user = 0, $args = array() ) {
 		if ( !$user )
 			$user = (int) wp_get_current_user()->ID;
 
@@ -1042,12 +1047,45 @@ jQuery(document).ready(function($) {
 			'order' => 'DESC',
 			'post_status' => 'any',
 		);
+		$post_args = array_merge( $post_args, $args );
 		$post_args = apply_filters( 'ef_user_following_posts_query_args', $post_args );
 		$posts = get_posts( $post_args );
 		return $posts;
 
 	}
-	
+
+	/**
+	 * Get comments from posts the user is following, orderd
+	 * by most recent. Necessary in order to get comments from posts
+	 * the user is following by most recent. 
+	 * 
+	 * @param  string $user_name Name of user
+	 * @param  int $num_of_comments Number of comments to return
+	 * @return array $most_recent_comments Comments to return
+	 */
+	public function get_user_following_comments( $num_comments ) {
+		global $wpdb;
+		$current_user = wp_get_current_user()->user_login;
+
+		//This query grew up on the wrong side of the tracks
+		$recent_comments = $wpdb->get_results (
+				$wpdb->prepare(
+						"
+						SELECT wp_comments.comment_ID,wp_comments.comment_content, wp_comments.comment_date, wp_comments.comment_author, wp_comments.comment_parent, wp_comments.comment_post_ID FROM $wpdb->posts 
+						JOIN $wpdb->term_relationships AS wtr ON wp_posts.ID = wtr.object_id 
+						JOIN $wpdb->term_taxonomy AS wtt ON wtt.taxonomy = 'following_users' AND wtr.term_taxonomy_id = wtt.term_taxonomy_id 
+						JOIN $wpdb->terms ON wp_terms.term_id = wtt.term_taxonomy_id AND wp_terms.name = %s 
+						JOIN $wpdb->comments ON wp_posts.ID = wp_comments.comment_post_ID AND wp_comments.comment_type = 'editorial-comment'
+						ORDER BY wp_comments.comment_date DESC LIMIT %d;
+						",
+						$current_user, $num_comments
+					)
+			);
+
+		return $recent_comments;
+
+	}
+
 	/**
 	 * Register settings for notifications so we can partially use the Settings API
 	 * (We use the Settings API for form generation, but not saving)

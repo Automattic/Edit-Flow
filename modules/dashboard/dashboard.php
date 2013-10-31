@@ -38,6 +38,7 @@ class EF_Dashboard extends EF_Module {
 				'post_status_widget' => 'on',
 				'my_posts_widget' => 'on',
 				'notepad_widget' => 'on',
+				'activity_feed_widget' => 'on',
 			),
 			'configure_page_cb' => 'print_configure_view',
 			'configure_link_text' => __( 'Widget Options', 'edit-flow' ),		
@@ -58,11 +59,20 @@ class EF_Dashboard extends EF_Module {
 			$this->widgets->notepad_widget->init();
 		}
 		
+		global $edit_flow;
+
 		// Add the widgets to the dashboard
-		add_action( 'wp_dashboard_setup', array( $this, 'add_dashboard_widgets') );
+		add_action( 'wp_dashboard_setup', array( $this, 'add_dashboard_widgets' ) );
 		
 		// Register our settings
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
+
+		//Registration of the Activity Feed widget
+		if ( $this->module->options->activity_feed_widget == 'on' && $this->module_enabled( 'notifications' ) ) {
+			require_once dirname( __FILE__ ) . '/widgets/activity-feed/activity-feed.php';
+			$this->activity_feed_widget = new EF_Activity_Feed_Widget();
+		}
+		
 	}
 
 	/**
@@ -109,13 +119,12 @@ class EF_Dashboard extends EF_Module {
 	 * Add Edit Flow dashboard widgets to the WordPress admin dashboard
 	 */
 	function add_dashboard_widgets() {
-		
 		// Only show dashboard widgets for Contributor or higher
 		if ( !current_user_can('edit_posts') ) 
 			return;
 		
-		wp_enqueue_style( 'edit-flow-dashboard-css', $this->module_url . 'lib/dashboard.css', false, EDIT_FLOW_VERSION, 'all' );			
-			
+		wp_enqueue_style( 'edit-flow-dashboard-css', $this->module_url . 'lib/dashboard.css', false, EDIT_FLOW_VERSION, 'all' );				
+
 		// Set up Post Status widget but, first, check to see if it's enabled
 		if ( $this->module->options->post_status_widget == 'on')
 			wp_add_dashboard_widget( 'post_status_widget', __( 'Unpublished Content', 'edit-flow' ), array( $this, 'post_status_widget' ) );
@@ -127,6 +136,11 @@ class EF_Dashboard extends EF_Module {
 		// Add the MyPosts widget, if enabled
 		if ( $this->module->options->my_posts_widget == 'on' && $this->module_enabled( 'notifications' ) )
 			wp_add_dashboard_widget( 'myposts_widget', __( 'Posts I\'m Following', 'edit-flow' ), array( $this, 'myposts_widget' ) );
+
+		// Start the Activities Feed widget, if enabled
+		if ( isset( $this->activity_feed_widget ) ) {
+			$this->activity_feed_widget->init();
+		}
 
 	}
 	
@@ -224,6 +238,7 @@ class EF_Dashboard extends EF_Module {
 			add_settings_field( 'post_status_widget', __( 'Post Status Widget', 'edit-flow' ), array( $this, 'settings_post_status_widget_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 			add_settings_field( 'my_posts_widget',__( 'Posts I\'m Following', 'edit-flow' ), array( $this, 'settings_my_posts_widget_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 			add_settings_field( 'notepad_widget',__( 'Notepad', 'edit-flow' ), array( $this, 'settings_notepad_widget_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'activity_feed_widget', __('Activity Feed', 'edit-flow' ), array($this, 'settings_activity_feed_widget_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 
 	}
 	
@@ -292,6 +307,42 @@ class EF_Dashboard extends EF_Module {
 			echo '>' . esc_html( $label ) . '</option>';
 		}
 		echo '</select>';
+
+	}
+
+	/*
+	 * Enable or disable the Activity Feed Widget for the WP dashboard
+	 *
+	 * @since 0.8.0
+	 */
+	function settings_activity_feed_widget_option() {
+		global $edit_flow;
+		$options = array(
+			'off' => __('Disabled', 'edit_flow'), 
+			'on' => __('Enabled', 'edit-flow'), 
+		);
+				echo '<select id="my_posts_widget" name="' . $this->module->options_group_name . '[activity_feed_widget]"';
+		// Notifications module has to be enabled for the My Posts widget to work
+		if ( !$this->module_enabled('notifications') || !$this->module_enabled( 'editorial_comments' ) ) {
+			echo ' disabled="disabled"';
+			$this->module->options->activity_feed_widget = 'off';
+		}
+		echo '>';
+		foreach ( $options as $value => $label ) {
+			echo '<option value="' . esc_attr( $value ) . '"';
+			echo selected( $this->module->options->activity_feed_widget, $value );
+			echo '>' . esc_html( $label ) . '</option>';
+		}
+		echo '</select>';
+		//If the comments widget is disabled, will only show posts
+		if ( !$this->module_enabled('notifications') ) {
+			echo '&nbsp;&nbsp;&nbsp;<span class="description">' . __( 'The notifications module will need to be enabled for this widget to display.', 'edit-flow' );
+		}
+		//At least the custom status module needs to be enabled, so users
+		//can fall back to that if workflow doesn't include editorial metadata
+		if ( !$this->module_enabled('custom_status') ) {
+			echo '&nbsp;&nbsp;&nbsp;<span class="description">' . __( 'The notifications module will need to be enabled for this widget to display.', 'edit-flow' );
+		}
 	}
 	
 	/**
@@ -307,6 +358,9 @@ class EF_Dashboard extends EF_Module {
 			
 		if ( array_key_exists( 'my_posts_widget', $new_options ) && $new_options['my_posts_widget'] != 'on' )
 			$new_options['my_posts_widget'] = 'off';
+
+		if ( array_key_exists( 'activity_feed_widget', $new_options ) && $new_options['activity_feed_widget'] != 'on' )
+			$new_options['activity_feed_widget'] = 'off';
 		
 		return $new_options;
 	}	

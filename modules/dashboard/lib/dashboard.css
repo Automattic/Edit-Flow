@@ -12,6 +12,25 @@
 
 #post_status_widget span.small a:hover {border-bottom:1px dotted #989898;}
 
+
+/* Posts I'm Following */
+
+.ef-myposts li {
+  list-style-type: none;
+  padding-bottom: 5px;
+}
+
+.ef-myposts li a {
+  font-weight: normal;
+}
+
+.ef-myposts li .ef-myposts-timestamp {
+  color: #999;
+  font-style: italic;
+  font-family: "Lucida Grande",Verdana,Arial,"Bitstream Vera Sans",sans-serif;
+  font-size: 10px;
+}
+
 /* QuickPitch */
 
 .quick-pitch-notice {
@@ -76,24 +95,6 @@
 	text-align: right;
 }
 
-/* Posts I'm Following */
-
-.ef-myposts li {
-	list-style-type: none;
-	padding-bottom: 5px;
-}
-
-.ef-myposts li a {
-	font-weight: normal;
-}
-
-.ef-myposts li .ef-myposts-timestamp {
-	color: #999;
-	font-style: italic;
-	font-family: "Lucida Grande",Verdana,Arial,"Bitstream Vera Sans",sans-serif;
-	font-size: 10px;
-}
-
 /** Dashboard Notepad **/
 #dashboard-notepad #dashboard-notepad-submit-buttons {
 	float: right;
@@ -107,4 +108,5 @@
 
 #dashboard-notepad .submit #dashboard-notepad-last-updated {
 	float: left;
+	font-size: 11px;
 }
