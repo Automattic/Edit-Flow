@@ -376,10 +376,14 @@ class EF_Calendar extends EF_Module {
 					$end_date = date( 'Ymd', strtotime( $post->post_date ) + (5 * 60) ) . 'T' . date( 'His', strtotime( $post->post_date ) + (5 * 60) ) . 'Z';
 					$last_modified = date( 'Ymd', strtotime( $post->post_modified_gmt ) ) . 'T' . date( 'His', strtotime( $post->post_modified_gmt ) ) . 'Z';
 
+					// Remove the convert chars and wptexturize filters from the title
+					remove_filter( 'the_title', 'convert_chars' );
+					remove_filter( 'the_title', 'wptexturize' );
+
 					$formatted_post = array(
 						'BEGIN'           => 'VEVENT',
 						'UID'             => $post->guid,
-						'SUMMARY'         => apply_filters( 'the_title', $post->post_title ),
+						'SUMMARY'         => $this->do_ics_escaping( apply_filters( 'the_title', $post->post_title ) ),
 						'DTSTART'         => $start_date,
 						'DTEND'           => $end_date,
 						'LAST-MODIFIED'   => $last_modified,
@@ -458,6 +462,21 @@ class EF_Calendar extends EF_Module {
 				return implode( "", $chunks );
 			}
 		}
+	}
+
+	/**
+	 * Perform the encoding necessary for ICS feed text.
+	 *
+	 * @param string $text The string that needs to be escaped
+	 * @return string The string after escaping for ICS.
+	 * @since 0.8
+	 * */
+
+	function do_ics_escaping( $text ) {
+		$text = str_replace( ",", "\,", $text );
+		$text = str_replace( ";", "\:", $text );
+		$text = str_replace( "\\", "\\\\", $text );
+		return $text;
 	}
 
 	/**
