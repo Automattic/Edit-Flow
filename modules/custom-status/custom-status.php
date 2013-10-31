@@ -551,7 +551,7 @@ class EF_Custom_Status extends EF_Module {
 			$args     = array_merge( array( 'hide_empty' => false ), $args );
 			$statuses = get_terms( self::taxonomy_key, $args );
 
-			if ( is_wp_error( $statuses ) )
+			if ( is_wp_error( $statuses ) || empty( $statuses ) )
 				$disable_custom_statuses = true;
 		}
 
