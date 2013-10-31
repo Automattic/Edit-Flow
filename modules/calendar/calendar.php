@@ -459,22 +459,22 @@ class EF_Calendar extends EF_Module {
 			}
 		}
 	}
-    
-    /**
-    * Perform string escaping based on the standards for an iCAL 2.0 TEXT field,
-    * as defined here: http://www.kanzaki.com/docs/ical/text.html.
-    *
-    * @param string $text The text without the proper escaping.
-    * @return string The text after escaping.
-    * @since 0.8
-    */
-    
-    function do_ics_escaping( $text ) {
-        $text = str_replace( ",", "\,", $text );
-        $text = str_replace( ";", "\;", $text );
+	
+	/**
+	* Perform string escaping based on the standards for an iCAL 2.0 TEXT field,
+	* as defined here: http://www.kanzaki.com/docs/ical/text.html.
+	*
+	* @param string $text The text without the proper escaping.
+	* @return string The text after escaping.
+	* @since 0.8
+	*/
+	
+	function do_ics_escaping( $text ) {
+		$text = str_replace( ",", "\,", $text );
+		$text = str_replace( ";", "\;", $text );
 		$text = str_replace( "\\", "\\\\", $text );
-        return $text;
-    }
+		return $text;
+	}
 
 	/**
 	 * Handle a request to regenerate the calendar feed secret
