@@ -1376,7 +1376,9 @@ class EF_Calendar extends EF_Module {
 			$options['quick_create_post_type'] = $new_options['quick_create_post_type'];
 
 		if ( 'on' != $new_options['ics_subscription'] )
-			$new_options['ics_subscription'] = 'off';
+			$options['ics_subscription'] = 'off';
+		else
+			$options['ics_subscription'] = 'on';
 
 		return $options;
 	}
