@@ -332,7 +332,7 @@ class EF_Story_Budget extends EF_Module {
 			. esc_attr( $this->user_filters['number_days'] ) . '" /><span class="form-value">' . esc_html( $this->user_filters['number_days'] )
 			. '</span>';		
 		
-		$output .= sprintf( __( 'starting %1$s showing %2$s %3$s', 'edit-flow' ), $start_date_value, $number_days_value, _n( 'day', 'days', $this->user_filters['number_days'], 'edit-flow' ) );
+		$output .= sprintf( _x( 'starting %1$s showing %2$s %3$s', '%1$s = start date, %2$s = number of days, %3$s = translation of \'Days\'', 'edit-flow' ), $start_date_value, $number_days_value, _n( 'day', 'days', $this->user_filters['number_days'], 'edit-flow' ) );
 		$output .= '&nbsp;&nbsp;<span class="change-date-buttons">';
 		$output .= '<input id="ef-story-budget-range-submit" name="ef-story-budget-range-submit" type="submit"';
 		$output .= ' class="button-primary" value="' . __( 'Change', 'edit-flow' ) . '" />';
@@ -589,14 +589,14 @@ class EF_Story_Budget extends EF_Module {
 			// Following mostly stolen from edit.php
 			
 			if ( isset( $_GET['trashed'] ) && (int) $_GET['trashed'] ) {
-				printf( _n( 'Item moved to the trash.', '%s items moved to the trash.', $_GET['trashed'] ), number_format_i18n( $_GET['trashed'] ) );
+				printf( _n( 'Item moved to the trash.', '%d items moved to the trash.', $_GET['trashed'] ), number_format_i18n( $_GET['trashed'] ) );
 				$ids = isset($_GET['ids']) ? $_GET['ids'] : 0;
 				echo ' <a href="' . esc_url( wp_nonce_url( "edit.php?post_type=post&doaction=undo&action=untrash&ids=$ids", "bulk-posts" ) ) . '">' . __( 'Undo', 'edit-flow' ) . '</a><br />';
 				unset($_GET['trashed']);
 			}
 
 			if ( isset($_GET['untrashed'] ) && (int) $_GET['untrashed'] ) {
-				printf( _n( 'Item restored from the Trash.', '%s items restored from the Trash.', $_GET['untrashed'] ), number_format_i18n( $_GET['untrashed'] ) );
+				printf( _n( 'Item restored from the Trash.', '%d items restored from the Trash.', $_GET['untrashed'] ), number_format_i18n( $_GET['untrashed'] ) );
 				unset($_GET['undeleted']);
 			}
 			
