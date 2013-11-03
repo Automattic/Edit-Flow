@@ -1434,12 +1434,6 @@ class EF_Custom_Status extends EF_Module {
 	public function fix_preview_link_part_two( $permalink, $post, $leavename ) {
 		global $pagenow;
 
-		$published_statuses = array(
-			'publish',
-			'future',
-			'private',
-		);
-
 		if ( is_int( $post ) )
 			$post = get_post( $post );
 
@@ -1448,7 +1442,7 @@ class EF_Custom_Status extends EF_Module {
 			return $permalink;
 
 		//Is this published?
-		if( in_array( $post->post_status, $published_statuses ) )
+		if( in_array( $post->post_status, $this->published_statuses ) )
 			return $permalink;
 
 		//Are we overriding the permalink? Don't do anything
