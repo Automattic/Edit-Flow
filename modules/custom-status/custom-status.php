@@ -1434,20 +1434,34 @@ class EF_Custom_Status extends EF_Module {
 	public function fix_preview_link_part_two( $permalink, $post, $leavename ) {
 		global $pagenow;
 
-		// Core has apply_filters( 'page_link', $link, $post->ID, $sample ); too :(
+		$published_statuses = array(
+			'publish',
+			'future',
+			'private',
+		);
+
 		if ( is_int( $post ) )
 			$post = get_post( $post );
 
-		// Only modify if we're using a pre-publish status on a supported custom post type
-		// while doing the preview POST action
-		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
-		if ( ! is_admin()
-			|| 'post.php' != $pagenow
-			|| ( empty( $_POST['wp-preview'] ) || 'dopreview' != $_POST['wp-preview'] )
-			|| ! in_array( $post->post_status, $status_slugs ) 
-			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
+		//Should we be doing anything at all?
+		if( !in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
 			return $permalink;
 
+		//Is this published?
+		if( in_array( $post->post_status, $published_statuses ) )
+			return $permalink;
+
+		//Are we overriding the permalink? Don't do anything
+		if( isset( $_POST['action'] ) && $_POST['action'] == 'sample-permalink' )
+			return $permalink;
+
+		//Are we previewing the post from the normal post screen?
+		if( ( $pagenow == 'post.php' || $pagenow == 'post-new.php' ) 
+			&& !isset( $_POST['wp-preview'] ) )
+			return $permalink;
+
+		//Ok, so it looks like we're calling get_permalink on a non-published post
+		//Let's actually do some stuff then.
 		if ( 'page' == $post->post_type ) {
 			$args = array(
 					'page_id'    => $post->ID,
@@ -1462,8 +1476,9 @@ class EF_Custom_Status extends EF_Module {
 					'post_type'  => $post->post_type,
 				);
 		}
-		$permalink = add_query_arg( $args, home_url() );
-		return $permalink;
+
+		$args['preview_id'] = $post->ID;
+		return add_query_arg( $args, home_url() );
 	}
 
 	/**
