@@ -100,7 +100,7 @@ class EF_Custom_Status extends EF_Module {
 		
 		// These seven-ish methods are hacks for fixing bugs in WordPress core
 		add_action( 'admin_init', array( $this, 'check_timestamp_on_publish' ) );
-		add_filter( 'wp_insert_post_data', array( $this, 'fix_custom_status_timestamp' ) );
+		add_filter( 'wp_insert_post_data', array( $this, 'fix_custom_status_timestamp' ), 10, 2 );
 		add_action( 'wp_insert_post', array( $this, 'fix_post_name' ), 10, 2 );
 		add_action( 'edit_form_after_title', array( $this, 'action_edit_form_after_title' ) );
 		add_filter( 'editable_slug', array( $this, 'fix_editable_slug' ) );
@@ -1304,6 +1304,7 @@ class EF_Custom_Status extends EF_Module {
 	function helper_timestamp_hack() {
 		return ( 'pre_post_date' == current_filter() ) ? current_time('mysql') : '';
 	}
+
 	/**
 	 * This is a hack! hack! hack! until core is fixed/better supports custom statuses
 	 *
@@ -1314,7 +1315,7 @@ class EF_Custom_Status extends EF_Module {
 	 * @see Original thread: http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem
 	 * @see Core ticket: http://core.trac.wordpress.org/ticket/18362	
 	 */
-	function fix_custom_status_timestamp( $data ) {
+	function fix_custom_status_timestamp( $data, $postarr ) {
 		global $edit_flow;
 		// Don't run this if Edit Flow isn't active, or we're on some other page
 		if ( $this->disable_custom_statuses_for_post_type()
@@ -1323,20 +1324,27 @@ class EF_Custom_Status extends EF_Module {
 			return $data;
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
 		$ef_normalize_post_date_gmt = true;
-		// We're only going to normalize the post_date_gmt if the user hasn't set a custom date in the metabox
-		// and the current post_date_gmt isn't already future or past-ized
+
+		//If the time isn't set, don't set it.
+		if( empty( $_POST['aa'] ) ) {
+			$data['post_date_gmt'] = '0000-00-00 00:00:00';
+			return $data;
+		}
+
+		//If it's been set, stay set.
+		if( !empty( $postarr['post_date_gmt'] ) && $postarr['post_date_gmt'] != '0000-00-00 00:00:00' ) {
+			return $data;
+		}
+
 		foreach ( array('aa', 'mm', 'jj', 'hh', 'mn') as $timeunit ) {
-			//Hidden time will equal the current time if we've created a new post, or the time we've selected if we've scheduled the post
-			//The only thing that we need to care about is whether or not someone has modified the date/time.
-			if( ( !empty( $_POST['cur_' . $timeunit] ) && $_POST['cur_' . $timeunit] != $_POST[$timeunit] ) ) {
+			if( $_POST['hidden_' . $timeunit] != $_POST[$timeunit] )
 				$ef_normalize_post_date_gmt = false;
-				break;
-			}
 		}
 
 		if ( $ef_normalize_post_date_gmt )
-			if ( in_array( $data['post_status'], $status_slugs ) ) 
+			if ( in_array( $data['post_status'], $status_slugs ) ) {
 				$data['post_date_gmt'] = '0000-00-00 00:00:00';
+			}
 
 		return $data;
 	}
