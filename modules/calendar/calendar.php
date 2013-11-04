@@ -762,9 +762,9 @@ class EF_Calendar extends EF_Module {
 					?>
 
 						<form method="POST" class="post-insert-dialog">
-							/* translators: %1$s = post type name, %2$s = date */
+							<?php /* translators: %1$s = post type name, %2$s = date */ ?>
 							<h1><?php echo sprintf( __( 'Schedule a %1$s for %2$s', 'edit-flow' ), $this->get_quick_create_post_type_name(), $date_formatted ); ?></h1>	
-							/* translators: %s = post type name */
+							<?php /* translators: %s = post type name */ ?>
 							<input type="text" class="post-insert-dialog-post-title" name="post-insert-dialog-post-title" placeholder="<?php echo esc_attr( sprintf( _x( '%s Title', 'post type name', 'edit-flow' ), $this->get_quick_create_post_type_name() ) ); ?>">
 							<input type="hidden" class="post-insert-dialog-post-date" name="post-insert-dialog-post-title" value="<?php echo esc_attr( $week_single_date ); ?>">
 							<div class="post-insert-dialog-controls">		
