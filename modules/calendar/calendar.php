@@ -880,7 +880,6 @@ class EF_Calendar extends EF_Module {
 	 * @since 0.8
 	 */
 	function get_inner_information( $ef_calendar_item_information_fields, $post ) {
-		$current_user_can_edit = current_user_can( 'manage_options' );
 		?>
 			<table class="item-information">
 				<?php foreach( $this->get_post_information_fields( $post ) as $field => $values ): ?>
@@ -888,8 +887,8 @@ class EF_Calendar extends EF_Module {
 						<th class="label"><?php echo esc_html( $values['label'] ); ?>:</th>
 						<?php if ( $values['value'] && isset($values['type']) ): ?>
 							<?php if( isset( $values['editable'] ) && $this->current_user_can_modify_post( $post ) ) : ?>
-								<td class="value<?php if( $current_user_can_edit ) { ?> editable-value<?php } ?>"><?php echo esc_html( $values['value'] ); ?></td>
-								<?php if( $current_user_can_edit ): ?>
+								<td class="value<?php if( $values['editable'] ) { ?> editable-value<?php } ?>"><?php echo esc_html( $values['value'] ); ?></td>
+								<?php if( $values['editable'] ): ?>
 									<td class="editable-html hidden" data-type="<?php echo $values['type']; ?>" data-metadataterm="<?php echo str_replace( 'editorial-metadata-', '', str_replace( 'tax_', '', $field ) ); ?>"><?php echo $this->get_editable_html( $values['type'], $values['value'] ); ?></td>
 								<?php endif; ?>
 							<?php else: ?>
@@ -993,8 +992,11 @@ class EF_Calendar extends EF_Module {
 			'label'        => __( 'Author', 'edit-flow' ),
 			'value'        => get_the_author_meta( 'display_name', $post->post_author ),
 			'type'         => 'author',
-			'editable'     => true,
 		);
+
+		if( current_user_can( 'edit_others_posts' ) )
+			$information_fields['author']['editable'] = true;
+
 		// If the calendar supports more than one post type, show the post type label
 		if ( count( $this->get_post_types_for_module( $this->module ) ) > 1 ) {
 			$information_fields['post_type'] = array(
@@ -1051,8 +1053,15 @@ class EF_Calendar extends EF_Module {
 				'label' => $taxonomy->label,
 				'value' => $value,
 				'type' => $type,
-				'editable' => true,
 			);
+
+			if( $post->post_type == 'page' )
+				$ed_cap = 'edit_page';
+			else
+				$ed_cap = 'edit_post';
+
+			if( current_user_can( $ed_cap, $post->ID ) )
+				$information_fields[$key]['editable'] = true;
 		}
 		
 		$information_fields = apply_filters( 'ef_calendar_item_information_fields', $information_fields, $post->ID );
@@ -1559,16 +1568,22 @@ class EF_Calendar extends EF_Module {
 
 		if ( ! wp_verify_nonce( $_POST['nonce'], 'ef-calendar-modify' ) )
 			$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
-
-		// Check that the user has the right capabilities to add posts to the calendar (defaults to 'edit_posts')
-		if ( !current_user_can( 'manage_options' ) )
-			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );	
 		
 		// Check that we got a proper post
 		$post_id = ( int )$_POST['post_id'];
 		$post = get_post( $post_id );
+
 		if ( ! $post )
 			$this->print_ajax_response( 'error', $this->module->messages['missing-post'] );
+
+
+		if( $post->post_type == 'page' )
+			$edit_check = 'edit_page';
+		else
+			$edit_check = 'edit_post';
+
+		if ( !current_user_can( $edit_check, $post->ID ) )
+			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );	
 			
 		// Check that the user can modify the post
 		if ( ! $this->current_user_can_modify_post( $post ) )
@@ -1579,12 +1594,12 @@ class EF_Calendar extends EF_Module {
 			'taxonomy',
 		);
 
-
-
 		$metadata_types = array();
 
-		if ( $this->module_enabled( 'editorial_metadata' ) )
-			$metadata_types = array_keys( EditFlow()->editorial_metadata->get_supported_metadata_types() );
+		if ( !$this->module_enabled( 'editorial_metadata' ) )
+			$this->print_ajax_response( 'error', $this->module->messages['update-error'] );	
+		
+		$metadata_types = array_keys( EditFlow()->editorial_metadata->get_supported_metadata_types() );
 
 		// Update an editorial metadata field
 		if ( isset( $_POST['metadata_type'] ) && in_array( $_POST['metadata_type'], $metadata_types ) ) {
@@ -1601,6 +1616,10 @@ class EF_Calendar extends EF_Module {
 		} else {
 			switch( $_POST['metadata_type'] ) {
 				case 'author':
+					//One last check, only people who can edit_others_posts should be able to do this
+					if ( !current_user_can( 'edit_others_posts' ) )
+						$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
+
 					$ret = $wpdb->update( $wpdb->posts, array( 'post_author' => (int)$_POST['metadata_value'] ), array( 'ID' => $post->ID ) );
 					if ( $ret ) {
 						$response = 'success';
