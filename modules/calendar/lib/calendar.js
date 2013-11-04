@@ -94,7 +94,7 @@ jQuery(document).ready(function ($) {
 					reset_editorial_metadata();
 			},
 			error : function(r) { 
-				$('.editing').append('<span class="error">Error saving metadata.</span>'); 
+				$('.editing').next('.spinner').replaceWith('<span class="edit-flow-error-message">Error saving metadata.</span>'); 
 			}
 		});
 		
