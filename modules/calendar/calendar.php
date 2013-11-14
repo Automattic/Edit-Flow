@@ -788,24 +788,6 @@ class EF_Calendar extends EF_Module {
 					wp_nonce_field( 'ef-calendar-modify', 'ef-calendar-modify' ); ?>
 					
 					<div class="clear"></div>
-					<div id="tax_user_dropdown_lists" class="ef_calendar_hidden_list">
-						<?php 
-							//Tuck the dropdowns in here
-							//This gets used for anything concerning users
-							wp_dropdown_users( array('names' => 'author', 'class' => 'ef_calendar_user_dropdown ef_user_tax_dropdown' ) );
-
-							//Used for anything concerning taxonomy
-							//$this->dropdown_taxonomies collected all the taxonomies on the calendar
-							foreach( $this->dropdown_taxonomies as $taxonomy_label => $taxonomy_name ) {
-								$terms = get_terms( $taxonomy_name, array('hide_empty' => false ) );
-								echo '<select class="tax_dropdown-'.$taxonomy_name.' ef_user_tax_dropdown" multiple>';
-									foreach($terms as $term)
-										echo '<option value="'.$term->term_id.'">'.$term->name.'</option>';
-								echo '</select>';
-							}
-								//wp_dropdown_categories( array( 'taxonomy' => $taxonomy_name, 'class' => 'ef_calendar_hidden_list', 'id' => 'tax_dropdown-'.$taxonomy_label ) );
-						?>
-					</div>
 				</div><!-- /Calendar Wrapper -->
 
 			  </div>
@@ -964,7 +946,6 @@ class EF_Calendar extends EF_Module {
 				return $output;
 			break;
 			case 'user':
-			case 'author':
 				return wp_dropdown_users( array( 'echo' => false ) );
 			break;
 			case 'taxonomy':
@@ -993,9 +974,6 @@ class EF_Calendar extends EF_Module {
 			'value'        => get_the_author_meta( 'display_name', $post->post_author ),
 			'type'         => 'author',
 		);
-
-		if( current_user_can( 'edit_others_posts' ) )
-			$information_fields['author']['editable'] = true;
 
 		// If the calendar supports more than one post type, show the post type label
 		if ( count( $this->get_post_types_for_module( $this->module ) ) > 1 ) {
@@ -1615,19 +1593,6 @@ class EF_Calendar extends EF_Module {
 			$response = 'success';
 		} else {
 			switch( $_POST['metadata_type'] ) {
-				case 'author':
-					//One last check, only people who can edit_others_posts should be able to do this
-					if ( !current_user_can( 'edit_others_posts' ) )
-						$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
-
-					$ret = $wpdb->update( $wpdb->posts, array( 'post_author' => (int)$_POST['metadata_value'] ), array( 'ID' => $post->ID ) );
-					if ( $ret ) {
-						$response = 'success';
-						clean_post_cache( $post->ID );
-					} else {
-						$response = new WP_Error( 'invalid-type', __( 'Error updating post author.', 'edit-flow' ) );;
-					}
-				break;
 				case 'taxonomy':
 				case 'taxonomy hierarchical':
 					$response = wp_set_post_terms( $post->ID, $_POST['metadata_value'], $_POST['metadata_term'] );
