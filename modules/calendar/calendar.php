@@ -1553,7 +1553,7 @@ class EF_Calendar extends EF_Module {
 		$post_type_slug = $this->module->options->quick_create_post_type;
 		$post_type_obj = get_post_type_object( $post_type_slug );
 
-		return $post_type_obj->labels->singular_name ?: $post_type_slug;
+		return $post_type_obj->labels->singular_name ? $post_type_obj->labels->singular_name : $post_type_slug;
 	}
 
 	/**
