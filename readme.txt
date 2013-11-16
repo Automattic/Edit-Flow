@@ -102,10 +102,23 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Scheduled publication time is now included in relevant email notifications. Props [mattoperry](https://github.com/mattoperry)
 * Calendar and story budget module descriptions link to their respective pages in the admin for usability. Props [rgalindo05](https://github.com/rgalindo05)
 * New Russian localization thanks to [te-st.ru](https://github.com/Teplitsa)
+* Updated Japanese localization thanks to [naokomc](https://github.com/naokomc)
+* Updated Dutch localization thanks to [kardotim](https://github.com/kardotim)
 * Bug fix: User group selection no longer appears in network admin.
 * Improved slug generation when changing title of Drafts thanks to [natebot](https://github.com/natebot)
-* Bug fix: Permalink slugs are now editable after initial save.
+* Bug fix: Permalink slugs are now editable after initial save. Props [nickdaugherty](https://github.com/nickdaugherty)
 * Bug fix: Permit calendar filters to be properly reset.
+* Bug fix: Posts, pages, custom post types, etc. can now be previewed correctly.
+* Bug fix: Fix Strict Standards PHP notice with add_caps_to_role(). Props [azizur](https://github.com/azizur)
+* Bug fix: PHP compatability issue. Props [ziz](https://github.com/ziz).
+* Bug fix: Correct calendar encoding. Props [willvanwazer](https://github.com/willvanwazer)
+* Bug fix: Check for $screen in filter_manage_posts_column. Props [styledev](https://github.com/styledev).
+* Bug fix: Correct Edit Flow icon size. Props [Fstop](https://github.com/FStop).
+* Improvement: Add editorial metadata to the Posts screen. Props [drrobotnik](https://github.com/drrobotnik)
+* Improvement: Visual support for MP6. Props [keoshi](https://github.com/keoshi).
+* Bug fix: Catch WP_Error returning with get_terms(). Props [paulgibbs](https://github.com/paulgibbs)
+
+The following folks did some tremendous work in helping with Edit Flow v0.8: [azizur](https://github.com/azizur), [bbrooks](https://github.com/bbrooks), [drrobotnik](https://github.com/drrobotnik), [Fstop](https://github.com/FStop), [kardotim](https://github.com/kardotim), [keoshi](https://github.com/keoshi) [mattoperry](https://github.com/mattoperry), [mbijon] (https://github.com/mbijon), [naokomc](https://github.com/naokom, [natebot](https://github.com/natebot), [nickdaugherty](https://github.com/nickdaugherty), [paulgibbs](https://github.com/paulgibbs), [rgalindo05](https://github.com/rgalindo05), [te-st.ru](https://github.com/Teplitsa), [willvanwazer](https://github.com/willvanwazer), [ziz](https://github.com/ziz).
 
 = 0.7.6 (Jan. 30, 2013) =
 * Bug fix for 3.4.2 compatibility.
