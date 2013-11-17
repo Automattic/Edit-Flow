@@ -395,7 +395,7 @@ jQuery(document).ready(function($) {
 		if ( ! current_user_can( $this->edit_post_subscriptions_cap ) )
 			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
 
-		$post = get_post( (int)$_GET['post_id'] );
+		$post = get_post( ( $post_id = $_GET['post_id'] ) );
 
 		if ( ! $post )
 			$this->print_ajax_response( 'error', $this->module->messages['missing-post'] );
