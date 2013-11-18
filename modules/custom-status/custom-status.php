@@ -557,13 +557,15 @@ class EF_Custom_Status extends EF_Module {
 
 		// If this post type doesn't support custom statuses, we should return WP default in our format.
 		if ( $disable_custom_statuses ) {
-			$draft = $wp_post_statuses['draft'];
+			$draft = isset( $wp_post_statuses['draft'] ) ? $wp_post_statuss['draft'] : new stdClass();
 			$draft->slug = 'draft';
 			$draft->position = 1;
+			$draft->name = 'draft';
 
-			$pending = $wp_post_statuses['pending'];
+			$pending = isset( $wp_post_statuses['pending'] ) ? $wp_post_statuss['pending'] : new stdClass();
 			$pending->slug = 'pending';
 			$pending->position = 2;
+			$pending->name = 'Pending Review';
 
 			return array(
 					$draft,
