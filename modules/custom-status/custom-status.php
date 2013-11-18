@@ -560,7 +560,7 @@ class EF_Custom_Status extends EF_Module {
 			$draft = isset( $wp_post_statuses['draft'] ) ? $wp_post_statuss['draft'] : new stdClass();
 			$draft->slug = 'draft';
 			$draft->position = 1;
-			$draft->name = 'draft';
+			$draft->name = 'Draft';
 
 			$pending = isset( $wp_post_statuses['pending'] ) ? $wp_post_statuss['pending'] : new stdClass();
 			$pending->slug = 'pending';
