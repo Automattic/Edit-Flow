@@ -383,7 +383,7 @@ class EF_Calendar extends EF_Module {
 					$formatted_post = array(
 						'BEGIN'           => 'VEVENT',
 						'UID'             => $post->guid,
-						'SUMMARY'         => $this->do_ics_escaping( apply_filters( 'the_title', $post->post_title ) ),
+						'SUMMARY'         => $this->do_ics_escaping( apply_filters( 'the_title', $post->post_title ) ) . ' - ' . $this->get_post_status_friendly_name( get_post_status( $post->ID ) ),
 						'DTSTART'         => $start_date,
 						'DTEND'           => $end_date,
 						'LAST-MODIFIED'   => $last_modified,
