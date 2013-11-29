@@ -883,8 +883,6 @@ jQuery(document).ready(function($) {
 	 *
 	 */
 	function follow_post_usergroups( $post, $usergroups = 0, $append = true ) {
-		global $edit_flow;
-		
 		if ( !$this->module_enabled( 'user_groups' ) )
 			return;
 
@@ -892,13 +890,12 @@ jQuery(document).ready(function($) {
 		if( !is_array($usergroups) )
 			$usergroups = array($usergroups);
 
-		$usergroup_terms = array();
-		
-		foreach( $usergroups as $usergroup ) {
-			// Name and slug of term is the usergroup slug
-			$usergroup_data = $edit_flow->user_groups->get_usergroup_by( 'id', $usergroup ); 
+		// make sure each usergroup id is an integer and not a number stored as a string
+		foreach( $usergroups as $key => $usergroup ) {
+			$usergroups[$key] = intval($usergroup);
 		}
-		$set = wp_set_object_terms( $post_id, $usergroups, $this->following_usergroups_taxonomy, $append );
+
+		wp_set_object_terms( $post_id, $usergroups, $this->following_usergroups_taxonomy, $append );
 		return;
 	}
 	
