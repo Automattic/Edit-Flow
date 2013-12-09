@@ -105,9 +105,9 @@ class EF_Custom_Status extends EF_Module {
 		add_action( 'edit_form_after_title', array( $this, 'action_edit_form_after_title' ) );
 		add_filter( 'editable_slug', array( $this, 'fix_editable_slug' ) );
 		add_filter( 'preview_post_link', array( $this, 'fix_preview_link_part_one' ) );
-		add_filter( 'post_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
-		add_filter( 'page_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
-		add_filter( 'post_type_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
+		add_filter( 'post_link', array( $this, 'fix_preview_link_part_two' ), 10, 2 );
+		add_filter( 'page_link', array( $this, 'fix_preview_link_part_two' ), 10, 2 );
+		add_filter( 'post_type_link', array( $this, 'fix_preview_link_part_two' ), 10, 2 );
 		add_filter( 'post_row_actions', array( $this, 'fix_post_row_actions' ), 10, 2 );
 		add_filter( 'page_row_actions', array( $this, 'fix_post_row_actions' ), 10, 2 );
 		
@@ -1482,7 +1482,7 @@ class EF_Custom_Status extends EF_Module {
 	 * So we can't do a targeted filter. Instead, we can even more hackily filter get_permalink
 	 * @see http://core.trac.wordpress.org/ticket/19378
 	 */
-	public function fix_preview_link_part_two( $permalink, $post, $leavename ) {
+	public function fix_preview_link_part_two( $permalink, $post ) {
 		global $pagenow;
 
 		if ( is_int( $post ) )
