@@ -1453,23 +1453,7 @@ class EF_Custom_Status extends EF_Module {
 			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
 			return $preview_link;
 
-		if ( 'page' == $post->post_type ) {
-			$args = array(
-					'page_id'    => $post->ID,
-				);
-		} else if ( 'post' == $post->post_type ) {
-			$args = array(
-					'p'          => $post->ID,
-				);
-		} else {
-			$args = array(
-					'p'          => $post->ID,
-					'post_type'  => $post->post_type,
-				);
-		}
-		$args['preview'] = 'true';
-		$preview_link = add_query_arg( $args, home_url() );
-		return $preview_link;
+		return $this->get_preview_link( $post );
 	}
 
 	/**
@@ -1505,8 +1489,16 @@ class EF_Custom_Status extends EF_Module {
 			&& !isset( $_POST['wp-preview'] ) )
 			return $permalink;
 
-		//Ok, so it looks like we're calling get_permalink on a non-published post
-		//Let's actually do some stuff then.
+		return $this->get_preview_link( $post );
+	}
+
+	/**
+	 * Get the proper preview link for a post
+	 * 
+	 * @since 0.8
+	 */
+	private function get_preview_link( $post ) {
+
 		if ( 'page' == $post->post_type ) {
 			$args = array(
 					'page_id'    => $post->ID,
