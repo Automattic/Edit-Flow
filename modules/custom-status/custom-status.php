@@ -104,9 +104,10 @@ class EF_Custom_Status extends EF_Module {
 		add_action( 'wp_insert_post', array( $this, 'fix_post_name' ), 10, 2 );
 		add_action( 'edit_form_after_title', array( $this, 'action_edit_form_after_title' ) );
 		add_filter( 'editable_slug', array( $this, 'fix_editable_slug' ) );
-		add_filter( 'post_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
-		add_filter( 'page_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
-		add_filter( 'post_type_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
+		add_filter( 'preview_post_link', array( $this, 'fix_preview_link_part_one' ) );
+		add_filter( 'post_link', array( $this, 'fix_preview_link_part_two' ), 10, 2 );
+		add_filter( 'page_link', array( $this, 'fix_preview_link_part_two' ), 10, 2 );
+		add_filter( 'post_type_link', array( $this, 'fix_preview_link_part_two' ), 10, 2 );
 		add_filter( 'post_row_actions', array( $this, 'fix_post_row_actions' ), 10, 2 );
 		add_filter( 'page_row_actions', array( $this, 'fix_post_row_actions' ), 10, 2 );
 		
@@ -1437,11 +1438,35 @@ class EF_Custom_Status extends EF_Module {
 	 * @since 0.7.4
 	 *
 	 * The preview link for an unpublished post should always be ?p=
+	 */
+	public function fix_preview_link_part_one( $preview_link ) {
+		global $pagenow;
+
+		$post = get_post( get_the_ID() );
+
+		// Only modify if we're using a pre-publish status on a supported custom post type
+		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
+		if ( ! $post
+			|| ! is_admin()
+			|| 'post.php' != $pagenow
+			|| ! in_array( $post->post_status, $status_slugs ) 
+			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
+			return $preview_link;
+
+		return $this->get_preview_link( $post );
+	}
+
+	/**
+	 * Another hack! hack! hack! until core better supports custom statuses
+	 *
+	 * @since 0.7.4
+	 *
+	 * The preview link for an unpublished post should always be ?p=
 	 * The code used to trigger a post preview doesn't also apply the 'preview_post_link' filter
 	 * So we can't do a targeted filter. Instead, we can even more hackily filter get_permalink
 	 * @see http://core.trac.wordpress.org/ticket/19378
 	 */
-	public function fix_preview_link_part_two( $permalink, $post, $leavename ) {
+	public function fix_preview_link_part_two( $permalink, $post ) {
 		global $pagenow;
 
 		if ( is_int( $post ) )
@@ -1464,8 +1489,16 @@ class EF_Custom_Status extends EF_Module {
 			&& !isset( $_POST['wp-preview'] ) )
 			return $permalink;
 
-		//Ok, so it looks like we're calling get_permalink on a non-published post
-		//Let's actually do some stuff then.
+		return $this->get_preview_link( $post );
+	}
+
+	/**
+	 * Get the proper preview link for a post
+	 * 
+	 * @since 0.8
+	 */
+	private function get_preview_link( $post ) {
+
 		if ( 'page' == $post->post_type ) {
 			$args = array(
 					'page_id'    => $post->ID,
