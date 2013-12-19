@@ -271,7 +271,6 @@ class EF_Editorial_Comments extends EF_Module
 				<p class="row-actions"><?php echo $actions_string; ?></p>
 	
 			</div>
-		</li>	
 		<?php
 	}
 		
