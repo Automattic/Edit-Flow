@@ -1450,7 +1450,8 @@ class EF_Custom_Status extends EF_Module {
 			|| ! is_admin()
 			|| 'post.php' != $pagenow
 			|| ! in_array( $post->post_status, $status_slugs ) 
-			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
+			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) 
+			|| strpos( $preview_link, 'preview_id' ) !== false )
 			return $preview_link;
 
 		return $this->get_preview_link( $post );
