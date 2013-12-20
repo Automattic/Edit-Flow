@@ -161,6 +161,7 @@ class EF_Editorial_Comments extends EF_Module
 							array(
 								'type' => self::comment_type,
 								'callback' => array($this, 'the_comment'),
+								'end-callback' => '__return_false'
 							), 
 							$editorial_comments
 						);
