@@ -94,6 +94,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 = 0.8.1 (??? ?? ???) =
 * Bug fix: Show "(no title)" on the calendar when a post doesn't have a title.
+* Bug fix: Persist the future date position of a post on the calendar when a post is updated.
 
 = 0.8 (Dec 19, 2013) =
 * New feature: Dashboard Notepad. Editors and admins can use a notepad widget on the dashboard to leave instructions, important announcements, etc. for every WordPress user.
