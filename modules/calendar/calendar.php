@@ -838,7 +838,7 @@ class EF_Calendar extends EF_Module {
 				<div class="item-default-visible">
 					<div class="item-status"><span class="status-text"><?php echo esc_html( $this->get_post_status_friendly_name( get_post_status( $post_id ) ) ); ?></span></div>
 					<div class="inner">
-						<span class="item-headline post-title"><strong><?php echo esc_html( $post->post_title ); ?></strong></span>
+						<span class="item-headline post-title"><strong><?php echo esc_html( _draft_or_post_title( $post->ID ) ); ?></strong></span>
 					</div>
 				</div>
 				<div class="item-inner">
