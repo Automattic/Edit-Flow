@@ -322,6 +322,7 @@ class EF_Calendar extends EF_Module {
 		// Note to those reading this: bug Nacin to allow us to finish the custom status API
 		// See http://core.trac.wordpress.org/ticket/18362
 		$response = $wpdb->update( $wpdb->posts, $new_values, array( 'ID' => $post->ID ) );
+		clean_post_cache( $post->ID );
 		if ( !$response )
 			$this->print_ajax_response( 'error', $this->module->messages['update-error'] );
 		
