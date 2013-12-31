@@ -1752,8 +1752,11 @@ class EF_Calendar extends EF_Module {
 
 		$post = get_post( $post_ID );
 
-		// `post_date` is only nooped for these three statuses
-		if ( ! in_array( $post->post_status, array( 'draft', 'pending', 'auto-draft' ) ) )
+		// `post_date` is only nooped for these three statuses,
+		// but don't try to persist if `post_date_gmt` is set
+		if ( ! in_array( $post->post_status, array( 'draft', 'pending', 'auto-draft' ) )
+			|| '0000-00-00 00:00:00' !== $post->post_date_gmt
+			|| '0000-00-00 00:00:00' !== $data['post_date_gmt'] )
 			return;
 
 		$this->post_date_cache[ $post_ID ] = $post->post_date;
