@@ -29,6 +29,8 @@ class EF_Editorial_Metadata extends EF_Module {
 	const metadata_postmeta_key = "_ef_editorial_meta";
 	
 	var $module_name = 'editorial_metadata';
+
+	private $editorial_metadata_terms_cache = array();
 	
 	/**
 	 * Construct the EF_Editorial_Metadata class
@@ -557,11 +559,17 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */ 
 	function get_editorial_metadata_terms( $filter_args = array() ) {
 
+		// Try to fetch from internal object cache
+		$arg_hash = md5( serialize( $filter_args ) );
+		if ( isset( $this->editorial_metadata_terms_cache[ $arg_hash ] ) ) {
+			return $this->editorial_metadata_terms_cache[ $arg_hash ];
+		}
 		
 		$args = array(
 		        'orderby'    => apply_filters( 'ef_editorial_metadata_term_order', 'name' ),
 		        'hide_empty' => false
 			);
+
 		$terms = get_terms( self::metadata_taxonomy, $args );
 		$ordered_terms = array();
 		$hold_to_end = array();
@@ -602,6 +610,10 @@ class EF_Editorial_Metadata extends EF_Module {
 
 		// If filter arguments were passed, do our filtering
 		$ordered_terms = wp_filter_object_list( $ordered_terms, $filter_args );
+
+		// Set the internal object cache
+		$this->editorial_metadata_terms_cache[ $arg_hash ] = $ordered_terms;
+
 		return $ordered_terms;
 	}
 	
@@ -893,6 +905,10 @@ class EF_Editorial_Metadata extends EF_Module {
 		$new_args['description'] = $encoded_description;
 		
 		$updated_term = wp_update_term( $term_id, self::metadata_taxonomy, $new_args );
+
+		// Reset the internal object cache
+		$this->editorial_metadata_terms_cache = array();
+
 		$updated_term = $this->get_editorial_metadata_term_by( 'id', $term_id );
 		return $updated_term;
 	}
@@ -931,6 +947,10 @@ class EF_Editorial_Metadata extends EF_Module {
 		$args['description'] = $encoded_description;
 
 		$inserted_term = wp_insert_term( $term_name, self::metadata_taxonomy, $args );
+
+		// Reset the internal object cache
+		$this->editorial_metadata_terms_cache = array();
+
 		return $inserted_term;
 	}
 	
@@ -948,6 +968,10 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */
 	function delete_editorial_metadata_term( $term_id ) {
 		$result = wp_delete_term( $term_id, self::metadata_taxonomy );
+
+		// Reset the internal object cache
+		$this->editorial_metadata_terms_cache = array();
+
 		return $result;
 	}
 	
