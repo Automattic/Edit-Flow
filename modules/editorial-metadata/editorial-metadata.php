@@ -625,25 +625,19 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */
 	function get_editorial_metadata_term_by( $field, $value ) {
 
-		$term = get_term_by( $field, $value, self::metadata_taxonomy );
-		if ( ! $term || is_wp_error( $term ) )
-			return $term;
-		
-		// Unencode and set all of our psuedo term meta because we need the position and viewable if they exists
-		$term->position = false;
-		$term->viewable = false;
-		$unencoded_description = $this->get_unencoded_description( $term->description );
-		if ( is_array( $unencoded_description ) ) {
-			foreach( $unencoded_description as $key => $value ) {
-				$term->$key = $value;
-			}
-			// We used to store the description field in a funny way
-			if ( isset( $term->desc ) ) {
-				$term->description = $term->desc;
-				unset( $term->desc );
-			}
-		}
-		return $term;
+		if ( ! in_array( $field, array( 'id', 'slug', 'name' ) ) )
+			return false;
+
+		if ( 'id' == $field )
+			$field = 'term_id';
+
+		$terms = $this->get_editorial_metadata_terms();
+		$term = wp_filter_object_list( $terms, array( $field => $value ) );
+
+		if ( ! empty( $term ) )
+			return array_shift( $term );
+		else
+			return false;
 	}
 	
 	/**
