@@ -1017,7 +1017,11 @@ class EF_Calendar extends EF_Module {
 			// Sometimes taxonomies skip by, so let's make sure it has a label too
 			if ( !$taxonomy->public || !$taxonomy->label )
 				continue;
-			$terms = wp_get_object_terms( $post->ID, $taxonomy->name );
+
+			$terms = get_the_terms( $post->ID, $taxonomy->name );
+			if ( ! $terms || is_wp_error( $terms ) )
+				continue;
+
 			$key = 'tax_' . $taxonomy->name;
 			if ( count( $terms ) ) {
 				$value = '';
