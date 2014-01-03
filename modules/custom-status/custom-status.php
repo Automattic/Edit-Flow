@@ -14,7 +14,7 @@ class EF_Custom_Status extends EF_Module {
 
 	var $module;
 
-	private $custom_statuses = array();
+	private $custom_statuses_cache = array();
 	
 	// This is taxonomy name used to store all our custom statuses
 	const taxonomy_key = 'post_status';	
@@ -458,7 +458,7 @@ class EF_Custom_Status extends EF_Module {
 		$response = wp_insert_term( $term, self::taxonomy_key, array( 'slug' => $slug, 'description' => $encoded_description ) );
 
 		// Reset our internal object cache
-		$this->custom_statuses = array();
+		$this->custom_statuses_cache = array();
 
 		return $response;
 		
@@ -479,7 +479,7 @@ class EF_Custom_Status extends EF_Module {
 			return new WP_Error( 'invalid', __( "Custom status doesn't exist.", 'edit-flow' ) );
 
 		// Reset our internal object cache
-		$this->custom_statuses = array();	
+		$this->custom_statuses_cache = array();	
 		
 		// If the name was changed, we need to change the slug
 		if ( isset( $args['name'] ) && $args['name'] != $old_status->name )
@@ -525,7 +525,7 @@ class EF_Custom_Status extends EF_Module {
 			return new WP_Error( 'invalid', __( 'Cannot reassign to the status you want to delete', 'edit-flow' ) );
 
 		// Reset our internal object cache
-		$this->custom_statuses = array();
+		$this->custom_statuses_cache = array();
 		
 		if( !$this->is_restricted_status( $old_status ) ) {
 			$default_status = $this->get_default_custom_status()->slug;
@@ -563,8 +563,8 @@ class EF_Custom_Status extends EF_Module {
 
 		// Internal object cache for repeat requests
 		$arg_hash = md5( serialize( $args ) );
-		if ( ! empty( $this->custom_statuses[ $arg_hash ] ) ) {
-			return $this->custom_statuses[ $arg_hash ];
+		if ( ! empty( $this->custom_statuses_cache[ $arg_hash ] ) ) {
+			return $this->custom_statuses_cache[ $arg_hash ];
 		}
 
 		// Handle if the requested taxonomy doesn't exist
@@ -603,7 +603,7 @@ class EF_Custom_Status extends EF_Module {
 		foreach( $hold_to_end as $unpositioned_status )
 			$ordered_statuses[] = $unpositioned_status;
 
-		$this->custom_statuses[ $arg_hash ] = $ordered_statuses;
+		$this->custom_statuses_cache[ $arg_hash ] = $ordered_statuses;
 
 		return $ordered_statuses;
 	}
