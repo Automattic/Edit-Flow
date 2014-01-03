@@ -21,6 +21,7 @@ class EF_Calendar extends EF_Module {
 	var $max_visible_posts_per_date = 4; // total number of posts to be shown per square before 'more' link
 
 	private $post_date_cache = array();
+	private static $post_li_html_cache_key = 'ef_calendar_post_li_html';
 
 	/**
 	 * Construct the EF_Calendar class
@@ -103,6 +104,9 @@ class EF_Calendar extends EF_Module {
 
 		//Update metadata
 		add_action( 'wp_ajax_ef_calendar_update_metadata', array( $this, 'handle_ajax_update_metadata' ) );
+
+		// Clear li cache for a post when post cache is cleared
+		add_action( 'clean_post_cache', array( $this, 'action_clean_li_html_cache' ) );
 
 		// Action to regenerate the calendar feed sekret
 		add_action( 'admin_init', array( $this, 'handle_regenerate_calendar_feed_secret' ) );
@@ -754,7 +758,7 @@ class EF_Calendar extends EF_Module {
 							$week_posts[$week_single_date] = apply_filters( 'ef_calendar_posts_for_week', $week_posts[$week_single_date] );
 
 							foreach ( $week_posts[$week_single_date] as $num => $post ){ 
-								$this->generate_post_li_html( $post, $week_single_date, $num ); 
+								echo $this->generate_post_li_html( $post, $week_single_date, $num ); 
 							} 
 
 						 } 
@@ -813,6 +817,16 @@ class EF_Calendar extends EF_Module {
 	 */
 	function generate_post_li_html( $post, $post_date, $num = 0 ){
 
+		$can_modify = ( $this->current_user_can_modify_post( $post ) ) ? 'can_modify' : 'read_only';
+		$cache_key = $post->ID . $can_modify;
+		$cache_val = wp_cache_get( $cache_key, self::$post_li_html_cache_key );
+		// Because $num is pertinent to the display of the post LI, need to make sure that's what's in cache
+		if ( is_array( $cache_val ) && $cache_val['num'] == $num ) {
+			return $cache_val['post_li_html'];
+		}
+
+		ob_start();
+
 		$post_id = $post->ID;
 		$edit_post_link = get_edit_post_link( $post_id );
 		
@@ -854,6 +868,17 @@ class EF_Calendar extends EF_Module {
 			</div>
 		</li>
 		<?php
+
+		$post_li_html = ob_get_contents();
+		ob_end_clean();
+
+		$post_li_cache = array(
+			'num' => $num,
+			'post_li_html' => $post_li_html,
+			);
+		wp_cache_set( $cache_key, $post_li_cache, self::$post_li_html_cache_key );
+
+		return $post_li_html;
 
 	} // generate_post_li_html()
 
@@ -1518,10 +1543,7 @@ class EF_Calendar extends EF_Module {
 			$post = get_post( $post_id );
 
 			// Generate the HTML for the post item so it can be injected
-			ob_start();
-				$this->generate_post_li_html( $post, $post_date );
-				$post_li_html = ob_get_contents();
-			ob_end_clean();
+			$post_li_html = $this->generate_post_li_html( $post, $post_date );
 
 			// announce success and send back the html to inject
 			$this->print_ajax_response( 'success', $post_li_html );
@@ -1738,6 +1760,15 @@ class EF_Calendar extends EF_Module {
 				do_action( 'ef_calendar_filter_display', $select_id, $select_name, $filters );
 			break;
 		}
+	}
+
+	/**
+	 * When a post is updated, clean the <li> html post cache for it
+	 */
+	public function action_clean_li_html_cache( $post_id ) {
+
+		wp_cache_delete( $post_id . 'can_modify', self::$post_li_html_cache_key );
+		wp_cache_delete( $post_id . 'read_only', self::$post_li_html_cache_key );
 	}
 
 	/**
