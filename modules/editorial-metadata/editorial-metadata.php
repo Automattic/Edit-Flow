@@ -1239,13 +1239,14 @@ class EF_Editorial_Metadata extends EF_Module {
 		}		
 		
 		// Check to ensure a term with the same name doesn't exist,
-		$search_term = get_term_by( 'name', $metadata_name, self::metadata_taxonomy );
+		$search_term = $this->get_editorial_metadata_term_by( 'name', $metadata_name );
 		if ( is_object( $search_term ) && $search_term->term_id != $existing_term->term_id ) {
 			$change_error = new WP_Error( 'invalid', __( 'Name already in use. Please choose another.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );
 		}
+
 		// or that the term name doesn't map to an existing term's slug			
-		$search_term = get_term_by( 'slug', sanitize_title( $metadata_name ), self::metadata_taxonomy );
+		$search_term = $this->get_editorial_metadata_term_by( 'slug', sanitize_title( $metadata_name ) );
 		if ( is_object( $search_term ) && $search_term->term_id != $existing_term->term_id ) {
 			$change_error = new WP_Error( 'invalid', __( 'Name conflicts with slug for another term. Please choose again.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );			
