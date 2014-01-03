@@ -615,20 +615,20 @@ class EF_Custom_Status extends EF_Module {
 	 * @return object|WP_Error $status The object for the matching status
 	 */
 	function get_custom_status_by( $field, $value ) {
-		
-		$status = get_term_by( $field, $value, self::taxonomy_key );
-		if ( !$status || is_wp_error( $status ) )
-			return $status;
-		// Unencode and set all of our psuedo term meta because we need the position if it exists
-		$status->position = false;
-		$unencoded_description = $this->get_unencoded_description( $status->description );
-		if ( is_array( $unencoded_description ) ) {
-			foreach( $unencoded_description as $key => $value ) {
-				$status->$key = $value;
-			}
-		}
-		return $status;
-		
+
+		if ( ! in_array( $field, array( 'id', 'slug' ) ) )
+			return false;
+
+		if ( 'id' == $field )
+			$field = 'term_id';
+
+		$custom_statuses = $this->get_custom_statuses();
+		$custom_status = wp_filter_object_list( $custom_statuses, array( $field => $value ) );
+
+		if ( ! empty( $custom_status ) )
+			return array_shift( $custom_status );
+		else
+			return false;
 	}
 
 	/**
