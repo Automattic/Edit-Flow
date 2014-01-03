@@ -13,6 +13,8 @@ if ( !class_exists( 'EF_Custom_Status' ) ) {
 class EF_Custom_Status extends EF_Module {
 
 	var $module;
+
+	private $custom_statuses = array();
 	
 	// This is taxonomy name used to store all our custom statuses
 	const taxonomy_key = 'post_status';	
@@ -545,33 +547,16 @@ class EF_Custom_Status extends EF_Module {
 	function get_custom_statuses( $args = array() ) {
 		global $wp_post_statuses;
 
-		$disable_custom_statuses = $this->disable_custom_statuses_for_post_type();
-		if ( ! $disable_custom_statuses ) {
-
-			// Handle if the requested taxonomy doesn't exist
-			$args     = array_merge( array( 'hide_empty' => false ), $args );
-			$statuses = get_terms( self::taxonomy_key, $args );
-
-			if ( is_wp_error( $statuses ) || empty( $statuses ) )
-				$disable_custom_statuses = true;
+		if ( $this->disable_custom_statuses_for_post_type() ) {
+			return $this->get_core_post_statuses();
 		}
 
-		// If this post type doesn't support custom statuses, we should return WP default in our format.
-		if ( $disable_custom_statuses ) {
-			$draft = isset( $wp_post_statuses['draft'] ) ? $wp_post_statuses['draft'] : new stdClass();
-			$draft->slug = 'draft';
-			$draft->position = 1;
-			$draft->name = 'Draft';
+		// Handle if the requested taxonomy doesn't exist
+		$args     = array_merge( array( 'hide_empty' => false ), $args );
+		$statuses = get_terms( self::taxonomy_key, $args );
 
-			$pending = isset( $wp_post_statuses['pending'] ) ? $wp_post_statuses['pending'] : new stdClass();
-			$pending->slug = 'pending';
-			$pending->position = 2;
-			$pending->name = 'Pending Review';
-
-			return array(
-					$draft,
-					$pending
-				);
+		if ( is_wp_error( $statuses ) || empty( $statuses ) ) {
+			$statuses = array();
 		}
 
 		// Expand and order the statuses		

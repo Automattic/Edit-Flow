@@ -124,20 +124,33 @@ class EF_Module {
 		if ( $this->module_enabled('custom_status') ) {
 		 	return $edit_flow->custom_status->get_custom_statuses();
 		} else {
-			$post_statuses = array(
+			return $this->get_core_post_statuses();
+		}
+	}
+
+	/**
+	 * Get core's 'draft' and 'pending' post statuses, but include our special attributes
+	 * 
+	 * @since 0.8.1
+	 * 
+	 * @return array
+	 */
+	protected function get_core_post_statuses() {
+		
+		return array(
 				(object)array(
-					'name' => __( 'Draft' ),
-					'description' => '',
-					'slug' => 'draft',
+					'name'         => __( 'Draft' ),
+					'description'  => '',
+					'slug'         => 'draft',
+					'position'     => 1,
 				),
 				(object)array(
-					'name' => __( 'Pending Review' ),
-					'description' => '',
-					'slug' => 'pending',
+					'name'         => __( 'Pending Review' ),
+					'description'  => '',
+					'slug'         => 'pending',
+					'position'     => 2,
 				),				
 			);
-			return $post_statuses;
-		}
 	}
 
 	/**
