@@ -29,6 +29,8 @@ class EF_Editorial_Metadata extends EF_Module {
 	const metadata_postmeta_key = "_ef_editorial_meta";
 	
 	var $module_name = 'editorial_metadata';
+
+	private $editorial_metadata_terms_cache = array();
 	
 	/**
 	 * Construct the EF_Editorial_Metadata class
@@ -557,11 +559,17 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */ 
 	function get_editorial_metadata_terms( $filter_args = array() ) {
 
+		// Try to fetch from internal object cache
+		$arg_hash = md5( serialize( $filter_args ) );
+		if ( isset( $this->editorial_metadata_terms_cache[ $arg_hash ] ) ) {
+			return $this->editorial_metadata_terms_cache[ $arg_hash ];
+		}
 		
 		$args = array(
 		        'orderby'    => apply_filters( 'ef_editorial_metadata_term_order', 'name' ),
 		        'hide_empty' => false
 			);
+
 		$terms = get_terms( self::metadata_taxonomy, $args );
 		$ordered_terms = array();
 		$hold_to_end = array();
@@ -602,6 +610,10 @@ class EF_Editorial_Metadata extends EF_Module {
 
 		// If filter arguments were passed, do our filtering
 		$ordered_terms = wp_filter_object_list( $ordered_terms, $filter_args );
+
+		// Set the internal object cache
+		$this->editorial_metadata_terms_cache[ $arg_hash ] = $ordered_terms;
+
 		return $ordered_terms;
 	}
 	
@@ -613,25 +625,19 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */
 	function get_editorial_metadata_term_by( $field, $value ) {
 
-		$term = get_term_by( $field, $value, self::metadata_taxonomy );
-		if ( ! $term || is_wp_error( $term ) )
-			return $term;
-		
-		// Unencode and set all of our psuedo term meta because we need the position and viewable if they exists
-		$term->position = false;
-		$term->viewable = false;
-		$unencoded_description = $this->get_unencoded_description( $term->description );
-		if ( is_array( $unencoded_description ) ) {
-			foreach( $unencoded_description as $key => $value ) {
-				$term->$key = $value;
-			}
-			// We used to store the description field in a funny way
-			if ( isset( $term->desc ) ) {
-				$term->description = $term->desc;
-				unset( $term->desc );
-			}
-		}
-		return $term;
+		if ( ! in_array( $field, array( 'id', 'slug', 'name' ) ) )
+			return false;
+
+		if ( 'id' == $field )
+			$field = 'term_id';
+
+		$terms = $this->get_editorial_metadata_terms();
+		$term = wp_filter_object_list( $terms, array( $field => $value ) );
+
+		if ( ! empty( $term ) )
+			return array_shift( $term );
+		else
+			return false;
 	}
 	
 	/**
@@ -893,6 +899,10 @@ class EF_Editorial_Metadata extends EF_Module {
 		$new_args['description'] = $encoded_description;
 		
 		$updated_term = wp_update_term( $term_id, self::metadata_taxonomy, $new_args );
+
+		// Reset the internal object cache
+		$this->editorial_metadata_terms_cache = array();
+
 		$updated_term = $this->get_editorial_metadata_term_by( 'id', $term_id );
 		return $updated_term;
 	}
@@ -931,6 +941,10 @@ class EF_Editorial_Metadata extends EF_Module {
 		$args['description'] = $encoded_description;
 
 		$inserted_term = wp_insert_term( $term_name, self::metadata_taxonomy, $args );
+
+		// Reset the internal object cache
+		$this->editorial_metadata_terms_cache = array();
+
 		return $inserted_term;
 	}
 	
@@ -948,6 +962,10 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */
 	function delete_editorial_metadata_term( $term_id ) {
 		$result = wp_delete_term( $term_id, self::metadata_taxonomy );
+
+		// Reset the internal object cache
+		$this->editorial_metadata_terms_cache = array();
+
 		return $result;
 	}
 	
@@ -1221,13 +1239,14 @@ class EF_Editorial_Metadata extends EF_Module {
 		}		
 		
 		// Check to ensure a term with the same name doesn't exist,
-		$search_term = get_term_by( 'name', $metadata_name, self::metadata_taxonomy );
+		$search_term = $this->get_editorial_metadata_term_by( 'name', $metadata_name );
 		if ( is_object( $search_term ) && $search_term->term_id != $existing_term->term_id ) {
 			$change_error = new WP_Error( 'invalid', __( 'Name already in use. Please choose another.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );
 		}
+
 		// or that the term name doesn't map to an existing term's slug			
-		$search_term = get_term_by( 'slug', sanitize_title( $metadata_name ), self::metadata_taxonomy );
+		$search_term = $this->get_editorial_metadata_term_by( 'slug', sanitize_title( $metadata_name ) );
 		if ( is_object( $search_term ) && $search_term->term_id != $existing_term->term_id ) {
 			$change_error = new WP_Error( 'invalid', __( 'Name conflicts with slug for another term. Please choose again.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );			

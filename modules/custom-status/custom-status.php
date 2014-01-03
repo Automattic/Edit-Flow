@@ -13,6 +13,8 @@ if ( !class_exists( 'EF_Custom_Status' ) ) {
 class EF_Custom_Status extends EF_Module {
 
 	var $module;
+
+	private $custom_statuses_cache = array();
 	
 	// This is taxonomy name used to store all our custom statuses
 	const taxonomy_key = 'post_status';	
@@ -454,6 +456,10 @@ class EF_Custom_Status extends EF_Module {
 		unset( $args['slug'] );
 		$encoded_description = $this->get_encoded_description( $args );
 		$response = wp_insert_term( $term, self::taxonomy_key, array( 'slug' => $slug, 'description' => $encoded_description ) );
+
+		// Reset our internal object cache
+		$this->custom_statuses_cache = array();
+
 		return $response;
 		
 	}
@@ -470,7 +476,10 @@ class EF_Custom_Status extends EF_Module {
 		
 		$old_status = $this->get_custom_status_by( 'id', $status_id );
 		if ( !$old_status || is_wp_error( $old_status ) )
-			return new WP_Error( 'invalid', __( "Custom status doesn't exist.", 'edit-flow' ) );		
+			return new WP_Error( 'invalid', __( "Custom status doesn't exist.", 'edit-flow' ) );
+
+		// Reset our internal object cache
+		$this->custom_statuses_cache = array();	
 		
 		// If the name was changed, we need to change the slug
 		if ( isset( $args['name'] ) && $args['name'] != $old_status->name )
@@ -514,6 +523,9 @@ class EF_Custom_Status extends EF_Module {
 
 		if ( $reassign == $old_status )
 			return new WP_Error( 'invalid', __( 'Cannot reassign to the status you want to delete', 'edit-flow' ) );
+
+		// Reset our internal object cache
+		$this->custom_statuses_cache = array();
 		
 		if( !$this->is_restricted_status( $old_status ) ) {
 			$default_status = $this->get_default_custom_status()->slug;
@@ -545,33 +557,22 @@ class EF_Custom_Status extends EF_Module {
 	function get_custom_statuses( $args = array() ) {
 		global $wp_post_statuses;
 
-		$disable_custom_statuses = $this->disable_custom_statuses_for_post_type();
-		if ( ! $disable_custom_statuses ) {
-
-			// Handle if the requested taxonomy doesn't exist
-			$args     = array_merge( array( 'hide_empty' => false ), $args );
-			$statuses = get_terms( self::taxonomy_key, $args );
-
-			if ( is_wp_error( $statuses ) || empty( $statuses ) )
-				$disable_custom_statuses = true;
+		if ( $this->disable_custom_statuses_for_post_type() ) {
+			return $this->get_core_post_statuses();
 		}
 
-		// If this post type doesn't support custom statuses, we should return WP default in our format.
-		if ( $disable_custom_statuses ) {
-			$draft = isset( $wp_post_statuses['draft'] ) ? $wp_post_statuses['draft'] : new stdClass();
-			$draft->slug = 'draft';
-			$draft->position = 1;
-			$draft->name = 'Draft';
+		// Internal object cache for repeat requests
+		$arg_hash = md5( serialize( $args ) );
+		if ( ! empty( $this->custom_statuses_cache[ $arg_hash ] ) ) {
+			return $this->custom_statuses_cache[ $arg_hash ];
+		}
 
-			$pending = isset( $wp_post_statuses['pending'] ) ? $wp_post_statuses['pending'] : new stdClass();
-			$pending->slug = 'pending';
-			$pending->position = 2;
-			$pending->name = 'Pending Review';
+		// Handle if the requested taxonomy doesn't exist
+		$args     = array_merge( array( 'hide_empty' => false ), $args );
+		$statuses = get_terms( self::taxonomy_key, $args );
 
-			return array(
-					$draft,
-					$pending
-				);
+		if ( is_wp_error( $statuses ) || empty( $statuses ) ) {
+			$statuses = array();
 		}
 
 		// Expand and order the statuses		
@@ -601,30 +602,33 @@ class EF_Custom_Status extends EF_Module {
 		// Append all of the statuses that didn't have an existing position
 		foreach( $hold_to_end as $unpositioned_status )
 			$ordered_statuses[] = $unpositioned_status;
+
+		$this->custom_statuses_cache[ $arg_hash ] = $ordered_statuses;
+
 		return $ordered_statuses;
 	}
 	
 	/**
 	 * Returns the a single status object based on ID, title, or slug
 	 *
-	 * @param string|int $string_or_int The status to search for, either by slug or ID
+	 * @param string|int $string_or_int The status to search for, either by slug, name or ID
 	 * @return object|WP_Error $status The object for the matching status
 	 */
 	function get_custom_status_by( $field, $value ) {
-		
-		$status = get_term_by( $field, $value, self::taxonomy_key );
-		if ( !$status || is_wp_error( $status ) )
-			return $status;
-		// Unencode and set all of our psuedo term meta because we need the position if it exists
-		$status->position = false;
-		$unencoded_description = $this->get_unencoded_description( $status->description );
-		if ( is_array( $unencoded_description ) ) {
-			foreach( $unencoded_description as $key => $value ) {
-				$status->$key = $value;
-			}
-		}
-		return $status;
-		
+
+		if ( ! in_array( $field, array( 'id', 'slug', 'name' ) ) )
+			return false;
+
+		if ( 'id' == $field )
+			$field = 'term_id';
+
+		$custom_statuses = $this->get_custom_statuses();
+		$custom_status = wp_filter_object_list( $custom_statuses, array( $field => $value ) );
+
+		if ( ! empty( $custom_status ) )
+			return array_shift( $custom_status );
+		else
+			return false;
 	}
 
 	/**
