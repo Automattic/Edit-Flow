@@ -611,12 +611,12 @@ class EF_Custom_Status extends EF_Module {
 	/**
 	 * Returns the a single status object based on ID, title, or slug
 	 *
-	 * @param string|int $string_or_int The status to search for, either by slug or ID
+	 * @param string|int $string_or_int The status to search for, either by slug, name or ID
 	 * @return object|WP_Error $status The object for the matching status
 	 */
 	function get_custom_status_by( $field, $value ) {
 
-		if ( ! in_array( $field, array( 'id', 'slug' ) ) )
+		if ( ! in_array( $field, array( 'id', 'slug', 'name' ) ) )
 			return false;
 
 		if ( 'id' == $field )
