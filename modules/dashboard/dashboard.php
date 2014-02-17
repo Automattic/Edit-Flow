@@ -21,7 +21,6 @@ class EF_Dashboard extends EF_Module {
 	 * Load the EF_Dashboard class as an Edit Flow module
 	 */
 	function __construct() {
-		global $edit_flow;
 		
 		// Register the module with Edit Flow
 		$this->module_url = $this->get_module_url( __FILE__ );

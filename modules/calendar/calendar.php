@@ -27,7 +27,6 @@ class EF_Calendar extends EF_Module {
 	 * Construct the EF_Calendar class
 	 */
 	function __construct() {
-		global $edit_flow;
 	
 		$this->module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow

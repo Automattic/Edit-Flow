@@ -23,7 +23,6 @@ class EF_Custom_Status extends EF_Module {
 	 * Register the module with Edit Flow but don't do anything else
 	 */
 	function __construct() {
-		global $edit_flow;
 		
 		$this->module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow

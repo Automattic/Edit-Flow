@@ -31,7 +31,6 @@ class EF_User_Groups extends EF_Module {
 	 * @since 0.7
 	 */
 	function __construct( ) {
-		global $edit_flow;
 		
 		$this->module_url = $this->get_module_url( __FILE__ );
 		

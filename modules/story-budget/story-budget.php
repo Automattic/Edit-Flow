@@ -32,8 +32,6 @@ class EF_Story_Budget extends EF_Module {
 	 */
 	function __construct() {
 	
-		global $edit_flow;
-		
 		$this->module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		$args = array(
