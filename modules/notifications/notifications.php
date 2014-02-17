@@ -24,7 +24,6 @@ class EF_Notifications extends EF_Module {
 	 * Register the module with Edit Flow but don't do anything else
 	 */
 	function __construct () {
-		global $edit_flow;
 		
 		// Register the module with Edit Flow
 		$this->module_url = $this->get_module_url( __FILE__ );

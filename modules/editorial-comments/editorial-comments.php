@@ -14,7 +14,6 @@ class EF_Editorial_Comments extends EF_Module
 	const comment_type = 'editorial-comment';
 	
 	function __construct() {
-		global $edit_flow;
 		
 		$this->module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow

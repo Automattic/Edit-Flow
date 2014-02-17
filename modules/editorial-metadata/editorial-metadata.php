@@ -36,7 +36,6 @@ class EF_Editorial_Metadata extends EF_Module {
 	 * Construct the EF_Editorial_Metadata class
 	 */
 	function __construct() {
-		global $edit_flow;
 		
 		$this->module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
