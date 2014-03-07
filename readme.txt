@@ -94,7 +94,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 = 0.8.1 (??? ?? ???) =
 * New German localization thanks to [Circleview](https://github.com/Circleview)
-* New Spanish localization thanks to Andrew Kurtis.
+* New Spanish localization thanks to Andrew Kurtis from [Web Hosting Hub](http://www.webhostinghub.com/).
 * Performance improvements for the calendar, custom statuses, and editorial metadata
 * Bug fix: Show "(no title)" on the calendar when a post doesn't have a title.
 * Bug fix: Persist the future date position of a post on the calendar when a post is updated.
