@@ -163,12 +163,12 @@ jQuery(document).ready(function(){
 	});
 	jQuery( "#the-list tr.term-static" ).disableSelection();
 	jQuery( "#metadata_type" ).change(function(){
-		if ( this.value === "picklist" ) {
-			jQuery( "#metadata_picklist_items" ).parent().show(function(){
-				jQuery( "#metadata_picklist_items" ).focus();
+		if ( this.value === "dropdown" ) {
+			jQuery( "#metadata_dropdown_items" ).parent().show(function(){
+				jQuery( "#metadata_dropdown_items" ).focus();
 			});
 		} else {
-			jQuery( "#metadata_picklist_items" ).parent().hide();
+			jQuery( "#metadata_dropdown_items" ).parent().hide();
 		}
 	});
 });
