@@ -142,12 +142,14 @@ class edit_flow {
 	 * @uses add_action() To add various actions
 	 */
 	private function setup_actions() {
-		add_action( 'init', array( $this, 'action_init' ) );
-		add_action( 'init', array( $this, 'action_init_after' ), 1000 );
+        if(is_admin()) {
+            add_action( 'init', array( $this, 'action_init' ) );
+            add_action( 'init', array( $this, 'action_init_after' ), 1000 );
 
-		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
+            add_action( 'admin_init', array( $this, 'action_admin_init' ) );
 
-		do_action_ref_array( 'editflow_after_setup_actions', array( &$this ) );
+            do_action_ref_array( 'editflow_after_setup_actions', array( &$this ) );
+        }
 	}
 
 	/**
