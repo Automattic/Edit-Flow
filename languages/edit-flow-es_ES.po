@@ -88,7 +88,7 @@ msgstr "Usted no tiene los permisos necesarios para completar esta acción."
 
 #: edit_flow.php:232
 msgid "Post does not exist"
-msgstr "Mensaje no existe"
+msgstr "La publicación no existe"
 
 #: modules/calendar/calendar.php:32 modules/calendar/calendar.php:160
 #: modules/calendar/calendar.php:612
@@ -107,33 +107,33 @@ msgid ""
 "Filter by status or click on the post title to see its details. Drag and "
 "drop posts between days to change their publication date date."
 msgstr ""
-"El calendarioEdit Flow le permite ver sus mensajes durante un rango de "
+"El calendario Edit Flow le permite ver sus mensajes durante un rango de "
 "fechas personalizable. Filtre por estado o haga clic en el título de la "
 "entrada para ver sus detalles. Arrastre y suelte los mensajes entre días "
 "para cambiar la fecha de su publicación."
 
 #: modules/calendar/calendar.php:50
 msgid "Post date updated."
-msgstr "Fecha del mensaje actualizada."
+msgstr "Fecha de la publicación actualizada."
 
 #: modules/calendar/calendar.php:51
 msgid "There was an error updating the post. Please try again."
-msgstr "Hubo un error al actualizar el mensaje. Por favor, inténtelo de nuevo."
+msgstr "Hubo un error al actualizar la publicación. Por favor, inténtelo de nuevo."
 
 #: modules/calendar/calendar.php:52
 msgid ""
 "Updating the post date dynamically doesn't work for published content. "
 "Please <a href='%s'>edit the post</a>."
 msgstr ""
-"Actualizar la fecha del mensaje en forma dinámica no funciona para el "
-"contenido publicado. Por favor, <a href='%s'> edite el mensaje </a>."
+"Actualizar la fecha de la publicación en forma dinámica no funciona para el "
+"contenido publicado. Por favor, <a href='%s'> edite la publicación </a>."
 
 #: modules/calendar/calendar.php:53
 msgid ""
 "iCal secret key regenerated. Please inform all users they will need to "
 "resubscribe."
 msgstr ""
-"Clave secreta iCal regenerada. Por favor, informar a todos los usuarios que "
+"Clave secreta iCal regenerada. Por favor, informe a todos los usuarios de que "
 "tendrán que volver a suscribirse."
 
 #: modules/calendar/calendar.php:56 modules/calendar/calendar.php:88
@@ -173,7 +173,7 @@ msgstr ""
 
 #: modules/calendar/calendar.php:214
 msgid "Number of Weeks: "
-msgstr "Número de Semanas"
+msgstr "Número de Semanas:"
 
 #: modules/calendar/calendar.php:221
 msgid "Apply"
@@ -181,7 +181,7 @@ msgstr "Aplicar"
 
 #: modules/calendar/calendar.php:231
 msgid "Subscribe in iCal or Google Calendar"
-msgstr "Suscribir en iCal o Google Calendar"
+msgstr "Suscribirse en iCal o Google Calendar"
 
 #: modules/calendar/calendar.php:303
 msgid "Something is wrong with the format for the new date."
@@ -190,8 +190,8 @@ msgstr "Algo está mal en el formato para la nueva fecha."
 #: modules/calendar/calendar.php:621
 msgid "Post moved to the trash."
 msgid_plural "%d posts moved to the trash."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Publicación movida a la papelera"
+msgstr[1] "%d publicaciones movidas a la papelera"
 
 #: modules/calendar/calendar.php:625 modules/story-budget/story-budget.php:594
 msgid "Undo"
@@ -200,8 +200,8 @@ msgstr "Deshacer"
 #: modules/calendar/calendar.php:629
 msgid "Post restored from the Trash."
 msgid_plural "%d posts restored from the Trash."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Publicación restaurada desde la papelera"
+msgstr[1] "%d publicaciones restauradas desde la papelera"
 
 #: modules/calendar/calendar.php:739 modules/calendar/calendar.php:1064
 msgid "Today"
@@ -343,7 +343,7 @@ msgstr "Tipos de publicación para mostrar"
 
 #: modules/calendar/calendar.php:1314
 msgid "Post type to create directly from calendar"
-msgstr "Tipo del anuncio para crear directamente desde el calendario"
+msgstr "Tipo de publicación para crear directamente desde el calendario"
 
 #: modules/calendar/calendar.php:1315
 msgid "Subscription in iCal or Google Calendar"
@@ -394,7 +394,7 @@ msgstr "Sin fecha proporcionada."
 #: modules/calendar/calendar.php:1442
 msgid "Please change Quick Create to use a post type viewable on the calendar."
 msgstr ""
-"Por favor cambie Quick Create para usar un tipo de mensaje que se pueda ver "
+"Por favor cambie Creación Rápida para usar un tipo de publicación que se pueda ver "
 "en el calendario."
 
 #: modules/calendar/calendar.php:1448
@@ -403,7 +403,7 @@ msgstr "Sin título"
 
 #: modules/calendar/calendar.php:1485
 msgid "Post could not be created"
-msgstr "El mensaje no se pudo crear"
+msgstr "La publicación no se pudo crear"
 
 #: modules/calendar/calendar.php:1537
 msgid "Invalid post metadata type"
@@ -471,7 +471,7 @@ msgstr "Editar Estados"
 
 #: modules/custom-status/custom-status.php:48
 msgid "Post status created."
-msgstr "Estado del mensaje creado."
+msgstr "Estado de la publicación creada."
 
 #: modules/custom-status/custom-status.php:49
 msgid "Post status doesn't exist."
@@ -479,19 +479,19 @@ msgstr "No existe estado de Publicación."
 
 #: modules/custom-status/custom-status.php:50
 msgid "Default post status has been changed."
-msgstr "El estado del mensaje predeterminado se ha modificado."
+msgstr "El estado de la publicación predeterminada se ha modificado."
 
 #: modules/custom-status/custom-status.php:51
 msgid "Post status updated."
-msgstr "Estado del Mensaje actualizado."
+msgstr "Estado de la publicación actualizado."
 
 #: modules/custom-status/custom-status.php:52
 msgid "Post status deleted."
-msgstr "Estado del Mensaje borrado."
+msgstr "Estado de la publicación borrada."
 
 #: modules/custom-status/custom-status.php:53
 msgid "Status order updated."
-msgstr "Orden Estado actualizado."
+msgstr "Orden de Estados actualizado."
 
 #: modules/custom-status/custom-status.php:59
 msgid ""
@@ -507,14 +507,14 @@ msgid ""
 "users when a post changes state.</p>"
 msgstr ""
 "<p> Estados personalizados Edit Flow permiten definir las etapas más "
-"importantes de su flujo de trabajo editorial. Fuera de la caja, WordPress "
-"sólo ofrece \"Borrador\" y \"Revisión Pendiente\" como estados de mensaje. "
-"Con estados personalizados, puede crear sus propios estados de mensaje como "
-"\"En curso\", \"Pitch\" o \"Esperando Editar\" y conservar o eliminar los "
+"importantes de su flujo de trabajo editorial. De forma nativa, WordPress "
+"sólo ofrece \"Borrador\" y \"Pendiente de Revisión\" como estados de las publicaciones. "
+"Con estados personalizados, puede crear sus propios estados de publicación como "
+"\"En curso\", \"Idea\" o \"Esperando la Edición\" y conservar o eliminar los "
 "originales. También puede arrastrar y soltar los estados para establecer el "
 "mejor orden para su flujo de trabajo. <p></p> Los estados personalizados "
 "están plenamente integrados en el resto de Edit Flow y la administración de "
-"WordPress. En el calendario y presupuesto de la historia, se puede filtrar "
+"WordPress. En el calendario y el planificador de historias, se puede filtrar "
 "la vista para ver sólo los mensajes de un estado de mensaje específico. "
 "Además, las notificaciones de correo electrónico se pueden enviar a un grupo "
 "específico de usuarios cuando un mensaje cambió de estado</p>"
@@ -531,11 +531,11 @@ msgstr ""
 "org/features/custom-statuses/\"> Documentación Estado Personalizado</a> </"
 "p><p> <a href=\"http://wordpress.org/tags/edit-flow ? forum_id = 10\"> Foro "
 "Edit Flow </a> </ p><p> <a href=\"https://github.com/danielbachhuber/Edit-"
-"Flow\"> Editar Flow en Github </a > </p>"
+"Flow\"> Edit Flow en Github </a > </p>"
 
 #: modules/custom-status/custom-status.php:124
 msgid "Pitch"
-msgstr "Paso"
+msgstr "Idea"
 
 #: modules/custom-status/custom-status.php:127
 msgid "Idea proposed; waiting for acceptance."
@@ -555,12 +555,12 @@ msgstr "En Progreso"
 
 #: modules/custom-status/custom-status.php:143
 msgid "Writer is working on the post."
-msgstr "El escritor está trabajando en el mensaje."
+msgstr "El escritor está trabajando en la publicación."
 
 #: modules/custom-status/custom-status.php:151
 msgid "Post is a draft; not ready for review or publication."
 msgstr ""
-"La publicación es un proyecto;. no está listo para su revisión o publicación"
+"La publicación es un borrador;. no está lista para su revisión o publicación"
 
 #: modules/custom-status/custom-status.php:159
 msgid "Post needs to be reviewed by an editor."
@@ -573,7 +573,7 @@ msgid ""
 "status."
 msgstr ""
 "<strong>Nota:</strong> Su navegador no soporta JavaScript o tiene JavaScript "
-"desactivado. Usted no será capaz de acceder o cambiar el estado del mensaje."
+"desactivado. Usted no será capaz de acceder o cambiar el estado de la publicación."
 
 #: modules/custom-status/custom-status.php:393
 msgid "Privately Published"
@@ -585,7 +585,7 @@ msgstr "&mdash; Sin Cambio &mdash;"
 
 #: modules/custom-status/custom-status.php:472
 msgid "Custom status doesn't exist."
-msgstr "Estado personalizado no existe"
+msgstr "El Estado personalizado no existe"
 
 #: modules/custom-status/custom-status.php:515
 msgid "Cannot reassign to the status you want to delete"
@@ -623,7 +623,7 @@ msgstr ""
 #: modules/custom-status/custom-status.php:830
 #: modules/custom-status/custom-status.php:1041
 msgid "Status name conflicts with existing term. Please choose another."
-msgstr "Nombre Estado conflictúa con plazo existente. Por favor elija otro."
+msgstr "Nombre Estado coincide con un término existente. Por favor elija otro."
 
 #: modules/custom-status/custom-status.php:765
 #: modules/custom-status/custom-status.php:837
@@ -637,7 +637,7 @@ msgstr "No se pudo agregar el estado:"
 #: modules/custom-status/custom-status.php:834
 msgid "Status name conflicts with existing status. Please choose another."
 msgstr ""
-"El nombre de estado conflictúa con el estado existente.  Por favor elija "
+"El nombre de estado coincide con uno existente.  Por favor elija "
 "otro."
 
 #: modules/custom-status/custom-status.php:853
@@ -681,7 +681,7 @@ msgstr "Por favor introduzca un nombre para el estado."
 
 #: modules/custom-status/custom-status.php:1028
 msgid "Status name is restricted. Please chose another name."
-msgstr "El nombre del estado está restringido.Por favor elija otro nombre."
+msgstr "El nombre del estado está restringido. Por favor elija otro nombre."
 
 #: modules/custom-status/custom-status.php:1034
 msgid "Status already exists. Please choose another name."
@@ -689,7 +689,7 @@ msgstr "Ya existe el estado. Por favor, elija otro nombre."
 
 #: modules/custom-status/custom-status.php:1059
 msgid "Could not update the status: <strong>%s</strong>"
-msgstr "No se pudo actualizar el estado:  <strong>%s </strong>"
+msgstr "No se pudo actualizar el estado:  <strong>%s</strong>"
 
 #: modules/custom-status/custom-status.php:1074
 msgid "Use on these post types:"
@@ -774,8 +774,8 @@ msgstr ""
 msgid ""
 "Deleting a post status will assign all posts to the default post status."
 msgstr ""
-"Eliminar un mensaje de estado asignará todos los mensajes al estado de "
-"mensaje por defecto."
+"Eliminar un estado de publicación asignará todos los mensajes al estado de "
+"publicación por defecto."
 
 #: modules/custom-status/custom-status.php:1205
 #: modules/editorial-metadata/editorial-metadata.php:1468
@@ -809,7 +809,7 @@ msgstr "Añadir Nuevo Estado"
 
 #: modules/custom-status/custom-status.php:1571
 msgid "No custom statuses found."
-msgstr "No hay estados personalizados encontrados."
+msgstr "No se encontraron estados personalizados."
 
 #: modules/custom-status/custom-status.php:1586
 #: modules/editorial-metadata/editorial-metadata.php:1610
@@ -818,13 +818,13 @@ msgstr "Posición"
 
 #: modules/custom-status/custom-status.php:1662
 msgid "Default"
-msgstr "Predeterminada"
+msgstr "Predeterminado"
 
 #: modules/custom-status/custom-status.php:1671
 #: modules/editorial-metadata/editorial-metadata.php:1681
 #: modules/user-groups/user-groups.php:1169
 msgid "Quick&nbsp;Edit"
-msgstr "Quick&nbsp;Edit"
+msgstr "Edición&nbsp;Rápida"
 
 #: modules/custom-status/custom-status.php:1673
 msgid "Make&nbsp;Default"
@@ -840,7 +840,7 @@ msgstr "Eliminar"
 #: modules/editorial-metadata/editorial-metadata.php:1708
 #: modules/user-groups/user-groups.php:1227
 msgid "Quick Edit"
-msgstr "Quick Edit"
+msgstr "Edición Rápida"
 
 #: modules/dashboard/dashboard.php:29
 msgid "Dashboard Widgets"
@@ -864,19 +864,19 @@ msgstr "Opciones widget"
 
 #: modules/dashboard/dashboard.php:121
 msgid "Unpublished Content"
-msgstr "Contenido inédito"
+msgstr "Contenido sin publicar"
 
 #: modules/dashboard/dashboard.php:125 modules/dashboard/dashboard.php:226
 msgid "Notepad"
-msgstr "Block de Notas"
+msgstr "Anotaciones"
 
 #: modules/dashboard/dashboard.php:129 modules/dashboard/dashboard.php:225
 msgid "Posts I'm Following"
-msgstr "Mensajes que sigo"
+msgstr "Publicaciones que sigo"
 
 #: modules/dashboard/dashboard.php:154
 msgid "Posts at a Glance"
-msgstr "Mensajes en un Vistazo"
+msgstr "Publicaciones de un Vistazo"
 
 #: modules/dashboard/dashboard.php:179
 msgid "Edit Custom Statuses"
@@ -885,15 +885,15 @@ msgstr "Editar estados personalizados"
 #: modules/dashboard/dashboard.php:204
 #: modules/story-budget/story-budget.php:554
 msgid "Edit this post"
-msgstr "Editar este mensaje"
+msgstr "Editar esta publicación"
 
 #: modules/dashboard/dashboard.php:205
 msgid "This post was last updated on"
-msgstr "Este mensaje fue actualizado por última vez el"
+msgstr "Este publicación fue actualizada por última vez el"
 
 #: modules/dashboard/dashboard.php:209
 msgid "Sorry! You're not subscribed to any posts!"
-msgstr "¡Lo sentimos! ¡Usted no está suscrito a ningún mensaje!"
+msgstr "¡Lo sentimos! ¡Usted no está suscrito a ninguna publicación!"
 
 #: modules/dashboard/dashboard.php:224
 msgid "Post Status Widget"
@@ -950,7 +950,7 @@ msgid ""
 msgstr ""
 "<p> Comentarios editoriales ayudan a reducir la sobrecarga de correo "
 "electrónico y mantener la conversación cerca de lo que verdaderamente "
-"importa: su contenido. Comentar en el admin, similar a lo que se encuentra "
+"importa: su contenido. Comentarios anidados en el admin, similar a lo que se encuentra "
 "al final de una entrada de blog, permite a los escritores y editores dejar "
 "retroalimentación y discutir lo que debe ser cambiado antes de su "
 "publicación. </p><p> Cualquier persona que tenga acceso a ver la historia en "
@@ -968,7 +968,7 @@ msgid ""
 msgstr ""
 "<p><strong> Para más información:</strong> </p><p> <a href=\"http://editflow."
 "org/features/editorial-comments/\"> Documentación Comentarios Editoriales </"
-"a> </p> <a href = \"http://wordpress.org/tags/edit flujo? forum_id=10\"> "
+"a> </p> <a href = \"http://wordpress.org/tags/edit-flow?forum_id=10\"> "
 "Foro Edit Flow </a> </p> <p> <a href=\"https://github.com/danielbachhuber/"
 "Edit-Flow\"> Edit Flow en Github </a> </p>"
 
@@ -1081,7 +1081,7 @@ msgstr "Orden del término actualizado."
 
 #: modules/editorial-metadata/editorial-metadata.php:61
 msgid "Term visibility changed."
-msgstr "Visibilidad de Término cambió."
+msgstr "Visibilidad de Término cambiada."
 
 #: modules/editorial-metadata/editorial-metadata.php:67
 msgid ""
@@ -1136,15 +1136,15 @@ msgstr "Lo que el mensaje tiene que cubrir."
 
 #: modules/editorial-metadata/editorial-metadata.php:143
 msgid "Needs Photo"
-msgstr "Foto de Necesidades"
+msgstr "Necesita foto"
 
 #: modules/editorial-metadata/editorial-metadata.php:146
 msgid "Checked if this post needs a photo."
-msgstr "Chequeado si este publicación necesita una foto."
+msgstr "Marcada si esta publicación necesita una foto."
 
 #: modules/editorial-metadata/editorial-metadata.php:149
 msgid "Word Count"
-msgstr "Conteo de Palabras"
+msgstr "Número de Palabras"
 
 #: modules/editorial-metadata/editorial-metadata.php:152
 msgid "Required post length in words."
@@ -1222,7 +1222,7 @@ msgstr "No hay Metadato Editorial disponible."
 
 #: modules/editorial-metadata/editorial-metadata.php:369
 msgid " <a href=\"%s\">Add fields to get started</a>."
-msgstr "<a href=\"%s\"> Agregar campos para empezar </a>."
+msgstr "<a href=\"%s\"> Agregue campos para empezar </a>."
 
 #: modules/editorial-metadata/editorial-metadata.php:371
 msgid ""
@@ -1242,7 +1242,7 @@ msgstr "- Seleccione un usuario -"
 
 #: modules/editorial-metadata/editorial-metadata.php:431
 msgid "This editorial metadata type is not yet supported."
-msgstr "Este tipo de metadatos editorial aún no es soportado."
+msgstr "Este tipo de metadato editorial aún no es soportado."
 
 #: modules/editorial-metadata/editorial-metadata.php:832
 #: modules/notifications/notifications.php:1145
@@ -1254,7 +1254,7 @@ msgstr "%1$s en %2$s"
 #: modules/editorial-metadata/editorial-metadata.php:1517
 #: modules/editorial-metadata/editorial-metadata.php:1655
 msgid "Yes"
-msgstr "Si"
+msgstr "Sí"
 
 #: modules/editorial-metadata/editorial-metadata.php:846
 #: modules/editorial-metadata/editorial-metadata.php:1442
@@ -1327,7 +1327,7 @@ msgstr ""
 msgid ""
 "Name conflicts with slug for another term. Please choose something else."
 msgstr ""
-"El  nombre conflictúa con el slug para un nuevo término. Por favor, elija "
+"El  nombre coincide con el slug de otro término. Por favor, elija "
 "otra cosa."
 
 #: modules/editorial-metadata/editorial-metadata.php:1131
@@ -1369,7 +1369,7 @@ msgstr ""
 #: modules/editorial-metadata/editorial-metadata.php:1414
 #: modules/editorial-metadata/editorial-metadata.php:1486
 msgid "The name is for labeling the metadata field."
-msgstr "El nombre es para marcar el campo de metadatos."
+msgstr "El nombre es para etiquetar el campo de metadatos."
 
 #: modules/editorial-metadata/editorial-metadata.php:1420
 msgid "The slug cannot be changed once the term has been created."
@@ -1381,7 +1381,7 @@ msgid ""
 "The description can be used to communicate with your team about what the "
 "metadata is for."
 msgstr ""
-"La descripción se puede utilizar para comunicarse con su equipo acerca para "
+"La descripción se puede utilizar para comunicarse con su equipo acerca de para "
 "qué son los metadatos."
 
 #: modules/editorial-metadata/editorial-metadata.php:1431
@@ -1406,9 +1406,9 @@ msgid ""
 "When viewable, metadata can be seen on views other than the edit post view "
 "(e.g. calendar, manage posts, story budget, etc.)"
 msgstr ""
-"Cuando visibles, los metadatos se pueden ver en las vitas distintas a la "
+"Cuando están visibles, los metadatos se pueden ver en las vistas distintas a la "
 "vista de edición de publicación (por ejemplo, el calendario, la gestión de "
-"los mensajes, el presupuesto de la historia, etc.)"
+"los mensajes, el planificador de historias, etc.)"
 
 #: modules/editorial-metadata/editorial-metadata.php:1457
 #: modules/editorial-metadata/editorial-metadata.php:1720
