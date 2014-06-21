@@ -53,7 +53,7 @@ msgstr "Privado"
 #: common/php/class-module.php:196 modules/calendar/calendar.php:906
 #: modules/story-budget/story-budget.php:556
 msgid "Trash"
-msgstr "Basura"
+msgstr "Papelera"
 
 #: common/php/class-module.php:388
 msgid "Invalid Taxonomy"
