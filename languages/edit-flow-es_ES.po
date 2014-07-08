@@ -24,7 +24,7 @@ msgstr "Página"
 #: common/php/class-module.php:129 common/php/class-module.php:192
 #: modules/custom-status/custom-status.php:148
 msgid "Draft"
-msgstr "Proyecto"
+msgstr "Borrador"
 
 #: common/php/class-module.php:134 common/php/class-module.php:195
 #: modules/custom-status/custom-status.php:156
