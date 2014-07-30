@@ -28,6 +28,11 @@ jQuery(document).ready(function($) {
 			url : (ajaxurl) ? ajaxurl : wpListL10n.url,
 			data : params,
 			success : function(x) { 
+			// Update the list of users/groups to be notified of new comment
+			// Check for editorialCommentReply, in case EF Comments are disabled
+			if (typeof editorialCommentReply == 'object') {
+				editorialCommentReply.notify();
+			}
 				var backgroundColor = parent_this.css( 'background-color' );
 				$(parent_this.parent().parent())
 					.animate( { 'backgroundColor':'#CCEEBB' }, 200 )
