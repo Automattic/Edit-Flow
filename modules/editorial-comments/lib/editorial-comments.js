@@ -65,6 +65,9 @@ editorialCommentReply = {
 		}
 		
 		jQuery('#ef-comment_respond').hide();
+
+		// Display who will be notified for this comment
+		editorialCommentReply.notify();
 		
 		// Show reply textbox
 		jQuery('#ef-replyrow')
@@ -112,6 +115,45 @@ editorialCommentReply = {
 		});
 
 		return false;
+	},
+
+	/**
+	 * Display who will be notified of the new comment
+	 */
+	notify : function() {
+		var checked_notifiers = [], username = "", message = "";
+
+		// Get notification field and make sure it's empty
+		// If there is no wrapper, we need to get out
+		var message_wrapper = jQuery('#ef-reply-notifier');
+		if (message_wrapper[0]) {
+			message_wrapper.val('');
+		} else {
+			return;
+		}
+
+		// Get checked checkboxes
+		checked_notifiers = jQuery('.ef-post_following_list li input:checkbox:checked');
+
+		if (checked_notifiers.length > 0) {
+			var current_item;
+			// There are checked users/usergroups
+			// Set the class to 'selection-success'
+			message_wrapper.removeClass('ef-none-selected').addClass('ef-selection-success');
+			for (var i = 0; i < checked_notifiers.length; i++) {
+				current_item = checked_notifiers[i];
+				username = jQuery(current_item).next();
+				// Create the message
+				// We don't want a comma on the last item or if there is only one item
+				message += username.html() + ((i === checked_notifiers.length -1 || checked_notifiers.length === 1) ? '' : ', ') ;
+				message_wrapper.val(message);
+			}
+		} else {
+			// There are no checked users/usergroups
+			// Set input class to 'none-selected' and display message
+			message_wrapper.removeClass('ef-selection-success').addClass('ef-none-selected');
+			message_wrapper.val('No one will be notified');
+		}
 	},
 
 	show : function(xml) {

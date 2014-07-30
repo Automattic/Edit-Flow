@@ -197,6 +197,14 @@ class EF_Editorial_Comments extends EF_Module
 				<textarea id="ef-replycontent" name="replycontent" cols="40" rows="5"></textarea>
 			</div>
 		
+			<?php
+			if ($this->module_enabled( 'notifications' )) {
+			// Only show the input if notifications are enabled ?>
+			<label for="ef-reply-notifier">The following will be notified:
+				<input id="ef-reply-notifier" class="ef-reply-notifier-message" readonly>
+			</label>
+			<?php } ?>
+
 			<p id="ef-replysubmit">
 				<a class="ef-replysave button-primary alignright" href="#comments-form">
 					<span id="ef-replybtn"><?php _e('Submit Response', 'edit-flow') ?></span>
