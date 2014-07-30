@@ -299,6 +299,7 @@ class EF_Editorial_Comments extends EF_Module
       	// Set up comment data
 		$post_id = absint( $_POST['post_id'] );
 		$parent = absint( $_POST['parent'] );
+		$notification = $_POST['notification'];
       	
       	// Only allow the comment if user can edit post
       	// @TODO: allow contributers to add comments as well (?)
@@ -339,6 +340,11 @@ class EF_Editorial_Comments extends EF_Module
 			// Insert Comment
 			$comment_id = wp_insert_comment($data);
 			$comment = get_comment($comment_id);
+
+			// Save the list of notified users/usergroups
+			if ($this->module_enabled( 'notifications' )) {
+				add_comment_meta( $comment_id, 'notification_list', $notification, false );
+			}
 			
 			// Register actions -- will be used to set up notifications and other modules can hook into this
 			if ( $comment_id )

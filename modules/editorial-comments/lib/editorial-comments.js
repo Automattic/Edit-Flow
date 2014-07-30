@@ -104,6 +104,8 @@ editorialCommentReply = {
 		post.parent = (jQuery("#ef-comment_parent").val()=='') ? 0 : jQuery("#ef-comment_parent").val();
 		post._nonce = jQuery("#ef_comment_nonce").val();
 		post.post_id = jQuery("#ef-post_id").val();
+		post.notification = (jQuery('#ef-reply-notifier').val() == 'No one will be notified' ||
+					jQuery('#ef-reply-notifier').val() == '') ? 1 : jQuery('#ef-reply-notifier').val()
 		
 		// Send the request
 		jQuery.ajax({
