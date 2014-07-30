@@ -227,6 +227,22 @@ class EF_Editorial_Comments extends EF_Module
 	}
 	
 	/**
+	 * Print a list of notified users/usergroups
+	 */
+	function get_comment_notification_meta($comment_id) {
+		$notification = get_comment_meta( $comment_id, 'notification_list', true );
+		if ($notification) {
+			if ($notification == 1) {
+				// There were no users or user groups selected when this comment was posted
+				$message = '<em>No users or groups were notified</em>';
+			} else {
+				$message = '<strong>Notified:</strong> ' . $notification;
+			}
+			echo '<p class="ef-notification-meta">' . $message . '</p>';
+		}
+	}
+
+	/**
 	 * Displays a single comment
 	 */
 	function the_comment($comment, $args, $depth) {
@@ -276,6 +292,7 @@ class EF_Editorial_Comments extends EF_Module
 				</h5>
 	
 				<div class="comment-content"><?php comment_text(); ?></div>
+				<?php $this->get_comment_notification_meta($comment->comment_ID);	?>
 				<p class="row-actions"><?php echo $actions_string; ?></p>
 	
 			</div>
