@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2014-08-29 14:16-0300\n"
+"PO-Revision-Date: 2014-08-29 14:19-0300\n"
 "Last-Translator: Douglas Moura <douglas.ademoura@gmail.com>\n"
 "Language-Team: Douglas Araujo de Moura <douglas.ademoura@gmail.com>\n"
 "X-Generator: Poedit 1.6.7\n"
@@ -1973,7 +1973,7 @@ msgstr "Não froi possível atualizar o grupo de usuários: <strong>%s</strong>"
 #: modules/user-groups/user-groups.php:575
 #: modules/user-groups/user-groups.php:618
 msgid "The name is used to identify the user group."
-msgstr "O nome é utilizado para identificar o usuário do grupo."
+msgstr "O nome é utilizado para identificar o grupo de usuários."
 
 #: modules/user-groups/user-groups.php:580
 #: modules/user-groups/user-groups.php:623
