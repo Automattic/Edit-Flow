@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2014-08-29 14:10-0300\n"
+"PO-Revision-Date: 2014-08-29 14:13-0300\n"
 "Last-Translator: Douglas Moura <douglas.ademoura@gmail.com>\n"
 "Language-Team: Douglas Araujo de Moura <douglas.ademoura@gmail.com>\n"
 "X-Generator: Poedit 1.6.7\n"
@@ -881,7 +881,7 @@ msgstr "Posts a um relance"
 
 #: modules/dashboard/dashboard.php:179
 msgid "Edit Custom Statuses"
-msgstr "Editar status personalidos"
+msgstr "Editar status personalizados"
 
 #: modules/dashboard/dashboard.php:204
 #: modules/story-budget/story-budget.php:554
