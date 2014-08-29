@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2014-08-29 14:13-0300\n"
+"PO-Revision-Date: 2014-08-29 14:16-0300\n"
 "Last-Translator: Douglas Moura <douglas.ademoura@gmail.com>\n"
 "Language-Team: Douglas Araujo de Moura <douglas.ademoura@gmail.com>\n"
 "X-Generator: Poedit 1.6.7\n"
@@ -461,9 +461,9 @@ msgid ""
 "can change existing or add new ones anytime, and drag and drop to change "
 "their order."
 msgstr ""
-"Cree sus própios status de publicação para agragar a estrutura ao seu fluxo "
+"Cree sus própios status de publicação para agregar a estrutura ao seu fluxo "
 "de trabalho editorial. Você pode modificar os existentes ou adicionar novos "
-"a qualquer momento, e arrastrar e soltar para alterar a ordem."
+"a qualquer momento, e arrastar e soltar para alterar a ordem."
 
 #: modules/custom-status/custom-status.php:46
 msgid "Edit Statuses"
@@ -699,7 +699,7 @@ msgstr "Utilizar neste tipo de posts:"
 
 #: modules/custom-status/custom-status.php:1075
 msgid "Always show dropdown:"
-msgstr "Sempre mostrar menu dropdown:"
+msgstr "Sempre mostrar o menu dropdown:"
 
 #: modules/custom-status/custom-status.php:1160
 msgid "Custom Status"
@@ -932,7 +932,7 @@ msgid ""
 msgstr ""
 "Utilizar comentários editoriais para manter uma discussão sobre o post. "
 "Comunique-se diretamente com seus escritores ou editores sobre o que "
-"funciona e o que precisa ser melhorado para cada peça"
+"funciona e o que precisa ser melhorado para cada peça."
 
 #: modules/editorial-comments/editorial-comments.php:36
 msgid "Choose Post Types"
@@ -1040,11 +1040,11 @@ msgstr "Habilitar ara estes tipo de posts:"
 #: modules/editorial-metadata/editorial-metadata.php:42
 #: modules/editorial-metadata/editorial-metadata.php:342
 msgid "Editorial Metadata"
-msgstr "Metadatos Editoriais"
+msgstr "Metadados Editoriais"
 
 #: modules/editorial-metadata/editorial-metadata.php:43
 msgid "Track details about your posts in progress."
-msgstr "Ratrear detalhes sobre seus posts em progresso"
+msgstr "Rastrear detalhes sobre seus posts em progresso"
 
 #: modules/editorial-metadata/editorial-metadata.php:44
 msgid ""
@@ -1053,7 +1053,7 @@ msgid ""
 "location to contact information to role assignments."
 msgstr ""
 "Registre detalhes para cada atribuição usando metadados editoriais "
-"configuráveis. É completamente customizável; crie campos deste datade "
+"configuráveis. É completamente customizável; crie campos deste data de "
 "vencimento a local para conseguir informações para atribuições de função."
 
 #: modules/editorial-metadata/editorial-metadata.php:56
