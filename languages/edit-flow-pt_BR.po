@@ -8,7 +8,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2014-08-29 13:40-0300\n"
+"PO-Revision-Date: 2014-08-29 14:10-0300\n"
 "Last-Translator: Douglas Moura <douglas.ademoura@gmail.com>\n"
 "Language-Team: Douglas Araujo de Moura <douglas.ademoura@gmail.com>\n"
 "X-Generator: Poedit 1.6.7\n"
@@ -856,8 +856,8 @@ msgid ""
 "Enable dashboard widgets to quickly get an overview of what state your "
 "content is in."
 msgstr ""
-"Habilitar widgets do painel para ter uma rápida visão geral dos estado do "
-"seu conteúdo."
+"Habilitar widgets do painel para ter uma rápida visão geral do estado do seu "
+"conteúdo."
 
 #: modules/dashboard/dashboard.php:43
 msgid "Widget Options"
@@ -873,7 +873,7 @@ msgstr "Bloco de notas"
 
 #: modules/dashboard/dashboard.php:129 modules/dashboard/dashboard.php:225
 msgid "Posts I'm Following"
-msgstr "Post que sigo"
+msgstr "Posts que sigo"
 
 #: modules/dashboard/dashboard.php:154
 msgid "Posts at a Glance"
