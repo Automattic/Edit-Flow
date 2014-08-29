@@ -417,10 +417,10 @@ jQuery(document).ready(function($) {
 	function submitbox_followers_message() {
 		?>
 		<hr>
-		<div class="misc-pub-section misc-pub-follower-count" id="follower-count">Followers: <span id="post-follower-count-display"></span>
+		<div class="misc-pub-section misc-pub-follower-count" id="follower-count"><?php _e('Followers', 'edit-flow'); ?>: <span id="post-follower-count-display"></span>
 			<a href="#edit-flow-notifications">
-				<span aria-hidden="true">Edit</span>
-				<span class="screen-reader-text">Edit followers</span>
+				<span aria-hidden="true"><?php _e('Edit', 'edit-flow'); ?></span>
+				<span class="screen-reader-text"><?php _e('Edit followers', 'edit-flow'); ?></span>
 			</a>
 		</div>
 		<?php
