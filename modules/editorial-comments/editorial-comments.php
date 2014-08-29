@@ -200,7 +200,7 @@ class EF_Editorial_Comments extends EF_Module
 			<?php
 			if ($this->module_enabled( 'notifications' )) {
 			// Only show the input if notifications are enabled ?>
-			<label for="ef-reply-notifier">The following will be notified:
+			<label for="ef-reply-notifier"><?php _e('The following will be notified:', 'edit-flow'); ?>
 				<input id="ef-reply-notifier" class="ef-reply-notifier-message" readonly>
 			</label>
 			<?php } ?>
@@ -234,9 +234,9 @@ class EF_Editorial_Comments extends EF_Module
 		if ($notification) {
 			if ($notification == 1) {
 				// There were no users or user groups selected when this comment was posted
-				$message = '<em>No users or groups were notified</em>';
+				$message = '<em>'.__('No users or groups were notified', 'edit-flow').'</em>';
 			} else {
-				$message = '<strong>Notified:</strong> ' . $notification;
+				$message = '<strong>'.__('Notified', 'edit-flow').':</strong> ' . $notification;
 			}
 			echo '<p class="ef-notification-meta">' . $message . '</p>';
 		}
