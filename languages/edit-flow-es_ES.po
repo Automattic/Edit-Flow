@@ -15,7 +15,7 @@ msgstr ""
 
 #: common/php/class-module.php:42
 msgid "Post"
-msgstr "Publicación"
+msgstr "Entrada"
 
 #: common/php/class-module.php:43
 msgid "Page"
@@ -24,7 +24,7 @@ msgstr "Página"
 #: common/php/class-module.php:129 common/php/class-module.php:192
 #: modules/custom-status/custom-status.php:148
 msgid "Draft"
-msgstr "Proyecto"
+msgstr "Borrador"
 
 #: common/php/class-module.php:134 common/php/class-module.php:195
 #: modules/custom-status/custom-status.php:156
@@ -36,7 +36,7 @@ msgstr "Pendiente de Revisión"
 #: modules/custom-status/custom-status.php:388
 #: modules/story-budget/story-budget.php:742
 msgid "Published"
-msgstr "Publicado"
+msgstr "Publicada"
 
 #: common/php/class-module.php:193 modules/calendar/calendar.php:967
 #: modules/calendar/calendar.php:1658
@@ -44,11 +44,11 @@ msgstr "Publicado"
 #: modules/dashboard/dashboard.php:144
 #: modules/story-budget/story-budget.php:740
 msgid "Scheduled"
-msgstr "Programado"
+msgstr "Programada"
 
 #: common/php/class-module.php:194
 msgid "Private"
-msgstr "Privado"
+msgstr "Privada"
 
 #: common/php/class-module.php:196 modules/calendar/calendar.php:906
 #: modules/story-budget/story-budget.php:556
@@ -73,14 +73,12 @@ msgstr "Configuración actualizada."
 
 #: edit_flow.php:229
 msgid "Please correct your form errors below and try again."
-msgstr ""
-"Por favor, corrija los errores del siguiente formulario y vuelva a "
-"intentarlo."
+msgstr "Por favor, corrija los errores y vuelva a intentarlo."
 
 #: edit_flow.php:230 modules/settings/settings.php:107
 #: modules/settings/settings.php:362
 msgid "Cheatin&#8217; uh?"
-msgstr "¿Haciendo &#8217; trampa, eh?"
+msgstr "¿Haciendo trampa, eh?"
 
 #: edit_flow.php:231
 msgid "You do not have necessary permissions to complete this action."
@@ -88,7 +86,7 @@ msgstr "Usted no tiene los permisos necesarios para completar esta acción."
 
 #: edit_flow.php:232
 msgid "Post does not exist"
-msgstr "La publicación no existe"
+msgstr "La entrada no existe"
 
 #: modules/calendar/calendar.php:32 modules/calendar/calendar.php:160
 #: modules/calendar/calendar.php:612
@@ -107,25 +105,25 @@ msgid ""
 "Filter by status or click on the post title to see its details. Drag and "
 "drop posts between days to change their publication date date."
 msgstr ""
-"El calendario Edit Flow le permite ver sus mensajes durante un rango de "
+"El calendario de Edit Flow le permite ver sus entradas durante un rango de "
 "fechas personalizable. Filtre por estado o haga clic en el título de la "
 "entrada para ver sus detalles. Arrastre y suelte los mensajes entre días "
 "para cambiar la fecha de su publicación."
 
 #: modules/calendar/calendar.php:50
 msgid "Post date updated."
-msgstr "Fecha de la publicación actualizada."
+msgstr "Fecha de la entrada actualizada."
 
 #: modules/calendar/calendar.php:51
 msgid "There was an error updating the post. Please try again."
-msgstr "Hubo un error al actualizar la publicación. Por favor, inténtelo de nuevo."
+msgstr "Hubo un error al actualizar la entrada. Por favor, inténtelo de nuevo."
 
 #: modules/calendar/calendar.php:52
 msgid ""
 "Updating the post date dynamically doesn't work for published content. "
 "Please <a href='%s'>edit the post</a>."
 msgstr ""
-"Actualizar la fecha de la publicación en forma dinámica no funciona para el "
+"Actualizar la fecha de la publicación de forma dinámica no funciona para el "
 "contenido publicado. Por favor, <a href='%s'> edite la publicación </a>."
 
 #: modules/calendar/calendar.php:53
@@ -133,7 +131,7 @@ msgid ""
 "iCal secret key regenerated. Please inform all users they will need to "
 "resubscribe."
 msgstr ""
-"Clave secreta iCal regenerada. Por favor, informe a todos los usuarios de que "
+"Clave secreta de iCal regenerada. Por favor, informe a todos los usuarios de que "
 "tendrán que volver a suscribirse."
 
 #: modules/calendar/calendar.php:56 modules/calendar/calendar.php:88
@@ -165,11 +163,10 @@ msgid ""
 "wordpress.org/tags/edit-flow?forum_id=10\">Edit Flow Forum</a></p><p><a href="
 "\"https://github.com/danielbachhuber/Edit-Flow\">Edit Flow on Github</a></p>"
 msgstr ""
-"p><strong> Para más información  </strong></p><p><a href=\"http://editflow."
+"p><strong> Para más información:</strong></p><p><a href=\"http://editflow."
 "org/features/calendar/\">Documentación del Calendario</a></p><p><a href="
-"\"http://wordpress.org/tags/edit-flow?forum_id=10\">Foro Edit Flow </a></"
-"p><p><a href=\"https://github.com/danielbachhuber/Edit-Flow\">Edit Flow en "
-"Github</a></p>"
+"\"http://wordpress.org/tags/edit-flow?forum_id=10\">Foro Edit Flow </a></p>"
+"<p><a href=\"https://github.com/danielbachhuber/Edit-Flow\">Edit Flow en Github</a></p>"
 
 #: modules/calendar/calendar.php:214
 msgid "Number of Weeks: "
@@ -190,8 +187,8 @@ msgstr "Algo está mal en el formato para la nueva fecha."
 #: modules/calendar/calendar.php:621
 msgid "Post moved to the trash."
 msgid_plural "%d posts moved to the trash."
-msgstr[0] "Publicación movida a la papelera"
-msgstr[1] "%d publicaciones movidas a la papelera"
+msgstr[0] "Entrada movida a la papelera"
+msgstr[1] "%d entradas movidas a la papelera"
 
 #: modules/calendar/calendar.php:625 modules/story-budget/story-budget.php:594
 msgid "Undo"
