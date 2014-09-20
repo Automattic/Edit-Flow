@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: Edit Flow Spanish\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Edit-Flow\n"
 "POT-Creation-Date: 2013-11-02 01:35:45+00:00\n"
-"PO-Revision-Date: 2014-09-20 00:26+0100\n"
+"PO-Revision-Date: 2014-09-20 02:12+0100\n"
 "Last-Translator: jelena kovacevic <jecajeca260@gmail.com>\n"
 "Language-Team: m0uch0 <djoser.horus@gmail.com>\n"
 "Language: es_ES\n"
@@ -100,7 +100,7 @@ msgstr "Calendario"
 #: modules/calendar/calendar.php:33
 msgid "View upcoming content in a <a href=\"%s\">customizable calendar</a>."
 msgstr ""
-"Ver los próximos contenidos en un <a href=\"%s\"> calendario personalizable "
+"Vea los próximos contenidos en un <a href=\"%s\"> calendario personalizable "
 "</a>."
 
 #: modules/calendar/calendar.php:34
@@ -140,7 +140,7 @@ msgstr ""
 
 #: modules/calendar/calendar.php:56 modules/calendar/calendar.php:88
 msgid "Calendar Options"
-msgstr "Opciones del calendario"
+msgstr "Opciones"
 
 #: modules/calendar/calendar.php:59 modules/custom-status/custom-status.php:58
 #: modules/editorial-comments/editorial-comments.php:40
@@ -864,7 +864,7 @@ msgstr ""
 
 #: modules/dashboard/dashboard.php:43
 msgid "Widget Options"
-msgstr "Opciones de Widget"
+msgstr "Opciones"
 
 #: modules/dashboard/dashboard.php:121
 msgid "Unpublished Content"
@@ -939,7 +939,7 @@ msgstr ""
 
 #: modules/editorial-comments/editorial-comments.php:36
 msgid "Choose Post Types"
-msgstr "Elija Tipos de Entrada"
+msgstr "Tipos de Entrada"
 
 #: modules/editorial-comments/editorial-comments.php:41
 msgid ""
@@ -1895,7 +1895,7 @@ msgstr "Grupo de usuarios eliminado."
 
 #: modules/user-groups/user-groups.php:60
 msgid "Manage User Groups"
-msgstr "Administrar Grupos de Usuarios"
+msgstr "Administrar"
 
 #: modules/user-groups/user-groups.php:65
 msgid ""
