@@ -415,12 +415,14 @@ class EF_Custom_Status extends EF_Module {
 
  			$post_type_obj = get_post_type_object( $this->get_current_post_type() );
 			
+			$default_custom_status = $this->get_default_custom_status()->slug;
+			
 			// Now, let's print the JS vars
 			?>
 			<script type="text/javascript">
 				var custom_statuses = <?php echo json_encode( $all_statuses ); ?>;
 				var ef_text_no_change = '<?php echo esc_js( __( "&mdash; No Change &mdash;" ) ); ?>';
-				var ef_default_custom_status = '<?php echo esc_js( $this->get_default_custom_status()->slug ); ?>';
+				var ef_default_custom_status = '<?php echo esc_js( $default_custom_status ); ?>';
 				var current_status = '<?php echo esc_js( $selected ); ?>';
 				var current_status_name = '<?php echo esc_js( $selected_name ); ?>';
 				var status_dropdown_visible = <?php echo esc_js( $always_show_dropdown ); ?>;
@@ -637,8 +639,10 @@ class EF_Custom_Status extends EF_Module {
 	 */
 	function get_default_custom_status() {
 		$default_status = $this->get_custom_status_by( 'slug', $this->module->options->default_status );
-		if ( ! $default_status )
-			$default_status = array_shift( $this->get_custom_statuses() );
+		if ( ! $default_status ) {
+			$custom_statuses = $this->get_custom_statuses();
+			$default_status = array_shift( $custom_statuses );
+		}
 		return $default_status;
 		
 	}
