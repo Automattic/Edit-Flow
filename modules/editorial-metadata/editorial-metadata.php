@@ -1204,7 +1204,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		
 		$term_id = (int) $_POST['term_id'];
 		if ( !$existing_term = $this->get_editorial_metadata_term_by( 'id', $term_id ) )
-			die( $this->module->messsage['term-error'] );
+			die( $this->module->messages['term-error'] );
 		
 		$metadata_name = sanitize_text_field( trim( $_POST['name'] ) );
 		$metadata_description = stripslashes( wp_filter_post_kses( trim( $_POST['description'] ) ) );
