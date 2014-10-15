@@ -1089,7 +1089,7 @@ class EF_Editorial_Metadata extends EF_Module {
 			wp_die( $this->module->messages['invalid-permissions'] );			
 		
 		if ( !$existing_term = $this->get_editorial_metadata_term_by( 'id', (int)$_GET['term-id'] ) )
-			wp_die( $this->module->messsage['term-error'] );			
+			wp_die( $this->module->messages['term-error'] );			
 		
 		$new_name = sanitize_text_field( trim( $_POST['name'] ) );
 		$new_description = stripslashes( wp_filter_post_kses( strip_tags( trim( $_POST['description'] ) ) ) );
