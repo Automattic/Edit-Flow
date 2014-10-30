@@ -6,7 +6,7 @@ jQuery(document).ready(function($) {
 		post_id: $('#post_ID').val(),
 	};
 
-	$('.ef-post_following_list li input:checkbox, .ef-following_usergroups li input:checkbox').click(function() {
+	$('.ef-post_following_list li input[type="checkbox"], .ef-following_usergroups li input[type="checkbox"]').click(function() {
 		var user_group_ids = [];
 		var parent_this = $(this);
 		params.ef_notifications_name = $(this).attr('name');
