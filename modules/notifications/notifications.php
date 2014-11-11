@@ -964,8 +964,10 @@ jQuery(document).ready(function($) {
 					break;
 			}
 			$new_user = get_user_by( $search, $user );
-			if ( ! $new_user || ! is_user_member_of_blog( $new_user->ID ) )
+			if ( ! $new_user || ! is_user_member_of_blog( $new_user->ID ) ) {
+				unset( $users[ $key ] );
 				continue;
+			}
 			switch( $return ) {
 				case 'user_login':
 					$users[$key] = $new_user->user_login;
