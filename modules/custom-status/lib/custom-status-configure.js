@@ -46,7 +46,7 @@ inlineEditCustomStatus = {
 
 		$(':input[name="name"]', editRow).val( $('.name', rowData).text() );
 		$(':input[name="description"]', editRow).val( $('.description', rowData).text() );
-		
+
 		$(editRow).attr('id', 'edit-'+id).addClass('inline-editor').show();
 		$('.ptitle', editRow).eq(0).focus();
 
@@ -65,9 +65,9 @@ inlineEditCustomStatus = {
 			action: 'inline_save_status',
 			status_id: id,
 		};
-		
+
 		fields = $('#edit-'+id+' :input').serialize();
-		params = fields + '&' + $.param(params);		
+		params = fields + '&' + $.param(params);
 
 
 		// make ajax request
@@ -116,12 +116,12 @@ $(document).ready(function(){inlineEditCustomStatus.init();});
 })(jQuery);
 
 jQuery(document).ready(function(){
-	
+
 	jQuery('.delete-status a').click(function(){
 		if ( !confirm( ef_confirm_delete_status_string ) )
 			return false;
 	});
-	
+
 	/**
 	 * Instantiate the drag and drop sorting functionality
 	 */
@@ -162,5 +162,5 @@ jQuery(document).ready(function(){
 		},
 	});
 	jQuery( "#the-list tr.term-static" ).disableSelection();
-	
+
 });
