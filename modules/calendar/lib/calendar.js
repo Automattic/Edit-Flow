@@ -43,7 +43,7 @@ jQuery(document).ready(function ($) {
 
 
 	function reset_editorial_metadata() {
-		$('.editing').removeClass('editing')
+		$('.dashboard_page_calendar').find('.editing').removeClass('editing')
 			.addClass('hidden')
 			.prev()
 			.removeClass('hidden');
