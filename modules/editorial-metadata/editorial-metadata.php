@@ -144,6 +144,7 @@ class EF_Editorial_Metadata extends EF_Module {
 				'name' => __( 'Needs Photo', 'edit-flow' ),
 				'slug' => 'needs-photo',
 				'type' => 'checkbox',
+				'default' => 'no',
 				'description' => __( 'Checked if this post needs a photo.', 'edit-flow' ),
 			),
 			array(
@@ -362,7 +363,8 @@ class EF_Editorial_Metadata extends EF_Module {
 		echo "<div id='" . self::metadata_taxonomy . "_meta_box'>";
 		// Add nonce for verification upon save
 		echo "<input type='hidden' name='" . self::metadata_taxonomy . "_nonce' value='" . wp_create_nonce(__FILE__) . "' />";
-	
+
+		$is_new_post = ( get_current_screen()->action == 'add' );
 		$terms = $this->get_editorial_metadata_terms();
 		if ( !count( $terms ) ) {
 			$message = __( 'No editorial metadata available.' );
@@ -374,7 +376,10 @@ class EF_Editorial_Metadata extends EF_Module {
 		} else {
 			foreach ( $terms as $term ) {
 				$postmeta_key = $this->get_postmeta_key( $term );
-				$current_metadata = esc_attr( $this->get_postmeta_value( $term, $post->ID ) );
+				if ( $is_new_post )
+					$current_metadata = $term->default;
+				else
+					$current_metadata = esc_attr( $this->get_postmeta_value( $term, $post->ID ) );
 				$type = $term->type;
 				$description = $term->description;
 				if ( $description )
@@ -1053,9 +1058,10 @@ class EF_Editorial_Metadata extends EF_Module {
 			$_REQUEST['form-errors']['type'] = __( 'Please select a valid metadata type.', 'edit-flow' );
 		// Metadata default value needs to be a valid Yes or No if type is checkbox
 		if ( $term_type == 'checkbox' ) {
-			$term_default = false;
 			if ( $term_default == 'yes' )
 				$term_default = true;
+			else
+				$term_default = false;
 		}
 		// Metadata viewable needs to be a valid Yes or No
 		$term_viewable = false;
@@ -1139,11 +1145,12 @@ class EF_Editorial_Metadata extends EF_Module {
 		// Check that the term name doesn't exceed 200 chars
 		if ( strlen( $new_name ) > 200 )
 			$_REQUEST['form-errors']['name'] = __( 'Name cannot exceed 200 characters. Please try a shorter name.', 'edit-flow' );
+
 		// Make sure default value is a valid Yes or No if type is checkbox
 		if ( $existing_term->type == 'checkbox' ) {
-			$term_default = false;
-			if ( $term_default == 'yes' )
-				$term_default = true;
+			$new_default = false;
+			if ( $_POST['default'] == 'yes' )
+				$new_default = true;
 		}
 		// Make sure the viewable state is valid
 		$new_viewable = false;
@@ -1432,9 +1439,10 @@ class EF_Editorial_Metadata extends EF_Module {
 			$description = ( isset( $_POST['description'] ) ) ? stripslashes( $_POST['description'] ) : $term->description;
 			$default = ( isset( $_POST['default'] ) ) ? stripslashes( $_POST['default'] ) : $term->default;
 			if ( $type == 'checkbox' ) {
-				$default = false;
-				if ( $default == 'yes' )
-					$default = true;
+				if ( $term->default )
+					$default = 'yes';
+				else
+					$default = 'no';
 			}
 			if ( $term->viewable )
 				$viewable = 'yes';
@@ -1488,17 +1496,41 @@ class EF_Editorial_Metadata extends EF_Module {
 						'yes' => __( 'Checked', 'edit-flow' ),
 					);
 					?>
-					<select id="viewable" name="viewable">
+					<select id="default" name="default">
 						<?php foreach ( $metadata_default_options as $metadata_default_key => $metadata_default_value ) : ?>
 							<option value="<?php echo esc_attr( $metadata_default_key ); ?>" <?php selected( $default, $metadata_default_key ); ?>><?php echo esc_attr( $metadata_default_value ); ?></option>
 						<?php endforeach; ?>
 					</select>
-					<?php $edit_flow->settings->helper_print_error_or_description( 'default', __( 'The default is for optionally giving a metadata field a default value.', 'edit-flow' ) ); ?>
+					<?php elseif ( $type == 'paragraph' ): ?>
+					<textarea name="default" id="default" rows="5" cols="50" style="width: 97%;"><?php echo esc_html( $default ); ?></textarea>
+					<?php elseif ( $type == 'user' ): ?>
+					<?php
+					$user_dropdown_args = array(
+						'show_option_all' => __( '-- Select a user --', 'edit-flow' ),
+						'id'     => 'default',
+						'name'     => 'default',
+						'selected' => $default
+					);
+					$user_dropdown_args = apply_filters( 'ef_editorial_metadata_user_dropdown_args', $user_dropdown_args );
+					wp_dropdown_users( $user_dropdown_args );
+					?>
 					<?php else: ?>
-					<th scope="row" valign="top"><label for="default"><?php _e( 'Default' ); ?></label></th>
-					<td><input name="default" id="default" type="text" value="<?php echo esc_attr( $default ); ?>" size="40" aria-required="false" />
-					<?php $edit_flow->settings->helper_print_error_or_description( 'default', __( 'The default is for optionally giving a metadata field a default value.', 'edit-flow' ) ); ?>
+					<?php
+					switch ( $type ) {
+						case 'date':
+							$input_type = 'date';
+							break;
+						case 'number':
+							$input_type = 'number';
+							break;
+						default:
+							$input_type = 'text';
+							break;
+					}
+					?>
+					<input name="default" id="default" type="<?php echo $input_type; ?>" value="<?php echo esc_attr( $default ); ?>" size="40" aria-required="false" />
 					<?php endif; ?>
+					<?php $edit_flow->settings->helper_print_error_or_description( 'default', __( 'The default is for optionally giving a metadata field a default value.', 'edit-flow' ) ); ?>
 				</td>
 			</tr>
 			<tr class="form-field">
@@ -1577,7 +1609,7 @@ class EF_Editorial_Metadata extends EF_Module {
 				<?php $edit_flow->settings->helper_print_error_or_description( 'type', __( 'Indicate the type of editorial metadata.', 'edit-flow' ) ); ?>
 			</div>
 			<div class="form-field form-required">
-				<label for="metadata_viewable"><?php _e( 'Default', 'edit-flow' ); ?></label>
+				<label for="metadata_default_checkbox"><?php _e( 'Default', 'edit-flow' ); ?></label>
 				<input type="hidden" id="metadata_default" name="metadata_default" value="" />
 				<?php
 				$metadata_default_options = array(
@@ -1591,7 +1623,17 @@ class EF_Editorial_Metadata extends EF_Module {
 						<option value="<?php echo esc_attr( $metadata_default_key ); ?>" <?php selected( $current_metadata_default, $metadata_default_key ); ?>><?php echo esc_attr( $metadata_default_value ); ?></option>
 					<?php endforeach; ?>
 				</select>
-				<input type="text" aria-required="true" size="20" maxlength="200" id="metadata_default_text" value="<?php if ( !empty( $_POST['metadata_default'] ) ) echo esc_attr( stripslashes( $_POST['metadata_default'] ) ) ?>" />
+				<input type="text" size="20" maxlength="200" id="metadata_default_input" value="<?php if ( !empty( $_POST['metadata_default'] ) ) echo esc_attr( stripslashes( $_POST['metadata_default'] ) ) ?>" />
+				<textarea cols="40" rows="5" id="metadata_default_textarea"><?php if ( !empty( $_POST['metadata_default'] ) ) echo esc_html( stripslashes( $_POST['metadata_default'] ) ) ?></textarea>
+				<?php
+				$user_dropdown_args = array(
+					'show_option_all' => __( '-- Select a user --', 'edit-flow' ),
+					'id'     => 'metadata_default_user',
+					'selected' => $current_metadata_default
+				);
+				$user_dropdown_args = apply_filters( 'ef_editorial_metadata_user_dropdown_args', $user_dropdown_args );
+				wp_dropdown_users( $user_dropdown_args );
+				?>
 				<?php $edit_flow->settings->helper_print_error_or_description( 'default', __( 'The default is for optionally giving a metadata field a default value.', 'edit-flow' ) ); ?>
 			</div>
 			<div class="form-field form-required">
