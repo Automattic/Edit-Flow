@@ -1,14 +1,14 @@
 language: php
 
 php:
-    - 5.2
     - 5.3
     - 5.4
-    - 5.5
 
 env:
     - WP_VERSION=latest WP_MULTISITE=0
     - WP_VERSION=latest WP_MULTISITE=1
+    - WP_VERSION=4.1 WP_MULTISITE=0
+    - WP_VERSION=4.1 WP_MULTISITE=1
     - WP_VERSION=4.0 WP_MULTISITE=0
     - WP_VERSION=4.0 WP_MULTISITE=1
     - WP_VERSION=3.9 WP_MULTISITE=0
