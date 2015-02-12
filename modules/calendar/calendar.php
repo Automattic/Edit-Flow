@@ -821,6 +821,7 @@ class EF_Calendar extends EF_Module {
 		$cache_val = wp_cache_get( $cache_key, self::$post_li_html_cache_key );
 		// Because $num is pertinent to the display of the post LI, need to make sure that's what's in cache
 		if ( is_array( $cache_val ) && $cache_val['num'] == $num ) {
+			$this->hidden = $cache_val['hidden'];
 			return $cache_val['post_li_html'];
 		}
 
@@ -874,6 +875,7 @@ class EF_Calendar extends EF_Module {
 		$post_li_cache = array(
 			'num' => $num,
 			'post_li_html' => $post_li_html,
+			'hidden' => $this->hidden,
 			);
 		wp_cache_set( $cache_key, $post_li_cache, self::$post_li_html_cache_key );
 
