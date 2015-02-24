@@ -1135,7 +1135,7 @@ jQuery(document).ready(function($) {
 	*/
 	private function get_scheduled_datetime( $post ) {
 			
-			$scheduled_ts = strtotime( $post->post_date_gmt );
+			$scheduled_ts = strtotime( $post->post_date );
 
 			$date = date_i18n( get_option( 'date_format' ), $scheduled_ts );
 			$time = date_i18n( get_option( 'time_format' ), $scheduled_ts );
