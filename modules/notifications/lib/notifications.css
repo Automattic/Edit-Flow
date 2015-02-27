@@ -92,3 +92,7 @@
 #ef-usergroup-users h4 {
 	margin-top: 0;
 }
+
+.misc-pub-follower-count span {
+	font-weight: bold;
+}

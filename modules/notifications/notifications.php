@@ -78,6 +78,7 @@ class EF_Notifications extends EF_Module {
 		add_action( 'ef_post_insert_editorial_comment', array( $this, 'notification_comment') );
 		add_action( 'delete_user',  array($this, 'delete_user_action') );
 		add_action( 'ef_send_scheduled_email', array( $this, 'send_single_email' ), 10, 4 );
+		add_action( 'post_submitbox_misc_actions', array($this, 'submitbox_followers_message') );
 		
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		
@@ -410,6 +411,20 @@ jQuery(document).ready(function($) {
 		$this->print_ajax_response( 'success', (object)$this->get_follow_action_parts( $post ) );
 	}
 
+	/**
+	 * Set up the submit box for displaying the number of users/user groups following a page/post
+	 */
+	function submitbox_followers_message() {
+		?>
+		<hr>
+		<div class="misc-pub-section misc-pub-follower-count" id="follower-count"><?php _e('Followers', 'edit-flow'); ?>: <span id="post-follower-count-display"></span>
+			<a href="#edit-flow-notifications">
+				<span aria-hidden="true"><?php _e('Edit', 'edit-flow'); ?></span>
+				<span class="screen-reader-text"><?php _e('Edit followers', 'edit-flow'); ?></span>
+			</a>
+		</div>
+		<?php
+	}
 
 	/**
 	 * Called when post is saved. Handles saving of user/usergroup followers
