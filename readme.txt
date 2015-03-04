@@ -10,6 +10,8 @@ Redefining your editorial workflow.
 
 == Description ==
 
+[![Build Status](https://travis-ci.org/Automattic/Edit-Flow.svg?branch=master)](https://travis-ci.org/Automattic/Edit-Flow)
+
 Edit Flow empowers you to collaborate with your editorial team inside WordPress. We've made it modular so you can customize it to your needs:
 
 * [Calendar](http://editflow.org/features/calendar/) - A convenient month-by-month look at your content.
