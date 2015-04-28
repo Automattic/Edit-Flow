@@ -1326,7 +1326,8 @@ class EF_Custom_Status extends EF_Module {
 		// Don't run this if Edit Flow isn't active, or we're on some other page
 		if ( $this->disable_custom_statuses_for_post_type()
 			|| ! isset( $edit_flow )
-			|| empty( $_POST ) )
+			|| empty( $_POST ) 
+			|| ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) )
 			return $data;
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
 		$ef_normalize_post_date_gmt = true;
