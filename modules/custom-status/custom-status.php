@@ -1327,7 +1327,7 @@ class EF_Custom_Status extends EF_Module {
 		if ( $this->disable_custom_statuses_for_post_type()
 			|| ! isset( $edit_flow )
 			|| empty( $_POST ) 
-			|| ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) ) )
+			|| ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) )
 			return $data;
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
 		$ef_normalize_post_date_gmt = true;
