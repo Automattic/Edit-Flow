@@ -1339,7 +1339,7 @@ class EF_Calendar extends EF_Module {
 			$last_date = date( 'F jS, Y', $last_datetime );
 		else
 			$last_date = date( 'F jS', $last_datetime );
-		echo sprintf( __( 'for %1$s through %2$s'), $first_date, $last_date );
+		echo sprintf( __( 'for %1$s through %2$s', 'edit-flow' ), $first_date, $last_date );
 	}
 	
 	/**
