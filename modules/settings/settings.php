@@ -103,7 +103,7 @@ class EF_Settings extends EF_Module {
 		global $edit_flow;
 		
 		if ( !wp_verify_nonce( $_POST['change_module_nonce'], 'change-edit-flow-module-nonce' ) || !current_user_can( 'manage_options') )
-			wp_die( __( 'Cheatin&#8217; uh?' ) );
+			wp_die( __( 'Cheatin&#8217; uh?', 'edit-flow' ) );
 	
 		if ( !isset( $_POST['module_action'], $_POST['slug'] ) )
 			die('-1');
@@ -312,8 +312,8 @@ class EF_Settings extends EF_Module {
 	function helper_option_custom_post_type( $module, $args = array() ) {
 		
 		$all_post_types = array(
-			'post' => __( 'Posts' ),
-			'page' => __( 'Pages' ),
+			'post' => __( 'Posts', 'edit-flow' ),
+			'page' => __( 'Pages', 'edit-flow' ),
 		);
 		$custom_post_types = $this->get_supported_post_types_for_module();
 		if ( count( $custom_post_types ) ) {
@@ -358,7 +358,7 @@ class EF_Settings extends EF_Module {
 			return false;
 		
 		if ( !current_user_can( 'manage_options' ) || !wp_verify_nonce( $_POST['_wpnonce'], $edit_flow->$module_name->module->options_group_name . '-options' ) )
-			wp_die( __( 'Cheatin&#8217; uh?' ) );			
+			wp_die( __( 'Cheatin&#8217; uh?', 'edit-flow' ) );			
 	
 		$new_options = ( isset( $_POST[$edit_flow->$module_name->module->options_group_name] ) ) ? $_POST[$edit_flow->$module_name->module->options_group_name] : array();
 

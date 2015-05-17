@@ -344,7 +344,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		if ( current_user_can( 'manage_options' ) ) {
 			// Make the metabox title include a link to edit the Editorial Metadata terms. Logic similar to how Core dashboard widgets work.
 			$url = add_query_arg( 'page', 'ef-editorial-metadata-settings', get_admin_url( null, 'admin.php' ) );
-			$title .= ' <span class="postbox-title-action"><a href="' . esc_url( $url ) . '" class="edit-box open-box">' . __( 'Configure' ) . '</a></span>';
+			$title .= ' <span class="postbox-title-action"><a href="' . esc_url( $url ) . '" class="edit-box open-box">' . __( 'Configure', 'edit-flow' ) . '</a></span>';
 		}
 
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
@@ -365,11 +365,11 @@ class EF_Editorial_Metadata extends EF_Module {
 	
 		$terms = $this->get_editorial_metadata_terms();
 		if ( !count( $terms ) ) {
-			$message = __( 'No editorial metadata available.' );
+			$message = __( 'No editorial metadata available.', 'edit-flow' );
 			if ( current_user_can( 'manage_options' ) )
-				$message .= sprintf( __( ' <a href="%s">Add fields to get started</a>.' ), $this->get_link() );
+				$message .= sprintf( __( ' <a href="%s">Add fields to get started</a>.', 'edit-flow' ), $this->get_link() );
 			else 
-				$message .= __( ' Encourage your site administrator to configure your editorial workflow by adding editorial metadata.' );
+				$message .= __( ' Encourage your site administrator to configure your editorial workflow by adding editorial metadata.', 'edit-flow' );
 			echo '<p>' . $message . '</p>';
 		} else {
 			foreach ( $terms as $term ) {
@@ -1040,7 +1040,8 @@ class EF_Editorial_Metadata extends EF_Module {
 			$_REQUEST['form-errors']['slug'] = __( 'Slug already in use. Please choose another.', 'edit-flow' );
 		// Check to make sure the status doesn't already exist as another term because otherwise we'd get a weird slug
 		// Check that the term name doesn't exceed 200 chars
-		if ( strlen( $term_name ) > 200 )
+		// mb for i18n
+		if ( mb_strlen( $term_name ) > 200 )
 			$_REQUEST['form-errors']['name'] = __( 'Name cannot exceed 200 characters. Please try a shorter name.', 'edit-flow' );
 		// Metadata type needs to pass our whitelist check
 		$metadata_types = $this->get_supported_metadata_types();
@@ -1124,7 +1125,8 @@ class EF_Editorial_Metadata extends EF_Module {
 			$_REQUEST['form-errors']['name'] = __( 'Name conflicts with slug for another term. Please choose something else.', 'edit-flow' );					
 		
 		// Check that the term name doesn't exceed 200 chars
-		if ( strlen( $new_name ) > 200 )
+		// mb for i18n
+		if ( mb_strlen( $new_name ) > 200 )
 			$_REQUEST['form-errors']['name'] = __( 'Name cannot exceed 200 characters. Please try a shorter name.', 'edit-flow' );
 		// Make sure the viewable state is valid
 		$new_viewable = false;
@@ -1225,8 +1227,9 @@ class EF_Editorial_Metadata extends EF_Module {
 		}
 		
 		// Check that the term name doesn't exceed 200 chars
-		if ( strlen( $metadata_name ) > 200 ) {
-			$change_error = new WP_Error( 'invalid', __( 'Name cannot exceed 200 characters. Please try a shorter name.' ) );
+		// mb for i18n
+		if ( mb_strlen( $metadata_name ) > 200 ) {
+			$change_error = new WP_Error( 'invalid', __( 'Name cannot exceed 200 characters. Please try a shorter name.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );
 		}
 		
@@ -1427,7 +1430,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		?>
 		<table class="form-table">
 			<tr class="form-field form-required">
-				<th scope="row" valign="top"><label for="name"><?php _e( 'Name' ); ?></label></th>
+				<th scope="row" valign="top"><label for="name"><?php _e( 'Name', 'edit-flow' ); ?></label></th>
 				<td><input name="name" id="name" type="text" value="<?php echo esc_attr( $name ); ?>" size="40" aria-required="true" />
 				<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is for labeling the metadata field.', 'edit-flow' ) ); ?>
 			</tr>
@@ -1696,7 +1699,7 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		
 		$actions = array();
 		$actions['edit'] = "<a href='$item_edit_link'>" . __( 'Edit', 'edit-flow' ) . "</a>";
-		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';
+		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit', 'edit-flow' ) . '</a>';
 		if ( $item->viewable )
 			$actions['change-visibility make-hidden'] = '<a title="' . esc_attr( __( 'Hidden metadata can only be viewed on the edit post view.', 'edit-flow' ) ) . '" href="' . esc_url( $edit_flow->editorial_metadata->get_link( array( 'action' => 'make-hidden', 'term-id' => $item->term_id ) ) ) . '">' . __( 'Make Hidden', 'edit-flow' ) . '</a>';
 		else
@@ -1723,7 +1726,7 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 	<form method="get" action=""><table style="display: none"><tbody id="inlineedit">
 		<tr id="inline-edit" class="inline-edit-row" style="display: none"><td colspan="<?php echo $this->get_column_count(); ?>" class="colspanchange">
 			<fieldset><div class="inline-edit-col">
-				<h4><?php _e( 'Quick Edit' ); ?></h4>
+				<h4><?php _e( 'Quick Edit', 'edit-flow' ); ?></h4>
 				<label>
 					<span class="title"><?php _e( 'Name', 'edit-flow' ); ?></span>
 					<span class="input-text-wrap"><input type="text" name="name" class="ptitle" value="" maxlength="200" /></span>
@@ -1734,7 +1737,7 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 				</label>
 			</div></fieldset>
 		<p class="inline-edit-save submit">
-			<a accesskey="c" href="#inline-edit" title="<?php _e( 'Cancel' ); ?>" class="cancel button-secondary alignleft"><?php _e( 'Cancel' ); ?></a>
+			<a accesskey="c" href="#inline-edit" title="<?php _e( 'Cancel', 'edit-flow' ); ?>" class="cancel button-secondary alignleft"><?php _e( 'Cancel', 'edit-flow' ); ?></a>
 			<?php $update_text = __( 'Update Metadata Term', 'edit-flow' ); ?>
 			<a accesskey="s" href="#inline-edit" title="<?php echo esc_attr( $update_text ); ?>" class="save button-primary alignright"><?php echo $update_text; ?></a>
 			<img class="waiting" style="display:none;" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />

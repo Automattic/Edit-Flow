@@ -227,7 +227,7 @@ class EF_Calendar extends EF_Module {
 		}
 		$output .= '</select>';
 		
-		$output .= '&nbsp;&nbsp;&nbsp;<input id="screen-options-apply" name="screen-options-apply" type="submit" value="' . __( 'Apply' ) . '" class="button-secondary" />';
+		$output .= '&nbsp;&nbsp;&nbsp;<input id="screen-options-apply" name="screen-options-apply" type="submit" value="' . __( 'Apply', 'edit-flow' ) . '" class="button-secondary" />';
 
 		if ( 'on' == $this->module->options->ics_subscription && $this->module->options->ics_secret_key ) {
 			$args = array(
