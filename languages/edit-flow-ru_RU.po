@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: edit-flow.0.8.0\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Edit-Flow\n"
 "POT-Creation-Date: 2013-11-02 01:35:45+00:00\n"
-"PO-Revision-Date: 2015-05-17 22:56+0300\n"
+"PO-Revision-Date: 2015-05-17 23:47+0300\n"
 "Last-Translator: Alexey Chumakov <alex@chumakov.ru>\n"
 "Language-Team:  <alex@chumakov.ru>\n"
 "Language: ru_RU\n"
@@ -1452,11 +1452,11 @@ msgstr "Всегда оповещать администратора блога"
 #: modules/settings/settings.php:18 modules/settings/settings.php:192
 #: modules/settings/settings.php:195
 msgid "Edit Flow"
-msgstr "Edit Flow"
+msgstr "Редакция"
 
 #: modules/settings/settings.php:19
 msgid "Edit Flow redefines your WordPress publishing workflow."
-msgstr "Плагин Edit Flow обеспечивает организацию издательского процесса на WordPress."
+msgstr "Плагин Edit Flow обеспечивает организацию издательского процесса на WordPress — работу редакции."
 
 #: modules/settings/settings.php:20
 msgid "Enable any of the features below to take control of your workflow. Custom statuses, email notifications, editorial comments, and more help you and your team save time so everyone can focus on what matters most: the content."
