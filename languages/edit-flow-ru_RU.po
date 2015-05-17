@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: edit-flow.0.8.0\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Edit-Flow\n"
 "POT-Creation-Date: 2013-11-02 01:35:45+00:00\n"
-"PO-Revision-Date: 2015-05-17 20:09+0300\n"
+"PO-Revision-Date: 2015-05-17 20:34+0300\n"
 "Last-Translator: Alexey Chumakov <alex@chumakov.ru>\n"
 "Language-Team:  <alex@chumakov.ru>\n"
 "Language: ru_RU\n"
@@ -386,7 +386,7 @@ msgstr "Не опубликован"
 
 #: modules/calendar/calendar.php:1668 modules/story-budget/story-budget.php:751
 msgid "View all categories"
-msgstr "Показать все категории"
+msgstr "Показать все рубрики"
 
 #: modules/calendar/calendar.php:1680 modules/story-budget/story-budget.php:763
 msgid "View all users"
@@ -1525,7 +1525,7 @@ msgid ""
 "Use the story budget to see how content on your site is progressing. Filter by specific categories or date ranges to see "
 "details about each post in progress."
 msgstr ""
-"Используйте редакционный план для отслеживания хода работ над материалами. Фильтруйте по конкретным категориям или диапазонам "
+"Используйте редакционный план для отслеживания хода работ над материалами. Фильтруйте по конкретным рубрикам или диапазонам "
 "дат, чтобы просмотреть подробные сведения о каждой записи в работе."
 
 #: modules/story-budget/story-budget.php:75
@@ -1569,7 +1569,7 @@ msgstr "Нажмите для переключения"
 
 #: modules/story-budget/story-budget.php:462
 msgid "There are no posts for this term in the range or filter specified."
-msgstr "В этой категории нет записей в заданном диапазоне фильтра."
+msgstr "В этой рубрике нет записей в заданном диапазоне фильтра."
 
 #: modules/story-budget/story-budget.php:556
 msgid "Move this item to the Trash"
@@ -1669,7 +1669,7 @@ msgstr "«В полях», пишут статьи"
 
 #: modules/user-groups/user-groups.php:139
 msgid "Section Editors"
-msgstr "Редакторы раздела"
+msgstr "Редакторы рубрики"
 
 #: modules/user-groups/user-groups.php:140
 msgid "Providing feedback and direction."
