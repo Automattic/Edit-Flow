@@ -3,8 +3,8 @@ Contributors: batmoo, danielbachhuber, sbressler, automattic
 Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 3.4
-Tested up to: 3.8.1
-Stable tag: 0.8
+Tested up to: 4.2.2
+Stable tag: 0.8.1
 
 Redefining your editorial workflow.
 
@@ -55,6 +55,12 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 5. View all of your upcoming posts with the more traditional story budget view, and hit the print button to take it to your planning meeting.
 
 == Upgrade Notice ==
+
+= 0.8.1 =
+Added Composer support.
+
+= 0.8 =
+Final readme and versioning changes for v0.8
 
 = 0.7.5 =
 New localizations; myriad of bug fixes
