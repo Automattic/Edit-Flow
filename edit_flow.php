@@ -4,7 +4,7 @@ Plugin Name: Edit Flow
 Plugin URI: http://editflow.org/
 Description: Remixing the WordPress admin for better editorial workflow options.
 Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Automattic, and others
-Version: 0.8.1-alpha
+Version: 0.8.1
 Author URI: http://editflow.org/
 
 Copyright 2009-2013 Mohammad Jangda, Daniel Bachhuber, et al.
