@@ -14,7 +14,7 @@
  * 6) Clear the metadata for a single term in a post and watch the count go down!
  * 6) Delete a term and note the metadata disappears from posts
  * 7) Re-add the term (same slug) and the metadata returns!
- * 
+ *
  * Improvements to make:
  * @todo Abstract the permissions check for management to class level
  */
@@ -27,16 +27,16 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */
 	const metadata_taxonomy = 'ef_editorial_meta';
 	const metadata_postmeta_key = "_ef_editorial_meta";
-	
+
 	var $module_name = 'editorial_metadata';
 
 	private $editorial_metadata_terms_cache = array();
-	
+
 	/**
 	 * Construct the EF_Editorial_Metadata class
 	 */
 	function __construct() {
-		
+
 		$this->module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		$args = array(
@@ -71,55 +71,55 @@ class EF_Editorial_Metadata extends EF_Module {
 		);
 		EditFlow()->register_module( $this->module_name, $args );
 	}
-	
+
 	/**
 	 * Initialize the module. Conditionally loads if the module is enabled
 	 */
 	function init() {
-		
+
 		// Register the taxonomy we use for Editorial Metadata with WordPress core
 		$this->register_taxonomy();
 
 		// Anything that needs to happen in the admin
 		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
-		
+
 		// Register our settings
-		add_action( 'admin_init', array( $this, 'register_settings' ) );		
-		
+		add_action( 'admin_init', array( $this, 'register_settings' ) );
+
 		// Actions relevant to the configuration view (adding, editing, or sorting existing Editorial Metadata)
 		add_action( 'admin_init', array( $this, 'handle_add_editorial_metadata' ) );
 		add_action( 'admin_init', array( $this, 'handle_edit_editorial_metadata' ) );
-		add_action( 'admin_init', array( $this, 'handle_change_editorial_metadata_visibility' ) );	
+		add_action( 'admin_init', array( $this, 'handle_change_editorial_metadata_visibility' ) );
 		add_action( 'admin_init', array( $this, 'handle_delete_editorial_metadata' ) );
 		add_action( 'wp_ajax_inline_save_term', array( $this, 'handle_ajax_inline_save_term' ) );
 		add_action( 'wp_ajax_update_term_positions', array( $this, 'handle_ajax_update_term_positions' ) );
-		
+
 		add_action( 'add_meta_boxes', array( $this, 'handle_post_metaboxes' ) );
 		add_action( 'save_post', array( $this, 'save_meta_box' ), 10, 2 );
-		
+
 		// Add Editorial Metadata columns to the Manage Posts view
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		foreach( $supported_post_types as $post_type ) {
 			add_filter( "manage_{$post_type}_posts_columns", array( $this, 'filter_manage_posts_columns' ) );
 			add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'action_manage_posts_custom_column' ), 10, 2 );
 		}
-		
+
 		// Add Editorial Metadata to the calendar if the calendar is activated
 		if ( $this->module_enabled( 'calendar' ) )
 			add_filter( 'ef_calendar_item_information_fields', array( $this, 'filter_calendar_item_fields' ), 10, 2 );
-		
+
 		// Add Editorial Metadata columns to the Story Budget if it exists
 		if ( $this->module_enabled( 'story_budget' ) ) {
 			add_filter( 'ef_story_budget_term_columns', array( $this, 'filter_story_budget_term_columns' ) );
 			// Register an action to handle this data later
 			add_filter( 'ef_story_budget_term_column_value', array( $this, 'filter_story_budget_term_column_values' ), 10, 3 );
-		}		
-		
+		}
+
 		// Load necessary scripts and stylesheets
-		add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_scripts' ) );	
-		
+		add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_scripts' ) );
+
 	}
-	
+
 	/**
 	 * Load default editorial metadata the first time the module is loaded
 	 *
@@ -179,7 +179,7 @@ class EF_Editorial_Metadata extends EF_Module {
 			// Editorial metadata descriptions become base64_encoded, instead of maybe json_encoded.
 			$this->upgrade_074_term_descriptions( self::metadata_taxonomy );
 		}
-		
+
 	}
 
 	/**
@@ -192,7 +192,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		// Parse the query when we're ordering by an editorial metadata term
 		add_action( 'parse_query', array( $this, 'action_parse_query' ) );
 	}
-	
+
 	/**
 	 * Generate <select> HTML for all of the metadata types
 	 */
@@ -207,7 +207,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		</select>
 	<?php
 	}
-	
+
 	/**
 	 * Prepare an array of supported editorial metadata types
 	 *
@@ -220,18 +220,19 @@ class EF_Editorial_Metadata extends EF_Module {
 			'location'		=> __('Location', 'edit-flow'),
 			'number'		=> __('Number', 'edit-flow'),
 			'paragraph'		=> __('Paragraph', 'edit-flow'),
+			'dropdown'		=> __('Dropdown Select', 'edit-flow'),
 			'text'			=> __('Text', 'edit-flow'),
 			'user'			=> __('User', 'edit-flow'),
 		);
 		return $supported_metadata_types;
 	}
-	
+
 	/**
 	 * Enqueue relevant admin Javascript
-	 */ 
+	 */
 	function add_admin_scripts() {
 		global $current_screen, $pagenow;
-		
+
 		// Add the metabox date picker JS and CSS
 		$current_post_type = $this->get_current_post_type();
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
@@ -246,7 +247,7 @@ class EF_Editorial_Metadata extends EF_Module {
 			$terms = $this->get_editorial_metadata_terms();
 			$viewable_terms = array();
 			foreach( $terms as $term ) {
-				if ( $term->viewable ) 
+				if ( $term->viewable )
 					$viewable_terms[] = $term;
 			}
 			if ( !empty( $viewable_terms ) ) {
@@ -295,16 +296,16 @@ class EF_Editorial_Metadata extends EF_Module {
 				}
 				echo '</style>';
 			}
-			
+
 		}
-		
+
 		// Load Javascript specific to the editorial metadata configuration view
 		if ( $this->is_whitelisted_settings_view( $this->module->name ) ) {
-			wp_enqueue_script( 'jquery-ui-sortable' );			
+			wp_enqueue_script( 'jquery-ui-sortable' );
 			wp_enqueue_script( 'edit-flow-editorial-metadata-configure', EDIT_FLOW_URL . 'modules/editorial-metadata/lib/editorial-metadata-configure.js', array( 'jquery', 'jquery-ui-sortable', 'edit-flow-settings-js' ), EDIT_FLOW_VERSION, true );
 		}
 	}
-	
+
 	/**
 	 * Register the post metadata taxonomy
 	 */
@@ -312,7 +313,7 @@ class EF_Editorial_Metadata extends EF_Module {
 
 		// We need to make sure taxonomy is registered for all of the post types that support it
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
-	
+
 		register_taxonomy( self::metadata_taxonomy, $supported_post_types,
 			array(
 				'public' => false,
@@ -331,11 +332,11 @@ class EF_Editorial_Metadata extends EF_Module {
 			)
 		);
 	}
-	
+
 	/*****************************************************
 	 * Post meta box generation and processing
 	 ****************************************************/
-	
+
 	/**
 	 * Load the post metaboxes for all of the post types that are supported
 	 */
@@ -352,7 +353,7 @@ class EF_Editorial_Metadata extends EF_Module {
 			add_meta_box( self::metadata_taxonomy, $title, array( $this, 'display_meta_box' ), $post_type, 'side' );
 		}
 	}
-	
+
 	/**
 	 * Displays HTML output for Editorial Metadata post meta box
 	 *
@@ -362,13 +363,13 @@ class EF_Editorial_Metadata extends EF_Module {
 		echo "<div id='" . self::metadata_taxonomy . "_meta_box'>";
 		// Add nonce for verification upon save
 		echo "<input type='hidden' name='" . self::metadata_taxonomy . "_nonce' value='" . wp_create_nonce(__FILE__) . "' />";
-	
+
 		$terms = $this->get_editorial_metadata_terms();
 		if ( !count( $terms ) ) {
 			$message = __( 'No editorial metadata available.' );
 			if ( current_user_can( 'manage_options' ) )
 				$message .= sprintf( __( ' <a href="%s">Add fields to get started</a>.' ), $this->get_link() );
-			else 
+			else
 				$message .= __( ' Encourage your site administrator to configure your editorial workflow by adding editorial metadata.' );
 			echo '<p>' . $message . '</p>';
 		} else {
@@ -376,6 +377,11 @@ class EF_Editorial_Metadata extends EF_Module {
 				$postmeta_key = $this->get_postmeta_key( $term );
 				$current_metadata = esc_attr( $this->get_postmeta_value( $term, $post->ID ) );
 				$type = $term->type;
+				$dropdown_items = $term->dropdown_items;
+				if ( $dropdown_items )
+					$dropdown_items = array_unique( preg_split( '/[\n\r]+/', $dropdown_items ) );
+				else
+					$dropdown_items = array();
 				$description = $term->description;
 				if ( $description )
 					$description_span = "<span class='description'>$description</span>";
@@ -387,7 +393,7 @@ class EF_Editorial_Metadata extends EF_Module {
 						// TODO: Move this to a function
 						if ( !empty( $current_metadata ) ) {
 							// Turn timestamp into a human-readable date
-							$current_metadata = $this->show_date_or_datetime( intval( $current_metadata ) );	
+							$current_metadata = $this->show_date_or_datetime( intval( $current_metadata ) );
 						}
 						echo "<label for='$postmeta_key'>{$term->name}</label>";
 						if ( $description_span )
@@ -414,12 +420,12 @@ class EF_Editorial_Metadata extends EF_Module {
 						echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
 						echo "<input id='$postmeta_key' name='$postmeta_key' type='checkbox' value='1' " . checked($current_metadata, 1, false) . " />";
 						break;
-					case "user": 
+					case "user":
 						echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
-						$user_dropdown_args = array( 
-								'show_option_all' => __( '-- Select a user --', 'edit-flow' ), 
+						$user_dropdown_args = array(
+								'show_option_all' => __( '-- Select a user --', 'edit-flow' ),
 								'name'     => $postmeta_key,
-								'selected' => $current_metadata 
+								'selected' => $current_metadata
 							);
 						$user_dropdown_args = apply_filters( 'ef_editorial_metadata_user_dropdown_args', $user_dropdown_args );
 						wp_dropdown_users( $user_dropdown_args );
@@ -427,17 +433,26 @@ class EF_Editorial_Metadata extends EF_Module {
 					case "number":
 						echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
 						echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
-						break;					
+						break;
+					case "dropdown":
+						echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
+						echo "<select id='$postmeta_key' name='$postmeta_key'>";
+						foreach ( $dropdown_items as $item ) {
+							$selected = ( $item == $current_metadata ) ? "selected='selected'" : "";
+							echo "<option $selected>$item</option>";
+						}
+						echo "</select>";
+						break;
 					default:
 						echo "<p>" . __( 'This editorial metadata type is not yet supported.', 'edit-flow' ) . "</p>";
 				}
 			echo "</div>";
 			echo "<div class='clear'></div>";
 		} // Done iterating through metadata terms
-		}		
+		}
 		echo "</div>";
 	}
-	
+
 	/**
 	 * Show date or datetime
 	 * @param  int $current_date
@@ -454,7 +469,7 @@ class EF_Editorial_Metadata extends EF_Module {
 
 	/**
 	 * Save any values in the editorial metadata post meta box
-	 * 
+	 *
 	 * @param int $id Unique ID for the post being saved
 	 * @param object $post Post object
 	 */
@@ -466,26 +481,26 @@ class EF_Editorial_Metadata extends EF_Module {
 			|| ! wp_verify_nonce( $_POST[self::metadata_taxonomy . "_nonce"], __FILE__ ) ) {
 			return $id;
 		}
-		
+
 		if( ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) )
 			|| $post->post_type == 'post' && !current_user_can( 'edit_post', $id )
 			|| $post->post_type == 'page' && !current_user_can( 'edit_page', $id ) ) {
 			return $id;
 		}
-		
-		// Authentication passed, let's save the data		
+
+		// Authentication passed, let's save the data
 		$terms = $this->get_editorial_metadata_terms();
 		$term_slugs = array();
-				
+
 		foreach ( $terms as $term ) {
 			// Setup the key for this editorial metadata term (same as what's in $_POST)
 			$key = $this->get_postmeta_key( $term );
-			
+
 			// Get the current editorial metadata
 			// TODO: do we care about the current_metadata at all?
 			//$current_metadata = get_post_meta( $id, $key, true );
-			
+
 			$new_metadata = isset( $_POST[$key] ) ? $_POST[$key] : '';
 
 			$type = $term->type;
@@ -500,16 +515,16 @@ class EF_Editorial_Metadata extends EF_Module {
 				if ( $type == 'number' ) {
 					$new_metadata = (int)$new_metadata;
 				}
-				
+
 				$new_metadata = strip_tags( $new_metadata );
 				update_post_meta( $id, $key, $new_metadata );
-				
+
 				// Add the slugs of the terms with non-empty new metadata to an array
 				$term_slugs[] = $term->slug;
 			}
 			do_action( 'ef_editorial_metadata_field_updated', $key, $new_metadata, $id, $type );
 		}
-		
+
 		// Relate the post to the terms used and taxonomy type (wp_term_relationships table).
 		// This will allow us to update and display the count of metadata in posts in use per term.
 		// TODO: Core only correlates posts with terms if the post_status is publish. Do we care what it is?
@@ -517,10 +532,10 @@ class EF_Editorial_Metadata extends EF_Module {
 			wp_set_object_terms( $id, $term_slugs, self::metadata_taxonomy );
 		}
 	}
-	
+
 	/**
 	 * Generate a unique key based on the term
-	 * 
+	 *
 	 * @param object $term Term object
 	 * @return string $postmeta_key Unique key
 	 */
@@ -531,7 +546,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		$postmeta_key = "{$prefix}_" . ( is_object( $term ) ? $term->slug : $term );
 		return $postmeta_key;
 	}
-	
+
 	/**
 	 * Returns the value for the given metadata
 	 *
@@ -548,14 +563,14 @@ class EF_Editorial_Metadata extends EF_Module {
 		$postmeta_key = $this->get_postmeta_key( $term );
 		return get_metadata( 'post', $post_id, $postmeta_key, true );
 	}
-	
+
 	/**
 	 * Get all of the editorial metadata terms as objects and sort by position
 	 * @todo Figure out what we should do with the filter...
-	 * 
+	 *
 	 * @param array $filter_args Filter to specific arguments
 	 * @return array $ordered_terms The terms as they should be ordered
-	 */ 
+	 */
 	function get_editorial_metadata_terms( $filter_args = array() ) {
 
 		// Try to fetch from internal object cache
@@ -563,7 +578,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		if ( isset( $this->editorial_metadata_terms_cache[ $arg_hash ] ) ) {
 			return $this->editorial_metadata_terms_cache[ $arg_hash ];
 		}
-		
+
 		$args = array(
 		        'orderby'    => apply_filters( 'ef_editorial_metadata_term_order', 'name' ),
 		        'hide_empty' => false
@@ -574,7 +589,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		$hold_to_end = array();
 		// Order the terms
 		foreach ( $terms as $key => $term ) {
-			
+
 			// Unencode and set all of our psuedo term meta because we need the position and viewable if they exists
 			// First do an array_merge() on the term object to make sure the keys exist, then array_merge()
 			// any values that may already exist
@@ -598,7 +613,7 @@ class EF_Editorial_Metadata extends EF_Module {
 			// Otherwise, hold it for later
 			if ( $term->position && !array_key_exists( $term->position, $ordered_terms ) )
 				$ordered_terms[(int)$term->position] = $term;
-			else 
+			else
 				$hold_to_end[] = $term;
 		}
 		// Sort the items numerically by key
@@ -615,11 +630,11 @@ class EF_Editorial_Metadata extends EF_Module {
 
 		return $ordered_terms;
 	}
-	
+
 	/**
 	 * Returns a term for single metadata field
 	 *
-	 * @param int|string $field The slug or ID for the metadata field term to return 
+	 * @param int|string $field The slug or ID for the metadata field term to return
 	 * @return object $term Term's object representation
 	 */
 	function get_editorial_metadata_term_by( $field, $value ) {
@@ -638,7 +653,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		else
 			return false;
 	}
-	
+
 	/**
 	 * Register editorial metadata fields as columns in the manage posts view
 	 * Only adds columns for the currently active post types - logic controlled in $this->init()
@@ -662,7 +677,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		}
 		return $posts_columns;
 	}
-	
+
 	/**
 	 * Register any viewable date editorial metadata as a sortable column
 	 *
@@ -697,7 +712,7 @@ class EF_Editorial_Metadata extends EF_Module {
 			set_query_var( 'orderby', 'meta_value_num' );
 		}
 	}
-	
+
 	/**
 	 * Handle the output of an editorial metadata custom column
 	 * Logic for the post types this is called on is controlled in $this->init()
@@ -709,7 +724,7 @@ class EF_Editorial_Metadata extends EF_Module {
 	 * @param int $post_id ID for the post of the row
 	 */
 	function action_manage_posts_custom_column( $column_name, $post_id ) {
-		
+
 		$terms = $this->get_editorial_metadata_terms();
 		// We're looking for the proper term to display its saved value
 		foreach( $terms as $term ) {
@@ -720,9 +735,9 @@ class EF_Editorial_Metadata extends EF_Module {
 			$current_metadata = $this->get_postmeta_value( $term, $post_id );
 			echo $this->generate_editorial_metadata_term_output( $term, $current_metadata );
 		}
-		
+
 	}
-	
+
 	/**
 	 * If the Edit Flow Calendar is enabled, add viewable Editorial Metadata terms
 	 *
@@ -735,13 +750,13 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */
 	function filter_calendar_item_fields( $calendar_fields, $post_id ) {
 
-		
+
 		// Make sure we respect which post type we're on
 		if ( !in_array( get_post_type( $post_id ), $this->get_post_types_for_module( $this->module ) ) )
 			return $calendar_fields;
-			
+
 		$terms = $this->get_editorial_metadata_terms( array( 'viewable' => true ) );
-		
+
 		foreach( $terms as $term ) {
 			$key = $this->module->slug . '-' . $term->slug;
 
@@ -756,9 +771,9 @@ class EF_Editorial_Metadata extends EF_Module {
 			$calendar_fields[$key] = $term_data;
 		}
 		return $calendar_fields;
-		
+
 	}
-	
+
 	/**
 	 * If the Edit Flow Story Budget is enabled, register our viewable terms as columns
 	 *
@@ -769,7 +784,7 @@ class EF_Editorial_Metadata extends EF_Module {
 	 * @return array $term_columns Term columns with viewable Editorial Metadata terms
 	 */
 	function filter_story_budget_term_columns( $term_columns ) {
-		
+
 		$terms = $this->get_editorial_metadata_terms( array( 'viewable' => true ) );
 		foreach( $terms as $term ) {
 			// Prefixing slug with module slug because it isn't stored prefixed and we want to avoid collisions
@@ -777,11 +792,11 @@ class EF_Editorial_Metadata extends EF_Module {
 			// Switch to underscores
 			$key = str_replace( '-', '_', $key );
 			$term_columns[$key] = $term->name;
-		}		
+		}
 		return $term_columns;
-		
+
 	}
-	
+
 	/**
 	 * If the Edit Flow Story Budget is enabled,
 	 *
@@ -793,15 +808,15 @@ class EF_Editorial_Metadata extends EF_Module {
 	 * @param object $parent_term The parent term for the term column
 	 */
 	function filter_story_budget_term_column_values( $column_name, $post, $parent_term ) {
-		
+
 		$local_column_name = str_replace( '_', '-', $column_name );
 		// Don't accidentally handle values not our own
 		if ( false === strpos( $local_column_name, $this->module->slug ) )
 			return $column_name;
-			
+
 		$term_slug = str_replace( $this->module->slug . '-', '', $local_column_name );
 		$term = $this->get_editorial_metadata_term_by( 'slug', $term_slug );
-		
+
 		// Don't allow non-viewable term data to be displayed
 		if ( !$term->viewable )
 			return $column_name;
@@ -862,7 +877,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		}
 		return $output;
 	}
-	
+
 	/**
 	 * Update an existing editorial metadata term if the term_id exists
 	 *
@@ -873,7 +888,7 @@ class EF_Editorial_Metadata extends EF_Module {
 	 * @return object|WP_Error $updated_term The updated term or a WP_Error object if something disastrous happened
 	 */
 	function update_editorial_metadata_term( $term_id, $args ) {
-		
+
 		$new_args = array();
 		$old_term = $this->get_editorial_metadata_term_by( 'id', $term_id );
 		if ( $old_term )
@@ -883,20 +898,22 @@ class EF_Editorial_Metadata extends EF_Module {
 				'slug' => $old_term->slug,
 				'description' => $old_term->description,
 				'type' => $old_term->type,
+				'dropdown_items' => $old_term->dropdown_items,
 				'viewable' => $old_term->viewable,
 			);
 		$new_args = array_merge( $old_args, $args );
-		
+
 		// We're encoding metadata that isn't supported by default in the term's description field
 		$args_to_encode = array(
 			'description' => $new_args['description'],
 			'position' => $new_args['position'],
 			'type' => $new_args['type'],
+			'dropdown_items' => $new_args['dropdown_items'],
 			'viewable' => $new_args['viewable'],
-		);	
+		);
 		$encoded_description = $this->get_encoded_description( $args_to_encode );
 		$new_args['description'] = $encoded_description;
-		
+
 		$updated_term = wp_update_term( $term_id, self::metadata_taxonomy, $new_args );
 
 		// Reset the internal object cache
@@ -905,7 +922,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		$updated_term = $this->get_editorial_metadata_term_by( 'id', $term_id );
 		return $updated_term;
 	}
-	
+
 	/**
 	 * Insert a new editorial metadata term
 	 * @todo Handle conflicts with existing terms at that position (if relevant)
@@ -914,7 +931,7 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */
 	function insert_editorial_metadata_term( $args ) {
 
-		
+
 		// Term is always added to the end of the list
 		$default_position = count( $this->get_editorial_metadata_terms() ) + 2;
 		$defaults = array(
@@ -928,14 +945,15 @@ class EF_Editorial_Metadata extends EF_Module {
 		$args = array_merge( $defaults, $args );
 		$term_name = $args['name'];
 		unset( $args['name'] );
-		
+
 		// We're encoding metadata that isn't supported by default in the term's description field
 		$args_to_encode = array(
 			'description' => $args['description'],
 			'position' => $args['position'],
 			'type' => $args['type'],
+			'dropdown_items' => $args['dropdown_items'],
 			'viewable' => $args['viewable'],
-		);	
+		);
 		$encoded_description = $this->get_encoded_description( $args_to_encode );
 		$args['description'] = $encoded_description;
 
@@ -946,16 +964,16 @@ class EF_Editorial_Metadata extends EF_Module {
 
 		return $inserted_term;
 	}
-	
+
 	/**
 	 * Settings and other management code
 	 */
-	
+
 	/**
 	 * Delete an existing editorial metadata term
 	 *
 	 * @since 0.7
-	 * 
+	 *
 	 * @param int $term_id The term we want deleted
 	 * @return bool $result Whether or not the term was deleted
 	 */
@@ -967,7 +985,7 @@ class EF_Editorial_Metadata extends EF_Module {
 
 		return $result;
 	}
-	
+
 	/**
 	 * Generate a link to one of the editorial metadata actions
 	 *
@@ -992,31 +1010,32 @@ class EF_Editorial_Metadata extends EF_Module {
 				break;
 		}
 		return add_query_arg( $args, get_admin_url( null, 'admin.php' ) );
-	}	
-	
+	}
+
 	/**
 	 * Handles a request to add a new piece of editorial metadata
 	 */
 	function handle_add_editorial_metadata() {
 
-		if ( !isset( $_POST['submit'], $_POST['form-action'], $_GET['page'] ) 
+		if ( !isset( $_POST['submit'], $_POST['form-action'], $_GET['page'] )
 			|| $_GET['page'] != $this->module->settings_slug || $_POST['form-action'] != 'add-term' )
 				return;
-				
+
 		if ( !wp_verify_nonce( $_POST['_wpnonce'], 'editorial-metadata-add-nonce' ) )
 			wp_die( $this->module->messages['nonce-failed'] );
-			
+
 		if ( !current_user_can( 'manage_options' ) )
-			wp_die( $this->module->messages['invalid-permissions'] );			
-		
+			wp_die( $this->module->messages['invalid-permissions'] );
+
 		// Sanitize all of the user-entered values
 		$term_name = sanitize_text_field( trim( $_POST['metadata_name'] ) );
 		$term_slug = ( !empty( $_POST['metadata_slug'] ) ) ? sanitize_title( $_POST['metadata_slug'] ) : sanitize_title( $term_name );
 		$term_description = stripslashes( wp_filter_post_kses( trim( $_POST['metadata_description'] ) ) );
 		$term_type = sanitize_key( $_POST['metadata_type'] );
-		
+		$term_dropdown_items = stripslashes( wp_filter_post_kses( trim( $_POST['metadata_dropdown_items'] ) ) );
+
 		$_REQUEST['form-errors'] = array();
-		
+
 		/**
 		 * Form validation for adding new editorial metadata term
 		 *
@@ -1050,7 +1069,10 @@ class EF_Editorial_Metadata extends EF_Module {
 		$term_viewable = false;
 		if ( $_POST['metadata_viewable'] == 'yes' )
 			$term_viewable = true;
-		
+		// Items field is required for dropdown type
+		if ( $term_type == 'dropdown' && empty( $term_dropdown_items ))
+			$_REQUEST['form-errors']['dropdown_items'] = __( 'Please enter items for the dropdown editorial metadata.', 'edit-flow' );
+
 		// Kick out if there are any errors
 		if ( count( $_REQUEST['form-errors'] ) ) {
 			$_REQUEST['error'] = 'form-error';
@@ -1063,6 +1085,7 @@ class EF_Editorial_Metadata extends EF_Module {
 			'description' => $term_description,
 			'slug' => $term_slug,
 			'type' => $term_type,
+			'dropdown_items' => $term_dropdown_items,
 			'viewable' => $term_viewable,
 		);
 		$return = $this->insert_editorial_metadata_term( $args );
@@ -1073,27 +1096,28 @@ class EF_Editorial_Metadata extends EF_Module {
 		wp_redirect( $redirect_url );
 		exit;
 	}
-	
+
 	/**
 	 * Handles a request to edit an editorial metadata
 	 */
 	function handle_edit_editorial_metadata() {
-		if ( !isset( $_POST['submit'], $_GET['page'], $_GET['action'], $_GET['term-id'] ) 
+		if ( !isset( $_POST['submit'], $_GET['page'], $_GET['action'], $_GET['term-id'] )
 			|| $_GET['page'] != $this->module->settings_slug || $_GET['action'] != 'edit-term' )
-				return; 
-				
+				return;
+
 		if ( !wp_verify_nonce( $_POST['_wpnonce'], 'editorial-metadata-edit-nonce' ) )
 			wp_die( $this->module->messages['nonce-failed'] );
-			
+
 		if ( !current_user_can( 'manage_options' ) )
-			wp_die( $this->module->messages['invalid-permissions'] );			
-		
+			wp_die( $this->module->messages['invalid-permissions'] );
+
 		if ( !$existing_term = $this->get_editorial_metadata_term_by( 'id', (int)$_GET['term-id'] ) )
-			wp_die( $this->module->messsage['term-error'] );			
-		
+			wp_die( $this->module->messsage['term-error'] );
+
 		$new_name = sanitize_text_field( trim( $_POST['name'] ) );
 		$new_description = stripslashes( wp_filter_post_kses( strip_tags( trim( $_POST['description'] ) ) ) );
-			
+		$new_dropdown_items = stripslashes( wp_filter_post_kses( strip_tags( trim( $_POST['dropdown_items'] ) ) ) );
+
 		/**
 		 * Form validation for editing editorial metadata term
 		 *
@@ -1101,11 +1125,11 @@ class EF_Editorial_Metadata extends EF_Module {
 		 * - "name", "slug", and "type" are required fields
 		 * - "description" can accept a limited amount of HTML, and is optional
 		 */
-		$_REQUEST['form-errors'] = array();	
+		$_REQUEST['form-errors'] = array();
 		// Check if name field was filled in
 		if( empty( $new_name ) )
 			$_REQUEST['form-errors']['name'] = __( 'Please enter a name for the editorial metadata', 'edit-flow' );
-			
+
 		// Check that the name isn't numeric
 		if ( is_numeric( $new_name ) )
 			$_REQUEST['form-errors']['name'] = __( 'Please enter a valid, non-numeric name for the editorial metadata.', 'edit-flow' );
@@ -1113,16 +1137,16 @@ class EF_Editorial_Metadata extends EF_Module {
 		$term_exists = term_exists( sanitize_title( $new_name ) );
 		if ( $term_exists && $term_exists != $existing_term->term_id )
 			$_REQUEST['form-errors']['name'] = __( 'Metadata name conflicts with existing term. Please choose another.', 'edit-flow' );
-			
+
 		// Check to ensure a term with the same name doesn't exist,
 		$search_term = $this->get_editorial_metadata_term_by( 'name', $new_name );
 		if ( is_object( $search_term ) && $search_term->term_id != $existing_term->term_id )
 			$_REQUEST['form-errors']['name'] = __( 'Name already in use. Please choose another.', 'edit-flow' );
-		// or that the term name doesn't map to an existing term's slug			
+		// or that the term name doesn't map to an existing term's slug
 		$search_term = $this->get_editorial_metadata_term_by( 'slug', sanitize_title( $new_name ) );
 		if ( is_object( $search_term ) && $search_term->term_id != $existing_term->term_id )
-			$_REQUEST['form-errors']['name'] = __( 'Name conflicts with slug for another term. Please choose something else.', 'edit-flow' );					
-		
+			$_REQUEST['form-errors']['name'] = __( 'Name conflicts with slug for another term. Please choose something else.', 'edit-flow' );
+
 		// Check that the term name doesn't exceed 200 chars
 		if ( strlen( $new_name ) > 200 )
 			$_REQUEST['form-errors']['name'] = __( 'Name cannot exceed 200 characters. Please try a shorter name.', 'edit-flow' );
@@ -1130,55 +1154,60 @@ class EF_Editorial_Metadata extends EF_Module {
 		$new_viewable = false;
 		if ( $_POST['viewable'] == 'yes' )
 			$new_viewable = true;
-	
+		// Items field is required for dropdown type
+		if ( $term_type == 'dropdown' && empty( $term_dropdown_items ))
+			$_REQUEST['form-errors']['dropdown_items'] = __( 'Please enter items for the dropdown editorial metadata.', 'edit-flow' );
+
+
 		// Kick out if there are any errors
 		if ( count( $_REQUEST['form-errors'] ) ) {
 			$_REQUEST['error'] = 'form-error';
 			return;
 		}
-		
+
 		// Try to add the metadata term
 		$args = array(
 			'name' => $new_name,
 			'description' => $new_description,
+			'dropdown_items' => $new_dropdown_items,
 			'viewable' => $new_viewable,
 		);
 		$return = $this->update_editorial_metadata_term( $existing_term->term_id, $args );
 		if ( is_wp_error( $return ) )
 			wp_die( __( 'Error updating term.', 'edit-flow' ) );
-		
+
 		$redirect_url = add_query_arg( array( 'page' => $this->module->settings_slug, 'message' => 'term-updated' ), get_admin_url( null, 'admin.php' ) );
 		wp_redirect( $redirect_url );
 		exit;
 	}
-	
+
 	/**
 	 * Handle a $_GET request to change the visibility of an Editorial Metadata term
 	 *
 	 * @since 0.7
 	 */
 	function handle_change_editorial_metadata_visibility() {
-		
-		// Check that the current GET request is our GET request		
+
+		// Check that the current GET request is our GET request
 		if ( !isset( $_GET['page'], $_GET['action'], $_GET['term-id'], $_GET['nonce'] )
 			|| $_GET['page'] != $this->module->settings_slug || !in_array( $_GET['action'], array( 'make-viewable', 'make-hidden' ) ) )
 			return;
-		
+
 		// Check for proper nonce
 		if ( !wp_verify_nonce( $_GET['nonce'], 'make-viewable' ) && !wp_verify_nonce( $_GET['nonce'], 'make-hidden' ) )
 			wp_die( $this->module->messages['nonce-failed'] );
-		
+
 		// Only allow users with the proper caps
 		if ( !current_user_can( 'manage_options' ) )
 			wp_die( $this->module->messages['invalid-permissions'] );
-		
+
 		$term_id = (int)$_GET['term-id'];
 		$args = array();
 		if ( $_GET['action'] == 'make-viewable' )
 			$args['viewable'] = true;
 		elseif ( $_GET['action'] == 'make-hidden' )
 			$args['viewable'] = false;
-		
+
 		$return = $this->update_editorial_metadata_term( $term_id, $args );
 		if ( is_wp_error( $return ) )
 			wp_die( __( 'Error updating term.', 'edit-flow' ) );
@@ -1186,32 +1215,32 @@ class EF_Editorial_Metadata extends EF_Module {
 		$redirect_url = $this->get_link( array( 'message' => 'term-visibility-changed' ) );
 		wp_redirect( $redirect_url );
 		exit;
-		
+
 	}
-	
+
 	/**
 	 * Handle the request to update a given Editorial Metadata term via inline edit
 	 *
 	 * @since 0.7
 	 */
 	function handle_ajax_inline_save_term() {
-		
+
 		if ( !wp_verify_nonce( $_POST['inline_edit'], 'editorial-metadata-inline-edit-nonce' ) )
 			die( $this->module->messages['nonce-failed'] );
-			
+
 		if ( !current_user_can( 'manage_options') )
 			die( $this->module->messages['invalid-permissions'] );
-		
+
 		$term_id = (int) $_POST['term_id'];
 		if ( !$existing_term = $this->get_editorial_metadata_term_by( 'id', $term_id ) )
 			die( $this->module->messsage['term-error'] );
-		
+
 		$metadata_name = sanitize_text_field( trim( $_POST['name'] ) );
 		$metadata_description = stripslashes( wp_filter_post_kses( trim( $_POST['description'] ) ) );
-		
+
 		/**
 		 * Form validation for editing editorial metadata term
-		 */	
+		 */
 		// Check if name field was filled in
 		if ( empty( $metadata_name ) ) {
 			$change_error = new WP_Error( 'invalid', __( 'Please enter a name for the editorial metadata', 'edit-flow' ) );
@@ -1223,20 +1252,20 @@ class EF_Editorial_Metadata extends EF_Module {
 			$change_error = new WP_Error( 'invalid', __( 'Please enter a valid, non-numeric name for the editorial metadata.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );
 		}
-		
+
 		// Check that the term name doesn't exceed 200 chars
 		if ( strlen( $metadata_name ) > 200 ) {
 			$change_error = new WP_Error( 'invalid', __( 'Name cannot exceed 200 characters. Please try a shorter name.' ) );
 			die( $change_error->get_error_message() );
 		}
-		
+
 		// Check to make sure the status doesn't already exist as another term because otherwise we'd get a fatal error
 		$term_exists = term_exists( sanitize_title( $metadata_name ) );
 		if ( $term_exists && $term_exists != $term_id ) {
 			$change_error = new WP_Error( 'invalid', __( 'Metadata name conflicts with existing term. Please choose another.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );
-		}		
-		
+		}
+
 		// Check to ensure a term with the same name doesn't exist,
 		$search_term = $this->get_editorial_metadata_term_by( 'name', $metadata_name );
 		if ( is_object( $search_term ) && $search_term->term_id != $existing_term->term_id ) {
@@ -1244,21 +1273,21 @@ class EF_Editorial_Metadata extends EF_Module {
 			die( $change_error->get_error_message() );
 		}
 
-		// or that the term name doesn't map to an existing term's slug			
+		// or that the term name doesn't map to an existing term's slug
 		$search_term = $this->get_editorial_metadata_term_by( 'slug', sanitize_title( $metadata_name ) );
 		if ( is_object( $search_term ) && $search_term->term_id != $existing_term->term_id ) {
 			$change_error = new WP_Error( 'invalid', __( 'Name conflicts with slug for another term. Please choose again.', 'edit-flow' ) );
-			die( $change_error->get_error_message() );			
+			die( $change_error->get_error_message() );
 		}
-		
+
 		// Prepare the term name and description for saving
 		$args = array(
 			'name' => $metadata_name,
 			'description' => $metadata_description,
 		);
 		$return = $this->update_editorial_metadata_term( $existing_term->term_id, $args );
-		if( !is_wp_error( $return ) ) {	
-			set_current_screen( 'edit-editorial-metadata' );					
+		if( !is_wp_error( $return ) ) {
+			set_current_screen( 'edit-editorial-metadata' );
 			$wp_list_table = new EF_Editorial_Metadata_List_Table();
 			$wp_list_table->prepare_items();
 			echo $wp_list_table->single_row( $return );
@@ -1267,9 +1296,9 @@ class EF_Editorial_Metadata extends EF_Module {
 			$change_error = new WP_Error( 'invalid', sprintf( __( 'Could not update the term: <strong>%s</strong>', 'edit-flow' ), $status_name ) );
 			die( $change_error->get_error_message() );
 		}
-		
+
 	}
-	
+
 	/**
 	 * Handle the ajax request to update all of the term positions
 	 *
@@ -1279,15 +1308,15 @@ class EF_Editorial_Metadata extends EF_Module {
 
 		if ( !wp_verify_nonce( $_POST['editorial_metadata_sortable_nonce'], 'editorial-metadata-sortable' ) )
 			$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
-		
+
 		if ( !current_user_can( 'manage_options') )
 			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
-		
+
 		if ( !isset( $_POST['term_positions'] ) || !is_array( $_POST['term_positions'] ) )
 			$this->print_ajax_response( 'error', __( 'Terms not set.', 'edit-flow' ) );
-			
+
 		foreach ( $_POST['term_positions'] as $position => $term_id ) {
-			
+
 			// Have to add 1 to the position because the index started with zero
 			$args = array(
 				'position' => (int)$position + 1,
@@ -1295,46 +1324,46 @@ class EF_Editorial_Metadata extends EF_Module {
 			$return = $this->update_editorial_metadata_term( (int)$term_id, $args );
 			// @todo check that this was a valid return
 		}
-		$this->print_ajax_response( 'success', $this->module->messages['term-position-updated'] );	
+		$this->print_ajax_response( 'success', $this->module->messages['term-position-updated'] );
 	}
-	
+
 	/**
 	 * Handles a request to delete an editorial metadata term
 	 */
 	function handle_delete_editorial_metadata() {
-		if ( !isset( $_GET['page'], $_GET['action'], $_GET['term-id'] ) 
+		if ( !isset( $_GET['page'], $_GET['action'], $_GET['term-id'] )
 			|| $_GET['page'] != $this->module->settings_slug || $_GET['action'] != 'delete-term' )
 				return;
-				
+
 		if ( !wp_verify_nonce( $_GET['nonce'], 'delete-term' ) )
 			wp_die( $this->module->messages['nonce-failed'] );
-			
+
 		if ( !current_user_can( 'manage_options' ) )
 			wp_die( $this->module->messages['invalid-permissions'] );
-			
+
 		if ( !$existing_term = $this->get_editorial_metadata_term_by( 'id', (int)$_GET['term-id'] ) )
-			wp_die( $this->module->messsage['term-error'] );			
-			
+			wp_die( $this->module->messsage['term-error'] );
+
 		$result = $this->delete_editorial_metadata_term( $existing_term->term_id );
 		if ( !$result || is_wp_error( $result ) )
 			wp_die( __( 'Error deleting term.', 'edit-flow' ) );
-			
+
 		$redirect_url = add_query_arg( array( 'page' => $this->module->settings_slug, 'message' => 'term-deleted' ), get_admin_url( null, 'admin.php' ) );
 		wp_redirect( $redirect_url );
-		exit;		
+		exit;
 	}
-	
+
 	/**
 	 * Register settings for notifications so we can partially use the Settings API
 	 * (We use the Settings API for form generation, but not saving)
-	 * 
+	 *
 	 * @since 0.7
 	 * @uses add_settings_section(), add_settings_field()
 	 */
 	function register_settings() {
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
 			add_settings_field( 'post_types', __( 'Add to these post types:', 'edit-flow' ), array( $this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-	}	
+	}
 
 	/**
 	 * Choose the post types for editorial metadata
@@ -1355,15 +1384,15 @@ class EF_Editorial_Metadata extends EF_Module {
 	 * @return array $new_options Form values after they've been sanitized
 	 */
 	function settings_validate( $new_options ) {
-		
+
 		// Whitelist validation for the post type options
 		if ( !isset( $new_options['post_types'] ) )
 			$new_options['post_types'] = array();
-		$new_options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );		
-		
+		$new_options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
+
 		return $new_options;
 	}
-	
+
 	/**
 	 * Prepare and display the configuration view for editorial metadata.
 	 * There are four primary components:
@@ -1373,7 +1402,7 @@ class EF_Editorial_Metadata extends EF_Module {
 	 * - Full page width view for editing a single Editorial Metadata term
 	 *
 	 * @since 0.7
-	 */ 
+	 */
 	function print_configure_view() {
 		global $edit_flow;
 		$wp_list_table = new EF_Editorial_Metadata_List_Table();
@@ -1392,8 +1421,8 @@ class EF_Editorial_Metadata extends EF_Module {
 		</div>
 		</div><!-- /col-right -->
 		<?php $wp_list_table->inline_edit(); ?>
-		<?php endif; ?>	
-		
+		<?php endif; ?>
+
 		<?php if ( isset( $_GET['action'], $_GET['term-id'] ) && $_GET['action'] == 'edit-term' ): ?>
 		<?php /** Full page width view for editing a given editorial metadata term **/ ?>
 		<?php
@@ -1402,12 +1431,12 @@ class EF_Editorial_Metadata extends EF_Module {
 			$term = $this->get_editorial_metadata_term_by( 'id', $term_id );
 			if ( !$term ) {
 				echo '<div class="error"><p>' . $this->module->messages['term-missing'] . '</p></div>';
-				return; 
+				return;
 			}
-			$metadata_types = $this->get_supported_metadata_types();			
+			$metadata_types = $this->get_supported_metadata_types();
 			$type = $term->type;
 			$edit_term_link = $this->get_link( array( 'action' => 'edit-term', 'term-id' => $term->term_id ) );
-			
+
 			$name = ( isset( $_POST['name'] ) ) ? stripslashes( $_POST['name'] ) : $term->name;
 			$description = ( isset( $_POST['description'] ) ) ? stripslashes( $_POST['description'] ) : $term->description;
 			if ( $term->viewable )
@@ -1416,7 +1445,7 @@ class EF_Editorial_Metadata extends EF_Module {
 				$viewable = 'no';
 			$viewable = ( isset( $_POST['viewable'] ) ) ? stripslashes( $_POST['viewable'] ) : $viewable;
 		?>
-		
+
 		<form method="post" action="<?php echo esc_url( $edit_term_link ); ?>" >
 		<input type="hidden" name="action" value="editedtag" />
 		<input type="hidden" name="tag_id" value="<?php echo esc_attr( $term->term_id ); ?>" />
@@ -1437,7 +1466,7 @@ class EF_Editorial_Metadata extends EF_Module {
 					<input type="text" disabled="disabled" value="<?php echo esc_attr( $term->slug ); ?>" />
 					<p class="description"><?php _e( 'The slug cannot be changed once the term has been created.', 'edit-flow' ); ?></p>
 				</td>
-			</tr>			
+			</tr>
 			<tr class="form-field">
 				<th scope="row" valign="top"><label for="description"><?php _e( 'Description', 'edit-flow' ); ?></label></th>
 				<td>
@@ -1452,6 +1481,15 @@ class EF_Editorial_Metadata extends EF_Module {
 					<p class="description"><?php _e( 'The metadata type cannot be changed once created.', 'edit-flow' ); ?></p>
 				</td>
 			</tr>
+			<?php if ( $type == 'dropdown' ) : ?>
+			<tr class="form-field">
+				<th scope="row" valign="top"><label for="dropdown_items"><?php _e( 'Dropdown items', 'edit-flow' ); ?></label></th>
+				<td>
+					<textarea name="dropdown_items" id="dropdown_items" rows="5" cols="50" style="width: 97%;"><?php echo esc_html( $term->dropdown_items ); ?></textarea>
+					<p class="description"><?php _e( 'One item per line.', 'edit-flow' ); ?></p>
+				</td>
+			</tr>
+			<?php endif; ?>
 			<tr class="form-field">
 				<th scope="row" valign="top"><?php _e( 'Viewable', 'edit-flow' ); ?></th>
 				<td>
@@ -1476,22 +1514,22 @@ class EF_Editorial_Metadata extends EF_Module {
 		<a class="cancel-settings-link" href="<?php echo esc_url( add_query_arg( 'page', $this->module->settings_slug, get_admin_url( null, 'admin.php' ) ) ); ?>"><?php _e( 'Cancel', 'edit-flow' ); ?></a>
 		</p>
 		</form>
-		
+
 		<?php else: ?>
 		<?php /** If not in full-screen edit term mode, we can create new terms or change options **/ ?>
 		<div id="col-left">
-			<div class="col-wrap">	
+			<div class="col-wrap">
 			<div class="form-wrap">
 			<h3 class="nav-tab-wrapper">
 				<a href="<?php echo esc_url( add_query_arg( array( 'page' => $this->module->settings_slug ), get_admin_url( null, 'admin.php' ) ) ); ?>" class="nav-tab<?php if ( !isset( $_GET['action'] ) || $_GET['action'] != 'change-options' ) echo ' nav-tab-active'; ?>"><?php _e( 'Add New', 'edit-flow' ); ?></a>
 				<a href="<?php echo esc_url( add_query_arg( array( 'page' => $this->module->settings_slug, 'action' => 'change-options' ), get_admin_url( null, 'admin.php' ) ) ); ?>" class="nav-tab<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'change-options' ) echo ' nav-tab-active'; ?>"><?php _e( 'Options', 'edit-flow' ); ?></a>
 			</h3>
-			
+
 		<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'change-options' ): ?>
 		<?php /** Basic form built on WP Settings API for outputting Editorial Metadata options **/ ?>
 		<form class="basic-settings" action="<?php echo esc_url( add_query_arg( array( 'page' => $this->module->settings_slug, 'action' => 'change-options' ), get_admin_url( null, 'admin.php' ) ) ); ?>" method="post">
 			<?php settings_fields( $this->module->options_group_name ); ?>
-			<?php do_settings_sections( $this->module->options_group_name ); ?>	
+			<?php do_settings_sections( $this->module->options_group_name ); ?>
 			<?php echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />'; ?>
 			<?php submit_button(); ?>
 		</form>
@@ -1527,6 +1565,14 @@ class EF_Editorial_Metadata extends EF_Module {
 				</select>
 				<?php $edit_flow->settings->helper_print_error_or_description( 'type', __( 'Indicate the type of editorial metadata.', 'edit-flow' ) ); ?>
 			</div>
+			<?php
+				$dropdown_items_visible = ( isset( $_POST['metadata_type'] ) && $_POST['metadata_type'] == 'dropdown' );
+			?>
+			<div class="form-field form-required" <?php if ( !$dropdown_items_visible ) : ?>style="display:none;"<?php endif ?>>
+				<label for="metadata_dropdown_items"><?php _e( 'Dropdown Items', 'edit-flow' ); ?></label>
+				<textarea cols="40" rows="5" id="metadata_dropdown_items" name="metadata_dropdown_items"><?php if ( !empty( $_POST['metadata_dropdown_items'] ) ) echo esc_html( stripslashes( $_POST['metadata_dropdown_items'] ) ) ?></textarea>
+				<?php $edit_flow->settings->helper_print_error_or_description( 'dropdown_items', __( 'One item per line.', 'edit-flow' ) ); ?>
+			</div>
 			<div class="form-field form-required">
 				<label for="metadata_viewable"><?php _e( 'Viewable', 'edit-flow' ); ?></label>
 				<?php
@@ -1551,11 +1597,11 @@ class EF_Editorial_Metadata extends EF_Module {
 			</div>
 			</div>
 		</div>
-		
+
 		<?php
 		endif;
 	}
-	
+
 }
 
 }
@@ -1564,7 +1610,7 @@ class EF_Editorial_Metadata extends EF_Module {
  * Management interface for Editorial Metadata. Extends WP_List_Table class
  */
 class EF_Editorial_Metadata_List_Table extends WP_List_Table {
-	
+
 	var $callback_args;
 	var $taxonomy;
 	var $tax;
@@ -1576,16 +1622,16 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		global $edit_flow;
 
 		$this->taxonomy = EF_Editorial_Metadata::metadata_taxonomy;
-		
+
 		$this->tax = get_taxonomy( $this->taxonomy );
-		
+
 		$columns = $this->get_columns();
 		$hidden = array(
 			'position',
 		);
 		$sortable = array();
-		
-		$this->_column_headers = array( $columns, $hidden, $sortable );		
+
+		$this->_column_headers = array( $columns, $hidden, $sortable );
 
 		parent::__construct( array(
 			'plural' => 'editorial metadata',
@@ -1616,24 +1662,24 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 	function no_items() {
 		_e( 'No editorial metadata found.', 'edit-flow' );
 	}
-	
+
 	/**
 	 * Register the columns to appear in the table
 	 *
 	 * @since 0.7
 	 */
 	function get_columns() {
-		
+
 		$columns = array(
 			'position'	  => __( 'Position', 'edit-flow' ),
 			'name'        => __( 'Name', 'edit-flow' ),
 			'type'		  => __( 'Metadata Type', 'edit-flow' ),
 			'description' => __( 'Description', 'edit-flow' ),
 			'viewable'    => __( 'Viewable', 'edit-flow' ),
-		);		
+		);
 		return $columns;
 	}
-	
+
 	/**
 	 * Prepare a single row of Editorial Metadata
 	 *
@@ -1651,7 +1697,7 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
  		echo $this->single_row_columns( $term );
  		echo '</tr>';
 	}
-	
+
 	/**
 	 * Handle the column output when there's no method for it
 	 *
@@ -1661,7 +1707,7 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 	 * @param string $column_name How the column was registered at birth
 	 */
 	function column_default( $item, $column_name ) {
-		
+
 		switch( $column_name ) {
 			case 'position':
 			case 'type':
@@ -1671,13 +1717,13 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 			case 'viewable':
 				if ( $item->viewable )
 					return __( 'Yes', 'edit-flow' );
-				else 
+				else
 					return __( 'No', 'edit-flow' );
 				break;
 			default:
 				break;
 		}
-		
+
 	}
 
 	/**
@@ -1691,9 +1737,9 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		global $edit_flow;
 		$item_edit_link = esc_url( $edit_flow->editorial_metadata->get_link( array( 'action' => 'edit-term', 'term-id' => $item->term_id ) ) );
 		$item_delete_link = esc_url( $edit_flow->editorial_metadata->get_link( array( 'action' => 'delete-term', 'term-id' => $item->term_id ) ) );
-		
+
 		$out = '<strong><a class="row-title" href="' . $item_edit_link . '">' . esc_html( $item->name ) . '</a></strong>';
-		
+
 		$actions = array();
 		$actions['edit'] = "<a href='$item_edit_link'>" . __( 'Edit', 'edit-flow' ) . "</a>";
 		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';
@@ -1702,13 +1748,13 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		else
 			$actions['change-visibility make-viewable'] = '<a title="' . esc_attr( __( 'When viewable, metadata can be seen on views other than the edit post view (e.g. calendar, manage posts, story budget, etc.)', 'edit-flow' ) ) . '" href="' . esc_url( $edit_flow->editorial_metadata->get_link( array( 'action' => 'make-viewable', 'term-id' => $item->term_id ) ) ) . '">' . __( 'Make Viewable', 'edit-flow' ) . '</a>';
 		$actions['delete delete-status'] = "<a href='$item_delete_link'>" . __( 'Delete', 'edit-flow' ) . "</a>";
-		
+
 		$out .= $this->row_actions( $actions, false );
 		$out .= '<div class="hidden" id="inline_' . $item->term_id . '">';
 		$out .= '<div class="name">' . $item->name . '</div>';
-		$out .= '<div class="description">' . $item->description . '</div>';	
+		$out .= '<div class="description">' . $item->description . '</div>';
 		$out .= '</div>';
-		
+
 		return $out;
 	}
 
