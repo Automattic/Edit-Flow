@@ -22,7 +22,7 @@ Edit Flow empowers you to collaborate with your editorial team inside WordPress.
 * [Story Budget](http://editflow.org/features/story-budget/) - View your upcoming content budget.
 * [User Groups](http://editflow.org/features/user-groups/) - Keep your users organized by department or function.
 
-More details for each feature, screenshots and documentation can be found on [our website](http://www.editflow.org/).
+More details for each feature, screenshots and documentation can be found on [our website](http://editflow.org/).
 
 We'd love to hear from you! For support questions, feedback and ideas, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10), which we look at often. If you'd like to contribute code, [we'd love to have you involved](http://editflow.org/contribute/).
 
