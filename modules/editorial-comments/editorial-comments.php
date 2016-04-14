@@ -12,9 +12,9 @@ class EF_Editorial_Comments extends EF_Module
 {
 	// This is comment type used to differentiate editorial comments
 	const comment_type = 'editorial-comment';
-	
+
 	function __construct() {
-		
+
 		$this->module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		$args = array(
@@ -46,11 +46,11 @@ class EF_Editorial_Comments extends EF_Module
 
 	/**
 	 * Initialize the rest of the stuff in the class if the module is active
-	 */	
+	 */
 	function init() {
 
 		add_action( 'add_meta_boxes', array ( $this, 'add_post_meta_box' ) );
-		add_action( 'admin_init', array( $this, 'register_settings' ) );		
+		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_scripts' ) );
 		add_action( 'wp_ajax_editflow_ajax_insert_comment', array( $this, 'ajax_insert_comment' ) );
 
@@ -74,48 +74,48 @@ class EF_Editorial_Comments extends EF_Module
 			// Technically we've run this code before so we don't want to auto-install new data
 			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
 		}
-		
+
 	}
-	
+
 	/**
 	 * Load any of the admin scripts we need but only on the pages we need them
 	 */
 	function add_admin_scripts( ) {
 		global $pagenow;
-		
+
 		$post_type = $this->get_current_post_type();
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		if ( !in_array( $post_type, $supported_post_types ) )
 			return;
-			
+
 		if ( !in_array( $pagenow, array( 'post.php', 'page.php', 'post-new.php', 'page-new.php' ) ) )
 			return;
-		
+
 		wp_enqueue_script( 'edit_flow-post_comment', $this->module_url . 'lib/editorial-comments.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
 		wp_enqueue_style( 'edit-flow-editorial-comments-css', $this->module_url . 'lib/editorial-comments.css', false, EDIT_FLOW_VERSION, 'all' );
-				
+
 		$thread_comments = (int) get_option('thread_comments');
 		?>
 		<script type="text/javascript">
 			var ef_thread_comments = <?php echo ($thread_comments) ? $thread_comments : 0; ?>;
 		</script>
 		<?php
-		
+
 	}
-	
+
 	/**
 	 * Add the editorial comments metabox to enabled post types
-	 * 
+	 *
 	 * @uses add_meta_box()
 	 */
 	function add_post_meta_box() {
-		
+
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		foreach ( $supported_post_types as $post_type )
 			add_meta_box('edit-flow-editorial-comments', __('Editorial Comments', 'edit-flow'), array($this, 'editorial_comments_meta_box'), $post_type, 'normal' );
-			
+
 	}
-	
+
 	/**
 	 * Get the total number of editorial comments for a post
 	 *
@@ -123,23 +123,23 @@ class EF_Editorial_Comments extends EF_Module
 	 * @return int $comment_count Number of editorial comments for a post
 	 */
 	function get_editorial_comment_count( $id ) {
-		global $wpdb; 
+		global $wpdb;
 		$comment_count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $wpdb->comments WHERE comment_post_ID = %d AND comment_type = %s", $id, self::comment_type));
 		if ( !$comment_count )
 			$comment_count = 0;
 		return $comment_count;
 	}
-	
+
 	function editorial_comments_meta_box( ) {
 		global $post, $post_ID;
 		?>
 		<div id="ef-comments_wrapper">
 			<a name="editorialcomments"></a>
-			
+
 			<?php
 			// Show comments only if not a new post
 			if( ! in_array( $post->post_status, array( 'new', 'auto-draft' ) ) ) :
-				
+
 				// Unused since switched to wp_list_comments
 				$editorial_comments = ef_get_comments_plus (
 								array(
@@ -151,24 +151,24 @@ class EF_Editorial_Comments extends EF_Module
 								)
 							);
 				?>
-					
+
 				<ul id="ef-comments">
-					<?php 
+					<?php
 						// We use this so we can take advantage of threading and such
-						
+
 						wp_list_comments(
 							array(
 								'type' => self::comment_type,
 								'callback' => array($this, 'the_comment'),
 								'end-callback' => '__return_false'
-							), 
+							),
 							$editorial_comments
 						);
 					?>
 				</ul>
-				
+
 				<?php $this->the_comment_form(); ?>
-				
+
 			<?php
 			else :
 			?>
@@ -181,22 +181,22 @@ class EF_Editorial_Comments extends EF_Module
 		<div class="clear"></div>
 		<?php
 	}
-	
+
 	/**
 	 * Displays the main commenting form
 	 */
 	function the_comment_form( ) {
 		global $post;
-		
+
 		?>
 		<a href="#" id="ef-comment_respond" onclick="editorialCommentReply.open();return false;" class="button-primary alignright hide-if-no-js" title=" <?php _e( 'Respond to this post', 'edit-flow' ); ?>"><span><?php _e( 'Respond to this post', 'edit-flow' ); ?></span></a>
-		
+
 		<!-- Reply form, hidden until reply clicked by user -->
 		<div id="ef-replyrow" style="display: none;">
 			<div id="ef-replycontainer">
 				<textarea id="ef-replycontent" name="replycontent" cols="40" rows="5"></textarea>
 			</div>
-		
+
 			<p id="ef-replysubmit">
 				<a class="ef-replysave button-primary alignright" href="#comments-form">
 					<span id="ef-replybtn"><?php _e('Submit Response', 'edit-flow') ?></span>
@@ -206,41 +206,41 @@ class EF_Editorial_Comments extends EF_Module
 				<br class="clear" style="margin-bottom:35px;" />
 				<span style="display: none;" class="error"></span>
 			</p>
-		
+
 			<input type="hidden" value="" id="ef-comment_parent" name="ef-comment_parent" />
 			<input type="hidden" name="ef-post_id" id="ef-post_id" value="<?php echo esc_attr( $post->ID ); ?>" />
-			
+
 			<?php wp_nonce_field('comment', 'ef_comment_nonce', false); ?>
-			
+
 			<br class="clear" />
 		</div>
 
 		<?php
 	}
-	
+
 	/**
 	 * Displays a single comment
 	 */
 	function the_comment($comment, $args, $depth) {
 		global $current_user, $userdata;
-		
+
 		// Get current user
-		get_currentuserinfo() ;
-		
+		wp_get_current_user() ;
+
 		$GLOBALS['comment'] = $comment;
 
 		// Deleting editorial comments is not enabled for now for the sake of transparency. However, we could consider
 		// EF comment edits (with history, if possible). P2 already allows for edits without history, so even that might work.
 		// Pivotal ticket: https://www.pivotaltracker.com/story/show/18483757
 		//$delete_url = esc_url( wp_nonce_url( "comment.php?action=deletecomment&p=$comment->comment_post_ID&c=$comment->comment_ID", "delete-comment_$comment->comment_ID" ) );
-	
+
 		$actions = array();
-	
+
 		$actions_string = '';
 		// Comments can only be added by users that can edit the post
 		if ( current_user_can('edit_post', $comment->comment_post_ID) ) {
 			$actions['reply'] = '<a onclick="editorialCommentReply.open(\''.$comment->comment_ID.'\',\''.$comment->comment_post_ID.'\');return false;" class="vim-r hide-if-no-js" title="'.__( 'Reply to this comment', 'edit-flow' ).'" href="#">' . __( 'Reply', 'edit-flow' ) . '</a>';
-			
+
 			$sep = ' ';
 			$i = 0;
 			foreach ( $actions as $action => $link ) {
@@ -248,15 +248,15 @@ class EF_Editorial_Comments extends EF_Module
 				// Reply and quickedit need a hide-if-no-js span
 				if ( 'reply' == $action || 'quickedit' == $action )
 					$action .= ' hide-if-no-js';
-	
+
 				$actions_string .= "<span class='$action'>$sep$link</span>";
 			}
 		}
-	
+
 	?>
 
 		<li id="comment-<?php echo esc_attr( $comment->comment_ID ); ?>" <?php comment_class( array( 'comment-item', wp_get_comment_status($comment->comment_ID) ) ); ?>>
-		
+
 			<?php echo get_avatar( $comment->comment_author_email, 50 ); ?>
 
 			<div class="post-comment-wrap">
@@ -266,48 +266,48 @@ class EF_Editorial_Comments extends EF_Module
 							get_comment_date( get_option( 'date_format' ) ),
 							get_comment_time() ); ?>
 				</h5>
-	
+
 				<div class="comment-content"><?php comment_text(); ?></div>
 				<p class="row-actions"><?php echo $actions_string; ?></p>
-	
+
 			</div>
-		</li>	
+		</li>
 		<?php
 	}
-		
+
 	/**
 	 * Handles AJAX insert comment
 	 */
 	function ajax_insert_comment( ) {
 		global $current_user, $user_ID, $wpdb;
-		
+
 		// Verify nonce
 		if ( !wp_verify_nonce( $_POST['_nonce'], 'comment') )
 			die( __( "Nonce check failed. Please ensure you're supposed to be adding editorial comments.", 'edit-flow' ) );
-		
+
 		// Get user info
-      	get_currentuserinfo();
-      	
+      	wp_get_current_user();
+
       	// Set up comment data
 		$post_id = absint( $_POST['post_id'] );
 		$parent = absint( $_POST['parent'] );
-      	
+
       	// Only allow the comment if user can edit post
       	// @TODO: allow contributers to add comments as well (?)
 		if ( ! current_user_can( 'edit_post', $post_id ) )
 			die( __('Sorry, you don\'t have the privileges to add editorial comments. Please talk to your Administrator.', 'edit-flow' ) );
-		
+
 		// Verify that comment was actually entered
 		$comment_content = trim($_POST['content']);
 		if( !$comment_content )
 			die( __( "Please enter a comment.", 'edit-flow' ) );
-		
+
 		// Check that we have a post_id and user logged in
 		if( $post_id && $current_user ) {
-			
+
 			// set current time
-			$time = current_time('mysql', $gmt = 0); 
-			
+			$time = current_time('mysql', $gmt = 0);
+
 			// Set comment data
 			$data = array(
 			    'comment_post_ID' => (int) $post_id,
@@ -325,43 +325,43 @@ class EF_Editorial_Comments extends EF_Module
 				// Set to -1?
 			    'comment_approved' => self::comment_type,
 			);
-			
+
 			apply_filters( 'ef_pre_insert_editorial_comment', $data );
-			
+
 			// Insert Comment
 			$comment_id = wp_insert_comment($data);
 			$comment = get_comment($comment_id);
-			
+
 			// Register actions -- will be used to set up notifications and other modules can hook into this
 			if ( $comment_id )
 				do_action( 'ef_post_insert_editorial_comment', $comment );
 
 			// Prepare response
 			$response = new WP_Ajax_Response();
-			
+
 			ob_start();
 				$this->the_comment( $comment, '', '' );
 				$comment_list_item = ob_get_contents();
 			ob_end_clean();
-			
+
 			$response->add( array(
 				'what' => 'comment',
 				'id' => $comment_id,
 				'data' => $comment_list_item,
 				'action' => ($parent) ? 'reply' : 'new'
 			));
-		
+
 			$response->send();
-						
+
 		} else {
 			die( __('There was a problem of some sort. Try again or contact your administrator.', 'edit-flow') );
 		}
 	}
-	
+
 	/**
 	 * Register settings for editorial comments so we can partially use the Settings API
 	 * (We use the Settings API for form generation, but not saving)
-	 * 
+	 *
 	 * @since 0.7
 	 */
 	function register_settings() {
@@ -376,7 +376,7 @@ class EF_Editorial_Comments extends EF_Module
 	 */
 	function settings_post_types_option() {
 		global $edit_flow;
-		$edit_flow->settings->helper_option_custom_post_type( $this->module );	
+		$edit_flow->settings->helper_option_custom_post_type( $this->module );
 	}
 
 	/**
@@ -385,20 +385,20 @@ class EF_Editorial_Comments extends EF_Module
 	 * @since 0.7
 	 */
 	function settings_validate( $new_options ) {
-		
+
 		// Whitelist validation for the post type options
 		if ( !isset( $new_options['post_types'] ) )
 			$new_options['post_types'] = array();
 		$new_options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
-		
+
 		return $new_options;
 
-	}	
+	}
 
 	/**
 	 * Settings page for editorial comments
 	 *
-	 * @since 0.7	
+	 * @since 0.7
 	 */
 	function print_configure_view() {
 		?>
@@ -407,7 +407,7 @@ class EF_Editorial_Comments extends EF_Module
 			<?php settings_fields( $this->module->options_group_name ); ?>
 			<?php do_settings_sections( $this->module->options_group_name ); ?>
 			<?php
-				echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';				
+				echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';
 			?>
 			<p class="submit"><?php submit_button( null, 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
 
@@ -454,21 +454,21 @@ class EF_Editorial_Comments extends EF_Module
 function ef_get_comments_plus( $args = '' ) {
 	global $wpdb;
 
-	$defaults = array( 
-	                'author_email' => '', 
-	                'ID' => '', 
-	                'karma' => '', 
-	                'number' => '',  
-	                'offset' => '',  
-	                'orderby' => '',  
-	                'order' => 'DESC',  
-	                'parent' => '', 
-	                'post_ID' => '', 
-	                'post_id' => 0, 
-	                'status' => '',  
-	                'type' => '', 
-	                'user_id' => '', 
-	        ); 
+	$defaults = array(
+	                'author_email' => '',
+	                'ID' => '',
+	                'karma' => '',
+	                'number' => '',
+	                'offset' => '',
+	                'orderby' => '',
+	                'order' => 'DESC',
+	                'parent' => '',
+	                'post_ID' => '',
+	                'post_id' => 0,
+	                'status' => '',
+	                'type' => '',
+	                'user_id' => '',
+	        );
 
 	$args = wp_parse_args( $args, $defaults );
 	extract( $args, EXTR_SKIP );
@@ -501,32 +501,32 @@ function ef_get_comments_plus( $args = '' ) {
 
 	$order = ( 'ASC' == $order ) ? 'ASC' : 'DESC';
 
-	if ( ! empty( $orderby ) ) { 
-            $ordersby = is_array($orderby) ? $orderby : preg_split('/[,\s]/', $orderby); 
-            $ordersby = array_intersect( 
-                    $ordersby,  
-                    array( 
-                            'comment_agent', 
-                            'comment_approved', 
-                            'comment_author', 
-                            'comment_author_email', 
-                            'comment_author_IP', 
-                            'comment_author_url', 
-                            'comment_content', 
-                            'comment_date', 
-                            'comment_date_gmt', 
-                            'comment_ID', 
-                            'comment_karma', 
-                            'comment_parent', 
-                            'comment_post_ID', 
-                            'comment_type', 
-                            'user_id', 
-                    ) 
-            ); 
-            $orderby = empty( $ordersby ) ? 'comment_date_gmt' : implode(', ', $ordersby); 
-    } else { 
-            $orderby = 'comment_date_gmt'; 
-    } 
+	if ( ! empty( $orderby ) ) {
+            $ordersby = is_array($orderby) ? $orderby : preg_split('/[,\s]/', $orderby);
+            $ordersby = array_intersect(
+                    $ordersby,
+                    array(
+                            'comment_agent',
+                            'comment_approved',
+                            'comment_author',
+                            'comment_author_email',
+                            'comment_author_IP',
+                            'comment_author_url',
+                            'comment_content',
+                            'comment_date',
+                            'comment_date_gmt',
+                            'comment_ID',
+                            'comment_karma',
+                            'comment_parent',
+                            'comment_post_ID',
+                            'comment_type',
+                            'user_id',
+                    )
+            );
+            $orderby = empty( $ordersby ) ? 'comment_date_gmt' : implode(', ', $ordersby);
+    } else {
+            $orderby = 'comment_date_gmt';
+    }
 
 	$number = absint($number);
 	$offset = absint($offset);
@@ -540,23 +540,23 @@ function ef_get_comments_plus( $args = '' ) {
 	} else {
 		$number = '';
 	}
-	
+
 	$post_where = '';
 
 	if ( ! empty($post_id) )
-		$post_where .= $wpdb->prepare( 'comment_post_ID = %d AND ', $post_id ); 
-    if ( '' !== $author_email )  
-            $post_where .= $wpdb->prepare( 'comment_author_email = %s AND ', $author_email ); 
-    if ( '' !== $karma ) 
-            $post_where .= $wpdb->prepare( 'comment_karma = %d AND ', $karma ); 
-    if ( 'comment' == $type ) 
-            $post_where .= "comment_type = '' AND "; 
-    elseif ( ! empty( $type ) )  
-            $post_where .= $wpdb->prepare( 'comment_type = %s AND ', $type ); 
-    if ( '' !== $parent ) 
-            $post_where .= $wpdb->prepare( 'comment_parent = %d AND ', $parent ); 
-    if ( '' !== $user_id ) 
-            $post_where .= $wpdb->prepare( 'user_id = %d AND ', $user_id ); 
+		$post_where .= $wpdb->prepare( 'comment_post_ID = %d AND ', $post_id );
+    if ( '' !== $author_email )
+            $post_where .= $wpdb->prepare( 'comment_author_email = %s AND ', $author_email );
+    if ( '' !== $karma )
+            $post_where .= $wpdb->prepare( 'comment_karma = %d AND ', $karma );
+    if ( 'comment' == $type )
+            $post_where .= "comment_type = '' AND ";
+    elseif ( ! empty( $type ) )
+            $post_where .= $wpdb->prepare( 'comment_type = %s AND ', $type );
+    if ( '' !== $parent )
+            $post_where .= $wpdb->prepare( 'comment_parent = %d AND ', $parent );
+    if ( '' !== $user_id )
+            $post_where .= $wpdb->prepare( 'user_id = %d AND ', $user_id );
 
 	$comments = $wpdb->get_results( "SELECT * FROM $wpdb->comments WHERE $post_where $approved ORDER BY $orderby $order $number" );
 	wp_cache_add( $cache_key, $comments, 'comment' );
