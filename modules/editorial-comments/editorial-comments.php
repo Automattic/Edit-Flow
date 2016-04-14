@@ -225,7 +225,7 @@ class EF_Editorial_Comments extends EF_Module
 		global $current_user, $userdata;
 		
 		// Get current user
-		get_currentuserinfo() ;
+		wp_get_current_user() ;
 		
 		$GLOBALS['comment'] = $comment;
 
@@ -286,7 +286,7 @@ class EF_Editorial_Comments extends EF_Module
 			die( __( "Nonce check failed. Please ensure you're supposed to be adding editorial comments.", 'edit-flow' ) );
 		
 		// Get user info
-      	get_currentuserinfo();
+      	wp_get_current_user();
       	
       	// Set up comment data
 		$post_id = absint( $_POST['post_id'] );
