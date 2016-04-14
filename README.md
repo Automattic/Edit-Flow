@@ -97,8 +97,16 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 ## Changelog
+**0.8.2 (??? ??, ????)**
 
-**0.8 Dec 19, 2013)**
+**0.8.1 (Apr 13, 2016)**
+* New German localization thanks to [Circleview](https://github.com/Circleview)
+* New Spanish localization thanks to Andrew Kurtis from [Web Hosting Hub](http://www.webhostinghub.com/).
+* Performance improvements for the calendar, custom statuses, and editorial metadata
+* Bug fix: Show "(no title)" on the calendar when a post doesn't have a title.
+* Bug fix: Persist the future date position of a post on the calendar when a post is updated.
+
+**0.8 (Dec 19, 2013)**
 * New feature: Dashboard Notepad. Editors and admins can use a notepad widget on the dashboard to leave instructions, important announcements, etc. for every WordPress user.
 * New feature: Double-click to create a new post on the calendar, or edit the details associated with an existing post. Thanks [bbrooks](https://github.com/bbrooks) and [cojennin](https://github.com/cojennin)
 * Post subscriptions are now saved via AJAX, which means you can add or remove subscribers without hitting "Save Post". This is especially useful for editorial comments. Thanks [cojennin](https://github.com/cojennin)
