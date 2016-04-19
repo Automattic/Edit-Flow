@@ -767,7 +767,7 @@ class EF_Calendar extends EF_Module {
 						<a class="show-more" href="#"><?php printf( __( 'Show %d more', 'edit-flow' ), $this->hidden ); ?></a>
 					<?php endif; ?>
 
-					<?php if( current_user_can('publish_posts') ) : 
+					<?php if( current_user_can( $this->create_post_cap ) ) :
 						$date_formatted = date( 'D, M jS, Y', strtotime( $week_single_date ) );
 					?>
 
