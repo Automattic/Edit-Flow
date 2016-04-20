@@ -39,8 +39,8 @@ class EF_Module {
 	function get_all_post_types() {
 
 		$allowed_post_types = array(
-			'post' => __( 'Post' ),
-			'page' => __( 'Page' ),
+			'post' => __( 'Post', 'edit-flow' ),
+			'page' => __( 'Page', 'edit-flow' ),
 		);
 		$custom_post_types = $this->get_supported_post_types_for_module();
 		
@@ -139,13 +139,13 @@ class EF_Module {
 		
 		return array(
 				(object)array(
-					'name'         => __( 'Draft' ),
+					'name'         => __( 'Draft', 'edit-flow' ),
 					'description'  => '',
 					'slug'         => 'draft',
 					'position'     => 1,
 				),
 				(object)array(
-					'name'         => __( 'Pending Review' ),
+					'name'         => __( 'Pending Review', 'edit-flow' ),
 					'description'  => '',
 					'slug'         => 'pending',
 					'position'     => 2,
@@ -398,7 +398,7 @@ class EF_Module {
 		global $wpdb;
 
 		if ( !taxonomy_exists( $taxonomy ) )
-			return new WP_Error( 'invalid_taxonomy', __( 'Invalid Taxonomy' ) );
+			return new WP_Error( 'invalid_taxonomy', __( 'Invalid Taxonomy', 'edit-flow' ) );
 
 		if ( !is_array( $object_id ) )
 			$object_id = array( $object_id );

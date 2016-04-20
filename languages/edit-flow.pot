@@ -191,18 +191,21 @@ msgid "Show %1$s more "
 msgstr ""
 
 #: modules/calendar/calendar.php:765
-msgid "Schedule a %s for %s"
+msgid "Schedule a %1$s for %2$s"
 msgstr ""
 
 #: modules/calendar/calendar.php:766
+msgctxt "post type name"
 msgid "%s Title"
 msgstr ""
 
 #: modules/calendar/calendar.php:769
+msgctxt "post type name"
 msgid "Create %s"
 msgstr ""
 
 #: modules/calendar/calendar.php:770
+msgctxt "post type name"
 msgid "Edit %s"
 msgstr ""
 
@@ -1644,6 +1647,7 @@ msgid "Number of Columns: "
 msgstr ""
 
 #: modules/story-budget/story-budget.php:335
+msgctxt "%1$s = start date, %2$s = number of days, %3$s = translation of 'Days'"
 msgid "starting %1$s showing %2$s %3$s"
 msgstr ""
 

@@ -419,7 +419,7 @@ class EF_Custom_Status extends EF_Module {
 			?>
 			<script type="text/javascript">
 				var custom_statuses = <?php echo json_encode( $all_statuses ); ?>;
-				var ef_text_no_change = '<?php echo esc_js( __( "&mdash; No Change &mdash;" ) ); ?>';
+				var ef_text_no_change = '<?php echo esc_js( __( '&mdash; No Change &mdash;', 'edit-flow' ) ); ?>';
 				var ef_default_custom_status = '<?php echo esc_js( $this->get_default_custom_status()->slug ); ?>';
 				var current_status = '<?php echo esc_js( $selected ); ?>';
 				var current_status_name = '<?php echo esc_js( $selected_name ); ?>';
@@ -761,7 +761,8 @@ class EF_Custom_Status extends EF_Module {
 		if ( (int)$status_name != 0 )
 			$_REQUEST['form-errors']['name'] = __( 'Please enter a valid, non-numeric name for the status.', 'edit-flow' );
 		// Check that the status name doesn't exceed 20 chars
-		if ( strlen( $status_name ) > 20 )
+		// mb for i18n
+		if ( mb_strlen( $status_name ) > 20 )
 			$_REQUEST['form-errors']['name'] = __( 'Status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' );
 		// Check to make sure the status doesn't already exist as another term because otherwise we'd get a weird slug
 		if ( term_exists( $status_slug ) )
@@ -828,7 +829,8 @@ class EF_Custom_Status extends EF_Module {
 		if ( is_numeric( $name ) )
 			$_REQUEST['form-errors']['name'] = __( 'Please enter a valid, non-numeric name for the status.', 'edit-flow' );
 		// Check that the status name doesn't exceed 20 chars
-		if ( strlen( $name ) > 20 )
+		// mb for i18n
+		if ( mb_strlen( $name ) > 20 )
 			$_REQUEST['form-errors']['name'] = __( 'Status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' );
 		// Check to make sure the status doesn't already exist as another term because otherwise we'd get a weird slug
 		$term_exists = term_exists( sanitize_title( $name ) );
@@ -1024,7 +1026,8 @@ class EF_Custom_Status extends EF_Module {
 		}
 
 		// Check that the status name doesn't exceed 20 chars
-		if ( strlen( $status_name ) > 20 ) {
+		// mb for i18n
+		if ( mb_strlen( $status_name ) > 20 ) {
 			$change_error = new WP_Error( 'invalid', __( 'Status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );
 		}
@@ -1561,7 +1564,7 @@ class EF_Custom_Status extends EF_Module {
 		$args['preview'] = 'true';
 		$preview_link = add_query_arg( $args, home_url() );
 
-		$actions['view'] = '<a href="' . esc_url( $preview_link ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $post->post_title ) ) . '" rel="permalink">' . __( 'Preview' ) . '</a>';
+		$actions['view'] = '<a href="' . esc_url( $preview_link ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $post->post_title ) ) . '" rel="permalink">' . __( 'Preview', 'edit-flow' ) . '</a>';
 		return $actions;
 	}
 }
@@ -1724,7 +1727,7 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 
 		$actions = array();
 		$actions['edit'] = "<a href='$item_edit_link'>" . __( 'Edit', 'edit-flow' ) . "</a>";
-		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';
+		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit', 'edit-flow' ) . '</a>';
 		if ( $item->slug != $this->default_status )
 			$actions['make_default'] = sprintf( '<a href="%1$s">' . __( 'Make&nbsp;Default', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'make-default', 'term-id' => $item->term_id ) ) );
 
@@ -1779,7 +1782,7 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 	<form method="get" action=""><table style="display: none"><tbody id="inlineedit">
 		<tr id="inline-edit" class="inline-edit-row" style="display: none"><td colspan="<?php echo $this->get_column_count(); ?>" class="colspanchange">
 			<fieldset><div class="inline-edit-col">
-				<h4><?php _e( 'Quick Edit' ); ?></h4>
+				<h4><?php _e( 'Quick Edit', 'edit-flow' ); ?></h4>
 				<label>
 					<span class="title"><?php _e( 'Name', 'edit-flow' ); ?></span>
 					<span class="input-text-wrap"><input type="text" name="name" class="ptitle" value="" maxlength="20" /></span>
@@ -1790,7 +1793,7 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 				</label>
 			</div></fieldset>
 		<p class="inline-edit-save submit">
-			<a accesskey="c" href="#inline-edit" title="<?php _e( 'Cancel' ); ?>" class="cancel button-secondary alignleft"><?php _e( 'Cancel' ); ?></a>
+			<a accesskey="c" href="#inline-edit" title="<?php _e( 'Cancel', 'edit-flow' ); ?>" class="cancel button-secondary alignleft"><?php _e( 'Cancel', 'edit-flow' ); ?></a>
 			<?php $update_text = __( 'Update Status', 'edit-flow' ); ?>
 			<a accesskey="s" href="#inline-edit" title="<?php echo esc_attr( $update_text ); ?>" class="save button-primary alignright"><?php echo $update_text; ?></a>
 			<img class="waiting" style="display:none;" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />

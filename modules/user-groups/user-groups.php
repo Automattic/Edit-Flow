@@ -299,7 +299,8 @@ class EF_User_Groups extends EF_Module {
 		// Check to ensure a term with the same slug doesn't exist
 		if ( $this->get_usergroup_by( 'slug', sanitize_title( $name ) ) )
 			$_REQUEST['form-errors']['name'] = __( 'Name conflicts with slug for another term. Please choose again.', 'edit-flow' );
-		if ( strlen( $name ) > 40 )
+		// mb for internationalization
+		if ( mb_strlen( $name ) > 40 )
 			$_REQUEST['form-errors']['name'] = __( 'User group name cannot exceed 40 characters. Please try a shorter name.', 'edit-flow' );			
 		// Kick out if there are any errors
 		if ( count( $_REQUEST['form-errors'] ) ) {
@@ -370,8 +371,9 @@ class EF_User_Groups extends EF_Module {
 		$search_term = $this->get_usergroup_by( 'slug', sanitize_title( $name ) );
 		if ( is_object( $search_term ) && $search_term->term_id != $existing_usergroup->term_id )
 			$_REQUEST['form-errors']['name'] = __( 'Name conflicts with slug for another term. Please choose again.', 'edit-flow' );
-		if ( strlen( $name ) > 40 )
-			$_REQUEST['form-errors']['name'] = __( 'User group name cannot exceed 40 characters. Please try a shorter name.', 'edit-flow' );			
+		// mb for internationalization
+		if ( mb_strlen( $name ) > 40 )
+			$_REQUEST['form-errors']['name'] = __( 'User group name cannot exceed 40 characters. Please try a shorter name.', 'edit-flow' );
 		// Kick out if there are any errors
 		if ( count( $_REQUEST['form-errors'] ) ) {
 			$_REQUEST['error'] = 'form-error';
@@ -453,8 +455,9 @@ class EF_User_Groups extends EF_Module {
 			die( $change_error->get_error_message() );
 		}
 		// Check that the name doesn't exceed 40 chars
-		if ( strlen( $name ) > 40 ) {
-			$change_error = new WP_Error( 'invalid', __( 'User group name cannot exceed 40 characters. Please try a shorter name.' ) );
+		// mb for non-latin encodings
+		if ( mb_strlen( $name ) > 40 ) {
+			$change_error = new WP_Error( 'invalid', __( 'User group name cannot exceed 40 characters. Please try a shorter name.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );
 		}
 		// Check to ensure a term with the same name doesn't exist
@@ -771,7 +774,7 @@ class EF_User_Groups extends EF_Module {
 						<input type="checkbox" id="<?php echo $input_id . esc_attr( $usergroup->term_id ) ?>" name="<?php echo $input_id ?>[]" value="<?php echo esc_attr( $usergroup->term_id ) ?>"<?php echo $checked ?> />
 						<span class="ef-usergroup_name"><?php echo esc_html( $usergroup->name ); ?></span>
 						<span class="ef-usergroup_description" title="<?php echo esc_attr($usergroup->description) ?>">
-							<?php echo (strlen($usergroup->description) >= 50) ? substr_replace(esc_html($usergroup->description), '...', 50) : esc_html($usergroup->description); ?>
+							<?php echo (mb_strlen($usergroup->description) >= 50) ? (mb_substr(esc_html($usergroup->description), 0, 50) . '...') : esc_html($usergroup->description); ?>
 						</span>
 					</label>
 				</li>
@@ -1165,7 +1168,7 @@ class EF_Usergroups_List_Table extends WP_List_Table
 		
 		$actions = array();
 		$actions['edit edit-usergroup'] = sprintf( '<a href="%1$s">' . __( 'Edit', 'edit-flow' ) . '</a>', $edit_flow->user_groups->get_link( array( 'action' => 'edit-usergroup', 'usergroup-id' => $usergroup->term_id ) ) );
-		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';
+		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit', 'edit-flow' ) . '</a>';
 		$actions['delete delete-usergroup'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->user_groups->get_link( array( 'action' => 'delete-usergroup', 'usergroup-id' => $usergroup->term_id ) ) );
 		
 		$output .= $this->row_actions( $actions, false );
@@ -1223,7 +1226,7 @@ class EF_Usergroups_List_Table extends WP_List_Table
 	<form method="get" action=""><table style="display: none"><tbody id="inlineedit">
 		<tr id="inline-edit" class="inline-edit-row" style="display: none"><td colspan="<?php echo $this->get_column_count(); ?>" class="colspanchange">
 			<fieldset><div class="inline-edit-col">
-				<h4><?php _e( 'Quick Edit' ); ?></h4>
+				<h4><?php _e( 'Quick Edit', 'edit-flow' ); ?></h4>
 				<label>
 					<span class="title"><?php _e( 'Name', 'edit-flow' ); ?></span>
 					<span class="input-text-wrap"><input type="text" name="name" class="ptitle" value="" maxlength="40" /></span>
@@ -1234,7 +1237,7 @@ class EF_Usergroups_List_Table extends WP_List_Table
 				</label>
 			</div></fieldset>
 		<p class="inline-edit-save submit">
-			<a accesskey="c" href="#inline-edit" title="<?php _e( 'Cancel' ); ?>" class="cancel button-secondary alignleft"><?php _e( 'Cancel' ); ?></a>
+			<a accesskey="c" href="#inline-edit" title="<?php _e( 'Cancel', 'edit-flow' ); ?>" class="cancel button-secondary alignleft"><?php _e( 'Cancel', 'edit-flow' ); ?></a>
 			<?php $update_text = __( 'Update User Group', 'edit-flow' ); ?>
 			<a accesskey="s" href="#inline-edit" title="<?php echo esc_attr( $update_text ); ?>" class="save button-primary alignright"><?php echo $update_text; ?></a>
 			<img class="waiting" style="display:none;" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
