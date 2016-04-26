@@ -1,23 +1,69 @@
 language: php
 
 php:
-    - 5.3
-    - 5.4
-    - 5.5
-    - 5.6
-    - hhvm
+    - "5.6"
 
 env:
-    - WP_VERSION=latest WP_MULTISITE=0
-    - WP_VERSION=latest WP_MULTISITE=1
-    - WP_VERSION=4.1 WP_MULTISITE=0
-    - WP_VERSION=4.1 WP_MULTISITE=1
-    - WP_VERSION=4.0 WP_MULTISITE=0
-    - WP_VERSION=4.0 WP_MULTISITE=1
-    - WP_VERSION=3.9 WP_MULTISITE=0
-    - WP_VERSION=3.9 WP_MULTISITE=1
+    - WP_VERSION=master WP_MULTISITE=0 #Current stable release
+
+# Test WP master, current and previous stable releases on most popular PHP 5.5, 5.6 (w/ multisite enabled for 5.6)
+# Test WP master, current and previous stable releases on minimum PHP 5.2 (w/o multisite enabled)
+# Test WP current on PHP 5.3, 5.4 (w/o multisite enabled)
+# Test WP master on PHP hhvm, 7.0 and nightly (w/o multisite enabled)
+
+matrix:
+  include:
+    # current stable release w/ multisite
+    - php: "5.6"
+      env: WP_VERSION=master WP_MULTISITE=1
+    - php: "5.6"
+      env: WP_VERSION=4.5 WP_MULTISITE=0
+    - php: "5.6"
+      env: WP_VERSION=4.5 WP_MULTISITE=1
+    - php: "5.6"
+      env: WP_VERSION=4.4 WP_MULTISITE=0
+    - php: "5.5"
+      env: WP_VERSION=master WP_MULTISITE=0    
+    - php: "5.5"
+      env: WP_VERSION=4.5 WP_MULTISITE=0
+    - php: "5.5"
+      env: WP_VERSION=4.4 WP_MULTISITE=0    
+    - php: "5.2"
+      env: WP_VERSION=master WP_MULTISITE=0
+    - php: "5.2"
+      env: WP_VERSION=4.5 WP_MULTISITE=0
+    - php: "5.2"
+      env: WP_VERSION=4.4 WP_MULTISITE=0
+    - php: "5.3"
+      env: WP_VERSION=4.5 WP_MULTISITE=0
+    - php: "5.4"
+      env: WP_VERSION=4.5 WP_MULTISITE=0
+    - php: "7.0"
+      env: WP_VERSION=master WP_MULTISITE=0
+    - php: "7.0"
+      env: WP_VERSION=4.5 WP_MULTISITE=0
+    - php: "hhvm"
+      env: WP_VERSION=master WP_MULTISITE=0
+    - php: "nightly"
+      env: WP_VERSION=master WP_MULTISITE=0
+  allow_failures:
+    - php: "hhvm"
+    - php: "nightly"
 
 before_script:
-    - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION 
+    - export PLUGIN_SLUG=$(basename $(pwd))
+    - git clone --depth=1 --branch $WP_VERSION git://develop.git.wordpress.org/ /tmp/wordpress
+    - cd ..
+    - mv $PLUGIN_SLUG "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
+    - cd /tmp/wordpress
+    - git checkout $WP_VERSION
+    - mysql -e "CREATE DATABASE wordpress_tests;" -uroot
+    - cp wp-tests-config-sample.php wp-tests-config.php
+    - sed -i "s/youremptytestdbnamehere/wordpress_tests/" wp-tests-config.php
+    - sed -i "s/yourusernamehere/travis/" wp-tests-config.php
+    - sed -i "s/yourpasswordhere//" wp-tests-config.php
+    - cd "/tmp/wordpress/src/wp-content/plugins/$PLUGIN_SLUG"
 
 script: phpunit
+
+sudo: false
