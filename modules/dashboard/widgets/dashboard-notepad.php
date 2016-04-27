@@ -15,7 +15,10 @@ class EF_Dashboard_Notepad_Widget {
 
 	public function init() {
 
-		register_post_type( self::notepad_post_type );
+		register_post_type( self::notepad_post_type, array(
+				'label' => __( 'Dashboard Note', 'edit-flow' )
+			) 
+		);
 
 		$this->edit_cap = apply_filters( 'ef_dashboard_notepad_edit_cap', $this->edit_cap );
 
