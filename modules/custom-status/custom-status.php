@@ -1319,7 +1319,7 @@ class EF_Custom_Status extends EF_Module {
 	 * @since 0.6.5
 	 *
 	 * Normalize post_date_gmt if it isn't set to the past or the future
-	 * @see Works around this limitation: http://core.trac.wordpress.org/browser/tags/3.2.1/wp-includes/post.php#L2506
+	 * @see Works around this limitation: https://core.trac.wordpress.org/browser/tags/4.5.1/src/wp-includes/post.php#L3182
 	 * @see Original thread: http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem
 	 * @see Core ticket: http://core.trac.wordpress.org/ticket/18362
 	 */
@@ -1327,32 +1327,21 @@ class EF_Custom_Status extends EF_Module {
 		global $edit_flow;
 		// Don't run this if Edit Flow isn't active, or we're on some other page
 		if ( $this->disable_custom_statuses_for_post_type()
-			|| ! isset( $edit_flow )
-			|| empty( $_POST ) )
+		|| !isset( $edit_flow ) ) {
 			return $data;
-		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
-		$ef_normalize_post_date_gmt = true;
+		}
 
-		//If the time isn't set, don't set it.
-		if( empty( $_POST['aa'] ) ) {
+		//Post is scheduled or published? Ignoring.
+		if ( $postarr['post_status'] == 'future' 
+		|| $postarr['post_status'] == 'publish' ) {
+			return $data;
+		}
+
+		//If empty, keep empty.
+		if ( empty( $postarr['post_date_gmt'] ) 
+		|| '0000-00-00 00:00:00' == $postarr['post_date_gmt'] ) {
 			$data['post_date_gmt'] = '0000-00-00 00:00:00';
-			return $data;
 		}
-
-		//If it's been set, stay set.
-		if( !empty( $postarr['post_date_gmt'] ) && $postarr['post_date_gmt'] != '0000-00-00 00:00:00' ) {
-			return $data;
-		}
-
-		foreach ( array('aa', 'mm', 'jj', 'hh', 'mn') as $timeunit ) {
-			if( $_POST['hidden_' . $timeunit] != $_POST[$timeunit] )
-				$ef_normalize_post_date_gmt = false;
-		}
-
-		if ( $ef_normalize_post_date_gmt )
-			if ( in_array( $data['post_status'], $status_slugs ) ) {
-				$data['post_date_gmt'] = '0000-00-00 00:00:00';
-			}
 
 		return $data;
 	}
