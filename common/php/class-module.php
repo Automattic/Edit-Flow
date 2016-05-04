@@ -253,7 +253,7 @@ class EF_Module {
 	function get_current_post_type() {
 		global $post, $typenow, $pagenow, $current_screen;
 		//get_post() needs a variable
-		$post_int;
+		$post_int = '';
 		if( isset( $_REQUEST['post'] ) )
 			$post_int = (int)$_REQUEST['post'];
 
