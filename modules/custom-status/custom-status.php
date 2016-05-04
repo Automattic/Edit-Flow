@@ -1332,6 +1332,9 @@ class EF_Custom_Status extends EF_Module {
 			return $data;
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
 		$ef_normalize_post_date_gmt = true;
+		
+		if( !in_array( $postarr[ 'post_status' ], $status_slugs ) )
+			return $data;
 
 		//If the time isn't set, don't set it.
 		if( empty( $_POST['aa'] ) ) {
