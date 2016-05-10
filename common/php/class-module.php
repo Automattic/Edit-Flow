@@ -253,27 +253,25 @@ class EF_Module {
 	function get_current_post_type() {
 		global $post, $typenow, $pagenow, $current_screen;
 		//get_post() needs a variable
-		$post_int;
-		if( isset( $_REQUEST['post'] ) )
-			$post_int = (int)$_REQUEST['post'];
+		$post_id = isset( $_REQUEST['post'] ) ? (int)$_REQUEST['post'] : false;
 
-		if ( $post && $post->post_type )
+		if ( $post && $post->post_type ) {
 			$post_type = $post->post_type;
-		elseif ( $typenow )
+		} elseif ( $typenow ) {
 			$post_type = $typenow;
-		elseif ( $current_screen && isset( $current_screen->post_type ) )
+		} elseif ( $current_screen && !empty( $current_screen->post_type ) ) {
 			$post_type = $current_screen->post_type;
-		elseif ( isset( $_REQUEST['post_type'] ) )
+		} elseif ( isset( $_REQUEST['post_type'] ) ) {
 			$post_type = sanitize_key( $_REQUEST['post_type'] );
-		elseif ( 'post.php' == $pagenow
-			&& isset( $_REQUEST['post'] )
-			&& isset( $post_int )
-			&& ! empty( get_post( $post_int )->post_type ) )
-			$post_type = get_post( $post_int )->post_type;
-		elseif ( 'edit.php' == $pagenow && empty( $_REQUEST['post_type'] ) )
+		} elseif ( 'post.php' == $pagenow
+			&& $post_id
+			&& !empty( get_post( $post_id )->post_type ) ) {
+			$post_type = get_post( $post_id )->post_type;
+		} elseif ( 'edit.php' == $pagenow && empty( $_REQUEST['post_type'] ) ) {
 			$post_type = 'post';
-		else
+		} else {
 			$post_type = null;
+		}
 
 		return $post_type;
 	}
