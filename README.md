@@ -99,6 +99,7 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 ## Changelog
+
 **0.8.2 (??? ??, ????)**
 * New Swedish localization thanks to [Warpsmith](https://github.com/Warpsmith)
 * Improvement: Japanese localization 100% on [translate.wordpress.org](https://translate.wordpress.org/locale/ja/default/wp-plugins/edit-flow)
