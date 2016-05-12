@@ -1331,9 +1331,10 @@ class EF_Custom_Status extends EF_Module {
 			return $data;
 		}
 
+		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
+
 		//Post is scheduled or published? Ignoring.
-		if ( $postarr['post_status'] == 'future' 
-		|| $postarr['post_status'] == 'publish' ) {
+		if ( !in_array( $postarr['post_status'], $status_slugs ) ) {
 			return $data;
 		}
 
