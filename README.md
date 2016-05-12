@@ -2,13 +2,15 @@
 Contributors: batmoo, danielbachhuber, sbressler, automattic
 Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
-Requires at least: 3.4
-Tested up to: 4.2.2
+Requires at least: 4.4
+Tested up to: 4.5.2
 Stable tag: 0.8.1
 
 Redefining your editorial workflow.
 
 ## Description
+
+[![Build Status](https://travis-ci.org/Automattic/Edit-Flow.svg?branch=master)](https://travis-ci.org/Automattic/Edit-Flow)
 
 Edit Flow empowers you to collaborate with your editorial team inside WordPress. We've made it modular so you can customize it to your needs:
 
@@ -97,6 +99,7 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 ## Changelog
+
 **0.8.2 (??? ??, ????)**
 * New Swedish localization thanks to [Warpsmith](https://github.com/Warpsmith)
 * Improvement: Japanese localization 100% on [translate.wordpress.org](https://translate.wordpress.org/locale/ja/default/wp-plugins/edit-flow)

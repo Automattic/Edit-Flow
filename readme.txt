@@ -2,8 +2,8 @@
 Contributors: batmoo, danielbachhuber, sbressler, automattic
 Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
-Requires at least: 3.4
-Tested up to: 4.5
+Requires at least: 4.4
+Tested up to: 4.5.2
 Stable tag: 0.8.1
 
 Redefining your editorial workflow.
@@ -99,6 +99,20 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 == Changelog ==
+
+== 0.8.2 (??? ??, ????) ==
+* New Swedish localization thanks to [Warpsmith](https://github.com/Warpsmith)
+* Improvement: Japanese localization 100% on [translate.wordpress.org](https://translate.wordpress.org/locale/ja/default/wp-plugins/edit-flow)
+* Improvement: Internationalization improvements in settings and calendar. Props [robertsky](https://github.com/robertsky)
+* Improvement: Corrections made to Brazilian Portuguese translation. Props [angelosds](https://github.com/angelosds)
+* Improvement: Updates Travis CI to support containerization, PHP 7 and HHVM
+* Bug fix: Fix PHP warning in class-module.php. Props [jeremyclarke](https://github.com/jeremyclarke)
+* Bug fix: Add label to Dashboard Notes so it displays as "Dashboard Notes" when exporting
+* Bug fix: Clean up PHP code to comply with PHP Strict Standards
+* Bug fix: Removed deprecated get_currentuserinfo. Props [kraftbj](https://github.com/kraftbj)
+* Bug fix: Adding $post param to preview_post_link filter to fix PHP warning. Props [micahwave](https://github.com/micahwave)
+* Bug fix: Calendar current_user_can capability check corrected. Props [keg](https://github.com/keg)
+* Bug fix: Clean up custom status timestamp fix and add unit tests to test different cases of the hack
 
 = 0.8.1 (??? ?? ???) =
 * New German localization thanks to [Circleview](https://github.com/Circleview)
