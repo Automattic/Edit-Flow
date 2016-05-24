@@ -61,7 +61,7 @@ Also, make sure that your patch is documented correctly. Please follow the [Word
 
 To share the changes you’ve made, you’ll need to push your changes to your repository on GitHub, and submit a pull request.
 
-Keep the first line of your commit message brief. A quick explanation of your changes should do nicely. FGo into more details on the following lines.
+Keep the first line of your commit message brief. A quick explanation of your changes should do nicely. Go into more details on the following lines.
 
 Not sure what to include your commit message? Take a look at the ["Description" section of the WordPress commit message documentation](https://make.wordpress.org/core/handbook/best-practices/commit-messages/#description). TThere is great advice for what should be included in when writing a clear, concise and relevant commit message.
 
