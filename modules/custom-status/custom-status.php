@@ -1444,6 +1444,13 @@ class EF_Custom_Status extends EF_Module {
 	 * manipulating the slug. Critical for cases like editing the sample permalink on
 	 * hierarchical post types.
 	 * @since 0.8.2
+	 *
+	 * @param string  $permalink Sample permalink
+	 * @param int 	  $post_id 	 Post ID
+	 * @param string  $title 	 Post title
+	 * @param string  $name 	 Post name (slug)
+	 * @param WP_Post $post 	 Post object
+	 * @return string $link Direct link to complete the action
 	 */
 	public function fix_get_sample_permalink( $permalink, $post_id, $title, $name, $post ) {
 		//Should we be doing anything at all?
@@ -1494,13 +1501,20 @@ class EF_Custom_Status extends EF_Module {
 	/**
 	 * Hack to work around post status check in get_sample_permalink_html
 	 * 
-	 * @since 0.8.2
 	 * 
 	 * The get_sample_permalink_html checks the status of the post and if it's
 	 * a draft generates a certain permalink structure.
 	 * We need to do the same work it's doing for custom statuses in order
 	 * to support this link
 	 * @see https://core.trac.wordpress.org/browser/tags/4.5.2/src/wp-admin/includes/post.php#L1296
+	 *
+	 * @since 0.8.2
+	 * 
+	 * @param string  $return    Sample permalink HTML markup
+	 * @param int 	  $post_id   Post ID
+	 * @param string  $new_title New sample permalink title
+	 * @param string  $new_slug  New sample permalink kslug
+	 * @param WP_Post $post 	 Post object
 	 */
 	function fix_get_sample_permalink_html( $return, $post_id, $new_title, $new_slug, $post ) {
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
