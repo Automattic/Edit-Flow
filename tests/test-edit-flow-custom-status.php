@@ -3,13 +3,31 @@
 class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 	protected static $admin_user_id;
-
+	protected static $EF_Custom_Status;
+		
 	public static function wpSetUpBeforeClass( $factory ) {
+		self::$EF_Custom_Status = new EF_Custom_Status();
+		self::$EF_Custom_Status->init();
 		self::$admin_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
 	}
 
 	public static function wpTearDownAfterClass() {
+		self::$EF_Custom_Status = null;
 		self::delete_user( self::$admin_user_id );
+	}
+
+	function setUp() {
+		parent::setUp();
+
+		global $pagenow;
+		$pagenow = 'post.php';
+	}
+
+	function tearDown() {
+		parent::tearDown();
+
+		global $pagenow;
+		$pagenow = 'index.php';
 	}
 
 	/**
@@ -182,5 +200,134 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		$this->assertEquals( $post['post_title'], $out->post_title );
 		$this->assertEquals( $out->post_date_gmt, $future_date );
 		$this->assertEquals( $post['post_date'], $out->post_date );
+	}
+
+	function test_fix_sample_permalink_html_on_pitch_when_pretty_permalinks_are_disabled() {
+		global $pagenow;
+		wp_set_current_user( self::$admin_user_id );
+
+		$p = self::factory()->post->create( array( 
+			'post_status' => 'pitch', 
+			'post_author' => self::$admin_user_id 
+		) );
+
+		$pagenow = 'index.php';
+
+		$found = get_sample_permalink_html( $p );
+		$post = get_post( $p );
+		$message = 'Pending post';
+
+		$preview_link = get_permalink( $post->ID );
+		$preview_link = add_query_arg( 'preview', 'true', $preview_link );
+
+		$this->assertContains( 'href="' . esc_url( $preview_link ) . '"', $found, $message );
+
+	}
+
+	function test_fix_sample_permalink_html_on_pitch_when_pretty_permalinks_are_enabled() {
+		global $pagenow;
+
+		$this->set_permalink_structure( '/%postname%/' );
+
+		$p = self::factory()->post->create( array( 
+			'post_status' => 'pending', 
+			'post_name' => 'baz-صورة',
+			'post_author' => self::$admin_user_id
+		) );
+
+		wp_set_current_user( self::$admin_user_id );
+
+		$pagenow = 'index.php';
+
+		$found = get_sample_permalink_html( $p );
+		$post = get_post( $p );
+		$message = 'Pending post';
+
+		$preview_link = get_permalink( $post->ID );
+		$preview_link = add_query_arg( 'preview', 'true', $preview_link );
+
+		$this->assertContains( 'href="' . esc_url( $preview_link ) . '"', $found, $message );
+	}
+
+	function test_fix_sample_permalink_html_on_publish_when_pretty_permalinks_are_enabled() {
+		$this->set_permalink_structure( '/%postname%/' );
+
+		// Published posts should use published permalink
+		$p = self::factory()->post->create( array( 
+			'post_status' => 'publish', 
+			'post_name' => 'foo-صورة',
+			'post_author' => self::$admin_user_id 
+		) );
+
+		wp_set_current_user( self::$admin_user_id );
+
+		$found = get_sample_permalink_html( $p, null, 'new_slug-صورة' );
+		$post = get_post( $p );
+		$message = 'Published post';
+
+		$this->assertContains( 'href="' . get_option( 'home' ) . "/" . $post->post_name . '/"', $found, $message );
+		$this->assertContains( '>new_slug-صورة<', $found, $message );
+	}
+
+	public function test_fix_get_sample_permalink_should_respect_pitch_pages() {
+		$this->set_permalink_structure( '/%postname%/' );
+
+		$page = self::factory()->post->create( array(
+			'post_type'  => 'page',
+			'post_title' => 'Pitch Page',
+			'post_status' => 'pitch',
+			'post_author' => self::$admin_user_id
+		) );
+
+		$actual = get_sample_permalink( $page );
+		$this->assertSame( home_url() . '/%pagename%/', $actual[0] );
+		$this->assertSame( 'pitch-page', $actual[1] );
+	}
+
+	public function test_fix_get_sample_permalink_should_respect_hierarchy_of_pitch_pages() {
+		$this->set_permalink_structure( '/%postname%/' );
+
+		$parent = self::factory()->post->create( array(
+			'post_type'  => 'page',
+			'post_title' => 'Parent Page',
+			'post_status' => 'publish',
+			'post_author' => self::$admin_user_id,
+			'post_name' => 'parent-page'
+		) );
+
+		$child = self::factory()->post->create( array(
+			'post_type'   => 'page',
+			'post_title'  => 'Child Page',
+			'post_parent' => $parent,
+			'post_status' => 'pitch',
+			'post_author' => self::$admin_user_id,
+		) );
+
+
+		$actual = get_sample_permalink( $child );
+		$this->assertSame( home_url() . '/parent-page/%pagename%/', $actual[0] );
+		$this->assertSame( 'child-page', $actual[1] );
+	}
+
+	public function test_fix_get_sample_permalink_should_respect_hierarchy_of_publish_pages() {
+		$this->set_permalink_structure( '/%postname%/' );
+
+		$parent = self::factory()->post->create( array(
+			'post_type'  => 'page',
+			'post_title' => 'Publish Parent Page',
+			'post_author' => self::$admin_user_id
+		) );
+
+		$child = self::factory()->post->create( array(
+			'post_type'   => 'page',
+			'post_title'  => 'Child Page',
+			'post_parent' => $parent,
+			'post_status' => 'publish',
+			'post_author' => self::$admin_user_id
+		) );
+
+		$actual = get_sample_permalink( $child );
+		$this->assertSame( home_url() . '/publish-parent-page/%pagename%/', $actual[0] );
+		$this->assertSame( 'child-page', $actual[1] );
 	}
 }

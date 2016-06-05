@@ -103,12 +103,12 @@ class EF_Custom_Status extends EF_Module {
 		add_action( 'admin_init', array( $this, 'check_timestamp_on_publish' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'fix_custom_status_timestamp' ), 10, 2 );
 		add_action( 'wp_insert_post', array( $this, 'fix_post_name' ), 10, 2 );
-		add_action( 'edit_form_after_title', array( $this, 'action_edit_form_after_title' ) );
-		add_filter( 'editable_slug', array( $this, 'fix_editable_slug' ) );
 		add_filter( 'preview_post_link', array( $this, 'fix_preview_link_part_one' ) );
-		add_filter( 'post_link', array( $this, 'fix_preview_link_part_two' ), 10, 2 );
-		add_filter( 'page_link', array( $this, 'fix_preview_link_part_two' ), 10, 2 );
-		add_filter( 'post_type_link', array( $this, 'fix_preview_link_part_two' ), 10, 2 );
+		add_filter( 'post_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
+		add_filter( 'page_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
+		add_filter( 'post_type_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
+		add_filter( 'get_sample_permalink', array( $this, 'fix_get_sample_permalink' ), 10, 5 );
+		add_filter( 'get_sample_permalink_html', array( $this, 'fix_get_sample_permalink_html' ), 10, 5);
 		add_filter( 'post_row_actions', array( $this, 'fix_post_row_actions' ), 10, 2 );
 		add_filter( 'page_row_actions', array( $this, 'fix_post_row_actions' ), 10, 2 );
 
@@ -1295,15 +1295,6 @@ class EF_Custom_Status extends EF_Module {
 	}
 
 	/**
-	 * Remove the editable_slug filter after it has run for the sample permalink box (slug editor)
-	 *
-	 * @since 0.7.7
-	 */
-	function action_edit_form_after_title() {
-		remove_filter( 'editable_slug', array( $this, 'fix_editable_slug' ) );
-	}
-
-	/**
 	 * PHP < 5.3.x doesn't support anonymous functions
 	 * This helper is only used for the check_timestamp_on_publish method above
 	 *
@@ -1377,55 +1368,7 @@ class EF_Custom_Status extends EF_Module {
 		$wpdb->update( $wpdb->posts, array( 'post_name' => '' ), array( 'ID' => $post_id ) );
 		clean_post_cache( $post_id );
 	}
-	/**
-	 * Another hack! hack! hack! until core better supports custom statuses
-	 *
-	 * @since 0.7.4
-	 *
-	 * If the post_name for the object is empty, set it to sanitize_title() of post_title
-	 * However, we only want to do this the first time it's called on the page (slug editor)
-	 * and not in the post metabox, because the latter will set the value
-	 */
-	public function fix_editable_slug( $slug ) {
-		global $pagenow;
-
-		// If 'all_admin_notices' hasn't happened yet, we're not even close to the UI yet.
-		if ( ! did_action( 'all_admin_notices' ) )
-			return $slug;
-
-		if ( defined( 'DOING_AJAX' ) && DOING_AJAX )
-			return $slug;
-
-		// Only do this on post.php
-		if ( 'post.php' != $pagenow )
-			return $slug;
-
-		$post = get_post( get_the_ID() );
-
-		// Only modify if we're using a pre-publish status on a supported custom post type
-		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
-		if ( ! $post
-			|| ! in_array( $post->post_status, $status_slugs )
-			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) )
-			|| ! empty( $post->post_name ) )
-			return $slug;
-
-		// For hierarchical post types, we only want to modify the last time 'editable_slug' filter runs.
-		$ptype = get_post_type_object( $post->post_type );
-		if ( $ptype->hierarchical ) {
-			static $i;
-			$i++;
-			if ( $i > 1 )
-				return sanitize_title( $post->post_title );
-			else
-				return $slug;
-		}
-
-		$slug = sanitize_title( $post->post_title );
-
-		return $slug;
-
-	}
+	
 
 	/**
 	 * Another hack! hack! hack! until core better supports custom statuses
@@ -1441,12 +1384,13 @@ class EF_Custom_Status extends EF_Module {
 
 		// Only modify if we're using a pre-publish status on a supported custom post type
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
-		if ( ! $post
-			|| ! is_admin()
+		if ( !$post
+			|| !is_admin()
 			|| 'post.php' != $pagenow
-			|| ! in_array( $post->post_status, $status_slugs )
-			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) )
-			|| strpos( $preview_link, 'preview_id' ) !== false )
+			|| !in_array( $post->post_status, $status_slugs )
+			|| !in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) )
+			|| strpos( $preview_link, 'preview_id' ) !== false 
+			|| $post->filter == 'sample' )
 			return $preview_link;
 
 		return $this->get_preview_link( $post );
@@ -1462,7 +1406,7 @@ class EF_Custom_Status extends EF_Module {
 	 * So we can't do a targeted filter. Instead, we can even more hackily filter get_permalink
 	 * @see http://core.trac.wordpress.org/ticket/19378
 	 */
-	public function fix_preview_link_part_two( $permalink, $post ) {
+	public function fix_preview_link_part_two( $permalink, $post, $sample ) {
 		global $pagenow;
 
 		if ( is_int( $post ) )
@@ -1485,7 +1429,156 @@ class EF_Custom_Status extends EF_Module {
 			&& !isset( $_POST['wp-preview'] ) )
 			return $permalink;
 
+		//If it's a sample permalink, not a preview
+		if ( $sample ) {
+			return $permalink;
+		}
+
 		return $this->get_preview_link( $post );
+	}
+
+	/** 
+	 * Fix get_sample_permalink. Previosuly the 'editable_slug' filter was leveraged
+	 * to correct the sample permalink a user could edit on post.php. Since 4.4.40
+	 * the `get_sample_permalink` filter was added which allows greater flexibility in 
+	 * manipulating the slug. Critical for cases like editing the sample permalink on
+	 * hierarchical post types.
+	 * @since 0.8.2
+	 *
+	 * @param string  $permalink Sample permalink
+	 * @param int 	  $post_id 	 Post ID
+	 * @param string  $title 	 Post title
+	 * @param string  $name 	 Post name (slug)
+	 * @param WP_Post $post 	 Post object
+	 * @return string $link Direct link to complete the action
+	 */
+	public function fix_get_sample_permalink( $permalink, $post_id, $title, $name, $post ) {
+		//Should we be doing anything at all?
+		if( !in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
+			return $permalink;
+
+		//Is this published?
+		if( in_array( $post->post_status, $this->published_statuses ) )
+			return $permalink;
+
+		//Are we overriding the permalink? Don't do anything
+		if( isset( $_POST['action'] ) && $_POST['action'] == 'sample-permalink' )
+			return $permalink;
+
+		list( $permalink, $post_name ) = $permalink;
+
+		$post_name = $post->post_name ? $post->post_name : sanitize_title( $post->post_title );
+		$post->post_name = $post_name;
+
+		$ptype = get_post_type_object( $post->post_type );
+
+		if ( $ptype->hierarchical ) {
+			$post->filter = 'sample';
+
+			$uri = get_page_uri( $post->ID ) . $post_name;
+
+			if ( $uri ) {
+				$uri = untrailingslashit($uri);
+				$uri = strrev( stristr( strrev( $uri ), '/' ) );
+				$uri = untrailingslashit($uri);
+			}
+
+			/** This filter is documented in wp-admin/edit-tag-form.php */
+			$uri = apply_filters( 'editable_slug', $uri, $post );
+
+			if ( !empty($uri) ) {
+				$uri .= '/';
+			}
+
+			$permalink = str_replace('%pagename%', "{$uri}%pagename%", $permalink);
+		}
+
+		unset($post->post_name);
+
+		return array( $permalink, $post_name );
+	}
+
+	/**
+	 * Hack to work around post status check in get_sample_permalink_html
+	 * 
+	 * 
+	 * The get_sample_permalink_html checks the status of the post and if it's
+	 * a draft generates a certain permalink structure.
+	 * We need to do the same work it's doing for custom statuses in order
+	 * to support this link
+	 * @see https://core.trac.wordpress.org/browser/tags/4.5.2/src/wp-admin/includes/post.php#L1296
+	 *
+	 * @since 0.8.2
+	 * 
+	 * @param string  $return    Sample permalink HTML markup
+	 * @param int 	  $post_id   Post ID
+	 * @param string  $new_title New sample permalink title
+	 * @param string  $new_slug  New sample permalink kslug
+	 * @param WP_Post $post 	 Post object
+	 */
+	function fix_get_sample_permalink_html( $return, $post_id, $new_title, $new_slug, $post ) {
+		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
+
+		list($permalink, $post_name) = get_sample_permalink($post->ID, $new_title, $new_slug);
+
+		$view_link = false;
+		$preview_target = '';
+
+		if ( current_user_can( 'read_post', $post_id ) ) {
+			if ( in_array( $post->post_status, $status_slugs ) ) {
+				$view_link = $this->get_preview_link( $post );
+				$preview_target = " target='wp-preview-{$post->ID}'";
+			} else {
+				if ( 'publish' === $post->post_status || 'attachment' === $post->post_type ) {
+					$view_link = get_permalink( $post );
+				} else {
+					// Allow non-published (private, future) to be viewed at a pretty permalink.
+					$view_link = str_replace( array( '%pagename%', '%postname%' ), $post->post_name, $permalink );
+				}
+			}
+		}
+
+		// Permalinks without a post/page name placeholder don't have anything to edit
+		if ( false === strpos( $permalink, '%postname%' ) && false === strpos( $permalink, '%pagename%' ) ) {
+			$return = '<strong>' . __( 'Permalink:' ) . "</strong>\n";
+
+			if ( false !== $view_link ) {
+				$display_link = urldecode( $view_link );
+				$return .= '<a id="sample-permalink" href="' . esc_url( $view_link ) . '"' . $preview_target . '>' . $display_link . "</a>\n";
+			} else {
+				$return .= '<span id="sample-permalink">' . $permalink . "</span>\n";
+			}
+
+			// Encourage a pretty permalink setting
+			if ( '' == get_option( 'permalink_structure' ) && current_user_can( 'manage_options' ) && !( 'page' == get_option('show_on_front') && $id == get_option('page_on_front') ) ) {
+				$return .= '<span id="change-permalinks"><a href="options-permalink.php" class="button button-small" target="_blank">' . __('Change Permalinks') . "</a></span>\n";
+			}
+		} else {
+			if ( function_exists( 'mb_strlen' ) ) {
+				if ( mb_strlen( $post_name ) > 34 ) {
+					$post_name_abridged = mb_substr( $post_name, 0, 16 ) . '&hellip;' . mb_substr( $post_name, -16 );
+				} else {
+					$post_name_abridged = $post_name;
+				}
+			} else {
+				if ( strlen( $post_name ) > 34 ) {
+					$post_name_abridged = substr( $post_name, 0, 16 ) . '&hellip;' . substr( $post_name, -16 );
+				} else {
+					$post_name_abridged = $post_name;
+				}
+			}
+
+			$post_name_html = '<span id="editable-post-name">' . $post_name_abridged . '</span>';
+			$display_link = str_replace( array( '%pagename%', '%postname%' ), $post_name_html, urldecode( $permalink ) );
+
+			$return = '<strong>' . __( 'Permalink:' ) . "</strong>\n";
+			$return .= '<span id="sample-permalink"><a href="' . esc_url( $view_link ) . '"' . $preview_target . '>' . $display_link . "</a></span>\n";
+			$return .= '&lrm;'; // Fix bi-directional text display defect in RTL languages.
+			$return .= '<span id="edit-slug-buttons"><button type="button" class="edit-slug button button-small hide-if-no-js" aria-label="' . __( 'Edit permalink' ) . '">' . __( 'Edit' ) . "</button></span>\n";
+			$return .= '<span id="editable-post-name-full">' . $post_name . "</span>\n";
+		}
+
+		return $return;
 	}
 
 	/**
@@ -1502,6 +1595,7 @@ class EF_Custom_Status extends EF_Module {
 		} else if ( 'post' == $post->post_type ) {
 			$args = array(
 					'p'          => $post->ID,
+					'preview'	 => 'true'
 				);
 		} else {
 			$args = array(
