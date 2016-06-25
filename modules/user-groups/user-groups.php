@@ -641,7 +641,7 @@ class EF_User_Groups extends EF_Module {
 			return;
 
 		//Don't allow display of user groups from network
-		if (( !is_null( get_current_screen() ) ) && ( get_current_screen()->is_network ) )
+		if ( ( !is_null( get_current_screen() ) ) && ( get_current_screen()->is_network ) )
 			return;
 		
 		// Assemble all necessary data
