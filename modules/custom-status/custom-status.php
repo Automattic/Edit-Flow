@@ -1605,7 +1605,7 @@ class EF_Custom_Status extends EF_Module {
 		}
 
 		$args['preview_id'] = $post->ID;
-		return add_query_arg( $args, home_url() );
+		return add_query_arg( $args, home_url( '/' ) );
 	}
 
 	/**
@@ -1645,7 +1645,7 @@ class EF_Custom_Status extends EF_Module {
 				);
 		}
 		$args['preview'] = 'true';
-		$preview_link = add_query_arg( $args, home_url() );
+		$preview_link = add_query_arg( $args, home_url( '/' ) );
 
 		$actions['view'] = '<a href="' . esc_url( $preview_link ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $post->post_title ) ) . '" rel="permalink">' . __( 'Preview' ) . '</a>';
 		return $actions;
