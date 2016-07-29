@@ -7,7 +7,6 @@ class WP_Test_Edit_Flow_Dashboard_Note extends WP_UnitTestCase {
 		//EF_Dashboard_Notepad_Widget should have already
 		//created the dashboard-note post type
 		$pobj = get_post_type_object( 'dashboard-note' );
-		$this->assertInstanceOf( 'stdClass', $pobj );
 		$this->assertEquals( 'dashboard-note', $pobj->name );
 
 		//Testing EF_Dashboard_Notepad_Widget::init explicitly 
@@ -21,7 +20,6 @@ class WP_Test_Edit_Flow_Dashboard_Note extends WP_UnitTestCase {
 		$EditFlowDashboardNote->init();
 
 		$pobj = get_post_type_object( 'dashboard-note' );
-		$this->assertInstanceOf( 'stdClass', $pobj );
 		$this->assertEquals( 'dashboard-note', $pobj->name );
 	}
 
