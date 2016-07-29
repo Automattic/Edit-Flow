@@ -23,7 +23,7 @@ class wsScreenOptions10 {
 	 * 
 	 * @return void
 	 */
-	function wsScreenOptions10(){
+	function __construct(){
 		$this->registered_panels = array();
 		$this->page_panels = array();
 		
