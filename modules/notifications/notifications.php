@@ -563,8 +563,8 @@ jQuery(document).ready(function($) {
 			
 			$body .= sprintf( __( '== %s Details ==', 'edit-flow' ), $post_type ) . "\r\n";
 			$body .= sprintf( __( 'Title: %s', 'edit-flow' ), $post_title ) . "\r\n";
-			/* translators: 1: author name, 2: author email */
 			if ( ! empty( $post_author ) ) {
+				/* translators: 1: author name, 2: author email */
 				$body .= sprintf( __( 'Author: %1$s (%2$s)', 'edit-flow' ), $post_author->display_name, $post_author->user_email ) . "\r\n";
 			}
 			
