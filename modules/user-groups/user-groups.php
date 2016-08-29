@@ -641,7 +641,7 @@ class EF_User_Groups extends EF_Module {
 			return;
 
 		//Don't allow display of user groups from network
-		if( get_current_screen()->is_network )
+		if ( ( !is_null( get_current_screen() ) ) && ( get_current_screen()->is_network ) )
 			return;
 		
 		// Assemble all necessary data
@@ -688,7 +688,7 @@ class EF_User_Groups extends EF_Module {
 			return array( &$errors, $update, &$user );
 
 		//Don't allow update of user groups from network
-		if( get_current_screen()->is_network )
+		if ( ( !is_null( get_current_screen() ) ) && ( get_current_screen()->is_network ) )
 			return;
 
 		if ( current_user_can( $this->manage_usergroups_cap ) && wp_verify_nonce( $_POST['ef_edit_profile_usergroups_nonce'], 'ef_edit_profile_usergroups_nonce' ) ) {
