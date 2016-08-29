@@ -6,14 +6,16 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 	protected static $EF_Custom_Status;
 		
 	public static function wpSetUpBeforeClass( $factory ) {
-		self::$EF_Custom_Status = new EF_Custom_Status();
-		self::$EF_Custom_Status->init();
 		self::$admin_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
+		
+		self::$EF_Custom_Status = new EF_Custom_Status();
+		self::$EF_Custom_Status->install();
+		self::$EF_Custom_Status->init();
 	}
 
 	public static function wpTearDownAfterClass() {
-		self::$EF_Custom_Status = null;
 		self::delete_user( self::$admin_user_id );
+		self::$EF_Custom_Status = null;
 	}
 
 	function setUp() {
