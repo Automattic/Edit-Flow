@@ -166,7 +166,7 @@ class EF_Custom_Status extends EF_Module {
 
 		// Okay, now add the default statuses to the db if they don't already exist
 		foreach( $default_terms as $term ) {
-			if( !term_exists( $term['term'] ) )
+			if( !term_exists( $term['term'], self::taxonomy_key ) )
 				$this->add_custom_status( $term['term'], $term['args'] );
 		}
 
