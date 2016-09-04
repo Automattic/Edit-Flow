@@ -766,7 +766,7 @@ class EF_Custom_Status extends EF_Module {
 		if ( strlen( $status_name ) > 20 )
 			$_REQUEST['form-errors']['name'] = __( 'Status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' );
 		// Check to make sure the status doesn't already exist as another term because otherwise we'd get a weird slug
-		if ( term_exists( $status_slug ) )
+		if ( term_exists( $status_slug, self::taxonomy_key ) )
 			$_REQUEST['form-errors']['name'] = __( 'Status name conflicts with existing term. Please choose another.', 'edit-flow' );
 		// Check to make sure the name is not restricted
 		if ( $this->is_restricted_status( strtolower( $status_slug ) ) )
@@ -833,7 +833,7 @@ class EF_Custom_Status extends EF_Module {
 		if ( strlen( $name ) > 20 )
 			$_REQUEST['form-errors']['name'] = __( 'Status name cannot exceed 20 characters. Please try a shorter name.', 'edit-flow' );
 		// Check to make sure the status doesn't already exist as another term because otherwise we'd get a weird slug
-		$term_exists = term_exists( sanitize_title( $name ) );
+		$term_exists = term_exists( sanitize_title( $name ), self::taxonomy_key );
 		if ( $term_exists && $term_exists != $existing_status->term_id )
 			$_REQUEST['form-errors']['name'] = __( 'Status name conflicts with existing term. Please choose another.', 'edit-flow' );
 		// Check to make sure the status doesn't already exist
@@ -1044,7 +1044,7 @@ class EF_Custom_Status extends EF_Module {
 		}
 
 		// Check to make sure the status doesn't already exist as another term because otherwise we'd get a fatal error
-		$term_exists = term_exists( sanitize_title( $status_name ) );
+		$term_exists = term_exists( sanitize_title( $status_name ), self::taxonomy_key );
 		if ( $term_exists && $term_exists != $term_id ) {
 			$change_error = new WP_Error( 'invalid', __( 'Status name conflicts with existing term. Please choose another.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );
