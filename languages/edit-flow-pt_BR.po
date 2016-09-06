@@ -754,7 +754,7 @@ msgstr "Excluir"
 #: modules/editorial-metadata/editorial-metadata.php:1708
 #: modules/user-groups/user-groups.php:1227
 msgid "Quick Edit"
-msgstr "Quick Edit"
+msgstr "Edição Rápida"
 
 #: modules/dashboard/dashboard.php:29
 msgid "Dashboard Widgets"
@@ -1621,11 +1621,11 @@ msgstr "<p><strong> Para mais informações</strong> </p><p> <a href=\"http://ed
 
 #: modules/user-groups/user-groups.php:127
 msgid "Copy Editors"
-msgstr "Editores de cópia"
+msgstr "Revisores"
 
 #: modules/user-groups/user-groups.php:128
 msgid "Making sure the quality is top-notch."
-msgstr "Assegurando-se que a qualidade é de primeira categoria."
+msgstr "Assegurando a qualidade de alto nível."
 
 #: modules/user-groups/user-groups.php:131
 msgid "Photographers"
@@ -1641,11 +1641,11 @@ msgstr "Repórteres"
 
 #: modules/user-groups/user-groups.php:136
 msgid "Out in the field, writing stories."
-msgstr "No campo, escrevendo histórias."
+msgstr "Em campo, escrevendo histórias."
 
 #: modules/user-groups/user-groups.php:139
 msgid "Section Editors"
-msgstr "Editores de seção"
+msgstr "Editores"
 
 #: modules/user-groups/user-groups.php:140
 msgid "Providing feedback and direction."
