@@ -1089,7 +1089,7 @@ class EF_Editorial_Metadata extends EF_Module {
 			wp_die( $this->module->messages['invalid-permissions'] );			
 		
 		if ( !$existing_term = $this->get_editorial_metadata_term_by( 'id', (int)$_GET['term-id'] ) )
-			wp_die( $this->module->messsage['term-error'] );			
+			wp_die( $this->module->messages['term-missing'] );			
 		
 		$new_name = sanitize_text_field( trim( $_POST['name'] ) );
 		$new_description = stripslashes( wp_filter_post_kses( strip_tags( trim( $_POST['description'] ) ) ) );
@@ -1204,7 +1204,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		
 		$term_id = (int) $_POST['term_id'];
 		if ( !$existing_term = $this->get_editorial_metadata_term_by( 'id', $term_id ) )
-			die( $this->module->messsage['term-error'] );
+			die( $this->module->messages['term-missing'] );
 		
 		$metadata_name = sanitize_text_field( trim( $_POST['name'] ) );
 		$metadata_description = stripslashes( wp_filter_post_kses( trim( $_POST['description'] ) ) );
@@ -1313,7 +1313,7 @@ class EF_Editorial_Metadata extends EF_Module {
 			wp_die( $this->module->messages['invalid-permissions'] );
 			
 		if ( !$existing_term = $this->get_editorial_metadata_term_by( 'id', (int)$_GET['term-id'] ) )
-			wp_die( $this->module->messsage['term-error'] );			
+			wp_die( $this->module->messages['term-missing'] );			
 			
 		$result = $this->delete_editorial_metadata_term( $existing_term->term_id );
 		if ( !$result || is_wp_error( $result ) )

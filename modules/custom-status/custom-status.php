@@ -810,7 +810,7 @@ class EF_Custom_Status extends EF_Module {
 			wp_die( $this->module->messages['invalid-permissions'] );
 
 		if ( !$existing_status = $this->get_custom_status_by( 'id', (int)$_GET['term-id'] ) )
-			wp_die( $this->module->messsage['term-error'] );
+			wp_die( $this->module->messages['status-missing'] );
 
 		$name = sanitize_text_field( trim( $_POST['name'] ) );
 		$description = stripslashes( wp_filter_nohtml_kses( trim( $_POST['description'] ) ) );

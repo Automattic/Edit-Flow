@@ -344,7 +344,7 @@ class EF_User_Groups extends EF_Module {
 			wp_die( $this->module->messages['invalid-permissions'] );
 			
 		if ( !$existing_usergroup = $this->get_usergroup_by( 'id', (int)$_POST['usergroup_id'] ) )
-			wp_die( $this->module->messsage['usergroup-error'] );			
+			wp_die( $this->module->messages['usergroup-missing'] );			
 		
 		// Sanitize all of the user-entered values
 		$name = strip_tags( trim( $_POST['name'] ) );
@@ -439,7 +439,7 @@ class EF_User_Groups extends EF_Module {
 		
 		$usergroup_id = (int) $_POST['usergroup_id'];
 		if ( !$existing_term = $this->get_usergroup_by( 'id', $usergroup_id ) )
-			die( $this->module->messsage['usergroup-error'] );
+			die( $this->module->messages['usergroup-missing'] );
 		
 		$name = strip_tags( trim( $_POST['name'] ) );
 		$description = stripslashes( strip_tags( trim( $_POST['description'] ) ) );
