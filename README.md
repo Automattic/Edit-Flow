@@ -101,8 +101,10 @@ New features, including story budget and editorial metadata, a completely rewrit
 ## Changelog
 
 **0.8.2 (??? ??, ????)**
-* New Swedish localization thanks to [Warpsmith](https://github.com/Warpsmith)
+* Improvement: Updated Spanish localization thanks to [moucho](https://github.com/moucho)
+* Improvement: New Swedish localization thanks to [Warpsmith](https://github.com/Warpsmith)
 * Improvement: Japanese localization 100% on [translate.wordpress.org](https://translate.wordpress.org/locale/ja/default/wp-plugins/edit-flow)
+* Improvement: Updated Brazilian Portuguese translation. Props [arthurdapaz](https://github.com/arthurdapaz)
 * Improvement: Internationalization improvements in settings and calendar. Props [robertsky](https://github.com/robertsky)
 * Improvement: Corrections made to Brazilian Portuguese translation. Props [angelosds](https://github.com/angelosds)
 * Improvement: Updates Travis CI to support containerization, PHP 7 and HHVM
@@ -113,6 +115,10 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Bug fix: Adding $post param to preview_post_link filter to fix PHP warning. Props [micahwave](https://github.com/micahwave)
 * Bug fix: Calendar current_user_can capability check corrected. Props [keg](https://github.com/keg)
 * Bug fix: Clean up custom status timestamp fix and add unit tests to test different cases of the hack
+* Bug fix: Fix error messaging for module settings pages. Props [natebot](https://github.com/natebot)
+* Bug fix: Add check on user-settings.php to prevent error. Props [paulabbott](paulabbott)
+* Bug fix: Add check for empty author when sending notification. Props [petenelson](https://github.com/petenelson)
+* Bug fix: Remove PHP4 constructor from screen options. Props [mjangda](https://github.com/mjangda)
 
 **0.8.1 (Apr 13, 2016)**
 * New German localization thanks to [Circleview](https://github.com/Circleview)
