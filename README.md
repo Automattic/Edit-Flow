@@ -56,6 +56,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 
 ## Upgrade Notice
 
+**0.8.2**
+Minor enhancements and bug fixes, translation updates.
+
 **0.8.1**
 Added Composer support.
 
