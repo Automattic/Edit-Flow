@@ -103,7 +103,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
-== 0.8.2 (Sept 16, 2016) ==
+= 0.8.2 (Sept 16, 2016) =
 * Improvement: Updated Spanish localization thanks to [moucho](https://github.com/moucho)
 * Improvement: New Swedish localization thanks to [Warpsmith](https://github.com/Warpsmith)
 * Improvement: Japanese localization 100% on [translate.wordpress.org](https://translate.wordpress.org/locale/ja/default/wp-plugins/edit-flow)
