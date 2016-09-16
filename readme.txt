@@ -2,9 +2,9 @@
 Contributors: batmoo, danielbachhuber, sbressler, automattic
 Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
-Requires at least: 4.4
-Tested up to: 4.5.2
-Stable tag: 0.8.1
+Requires at least: 4.5
+Tested up to: 4.6.1
+Stable tag: 0.8.2
 
 Redefining your editorial workflow.
 
@@ -56,6 +56,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 
 == Upgrade Notice ==
 
+= 0.8.2 =
+Minor enhancements and bug fixes, translation updates.
+
 = 0.8.1 =
 Added Composer support.
 
@@ -100,7 +103,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
-== 0.8.2 (??? ??, ????) ==
+== 0.8.2 (Sept 16, 2016) ==
 * Improvement: Updated Spanish localization thanks to [moucho](https://github.com/moucho)
 * Improvement: New Swedish localization thanks to [Warpsmith](https://github.com/Warpsmith)
 * Improvement: Japanese localization 100% on [translate.wordpress.org](https://translate.wordpress.org/locale/ja/default/wp-plugins/edit-flow)
