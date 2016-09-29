@@ -317,12 +317,9 @@ class EF_Story_Budget extends EF_Module {
 			
 		$start_date_value = '<input type="text" id="ef-story-budget-start-date" name="ef-story-budget-start-date"'
 			. ' size="10" class="date-pick" value="'
-			. esc_attr( date( 'M d Y', strtotime( $this->user_filters['start_date'] ) ) ) . '" /><span class="form-value">';
+			. esc_attr( date_i18n( get_option( 'date_format' ), strtotime( $this->user_filters['start_date'] ) ) ) . '" /><span class="form-value">';
 		
-		if ( date( 'Y', strtotime( $this->user_filters['start_date'] ) ) != date( 'Y' ) )
-			$start_date_value .= esc_html( date( 'F jS, Y', strtotime( $this->user_filters['start_date'] ) ) );
-		else
-			$start_date_value .= esc_html( date( 'F jS', strtotime( $this->user_filters['start_date'] ) ) );
+		$start_date_value .= esc_html( date_i18n( get_option( 'date_format' ), strtotime( $this->user_filters['start_date'] ) ) );
 		$start_date_value .= '</span>';
 		
 		$number_days_value = '<input type="text" id="ef-story-budget-number-days" name="ef-story-budget-number-days"'
