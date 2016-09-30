@@ -20,7 +20,7 @@ If the issue dissaepars, it was probably a conflict with one of your plugins or 
 **2. Has the issue already been reported?**
 
 To check if a bug has already been reported, try:
- * Checking the current [list of opened issued](https://github.com/Automattic/Edit-Flow/issues?q=is%3Aopen)
+ * Checking the current [list of opened issues](https://github.com/Automattic/Edit-Flow/issues?q=is%3Aopen)
  * Looking through the [Edit Flow Support Forums](https://wordpress.org/support/plugin/edit-flow)
 
 Not mentioned in either of those places? Doesn't appear to be caused by a conflict with another plugin or theme? You've found a bug!
@@ -63,7 +63,7 @@ To share the changes you’ve made, you’ll need to push your changes to your r
 
 Keep the first line of your commit message brief. A quick explanation of your changes should do nicely. Go into more details on the following lines.
 
-Not sure what to include your commit message? Take a look at the ["Description" section of the WordPress commit message documentation](https://make.wordpress.org/core/handbook/best-practices/commit-messages/#description). TThere is great advice for what should be included in when writing a clear, concise and relevant commit message.
+Not sure what to include your commit message? Take a look at the ["Description" section of the WordPress commit message documentation](https://make.wordpress.org/core/handbook/best-practices/commit-messages/#description). There is great advice for what should be included in when writing a clear, concise and relevant commit message.
 
 After you've commited, push to your fork and create a Pull Request on Github.
 
