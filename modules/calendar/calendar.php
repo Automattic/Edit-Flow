@@ -1158,7 +1158,7 @@ class EF_Calendar extends EF_Module {
 		$html = '';
 		foreach( $dates as $date ) {
 			$html .= '<th class="column-heading" >';
-			$html .= esc_html( date('l', strtotime( $date ) ) );
+			$html .= esc_html( date_i18n('l', strtotime( $date ) ) );
 			$html .= '</th>';
 		}
 		
