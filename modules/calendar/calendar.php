@@ -668,7 +668,7 @@ class EF_Calendar extends EF_Module {
 				<tbody>
 				
 				<?php
-				$current_month = date( 'F', strtotime( $filters['start_date'] ) );
+				$current_month = date_i18n( 'F', strtotime( $filters['start_date'] ) );
 				for( $current_week = 1; $current_week <= $this->total_weeks; $current_week++ ):
 					// We need to set the object variable for our posts_where filter
 					$this->current_week = $current_week;
@@ -679,7 +679,7 @@ class EF_Calendar extends EF_Module {
 					$split_month = false;
 					for ( $i = 0 ; $i < 7; $i++ ) {
 						$week_dates[$i] = $week_single_date;
-						$single_date_month = date( 'F', strtotime( $week_single_date ) );
+						$single_date_month = date_i18n( 'F', strtotime( $week_single_date ) );
 						if ( $single_date_month != $current_month ) {
 							$split_month = $single_date_month;
 							$current_month = $single_date_month;
@@ -690,10 +690,10 @@ class EF_Calendar extends EF_Module {
 				<?php if ( $split_month ): ?>
 				<tr class="month-marker">
 					<?php foreach( $week_dates as $key => $week_single_date ) {
-						if ( date( 'F', strtotime( $week_single_date ) ) != $split_month && date( 'F', strtotime( "+1 day", strtotime( $week_single_date ) ) ) == $split_month ) {
-							$previous_month = date( 'F', strtotime( $week_single_date ) );
+						if ( date_i18n( 'F', strtotime( $week_single_date ) ) != $split_month && date_i18n( 'F', strtotime( "+1 day", strtotime( $week_single_date ) ) ) == $split_month ) {
+							$previous_month = date_i18n( 'F', strtotime( $week_single_date ) );
 							echo '<td class="month-marker-previous">' . esc_html( $previous_month ) . '</td>';
-						} else if ( date( 'F', strtotime( $week_single_date ) ) == $split_month && date( 'F', strtotime( "-1 day", strtotime( $week_single_date ) ) ) != $split_month ) {
+						} else if ( date_i18n( 'F', strtotime( $week_single_date ) ) == $split_month && date_i18n( 'F', strtotime( "-1 day", strtotime( $week_single_date ) ) ) != $split_month ) {
 							echo '<td class="month-marker-current">' . esc_html( $split_month ) . '</td>';
 						} else {
 							echo '<td class="month-marker-empty"></td>';
