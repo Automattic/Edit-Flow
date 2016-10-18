@@ -1276,23 +1276,23 @@ class EF_Calendar extends EF_Module {
 	
 	/**
 	 * Given a day in string format, returns the day at the beginning of that week, which can be the given date.
-	 * The end of the week is determined by the blog option, 'start_of_week'.
+	 * The beginning of the week is determined by the blog option, 'start_of_week'.
 	 *
 	 * @see http://www.php.net/manual/en/datetime.formats.date.php for valid date formats
 	 *
 	 * @param string $date String representing a date
-	 * @param string $format Date format in which the end of the week should be returned
+	 * @param string $format Date format in which the beginning of the week should be returned
 	 * @param int $week Number of weeks we're offsetting the range	
-	 * @return string $formatted_start_of_week End of the week
+	 * @return string $formatted_start_of_week Beginning of the week
 	 */
 	function get_beginning_of_week( $date, $format = 'Y-m-d', $week = 1 ) {
 		
 		$date = strtotime( $date );
 		$start_of_week = get_option( 'start_of_week' );
 		$day_of_week = date( 'w', $date );
-		$date += (( $start_of_week - $day_of_week - 7 ) % 7) * 60 * 60 * 24 * $week;
-		$additional = 3600 * 24 * 7 * ( $week - 1 );
-		$formatted_start_of_week = date( $format, $date + $additional );
+		$date += (( $start_of_week - $day_of_week - 7 ) % 7) * 60 * 60 * 24 ;
+		$date = strtotime ( '+' . ( $week - 1 ) . ' week', $date ) ;
+                $formatted_start_of_week = date( $format, $date );
 		return $formatted_start_of_week;
 		
 	}
