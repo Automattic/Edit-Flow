@@ -1314,8 +1314,8 @@ class EF_Calendar extends EF_Module {
 		$end_of_week = get_option( 'start_of_week' ) - 1;
 		$day_of_week = date( 'w', $date );
 		$date += (( $end_of_week - $day_of_week + 7 ) % 7) * 60 * 60 * 24;
-		$additional = 3600 * 24 * 7 * ( $week - 1 );
-		$formatted_end_of_week = date( $format, $date + $additional );
+		$date = strtotime ( '+' . ( $week - 1 ) . ' week', $date ) ;
+		$formatted_end_of_week = date( $format, $date );
 		return $formatted_end_of_week;
 		
 	}
