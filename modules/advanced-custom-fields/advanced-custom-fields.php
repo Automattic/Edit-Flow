@@ -50,6 +50,9 @@ class EF_Advanced_custom_fields extends EF_Module {
     }
     
     function init() {
+        //Enable Advanced Custom Fields forms can be edited
+        acf_form_head();
+        
         // Anything that needs to happen in the admin
 	add_action( 'admin_init', array( $this, 'action_admin_init' ) );
         
@@ -58,7 +61,12 @@ class EF_Advanced_custom_fields extends EF_Module {
 
         // Load necessary scripts and stylesheets
         add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_scripts' ) );
-    }
+        
+        //Add Advanced Custom Fields to calenddar if the calendar is activated
+        if($this->module_enabled('calendar')) {
+            add_filter('ef_calendar_advanced_custom_fields',array($this, 'calendar_integration'));
+        }        
+    }   
     
     /**
      * Anything that needs to happen on the 'admin_init' hook
@@ -66,7 +74,7 @@ class EF_Advanced_custom_fields extends EF_Module {
      * @since 0.7.4
      */
     function action_admin_init() {
-
+        
     }
     
     /**
@@ -95,6 +103,24 @@ class EF_Advanced_custom_fields extends EF_Module {
     function print_configure_view() {              
         
         ?>
+        
+        <hr>
+        
+        <?php
+        
+        $custom_field_keys = get_post_custom_keys(1);
+        foreach ( $custom_field_keys as $key => $value ) {
+            $valuet = trim($value);
+            if ( '_' == $valuet{0} )
+                continue;
+            echo $key . " => " . $value . "<br />";
+        }
+
+        
+        ?>
+        
+        <hr>
+        
         <form class="basic-settings" action="<?php echo add_query_arg( 'page', $this->module->settings_slug, get_admin_url( null, 'admin.php' ) ); ?>" method="post">
                 <?php settings_fields( $this->module->options_group_name ); ?>
                 <?php do_settings_sections( $this->module->options_group_name ); ?>
@@ -115,8 +141,18 @@ class EF_Advanced_custom_fields extends EF_Module {
     function settings_post_types_option() {
             global $edit_flow;
             $edit_flow->settings->helper_option_custom_post_type( $this->module );
+    }   
+    
+    /**
+     * Generates the fields, which are going to be shown on the calendar.
+     * 
+     * @return string
+     */
+    
+    public function calendar_integration($post_id){                
+        acf_form(array('post_id' => $post_id));        
     }
-}
     
 }
     
+}    
