@@ -57,7 +57,6 @@ class EF_Advanced_custom_fields extends EF_Module {
 	add_action( 'admin_init', array( $this, 'action_admin_init' ) );
         
         // Register settings
-        add_action( 'admin_menu', array($this,'ef_acf_add_admin_menu' ));
         add_action( 'admin_init', array($this,'ef_acf_settings_init' ));
 
         // Load necessary scripts and stylesheets
@@ -90,14 +89,7 @@ class EF_Advanced_custom_fields extends EF_Module {
      * @since 0.7
      */
     public function print_configure_view() {              
-        $this->ef_acf_options_page();
-        
-        $all_fields = get_fields();
-        
-        echo $all_fields['verantwortlich'];
-        
-        $this->get_post_meta_keys();
-            
+        $this->ef_acf_options_page();                    
     }
     
     /**
@@ -128,12 +120,6 @@ class EF_Advanced_custom_fields extends EF_Module {
         }
         
         acf_form(array('post_id' => $post_id,'fields' => $visible_fields));        
-    }
-    
-    public function ef_acf_add_admin_menu() { 
-
-        add_submenu_page( 'tools.php', 'Edit Flow Advanced Custom Fields', 'Edit Flow Advanced Custom Fields', 'manage_options', 'edit_flow_advanced_custom_fields', 'ef_acf_options_page' );
-
     }
     
     public function ef_acf_settings_init() { 
@@ -177,23 +163,23 @@ class EF_Advanced_custom_fields extends EF_Module {
     }
 
     public function ef_acf_options_page() { 
-            ?>
-            <form action='options.php' method='post'>
-                    <?php
-                    settings_fields( 'pluginPage' );
-                    do_settings_sections( 'pluginPage' );
-                    submit_button();
-                    ?>
-            </form>
-            <?php
+        ?>
+        <form action='options.php' method='post'>
+                <?php
+                settings_fields( 'pluginPage' );
+                do_settings_sections( 'pluginPage' );
+                submit_button();
+                ?>
+        </form>
+        <?php
     }
 
     private function get_post_meta_keys() {         
         //get all post ids
         $args = array('post_type' => 'post');
-        $all_post_ids = array();
-        
+        $all_post_ids = array();        
         $post_query = new WP_Query($args);
+        
         if($post_query->have_posts() ) {
             while($post_query->have_posts() ) {
                 $post_query->the_post();
@@ -213,10 +199,8 @@ class EF_Advanced_custom_fields extends EF_Module {
                     $all_meta_fields[] = $value;
                 }
             } 
-        }
-        
+        }        
         return $all_meta_fields;
     }    
-}
-    
+}    
 }    
