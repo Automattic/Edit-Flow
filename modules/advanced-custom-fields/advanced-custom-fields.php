@@ -23,7 +23,7 @@ class EF_Advanced_custom_fields extends EF_Module {
             // Register the module with Edit Flow and configure titles, descriptions etc.
             $args = array(
                     'title' => __( 'Advanced Custom Fields', 'edit-flow' ),
-                    'short_description' => __( 'Change this short description.', 'edit-flow' ),
+                    'short_description' => __( 'This modules integrates the popular Advanced Custom Field Plugin.', 'edit-flow' ),
                     'extended_description' => __( 'Change this extended description', 'edit-flow' ),
                     'module_url' => $this->module_url,
                     'img_url' => $this->module_url . 'lib/advanced_custom_fields\_s128.png',
@@ -49,15 +49,16 @@ class EF_Advanced_custom_fields extends EF_Module {
             EditFlow()->register_module( $this->module_name, $args );
     }
     
-    function init() {
+    public function init() {
         //Enable Advanced Custom Fields forms can be edited
         acf_form_head();
         
         // Anything that needs to happen in the admin
 	add_action( 'admin_init', array( $this, 'action_admin_init' ) );
         
-        // Register our settings
-	add_action( 'admin_init', array( $this, 'register_settings' ) );        
+        // Register settings
+        add_action( 'admin_menu', array($this,'ef_acf_add_admin_menu' ));
+        add_action( 'admin_init', array($this,'ef_acf_settings_init' ));
 
         // Load necessary scripts and stylesheets
         add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_scripts' ) );
@@ -66,33 +67,21 @@ class EF_Advanced_custom_fields extends EF_Module {
         if($this->module_enabled('calendar')) {
             add_filter('ef_calendar_advanced_custom_fields',array($this, 'calendar_integration'));
         }        
-    }   
-    
+    }
+            
     /**
      * Anything that needs to happen on the 'admin_init' hook
      *
      * @since 0.7.4
      */
-    function action_admin_init() {
+    public function action_admin_init() {
         
-    }
-    
-    /**
-     * Register settings for notifications so we can partially use the Settings API
-     * (We use the Settings API for form generation, but not saving)
-     * 
-     * @since 0.7
-     * @uses add_settings_section(), add_settings_field()
-     */
-    function register_settings() {
-                    add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-                    add_settings_field( 'post_types', __( 'Add to these post types:', 'advanced-custom-fields' ), array( $this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
     }
     
     /**
      * Enqueue admin scripts
      */ 
-    function add_admin_scripts() {
+    public function add_admin_scripts() {
         wp_enqueue_style( 'edit_flow-advanced-custom-fields -styles', $this->module_url . 'lib/advanced-custom-fields.css', false, EDIT_FLOW_VERSION, 'all' );
     }
     
@@ -100,37 +89,15 @@ class EF_Advanced_custom_fields extends EF_Module {
      * 
      * @since 0.7
      */
-    function print_configure_view() {              
+    public function print_configure_view() {              
+        $this->ef_acf_options_page();
         
-        ?>
+        $all_fields = get_fields();
         
-        <hr>
+        echo $all_fields['verantwortlich'];
         
-        <?php
-        
-        $custom_field_keys = get_post_custom_keys(1);
-        foreach ( $custom_field_keys as $key => $value ) {
-            $valuet = trim($value);
-            if ( '_' == $valuet{0} )
-                continue;
-            echo $key . " => " . $value . "<br />";
-        }
-
-        
-        ?>
-        
-        <hr>
-        
-        <form class="basic-settings" action="<?php echo add_query_arg( 'page', $this->module->settings_slug, get_admin_url( null, 'admin.php' ) ); ?>" method="post">
-                <?php settings_fields( $this->module->options_group_name ); ?>
-                <?php do_settings_sections( $this->module->options_group_name ); ?>
-                <?php
-                        echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />';
-                ?>
-                <p class="submit"><?php submit_button( null, 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo EDIT_FLOW_SETTINGS_PAGE; ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
-
-        </form>
-        <?php
+        $this->get_post_meta_keys();
+            
     }
     
     /**
@@ -138,21 +105,118 @@ class EF_Advanced_custom_fields extends EF_Module {
      *
      * @since 0.7
      */
-    function settings_post_types_option() {
+    public function settings_post_types_option() {
             global $edit_flow;
             $edit_flow->settings->helper_option_custom_post_type( $this->module );
     }   
     
+    
     /**
-     * Generates the fields, which are going to be shown on the calendar.
+     * Generates the fields, which are going to be shown in the calendar view.
      * 
      * @return string
-     */
-    
-    public function calendar_integration($post_id){                
-        acf_form(array('post_id' => $post_id));        
+     */    
+    public function calendar_integration($post_id){          
+        $options = get_option('ef_acf_settings');
+        
+        $visible_fields = array();
+        
+        foreach ($this->get_post_meta_keys() as $value) {
+            if(checked($options[$value],1,false)) {
+                $visible_fields[] = $value;
+            }
+        }
+        
+        acf_form(array('post_id' => $post_id,'fields' => $visible_fields));        
     }
     
+    public function ef_acf_add_admin_menu() { 
+
+        add_submenu_page( 'tools.php', 'Edit Flow Advanced Custom Fields', 'Edit Flow Advanced Custom Fields', 'manage_options', 'edit_flow_advanced_custom_fields', 'ef_acf_options_page' );
+
+    }
+    
+    public function ef_acf_settings_init() { 
+
+	register_setting( 'pluginPage', 'ef_acf_settings' );
+
+	add_settings_section(
+		'ef_acf_pluginPage_section', 
+		__( '', 'wordpress' ), 
+		array($this,'ef_acf_settings_section_callback'), 
+		'pluginPage'
+	);
+        
+        $this->add_settings_fields();
+    }
+    
+    private function add_settings_fields(){
+        foreach ($this->get_post_meta_keys() as $key => $value) {
+            
+            add_settings_field(
+                    $value,
+                    $value,
+                    array($this, 'render_checkbox'),
+                    'pluginPage',
+                    'ef_acf_pluginPage_section',
+                    array('value' => $value)
+            );
+        }
+    }
+    
+    public function render_checkbox($value){
+        $options = get_option('ef_acf_settings');
+        
+        ?>
+        <input type="checkbox" name="ef_acf_settings[<?php echo $value['value']; ?>]" <?php checked($options[$value['value']],1); ?> value="1">
+        <?php
+    }
+    
+    public function ef_acf_settings_section_callback() { 
+            echo __( 'Select which of the Advanced Custom Fields should be shown on the calendar', 'wordpress' );
+    }
+
+    public function ef_acf_options_page() { 
+            ?>
+            <form action='options.php' method='post'>
+                    <?php
+                    settings_fields( 'pluginPage' );
+                    do_settings_sections( 'pluginPage' );
+                    submit_button();
+                    ?>
+            </form>
+            <?php
+    }
+
+    private function get_post_meta_keys() {         
+        //get all post ids
+        $args = array('post_type' => 'post');
+        $all_post_ids = array();
+        
+        $post_query = new WP_Query($args);
+        if($post_query->have_posts() ) {
+            while($post_query->have_posts() ) {
+                $post_query->the_post();
+                $all_post_ids[] = get_the_ID();
+            }
+        }                
+        
+        //get all custom fields
+        $all_meta_fields = array();
+        
+        foreach ($all_post_ids as $post_id) {
+            foreach (get_post_custom_keys($post_id) as $key => $value ) {
+                $valuet = trim($value);
+                if ( '_' == $valuet{0} )
+                    continue;            
+                if(!in_array($value, $all_meta_fields)){
+                    $all_meta_fields[] = $value;
+                }
+            } 
+        }
+        
+        return $all_meta_fields;
+    }    
 }
     
 }    

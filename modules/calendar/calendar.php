@@ -918,8 +918,9 @@ class EF_Calendar extends EF_Module {
 				<?php endforeach; ?>
 				<?php do_action( 'ef_calendar_item_additional_html', $post->ID ); ?>
 			</table>
+                <hr>                
                             <?php
-                                //Advanced Custom Fields Module's fields goes here.
+                                //Advanced Custom Fields Module's fields goes here.                                                       
                                 apply_filters('ef_calendar_advanced_custom_fields', $post->ID);
 
 				$post_type_object = get_post_type_object( $post->post_type );
