@@ -1,19 +1,25 @@
 
 <?php
 /**
- * class EF_My_Module
- * This class is the core of your new ef module. It sets up the main admin backend functionalities.
+ * class EF_advanced_custom_fields which extends EF_Module
+ * This class integrates the popular Advanced Custom Fields (ACF) plugin (https://www.advancedcustomfields.com/)
+ * It's possible to choose, which form elements of the custom meta fields of a post should be shown on the calendar.
  * 
- * The class needs to extend the EF_Module
  * 
- * @author Michael Scheurer based on code and comments from sbressler, danielbachhuber and batmoo
+ * @author Michael Scheurer
  * 
+ * @todo: improve methode get_post_meta_keys() with the built in function of acf (get_fields())
+ * @todo include acf to the story budget
+ * @todo Extend the plugin for other post types
+ * @todo: include acf form, while creating a new post (calendar, standard)
+ * @todo: Write some tests
+ * @todo: check, if acf plugin is installed. if not, generate a error message to inform the users, that they need to.
  * 
  */
 
 if(!class_exists('EF_Advanced_custom_fields')) {
     
-class EF_Advanced_custom_fields extends EF_Module {
+class EF_advanced_custom_fields extends EF_Module {
     
     private $module_name = 'advanced_custom_fields';
         
@@ -42,7 +48,10 @@ class EF_Advanced_custom_fields extends EF_Module {
                     'settings_help_tab' => array(
                             'id' => 'ef-advanced-custom-fields',
                             'title' => __('Overview', 'edit-flow'),
-                            'content' => __('<p>Code your own Edit Flow module with ease. Customize this part.</p>', 'edit-flow'),
+                            'content' => __('<p>1.) Install the acf plugin (https://srd.wordpress.org/plugins/advanced-custom-fields/).'
+                                    . '<br> 2.) Add custom fields to your posts.'
+                                    . '<br> 3.) Save a post with custom fields filled up. '
+                                    . '<br>4.) Decide which custom fields you wanna display on the calendar view</p>', 'edit-flow'),
                             ),
                     'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
             );
@@ -56,7 +65,7 @@ class EF_Advanced_custom_fields extends EF_Module {
         // Anything that needs to happen in the admin
 	add_action( 'admin_init', array( $this, 'action_admin_init' ) );
         
-        // Register settings
+        // Register settings, using the WP API
         add_action( 'admin_init', array($this,'ef_acf_settings_init' ));
 
         // Load necessary scripts and stylesheets
@@ -85,26 +94,15 @@ class EF_Advanced_custom_fields extends EF_Module {
     }
     
     /**
-     * 
+     * print the settings page of the module
      * @since 0.7
      */
     public function print_configure_view() {              
         $this->ef_acf_options_page();                    
-    }
+    }    
     
     /**
-     * Chose the post types for your module
-     *
-     * @since 0.7
-     */
-    public function settings_post_types_option() {
-            global $edit_flow;
-            $edit_flow->settings->helper_option_custom_post_type( $this->module );
-    }   
-    
-    
-    /**
-     * Generates the fields, which are going to be shown in the calendar view.
+     * Generates the form of acf, which is going to be shown in the calendar view.
      * 
      * @return string
      */    
@@ -122,6 +120,11 @@ class EF_Advanced_custom_fields extends EF_Module {
         acf_form(array('post_id' => $post_id,'fields' => $visible_fields));        
     }
     
+    /**
+     * 
+     * initialise the settings section
+     * 
+     */
     public function ef_acf_settings_init() { 
 
 	register_setting( 'pluginPage', 'ef_acf_settings' );
@@ -136,6 +139,11 @@ class EF_Advanced_custom_fields extends EF_Module {
         $this->add_settings_fields();
     }
     
+    /**
+     * 
+     * Add the setting fields dynamically depending on what custom post fields you have.
+     * 
+     */
     private function add_settings_fields(){
         foreach ($this->get_post_meta_keys() as $key => $value) {
             
@@ -150,6 +158,13 @@ class EF_Advanced_custom_fields extends EF_Module {
         }
     }
     
+    /**
+     * 
+     * Generates dynamically the checkboxes for each custom post field
+     * 
+     * @param string meta_key $value
+     * 
+     */
     public function render_checkbox($value){
         $options = get_option('ef_acf_settings');
         
@@ -161,7 +176,11 @@ class EF_Advanced_custom_fields extends EF_Module {
     public function ef_acf_settings_section_callback() { 
             echo __( 'Select which of the Advanced Custom Fields should be shown on the calendar', 'wordpress' );
     }
-
+    
+    
+    /**
+     * Generates the settings form with all checkboxes of the custom fields.
+     */
     public function ef_acf_options_page() { 
         ?>
         <form action='options.php' method='post'>
@@ -174,6 +193,15 @@ class EF_Advanced_custom_fields extends EF_Module {
         <?php
     }
 
+    
+    /**
+     * @todo get only the meta keys of the Advanced Custom Fields plugin. 
+     * The actual implementation is a dirty workaraound because the designated function of ACF does not work
+     * see: https://www.advancedcustomfields.com/resources/get_fields/
+     * 
+     * 
+     * @return type array containing post meta keys
+     */
     private function get_post_meta_keys() {         
         //get all post ids
         $args = array('post_type' => 'post');
