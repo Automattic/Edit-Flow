@@ -638,6 +638,83 @@ class EF_Editorial_Metadata extends EF_Module {
 		else
 			return false;
 	}
+
+	/**
+	 * Return single editorial metadata value or false if not found
+	 *
+	 * @param int $post_id
+	 * @param string $slug Editorial metadata slug
+	 * @param string $formatted Whether to return certain editorial metadata formatted
+	 */
+	function get_post_editorial_metadata( $post_id, $slug, $formatted = false ) {
+		$term = $this->get_editorial_metadata_term_by( 'slug', $slug );
+
+		if( !$term )
+			return false;
+
+		$value = $this->get_postmeta_value( (int)$term->term_id, $post_id );
+
+		if( empty( $value ) )
+			return false;
+		else if ( $formatted ) 
+			return $this->format_editorial_metadata( $term->type, $value );
+		else
+			return $value;
+	}
+
+	/**
+	 * Returns array of editorial metadata or empty array if none found
+	 * @param  int  $post_id
+	 * @param  boolean $formatted Whether to return certain editorial metadata formatted
+	 * @return array $metadata_values Array of editorial metadata
+	 */
+	function get_all_post_editorial_metadata( $post_id, $formatted = false ) {
+		//Either one or all metadata will be returned depending on the value of $slug
+		$metadata_values = array();
+		$terms = $this->get_editorial_metadata_terms();
+		
+		if( empty( $terms ) )
+			return false;
+
+		//Loop through all editorial metadata, format if needed and return in array
+		foreach( $terms as $term ) {
+			$value = $this->get_postmeta_value( (int)$term->term_id, $post_id );
+
+			if( empty( $value ) )
+				continue;
+			
+			if( $formatted )
+				$value = $this->format_editorial_metadata( $term->type, $value );
+
+			$metadata_values[$term->slug] = $value;
+		}
+		return $metadata_values;
+	}
+
+	/**
+	 * Format editorial metadata for display
+	 * @param string $type Type of editorial metadata
+	 * @param mixed $value Value of editorial metadata
+	 * @return mixed Formatted editorial metadata
+	 */
+	function format_editorial_metadata( $type, $value ) {
+		switch( $type ) {
+			case 'checkbox':
+				if( $value )
+					return __('Yes', 'edit-flow');
+				else
+					return __('No', 'edit-flow');
+			break;
+			case 'date':
+				return $this->show_date_or_datetime( intval( $value ) );
+			break;
+			case 'user':
+				return get_user_by( 'id', $value )->data->user_login;
+			default:
+				return $value;
+			break;
+		}
+	}
 	
 	/**
 	 * Register editorial metadata fields as columns in the manage posts view
