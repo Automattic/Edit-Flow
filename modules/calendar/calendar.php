@@ -188,6 +188,10 @@ class EF_Calendar extends EF_Module {
 	 * @uses wp_enqueue_script()
 	 */
 	function enqueue_admin_scripts() {
+		global $pagenow;
+		// Only load calendar scripts on the calendar page
+		if ( $pagenow != 'index.php' || !isset( $_GET['page'] ) || $_GET['page'] != 'calendar' )
+			return false;
 
 		$this->enqueue_datepicker_resources();
 		
