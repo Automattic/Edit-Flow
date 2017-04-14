@@ -1352,6 +1352,13 @@ class EF_Custom_Status extends EF_Module {
 	public function fix_post_name( $post_id, $post ) {
 		global $pagenow;
 
+		/*
+		 * Filters the $post object that will be modified
+		 *
+		 * @param $post WP_Post Post object being processed.
+		 */
+		$post = apply_filters( 'ef_fix_post_name_post', $post );
+
 		// Only modify if we're using a pre-publish status on a supported custom post type
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
 		if ( 'post.php' != $pagenow
