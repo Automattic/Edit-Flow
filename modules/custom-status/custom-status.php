@@ -180,6 +180,17 @@ class EF_Custom_Status extends EF_Module {
 	function upgrade( $previous_version ) {
 		global $edit_flow;
 
+		//Upgrade path to v0.8.1
+		if( version_compare( $previous_version, '0.8.1', '<' ) ) {
+			//Fix post_date_gmt fields that were set to 0000-00-00 00:00:00
+			global $wpdb;
+			
+			$offset = (int) get_option( 'gmt_offset' );
+			
+			$wpdb->query( 'UPDATE ' . $wpdb->posts . ' SET post_date_gmt = post_date ' . ( ( $offset > 0 ) ? '+' : '-' ) . ' INTERVAL ' . abs( $offset ) . ' HOUR WHERE post_date_gmt = "0000-00-00 00:00:00" AND post_status = "publish"' );
+			
+		}
+
 		// Upgrade path to v0.7
 		if ( version_compare( $previous_version, '0.7' , '<' ) ) {
 			// Migrate dropdown visibility option
