@@ -96,6 +96,9 @@ class EF_Notifications extends EF_Module {
 			add_filter( 'ef_calendar_item_actions', array( $this, 'filter_post_row_actions' ), 10, 2 );
 			add_filter( 'ef_story_budget_item_actions', array( $this, 'filter_post_row_actions' ), 10, 2 );
 		}
+		
+		// AJAX for populating the Notifications metabox
+                add_action( 'wp_ajax_get_post_notifications_box', array( $this, 'ajax_get_post_notifications_box' ) );
 
 		//Ajax for saving notifiction updates
 		add_action( 'wp_ajax_save_notifications', array( $this, 'ajax_save_post_subscriptions' ) );
@@ -322,38 +325,59 @@ jQuery(document).ready(function($) {
 	 * @todo add_cap to set subscribers for posts; default to Admin and editors
 	 */	
 	function notifications_meta_box() {
-		global $post, $post_ID, $edit_flow;
-
-		?>
+?>
 		<div id="ef-post_following_box">
-			<a name="subscriptions"></a>
-
-			<p><?php _e( 'Select the users and user groups that should receive notifications when the status of this post is updated or when an editorial comment is added.', 'edit-flow' ); ?></p>
-			<div id="ef-post_following_users_box">
-				<h4><?php _e( 'Users', 'edit-flow' ); ?></h4>
-				<?php
-				$followers = $this->get_following_users( $post->ID, 'id' );
-				$select_form_args = array(
-					'list_class' => 'ef-post_following_list',
-				);
-				$this->users_select_form( $followers, $select_form_args ); ?>
-			</div>
-			
-			<?php if ( $this->module_enabled( 'user_groups' ) && in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $edit_flow->user_groups->module ) ) ): ?>
-			<div id="ef-post_following_usergroups_box">
-				<h4><?php _e('User Groups', 'edit-flow') ?></h4>
-				<?php
-				$following_usergroups = $this->get_following_usergroups( $post->ID, 'ids' );
-				$edit_flow->user_groups->usergroups_select_form( $following_usergroups ); ?>
-			</div>
-			<?php endif; ?>
-			<div class="clear"></div>
-			<input type="hidden" name="ef-save_followers" value="1" /> <?php // Extra protection against autosaves ?>
-			<?php wp_nonce_field('save_user_usergroups', 'ef_notifications_nonce', false); ?>
+			<script type="text/javascript">
+                                jQuery( document ).ready( function( $ ) {
+                                        $.post(
+                                                "<?php echo admin_url( 'admin-ajax.php' ); ?>",
+                                                {
+                                                        "action" : "get_post_notifications_box"
+                                                },
+                                                function( response ) {
+                                                        $( "#ef-post_following_box" ).html( response );
+                                                },
+                                                "html"
+                                        );
+                                });
+                        </script>
 		</div>
 		
-		<?php
+<?php
 	}
+	
+	/**
+         * Called when populating the notification editorial metadata box.
+         */
+        function ajax_get_post_notifications_box() {
+        	global $post, $post_ID, $edit_flow;
+?>
+		<a name="subscriptions"></a>
+
+		<p><?php _e( 'Select the users and user groups that should receive notifications when the status of this post is updated or when an editorial comment is added.', 'edit-flow' ); ?></p>
+		<div id="ef-post_following_users_box">
+			<h4><?php _e( 'Users', 'edit-flow' ); ?></h4>
+			<?php
+			$followers = $this->get_following_users( $post->ID, 'id' );
+			$select_form_args = array(
+				'list_class' => 'ef-post_following_list',
+			);
+			$this->users_select_form( $followers, $select_form_args ); ?>
+		</div>
+		
+		<?php if ( $this->module_enabled( 'user_groups' ) && in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $edit_flow->user_groups->module ) ) ): ?>
+		<div id="ef-post_following_usergroups_box">
+			<h4><?php _e('User Groups', 'edit-flow') ?></h4>
+			<?php
+			$following_usergroups = $this->get_following_usergroups( $post->ID, 'ids' );
+			$edit_flow->user_groups->usergroups_select_form( $following_usergroups ); ?>
+		</div>
+		<?php endif; ?>
+		<div class="clear"></div>
+		<input type="hidden" name="ef-save_followers" value="1" /> <?php // Extra protection against autosaves ?>
+		<?php wp_nonce_field('save_user_usergroups', 'ef_notifications_nonce', false); ?>
+<?php
+        }
 	
 	/**
 	 * Called when a notification editorial metadata checkbox is checked. Handles saving of a user/usergroup to a post.
