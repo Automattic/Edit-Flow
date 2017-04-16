@@ -162,5 +162,69 @@ jQuery(document).ready(function(){
 		},
 	});
 	jQuery( "#the-list tr.term-static" ).disableSelection();
-	
+
+	/**
+	 * Instantiate metadata default type switching functionality
+	 */
+	var $default = jQuery('#metadata_default'),
+		$select = jQuery('#metadata_default_checkbox'),
+		$input = jQuery('#metadata_default_input'),
+		$textarea = jQuery('#metadata_default_textarea'),
+		$userSelect = jQuery('#metadata_default_user'),
+		$label = $default.parent().find('label'),
+		changeDefaultType = function (element) {
+			$select.hide();
+			$input.hide();
+			$textarea.hide();
+			$userSelect.hide();
+			element.show();
+			$default.val(element.val());
+			$label.attr('for', element.attr('id'));
+		};
+
+	$input.hide();
+	$textarea.hide();
+	$userSelect.hide();
+	$label.attr('for', $select.attr('id'));
+
+	jQuery('#metadata_type').change(function () {
+		var type = jQuery(this).val();
+
+		switch (type) {
+			case 'checkbox':
+				changeDefaultType($select);
+				break;
+			case 'date':
+				changeDefaultType($input.attr('type', 'date'));
+				break;
+			case 'number':
+				changeDefaultType($input.attr('type', 'number'));
+				break;
+			case 'paragraph':
+				changeDefaultType($textarea);
+				break;
+			case 'user':
+				changeDefaultType($userSelect);
+				break;
+			default:
+				changeDefaultType($input.attr('type', 'text'));
+				break;
+		}
+	});
+
+	$select.change(function () {
+		$default.val($select.val());
+	});
+
+	$input.change(function () {
+		$default.val($input.val());
+	});
+
+	$textarea.change(function () {
+		$default.val($textarea.val());
+	});
+
+	$userSelect.change(function () {
+		$default.val($userSelect.val());
+	});
 });
