@@ -3,7 +3,7 @@ Contributors: batmoo, danielbachhuber, sbressler, automattic
 Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 4.5
-Tested up to: 4.7
+Tested up to: 4.8
 Stable tag: 0.8.2
 
 Redefining your editorial workflow.
@@ -80,10 +80,10 @@ Contributors and other users without the 'publish_posts' capability can access c
 = 0.7.1 =
 Enhancements and bug fixes, including defaulting to the proper date in the calendar and an Italian localization.
 
-= 0.7 = 
+= 0.7 =
 Complete rewrite into a modular architecture. Lots of polish added. Important note: If upgrading from pre-v0.6, please upgrade to v0.6.5 first
 
-= 0.6.5 = 
+= 0.6.5 =
 Fixes an issue where the post timestamp would be set as soon as a custom status was used.
 
 = 0.6.4 =
@@ -299,13 +299,13 @@ The following folks did some tremendous work helping with the release of Edit Fl
 * Added option to globally disable QuickPitch widget
 * Bug fix: Custom Status names cannot be longer than 20 chars
 * Bug fix: Deleted users are removed as subscribers from posts
-* Bug fix: Blank menu items should now be sorta hidden 
+* Bug fix: Blank menu items should now be sorta hidden
 
 = 0.2 =
 * Custom Statuses are now supported for pages
 * Editorial Comments (with threading)
 * Email Notifications (on post status change and editorial comment)
-* Additional Post metadata 
+* Additional Post metadata
 * Quick Pitch Dashboard widget
 * Bug fix: sorting issue on Manage Posts page (Mad props to David Smith from Columbia U.)
 * Other bug fixes
