@@ -326,7 +326,7 @@ class EF_Editorial_Comments extends EF_Module
 			    'comment_approved' => self::comment_type,
 			);
 
-			apply_filters( 'ef_pre_insert_editorial_comment', $data );
+			$data = apply_filters( 'ef_pre_insert_editorial_comment', $data );
 
 			// Insert Comment
 			$comment_id = wp_insert_comment($data);
