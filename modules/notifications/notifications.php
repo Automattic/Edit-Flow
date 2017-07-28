@@ -367,7 +367,8 @@ jQuery(document).ready(function($) {
 
 		$post_id = (int)$_POST['post_id'];
 		$post = get_post( $post_id );
-		$user_usergroup_ids = array_map( 'intval', $_POST['user_group_ids'] );
+		$user_group_ids = is_array( $_POST['user_group_ids'] ) ? $_POST['user_group_ids'] : array();
+		$user_usergroup_ids = array_map( 'intval', $user_group_ids );
 		if( ( !wp_is_post_revision( $post_id ) && !wp_is_post_autosave( $post_id ) )  && current_user_can( $this->edit_post_subscriptions_cap ) ) {
 			if( $_POST['ef_notifications_name'] === 'ef-selected-users[]' ) {
 				$this->save_post_following_users( $post, $user_usergroup_ids );
