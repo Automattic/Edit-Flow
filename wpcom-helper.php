@@ -41,3 +41,15 @@ function edit_flow_wpcom_redirect_canonical( $redirect ) {
 
 	return $redirect;
 }
+
+// This should fix a caching race condition that can sometimes create a published post with an empty slug
+add_filter( 'ef_fix_post_name_post', 'edit_flow_fix_fix_post_name' );
+function edit_flow_fix_fix_post_name( $post ) {
+	global $wpdb;
+	$post_status = $wpdb->get_var( $wpdb->prepare( 'SELECT post_status FROM ' . $wpdb->posts . ' WHERE ID = %d', $post->ID ) );
+	if ( null !== $post_status ) {
+		$post->post_status = $post_status;
+	}
+
+	return $post;
+}
