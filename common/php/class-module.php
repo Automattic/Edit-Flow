@@ -219,7 +219,7 @@ class EF_Module {
 		} else if ( array_key_exists( $status, $builtin_stati ) ) {
 			$status_friendly_name = $builtin_stati[$status];
 		}
-		return $status_friendly_name;
+		return esc_html__( $status_friendly_name, 'edit-flow');
 	}
 	
 	/**
