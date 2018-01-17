@@ -405,7 +405,7 @@ class EF_Custom_Status extends EF_Module {
 			// Load the custom statuses
 			foreach( $custom_statuses as $status ) {
 				$all_statuses[] = array(
-					'name' => esc_js( $status->name ),
+					'name' => esc_js( esc_html__( $status->name, 'edit-flow') ),
 					'slug' => esc_js( $status->slug ),
 					'description' => esc_js( $status->description ),
 				);
