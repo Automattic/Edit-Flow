@@ -359,24 +359,29 @@ class EF_Custom_Status extends EF_Module {
 
 		$custom_statuses = $this->get_custom_statuses();
 
-		// Get the status of the current post
-		if ( $post->ID == 0 || $post->post_status == 'auto-draft' || $pagenow == 'edit.php' ) {
-			// TODO: check to make sure that the default exists
-			$selected = $this->get_default_custom_status()->slug;
+		if( $post ) {
+			// Get the status of the current post
+			if ( $post->ID == 0 || $post->post_status == 'auto-draft' || $pagenow == 'edit.php' ) {
+				// TODO: check to make sure that the default exists
+				$selected = $this->get_default_custom_status()->slug;
 
+			} else {
+				$selected = $post->post_status;
+			}
+
+			$selected_name = '';
+
+			foreach ($custom_statuses as $status) {
+				if ($status->slug == $selected) {
+					$selected_name = $status->name;
+				}
+			}
 		} else {
-			$selected = $post->post_status;
+			$selected = '';
+			$selected_name = '';
 		}
 
 		// Get the current post status name
-		$selected_name = '';
-
-		foreach ($custom_statuses as $status) {
-			if ($status->slug == $selected) {
-				$selected_name = $status->name;
-			}
-		}
-
 		$custom_statuses = apply_filters( 'ef_custom_status_list', $custom_statuses, $post );
 
 		// All right, we want to set up the JS var which contains all custom statuses
@@ -411,6 +416,7 @@ class EF_Custom_Status extends EF_Module {
 		$always_show_dropdown = ( $this->module->options->always_show_dropdown == 'on' ) ? 1 : 0;
 
 		$post_type_obj = get_post_type_object( $this->get_current_post_type() );
+
 
 
 		return array(
