@@ -80,7 +80,6 @@ class EF_Custom_Status extends EF_Module {
 		// Load CSS and JS resources that we probably need
 		add_action( 'admin_enqueue_scripts', array( $this, 'action_admin_enqueue_scripts' ) );
 		add_action( 'admin_notices', array( $this, 'no_js_notice' ) );
-		add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
 
 		// Methods for handling the actions of creating, making default, and deleting post stati
 		add_action( 'admin_init', array( $this, 'handle_add_custom_status' ) );
@@ -297,6 +296,7 @@ class EF_Custom_Status extends EF_Module {
 		if ( $this->is_whitelisted_page() ) {
 			wp_enqueue_script( 'edit_flow-custom_status', $this->module_url . 'lib/custom-status.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
 			wp_enqueue_style( 'edit_flow-custom_status', $this->module_url . 'lib/custom-status.css', false, EDIT_FLOW_VERSION, 'all' );
+			wp_localize_script( 'edit_flow-custom_status', '__admin_edit_flow', $this->post_admin_header() );
 		}
 	}
 
@@ -358,79 +358,77 @@ class EF_Custom_Status extends EF_Module {
 		wp_get_current_user() ;
 
 		// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
-		if ( $this->is_whitelisted_page() ) {
 
-			$custom_statuses = $this->get_custom_statuses();
 
-			// Get the status of the current post
-			if ( $post->ID == 0 || $post->post_status == 'auto-draft' || $pagenow == 'edit.php' ) {
-				// TODO: check to make sure that the default exists
-				$selected = $this->get_default_custom_status()->slug;
+		$custom_statuses = $this->get_custom_statuses();
 
-			} else {
-				$selected = $post->post_status;
-			}
+		// Get the status of the current post
+		if ( $post->ID == 0 || $post->post_status == 'auto-draft' || $pagenow == 'edit.php' ) {
+			// TODO: check to make sure that the default exists
+			$selected = $this->get_default_custom_status()->slug;
 
-			// Get the current post status name
-			$selected_name = '';
-
-			foreach ($custom_statuses as $status) {
-				if ($status->slug == $selected) {
-					$selected_name = $status->name;
-				}
-			}
-
-			$custom_statuses = apply_filters( 'ef_custom_status_list', $custom_statuses, $post );
-
-			// All right, we want to set up the JS var which contains all custom statuses
-			$all_statuses = array();
-
-			// The default statuses from WordPress
-			$all_statuses[] = array(
-				'name' => __( 'Published', 'edit-flow' ),
-				'slug' => 'publish',
-				'description' => '',
-			);
-			$all_statuses[] = array(
-				'name' => __( 'Privately Published', 'edit-flow' ),
-				'slug' => 'private',
-				'description' => '',
-			);
-			$all_statuses[] = array(
-				'name' => __( 'Scheduled', 'edit-flow' ),
-				'slug' => 'future',
-				'description' => '',
-			);
-
-			// Load the custom statuses
-			foreach( $custom_statuses as $status ) {
-				$all_statuses[] = array(
-					'name' => esc_js( $status->name ),
-					'slug' => esc_js( $status->slug ),
-					'description' => esc_js( $status->description ),
-				);
-			}
-
- 			$always_show_dropdown = ( $this->module->options->always_show_dropdown == 'on' ) ? 1 : 0;
-
- 			$post_type_obj = get_post_type_object( $this->get_current_post_type() );
-
-			// Now, let's print the JS vars
-			?>
-			<script type="text/javascript">
-				var custom_statuses = <?php echo json_encode( $all_statuses ); ?>;
-				var ef_text_no_change = '<?php echo esc_js( __( "&mdash; No Change &mdash;" ) ); ?>';
-				var ef_default_custom_status = '<?php echo esc_js( $this->get_default_custom_status()->slug ); ?>';
-				var current_status = '<?php echo esc_js( $selected ); ?>';
-				var current_status_name = '<?php echo esc_js( $selected_name ); ?>';
-				var status_dropdown_visible = <?php echo esc_js( $always_show_dropdown ); ?>;
-				var current_user_can_publish_posts = <?php echo current_user_can( $post_type_obj->cap->publish_posts ) ? 1 : 0; ?>;
-				var current_user_can_edit_published_posts = <?php echo current_user_can( $post_type_obj->cap->edit_published_posts ) ? 1 : 0; ?>;
-			</script>
-
-			<?php
-
+		} else {
+			$selected = $post->post_status;
 		}
+
+		// Get the current post status name
+		$selected_name = '';
+
+		foreach ($custom_statuses as $status) {
+			if ($status->slug == $selected) {
+				$selected_name = $status->name;
+			}
+		}
+
+		$custom_statuses = apply_filters( 'ef_custom_status_list', $custom_statuses, $post );
+
+		// All right, we want to set up the JS var which contains all custom statuses
+		$all_statuses = array();
+
+		// The default statuses from WordPress
+		$all_statuses[] = array(
+			'name' => __( 'Published', 'edit-flow' ),
+			'slug' => 'publish',
+			'description' => '',
+		);
+		$all_statuses[] = array(
+			'name' => __( 'Privately Published', 'edit-flow' ),
+			'slug' => 'private',
+			'description' => '',
+		);
+		$all_statuses[] = array(
+			'name' => __( 'Scheduled', 'edit-flow' ),
+			'slug' => 'future',
+			'description' => '',
+		);
+
+		// Load the custom statuses
+		foreach( $custom_statuses as $status ) {
+			$all_statuses[] = array(
+				'name' => esc_js( $status->name ),
+				'slug' => esc_js( $status->slug ),
+				'description' => esc_js( $status->description ),
+			);
+		}
+
+		$always_show_dropdown = ( $this->module->options->always_show_dropdown == 'on' ) ? 1 : 0;
+
+		$post_type_obj = get_post_type_object( $this->get_current_post_type() );
+
+
+		return array(
+			'variables' => array(
+				'custom_statuses'                       => $all_statuses,
+				'text_no_change'                     => esc_js( __( "&mdash; No Change &mdash;" ) ),
+				'ef_default_custom_status'              => esc_js( $this->get_default_custom_status()->slug ),
+				'current_status'                        => esc_js( $selected ),
+				'current_status_name'                   => esc_js( $selected_name ),
+				'status_dropdown_visible'               => esc_js( $always_show_dropdown ),
+				'current_user_can_publish_posts'        => current_user_can( $post_type_obj->cap->publish_posts ) ? 1 : 0,
+				'current_user_can_edit_published_posts' => current_user_can( $post_type_obj->cap->edit_published_posts ) ? 1 : 0,
+			),
+		);
+
 
 	}
 
@@ -1330,7 +1328,7 @@ class EF_Custom_Status extends EF_Module {
 		}
 
 		//If empty, keep empty.
-		if ( empty( $postarr['post_date_gmt'] ) 
+		if ( empty( $postarr['post_date_gmt'] )
 		|| '0000-00-00 00:00:00' == $postarr['post_date_gmt'] ) {
 			$data['post_date_gmt'] = '0000-00-00 00:00:00';
 		}
@@ -1375,7 +1373,7 @@ class EF_Custom_Status extends EF_Module {
 		$wpdb->update( $wpdb->posts, array( 'post_name' => '' ), array( 'ID' => $post_id ) );
 		clean_post_cache( $post_id );
 	}
-	
+
 
 	/**
 	 * Another hack! hack! hack! until core better supports custom statuses
@@ -1396,7 +1394,7 @@ class EF_Custom_Status extends EF_Module {
 			|| 'post.php' != $pagenow
 			|| !in_array( $post->post_status, $status_slugs )
 			|| !in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) )
-			|| strpos( $preview_link, 'preview_id' ) !== false 
+			|| strpos( $preview_link, 'preview_id' ) !== false
 			|| $post->filter == 'sample' )
 			return $preview_link;
 
@@ -1444,10 +1442,10 @@ class EF_Custom_Status extends EF_Module {
 		return $this->get_preview_link( $post );
 	}
 
-	/** 
+	/**
 	 * Fix get_sample_permalink. Previosuly the 'editable_slug' filter was leveraged
 	 * to correct the sample permalink a user could edit on post.php. Since 4.4.40
-	 * the `get_sample_permalink` filter was added which allows greater flexibility in 
+	 * the `get_sample_permalink` filter was added which allows greater flexibility in
 	 * manipulating the slug. Critical for cases like editing the sample permalink on
 	 * hierarchical post types.
 	 * @since 0.8.2
@@ -1507,8 +1505,8 @@ class EF_Custom_Status extends EF_Module {
 
 	/**
 	 * Hack to work around post status check in get_sample_permalink_html
-	 * 
-	 * 
+	 *
+	 *
 	 * The get_sample_permalink_html checks the status of the post and if it's
 	 * a draft generates a certain permalink structure.
 	 * We need to do the same work it's doing for custom statuses in order
@@ -1516,7 +1514,7 @@ class EF_Custom_Status extends EF_Module {
 	 * @see https://core.trac.wordpress.org/browser/tags/4.5.2/src/wp-admin/includes/post.php#L1296
 	 *
 	 * @since 0.8.2
-	 * 
+	 *
 	 * @param string  $return    Sample permalink HTML markup
 	 * @param int 	  $post_id   Post ID
 	 * @param string  $new_title New sample permalink title

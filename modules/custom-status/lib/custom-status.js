@@ -1,14 +1,16 @@
 jQuery( document ).ready( function() {
 
-	var $ = jQuery;
+	var $ = window.jQuery;
+	var ef = window.__admin_edit_flow.variables;
+	var i18n = window.__admin_edit_flow.i18n;
 
 	$( 'label[for=post_status]' ).show();
 	$( '#post-status-display' ).show();
 
 	if ( $( 'select[name="_status"]' ).length == 0 ) { // not on quick edit
 
-		if ( current_user_can_publish_posts ||
-			( current_status == 'publish' && current_user_can_edit_published_posts ) ) {
+		if ( ef.current_user_can_publish_posts ||
+			( ef.current_status == 'publish' && ef.current_user_can_edit_published_posts ) ) {
 			// show publish button if allowed to publish
 			$( '#publish' ).show();
 		} else {
@@ -22,7 +24,7 @@ jQuery( document ).ready( function() {
 				'  <a href="#post_status" class="cancel-post-status">Cancel</a>' +
 				' </div>' ).insertAfter( '#post-status-display' );
 
-			if ( !status_dropdown_visible ) {
+			if ( ! ef.status_dropdown_visible ) {
 				$( '#post-status-select' ).hide();
 				$( '.edit-post-status' ).show();
 			}
@@ -62,27 +64,27 @@ jQuery( document ).ready( function() {
 		ef_append_to_dropdown( 'select[name="post_status"]' );
 
 		// Make status dropdown visible on load if enabled
-		if ( status_dropdown_visible ) {
+		if ( ef.status_dropdown_visible ) {
 			$( '#post-status-select' ).show();
 			$( '.edit-post-status' ).hide();
 		}
 
 		// Hide status dropdown if not allowed to edit
-		if ( !ef_can_change_status( current_status ) ) {
+		if ( !ef_can_change_status( ef.current_status ) ) {
 			$( '#post-status-select' ).hide();
 			$( '.edit-post-status' ).hide();
 
 			// set the current status as the selected one
 			var $option = $( '<option></option>' ).
-				text( current_status_name ).
-				attr( 'value', current_status ).
+				text( ef.current_status_name ).
+				attr( 'value', ef.current_status ).
 				attr( 'selected', 'selected' );
 
 			$option.appendTo( 'select[name="post_status"]' );
 		}
 
 		// If custom status set for post, then set is as #post-status-display
-		$( '#post-status-display' ).text( ef_get_status_name( current_status ) );
+		$( '#post-status-display' ).text( ef_get_status_name( ef.current_status ) );
 
 	} else if ( $( 'select[name="_status"]' ).length > 0 ) {
 		ef_append_to_dropdown( 'select[name="_status"]' );
@@ -93,7 +95,7 @@ jQuery( document ).ready( function() {
 		// Clean up the bulk edit selector because it's non-standard
 		$( '#bulk-edit' ).
 			find( 'select[name="_status"]' ).
-			prepend( '<option value="">' + ef_text_no_change + '</option>' );
+			prepend( '<option value="">' + ef.text_no_change + '</option>' );
 		$( '#bulk-edit' ).find( 'select[name="_status"] option' ).removeAttr( 'selected' );
 		$( '#bulk-edit' ).find( 'select[name="_status"] option[value="future"]' ).remove();
 	} else {
@@ -102,7 +104,7 @@ jQuery( document ).ready( function() {
 		ef_update_save_button( 'Save' );
 
 		// If custom status set for post, then set is as #post-status-display
-		$( '#post-status-display' ).text( ef_get_status_name( current_status ) );
+		$( '#post-status-display' ).text( ef_get_status_name( ef.current_status ) );
 
 	}
 
@@ -117,17 +119,17 @@ jQuery( document ).ready( function() {
 		$( id + ' option' ).not( '[value="future"]' ).remove();
 
 		// Add "Published" status to quick-edit for users that can publish
-		if ( id == 'select[name="_status"]' && current_user_can_publish_posts ) {
+		if ( id == 'select[name="_status"]' && ef.current_user_can_publish_posts ) {
 			$( id ).append( $( '<option></option' ).attr( 'value', 'publish' ).text( 'Published' )
 			);
 		}
 
 		// Add remaining statuses to dropdown. 'private' is always handled by a checkbox, and 'future' already exists if we need it
-		$.each( custom_statuses, function() {
+		$.each( ef.custom_statuses, function() {
 			if ( this.slug == 'private' || this.slug == 'future' )
 				return;
 
-			if ( current_status != 'publish' && this.slug == 'publish' )
+			if ( ef.current_status != 'publish' && this.slug == 'publish' )
 				return;
 
 			var $option = $( '<option></option>' ).
@@ -136,7 +138,7 @@ jQuery( document ).ready( function() {
 				attr( 'title', ( this.description ) ? this.description : '' )
 			;
 
-			if ( current_status == this.slug ) $option.attr( 'selected', 'selected' );
+			if ( ef.current_status == this.slug ) $option.attr( 'selected', 'selected' );
 
 			$option.appendTo( $( id ) );
 		} );
@@ -145,17 +147,17 @@ jQuery( document ).ready( function() {
 	function ef_can_change_status( slug ) {
 		var change = false;
 
-		$.each( custom_statuses, function() {
+		$.each( ef.custom_statuses, function() {
 			if ( this.slug == slug ) change = true;
 		} );
-		if ( slug == 'publish' && !current_user_can_publish_posts ) {
+		if ( slug == 'publish' && ! ef.current_user_can_publish_posts ) {
 			change = false;
 		}
 		return change;
 	}
 
 	function ef_add_tooltips_to_filter_links( selector ) {
-		$.each( custom_statuses, function() {
+		$.each( ef.custom_statuses, function() {
 			$( selector + ':contains("' + this.name + '")' ).attr( 'title', this.description );
 		} );
 
@@ -170,12 +172,12 @@ jQuery( document ).ready( function() {
 	// Returns the name of the status given a slug
 	function ef_get_status_name( slug ) {
 		var name = '';
-		$.each( custom_statuses, function() {
+		$.each( ef.custom_statuses, function() {
 			if ( this.slug == slug ) name = this.name;
 		} );
 
 		if ( !name ) {
-			name = current_status_name;
+			name = ef.current_status_name;
 		}
 
 		return name;
