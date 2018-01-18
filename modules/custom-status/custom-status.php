@@ -358,7 +358,7 @@ class EF_Custom_Status extends EF_Module {
 		wp_get_current_user() ;
 
 		// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
-		if ( !empty( $post ) && $this->is_whitelisted_page() ) {
+		if ( $this->is_whitelisted_page() ) {
 
 			$custom_statuses = $this->get_custom_statuses();
 
