@@ -349,16 +349,13 @@ class EF_Custom_Status extends EF_Module {
 	 * @todo Support private and future posts on edit.php view
 	 */
 	function post_admin_header() {
-		global $post, $edit_flow, $pagenow, $current_user;
+		global $post, $pagenow;
 
 		if ( $this->disable_custom_statuses_for_post_type() )
 			return;
 
 		// Get current user
-		wp_get_current_user() ;
-
-		// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
-
+		wp_get_current_user();
 
 		$custom_statuses = $this->get_custom_statuses();
 
@@ -419,7 +416,7 @@ class EF_Custom_Status extends EF_Module {
 		return array(
 			'variables' => array(
 				'custom_statuses'                       => $all_statuses,
-				'text_no_change'                     => esc_js( __( "&mdash; No Change &mdash;" ) ),
+				'text_no_change'                        => esc_js( __( "&mdash; No Change &mdash;" ) ),
 				'ef_default_custom_status'              => esc_js( $this->get_default_custom_status()->slug ),
 				'current_status'                        => esc_js( $selected ),
 				'current_status_name'                   => esc_js( $selected_name ),
