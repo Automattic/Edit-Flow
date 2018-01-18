@@ -381,9 +381,9 @@ class EF_Calendar extends EF_Module {
 			foreach( $week_posts as $date => $day_posts ) {
 				foreach( $day_posts as $num => $post ) {
 
-					$start_date = date( 'Ymd', strtotime( $post->post_date ) ) . 'T' . date( 'His', strtotime( $post->post_date ) ) . 'Z';
-					$end_date = date( 'Ymd', strtotime( $post->post_date ) + (5 * 60) ) . 'T' . date( 'His', strtotime( $post->post_date ) + (5 * 60) ) . 'Z';
-					$last_modified = date( 'Ymd', strtotime( $post->post_modified_gmt ) ) . 'T' . date( 'His', strtotime( $post->post_modified_gmt ) ) . 'Z';
+					$start_date    = self::ics_format_time( $post->post_date );
+					$end_date      = self::ics_format_time( $post->post_date, 5 * MINUTE_IN_SECONDS );
+					$last_modified = self::ics_format_time( $post->post_modified );
 
 					// Remove the convert chars and wptexturize filters from the title
 					remove_filter( 'the_title', 'convert_chars' );
@@ -486,6 +486,33 @@ class EF_Calendar extends EF_Module {
 		$text = str_replace( ";", "\:", $text );
 		$text = str_replace( "\\", "\\\\", $text );
 		return $text;
+	}
+
+	/**
+	 * Convert a time string into a timestamp with the proper GMT offset
+	 * @param     $time_string
+	 * @param int $offset_in_seconds
+	 *
+	 * @return string|false
+	 */
+	public static function ics_format_time( $time_string, $offset_in_seconds = 0) {
+
+		// Timestamp it
+		$timestamp = strtotime( $time_string );
+
+		if( ! $timestamp ) {
+			return false;
+		}
+
+		// Add GMT Offset
+		$timestamp += -1 * get_option('gmt_offset') * HOUR_IN_SECONDS;
+
+		// Add manual offset
+		$timestamp += $offset_in_seconds;
+
+		// \T and \Z are escaped for literal T and Z characters
+		return date( 'Ymd\THis\Z', $timestamp );
+
 	}
 
 	/**
