@@ -53,7 +53,7 @@ jQuery( document ).ready( function() {
 	if ( $( 'select[name="post_status"]' ).length > 0 ) {
 
 		// Set the Save button to generic text by default
-		ef_update_save_button( 'Save' );
+		ef_update_save_button( i18n.save );
 
 		// Bind event when OK button is clicked
 		$( '.save-post-status' ).bind( 'click', function() {
@@ -95,13 +95,13 @@ jQuery( document ).ready( function() {
 		// Clean up the bulk edit selector because it's non-standard
 		$( '#bulk-edit' ).
 			find( 'select[name="_status"]' ).
-			prepend( '<option value="">' + ef.text_no_change + '</option>' );
+			prepend( '<option value="">' + i18n.no_change + '</option>' );
 		$( '#bulk-edit' ).find( 'select[name="_status"] option' ).removeAttr( 'selected' );
 		$( '#bulk-edit' ).find( 'select[name="_status"] option[value="future"]' ).remove();
 	} else {
 
 		// Set the Save button to generic text by default
-		ef_update_save_button( 'Save' );
+		ef_update_save_button( i18n.save );
 
 		// If custom status set for post, then set is as #post-status-display
 		$( '#post-status-display' ).text( ef_get_status_name( ef.current_status ) );
@@ -120,7 +120,7 @@ jQuery( document ).ready( function() {
 
 		// Add "Published" status to quick-edit for users that can publish
 		if ( id == 'select[name="_status"]' && ef.current_user_can_publish_posts ) {
-			$( id ).append( $( '<option></option' ).attr( 'value', 'publish' ).text( 'Published' )
+			$( id ).append( $( '<option></option' ).attr( 'value', 'publish' ).text( i18n.published )
 			);
 		}
 
@@ -165,7 +165,7 @@ jQuery( document ).ready( function() {
 
 	// Update "Save" button text
 	function ef_update_save_button( text ) {
-		if ( !text ) text = 'Save as ' + $( 'select[name="post_status"] :selected' ).text();
+		if ( !text ) text = i18n.save_as + ' ' + $( 'select[name="post_status"] :selected' ).text();
 		$( ':input#save-post' ).attr( 'value', text );
 	}
 

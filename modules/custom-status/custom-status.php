@@ -389,17 +389,17 @@ class EF_Custom_Status extends EF_Module {
 
 		// The default statuses from WordPress
 		$all_statuses[] = array(
-			'name' => __( 'Published', 'edit-flow' ),
+			'name' => esc_html__( 'Published', 'edit-flow' ),
 			'slug' => 'publish',
 			'description' => '',
 		);
 		$all_statuses[] = array(
-			'name' => __( 'Privately Published', 'edit-flow' ),
+			'name' => esc_html__( 'Privately Published', 'edit-flow' ),
 			'slug' => 'private',
 			'description' => '',
 		);
 		$all_statuses[] = array(
-			'name' => __( 'Scheduled', 'edit-flow' ),
+			'name' => esc_html__( 'Scheduled', 'edit-flow' ),
 			'slug' => 'future',
 			'description' => '',
 		);
@@ -418,11 +418,15 @@ class EF_Custom_Status extends EF_Module {
 		$post_type_obj = get_post_type_object( $this->get_current_post_type() );
 
 
-
 		return array(
+			'i18n'      => array(
+				'no_change' => esc_html__( "&mdash; No Change &mdash;", 'edit-flow' ),
+				'published' => esc_html__( 'Published', 'edit-flow' ),
+				'save_as' => esc_html__( 'Save as', 'edit-flow' ),
+				'save' => esc_html__( 'Save', 'edit-flow' ),
+			),
 			'variables' => array(
 				'custom_statuses'                       => $all_statuses,
-				'text_no_change'                        => esc_js( __( "&mdash; No Change &mdash;" ) ),
 				'ef_default_custom_status'              => esc_js( $this->get_default_custom_status()->slug ),
 				'current_status'                        => esc_js( $selected ),
 				'current_status_name'                   => esc_js( $selected_name ),
