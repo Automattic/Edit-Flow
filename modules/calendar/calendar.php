@@ -919,7 +919,6 @@ class EF_Calendar extends EF_Module {
 				<?php do_action( 'ef_calendar_item_additional_html', $post->ID ); ?>
 			</table>
 			<?php
-				$post_type_object = get_post_type_object( $post->post_type );
 				$item_actions = array();
 				if ( $this->current_user_can_modify_post( $post ) ) {
 					// Edit this post
