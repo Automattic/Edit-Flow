@@ -27,8 +27,6 @@ jQuery(document).ready(function($) {
 			$postboxContainer.hasClass('columns-number-3') )
 			$postboxContainer.removeClass('columns-number-1 columns-number-2 columns-number-3');
 		$postboxContainer.addClass('columns-number-' + numColumns );
-
-		//jQuery(".postbox").css('width', (90 / numColumns) + '%' );
 	});
 	
 	jQuery('h2 a.change-date').click(function(){
