@@ -1201,12 +1201,17 @@ class EF_Calendar extends EF_Module {
 		// The WP functions for printing the category and author assign a value of 0 to the default
 		// options, but passing this to the query is bad (trashed and auto-draft posts appear!), so
 		// unset those arguments.
-		if ( $args['cat'] === '0' ) unset( $args['cat'] );
-		if ( $args['author'] === '0' ) unset( $args['author'] );
+		if ( $args['cat'] === '0' ) {
+			unset( $args['cat'] );
+		}
+		if ( $args['author'] === '0' ) {
+			unset( $args['author'] );
+		}
 
-		if ( empty( $args['post_type'] ) || ! in_array( $args['post_type'], $supported_post_types ) )
+		if ( empty( $args['post_type'] ) || ! in_array( $args['post_type'], $supported_post_types ) ) {
 			$args['post_type'] = $supported_post_types;
-		
+		}
+
 		// Filter for an end user to implement any of their own query args
 		$args = apply_filters( 'ef_calendar_posts_query_args', $args, $context );
 		add_filter( 'posts_where', array( $this, 'posts_where_week_range' ) );
