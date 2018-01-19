@@ -21,11 +21,12 @@ jQuery(document).ready(function($) {
 	$("input[name=ef_story_budget_screen_columns]").click(function() {
 		var numColumns = $(this).val();
 
-		if ( jQuery(".postbox-container").hasClass('columns-number-1') ||
-			jQuery(".postbox-container").hasClass('columns-number-2') ||
-			jQuery(".postbox-container").hasClass('columns-number-3') )
-			jQuery(".postbox-container").removeClass('columns-number-1 columns-number-2 columns-number-3');
-		jQuery(".postbox-container").addClass('columns-number-' + numColumns );
+		var $postboxContainer = $(".postbox-container");
+		if ( $postboxContainer.hasClass('columns-number-1') ||
+			$postboxContainer.hasClass('columns-number-2') ||
+			$postboxContainer.hasClass('columns-number-3') )
+			$postboxContainer.removeClass('columns-number-1 columns-number-2 columns-number-3');
+		$postboxContainer.addClass('columns-number-' + numColumns );
 
 		//jQuery(".postbox").css('width', (90 / numColumns) + '%' );
 	});
