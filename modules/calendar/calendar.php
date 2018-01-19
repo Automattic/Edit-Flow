@@ -1174,7 +1174,6 @@ class EF_Calendar extends EF_Module {
 	 * @return array $posts All of the posts as an array sorted by date
 	 */
 	function get_calendar_posts_for_week( $args = array(), $context = 'dashboard' ) {
-		global $wpdb;
 		
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		$defaults = array(
@@ -1213,7 +1212,7 @@ class EF_Calendar extends EF_Module {
 		add_filter( 'posts_where', array( $this, 'posts_where_week_range' ) );
 		$post_results = new WP_Query( $args );
 		remove_filter( 'posts_where', array( $this, 'posts_where_week_range' ) );
-		
+
 		$posts = array();
 		while ( $post_results->have_posts() ) {
 			$post_results->the_post();
@@ -1234,7 +1233,7 @@ class EF_Calendar extends EF_Module {
 	 */
 	function posts_where_week_range( $where = '' ) {
 		global $wpdb;
-	
+
 		$beginning_date = $this->get_beginning_of_week( $this->start_date, 'Y-m-d', $this->current_week );
 		$ending_date = $this->get_ending_of_week( $this->start_date, 'Y-m-d', $this->current_week );
 		// Adjust the ending date to account for the entire day of the last day of the week
