@@ -36,8 +36,20 @@
 	padding-right: 0;
 }
 
+.postbox-container.columns-number-1 .postbox {
+	width: 100%
+}
+
+.postbox-container.columns-number-2 .postbox {
+	width: 48%
+}
+
+.postbox-container.columns-number-3 .postbox {
+	width: 31%
+}
+
 .postbox {
-	display: block;
+	display: inline-block;
 	margin-bottom: 10px;
 	margin-left: 10px;
 	margin-right: 10px;
