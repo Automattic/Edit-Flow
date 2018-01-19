@@ -1212,11 +1212,20 @@ class EF_Calendar extends EF_Module {
 			$args['post_type'] = $supported_post_types;
 		}
 
+		$beginning_date = $this->get_beginning_of_week( $this->start_date, 'Y-m-d', $this->current_week );
+		$ending_date = $this->get_ending_of_week( $this->start_date, 'Y-m-d', $this->current_week );
+
+		$beginning_date_offset = date( "Y-m-d", strtotime( $beginning_date  ) - DAY_IN_SECONDS );
+		$ending_date_offset = date( "Y-m-d", strtotime( $ending_date  ) + DAY_IN_SECONDS );
+
+		$args['date_query'] = array(
+			'before' => $ending_date_offset,
+			'after' => $beginning_date_offset,
+		);
+
 		// Filter for an end user to implement any of their own query args
 		$args = apply_filters( 'ef_calendar_posts_query_args', $args, $context );
-		add_filter( 'posts_where', array( $this, 'posts_where_week_range' ) );
 		$post_results = new WP_Query( $args );
-		remove_filter( 'posts_where', array( $this, 'posts_where_week_range' ) );
 
 		$posts = array();
 		while ( $post_results->have_posts() ) {
@@ -1229,25 +1238,7 @@ class EF_Calendar extends EF_Module {
 		return $posts;
 		
 	}
-	
-	/**
-	 * Filter the WP_Query so we can get a week range of posts
-	 *
-	 * @param string $where The original WHERE SQL query string
-	 * @return string $where Our modified WHERE query string
-	 */
-	function posts_where_week_range( $where = '' ) {
-		global $wpdb;
 
-		$beginning_date = $this->get_beginning_of_week( $this->start_date, 'Y-m-d', $this->current_week );
-		$ending_date = $this->get_ending_of_week( $this->start_date, 'Y-m-d', $this->current_week );
-		// Adjust the ending date to account for the entire day of the last day of the week
-		$ending_date = date( "Y-m-d", strtotime( "+1 day", strtotime( $ending_date ) ) );
-		$where = $where . $wpdb->prepare( " AND ($wpdb->posts.post_date >= %s AND $wpdb->posts.post_date < %s)", $beginning_date, $ending_date );
-	
-		return $where;
-	} 
-	
 	/**
 	 * Gets the link for the next time period
 	 *
@@ -1290,7 +1281,7 @@ class EF_Calendar extends EF_Module {
 	 * @return string $formatted_start_of_week End of the week
 	 */
 	function get_beginning_of_week( $date, $format = 'Y-m-d', $week = 1 ) {
-		
+
 		$date = strtotime( $date );
 		$start_of_week = get_option( 'start_of_week' );
 		$day_of_week = date( 'w', $date );
