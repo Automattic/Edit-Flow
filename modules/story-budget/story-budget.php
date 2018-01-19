@@ -388,16 +388,14 @@ class EF_Story_Budget extends EF_Module {
 		// Filter for an end user to implement any of their own query args
      	$args = apply_filters( 'ef_story_budget_posts_query_args', $args );
 
-		$beginning_date = date( 'Y-m-d', strtotime( $this->user_filters['start_date'] )  );
-		$end_day = $this->user_filters['number_days'];
-		$ending_date = date( "Y-m-d", strtotime( "+" . $end_day . " days", strtotime( $beginning_date ) ) );
-
-		$beginning_date_offset = date( "Y-m-d", strtotime( $beginning_date  ) - DAY_IN_SECONDS );
-		$ending_date_offset = date( "Y-m-d", strtotime( $ending_date  ) + DAY_IN_SECONDS );
+		$beginning_date = strtotime( $this->user_filters['start_date'] );
+		$days_to_show = $this->user_filters['number_days'];
+		$ending_date = $beginning_date + ( $days_to_show * DAY_IN_SECONDS );
 
 		$args['date_query'] = array(
-			'before' => $ending_date_offset,
-			'after' => $beginning_date_offset,
+			'after'     => date( "Y-m-d", $beginning_date ),
+			'before'    => date( "Y-m-d", $ending_date ),
+			'inclusive' => true,
 		);
 
 		$term_posts_query_results = new WP_Query( $args );

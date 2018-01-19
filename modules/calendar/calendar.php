@@ -1213,14 +1213,12 @@ class EF_Calendar extends EF_Module {
 		}
 
 		$beginning_date = $this->get_beginning_of_week( $this->start_date, 'Y-m-d', $this->current_week );
-		$ending_date = $this->get_ending_of_week( $this->start_date, 'Y-m-d', $this->current_week );
-
-		$beginning_date_offset = date( "Y-m-d", strtotime( $beginning_date  ) - DAY_IN_SECONDS );
-		$ending_date_offset = date( "Y-m-d", strtotime( $ending_date  ) + DAY_IN_SECONDS );
+		$ending_date    = date( "Y-m-d", strtotime( $beginning_date ) + WEEK_IN_SECONDS );
 
 		$args['date_query'] = array(
-			'before' => $ending_date_offset,
-			'after' => $beginning_date_offset,
+			'after'     => $beginning_date,
+			'before'    => $ending_date,
+			'inclusive' => true,
 		);
 
 		// Filter for an end user to implement any of their own query args
