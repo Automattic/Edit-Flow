@@ -388,9 +388,19 @@ class EF_Story_Budget extends EF_Module {
 		// Filter for an end user to implement any of their own query args
      	$args = apply_filters( 'ef_story_budget_posts_query_args', $args );
 
-		add_filter( 'posts_where', array( $this, 'posts_where_range' ) );
+		$beginning_date = date( 'Y-m-d', strtotime( $this->user_filters['start_date'] )  );
+		$end_day = $this->user_filters['number_days'];
+		$ending_date = date( "Y-m-d", strtotime( "+" . $end_day . " days", strtotime( $beginning_date ) ) );
+
+		$beginning_date_offset = date( "Y-m-d", strtotime( $beginning_date  ) - DAY_IN_SECONDS );
+		$ending_date_offset = date( "Y-m-d", strtotime( $ending_date  ) + DAY_IN_SECONDS );
+
+		$args['date_query'] = array(
+			'before' => $ending_date_offset,
+			'after' => $beginning_date_offset,
+		);
+
 		$term_posts_query_results = new WP_Query( $args );
-		remove_filter( 'posts_where', array( $this, 'posts_where_range' ) );
 		
 		$term_posts = array();
 		while ( $term_posts_query_results->have_posts() ) {
@@ -401,23 +411,7 @@ class EF_Story_Budget extends EF_Module {
 		
 		return $term_posts;
 	}
-	
-	/**
-	 * Filter the WP_Query so we can get a range of posts
-	 *
-	 * @param string $where The original WHERE SQL query string
-	 * @return string $where Our modified WHERE query string
-	 */
-	function posts_where_range( $where = '' ) {
-		global $wpdb;
-	
-		$beginning_date = date( 'Y-m-d', strtotime( $this->user_filters['start_date'] ) );
-		$end_day = $this->user_filters['number_days'];
-		$ending_date = date( "Y-m-d", strtotime( "+" . $end_day . " days", strtotime( $beginning_date ) ) );
-		$where = $where . $wpdb->prepare( " AND ($wpdb->posts.post_date >= %s AND $wpdb->posts.post_date < %s)", $beginning_date, $ending_date );
-	
-		return $where;
-	}
+
 	
 	/**
 	 * Prints the stories in a single term in the story budget.
