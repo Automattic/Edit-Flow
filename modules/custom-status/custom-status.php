@@ -297,6 +297,15 @@ class EF_Custom_Status extends EF_Module {
 		if ( $this->is_whitelisted_page() ) {
 			wp_enqueue_script( 'edit_flow-custom_status', $this->module_url . 'lib/custom-status.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
 			wp_enqueue_style( 'edit_flow-custom_status', $this->module_url . 'lib/custom-status.css', false, EDIT_FLOW_VERSION, 'all' );
+			wp_localize_script('edit_flow-custom_status', '__ef_localize_custom_status', array(
+				'no_change' => esc_html__( "&mdash; No Change &mdash;", 'edit-flow' ),
+				'published' => esc_html__( 'Published', 'edit-flow' ),
+				'save_as'   => esc_html__( 'Save as', 'edit-flow' ),
+				'save'      => esc_html__( 'Save', 'edit-flow' ),
+				'edit'      => esc_html__( 'Edit', 'edit-flow' ),
+				'ok'        => esc_html__( 'OK', 'edit-flow' ),
+				'cancel'    => esc_html__( 'Cancel', 'edit-flow' ),
+			));
 		}
 	}
 
