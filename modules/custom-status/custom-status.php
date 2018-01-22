@@ -80,7 +80,6 @@ class EF_Custom_Status extends EF_Module {
 		// Load CSS and JS resources that we probably need
 		add_action( 'admin_enqueue_scripts', array( $this, 'action_admin_enqueue_scripts' ) );
 		add_action( 'admin_notices', array( $this, 'no_js_notice' ) );
-		add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
 
 		// Methods for handling the actions of creating, making default, and deleting post stati
 		add_action( 'admin_init', array( $this, 'handle_add_custom_status' ) );
@@ -297,6 +296,7 @@ class EF_Custom_Status extends EF_Module {
 		if ( $this->is_whitelisted_page() ) {
 			wp_enqueue_script( 'edit_flow-custom_status', $this->module_url . 'lib/custom-status.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
 			wp_enqueue_style( 'edit_flow-custom_status', $this->module_url . 'lib/custom-status.css', false, EDIT_FLOW_VERSION, 'all' );
+			wp_localize_script( 'edit_flow-custom_status', '__ef_custom_status', $this->get_javascript_variables() );
 		}
 	}
 
@@ -344,26 +344,27 @@ class EF_Custom_Status extends EF_Module {
 	}
 
 	/**
-	 * Adds all necessary javascripts to make custom statuses work
-	 *
+	 * Prepare necessary variables to make custom-status.js work
 	 * @todo Support private and future posts on edit.php view
+	 *
+	 * @return array|false
 	 */
-	function post_admin_header() {
+	function get_javascript_variables() {
 		global $post, $pagenow;
 
 		if ( $this->disable_custom_statuses_for_post_type() )
-			return;
+			return false;
 
 		// Get current user
 		wp_get_current_user() ;
 
 		// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
-		if ( $this->is_whitelisted_page() ) {
+
 
 			$custom_statuses = $this->get_custom_statuses();
 
 			// Get the status of the current post
-			if ( $post->ID == 0 || $post->post_status == 'auto-draft' || $pagenow == 'edit.php' ) {
+			if ( $pagenow == 'edit.php' || ( ! empty( $post ) && ( $post->ID == 0 || $post->post_status == 'auto-draft' ) ) ) {
 				// TODO: check to make sure that the default exists
 				$selected = $this->get_default_custom_status()->slug;
 
@@ -415,22 +416,19 @@ class EF_Custom_Status extends EF_Module {
 
  			$post_type_obj = get_post_type_object( $this->get_current_post_type() );
 
-			// Now, let's print the JS vars
-			?>
-			<script type="text/javascript">
-				var custom_statuses = <?php echo json_encode( $all_statuses ); ?>;
-				var ef_text_no_change = '<?php echo esc_js( __( "&mdash; No Change &mdash;" ) ); ?>';
-				var ef_default_custom_status = '<?php echo esc_js( $this->get_default_custom_status()->slug ); ?>';
-				var current_status = '<?php echo esc_js( $selected ); ?>';
-				var current_status_name = '<?php echo esc_js( $selected_name ); ?>';
-				var status_dropdown_visible = <?php echo esc_js( $always_show_dropdown ); ?>;
-				var current_user_can_publish_posts = <?php echo current_user_can( $post_type_obj->cap->publish_posts ) ? 1 : 0; ?>;
-				var current_user_can_edit_published_posts = <?php echo current_user_can( $post_type_obj->cap->edit_published_posts ) ? 1 : 0; ?>;
-			</script>
+			return array(
+				'variables' => array(
+					'custom_statuses'                       => $all_statuses,
+					'text_no_change'                     => esc_js( __( "&mdash; No Change &mdash;" ) ),
+					'current_status'                        => esc_js( $selected ),
+					'current_status_name'                   => esc_js( $selected_name ),
+					'status_dropdown_visible'               => esc_js( $always_show_dropdown ),
+					'current_user_can_publish_posts'        => current_user_can( $post_type_obj->cap->publish_posts ) ? 1 : 0,
+					'current_user_can_edit_published_posts' => current_user_can( $post_type_obj->cap->edit_published_posts ) ? 1 : 0,
+				),
+			);
 
-			<?php
 
-		}
 
 	}
 
