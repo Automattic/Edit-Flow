@@ -204,12 +204,12 @@
 	$.fn.listFilterizer.defaults = {
 		filters: [
 			{
-				label: 'All'
+				label: window.__i18n_jquery_filterizer.all || 'All'
 				, selector: '*'
 			}
 			,
 			{
-				label: 'Selected'
+				label: window.__i18n_jquery_filterizer.selected || 'Selected'
 				, selector: ':has(input:checked)' // TODO: pass in function as a filter selector
 			}
 		]
