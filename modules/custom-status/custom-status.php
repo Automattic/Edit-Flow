@@ -349,7 +349,7 @@ class EF_Custom_Status extends EF_Module {
 	 * @todo Support private and future posts on edit.php view
 	 */
 	function post_admin_header() {
-		global $post, $edit_flow, $pagenow, $current_user;
+		global $post, $pagenow;
 
 		if ( $this->disable_custom_statuses_for_post_type() )
 			return;
