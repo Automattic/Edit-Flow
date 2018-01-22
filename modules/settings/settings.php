@@ -51,13 +51,8 @@ class EF_Settings extends EF_Module {
 	 */
 	function action_admin_menu() {
 		global $edit_flow;
-		
-		// Select Edit Flow icon
-		if ( defined( 'MP6' ) ) :
-			$ef_logo = 'lib/eflogo_s32b.png';
-		else :
-			$ef_logo = 'lib/eflogo_s32.png';
-		endif;
+
+		$ef_logo = 'lib/eflogo_s32w.png';
 		
 		add_menu_page( $this->module->title, $this->module->title, 'manage_options', $this->module->settings_slug, array( $this, 'settings_page_controller' ), $this->module->module_url . $ef_logo ) ;
 		
