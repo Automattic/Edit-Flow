@@ -1,28 +1,25 @@
 jQuery(document).ready(function() {
 
-	var ef = window.__ef_custom_status.variables;
-	var i18n = window.__ef_custom_status.i18n;
-
 	jQuery('label[for=post_status]').show();
 	jQuery('#post-status-display').show();
 
 	if ( jQuery('select[name="_status"]').length == 0 ) { // not on quick edit
 		
-		if ( ef.current_user_can_publish_posts || ( ef.current_status == 'publish' && ef.current_user_can_edit_published_posts ) ) {
+		if ( current_user_can_publish_posts || ( current_status == 'publish' && current_user_can_edit_published_posts ) ) {
 			// show publish button if allowed to publish
 			jQuery('#publish').show();
 		} else {
 			// mimic default post status dropdown
-			jQuery('<span>&nbsp;<a href="#post_status" class="edit-post-status" tabindex=\'4\'>' + i18n.edit + '</a></span>' +
+			jQuery('<span>&nbsp;<a href="#post_status" class="edit-post-status" tabindex=\'4\'>Edit</a></span>' + 
 			' <div id="post-status-select">' +
 			' <input type="hidden" name="hidden_post_status" id="hidden_post_status" value="in-progress" />' +
 			' <select name=\'post_status\' id=\'post_status\' tabindex=\'4\'>' +
 			' </select>' +
-			'  <a href="#post_status" class="save-post-status button">' + i18n.ok + '</a>' +
-			'  <a href="#post_status" class="cancel-post-status">' + i18n.cancel + '</a>' +
+			'  <a href="#post_status" class="save-post-status button">OK</a>' +
+			'  <a href="#post_status" class="cancel-post-status">Cancel</a>' +
 			' </div>').insertAfter('#post-status-display');
 		
-			if (!ef.status_dropdown_visible) {
+			if (!status_dropdown_visible) {
 				jQuery('#post-status-select').hide();
 				jQuery('.edit-post-status').show();
 			}
@@ -50,7 +47,7 @@ jQuery(document).ready(function() {
 	if ( jQuery('select[name="post_status"]').length > 0 ) {
 		
 		// Set the Save button to generic text by default
-		ef_update_save_button(i18n.save);
+		ef_update_save_button('Save');
 		
 		// Bind event when OK button is clicked
 		jQuery('.save-post-status').bind('click', function() {	
@@ -61,24 +58,24 @@ jQuery(document).ready(function() {
 		ef_append_to_dropdown('select[name="post_status"]');
 		
 		// Make status dropdown visible on load if enabled
-		if ( ef.status_dropdown_visible ) {
+		if ( status_dropdown_visible ) {
 			jQuery('#post-status-select').show();
 			jQuery('.edit-post-status').hide();
 		}
 		
 		// Hide status dropdown if not allowed to edit
-		if ( !ef_can_change_status(ef.current_status) ) {
+		if ( !ef_can_change_status(current_status) ) {
 			jQuery('#post-status-select').hide();
 			jQuery('.edit-post-status').hide();
 			
 			// set the current status as the selected one
-			var $option = jQuery('<option></option>').text(ef.current_status_name).attr('value', ef.current_status).attr('selected', 'selected');
+			var $option = jQuery('<option></option>').text(current_status_name).attr('value', current_status).attr('selected', 'selected');
 
 			$option.appendTo('select[name="post_status"]');
 		}
 		
 		// If custom status set for post, then set is as #post-status-display
-		jQuery('#post-status-display').text(ef_get_status_name(ef.current_status));
+		jQuery('#post-status-display').text(ef_get_status_name(current_status));
 
 	} else if ( jQuery('select[name="_status"]').length > 0 ) {
 		ef_append_to_dropdown('select[name="_status"]');
@@ -87,16 +84,16 @@ jQuery(document).ready(function() {
 			ef_append_to_dropdown('#the-list select[name="_status"]');
 		} );
 		// Clean up the bulk edit selector because it's non-standard
-		jQuery( '#bulk-edit' ).find( 'select[name="_status"]' ).prepend( '<option value="">' + i18n.no_change + '</option>' );
+		jQuery( '#bulk-edit' ).find( 'select[name="_status"]' ).prepend( '<option value="">' + ef_text_no_change + '</option>' );
 		jQuery( '#bulk-edit' ).find( 'select[name="_status"] option' ).removeAttr('selected');
 		jQuery( '#bulk-edit' ).find( 'select[name="_status"] option[value="future"]').remove();
 	} else {
 
 		// Set the Save button to generic text by default
-		ef_update_save_button(i18n.save);
+		ef_update_save_button('Save');
 
 		// If custom status set for post, then set is as #post-status-display
-		jQuery('#post-status-display').text(ef_get_status_name(ef.current_status));
+		jQuery('#post-status-display').text(ef_get_status_name(current_status));
 		
 	}
 		
@@ -111,19 +108,19 @@ jQuery(document).ready(function() {
 		jQuery(id + ' option').not('[value="future"]').remove();
 		
 		// Add "Published" status to quick-edit for users that can publish
-		if ( id=='select[name="_status"]' && ef.current_user_can_publish_posts ) {
+		if ( id=='select[name="_status"]' && current_user_can_publish_posts ) {
 			jQuery(id).append(jQuery('<option></option')
 				.attr('value','publish')
-				.text(i18n.published)
+				.text('Published')
 			);
 		}
 		
 		// Add remaining statuses to dropdown. 'private' is always handled by a checkbox, and 'future' already exists if we need it
-		jQuery.each( ef.custom_statuses, function() {
+		jQuery.each( custom_statuses, function() {
 			if ( this.slug == 'private' || this.slug == 'future' )
 				return;
 			
-			if ( ef.current_status != 'publish' && this.slug == 'publish' )
+			if ( current_status != 'publish' && this.slug == 'publish' )
 				return;
 				
 			var $option = jQuery('<option></option>')
@@ -132,7 +129,7 @@ jQuery(document).ready(function() {
 							.attr('title', (this.description) ? this.description : '')
 							;
 							
-			if( ef.current_status == this.slug ) $option.attr('selected','selected');
+			if( current_status == this.slug ) $option.attr('selected','selected');
 			
 			$option.appendTo( jQuery(id) );
 		});
@@ -141,17 +138,17 @@ jQuery(document).ready(function() {
 	function ef_can_change_status(slug) {
 		var change = false;
 
-		jQuery.each(ef.custom_statuses, function() {
+		jQuery.each(custom_statuses, function() {
 			if(this.slug==slug) change = true;
 		});
-		if (slug == 'publish' && !ef.current_user_can_publish_posts) {
+		if (slug == 'publish' && !current_user_can_publish_posts) {
 			change = false;
 		}
 		return change;
 	}
 	
 	function ef_add_tooltips_to_filter_links(selector) {	
-		jQuery.each(ef.custom_statuses, function() {
+		jQuery.each(custom_statuses, function() {
 			jQuery(selector + ':contains("'+ this.name +'")')
 				.attr('title', this.description)
 		})
@@ -160,19 +157,19 @@ jQuery(document).ready(function() {
 	
 	// Update "Save" button text
 	function ef_update_save_button( text ) {
-		if(!text) text = i18n.save_as + ' ' + jQuery('select[name="post_status"] :selected').text();
+		if(!text) text = 'Save as ' + jQuery('select[name="post_status"] :selected').text();
 		jQuery(':input#save-post').attr('value', text);
 	}
 	
 	// Returns the name of the status given a slug
 	function ef_get_status_name (slug) {
 		var name = '';
-		jQuery.each(ef.custom_statuses, function() {
+		jQuery.each(custom_statuses, function() {
 			if(this.slug==slug) name = this.name;
 		});
 		
 		if (!name) {
-			name = ef.current_status_name;
+			name = current_status_name;
 		}
 		
 		return name;
