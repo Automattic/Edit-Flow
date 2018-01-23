@@ -492,6 +492,7 @@ class EF_Custom_Status extends EF_Module {
 		// Reset our internal object cache
 		$this->custom_statuses_cache = array();
 
+		// Prevent user from changing draft name or slug
 		if ( 'draft' === $old_status->slug
 		     && (
 			     ( isset( $args['name'] ) && $args['name'] !== $old_status->name )
