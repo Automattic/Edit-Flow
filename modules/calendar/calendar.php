@@ -911,7 +911,7 @@ class EF_Calendar extends EF_Module {
 						<?php elseif( $values['value'] ): ?>
 							<td class="value"><?php echo esc_html( $values['value'] ); ?></td>
 						<?php else: ?>
-						<td class="value"><em class="none"><?php esc_html_e( 'None', 'edit-flow' ); ?></em></td>
+						<td class="value"><em class="none"><?php echo _e( 'None', 'edit-flow' ); ?></em></td>
 						<?php endif; ?>
 					</tr>
 				<?php endforeach; ?>
