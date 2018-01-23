@@ -367,25 +367,29 @@ class EF_Custom_Status extends EF_Module {
 		wp_get_current_user() ;
 
 		// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
-		if ( !empty( $post ) && $this->is_whitelisted_page() ) {
+		if ( $this->is_whitelisted_page() ) {
 
 			$custom_statuses = $this->get_custom_statuses();
 
-			// Get the status of the current post
-			if ( $post->ID == 0 || $post->post_status == 'auto-draft' || $pagenow == 'edit.php' ) {
-				// TODO: check to make sure that the default exists
-				$selected = $this->get_default_custom_status()->slug;
-
-			} else {
-				$selected = $post->post_status;
-			}
-
-			// Get the current post status name
+			// $selected can be empty, but must be set because it's used as a JS variable
+			$selected = '';
 			$selected_name = '';
 
-			foreach ($custom_statuses as $status) {
-				if ($status->slug == $selected) {
-					$selected_name = $status->name;
+			if( ! empty( $post ) ) {
+				// Get the status of the current post
+				if ( $post->ID == 0 || $post->post_status == 'auto-draft' || $pagenow == 'edit.php' ) {
+					// TODO: check to make sure that the default exists
+					$selected = $this->get_default_custom_status()->slug;
+
+				} else {
+					$selected = $post->post_status;
+				}
+
+				// Get the label of current status
+				foreach ( $custom_statuses as $status ) {
+					if ( $status->slug == $selected ) {
+						$selected_name = $status->name;
+					}
 				}
 			}
 
