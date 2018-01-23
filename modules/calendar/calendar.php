@@ -490,9 +490,10 @@ class EF_Calendar extends EF_Module {
 	}
 
 	/**
-	 * Convert a time string into a timestamp with the proper GMT offset
-	 * @param     $time_string
-	 * @param int $offset_in_seconds
+	 * Convert a time string into a `.ics` formatted time string with the proper GMT offset
+	 *
+	 * @param     $time_string       - Any time string that `strtotime()` can understand
+	 * @param int $offset_in_seconds - Allows to offset the timestamp generated from $time_string
 	 *
 	 * @return string|false
 	 */
