@@ -30,12 +30,16 @@ matrix:
       env: WP_VERSION=4.4 WP_MULTISITE=0    
     - php: "5.2"
       env: WP_VERSION=master WP_MULTISITE=0
+      dist: precise
     - php: "5.2"
       env: WP_VERSION=4.5 WP_MULTISITE=0
+      dist: precise
     - php: "5.2"
       env: WP_VERSION=4.4 WP_MULTISITE=0
+      dist: precise
     - php: "5.3"
       env: WP_VERSION=4.5 WP_MULTISITE=0
+      dist: precise
     - php: "5.4"
       env: WP_VERSION=4.5 WP_MULTISITE=0
     - php: "7.0"
