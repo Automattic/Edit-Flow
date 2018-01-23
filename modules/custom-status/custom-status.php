@@ -1815,20 +1815,19 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		if ( isset( $_GET['action'] ) && $_GET['action'] == 'add' )
 			return $output;
 
-		$actions = array();
-		$actions['edit'] = "<a href='$item_edit_link'>" . __( 'Edit', 'edit-flow' ) . "</a>";
-		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';
-		if ( $item->slug != $this->default_status )
-			$actions['make_default'] = sprintf( '<a href="%1$s">' . __( 'Make&nbsp;Default', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'make-default', 'term-id' => $item->term_id ) ) );
-
-		if ( $item->slug != $this->default_status )
-			$actions['delete delete-status'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'delete-status', 'term-id' => $item->term_id ) ) );
-
 		// Disable update/delete actions for draft status
 		if( $item->slug !== 'draft' ) {
+			$actions = array();
+			$actions['edit'] = "<a href='$item_edit_link'>" . __( 'Edit', 'edit-flow' ) . "</a>";
+			$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';
+
+			if ( $item->slug != $this->default_status ) {
+				$actions['make_default'] = sprintf( '<a href="%1$s">' . __( 'Make&nbsp;Default', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'make-default', 'term-id' => $item->term_id ) ) );
+				$actions['delete delete-status'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'delete-status', 'term-id' => $item->term_id ) ) );
+			}
 			$output .= $this->row_actions( $actions, false );
 		}
-		
+
 		$output .= '<div class="hidden" id="inline_' . esc_attr( $item->term_id ) . '">';
 		$output .= '<div class="name">' . esc_html( $item->name ) . '</div>';
 		$output .= '<div class="description">' . esc_html( $item->description ) . '</div>';
@@ -1837,7 +1836,7 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		return $output;
 
 	}
-
+		
 	/**
 	 * Displayed column showing the description of the status
 	 *
