@@ -384,13 +384,21 @@ class EF_Story_Budget extends EF_Module {
 		
 		// Filter by post_author if it's set
 		if ( $args['author'] === '0' ) unset( $args['author'] );
-		
-		// Filter for an end user to implement any of their own query args
-     	$args = apply_filters( 'ef_story_budget_posts_query_args', $args );
 
-		add_filter( 'posts_where', array( $this, 'posts_where_range' ) );
+		$beginning_date = strtotime( $this->user_filters['start_date'] );
+		$days_to_show = $this->user_filters['number_days'];
+		$ending_date = $beginning_date + ( $days_to_show * DAY_IN_SECONDS );
+
+		$args['date_query'] = array(
+			'after'     => date( "Y-m-d", $beginning_date ),
+			'before'    => date( "Y-m-d", $ending_date ),
+			'inclusive' => true,
+		);
+
+		// Filter for an end user to implement any of their own query args
+		$args = apply_filters( 'ef_story_budget_posts_query_args', $args );
+
 		$term_posts_query_results = new WP_Query( $args );
-		remove_filter( 'posts_where', array( $this, 'posts_where_range' ) );
 		
 		$term_posts = array();
 		while ( $term_posts_query_results->have_posts() ) {
@@ -401,23 +409,7 @@ class EF_Story_Budget extends EF_Module {
 		
 		return $term_posts;
 	}
-	
-	/**
-	 * Filter the WP_Query so we can get a range of posts
-	 *
-	 * @param string $where The original WHERE SQL query string
-	 * @return string $where Our modified WHERE query string
-	 */
-	function posts_where_range( $where = '' ) {
-		global $wpdb;
-	
-		$beginning_date = date( 'Y-m-d', strtotime( $this->user_filters['start_date'] ) );
-		$end_day = $this->user_filters['number_days'];
-		$ending_date = date( "Y-m-d", strtotime( "+" . $end_day . " days", strtotime( $beginning_date ) ) );
-		$where = $where . $wpdb->prepare( " AND ($wpdb->posts.post_date >= %s AND $wpdb->posts.post_date < %s)", $beginning_date, $ending_date );
-	
-		return $where;
-	}
+
 	
 	/**
 	 * Prints the stories in a single term in the story budget.

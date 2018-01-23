@@ -382,9 +382,9 @@ class EF_Calendar extends EF_Module {
 			foreach( $week_posts as $date => $day_posts ) {
 				foreach( $day_posts as $num => $post ) {
 
-					$start_date = date( 'Ymd', strtotime( $post->post_date ) ) . 'T' . date( 'His', strtotime( $post->post_date ) ) . 'Z';
-					$end_date = date( 'Ymd', strtotime( $post->post_date ) + (5 * 60) ) . 'T' . date( 'His', strtotime( $post->post_date ) + (5 * 60) ) . 'Z';
-					$last_modified = date( 'Ymd', strtotime( $post->post_modified_gmt ) ) . 'T' . date( 'His', strtotime( $post->post_modified_gmt ) ) . 'Z';
+					$start_date    = self::ics_format_time( $post->post_date );
+					$end_date      = self::ics_format_time( $post->post_date, 5 * MINUTE_IN_SECONDS );
+					$last_modified = self::ics_format_time( $post->post_modified );
 
 					// Remove the convert chars and wptexturize filters from the title
 					remove_filter( 'the_title', 'convert_chars' );
@@ -487,6 +487,34 @@ class EF_Calendar extends EF_Module {
 		$text = str_replace( ";", "\:", $text );
 		$text = str_replace( "\\", "\\\\", $text );
 		return $text;
+	}
+
+	/**
+	 * Convert a time string into a `.ics` formatted time string with the proper GMT offset
+	 *
+	 * @param     $time_string       - Any time string that `strtotime()` can understand
+	 * @param int $offset_in_seconds - Allows to offset the timestamp generated from $time_string
+	 *
+	 * @return string|false
+	 */
+	public static function ics_format_time( $time_string, $offset_in_seconds = 0) {
+
+		// Timestamp it
+		$timestamp = strtotime( $time_string );
+
+		if( ! $timestamp ) {
+			return false;
+		}
+
+		// Subtract GMT Offset to return to UTC+0
+		$timestamp -= get_option('gmt_offset') * HOUR_IN_SECONDS;
+
+		// Add manual offset
+		$timestamp += $offset_in_seconds;
+
+		// \T and \Z are escaped for literal T and Z characters
+		return date( 'Ymd\THis\Z', $timestamp );
+
 	}
 
 	/**
@@ -1174,7 +1202,6 @@ class EF_Calendar extends EF_Module {
 	 * @return array $posts All of the posts as an array sorted by date
 	 */
 	function get_calendar_posts_for_week( $args = array(), $context = 'dashboard' ) {
-		global $wpdb;
 		
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		$defaults = array(
@@ -1182,7 +1209,7 @@ class EF_Calendar extends EF_Module {
 			'cat'              => null,
 			'author'           => null,
 			'post_type'        => $supported_post_types,
-			'posts_per_page'   => -1,
+			'posts_per_page'   => 200,
 		);
 						 
 		$args = array_merge( $defaults, $args );
@@ -1202,18 +1229,30 @@ class EF_Calendar extends EF_Module {
 		// The WP functions for printing the category and author assign a value of 0 to the default
 		// options, but passing this to the query is bad (trashed and auto-draft posts appear!), so
 		// unset those arguments.
-		if ( $args['cat'] === '0' ) unset( $args['cat'] );
-		if ( $args['author'] === '0' ) unset( $args['author'] );
+		if ( $args['cat'] === '0' ) {
+			unset( $args['cat'] );
+		}
+		if ( $args['author'] === '0' ) {
+			unset( $args['author'] );
+		}
 
-		if ( empty( $args['post_type'] ) || ! in_array( $args['post_type'], $supported_post_types ) )
+		if ( empty( $args['post_type'] ) || ! in_array( $args['post_type'], $supported_post_types ) ) {
 			$args['post_type'] = $supported_post_types;
-		
+		}
+
+		$beginning_date = $this->get_beginning_of_week( $this->start_date, 'Y-m-d', $this->current_week );
+		$ending_date    = date( "Y-m-d", strtotime( $beginning_date ) + WEEK_IN_SECONDS );
+
+		$args['date_query'] = array(
+			'after'     => $beginning_date,
+			'before'    => $ending_date,
+			'inclusive' => true,
+		);
+
 		// Filter for an end user to implement any of their own query args
 		$args = apply_filters( 'ef_calendar_posts_query_args', $args, $context );
-		add_filter( 'posts_where', array( $this, 'posts_where_week_range' ) );
 		$post_results = new WP_Query( $args );
-		remove_filter( 'posts_where', array( $this, 'posts_where_week_range' ) );
-		
+
 		$posts = array();
 		while ( $post_results->have_posts() ) {
 			$post_results->the_post();
@@ -1225,25 +1264,7 @@ class EF_Calendar extends EF_Module {
 		return $posts;
 		
 	}
-	
-	/**
-	 * Filter the WP_Query so we can get a week range of posts
-	 *
-	 * @param string $where The original WHERE SQL query string
-	 * @return string $where Our modified WHERE query string
-	 */
-	function posts_where_week_range( $where = '' ) {
-		global $wpdb;
-	
-		$beginning_date = $this->get_beginning_of_week( $this->start_date, 'Y-m-d', $this->current_week );
-		$ending_date = $this->get_ending_of_week( $this->start_date, 'Y-m-d', $this->current_week );
-		// Adjust the ending date to account for the entire day of the last day of the week
-		$ending_date = date( "Y-m-d", strtotime( "+1 day", strtotime( $ending_date ) ) );
-		$where = $where . $wpdb->prepare( " AND ($wpdb->posts.post_date >= %s AND $wpdb->posts.post_date < %s)", $beginning_date, $ending_date );
-	
-		return $where;
-	} 
-	
+
 	/**
 	 * Gets the link for the next time period
 	 *
@@ -1286,7 +1307,7 @@ class EF_Calendar extends EF_Module {
 	 * @return string $formatted_start_of_week End of the week
 	 */
 	function get_beginning_of_week( $date, $format = 'Y-m-d', $week = 1 ) {
-		
+
 		$date = strtotime( $date );
 		$start_of_week = get_option( 'start_of_week' );
 		$day_of_week = date( 'w', $date );
