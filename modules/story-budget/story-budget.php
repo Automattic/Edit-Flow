@@ -384,9 +384,6 @@ class EF_Story_Budget extends EF_Module {
 		
 		// Filter by post_author if it's set
 		if ( $args['author'] === '0' ) unset( $args['author'] );
-		
-		// Filter for an end user to implement any of their own query args
-     	$args = apply_filters( 'ef_story_budget_posts_query_args', $args );
 
 		$beginning_date = strtotime( $this->user_filters['start_date'] );
 		$days_to_show = $this->user_filters['number_days'];
@@ -397,6 +394,9 @@ class EF_Story_Budget extends EF_Module {
 			'before'    => date( "Y-m-d", $ending_date ),
 			'inclusive' => true,
 		);
+
+		// Filter for an end user to implement any of their own query args
+		$args = apply_filters( 'ef_story_budget_posts_query_args', $args );
 
 		$term_posts_query_results = new WP_Query( $args );
 		
