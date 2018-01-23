@@ -480,6 +480,10 @@ class EF_Custom_Status extends EF_Module {
 		// Reset our internal object cache
 		$this->custom_statuses_cache = array();
 
+		if( 'draft' === $old_status->slug && ( $args['name'] !== $old_status->name || $args['slug'] !== $old_status->slug ) ) {
+			return new WP_Error( 'invalid', __( 'Changing the name and slug of "Draft" is not allowed', 'edit-flow' ) );
+		}
+
 		// If the name was changed, we need to change the slug
 		if ( isset( $args['name'] ) && $args['name'] != $old_status->name )
 			$args['slug'] = sanitize_title( $args['name'] );
