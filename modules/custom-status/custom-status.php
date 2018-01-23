@@ -526,7 +526,7 @@ class EF_Custom_Status extends EF_Module {
 		// Reset our internal object cache
 		$this->custom_statuses_cache = array();
 
-		if( !$this->is_restricted_status( $old_status ) ) {
+		if( !$this->is_restricted_status( $old_status ) && $old_status !== 'draft' ) {
 			$default_status = $this->get_default_custom_status()->slug;
 			// If new status in $reassign, use that for all posts of the old_status
 			if( !empty( $reassign ) )
