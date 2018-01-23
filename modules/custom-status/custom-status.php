@@ -1824,7 +1824,11 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		if ( $item->slug != $this->default_status )
 			$actions['delete delete-status'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'delete-status', 'term-id' => $item->term_id ) ) );
 
-		$output .= $this->row_actions( $actions, false );
+		// Disable update/delete actions for draft status
+		if( $item->slug !== 'draft' ) {
+			$output .= $this->row_actions( $actions, false );
+		}
+		
 		$output .= '<div class="hidden" id="inline_' . esc_attr( $item->term_id ) . '">';
 		$output .= '<div class="name">' . esc_html( $item->name ) . '</div>';
 		$output .= '<div class="description">' . esc_html( $item->description ) . '</div>';
