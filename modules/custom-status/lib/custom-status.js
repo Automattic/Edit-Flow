@@ -1,5 +1,7 @@
 jQuery(document).ready(function() {
 
+	var i18n = window.__ef_localize_custom_status;
+
 	jQuery('label[for=post_status]').show();
 	jQuery('#post-status-display').show();
 
@@ -10,13 +12,13 @@ jQuery(document).ready(function() {
 			jQuery('#publish').show();
 		} else {
 			// mimic default post status dropdown
-			jQuery('<span>&nbsp;<a href="#post_status" class="edit-post-status" tabindex=\'4\'>Edit</a></span>' + 
+			jQuery('<span>&nbsp;<a href="#post_status" class="edit-post-status" tabindex=\'4\'>' + i18n.edit + '</a></span>' +
 			' <div id="post-status-select">' +
 			' <input type="hidden" name="hidden_post_status" id="hidden_post_status" value="in-progress" />' +
 			' <select name=\'post_status\' id=\'post_status\' tabindex=\'4\'>' +
 			' </select>' +
-			'  <a href="#post_status" class="save-post-status button">OK</a>' +
-			'  <a href="#post_status" class="cancel-post-status">Cancel</a>' +
+			'  <a href="#post_status" class="save-post-status button">' + i18n.ok + '</a>' +
+			'  <a href="#post_status" class="cancel-post-status">' + i18n.cancel + '</a>' +
 			' </div>').insertAfter('#post-status-display');
 		
 			if (!status_dropdown_visible) {
@@ -47,7 +49,7 @@ jQuery(document).ready(function() {
 	if ( jQuery('select[name="post_status"]').length > 0 ) {
 		
 		// Set the Save button to generic text by default
-		ef_update_save_button('Save');
+		ef_update_save_button(i18n.save);
 		
 		// Bind event when OK button is clicked
 		jQuery('.save-post-status').bind('click', function() {	
@@ -84,13 +86,13 @@ jQuery(document).ready(function() {
 			ef_append_to_dropdown('#the-list select[name="_status"]');
 		} );
 		// Clean up the bulk edit selector because it's non-standard
-		jQuery( '#bulk-edit' ).find( 'select[name="_status"]' ).prepend( '<option value="">' + ef_text_no_change + '</option>' );
+		jQuery( '#bulk-edit' ).find( 'select[name="_status"]' ).prepend( '<option value="">' + i18n.no_change + '</option>' );
 		jQuery( '#bulk-edit' ).find( 'select[name="_status"] option' ).removeAttr('selected');
 		jQuery( '#bulk-edit' ).find( 'select[name="_status"] option[value="future"]').remove();
 	} else {
 
 		// Set the Save button to generic text by default
-		ef_update_save_button('Save');
+		ef_update_save_button(i18n.save);
 
 		// If custom status set for post, then set is as #post-status-display
 		jQuery('#post-status-display').text(ef_get_status_name(current_status));
@@ -111,7 +113,7 @@ jQuery(document).ready(function() {
 		if ( id=='select[name="_status"]' && current_user_can_publish_posts ) {
 			jQuery(id).append(jQuery('<option></option')
 				.attr('value','publish')
-				.text('Published')
+				.text( i18n.published )
 			);
 		}
 		
@@ -157,7 +159,7 @@ jQuery(document).ready(function() {
 	
 	// Update "Save" button text
 	function ef_update_save_button( text ) {
-		if(!text) text = 'Save as ' + jQuery('select[name="post_status"] :selected').text();
+		if(!text) text = i18n.save_as + ' ' + jQuery('select[name="post_status"] :selected').text();
 		jQuery(':input#save-post').attr('value', text);
 	}
 	
