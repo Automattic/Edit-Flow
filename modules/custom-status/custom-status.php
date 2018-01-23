@@ -547,7 +547,7 @@ class EF_Custom_Status extends EF_Module {
 		// Reset our internal object cache
 		$this->custom_statuses_cache = array();
 
-		if( !$this->is_restricted_status( $old_status ) && $old_status !== 'draft' ) {
+		if( !$this->is_restricted_status( $old_status ) && 'draft' !== $old_status ) {
 			$default_status = $this->get_default_custom_status()->slug;
 			// If new status in $reassign, use that for all posts of the old_status
 			if( !empty( $reassign ) )
@@ -1187,7 +1187,7 @@ class EF_Custom_Status extends EF_Module {
 		<table class="form-table">
 			<tr class="form-field form-required">
 				<th scope="row" valign="top"><label for="name"><?php _e( 'Custom Status', 'edit-flow' ); ?></label></th>
-				<td><input name="name" id="name" type="text" value="<?php echo esc_attr( $name ); ?>" size="40" aria-required="true" <?php if( $status->slug === 'draft') echo 'readonly="readonly"' ?> />
+				<td><input name="name" id="name" type="text" value="<?php echo esc_attr( $name ); ?>" size="40" aria-required="true" <?php if( 'draft' === $status->slug ) echo 'readonly="readonly"' ?> />
 				<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the status. (Max: 20 characters)', 'edit-flow' ) ); ?>
 				</td>
 			</tr>
@@ -1842,7 +1842,7 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		$actions['make_default'] = sprintf( '<a href="%1$s">' . __( 'Make&nbsp;Default', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'make-default', 'term-id' => $item->term_id ) ) );
 		
 		// Disable delete/make-default actions for draft status
-		if( $item->slug !== 'draft' ) {
+		if( 'draft' !== $item->slug  ) {
 			if ( $item->slug != $this->default_status ) {
 				$actions['delete delete-status'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'delete-status', 'term-id' => $item->term_id ) ) );
 			}
