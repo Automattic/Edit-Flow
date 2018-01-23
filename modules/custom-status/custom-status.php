@@ -380,7 +380,6 @@ class EF_Custom_Status extends EF_Module {
 				foreach ( $custom_statuses as $status ) {
 					if ( $status->slug == $selected ) {
 						$selected_name = $status->name;
-						break; // selected name found, we can exit the loop
 					}
 				}
 			}
