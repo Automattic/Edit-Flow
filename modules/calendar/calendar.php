@@ -1182,7 +1182,7 @@ class EF_Calendar extends EF_Module {
 			'cat'              => null,
 			'author'           => null,
 			'post_type'        => $supported_post_types,
-			'posts_per_page'   => -1,
+			'posts_per_page'   => 200,
 		);
 						 
 		$args = array_merge( $defaults, $args );
