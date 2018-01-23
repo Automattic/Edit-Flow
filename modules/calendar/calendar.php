@@ -506,8 +506,8 @@ class EF_Calendar extends EF_Module {
 			return false;
 		}
 
-		// Add GMT Offset
-		$timestamp += -1 * get_option('gmt_offset') * HOUR_IN_SECONDS;
+		// Subtract GMT Offset to return to UTC+0
+		$timestamp -= get_option('gmt_offset') * HOUR_IN_SECONDS;
 
 		// Add manual offset
 		$timestamp += $offset_in_seconds;
