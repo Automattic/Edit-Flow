@@ -50,6 +50,8 @@ before_script:
         else
           composer global require "phpunit/phpunit=4.8.*"
         fi
+    - php --version
+    - phpunit --version
 
 script: phpunit
 
