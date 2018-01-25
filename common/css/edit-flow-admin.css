@@ -7,3 +7,8 @@
 #ui-datepicker-div {
 	margin-top: 30px;
 }
+
+/* Override WP_List_Table styles that are hiding buttons on mobile devices */
+.edit-flow-admin .col-wrap .submit {
+	display: block;
+}
