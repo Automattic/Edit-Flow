@@ -1,16 +1,16 @@
 /* Post Status Widget - Dashboard */
 
-#post_status_widget .sub {margin-bottom:10px;font:20px Georgia, Times, serif;margin-top:5px;}
+.ef-psw-title {margin-bottom:10px;font:18px Georgia, Times, serif;margin-top:5px;}
 
-#post_status_widget a {font-size:14px;font-weight:bold;}
+.ef-psw-content a {font-size:14px;font-weight:bold;}
 
-#post_status_widget .table table tbody tr {line-height:22px; border-bottom:1px solid #e5e5e5; }
+.ef-psw-content .table table tbody tr {line-height:22px; border-bottom:1px solid #e5e5e5; }
 
-#post_status_widget td.b a {color:#ba2000;margin-right:10px; font-family: Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif; font-size: 18px; padding-right: 6px; text-align: right;}
+.ef-psw-content td.b a {color:#ba2000;margin-right:10px; font-family: Georgia, 'Times New Roman', 'Bitstream Charter', Times, serif; font-size: 18px; padding-right: 6px; text-align: right;}
 
-#post_status_widget span.small a {color:#989898;font-weight:normal;font-style:normal;line-height:22px;}
+.ef-psw-content span.small a {color:#989898;font-weight:normal;font-style:normal;line-height:22px;}
 
-#post_status_widget span.small a:hover {border-bottom:1px dotted #989898;}
+.ef-psw-content span.small a:hover {border-bottom:1px dotted #989898;}
 
 /* QuickPitch */
 

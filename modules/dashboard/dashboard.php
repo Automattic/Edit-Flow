@@ -182,9 +182,9 @@ class EF_Dashboard extends EF_Module {
 			$edit_custom_status_url = add_query_arg( 'page', 'ef-custom-status-settings', get_admin_url( null, 'admin.php' ) );
 		
 		?>
-		<p class="sub"><?php printf( esc_html__('%s at a Glance', 'edit-flow'), $labels->name ) ?></p>
+		<p class="sub ef-psw-title"><?php printf( esc_html__('%s at a Glance', 'edit-flow'), $labels->name ) ?></p>
 		
-		<div class="table">
+		<div class="table ef-psw-content">
 			<table>
 				<tbody>
 					<?php $post_count = wp_count_posts( $post_type ); ?>
