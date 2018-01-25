@@ -186,8 +186,8 @@ jQuery(document).ready(function() {
 	// Remove the " - " in between a post title and the post-state span (separately hidden via CSS).
 	// This will not affect the dash before post-state-format spans.
 	function ef_remove_post_title_trailing_dashes() {
-		jQuery('.post-title.column-title strong').each(function() {
-			jQuery(this).html(jQuery(this).html().replace(/(.*) - (<span class="post-state".*<\/span>)$/g, "$1$2"));
+		jQuery('.page-title.column-title strong').each(function() {
+			jQuery(this).html(jQuery(this).html().substr (0, jQuery(this).html().indexOf('</a>')));
 		});
 	}
 	
