@@ -116,9 +116,13 @@ class EF_Dashboard extends EF_Module {
 		wp_enqueue_style( 'edit-flow-dashboard-css', $this->module_url . 'lib/dashboard.css', false, EDIT_FLOW_VERSION, 'all' );			
 			
 		// Set up Post Status widget but, first, check to see if it's enabled
-		if ( $this->module->options->post_status_widget == 'on') {
-			$this->add_dashboard_status_widget( 'post' );
-			$this->add_dashboard_status_widget( 'page' );
+		if ( $this->module->options->post_status_widget == 'on' ) {
+
+			$status_widget_post_types = apply_filters( 'ef_dashboard_psw_post_types', $this->get_all_post_types() );
+
+			foreach ( $status_widget_post_types as $post_type => $label ) {
+				$this->add_dashboard_status_widget( $post_type );
+			}
 		}
 
 		// Set up the Notepad widget if it's enabled
