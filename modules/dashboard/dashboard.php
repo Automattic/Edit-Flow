@@ -164,8 +164,6 @@ class EF_Dashboard extends EF_Module {
 	/**
 	 * Creates Post Status widget
 	 * Display an at-a-glance view of post counts for all (post|custom) statuses in the system
-	 *
-	 * @todo Support custom post types
 	 */
 	function post_status_widget( $unused, $args ) {
 
