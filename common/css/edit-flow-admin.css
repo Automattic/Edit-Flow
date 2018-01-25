@@ -7,3 +7,11 @@
 #ui-datepicker-div {
 	margin-top: 30px;
 }
+
+
+/*
+	Override Gutenberg 2.0
+ */
+#ef-comments .comment-item,  #ef-post_following_box .list-filterizer-tabs {
+	list-style-type: none;
+}
