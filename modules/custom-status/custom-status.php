@@ -1624,17 +1624,19 @@ class EF_Custom_Status extends EF_Module {
 			return $link;
 		}
 
-		$defaults = array(
-			'link_before'      => '',
-			'link_after'       => '',
-			'pagelink'         => '%',
-		);
-
-		// Apply original link filters from core `wp_link_pages()`
-		$r = apply_filters( 'wp_link_pages_args', $defaults );
-
+		// Get an array of valid custom status slugs
 		$custom_statuses = wp_list_pluck( $this->get_custom_statuses(), 'slug');
 
+		// Apply original link filters from core `wp_link_pages()`
+		$r = apply_filters( 'wp_link_pages_args', array(
+				'link_before' => '',
+				'link_after'  => '',
+				'pagelink'    => '%',
+			)
+		);
+
+		// _wp_link_page() && _ef_wp_link_page() produces an opening link tag ( <a href=".."> )
+		// This is necessary to replicate core behavior:
 		$link = $r['link_before'] . str_replace( '%', $i, $r['pagelink'] ) . $r['link_after'];
 		$link = _ef_wp_link_page( $i, $custom_statuses ) . $link . '</a>';
 
