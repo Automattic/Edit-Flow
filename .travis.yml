@@ -1,7 +1,11 @@
 language: php
 
 php:
+    - "5.4"
+    - "5.5"
     - "5.6"
+    - "7.0"
+    - "7.1"
 
 env:
     - WP_VERSION=master WP_MULTISITE=0 #Current stable release
@@ -14,18 +18,46 @@ env:
 matrix:
   include:
     # current stable release w/ multisite
+    - php: "5.4"
+      env: WP_VERSION=4.8 WP_MULTISITE=0
+    - php: "5.5"
+      env: WP_VERSION=4.8 WP_MULTISITE=0
     - php: "5.6"
-      env: WP_VERSION=master WP_MULTISITE=1
-    - php: "5.6"
-      env: WP_VERSION=4.5 WP_MULTISITE=0
-    - php: "5.6"
-      env: WP_VERSION=4.5 WP_MULTISITE=1
-    - php: "5.6"
-      env: WP_VERSION=4.4 WP_MULTISITE=0
+      env: WP_VERSION=4.8 WP_MULTISITE=0
     - php: "7.0"
-      env: WP_VERSION=master WP_MULTISITE=0
+      env: WP_VERSION=4.8 WP_MULTISITE=0
+    - php: "7.1"
+      env: WP_VERSION=4.8 WP_MULTISITE=0
+    - php: "5.4"
+      env: WP_VERSION=4.8 WP_MULTISITE=1
+    - php: "5.5"
+      env: WP_VERSION=4.8 WP_MULTISITE=1
+    - php: "5.6"
+      env: WP_VERSION=4.8 WP_MULTISITE=1
     - php: "7.0"
-      env: WP_VERSION=4.5 WP_MULTISITE=0
+      env: WP_VERSION=4.8 WP_MULTISITE=1
+    - php: "7.1"
+      env: WP_VERSION=4.8 WP_MULTISITE=1
+    - php: "5.4"
+      env: WP_VERSION=4.9 WP_MULTISITE=0
+    - php: "5.5"
+      env: WP_VERSION=4.9 WP_MULTISITE=0
+    - php: "5.6"
+      env: WP_VERSION=4.9 WP_MULTISITE=0
+    - php: "7.0"
+      env: WP_VERSION=4.9 WP_MULTISITE=0
+    - php: "7.1"
+      env: WP_VERSION=4.9 WP_MULTISITE=0
+    - php: "5.4"
+      env: WP_VERSION=4.9 WP_MULTISITE=1
+    - php: "5.5"
+      env: WP_VERSION=4.9 WP_MULTISITE=1
+    - php: "5.6"
+      env: WP_VERSION=4.9 WP_MULTISITE=1
+    - php: "7.0"
+      env: WP_VERSION=4.9 WP_MULTISITE=1
+    - php: "7.1"
+      env: WP_VERSION=4.9 WP_MULTISITE=1
     - php: "nightly"
       env: WP_VERSION=master WP_MULTISITE=0
   allow_failures:
@@ -47,11 +79,11 @@ before_script:
     - |
         if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
           composer global require "phpunit/phpunit=5.7.*"
-        else
+        elif [[ ${TRAVIS_PHP_VERSION:0:3} != "5.2" ]]; then
           composer global require "phpunit/phpunit=4.8.*"
         fi
-    - php --version
     - phpunit --version
+    - php --version
 
 script: phpunit
 
