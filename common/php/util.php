@@ -17,6 +17,7 @@ endif;
 
 /**
  * This function is necessary to make post preview pagination work with custom post statuses
+ * @see _wp_link_page()
  * @modified WordPress 4.9.2
  *
  * Original Comments:
