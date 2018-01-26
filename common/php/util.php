@@ -32,9 +32,7 @@ endif;
  * @return string Link.
  */
 if ( ! function_exists( '_ef_wp_link_page' ) ) {
-	function _ef_wp_link_page( $i ) {
-		$custom_statuses= wp_list_pluck( edit_flow::instance()->custom_status->get_custom_statuses(), 'slug');
-
+	function _ef_wp_link_page( $i, $custom_statuses ) {
 		global $wp_rewrite;
 		$post = get_post();
 		$query_args = array();

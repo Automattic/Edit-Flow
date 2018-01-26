@@ -1633,8 +1633,10 @@ class EF_Custom_Status extends EF_Module {
 		// Apply original link filters from core `wp_link_pages()`
 		$r = apply_filters( 'wp_link_pages_args', $defaults );
 
+		$custom_statuses = wp_list_pluck( $this->get_custom_statuses(), 'slug');
+
 		$link = $r['link_before'] . str_replace( '%', $i, $r['pagelink'] ) . $r['link_after'];
-		$link = _ef_wp_link_page( $i ) . $link . '</a>';
+		$link = _ef_wp_link_page( $i, $custom_statuses ) . $link . '</a>';
 
 
 		return $link;
