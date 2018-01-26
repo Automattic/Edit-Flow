@@ -16,6 +16,7 @@ class EF_Dashboard_Notepad_Widget {
 	public function init() {
 
 		register_post_type( self::notepad_post_type, array(
+				'rewrite' => false,
 				'label' => __( 'Dashboard Note', 'edit-flow' )
 			) 
 		);
