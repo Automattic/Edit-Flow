@@ -1635,7 +1635,7 @@ class EF_Custom_Status extends EF_Module {
 			)
 		);
 
-		// _wp_link_page() && _ef_wp_link_page() produces an opening link tag ( <a href=".."> )
+		// _wp_link_page() && _ef_wp_link_page() produce an opening link tag ( <a href=".."> )
 		// This is necessary to replicate core behavior:
 		$link = $r['link_before'] . str_replace( '%', $i, $r['pagelink'] ) . $r['link_after'];
 		$link = _ef_wp_link_page( $i, $custom_statuses ) . $link . '</a>';
