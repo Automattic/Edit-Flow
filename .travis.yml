@@ -17,6 +17,10 @@ env:
 matrix:
   include:
     # current stable release w/ multisite
+    - php: "5.2"
+      env: WP_VERSION=4.8 WP_MULTISITE=0
+    - php: "5.3"
+      env: WP_VERSION=4.8 WP_MULTISITE=0
     - php: "5.4"
       env: WP_VERSION=4.8 WP_MULTISITE=0
     - php: "5.5"
@@ -27,6 +31,10 @@ matrix:
       env: WP_VERSION=4.8 WP_MULTISITE=0
     - php: "7.1"
       env: WP_VERSION=4.8 WP_MULTISITE=0
+    - php: "5.2"
+      env: WP_VERSION=4.8 WP_MULTISITE=1
+    - php: "5.3"
+      env: WP_VERSION=4.8 WP_MULTISITE=1
     - php: "5.4"
       env: WP_VERSION=4.8 WP_MULTISITE=1
     - php: "5.5"
@@ -37,6 +45,10 @@ matrix:
       env: WP_VERSION=4.8 WP_MULTISITE=1
     - php: "7.1"
       env: WP_VERSION=4.8 WP_MULTISITE=1
+    - php: "5.2"
+      env: WP_VERSION=4.9 WP_MULTISITE=0
+    - php: "5.3"
+      env: WP_VERSION=4.9 WP_MULTISITE=0
     - php: "5.4"
       env: WP_VERSION=4.9 WP_MULTISITE=0
     - php: "5.5"
@@ -47,6 +59,10 @@ matrix:
       env: WP_VERSION=4.9 WP_MULTISITE=0
     - php: "7.1"
       env: WP_VERSION=4.9 WP_MULTISITE=0
+    - php: "5.2"
+      env: WP_VERSION=4.9 WP_MULTISITE=1
+    - php: "5.3"
+      env: WP_VERSION=4.9 WP_MULTISITE=1
     - php: "5.4"
       env: WP_VERSION=4.9 WP_MULTISITE=1
     - php: "5.5"
@@ -62,21 +78,7 @@ matrix:
   allow_failures:
     - php: "nightly"
     - php: "5.2"
-      env: WP_VERSION=4.8 WP_MULTISITE=0
     - php: "5.3"
-      env: WP_VERSION=4.8 WP_MULTISITE=0
-    - php: "5.2"
-      env: WP_VERSION=4.9 WP_MULTISITE=0
-    - php: "5.3"
-      env: WP_VERSION=4.9 WP_MULTISITE=0
-    - php: "5.2"
-      env: WP_VERSION=4.8 WP_MULTISITE=1
-    - php: "5.3"
-      env: WP_VERSION=4.8 WP_MULTISITE=1
-    - php: "5.2"
-      env: WP_VERSION=4.9 WP_MULTISITE=1
-    - php: "5.3"
-      env: WP_VERSION=4.9 WP_MULTISITE=1
 
 before_script:
     - export PLUGIN_SLUG=$(basename $(pwd))
