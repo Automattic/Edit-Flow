@@ -358,7 +358,7 @@ class EF_Module {
 	 */
 	function is_whitelisted_settings_view( $module_name = null ) {
 		_deprecated_function('is_whitelisted_settings_view', '0.8.3', 'is_module_settings_view');
-		return $this->is_module_settings_view();
+		return $this->is_module_settings_view( $module_name );
 	}
 	
 	
