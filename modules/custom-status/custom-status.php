@@ -112,6 +112,9 @@ class EF_Custom_Status extends EF_Module {
 		add_filter( 'post_row_actions', array( $this, 'fix_post_row_actions' ), 10, 2 );
 		add_filter( 'page_row_actions', array( $this, 'fix_post_row_actions' ), 10, 2 );
 
+		// Pagination for custom post statuses when previewing posts
+		add_filter( 'wp_link_pages_link', array( $this, 'modify_preview_link_pagination_url' ), 10, 2 );
+
 	}
 
 	/**
@@ -1598,6 +1601,47 @@ class EF_Custom_Status extends EF_Module {
 		}
 
 		return $return;
+	}
+
+
+	/**
+	 * Fixes a bug where post-pagination doesn't work when previewing a post with a custom status
+	 * @link https://github.com/Automattic/Edit-Flow/issues/192
+	 *
+	 * This filter only modifies output if `is_preview()` is true
+	 *
+	 * Used by `wp_link_pages_link` filter
+	 *
+	 * @param $link
+	 * @param $i
+	 *
+	 * @return string
+	 */
+	function modify_preview_link_pagination_url( $link, $i ) {
+
+		// Use the original $link when not in preview mode
+		if( ! is_preview() ) {
+			return $link;
+		}
+
+		// Get an array of valid custom status slugs
+		$custom_statuses = wp_list_pluck( $this->get_custom_statuses(), 'slug');
+
+		// Apply original link filters from core `wp_link_pages()`
+		$r = apply_filters( 'wp_link_pages_args', array(
+				'link_before' => '',
+				'link_after'  => '',
+				'pagelink'    => '%',
+			)
+		);
+
+		// _wp_link_page() && _ef_wp_link_page() produce an opening link tag ( <a href=".."> )
+		// This is necessary to replicate core behavior:
+		$link = $r['link_before'] . str_replace( '%', $i, $r['pagelink'] ) . $r['link_after'];
+		$link = _ef_wp_link_page( $i, $custom_statuses ) . $link . '</a>';
+
+
+		return $link;
 	}
 
 	/**
