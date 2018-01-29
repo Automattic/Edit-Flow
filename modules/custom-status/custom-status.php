@@ -1843,10 +1843,8 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		$actions['make_default'] = sprintf( '<a href="%1$s">' . __( 'Make&nbsp;Default', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'make-default', 'term-id' => $item->term_id ) ) );
 		
 		// Prevent deleting draft status
-		if( 'draft' !== $item->slug  ) {
-			if ( $item->slug != $this->default_status ) {
-				$actions['delete delete-status'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'delete-status', 'term-id' => $item->term_id ) ) );
-			}
+		if( 'draft' !== $item->slug && $item->slug !== $this->default_status  ) {
+			$actions['delete delete-status'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'delete-status', 'term-id' => $item->term_id ) ) );
 		}
 
 		$output .= $this->row_actions( $actions, false );
