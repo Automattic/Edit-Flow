@@ -232,7 +232,6 @@ class EF_Module {
 		// Add the first day of the week as an available variable to wp_head
 		echo "<script type=\"text/javascript\">var ef_week_first_day=\"" . get_option( 'start_of_week' ) . "\";</script>";		
 
-		// Datepicker is available WordPress 3.3. We have to register it ourselves for previous versions of WordPress
 		wp_enqueue_script( 'jquery-ui-datepicker' );
 
 		//Timepicker needs to come after jquery-ui-datepicker and jquery
@@ -380,42 +379,6 @@ class EF_Module {
 		return true;
 	}
 	
-	/**
-	 * Remove term(s) associated with a given object(s). Core doesn't have this as of 3.2
-	 * @see http://core.trac.wordpress.org/ticket/15475
-	 * 
-	 * @author ericmann
-	 * @compat 3.3?
-	 *
-	 * @param int|array $object_ids The ID(s) of the object(s) to retrieve.
-	 * @param int|array $terms The ids of the terms to remove.
-	 * @param string|array $taxonomies The taxonomies to retrieve terms from.
-	 * @return bool|WP_Error Affected Term IDs
-	 */
-	function remove_object_terms( $object_id, $terms, $taxonomy ) {
-		global $wpdb;
-
-		if ( !taxonomy_exists( $taxonomy ) )
-			return new WP_Error( 'invalid_taxonomy', __( 'Invalid Taxonomy' ) );
-
-		if ( !is_array( $object_id ) )
-			$object_id = array( $object_id );
-
-		if ( !is_array($terms) )
-			$terms = array( $terms );
-			
-		$delete_objects = array_map( 'intval', $object_id );
-		$delete_terms = array_map( 'intval', $terms );	
-
-		if ( $delete_terms ) {
-			$in_delete_terms = "'" . implode( "', '", $delete_terms ) . "'";
-			$in_delete_objects = "'" . implode( "', '", $delete_objects ) . "'";
-			$return = $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->term_relationships WHERE object_id IN ($in_delete_objects) AND term_taxonomy_id IN ($in_delete_terms)", $object_id ) );
-			wp_update_term_count( $delete_terms, $taxonomy );
-			return true;
-		}
-		return false;
-	}
 	
 	/**
 	 * This is a hack, Hack, HACK!!!

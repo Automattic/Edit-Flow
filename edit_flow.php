@@ -340,12 +340,6 @@ class edit_flow {
 
 		wp_register_script( 'jquery-quicksearch', EDIT_FLOW_URL . 'common/js/jquery.quicksearch.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 
-		// @compat 3.3
-		// Register jQuery datepicker plugin if it doesn't already exist. Datepicker plugin was added in WordPress 3.3
-		global $wp_scripts;
-		if ( !isset( $wp_scripts->registered['jquery-ui-datepicker'] ) )
-			wp_register_script( 'jquery-ui-datepicker', EDIT_FLOW_URL . 'common/js/jquery.ui.datepicker.min.js', array( 'jquery', 'jquery-ui-core'), '1.8.16', true );
-
 	}
 
 }
