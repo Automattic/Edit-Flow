@@ -217,7 +217,7 @@ class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow
 	function register_custom_statuses() {
 		global $wp_post_statuses;
 
-		if ( $this->disable_custom_statuses_for_post_type() )
+		if ( ! $this->is_module_edit_view() )
 			return;
 
 		// Register new taxonomy so that we can store all our fancy new custom statuses (or is it stati?)
@@ -254,30 +254,6 @@ class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow
 				) );
 			}
 		}
-	}
-
-	/**
-	 * Whether custom post statuses should be disabled for this post type.
-	 * Used to stop custom statuses from being registered for post types that don't support them.
-	 *
-	 * @since 0.7.5
-	 *
-	 * @return bool
-	 */
-	function disable_custom_statuses_for_post_type( $post_type = null ) {
-		global $pagenow;
-
-		// Only allow deregistering on 'edit.php' and 'post.php'
-		if ( ! in_array( $pagenow, array( 'edit.php', 'post.php', 'post-new.php' ) ) )
-			return false;
-
-		if ( is_null( $post_type ) )
-			$post_type = $this->get_current_post_type();
-
-		if ( $post_type && ! in_array( $post_type, $this->get_post_types_for_module( $this->module ) ) )
-			return true;
-
-		return false;
 	}
 
 
@@ -514,7 +490,7 @@ class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow
 	function get_custom_statuses( $args = array() ) {
 		global $wp_post_statuses;
 
-		if ( $this->disable_custom_statuses_for_post_type() ) {
+		if ( ! $this->is_module_edit_view() ) {
 			return $this->get_core_post_statuses();
 		}
 
@@ -1215,7 +1191,7 @@ class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow
 	function check_timestamp_on_publish() {
 		global $edit_flow, $pagenow, $wpdb;
 
-		if ( $this->disable_custom_statuses_for_post_type() )
+		if ( ! $this->is_module_edit_view() )
 			return;
 
 		// Handles the transition to 'publish' on edit.php
@@ -1275,8 +1251,7 @@ class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow
 	function fix_custom_status_timestamp( $data, $postarr ) {
 		global $edit_flow;
 		// Don't run this if Edit Flow isn't active, or we're on some other page
-		if ( $this->disable_custom_statuses_for_post_type()
-		|| !isset( $edit_flow ) ) {
+		if ( ! $this->is_module_edit_view() || !isset( $edit_flow ) ) {
 			return $data;
 		}
 
@@ -1661,7 +1636,7 @@ class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow
 
 		global $pagenow;
 
-		if ( $this->disable_custom_statuses_for_post_type() ) {
+		if ( ! $this->is_module_edit_view() ) {
 			return false;
 		}
 

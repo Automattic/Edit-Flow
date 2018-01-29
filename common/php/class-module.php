@@ -637,6 +637,29 @@ class EF_Module {
 
 		return ( isset( $_GET['page'] ) && $_GET['page'] === $slug );
 	}
-	
+
+	/**
+	 * Check if this is a edit-mode view and that the current post type is supported by the module
+	 * @since 0.8.3
+	 *
+	 * @return bool
+	 */
+	function is_module_edit_view( $post_type = false ) {
+		global $pagenow;
+
+		// Only check editor pages
+		if ( ! in_array( $pagenow, array( 'edit.php', 'post.php', 'post-new.php' ) ) ) {
+			return false;
+		}
+
+		// Get the current post type
+		if ( false === $post_type ) {
+			$post_type = $this->get_current_post_type();
+		}
+
+		// Return whether or not current post type is supported
+		return ( $post_type && in_array( $post_type, $this->get_post_types_for_module( $this->module ), true ) );
+	}
+
 }
 }
