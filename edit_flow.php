@@ -93,7 +93,12 @@ class edit_flow {
 
 		// Edit Flow base module
 		require_once( EDIT_FLOW_ROOT . '/common/php/class-module.php' );
-		
+
+		/*
+		 * Include interfaces:
+		 */
+		require_once( EDIT_FLOW_ROOT . '/interfaces/Edit_Flow_Scripts.php' );
+		require_once( EDIT_FLOW_ROOT . '/interfaces/Edit_Flow_Styles.php' );
 		// Scan the modules directory and include any modules that exist there
 		$module_dirs = scandir( EDIT_FLOW_ROOT . '/modules/' );
 		$class_names = array();
