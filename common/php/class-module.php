@@ -340,9 +340,7 @@ class EF_Module {
 	 * @param string $module_name (Optional) Module name to check against
 	 */
 	function is_whitelisted_functional_view( $module_name = null ) {
-		
-		// @todo complete this method
-		
+		_deprecated_function(__FUNCTION__, '0.8.3', 'is_module_view');
 		return true;
 	}
 	
