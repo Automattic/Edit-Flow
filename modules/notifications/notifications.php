@@ -9,7 +9,7 @@ if( ! defined( 'EF_NOTIFICATION_USE_CRON' ) )
 
 if ( !class_exists('EF_Notifications') ) {
 
-class EF_Notifications extends EF_Module {
+class EF_Notifications extends EF_Module implements Edit_Flow_Styles, Edit_Flow_Scripts {
 	
 	// Taxonomy name used to store users following posts
 	var $following_users_taxonomy = 'following_users';
@@ -187,7 +187,7 @@ class EF_Notifications extends EF_Module {
 	 */
 	function enqueue_admin_scripts() {
 		
-		if ( $this->is_whitelisted_functional_view() ) {
+		if ( $this->is_module_edit_view() ) {
 			wp_enqueue_script( 'jquery-listfilterizer' );
 			wp_enqueue_script( 'jquery-quicksearch' );
 			wp_enqueue_script( 'edit-flow-notifications-js', $this->module_url . 'lib/notifications.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
@@ -203,7 +203,7 @@ class EF_Notifications extends EF_Module {
 	 */
 	function enqueue_admin_styles() {
 		
-		if ( $this->is_whitelisted_functional_view() || $this->is_whitelisted_settings_view() ) {
+		if ( $this->is_module_edit_view() || $this->is_module_settings_view() ) {
 			wp_enqueue_style( 'jquery-listfilterizer' );
 			wp_enqueue_style( 'edit-flow-notifications-css', $this->module->module_url . 'lib/notifications.css', false, EDIT_FLOW_VERSION );
 		}
