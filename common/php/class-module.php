@@ -604,6 +604,22 @@ class EF_Module {
 			wp_update_term( $term->term_id, $taxonomy, array( 'description' => $new_description ) );
 		}
 	}
+
+	/**
+	 * Check if currently viewing a module
+	 *
+	 * @param $slug - the slug of the module
+	 *
+	 * @return bool
+	 */
+	public function is_module_view( $slug ) {
+
+		if ( ! is_admin() ) {
+			return false;
+		}
+
+		return ( isset( $_GET['page'] ) && $_GET['page'] === $slug );
+	}
 	
 }
 }
