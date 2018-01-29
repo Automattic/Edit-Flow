@@ -19,8 +19,10 @@ matrix:
     # current stable release w/ multisite
     - php: "5.2"
       env: WP_VERSION=4.8 WP_MULTISITE=0
+      dist: precise
     - php: "5.3"
       env: WP_VERSION=4.8 WP_MULTISITE=0
+      dist: precise
     - php: "5.4"
       env: WP_VERSION=4.8 WP_MULTISITE=0
     - php: "5.5"
@@ -33,8 +35,10 @@ matrix:
       env: WP_VERSION=4.8 WP_MULTISITE=0
     - php: "5.2"
       env: WP_VERSION=4.8 WP_MULTISITE=1
+      dist: precise
     - php: "5.3"
       env: WP_VERSION=4.8 WP_MULTISITE=1
+      dist: precise
     - php: "5.4"
       env: WP_VERSION=4.8 WP_MULTISITE=1
     - php: "5.5"
@@ -47,8 +51,10 @@ matrix:
       env: WP_VERSION=4.8 WP_MULTISITE=1
     - php: "5.2"
       env: WP_VERSION=4.9 WP_MULTISITE=0
+      dist: precise
     - php: "5.3"
       env: WP_VERSION=4.9 WP_MULTISITE=0
+      dist: precise
     - php: "5.4"
       env: WP_VERSION=4.9 WP_MULTISITE=0
     - php: "5.5"
@@ -61,8 +67,10 @@ matrix:
       env: WP_VERSION=4.9 WP_MULTISITE=0
     - php: "5.2"
       env: WP_VERSION=4.9 WP_MULTISITE=1
+      dist: precise
     - php: "5.3"
       env: WP_VERSION=4.9 WP_MULTISITE=1
+      dist: precise
     - php: "5.4"
       env: WP_VERSION=4.9 WP_MULTISITE=1
     - php: "5.5"
