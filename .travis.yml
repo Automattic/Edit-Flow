@@ -10,10 +10,9 @@ php:
 env:
     - WP_VERSION=master WP_MULTISITE=0 #Current stable release
 
-# Test WP master, current and previous stable releases on most popular PHP 5.5, 5.6 (w/ multisite enabled for 5.6)
-# Test WP master, current and previous stable releases on minimum PHP 5.2 (w/o multisite enabled)
-# Test WP current on PHP 5.3, 5.4 (w/o multisite enabled)
-# Test WP master on PHP 7.0 and nightly (w/o multisite enabled)
+# Test WP 4.8 and on PHP 5.4, 5.5, 5.6, 7.0 and 7.1 (w and w/o multisite enabled)
+# Test WP 4.8 and on PHP 5.2 and 5.3 and allow_failures (w and w/o multisite enabled)
+# Test WP master on PHP nightly (w/o multisite enabled)
 
 matrix:
   include:
@@ -62,7 +61,6 @@ matrix:
       env: WP_VERSION=master WP_MULTISITE=0
   allow_failures:
     - php: "nightly"
-  allow_failures:
     - php: "5.2"
       env: WP_VERSION=4.8 WP_MULTISITE=0
     - php: "5.3"
