@@ -13,5 +13,10 @@
 	Override Gutenberg 2.0
  */
 #ef-comments .comment-item,  #ef-post_following_box .list-filterizer-tabs {
-	list-style-type: none;
+    list-style-type: none;
 }
+/* Override WP_List_Table styles that are hiding buttons on mobile devices */
+.edit-flow-admin .col-wrap .submit {
+    display: block;
+}
+
