@@ -116,8 +116,14 @@ class EF_Dashboard extends EF_Module {
 		wp_enqueue_style( 'edit-flow-dashboard-css', $this->module_url . 'lib/dashboard.css', false, EDIT_FLOW_VERSION, 'all' );			
 			
 		// Set up Post Status widget but, first, check to see if it's enabled
-		if ( $this->module->options->post_status_widget == 'on')
-			wp_add_dashboard_widget( 'post_status_widget', __( 'Unpublished Content', 'edit-flow' ), array( $this, 'post_status_widget' ) );
+		if ( $this->module->options->post_status_widget == 'on' ) {
+
+			$status_widget_post_types = apply_filters( 'ef_dashboard_psw_post_types', $this->get_all_post_types() );
+
+			foreach ( $status_widget_post_types as $post_type => $label ) {
+				$this->add_dashboard_status_widget( $post_type );
+			}
+		}
 
 		// Set up the Notepad widget if it's enabled
 		if ( 'on' == $this->module->options->notepad_widget )
@@ -128,16 +134,42 @@ class EF_Dashboard extends EF_Module {
 			wp_add_dashboard_widget( 'myposts_widget', __( 'Posts I\'m Following', 'edit-flow' ), array( $this, 'myposts_widget' ) );
 
 	}
+
+	/**
+	 * Dynamically add a "Unpublished Content" post status widget for any post type
+	 *
+	 * @param $post_type_slug
+	 */
+	public function add_dashboard_status_widget( $post_type_slug ) {
+
+		$post_type_labels = get_post_type_labels( get_post_type_object( $post_type_slug ) );
+
+		if ( $post_type_slug !== 'post' ) {
+			$widget_id    = 'post_status_widget_' . $post_type_slug;
+			$widget_title = sprintf( esc_html__( 'Unpublished Content: %s', 'edit-flow' ), $post_type_labels->name );
+		} else {
+			$widget_id    = 'post_status_widget';
+			$widget_title = __( 'Unpublished Content', 'edit-flow' );
+		}
+
+		$widget_title = apply_filters( 'ef_dashboard_psw_title', $widget_title, $post_type_slug );
+		$args         = array(
+			'post_type' => $post_type_slug,
+			'labels'    => $post_type_labels,
+		);
+
+		wp_add_dashboard_widget( $widget_id, $widget_title, array( $this, 'post_status_widget' ), NULL, $args );
+	}
 	
 	/**
 	 * Creates Post Status widget
 	 * Display an at-a-glance view of post counts for all (post|custom) statuses in the system
-	 *
-	 * @todo Support custom post types
 	 */
-	function post_status_widget () {
-		global $edit_flow;
-		
+	function post_status_widget( $unused, $args ) {
+
+		$labels    = $args['args']['labels'];
+		$post_type = $args['args']['post_type'];
+
 		$statuses = $this->get_post_statuses();
 		$statuses[] = (object)array(
 				'name' => __( 'Scheduled', 'edit-flow' ),
@@ -150,14 +182,14 @@ class EF_Dashboard extends EF_Module {
 			$edit_custom_status_url = add_query_arg( 'page', 'ef-custom-status-settings', get_admin_url( null, 'admin.php' ) );
 		
 		?>
-		<p class="sub"><?php _e('Posts at a Glance', 'edit-flow') ?></p>
+		<p class="sub ef-psw-title"><?php printf( esc_html__('%s at a Glance', 'edit-flow'), $labels->name ) ?></p>
 		
-		<div class="table">
+		<div class="table ef-psw-content">
 			<table>
 				<tbody>
-					<?php $post_count = wp_count_posts( 'post' ); ?>
+					<?php $post_count = wp_count_posts( $post_type ); ?>
 					<?php foreach($statuses as $status) : ?>
-						<?php $filter_link = $this->filter_posts_link( $status->slug ); ?>
+						<?php $filter_link = $this->filter_posts_link( $status->slug, $post_type ); ?>
 						<tr>
 							<td class="b">
 								<a href="<?php echo esc_url( $filter_link ); ?>">
