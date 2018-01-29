@@ -232,7 +232,6 @@ class EF_Module {
 		// Add the first day of the week as an available variable to wp_head
 		echo "<script type=\"text/javascript\">var ef_week_first_day=\"" . get_option( 'start_of_week' ) . "\";</script>";		
 
-		// Datepicker is available WordPress 3.3. We have to register it ourselves for previous versions of WordPress
 		wp_enqueue_script( 'jquery-ui-datepicker' );
 
 		//Timepicker needs to come after jquery-ui-datepicker and jquery
