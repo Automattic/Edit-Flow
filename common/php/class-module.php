@@ -357,26 +357,8 @@ class EF_Module {
 	 * @return bool $is_settings_view Return true if it is
 	 */
 	function is_whitelisted_settings_view( $module_name = null ) {
-		global $pagenow, $edit_flow;
-		
-		// All of the settings views are based on admin.php and a $_GET['page'] parameter
-		if ( $pagenow != 'admin.php' || !isset( $_GET['page'] ) )
-			return false;
-		
-		// Load all of the modules that have a settings slug/ callback for the settings page
-		foreach ( $edit_flow->modules as $mod_name => $mod_data ) {
-			if ( isset( $mod_data->options->enabled ) && $mod_data->options->enabled == 'on' && $mod_data->configure_page_cb )
-				$settings_view_slugs[] = $mod_data->settings_slug;
-		}
-	
-		// The current page better be in the array of registered settings view slugs
-		if ( !in_array( $_GET['page'], $settings_view_slugs ) )
-			return false;
-		
-		if ( $module_name && $edit_flow->modules->$module_name->settings_slug != $_GET['page'] )
-			return false;
-			
-		return true;
+		_deprecated_function('is_whitelisted_settings_view', '0.8.3', 'is_module_settings_view');
+		return $this->is_module_settings_view();
 	}
 	
 	
@@ -603,6 +585,43 @@ class EF_Module {
 			$new_description = $this->get_encoded_description( $description_args );
 			wp_update_term( $term->term_id, $taxonomy, array( 'description' => $new_description ) );
 		}
+	}
+
+
+	/**
+	 * Whether or not the current page is an Edit Flow settings view (either main or module)
+	 * Determination is based on $pagenow, $_GET['page'], and the module's $settings_slug
+	 * If there's no module name specified, it will return true against all Edit Flow settings views
+	 *
+	 * @since 0.8.3
+	 *
+	 * @param string $slug (Optional) Module name to check against
+	 * @return bool true if is module settings view
+	 */
+	public function is_module_settings_view( $slug = false ) {
+		global $pagenow, $edit_flow;
+
+		// All of the settings views are based on admin.php and a $_GET['page'] parameter
+		if ( $pagenow !== 'admin.php' || ! isset( $_GET['page'] ) )
+			return false;
+
+		$settings_view_slugs = array();
+		// Load all of the modules that have a settings slug/ callback for the settings page
+		foreach ( $edit_flow->modules as $mod_name => $mod_data ) {
+			if ( isset( $mod_data->options->enabled ) && $mod_data->options->enabled == 'on' && $mod_data->configure_page_cb )
+				$settings_view_slugs[] = $mod_data->settings_slug;
+		}
+
+		// The current page better be in the array of registered settings view slugs
+		if ( empty( $settings_view_slugs ) || ! in_array( $_GET['page'], $settings_view_slugs ) ) {
+			return false;
+		}
+
+		if ( $slug && $edit_flow->modules->{$slug}->settings_slug !== $_GET['page'] ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
