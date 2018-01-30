@@ -187,7 +187,7 @@ class EF_Notifications extends EF_Module implements Edit_Flow_Styles, Edit_Flow_
 	 */
 	function enqueue_admin_scripts() {
 		
-		if ( $this->is_module_edit_view() ) {
+		if ( $this->is_active_view() ) {
 			wp_enqueue_script( 'jquery-listfilterizer' );
 			wp_enqueue_script( 'jquery-quicksearch' );
 			wp_enqueue_script( 'edit-flow-notifications-js', $this->module_url . 'lib/notifications.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
@@ -203,7 +203,7 @@ class EF_Notifications extends EF_Module implements Edit_Flow_Styles, Edit_Flow_
 	 */
 	function enqueue_admin_styles() {
 		
-		if ( $this->is_module_edit_view() || $this->is_module_settings_view() ) {
+		if ( $this->is_active_view() || $this->is_module_settings_view() ) {
 			wp_enqueue_style( 'jquery-listfilterizer' );
 			wp_enqueue_style( 'edit-flow-notifications-css', $this->module->module_url . 'lib/notifications.css', false, EDIT_FLOW_VERSION );
 		}

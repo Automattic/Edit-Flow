@@ -639,26 +639,50 @@ class EF_Module {
 	}
 
 	/**
-	 * Check if this is a edit-mode view and that the current post type is supported by the module
-	 * @since 0.8.3
+	 * Check for admin page and whether the current post type is supported
+	 * @param array $allowed_pages
 	 *
 	 * @return bool
 	 */
-	function is_module_edit_view( $post_type = false ) {
+	function is_active_view( $allowed_pages = array( 'edit.php', 'post.php', 'post-new.php' ) ) {
+		return ( $this->is_admin_page( $allowed_pages ) && $this->is_supported_post_type() );
+	}
+
+
+	/**
+	 * Check whether the current post type is supported for $this module
+	 *
+	 * @return bool
+	 */
+	public function is_supported_post_type() {
+		$post_type = $this->get_current_post_type();
+		return (
+			$post_type
+			&&
+			in_array( $post_type, $this->get_post_types_for_module( $this->module ), true )
+		);
+	}
+
+	/**
+	 * Check whether currently viewing the desired admin page
+	 *
+	 * @param array $allowed_pages
+	 *
+	 * @return bool
+	 */
+	public function is_admin_page( $allowed_pages = array( 'edit.php', 'post.php', 'post-new.php' ) ) {
 		global $pagenow;
 
-		// Only check editor pages
-		if ( ! in_array( $pagenow, array( 'edit.php', 'post.php', 'post-new.php' ) ) ) {
-			return false;
-		}
+		return ( $pagenow && in_array( $pagenow, $allowed_pages, true ) );
+	}
 
-		// Get the current post type
-		if ( false === $post_type ) {
-			$post_type = $this->get_current_post_type();
-		}
+	
+	public function is_active_list_view() {
+		return $this->is_active_view( array( 'edit.php' ) );
+	}
 
-		// Return whether or not current post type is supported
-		return ( $post_type && in_array( $post_type, $this->get_post_types_for_module( $this->module ), true ) );
+	public function is_active_editor_view() {
+		return $this->is_active_view( array( 'post.php', 'posts-new.php' ) );
 	}
 
 }
