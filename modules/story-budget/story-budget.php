@@ -5,8 +5,10 @@
  *
  * @author sbressler
  */
-class EF_Story_Budget extends EF_Module {
-	
+class EF_Story_Budget extends EF_Module implements Edit_Flow_Styles, Edit_Flow_Scripts {
+
+	use EF_Module_With_View;
+
 	var $taxonomy_used = 'category';
 	
 	var $module;
@@ -79,7 +81,7 @@ class EF_Story_Budget extends EF_Module {
 		add_action( 'admin_menu', array( $this, 'action_admin_menu' ) );
 		// Load necessary scripts and stylesheets
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'action_enqueue_admin_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		
 	}
 	
@@ -133,36 +135,38 @@ class EF_Story_Budget extends EF_Module {
 	function action_admin_menu() {
 		add_submenu_page( 'index.php', __('Story Budget', 'edit-flow'), __('Story Budget', 'edit-flow'), apply_filters( 'ef_view_story_budget_cap', 'ef_view_story_budget' ), $this->module->slug, array( $this, 'story_budget') );
 	}
-	
+
 	/**
 	 * Enqueue necessary admin scripts only on the story budget page.
 	 *
 	 * @uses enqueue_admin_script()
 	 */
 	function enqueue_admin_scripts() {
-		global $current_screen;
-		
-		if ( $current_screen->id != self::screen_id )
-			return;
-		
-		$num_columns = $this->get_num_columns();
-		echo '<script type="text/javascript"> var ef_story_budget_number_of_columns="' . esc_js( $this->num_columns ) . '";</script>';
-		
-		$this->enqueue_datepicker_resources();
-		wp_enqueue_script( 'edit_flow-story_budget', $this->module_url . 'lib/story-budget.js', array( 'edit_flow-date_picker' ), EDIT_FLOW_VERSION, true );
+
+		if ( $this->is_story_board_view() ) {
+			$num_columns = $this->get_num_columns();
+			echo '<script type="text/javascript"> var ef_story_budget_number_of_columns="' . esc_js( $this->num_columns ) . '";</script>';
+
+			$this->enqueue_datepicker_resources();
+			wp_enqueue_script( 'edit_flow-story_budget', $this->module_url . 'lib/story-budget.js', array( 'edit_flow-date_picker' ), EDIT_FLOW_VERSION, true );
+		}
+
 	}
 	
 	/**
 	 * Enqueue a screen and print stylesheet for the story budget.
 	 */
-	function action_enqueue_admin_styles() {
+	function enqueue_admin_styles() {
+		if( $this->is_story_board_view() ) {
+			wp_enqueue_style( 'edit_flow-story_budget-styles', $this->module_url . 'lib/story-budget.css', false, EDIT_FLOW_VERSION, 'screen' );
+			wp_enqueue_style( 'edit_flow-story_budget-print-styles', $this->module_url . 'lib/story-budget-print.css', false, EDIT_FLOW_VERSION, 'print' );
+		}
+	}
+	
+
+	public function is_story_board_view() {
 		global $current_screen;
-		
-		if ( $current_screen->id != self::screen_id )
-			return;
-		
-		wp_enqueue_style( 'edit_flow-story_budget-styles', $this->module_url . 'lib/story-budget.css', false, EDIT_FLOW_VERSION, 'screen' );
-		wp_enqueue_style( 'edit_flow-story_budget-print-styles', $this->module_url . 'lib/story-budget-print.css', false, EDIT_FLOW_VERSION, 'print' );
+		return ( $current_screen->id === self::screen_id );
 	}
 	
 	/**
