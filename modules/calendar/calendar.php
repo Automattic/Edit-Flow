@@ -8,7 +8,9 @@
 if ( !class_exists('EF_Calendar') ) {
 
 class EF_Calendar extends EF_Module implements Edit_Flow_Styles, Edit_Flow_Scripts {
-	
+
+	use EF_Module_With_View;
+
 	const usermeta_key_prefix = 'ef_calendar_';
 	const screen_id = 'dashboard_page_calendar';
 	

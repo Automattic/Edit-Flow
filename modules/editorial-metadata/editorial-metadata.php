@@ -22,6 +22,8 @@ if ( !class_exists('EF_Editorial_Metadata') ) {
 
 class EF_Editorial_Metadata extends EF_Module implements Edit_Flow_Styles, Edit_Flow_Scripts {
 
+	use EF_Module_With_View;
+
 	/**
 	 * The name of the taxonomy we're going to register for editorial metadata.
 	 */

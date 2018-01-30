@@ -10,7 +10,9 @@ if( ! defined( 'EF_NOTIFICATION_USE_CRON' ) )
 if ( !class_exists('EF_Notifications') ) {
 
 class EF_Notifications extends EF_Module implements Edit_Flow_Styles, Edit_Flow_Scripts {
-	
+
+	use EF_Module_With_View;
+
 	// Taxonomy name used to store users following posts
 	var $following_users_taxonomy = 'following_users';
 	// Taxonomy name used to store user groups following posts

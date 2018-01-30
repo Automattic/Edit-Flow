@@ -12,6 +12,8 @@
 if ( !class_exists( 'EF_User_Groups' ) ) {
 
 class EF_User_Groups extends EF_Module implements Edit_Flow_Styles, Edit_Flow_Scripts {
+
+	use EF_Module_With_View;
 	
 	var $module;
 	
