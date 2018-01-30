@@ -10,7 +10,7 @@
  */
 if ( !class_exists( 'EF_Custom_Status' ) ) {
 
-class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow_Styles, Edit_Flow_Module_With_View {
+class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow_Styles {
 
 	var $module;
 
@@ -262,7 +262,7 @@ class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow
 	 * Javascript is needed for custom statuses to be fully functional
 	 */
 	function no_js_notice() {
-		if( $this->is_current_module_view() ) :
+		if( $this->is_custom_status_view() ) :
 			?>
 			<style type="text/css">
 			/* Hide post status dropdown by default in case of JS issues **/
@@ -289,7 +289,7 @@ class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow
 		global $post, $pagenow;
 
 		// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
-		if ( $this->is_current_module_view() || $this->is_module_settings_view() ) {
+		if ( $this->is_custom_status_view() || $this->is_module_settings_view() ) {
 
 			$custom_statuses = $this->get_custom_statuses();
 
@@ -1632,7 +1632,7 @@ class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow
 		return $actions;
 	}
 
-	public function is_current_module_view() {
+	public function is_custom_status_view() {
 
 		if( ! $this->is_active_view( array( 'post.php', 'edit.php', 'post-new.php', 'page.php', 'edit-pages.php', 'page-new.php' ) ) ) {
 			return false;
@@ -1667,7 +1667,7 @@ class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow
 
 		}
 
-		if ( $this->is_current_module_view() ) {
+		if ( $this->is_custom_status_view() ) {
 
 			wp_enqueue_script( 'edit_flow-custom_status', $this->module_url . 'lib/custom-status.js', array(
 				'jquery',
@@ -1687,7 +1687,7 @@ class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow
 	}
 
 	public function enqueue_admin_styles() {
-		if ( $this->is_current_module_view() ) {
+		if ( $this->is_custom_status_view() ) {
 			wp_enqueue_style( 'edit_flow-custom_status', $this->module_url . 'lib/custom-status.css', false, EDIT_FLOW_VERSION, 'all' );
 		}
 	}
