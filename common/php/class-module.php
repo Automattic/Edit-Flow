@@ -332,38 +332,6 @@ class EF_Module {
 	}
 	
 	/**
-	 * This method was supposed to check whether or not the current page is a user-facing Edit Flow View
-	 * Instead, it was never implemented.
-	 *
-	 * It is now deprecated in favor of `$this->is_active_view`
-	 * @see EF_Module::is_active_view()
-	 * @since 0.7
-	 * @deprecated 0.8.3
-	 *
-	 * @param string $module_name (Optional) Module name to check against
-	 */
-	function is_whitelisted_functional_view( $module_name = null ) {
-		_deprecated_function(__FUNCTION__, '0.8.3', 'is_module_view');
-		return true;
-	}
-	
-	/**
-	 * Whether or not the current page is an Edit Flow settings view (either main or module)
-	 * Determination is based on $pagenow, $_GET['page'], and the module's $settings_slug
-	 * If there's no module name specified, it will return true against all Edit Flow settings views
-	 *
-	 * @since 0.7
-	 *
-	 * @param string $module_name (Optional) Module name to check against
-	 * @return bool $is_settings_view Return true if it is
-	 */
-	function is_whitelisted_settings_view( $module_name = null ) {
-		_deprecated_function('is_whitelisted_settings_view', '0.8.3', 'is_module_settings_view');
-		return $this->is_module_settings_view( $module_name );
-	}
-	
-	
-	/**
 	 * This is a hack, Hack, HACK!!!
 	 * Encode all of the given arguments as a serialized array, and then base64_encode
 	 * Used to store extra data in a term's description field
@@ -683,5 +651,37 @@ class EF_Module {
 		return $this->is_active_view( array( 'post.php', 'posts-new.php' ) );
 	}
 
+
+
+	/**
+	 * This method was supposed to check whether or not the current page is a user-facing Edit Flow View
+	 * But it was never implemented
+	 *
+	 * It is now deprecated in favor of `$this->is_active_view`
+	 * @see EF_Module::is_active_view()
+	 * @since 0.7
+	 * @deprecated 0.8.3
+	 *
+	 * @param string $module_name (Optional) Module name to check against
+	 */
+	function is_whitelisted_functional_view( $module_name = null ) {
+		_deprecated_function(__FUNCTION__, '0.8.3', 'is_module_view');
+		return true;
+	}
+
+	/**
+	 * Whether or not the current page is an Edit Flow settings view (either main or module)
+	 * Determination is based on $pagenow, $_GET['page'], and the module's $settings_slug
+	 * If there's no module name specified, it will return true against all Edit Flow settings views
+	 *
+	 * @since 0.7
+	 *
+	 * @param string $module_name (Optional) Module name to check against
+	 * @return bool $is_settings_view Return true if it is
+	 */
+	function is_whitelisted_settings_view( $module_name = null ) {
+		_deprecated_function('is_whitelisted_settings_view', '0.8.3', 'is_module_settings_view');
+		return $this->is_module_settings_view( $module_name );
+	}
 }
 }
