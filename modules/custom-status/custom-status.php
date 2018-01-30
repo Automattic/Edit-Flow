@@ -10,7 +10,7 @@
  */
 if ( !class_exists( 'EF_Custom_Status' ) ) {
 
-class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow_Styles {
+class EF_Custom_Status extends EF_Module implements EF_Script_Interface, EF_Style_Interface {
 
 	use EF_Module_With_View;
 	var $module;

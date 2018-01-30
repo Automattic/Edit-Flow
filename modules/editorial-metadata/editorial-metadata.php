@@ -20,7 +20,7 @@
  */
 if ( !class_exists('EF_Editorial_Metadata') ) {
 
-class EF_Editorial_Metadata extends EF_Module implements Edit_Flow_Styles, Edit_Flow_Scripts {
+class EF_Editorial_Metadata extends EF_Module implements EF_Style_Interface, EF_Script_Interface {
 
 	use EF_Module_With_View;
 

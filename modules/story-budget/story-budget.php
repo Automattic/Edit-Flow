@@ -5,7 +5,7 @@
  *
  * @author sbressler
  */
-class EF_Story_Budget extends EF_Module implements Edit_Flow_Styles, Edit_Flow_Scripts {
+class EF_Story_Budget extends EF_Module implements EF_Style_Interface, EF_Script_Interface {
 
 	use EF_Module_With_View;
 
@@ -162,7 +162,7 @@ class EF_Story_Budget extends EF_Module implements Edit_Flow_Styles, Edit_Flow_S
 			wp_enqueue_style( 'edit_flow-story_budget-print-styles', $this->module_url . 'lib/story-budget-print.css', false, EDIT_FLOW_VERSION, 'print' );
 		}
 	}
-	
+
 
 	public function is_story_board_view() {
 		global $current_screen;

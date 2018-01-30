@@ -1,6 +1,6 @@
 <?php
 
 
-interface Edit_Flow_Scripts {
+interface EF_Script_Interface {
 	public function enqueue_admin_scripts();
 }

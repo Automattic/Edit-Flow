@@ -97,8 +97,8 @@ class edit_flow {
 		/*
 		 * Include interfaces:
 		 */
-		require_once( EDIT_FLOW_ROOT . '/interfaces/Edit_Flow_Scripts.php' );
-		require_once( EDIT_FLOW_ROOT . '/interfaces/Edit_Flow_Styles.php' );
+		require_once( EDIT_FLOW_ROOT . '/interfaces/EF_Script_Interface.php' );
+		require_once( EDIT_FLOW_ROOT . '/interfaces/EF_Style_Interface.php' );
 		require_once( EDIT_FLOW_ROOT . '/common/php/EF_Module_With_View.php' );
 
 		// Scan the modules directory and include any modules that exist there
