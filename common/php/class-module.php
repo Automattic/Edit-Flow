@@ -332,10 +332,13 @@ class EF_Module {
 	}
 	
 	/**
-	 * Whether or not the current page is a user-facing Edit Flow View
-	 * @todo Think of a creative way to make this work
+	 * This method was supposed to check whether or not the current page is a user-facing Edit Flow View
+	 * Instead, it was never implemented.
 	 *
+	 * It is now deprecated in favor of `$this->is_active_view`
+	 * @see EF_Module::is_active_view()
 	 * @since 0.7
+	 * @deprecated 0.8.3
 	 *
 	 * @param string $module_name (Optional) Module name to check against
 	 */
