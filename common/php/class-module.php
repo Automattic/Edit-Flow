@@ -623,6 +623,16 @@ class EF_Module {
 	}
 
 	/**
+	 * Check whether if we're at module settings view
+	 * for the current module based on `is_module_settings_view` method
+	 *
+	 * @return bool
+	 */
+	public function is_current_module_settings_view() {
+		return $this->is_module_settings_view( $this->module->name );
+	}
+
+	/**
 	 * Check if currently viewing a module
 	 *
 	 * @param $slug - the slug of the module
