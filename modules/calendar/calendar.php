@@ -7,7 +7,7 @@
  */
 if ( !class_exists('EF_Calendar') ) {
 
-class EF_Calendar extends EF_Module implements Edit_Flow_Styles, Edit_Flow_Scripts, Edit_Flow_Module_With_View {
+class EF_Calendar extends EF_Module implements Edit_Flow_Styles, Edit_Flow_Scripts {
 	
 	const usermeta_key_prefix = 'ef_calendar_';
 	const screen_id = 'dashboard_page_calendar';
@@ -175,7 +175,7 @@ class EF_Calendar extends EF_Module implements Edit_Flow_Styles, Edit_Flow_Scrip
 	 * @uses wp_enqueue_style()
 	 */
 	public function enqueue_admin_styles() {
-		if ( ! $this->is_current_module_view() ) {
+		if ( ! $this->is_calendar_view() ) {
 			return;
 		}
 
@@ -190,7 +190,7 @@ class EF_Calendar extends EF_Module implements Edit_Flow_Styles, Edit_Flow_Scrip
 	 */
 	function enqueue_admin_scripts() {
 
-		if ( ! $this->is_current_module_view() ) {
+		if ( ! $this->is_calendar_view() ) {
 			return;
 		}
 
@@ -1843,10 +1843,10 @@ class EF_Calendar extends EF_Module implements Edit_Flow_Styles, Edit_Flow_Scrip
 	}
 
 
-	public function is_current_module_view() {
+	public function is_calendar_view() {
 		global $pagenow;
 
-		return ( $pagenow == 'index.php' && $this->is_module_view( 'calendar' ) );
+		return ( 'index.php' === $pagenow && isset( $_GET['page'] ) && $_GET['page'] === 'calendar' );
 	}
 } // EF_Calendar
 	
