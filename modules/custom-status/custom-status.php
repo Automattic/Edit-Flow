@@ -1634,9 +1634,7 @@ class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow
 
 	public function is_current_module_view() {
 
-		global $pagenow;
-
-		if ( ! $this->is_active_view() ) {
+		if( ! $this->is_active_view( array( 'post.php', 'edit.php', 'post-new.php', 'page.php', 'edit-pages.php', 'page-new.php' ) ) ) {
 			return false;
 		}
 
@@ -1645,9 +1643,7 @@ class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow
 			return false;
 		}
 
-		return in_array( $pagenow, array( 'post.php', 'edit.php', 'post-new.php', 'page.php', 'edit-pages.php', 'page-new.php' ) );
-
-
+		return true;
 	}
 
 
