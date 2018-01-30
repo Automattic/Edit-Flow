@@ -12,10 +12,9 @@ class WP_Test_Edit_Flow_Class_Module extends WP_UnitTestCase {
 	function _flush_roles() {
 		// we want to make sure we're testing against the db, not just in-memory data
 		// this will flush everything and reload it from the db
-		unset( $GLOBALS['wp_user_roles'] );
 		global $wp_roles;
 		if ( is_object( $wp_roles ) ) {
-			$wp_roles->_init();
+			$wp_roles->for_site();
 		}
 	}
 
