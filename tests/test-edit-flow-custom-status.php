@@ -335,7 +335,8 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 	public function test_home_url_slash_available_on_multisite_page_preview() {
 		if ( is_multisite() ) {
-			$blog_id = wpmu_create_blog( site_url(), 'sample', 'test', self::$admin_user_id );
+			global $pagenow;
+			$blog_id = self::factory()->blog->create( array( 'user_id' => self::$admin_user_id ) );
 			switch_to_blog( $blog_id );
 
 			$page_args = array(
@@ -344,9 +345,12 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 				'post_status' => 'draft',
 				'post_author' => self::$admin_user_id
 			);
-			$added_page = wp_insert_post( $page_args  );
+			$added_page = wp_insert_post( $page_args );
 
+			// set $pagenow to index.php so we can make sure that the frontpage is checked, not the dashboard
+			$pagenow = 'index.php';
 			$this->assertContains( '/?page_id=', get_preview_post_link( $added_page ) );
+
 		}
 	}
 }
