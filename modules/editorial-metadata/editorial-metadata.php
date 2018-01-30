@@ -20,7 +20,7 @@
  */
 if ( !class_exists('EF_Editorial_Metadata') ) {
 
-class EF_Editorial_Metadata extends EF_Module {
+class EF_Editorial_Metadata extends EF_Module implements Edit_Flow_Styles, Edit_Flow_Scripts {
 
 	/**
 	 * The name of the taxonomy we're going to register for editorial metadata.
@@ -116,7 +116,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		}		
 		
 		// Load necessary scripts and stylesheets
-		add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_scripts' ) );	
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		
 	}
 	
@@ -229,21 +229,18 @@ class EF_Editorial_Metadata extends EF_Module {
 	/**
 	 * Enqueue relevant admin Javascript
 	 */ 
-	function add_admin_scripts() {
-		global $current_screen, $pagenow;
-		
+	function enqueue_admin_styles() {
 		// Add the metabox date picker JS and CSS
-		$current_post_type = $this->get_current_post_type();
-		$supported_post_types = $this->get_post_types_for_module( $this->module );
-		if ( in_array( $current_post_type, $supported_post_types ) ) {
+		if ( $this->is_active_editor_view() ) {
 			$this->enqueue_datepicker_resources();
 
 			// Now add the rest of the metabox CSS
 			wp_enqueue_style( 'edit_flow-editorial_metadata-styles', $this->module_url . 'lib/editorial-metadata.css', false, EDIT_FLOW_VERSION, 'all' );
 		}
 		// A bit of custom CSS for the Manage Posts view if we have viewable metadata
-		if ( $current_screen->base == 'edit' && in_array( $current_post_type, $supported_post_types ) ) {
+		if ( $this->is_active_list_view() ) {
 			$terms = $this->get_editorial_metadata_terms();
+
 			$viewable_terms = array();
 			foreach( $terms as $term ) {
 				if ( $term->viewable ) 
@@ -298,9 +295,14 @@ class EF_Editorial_Metadata extends EF_Module {
 			
 		}
 		
+
+	}
+
+
+	public function enqueue_admin_scripts() {
 		// Load Javascript specific to the editorial metadata configuration view
-		if ( $this->is_whitelisted_settings_view( $this->module->name ) ) {
-			wp_enqueue_script( 'jquery-ui-sortable' );			
+		if ( $this->is_current_module_settings_view() ) {
+			wp_enqueue_script( 'jquery-ui-sortable' );
 			wp_enqueue_script( 'edit-flow-editorial-metadata-configure', EDIT_FLOW_URL . 'modules/editorial-metadata/lib/editorial-metadata-configure.js', array( 'jquery', 'jquery-ui-sortable', 'edit-flow-settings-js' ), EDIT_FLOW_VERSION, true );
 		}
 	}
@@ -1555,7 +1557,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		<?php
 		endif;
 	}
-	
+
 }
 
 }
