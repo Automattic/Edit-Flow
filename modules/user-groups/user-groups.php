@@ -11,7 +11,7 @@
 
 if ( !class_exists( 'EF_User_Groups' ) ) {
 
-class EF_User_Groups extends EF_Module {
+class EF_User_Groups extends EF_Module implements Edit_Flow_Styles, Edit_Flow_Scripts {
 	
 	var $module;
 	
@@ -223,32 +223,32 @@ class EF_User_Groups extends EF_Module {
 	 * Enqueue necessary admin scripts
 	 *
 	 * @since 0.7
+	 * @updated 0.8.3
 	 *
 	 * @uses wp_enqueue_script()
 	 */
 	function enqueue_admin_scripts() {
-		
-		if ( $this->is_whitelisted_functional_view() || $this->is_whitelisted_settings_view( $this->module->name ) ) {
+
+		if ( $this->is_current_module_settings_view() ) {
 			wp_enqueue_script( 'jquery-listfilterizer' );
 			wp_enqueue_script( 'jquery-quicksearch' );
 			wp_enqueue_script( 'edit-flow-user-groups-js', $this->module_url . 'lib/user-groups.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
-		}
-			
-		if ( $this->is_whitelisted_settings_view( $this->module->name ) )	
 			wp_enqueue_script( 'edit-flow-user-groups-configure-js', $this->module_url . 'lib/user-groups-configure.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
+		}
+
 	}
 	
 	/**
 	 * Enqueue necessary admin styles, but only on the proper pages
 	 *
 	 * @since 0.7
+	 * @updated 0.8.3
 	 *
 	 * @uses wp_enqueue_style()	
 	 */
 	function enqueue_admin_styles() {
 
-		
-		if ( $this->is_whitelisted_functional_view() || $this->is_whitelisted_settings_view() ) {
+		if ( $this->is_current_module_settings_view() ) {
 			wp_enqueue_style( 'jquery-listfilterizer' );
 			wp_enqueue_style( 'edit-flow-user-groups-css', $this->module_url . 'lib/user-groups.css', false, EDIT_FLOW_VERSION );
 		}
@@ -1067,7 +1067,8 @@ class EF_User_Groups extends EF_Module {
 			return false;
 		}
 	}
-	
+
+
 }
 
 }
