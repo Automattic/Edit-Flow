@@ -332,4 +332,21 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		$this->assertSame( home_url() . '/publish-parent-page/%pagename%/', $actual[0] );
 		$this->assertSame( 'child-page', $actual[1] );
 	}
+
+	public function test_home_url_slash_available_on_multisite_page_preview() {
+		if ( is_multisite() ) {
+			$blog_id = wpmu_create_blog( site_url(), 'sample', 'test', self::$admin_user_id );
+			switch_to_blog( $blog_id );
+
+			$page_args = array(
+				'post_type'   => 'page',
+				'post_title'  => 'Preview Page',
+				'post_status' => 'draft',
+				'post_author' => self::$admin_user_id
+			);
+			$added_page = wp_insert_post( $page_args  );
+
+			$this->assertContains( '/?page_id=', get_preview_post_link( $added_page ) );
+		}
+	}
 }
