@@ -631,22 +631,7 @@ class EF_Module {
 	public function is_current_module_settings_view() {
 		return $this->is_module_settings_view( $this->module->name );
 	}
-
-	/**
-	 * Check if currently viewing a module
-	 *
-	 * @param $slug - the slug of the module
-	 *
-	 * @return bool
-	 */
-	public function is_module_view( $slug ) {
-
-		if ( ! is_admin() ) {
-			return false;
-		}
-
-		return ( isset( $_GET['page'] ) && $_GET['page'] === $slug );
-	}
+	
 
 	/**
 	 * Check for admin page and whether the current post type is supported
