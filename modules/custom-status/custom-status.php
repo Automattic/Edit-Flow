@@ -217,7 +217,7 @@ class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow
 	function register_custom_statuses() {
 		global $wp_post_statuses;
 
-		if ( ! $this->is_active_view() )
+		if ( ! $this->is_custom_status_view() )
 			return;
 
 		// Register new taxonomy so that we can store all our fancy new custom statuses (or is it stati?)
@@ -490,7 +490,7 @@ class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow
 	function get_custom_statuses( $args = array() ) {
 		global $wp_post_statuses;
 
-		if ( ! $this->is_active_view() ) {
+		if ( ! $this->is_custom_status_view() ) {
 			return $this->get_core_post_statuses();
 		}
 
@@ -1191,7 +1191,7 @@ class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow
 	function check_timestamp_on_publish() {
 		global $edit_flow, $pagenow, $wpdb;
 
-		if ( ! $this->is_active_view() )
+		if ( ! $this->is_custom_status_view() )
 			return;
 
 		// Handles the transition to 'publish' on edit.php
@@ -1251,7 +1251,7 @@ class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow
 	function fix_custom_status_timestamp( $data, $postarr ) {
 		global $edit_flow;
 		// Don't run this if Edit Flow isn't active, or we're on some other page
-		if ( ! $this->is_active_view() || !isset( $edit_flow ) ) {
+		if ( ! $this->is_custom_status_view() || ! isset( $edit_flow ) ) {
 			return $data;
 		}
 
