@@ -1656,7 +1656,7 @@ class EF_Custom_Status extends EF_Module implements Edit_Flow_Scripts, Edit_Flow
 	public function enqueue_admin_scripts() {
 
 
-		if ( $this->is_module_settings_view( $this->module->name ) ) {
+		if ( $this->is_current_module_settings_view() ) {
 
 			wp_enqueue_script( 'jquery-ui-sortable' );
 			wp_enqueue_script( 'edit-flow-custom-status-configure', $this->module_url . 'lib/custom-status-configure.js', array(
