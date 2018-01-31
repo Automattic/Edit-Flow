@@ -8,10 +8,8 @@
 
 if ( !class_exists( 'EF_Editorial_Comments' ) ) {
 
-class EF_Editorial_Comments extends EF_Module
+class EF_Editorial_Comments extends EF_Module_With_View
 {
-
-	use EF_Module_With_View_Trait;
 
 	// This is comment type used to differentiate editorial comments
 	const comment_type = 'editorial-comment';

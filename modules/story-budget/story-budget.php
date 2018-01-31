@@ -5,9 +5,7 @@
  *
  * @author sbressler
  */
-class EF_Story_Budget extends EF_Module implements EF_Style_Interface, EF_Script_Interface {
-
-	use EF_Module_With_View_Trait;
+class EF_Story_Budget extends EF_Module_With_View implements EF_Style_Interface, EF_Script_Interface {
 
 	var $taxonomy_used = 'category';
 	

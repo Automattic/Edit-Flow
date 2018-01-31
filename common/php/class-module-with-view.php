@@ -1,7 +1,7 @@
 <?php
 
 
-trait EF_Module_With_View_Trait {
+class EF_Module_With_View extends EF_Module {
 
 
 	/**

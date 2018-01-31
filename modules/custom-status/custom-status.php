@@ -10,9 +10,8 @@
  */
 if ( !class_exists( 'EF_Custom_Status' ) ) {
 
-class EF_Custom_Status extends EF_Module implements EF_Script_Interface, EF_Style_Interface {
+class EF_Custom_Status extends EF_Module_With_View implements EF_Script_Interface, EF_Style_Interface {
 
-	use EF_Module_With_View_Trait;
 	var $module;
 
 	private $custom_statuses_cache = array();
