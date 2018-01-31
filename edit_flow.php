@@ -99,7 +99,7 @@ class edit_flow {
 		 */
 		require_once( EDIT_FLOW_ROOT . '/interfaces/EF_Script_Interface.php' );
 		require_once( EDIT_FLOW_ROOT . '/interfaces/EF_Style_Interface.php' );
-		require_once( EDIT_FLOW_ROOT . '/common/php/EF_Module_With_View.php' );
+		require_once( EDIT_FLOW_ROOT . '/common/php/EF_Module_With_View_Trait.php' );
 
 		// Scan the modules directory and include any modules that exist there
 		$module_dirs = scandir( EDIT_FLOW_ROOT . '/modules/' );

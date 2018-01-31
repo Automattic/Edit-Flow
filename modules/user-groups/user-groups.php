@@ -13,7 +13,7 @@ if ( !class_exists( 'EF_User_Groups' ) ) {
 
 class EF_User_Groups extends EF_Module implements EF_Style_Interface, EF_Script_Interface {
 
-	use EF_Module_With_View;
+	use EF_Module_With_View_Trait;
 	
 	var $module;
 	

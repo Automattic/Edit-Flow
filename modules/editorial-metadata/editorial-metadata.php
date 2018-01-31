@@ -22,7 +22,7 @@ if ( !class_exists('EF_Editorial_Metadata') ) {
 
 class EF_Editorial_Metadata extends EF_Module implements EF_Style_Interface, EF_Script_Interface {
 
-	use EF_Module_With_View;
+	use EF_Module_With_View_Trait;
 
 	/**
 	 * The name of the taxonomy we're going to register for editorial metadata.

@@ -11,7 +11,7 @@ if ( !class_exists('EF_Notifications') ) {
 
 class EF_Notifications extends EF_Module implements EF_Style_Interface, EF_Script_Interface {
 
-	use EF_Module_With_View;
+	use EF_Module_With_View_Trait;
 
 	// Taxonomy name used to store users following posts
 	var $following_users_taxonomy = 'following_users';

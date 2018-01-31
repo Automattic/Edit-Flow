@@ -4,7 +4,7 @@ if ( !class_exists('EF_Settings') ) {
 
 class EF_Settings extends EF_Module {
 
-	use EF_Module_With_View;
+	use EF_Module_With_View_Trait;
 
 	var $module;
 	
