@@ -100,7 +100,7 @@ class EF_Module_With_View extends EF_Module {
 		           && $post_id
 		           && ! empty( get_post( $post_id )->post_type ) ) {
 			$post_type = get_post( $post_id )->post_type;
-		} elseif ( 'edit.php' == $pagenow && empty( $_REQUEST['post_type'] ) ) {
+		} elseif ( in_array( $pagenow, array('edit.php', 'post-new.php' ) ) && empty( $_REQUEST['post_type'] ) ) {
 			$post_type = 'post';
 		} else {
 			$post_type = null;
