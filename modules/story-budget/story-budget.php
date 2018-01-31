@@ -164,6 +164,11 @@ class EF_Story_Budget extends EF_Module implements EF_Style_Interface, EF_Script
 	}
 
 
+	/**
+	 * Check whether current view is relavant to this module
+	 *
+	 * @return bool
+	 */
 	public function is_story_board_view() {
 		global $current_screen;
 		return ( $current_screen->id === self::screen_id );

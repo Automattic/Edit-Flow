@@ -1633,6 +1633,11 @@ class EF_Custom_Status extends EF_Module implements EF_Script_Interface, EF_Styl
 		return $actions;
 	}
 
+	/**
+	 * Check whether current view is relavant to this module and whether the user has access to it
+	 *
+	 * @return bool
+	 */
 	public function is_custom_status_view() {
 
 		if( ! $this->is_active_view( array( 'post.php', 'edit.php', 'post-new.php', 'page.php', 'edit-pages.php', 'page-new.php' ) ) ) {
