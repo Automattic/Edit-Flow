@@ -123,10 +123,22 @@ trait EF_Module_With_View {
 	}
 
 
+	/**
+	 * Shorthand for `is_active_view` to check for list type views ( list of posts pages, custom post types )
+	 *
+	 * @see is_active_view
+	 * @return bool
+	 */
 	public function is_active_list_view() {
 		return $this->is_active_view( array( 'edit.php' ) );
 	}
 
+	/**
+	 * Shorthand for `is_active_view` to check for editor mode
+	 *
+	 * @see is_active_view
+	 * @return bool
+	 */
 	public function is_active_editor_view() {
 		return $this->is_active_view( array( 'post.php', 'posts-new.php' ) );
 	}
@@ -144,7 +156,7 @@ trait EF_Module_With_View {
 	 * @param string $module_name (Optional) Module name to check against
 	 */
 	public function is_whitelisted_functional_view( $module_name = null ) {
-		_deprecated_function( __FUNCTION__, '0.8.3', 'is_module_view' );
+		_deprecated_function( __FUNCTION__, '0.8.3', 'is_active_view' );
 
 		return true;
 	}
@@ -155,9 +167,9 @@ trait EF_Module_With_View {
 	 * If there's no module name specified, it will return true against all Edit Flow settings views
 	 *
 	 * @since 0.7
+	 * @deprecated 0.8.3
 	 *
 	 * @param string $module_name (Optional) Module name to check against
-	 *
 	 * @return bool $is_settings_view Return true if it is
 	 */
 	public function is_whitelisted_settings_view( $module_name = null ) {
