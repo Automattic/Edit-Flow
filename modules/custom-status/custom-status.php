@@ -1602,7 +1602,7 @@ class EF_Custom_Status extends EF_Module {
 	 *
 	 * @since 0.8
 	 */
-	private function get_preview_link( $post ) {
+	static function get_preview_link( $post ) {
 
 		if ( 'page' == $post->post_type ) {
 			$args = array(
@@ -1646,22 +1646,7 @@ class EF_Custom_Status extends EF_Module {
 		if ( empty( $actions['view'] ) )
 			return $actions;
 
-		if ( 'page' == $post->post_type ) {
-			$args = array(
-					'page_id'    => $post->ID,
-				);
-		} else if ( 'post' == $post->post_type ) {
-			$args = array(
-					'p'          => $post->ID,
-				);
-		} else {
-			$args = array(
-					'p'          => $post->ID,
-					'post_type'  => $post->post_type,
-				);
-		}
-		$args['preview'] = 'true';
-		$preview_link = add_query_arg( $args, home_url() );
+		$preview_link = $this->get_preview_link($post);
 
 		$actions['view'] = '<a href="' . esc_url( $preview_link ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $post->post_title ) ) . '" rel="permalink">' . __( 'Preview' ) . '</a>';
 		return $actions;
