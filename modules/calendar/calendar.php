@@ -86,8 +86,11 @@ class EF_Calendar extends EF_Module {
 		// Define the create-post capability
 		$this->create_post_cap = apply_filters( 'ef_calendar_create_post_cap', 'edit_posts' );
 		
-		require_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
-		add_screen_options_panel( self::usermeta_key_prefix . 'screen_options', __( 'Calendar Options', 'edit-flow' ), array( $this, 'generate_screen_options' ), self::screen_id, false, true );
+		if ( is_admin() ) {
+				require_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
+				add_screen_options_panel( self::usermeta_key_prefix . 'screen_options', __( 'Calendar Options', 'edit-flow' ), array( $this, 'generate_screen_options' ), self::screen_id, false, true );
+		}
+		
 		add_action( 'admin_init', array( $this, 'handle_save_screen_options' ) );
 		
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
