@@ -1602,7 +1602,7 @@ class EF_Custom_Status extends EF_Module {
 	 *
 	 * @since 0.8
 	 */
-	static function get_preview_link( $post ) {
+	public static function get_preview_link( $post ) {
 
 		if ( 'page' == $post->post_type ) {
 			$args = array(
