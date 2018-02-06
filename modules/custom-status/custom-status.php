@@ -1620,7 +1620,7 @@ class EF_Custom_Status extends EF_Module {
 				);
 		}
 
-		$args['preview_id'] = $post->ID;
+		$args['preview'] = $post->ID;
 		return add_query_arg( $args, home_url() );
 	}
 
