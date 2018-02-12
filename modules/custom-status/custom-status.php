@@ -1611,7 +1611,6 @@ class EF_Custom_Status extends EF_Module {
 		} else if ( 'post' == $post->post_type ) {
 			$args = array(
 					'p'          => $post->ID,
-					'preview'	 => 'true'
 				);
 		} else {
 			$args = array(
@@ -1620,7 +1619,7 @@ class EF_Custom_Status extends EF_Module {
 				);
 		}
 
-		$args['preview'] = $post->ID;
+		$args['preview_id'] = $post->ID;
 		return add_query_arg( $args, home_url() );
 	}
 
