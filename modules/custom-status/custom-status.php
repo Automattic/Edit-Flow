@@ -414,6 +414,16 @@ class EF_Custom_Status extends EF_Module_With_View implements EF_Script_Interfac
 		// Reset our internal object cache
 		$this->custom_statuses_cache = array();
 
+		// Prevent user from changing draft name or slug
+		if ( 'draft' === $old_status->slug
+		     && (
+			     ( isset( $args['name'] ) && $args['name'] !== $old_status->name )
+			     ||
+			     ( isset( $args['slug'] ) && $args['slug'] !== $old_status->slug )
+		     ) ) {
+			return new WP_Error( 'invalid', __( 'Changing the name and slug of "Draft" is not allowed', 'edit-flow' ) );
+		}
+
 		// If the name was changed, we need to change the slug
 		if ( isset( $args['name'] ) && $args['name'] != $old_status->name )
 			$args['slug'] = sanitize_title( $args['name'] );
@@ -460,7 +470,7 @@ class EF_Custom_Status extends EF_Module_With_View implements EF_Script_Interfac
 		// Reset our internal object cache
 		$this->custom_statuses_cache = array();
 
-		if( !$this->is_restricted_status( $old_status ) ) {
+		if( !$this->is_restricted_status( $old_status ) && 'draft' !== $old_status ) {
 			$default_status = $this->get_default_custom_status()->slug;
 			// If new status in $reassign, use that for all posts of the old_status
 			if( !empty( $reassign ) )
@@ -1100,7 +1110,7 @@ class EF_Custom_Status extends EF_Module_With_View implements EF_Script_Interfac
 		<table class="form-table">
 			<tr class="form-field form-required">
 				<th scope="row" valign="top"><label for="name"><?php _e( 'Custom Status', 'edit-flow' ); ?></label></th>
-				<td><input name="name" id="name" type="text" value="<?php echo esc_attr( $name ); ?>" size="40" aria-required="true" />
+				<td><input name="name" id="name" type="text" value="<?php echo esc_attr( $name ); ?>" size="40" aria-required="true" <?php if( 'draft' === $status->slug ) echo 'readonly="readonly"' ?> />
 				<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the status. (Max: 20 characters)', 'edit-flow' ) ); ?>
 				</td>
 			</tr>
@@ -1861,11 +1871,12 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		$actions = array();
 		$actions['edit'] = "<a href='$item_edit_link'>" . __( 'Edit', 'edit-flow' ) . "</a>";
 		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';
-		if ( $item->slug != $this->default_status )
-			$actions['make_default'] = sprintf( '<a href="%1$s">' . __( 'Make&nbsp;Default', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'make-default', 'term-id' => $item->term_id ) ) );
-
-		if ( $item->slug != $this->default_status )
+		$actions['make_default'] = sprintf( '<a href="%1$s">' . __( 'Make&nbsp;Default', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'make-default', 'term-id' => $item->term_id ) ) );
+		
+		// Prevent deleting draft status
+		if( 'draft' !== $item->slug && $item->slug !== $this->default_status  ) {
 			$actions['delete delete-status'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'delete-status', 'term-id' => $item->term_id ) ) );
+		}
 
 		$output .= $this->row_actions( $actions, false );
 		$output .= '<div class="hidden" id="inline_' . esc_attr( $item->term_id ) . '">';
@@ -1876,7 +1887,7 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		return $output;
 
 	}
-
+		
 	/**
 	 * Displayed column showing the description of the status
 	 *
