@@ -44,11 +44,19 @@ inlineEditCustomStatus = {
 
 		$(t.what+id).hide().after(editRow);
 
-		$(':input[name="name"]', editRow).val( $('.name', rowData).text() );
+		var name_text = $('.name', rowData).text()
+		$(':input[name="name"]', editRow).val( name_text );
 		$(':input[name="description"]', editRow).val( $('.description', rowData).text() );
 
 		$(editRow).attr('id', 'edit-'+id).addClass('inline-editor').show();
-		$('.ptitle', editRow).eq(0).focus();
+
+		var $name_field = $('.ptitle', editRow).eq(0)
+		if( 'draft' === name_text.trim().toLowerCase() ) {
+			$name_field.attr('readonly', 'readonly');
+		} else {
+			$name_field.focus();
+		}
+
 
 		return false;
 	},
