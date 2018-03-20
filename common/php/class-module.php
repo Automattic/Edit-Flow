@@ -195,15 +195,30 @@ class EF_Module {
 	 * @param string $status The status slug
 	 * @return string $status_friendly_name The friendly name for the status
 	 */
-	function get_post_status_friendly_name() {
-
+	function get_post_status_friendly_name( $status ) {
+		global $edit_flow;
+		
 		$status_friendly_name = '';
-		$status_object = get_post_status_object( get_post_status() )->label;
-
-		if ( $status_object && ! is_wp_error( $status_object ) ) {
-			$status_friendly_name = $status_object;
+		
+		$builtin_stati = array(
+			'publish' => __( 'Published', 'edit-flow' ),
+			'draft' => __( 'Draft', 'edit-flow' ),
+			'future' => __( 'Scheduled', 'edit-flow' ),
+			'private' => __( 'Private', 'edit-flow' ),
+			'pending' => __( 'Pending Review', 'edit-flow' ),
+			'trash' => __( 'Trash', 'edit-flow' ),
+		);
+		
+		// Custom statuses only handles workflow statuses
+		if ( $this->module_enabled( 'custom_status' )
+			&& !in_array( $status, array( 'publish', 'future', 'private', 'trash' ) ) ) {
+			$status_object = $edit_flow->custom_status->get_custom_status_by( 'slug', $status );
+			if( $status_object && !is_wp_error( $status_object ) ) {
+				$status_friendly_name = $status_object->name;
+			}
+		} else if ( array_key_exists( $status, $builtin_stati ) ) {
+			$status_friendly_name = $builtin_stati[$status];
 		}
-
 		return $status_friendly_name;
 	}
 
