@@ -393,7 +393,7 @@ class EF_Calendar extends EF_Module {
 					$formatted_post = array(
 						'BEGIN'           => 'VEVENT',
 						'UID'             => $post->guid,
-						'SUMMARY'         => $this->do_ics_escaping( apply_filters( 'the_title', $post->post_title ) ) . ' - ' . $this->get_post_status_friendly_name( get_post_status( $post->ID ) ),
+						'SUMMARY'         => $this->do_ics_escaping( apply_filters( 'the_title', $post->post_title ) ) . ' - ' . get_post_status_object( get_post_status( $post->ID ) )->label,
 						'DTSTART'         => $start_date,
 						'DTEND'           => $end_date,
 						'LAST-MODIFIED'   => $last_modified,
@@ -856,6 +856,7 @@ class EF_Calendar extends EF_Module {
 		ob_start();
 		$post_id = $post->ID;
 		$edit_post_link = get_edit_post_link( $post_id );
+		$status_object = get_post_status_object( get_post_status( $post_id ) )->label;
 		
 		$post_classes = array(
 			'day-item',
@@ -884,7 +885,7 @@ class EF_Calendar extends EF_Module {
 			<div style="clear:right;"></div>
 			<div class="item-static">
 				<div class="item-default-visible">
-					<div class="item-status"><span class="status-text"><?php echo esc_html__( $this->get_post_status_friendly_name( get_post_status( $post_id ) ), 'edit-flow' ); ?></span></div>
+					<div class="item-status"><span class="status-text"><?php echo esc_html__( $status_object ); ?></span></div>
 					<div class="inner">
 						<span class="item-headline post-title"><strong><?php echo esc_html( _draft_or_post_title( $post->ID ) ); ?></strong></span>
 					</div>
