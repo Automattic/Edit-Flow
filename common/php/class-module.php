@@ -197,31 +197,17 @@ class EF_Module {
 	 */
 	function get_post_status_friendly_name( $status ) {
 		global $edit_flow;
-		
+
 		$status_friendly_name = '';
-		
-		$builtin_stati = array(
-			'publish' => __( 'Published', 'edit-flow' ),
-			'draft' => __( 'Draft', 'edit-flow' ),
-			'future' => __( 'Scheduled', 'edit-flow' ),
-			'private' => __( 'Private', 'edit-flow' ),
-			'pending' => __( 'Pending Review', 'edit-flow' ),
-			'trash' => __( 'Trash', 'edit-flow' ),
-		);
-		
-		// Custom statuses only handles workflow statuses
-		if ( $this->module_enabled( 'custom_status' )
-			&& !in_array( $status, array( 'publish', 'future', 'private', 'trash' ) ) ) {
-			$status_object = $edit_flow->custom_status->get_custom_status_by( 'slug', $status );
-			if( $status_object && !is_wp_error( $status_object ) ) {
-				$status_friendly_name = $status_object->name;
-			}
-		} else if ( array_key_exists( $status, $builtin_stati ) ) {
-			$status_friendly_name = $builtin_stati[$status];
+		$status_object = get_post_status_object( get_post_status() );
+
+		if ( $status_object && ! is_wp_error( $status_object ) ) {
+			$status_friendly_name = $status_object->label;
 		}
+
 		return $status_friendly_name;
 	}
-	
+
 	/**
 	 * Enqueue any resources (CSS or JS) associated with datepicker functionality
 	 *
