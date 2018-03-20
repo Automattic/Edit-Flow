@@ -195,14 +195,13 @@ class EF_Module {
 	 * @param string $status The status slug
 	 * @return string $status_friendly_name The friendly name for the status
 	 */
-	function get_post_status_friendly_name( $status ) {
-		global $edit_flow;
+	function get_post_status_friendly_name() {
 
 		$status_friendly_name = '';
-		$status_object = get_post_status_object( get_post_status() );
+		$status_object = get_post_status_object( get_post_status() )->label;
 
 		if ( $status_object && ! is_wp_error( $status_object ) ) {
-			$status_friendly_name = $status_object->label;
+			$status_friendly_name = $status_object;
 		}
 
 		return $status_friendly_name;
