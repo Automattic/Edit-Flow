@@ -551,9 +551,9 @@ jQuery(document).ready(function($) {
 			/* translators: 1: date, 2: time, 3: timezone */
 			$body .= sprintf( __( 'This action was taken on %1$s at %2$s %3$s', 'edit-flow' ), date_i18n( get_option( 'date_format' ) ), date_i18n( get_option( 'time_format' ) ), get_option( 'timezone_string' ) ) . "\r\n";
 			
-			$old_status_friendly_name = $this->get_post_status_friendly_name( $old_status );
-			$new_status_friendly_name = $this->get_post_status_friendly_name( $new_status );
-			
+			$old_status_friendly_name = get_post_status_object( $old_status )->label;
+			$new_status_friendly_name = get_post_status_object( $new_status )->label;
+						
 			// Email body
 			$body .= "\r\n";
 			/* translators: 1: old status, 2: new status */
