@@ -2,3 +2,6 @@
 span.post-state {
 	display: none;
 }
+.show + span.post-state {
+	display: inline-block;
+}
