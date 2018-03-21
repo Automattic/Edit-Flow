@@ -551,10 +551,12 @@ jQuery(document).ready(function($) {
 			/* translators: 1: date, 2: time, 3: timezone */
 			$body .= sprintf( __( 'This action was taken on %1$s at %2$s %3$s', 'edit-flow' ), date_i18n( get_option( 'date_format' ) ), date_i18n( get_option( 'time_format' ) ), get_option( 'timezone_string' ) ) . "\r\n";
 
-			$old_post_status = get_post_status_object( $old_status );
-			$new_post_status = get_post_status_object( $new_status );
-			$old_status_friendly_name = $old_post_status->label;
-			$new_status_friendly_name = $new_post_status->label;
+			if ( ! is_object( $old_status ) ) {
+				return; 
+			} else {
+				$old_status_friendly_name = get_post_status_object( $old_status )->label;
+				$new_status_friendly_name = get_post_status_object( $new_status )->label;
+			}
 						
 			// Email body
 			$body .= "\r\n";
