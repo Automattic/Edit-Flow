@@ -497,8 +497,8 @@ class EF_Story_Budget extends EF_Module {
 			
 		switch( $column_name ) {
 			case 'status':
-				$status_name = get_post_status_object( $post->post_status )->label;
-				return $status_name;
+				$status_name = get_post_status_object( $post->post_status );
+				return $status_name->label;
 				break;
 			case 'author':
 				$post_author = get_userdata( $post->post_author );

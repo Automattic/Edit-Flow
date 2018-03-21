@@ -724,7 +724,8 @@ class EF_Custom_Status extends EF_Module {
 
 		if ( $column_name == 'status' ) {
 			global $post;
-			echo esc_html( get_post_status_object( get_post_status( $post->ID ) )->label );
+			$post_status_obj = get_post_status_object( get_post_status( $post->ID ) );
+			echo esc_html( $post_status_obj->label );
 		}
 	}
 	/**
@@ -735,9 +736,9 @@ class EF_Custom_Status extends EF_Module {
 	function check_if_post_state_is_status($post_states) {
 		
 		global $post;
-		$statuses = get_post_status_object(get_post_status($post->ID))->label;
+		$statuses = get_post_status_object(get_post_status($post->ID));
 		foreach ( $post_states as $state ) {
-			if ( $state !== $statuses ) {
+			if ( $state !== $statuses->label ) {
 				echo '<span class="show"></span>';
 			}
 		}

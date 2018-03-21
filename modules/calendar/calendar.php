@@ -385,7 +385,7 @@ class EF_Calendar extends EF_Module {
 					$start_date    = self::ics_format_time( $post->post_date );
 					$end_date      = self::ics_format_time( $post->post_date, 5 * MINUTE_IN_SECONDS );
 					$last_modified = self::ics_format_time( $post->post_modified );
-
+					$post_status_obj = get_post_status_object( get_post_status( $post->ID ) );
 					// Remove the convert chars and wptexturize filters from the title
 					remove_filter( 'the_title', 'convert_chars' );
 					remove_filter( 'the_title', 'wptexturize' );
@@ -393,7 +393,7 @@ class EF_Calendar extends EF_Module {
 					$formatted_post = array(
 						'BEGIN'           => 'VEVENT',
 						'UID'             => $post->guid,
-						'SUMMARY'         => $this->do_ics_escaping( apply_filters( 'the_title', $post->post_title ) ) . ' - ' . get_post_status_object( get_post_status( $post->ID ) )->label,
+						'SUMMARY'         => $this->do_ics_escaping( apply_filters( 'the_title', $post->post_title ) ) . ' - ' . $post_status_obj->label,
 						'DTSTART'         => $start_date,
 						'DTEND'           => $end_date,
 						'LAST-MODIFIED'   => $last_modified,
@@ -856,7 +856,7 @@ class EF_Calendar extends EF_Module {
 		ob_start();
 		$post_id = $post->ID;
 		$edit_post_link = get_edit_post_link( $post_id );
-		$status_object = get_post_status_object( get_post_status( $post_id ) )->label;
+		$status_object = get_post_status_object( get_post_status( $post_id ) );
 		
 		$post_classes = array(
 			'day-item',
@@ -885,7 +885,7 @@ class EF_Calendar extends EF_Module {
 			<div style="clear:right;"></div>
 			<div class="item-static">
 				<div class="item-default-visible">
-					<div class="item-status"><span class="status-text"><?php echo esc_html( $status_object ); ?></span></div>
+					<div class="item-status"><span class="status-text"><?php echo esc_html( $status_object->label ); ?></span></div>
 					<div class="inner">
 						<span class="item-headline post-title"><strong><?php echo esc_html( _draft_or_post_title( $post->ID ) ); ?></strong></span>
 					</div>
@@ -1724,8 +1724,8 @@ class EF_Calendar extends EF_Module {
 					<?php 
 						foreach ( $post_stati as $post_status ) { 
 							$value = $post_status;
-							$status = get_post_status_object($post_status)->label;
-							echo "<option value='" . esc_attr( $value ) . "' " . selected( $value, $filters['post_status'] ) . ">" . esc_html( $status ) . "</option>";
+							$status = get_post_status_object($post_status);
+							echo "<option value='" . esc_attr( $value ) . "' " . selected( $value, $filters['post_status'] ) . ">" . esc_html( $status->label ) . "</option>";
 						}
 					?>
 					<option value="unpublish" <?php selected( 'unpublish', $filters['post_status'] ) ?> > <?php echo __( 'Unpublished', 'edit-flow' ) ?> </option>
