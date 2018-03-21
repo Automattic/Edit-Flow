@@ -724,7 +724,7 @@ class EF_Custom_Status extends EF_Module {
 
 		if ( $column_name == 'status' ) {
 			global $post;
-			echo get_post_status_object( get_post_status( $post->ID ) )->label;
+			echo esc_html( get_post_status_object( get_post_status( $post->ID ) )->label );
 		}
 	}
 	/**
