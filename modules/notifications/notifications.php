@@ -551,7 +551,7 @@ jQuery(document).ready(function($) {
 			/* translators: 1: date, 2: time, 3: timezone */
 			$body .= sprintf( __( 'This action was taken on %1$s at %2$s %3$s', 'edit-flow' ), date_i18n( get_option( 'date_format' ) ), date_i18n( get_option( 'time_format' ) ), get_option( 'timezone_string' ) ) . "\r\n";
 
-			if ( ! is_object( $old_status ) ) {
+			if ( $old_status == 'new' ) {
 				return; 
 			} else {
 				$old_status_friendly_name = get_post_status_object( $old_status )->label;
