@@ -369,8 +369,8 @@ class EF_Story_Budget extends EF_Module {
 			),
 		);
 
-		// Unpublished as a status is just an array of everything but 'publish'
-		if ( $args['post_status'] == 'unpublish' ) {
+		// Unpublished as a status is just an array of everything but 'publish'.
+		if ( 'unpublish' == $args['post_status'] ) {
 			$args['post_status'] = '';
 			$post_stati = get_post_stati();
 			unset( $post_stati['inherit'], $post_stati['auto-draft'], $post_stati['trash'], $post_stati['publish'] );
