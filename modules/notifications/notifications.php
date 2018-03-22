@@ -554,8 +554,10 @@ jQuery(document).ready(function($) {
 			if ( $old_status == 'new' ) {
 				return; 
 			} else {
-				$old_status_friendly_name = get_post_status_object( $old_status )->label;
-				$new_status_friendly_name = get_post_status_object( $new_status )->label;
+				$old_status_post_obj = get_post_status_object( $old_status );
+				$new_status_post_obj = get_post_status_object( $new_status );
+				$old_status_friendly_name = $old_status_post_obj->label;
+				$new_status_friendly_name = $new_status_post_obj->label;
 			}
 						
 			// Email body
