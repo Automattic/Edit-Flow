@@ -1686,7 +1686,7 @@ class EF_Calendar extends EF_Module {
 				// Whitelist-based validation for this parameter
 				$valid_statuses = get_post_stati();
 				$valid_statuses[] = 'unpublish';
-				unset($valid_statuses['inherit'], $valid_statuses['auto-draft'], $valid_statuses['trash']);
+				unset( $valid_statuses['inherit'], $valid_statuses['auto-draft'], $valid_statuses['trash'] );
 				if ( in_array( $dirty_value, $valid_statuses ) )
 					return $dirty_value;
 				else
@@ -1717,7 +1717,7 @@ class EF_Calendar extends EF_Module {
 		switch( $select_id ){ 
 			case 'post_status':
 				$post_stati = get_post_stati();
-				unset($post_stati['inherit'], $post_stati['auto-draft'], $post_stati['trash']);
+				unset( $post_stati['inherit'], $post_stati['auto-draft'], $post_stati['trash'] );
 			?>
 				<select id="<?php echo $select_id; ?>" name="<?php echo $select_name; ?>" >
 					<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>

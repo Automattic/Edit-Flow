@@ -717,7 +717,7 @@ class EF_Story_Budget extends EF_Module {
 		switch( $select_id ) {
 			case 'post_status': 
 			$post_stati = get_post_stati();
-			unset($post_stati['inherit'], $post_stati['auto-draft'], $post_stati['trash']);
+			unset( $post_stati['inherit'], $post_stati['auto-draft'], $post_stati['trash'] );
 			?>
 				<select id="post_status" name="post_status"><!-- Status selectors -->
 						<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
