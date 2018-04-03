@@ -361,14 +361,15 @@ jQuery(document).ready(function($) {
 	function ajax_save_post_subscriptions() {
 		global $edit_flow;
 		
-		// Verify nonce
-		if ( !wp_verify_nonce( $_POST['_nonce'], 'save_user_usergroups') )
-			die( __( "Nonce check failed. Please ensure you can add users or user groups to a post.", 'edit-flow' ) );
+		// Verify nonce.
+		if ( ! isset( $_POST['_nonce'] ) || ! wp_verify_nonce( $_POST['_nonce'], 'save_user_usergroups' ) ) {
+			die( __( 'Nonce check failed. Please ensure you can add users or user groups to a post.', 'edit-flow' ) );
+		}
 
-		$post_id = (int)$_POST['post_id'];
+		$post_id = isset( $_POST['post_id'] ) ? (int) $_POST['post_id'] : 0;
 		$post = get_post( $post_id );
 		$user_group_ids = isset( $_POST['user_group_ids'] ) && is_array( $_POST['user_group_ids'] ) ? array_map( 'intval', $_POST['user_group_ids'] ) : array();
-		if( ( !wp_is_post_revision( $post_id ) && !wp_is_post_autosave( $post_id ) )  && current_user_can( $this->edit_post_subscriptions_cap ) ) {
+		if ( isset( $_POST['ef_notifications_name'] ) && ! wp_is_post_revision( $post_id ) && ! wp_is_post_autosave( $post_id ) && current_user_can( $this->edit_post_subscriptions_cap ) ) {
 			if( $_POST['ef_notifications_name'] === 'ef-selected-users[]' ) {
 				$this->save_post_following_users( $post, $user_group_ids );
 			}
