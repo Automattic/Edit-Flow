@@ -752,9 +752,8 @@ jQuery(document).ready(function($) {
 		
 		$post_id = $post->ID;
 		if( !$post_id ) return;
-		
-		$authors = array();
-		$admins = array();
+
+		$admins     = array();
 		$recipients = array();
 
 		// Email all admins, if enabled
@@ -785,8 +784,7 @@ jQuery(document).ready(function($) {
 		}
 
 		// Merge arrays and filter any duplicates
-		$recipients = array_merge( $authors, $admins, $users, $usergroup_users );
-		$recipients = array_unique( $recipients );
+		$recipients = array_unique( array_merge( $admins, $users, $usergroup_users ) );
 
 		// Process the recipients for this email to be sent
 		foreach( $recipients as $key => $user_email ) {
