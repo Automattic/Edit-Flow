@@ -727,34 +727,35 @@ jQuery(document).ready(function($) {
 	function send_single_email( $to, $subject, $message, $message_headers = '' ) {
 		wp_mail( $to, $subject, $message, $message_headers );
 	}
-	
+
 	/**
-	 * Returns a list of recipients for a given post
+	 * Returns a list of recipients for a given post.
 	 *
-	 * @param $post object
-	 * @param $string bool Whether to return recipients as comma-delimited string or array 
-	 * @return string or array of recipients to receive notification 
+	 * @param WP_Post $post
+	 * @param bool $string Whether to return recipients as comma-delimited string or array.
+	 * @return string|array Recipients to receive notification.
 	 */
 	private function _get_notification_recipients( $post, $string = false ) {
 		global $edit_flow;
-		
+
 		$post_id = $post->ID;
-		if( !$post_id ) return;
+		if ( ! $post_id ) {
+			return;
+		}
 
-		$admins     = array();
-		$recipients = array();
-
-		// Email all admins, if enabled
-		if( 'on' == $this->module->options->always_notify_admin )
+		// Email all admins if enabled.
+		$admins = array();
+		if ( 'on' === $this->module->options->always_notify_admin ) {
 			$admins[] = get_option('admin_email');
-		
+		}
+
 		$usergroup_users = array();
 		if ( $this->module_enabled( 'user_groups' ) ) {
-			// Get following users and usergroups
+			// Get following users and usergroups.
 			$usergroups = $this->get_following_usergroups( $post_id, 'ids' );
-			foreach( (array)$usergroups as $usergroup_id ) {
+			foreach ( (array) $usergroups as $usergroup_id ) {
 				$usergroup = $edit_flow->user_groups->get_usergroup_by( 'id', $usergroup_id );
-				foreach( (array)$usergroup->user_ids as $user_id ) {
+				foreach ( (array) $usergroup->user_ids as $user_id ) {
 					$usergroup_user = get_user_by( 'id', $user_id );
 					if ( $this->user_can_be_notified( $usergroup_user, $post_id ) ) {
 						$usergroup_users[] = $usergroup_user->user_email;
@@ -762,7 +763,7 @@ jQuery(document).ready(function($) {
 				}
 			}
 		}
-		
+
 		$users = $this->get_following_users( $post_id, 'user_email' );
 		foreach( (array) $users as $key => $user ) {
 			$user_object = get_user_by( 'email', $user );
@@ -771,23 +772,26 @@ jQuery(document).ready(function($) {
 			}
 		}
 
-		// Merge arrays and filter any duplicates
+		// Merge arrays and filter any duplicates.
 		$recipients = array_unique( array_merge( $admins, $users, $usergroup_users ) );
 
-		// Process the recipients for this email to be sent
-		foreach( $recipients as $key => $user_email ) {
-			// Get rid of empty email entries
-			if ( empty( $recipients[$key] ) )
-				unset( $recipients[$key] );
-			// Don't send the email to the current user unless we've explicitly indicated they should receive it
-			if ( false === apply_filters( 'ef_notification_email_current_user', false ) && wp_get_current_user()->user_email == $user_email )
-				unset( $recipients[$key] );
+		// Process the recipients for this email to be sent.
+		foreach(  $recipients as $key => $user_email ) {
+			// Get rid of empty email entries.
+			if ( empty( $recipients[ $key ] ) ) {
+				unset( $recipients[ $key ] );
+			}
+
+			// Don't send the email to the current user unless we've explicitly indicated they should receive it.
+			if ( false === apply_filters( 'ef_notification_email_current_user', false ) && wp_get_current_user()->user_email == $user_email ) {
+				unset( $recipients[ $key ] );
+			}
 		}
-		
-		// Filter to allow further modification of recipients
+
+		// Filter to allow further modification of recipients.
 		$recipients = apply_filters( 'ef_notification_recipients', $recipients, $post, $string );
-		
-		// If string set to true, return comma-delimited
+
+		// If string set to true, return comma-delimited.
 		if ( $string && is_array( $recipients ) ) {
 			return implode( ',', $recipients );
 		} else {
