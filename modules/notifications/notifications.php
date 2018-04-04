@@ -757,14 +757,21 @@ jQuery(document).ready(function($) {
 				$usergroup = $edit_flow->user_groups->get_usergroup_by( 'id', $usergroup_id );
 				foreach( (array)$usergroup->user_ids as $user_id ) {
 					$usergroup_user = get_user_by( 'id', $user_id );
-					if ( $usergroup_user && is_user_member_of_blog( $user_id ) )
+					if ( $this->user_can_be_notified( $usergroup_user, $post_id ) ) {
 						$usergroup_users[] = $usergroup_user->user_email;
+					}
 				}
 			}
 		}
 		
 		$users = $this->get_following_users( $post_id, 'user_email' );
-		
+		foreach( (array) $users as $key => $user ) {
+			$user_object = get_user_by( 'email', $user );
+			if ( ! $this->user_can_be_notified( $user_object, $post_id ) ) {
+				unset( $users[ $key ] );
+			}
+		}
+
 		// Merge arrays and filter any duplicates
 		$recipients = array_merge( $authors, $admins, $users, $usergroup_users );
 		$recipients = array_unique( $recipients );
@@ -789,7 +796,27 @@ jQuery(document).ready(function($) {
 			return $recipients;
 		}
 	}
-	
+
+	/**
+	 * Check if a user can be notified.
+	 * This is based off of the ability to edit the post/page by default.
+	 * 
+	 * @since 0.8.3
+	 * @param WP_User $user
+	 * @param int $post_id
+	 * @return bool True if the user can be notified, false otherwise.
+	 */
+	function user_can_be_notified( $user, $post_id ) {
+		$can_be_notified = false;
+
+		if ( $user instanceof WP_User && is_user_member_of_blog( $user->ID ) && is_numeric( $post_id ) ) {
+			// The 'edit_post' cap check also covers the undocumented 'edit_page' cap.
+			$can_be_notified = $user->has_cap( 'edit_post', $post_id );
+		}
+
+		return apply_filters( 'ef_notification_user_can_be_notified', $can_be_notified, $user, $post_id );
+	}
+
 	/**
 	 * Set a user or users to follow a post
 	 *
