@@ -374,7 +374,10 @@ jQuery(document).ready(function($) {
 			die();
 		}
 
-		$user_group_ids = isset( $_POST['user_group_ids'] ) && is_array( $_POST['user_group_ids'] ) ? array_map( 'intval', $_POST['user_group_ids'] ) : array();
+		$user_group_ids = array();
+		if ( isset( $_POST['user_group_ids'] ) && is_array( $_POST['user_group_ids'] ) ) {
+			$user_group_ids = array_map( 'intval', $_POST['user_group_ids'] );
+		}
 
 		if ( 'ef-selected-users[]' === $_POST['ef_notifications_name'] ) {
 			$this->save_post_following_users( $post, $user_group_ids );
