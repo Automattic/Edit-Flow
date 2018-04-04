@@ -369,19 +369,19 @@ class EF_Story_Budget extends EF_Module {
 			),
 		);
 
-		// Unpublished as a status is just an array of everything but 'publish'
-		if ( $args['post_status'] == 'unpublish' ) {
+		// Unpublished as a status is just an array of everything but 'publish'.
+		if ( 'unpublish' == $args['post_status'] ) {
 			$args['post_status'] = '';
-			$post_statuses = $this->get_post_statuses();
-			foreach ( $post_statuses as $post_status ) {
-				$args['post_status'] .= $post_status->slug . ', ';
+			$post_stati = get_post_stati();
+			unset( $post_stati['inherit'], $post_stati['auto-draft'], $post_stati['trash'], $post_stati['publish'] );
+			if ( ! apply_filters( 'ef_show_scheduled_as_unpublished', false ) ) {
+				unset( $post_stati['future'] );
 			}
-			$args['post_status'] = rtrim( $args['post_status'], ', ' );
-			// Optional filter to include scheduled content as unpublished
-			if ( apply_filters( 'ef_show_scheduled_as_unpublished', false ) )
-				$args['post_status'] .= ', future';
+			foreach ( $post_stati as $post_status ) {
+				$args['post_status'] .= $post_status . ', ';
+			}
 		}
-		
+
 		// Filter by post_author if it's set
 		if ( $args['author'] === '0' ) unset( $args['author'] );
 
@@ -497,8 +497,8 @@ class EF_Story_Budget extends EF_Module {
 			
 		switch( $column_name ) {
 			case 'status':
-				$status_name = $this->get_post_status_friendly_name( $post->post_status );
-				return $status_name;
+				$status_name = get_post_status_object( $post->post_status );
+				return $status_name->label;
 				break;
 			case 'author':
 				$post_author = get_userdata( $post->post_author );
@@ -716,17 +716,18 @@ class EF_Story_Budget extends EF_Module {
 	function story_budget_filter_options( $select_id, $select_name, $filters ) {
 		switch( $select_id ) {
 			case 'post_status': 
-			$post_statuses = $this->get_post_statuses();
+			$post_stati = get_post_stati();
+			unset( $post_stati['inherit'], $post_stati['auto-draft'], $post_stati['trash'] );
 			?>
 				<select id="post_status" name="post_status"><!-- Status selectors -->
 						<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
 						<?php
-							foreach ( $post_statuses as $post_status ) {
-								echo "<option value='" . esc_attr( $post_status->slug ) . "' " . selected( $post_status->slug, $filters['post_status'] ) . ">" . esc_html( $post_status->name ) . "</option>";
+							foreach ( $post_stati as $post_status ) {
+								$value = $post_status;
+								$status = get_post_status_object($post_status)->label;
+								echo '<option value="' . esc_attr( $value ) . '" ' . selected( $value, $filters['post_status'] ) . '>' . esc_html( $status ) . '</option>';
 							}
-							echo "<option value='future'" . selected('future', $filters['post_status']) . ">" . __( 'Scheduled', 'edit-flow' ) . "</option>";
-							echo "<option value='unpublish'" . selected('unpublish', $filters['post_status']) . ">" . __( 'Unpublished', 'edit-flow' ) . "</option>";
-							echo "<option value='publish'" . selected('publish', $filters['post_status']) . ">" . __( 'Published', 'edit-flow' ) . "</option>";
+							echo '<option value="unpublish"' . selected('unpublish', $filters['post_status']) . '>' . __( 'Unpublished', 'edit-flow' ) . '</option>';
 						?>
 					</select>
 			<?php

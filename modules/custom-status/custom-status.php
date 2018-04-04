@@ -115,6 +115,8 @@ class EF_Custom_Status extends EF_Module {
 		// Pagination for custom post statuses when previewing posts
 		add_filter( 'wp_link_pages_link', array( $this, 'modify_preview_link_pagination_url' ), 10, 2 );
 
+		// Filter through Post States and run a function to check if they are also a Status
+		add_filter( 'display_post_states', array( $this, 'check_if_post_state_is_status' ), 10, 2 );
 	}
 
 	/**
@@ -722,11 +724,26 @@ class EF_Custom_Status extends EF_Module {
 
 		if ( $column_name == 'status' ) {
 			global $post;
-			echo $this->get_post_status_friendly_name( $post->post_status );
+			$post_status_obj = get_post_status_object( get_post_status( $post->ID ) );
+			echo esc_html( $post_status_obj->label );
 		}
-
 	}
-
+	/**
+	 * Check if Post State is a Status and display if it is not.
+	 * 
+	 * @param array $post_states An array of post display states.
+	 */
+	function check_if_post_state_is_status($post_states) {
+		
+		global $post;
+		$statuses = get_post_status_object(get_post_status($post->ID));
+		foreach ( $post_states as $state ) {
+			if ( $state !== $statuses->label ) {
+				echo '<span class="show"></span>';
+			}
+		}
+			return $post_states;
+	}
 
 	/**
 	 * Determines whether the slug indicated belongs to a restricted status or not
