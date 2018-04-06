@@ -73,7 +73,7 @@ class EF_Calendar extends EF_Module {
 	 * @uses add_action()
 	 */
 	function init() {
-		
+		                
 		// .ics calendar subscriptions
 		add_action( 'wp_ajax_ef_calendar_ics_subscription', array( $this, 'handle_ics_subscription' ) );
 		add_action( 'wp_ajax_nopriv_ef_calendar_ics_subscription', array( $this, 'handle_ics_subscription' ) );
@@ -924,7 +924,7 @@ class EF_Calendar extends EF_Module {
 	 */
 	function get_inner_information( $ef_calendar_item_information_fields, $post ) {
 		?>
-			<table class="item-information">
+			<table class="item-information">                           
 				<?php foreach( $this->get_post_information_fields( $post ) as $field => $values ): ?>
 					<tr class="item-field item-information-<?php echo esc_attr( $field ); ?>">
 						<th class="label"><?php echo esc_html( $values['label'] ); ?>:</th>
@@ -946,7 +946,11 @@ class EF_Calendar extends EF_Module {
 				<?php endforeach; ?>
 				<?php do_action( 'ef_calendar_item_additional_html', $post->ID ); ?>
 			</table>
-			<?php
+                <hr>                
+                            <?php
+                                //Advanced Custom Fields Module's fields goes here.                                                       
+                                apply_filters('ef_calendar_advanced_custom_fields', $post->ID);
+
 				$post_type_object = get_post_type_object( $post->post_type );
 				$item_actions = array();
 				if ( $this->current_user_can_modify_post( $post ) ) {
