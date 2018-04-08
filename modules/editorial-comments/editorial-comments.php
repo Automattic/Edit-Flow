@@ -92,6 +92,11 @@ class EF_Editorial_Comments extends EF_Module
 			return;
 
 		wp_enqueue_script( 'edit_flow-post_comment', $this->module_url . 'lib/editorial-comments.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
+		wp_localize_script( 'edit_flow-post_comment', '__ef_localize_post_comment', array(
+			'and'           => esc_html__( 'and', 'edit-flow' ),
+			'none_notified' => esc_html__( 'No one will be notified.', 'edit-flow' ),
+		) );
+
 		wp_enqueue_style( 'edit-flow-editorial-comments-css', $this->module_url . 'lib/editorial-comments.css', false, EDIT_FLOW_VERSION, 'all' );
 
 		$thread_comments = (int) get_option('thread_comments');

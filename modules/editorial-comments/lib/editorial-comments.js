@@ -138,7 +138,7 @@ editorialCommentReply = {
 		// No users will be notified, so return early with a default message.
 		if ( 0 === subscribed_users.length ) {
 			message_wrapper.addClass( 'ef-none-selected' );
-			message_wrapper.val( 'No one will be notified.' );
+			message_wrapper.val( __ef_localize_post_comment.none_notified );
 			return;
 		}
 
@@ -150,7 +150,7 @@ editorialCommentReply = {
 		// Convert array of usernames into a sentence.
 		var message = usernames.pop();
 		if ( usernames.length > 0 ) {
-			message = usernames.join( ', ' ) + ' and ' + message;
+			message = usernames.join( ', ' ) + ' ' + __ef_localize_post_comment.and + ' ' + message + '.';
 		}
 
 		message_wrapper.removeClass( 'ef-none-selected' );
