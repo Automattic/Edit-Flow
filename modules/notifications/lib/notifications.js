@@ -58,27 +58,29 @@ var ef_displayFollowerCountInSubmitBox = function() {
 	var subscribed_users  = jQuery( '#ef-post_following_users_box li input:checkbox:checked' ).length;
 	var subscribed_groups = jQuery( '#ef-following_usergroups li input:checkbox:checked' ).length;
 
+	// Example: "1 user" or "23 users".
 	var users_message_part = '';
 	if ( subscribed_users > 0 ) {
 		if ( 1 === subscribed_users ) {
-			users_message_part = subscribed_users + ' user';
+			users_message_part = subscribed_users + ' ' + __ef_localize_notifications.user;
 		} else {
-			users_message_part = subscribed_users + ' users';
+			users_message_part = subscribed_users + ' ' + __ef_localize_notifications.users;
 		}
 	}
 
+	// Example: "1 user group" or "23 user groups".
 	var groups_message_part = '';
 	if ( subscribed_groups > 0 ) {
 		if ( 1 === subscribed_groups ) {
-			groups_message_part = subscribed_groups + ' user group';
+			groups_message_part = subscribed_groups + ' ' + __ef_localize_notifications.user_group;
 		} else {
-			groups_message_part = subscribed_groups + ' user groups';
+			groups_message_part = subscribed_groups + ' ' + __ef_localize_notifications.user_groups;
 		}
 	}
 
-	var message = 'none';
+	var message = __ef_localize_notifications.none;
 	if ( subscribed_users > 0 && subscribed_groups > 0 ) {
-		message = users_message_part + ' and ' + groups_message_part;
+		message = users_message_part + ' ' + __ef_localize_notifications.ampersand + ' ' + groups_message_part;
 	} else if ( subscribed_users > 0 || subscribed_groups > 0 ) {
 		// Only one will be displayed, the other is an empty string.
 		message = users_message_part + groups_message_part;

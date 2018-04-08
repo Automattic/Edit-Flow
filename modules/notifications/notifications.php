@@ -191,7 +191,16 @@ class EF_Notifications extends EF_Module {
 		if ( $this->is_whitelisted_functional_view() ) {
 			wp_enqueue_script( 'jquery-listfilterizer' );
 			wp_enqueue_script( 'jquery-quicksearch' );
+
 			wp_enqueue_script( 'edit-flow-notifications-js', $this->module_url . 'lib/notifications.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
+			wp_localize_script( 'edit-flow-notifications-js', '__ef_localize_notifications', array(
+				'none'        => esc_html__( 'none', 'edit-flow' ),
+				'ampersand'   => esc_html__( '&amp;', 'edit-flow' ),
+				'user'        => esc_html__( 'user', 'edit-flow' ),
+				'users'       => esc_html__( 'users', 'edit-flow' ),
+				'user_group'  => esc_html__( 'user group', 'edit-flow' ),
+				'user_groups' => esc_html__( 'user groups', 'edit-flow' ),
+			) );
 		}
 	}
 	
