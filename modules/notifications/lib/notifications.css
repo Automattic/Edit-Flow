@@ -93,6 +93,6 @@
 	margin-top: 0;
 }
 
-.misc-pub-follower-count span {
+.misc-pub-follower-count #post-follower-count-display {
 	font-weight: bold;
 }
