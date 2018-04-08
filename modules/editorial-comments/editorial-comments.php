@@ -197,13 +197,11 @@ class EF_Editorial_Comments extends EF_Module
 				<textarea id="ef-replycontent" name="replycontent" cols="40" rows="5"></textarea>
 			</div>
 
-			<?php
-			if ($this->module_enabled( 'notifications' )) {
-			// Only show the input if notifications are enabled ?>
-			<label for="ef-reply-notifier"><?php _e('The following will be notified:', 'edit-flow'); ?>
-				<input id="ef-reply-notifier" class="ef-reply-notifier-message" readonly>
-			</label>
-			<?php } ?>
+			<?php if ( $this->module_enabled( 'notifications' ) ) : ?>
+				<label for="ef-reply-notifier"><?php esc_html_e( 'The following will be notified:', 'edit-flow' ); ?>
+					<input id="ef-reply-notifier" class="ef-reply-notifier-message" readonly>
+				</label>
+			<?php endif; ?>
 
 			<p id="ef-replysubmit">
 				<a class="ef-replysave button-primary alignright" href="#comments-form">
@@ -362,8 +360,8 @@ class EF_Editorial_Comments extends EF_Module
 			$comment = get_comment($comment_id);
 
 			// Save the list of notified users/usergroups
-			if ($this->module_enabled( 'notifications' )) {
-				add_comment_meta( $comment_id, 'notification_list', $notification, false );
+			if ( $this->module_enabled( 'notifications' ) ) {
+				add_comment_meta( $comment_id, 'notification_list', $notification );
 			}
 
 			// Register actions -- will be used to set up notifications and other modules can hook into this
