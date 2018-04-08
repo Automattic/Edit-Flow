@@ -67,7 +67,7 @@ editorialCommentReply = {
 		jQuery('#ef-comment_respond').hide();
 
 		// Display who will be notified for this comment
-		editorialCommentReply.notify();
+		this.notifiedMessage();
 		
 		// Show reply textbox
 		jQuery('#ef-replyrow')
@@ -104,9 +104,8 @@ editorialCommentReply = {
 		post.parent = (jQuery("#ef-comment_parent").val()=='') ? 0 : jQuery("#ef-comment_parent").val();
 		post._nonce = jQuery("#ef_comment_nonce").val();
 		post.post_id = jQuery("#ef-post_id").val();
-		post.notification = (jQuery('#ef-reply-notifier').val() == 'No one will be notified' ||
-					jQuery('#ef-reply-notifier').val() == '') ? 1 : jQuery('#ef-reply-notifier').val()
-		
+		post.notification = jQuery('#ef-reply-notifier').val();
+
 		// Send the request
 		jQuery.ajax({
 			type : 'POST',
@@ -120,51 +119,37 @@ editorialCommentReply = {
 	},
 
 	/**
-	 * Display who will be notified of the new comment
+	 * Display who will be notified of the new comment.
 	 */
-	notify : function() {
-		var checked_notifiers = [], usernames = [], message = "", lastUser = "";
+	notifiedMessage : function() {
+		var message_wrapper = jQuery( '#ef-reply-notifier' );
 
-		// Get notification field and make sure it's empty
-		// If there is no wrapper, we need to get out
-		var message_wrapper = jQuery('#ef-reply-notifier');
-		if (message_wrapper[0]) {
-			message_wrapper.val('');
-		} else {
+		if ( ! message_wrapper[0] ) {
 			return;
 		}
 
-		// Get checked checkboxes
-		checked_notifiers = jQuery('.ef-post_following_list li input:checkbox:checked');
+		var subscribed_users = jQuery( '.ef-post_following_list li input:checkbox:checked' );
 
-		if (checked_notifiers.length > 0) {
-			var current_item;
-			// There are checked users/usergroups
-			// Set the class to 'selection-success'
-			message_wrapper.removeClass('ef-none-selected').addClass('ef-selection-success');
-			for (var i = 0; i < checked_notifiers.length; i++) {
-				current_item = checked_notifiers[i];
-				// Add usernames to the usernames array
-				usernames.push(jQuery(current_item).next().html());
-			}
-			// Create the message
-			// We don't want a comma on the last item or if there is only one item
-			lastUser = usernames.pop();
-			if (usernames.length > 0) {
-				// There is still at least one item in the array after popping off the last item
-				message = usernames.join(', ') + ' and ' + lastUser;
-			} else {
-				// There was only one item to begin with
-				message = lastUser;
-			}
-			// Display the message
-			message_wrapper.val(message);
-		} else {
-			// There are no checked users/usergroups
-			// Set input class to 'none-selected' and display message
-			message_wrapper.removeClass('ef-selection-success').addClass('ef-none-selected');
-			message_wrapper.val('No one will be notified');
+		// No users will be notified, so return early with a default message.
+		if ( 0 === subscribed_users.length ) {
+			message_wrapper.addClass( 'ef-none-selected' );
+			message_wrapper.val( 'No one will be notified.' );
+			return;
 		}
+
+		var usernames = [];
+		subscribed_users.each( function() {
+			usernames.push( $( this ).next().text() );
+		} );
+
+		// Convert array of usernames into a sentence.
+		var message = usernames.pop();
+		if ( usernames.length > 0 ) {
+			message = usernames.join( ', ' ) + ' and ' + message;
+		}
+
+		message_wrapper.removeClass( 'ef-none-selected' );
+		message_wrapper.val( message );
 	},
 
 	show : function(xml) {

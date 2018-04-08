@@ -31,7 +31,7 @@ jQuery(document).ready(function($) {
 				// Update the list of users/groups to be notified of new comment
 				// Check for editorialCommentReply, in case EF Comments are disabled
 				if (typeof editorialCommentReply == 'object') {
-					editorialCommentReply.notify();
+					editorialCommentReply.notifiedMessage();
 				}
 				var backgroundColor = parent_this.css( 'background-color' );
 				$(parent_this.parent().parent())
