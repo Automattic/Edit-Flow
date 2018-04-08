@@ -233,7 +233,7 @@ class EF_Editorial_Comments extends EF_Module
 	 * Print a list of notified users/usergroups
 	 */
 	function maybe_output_comment_meta($comment_id) {
-		if ( ! $this->module_enabled( 'notifications' ) ) {
+		if ( ! $this->module_enabled( 'notifications' ) || ! apply_filters( 'ef_editorial_comments_show_notified_users', true ) ) {
 			return;
 		}
 
@@ -320,9 +320,8 @@ class EF_Editorial_Comments extends EF_Module
       	wp_get_current_user();
 
       	// Set up comment data
-		$post_id      = absint( $_POST['post_id'] );
-		$parent       = absint( $_POST['parent'] );
-		$notification = isset( $_POST['notification'] ) ? sanitize_text_field( $_POST['notification'] ) : '';
+		$post_id = absint( $_POST['post_id'] );
+		$parent  = absint( $_POST['parent'] );
 
       	// Only allow the comment if user can edit post
       	// @TODO: allow contributers to add comments as well (?)
@@ -364,9 +363,13 @@ class EF_Editorial_Comments extends EF_Module
 			$comment_id = wp_insert_comment($data);
 			$comment = get_comment($comment_id);
 
-			// Save the list of notified users/usergroups
-			if ( $this->module_enabled( 'notifications' ) && ! empty( $notification ) && __( 'No one will be notified.', 'edit-flow' ) !== $notification ) {
-				add_comment_meta( $comment_id, 'notification_list', $notification );
+			// Save the list of notified users/usergroups.
+			if ( $this->module_enabled( 'notifications' ) && apply_filters( 'ef_editorial_comments_show_notified_users', true ) ) {
+				$notification = isset( $_POST['notification'] ) ? sanitize_text_field( $_POST['notification'] ) : '';
+
+				if ( ! empty( $notification ) && __( 'No one will be notified.', 'edit-flow' ) !== $notification ) {
+					add_comment_meta( $comment_id, 'notification_list', $notification );
+				}
 			}
 
 			// Register actions -- will be used to set up notifications and other modules can hook into this
