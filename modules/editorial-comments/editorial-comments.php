@@ -197,6 +197,14 @@ class EF_Editorial_Comments extends EF_Module
 				<textarea id="ef-replycontent" name="replycontent" cols="40" rows="5"></textarea>
 			</div>
 
+			<?php
+			if ($this->module_enabled( 'notifications' )) {
+			// Only show the input if notifications are enabled ?>
+			<label for="ef-reply-notifier"><?php _e('The following will be notified:', 'edit-flow'); ?>
+				<input id="ef-reply-notifier" class="ef-reply-notifier-message" readonly>
+			</label>
+			<?php } ?>
+
 			<p id="ef-replysubmit">
 				<a class="ef-replysave button-primary alignright" href="#comments-form">
 					<span id="ef-replybtn"><?php _e('Submit Response', 'edit-flow') ?></span>
@@ -216,6 +224,22 @@ class EF_Editorial_Comments extends EF_Module
 		</div>
 
 		<?php
+	}
+
+	/**
+	 * Print a list of notified users/usergroups
+	 */
+	function get_comment_notification_meta($comment_id) {
+		$notification = get_comment_meta( $comment_id, 'notification_list', true );
+		if ($notification) {
+			if ($notification == 1) {
+				// There were no users or user groups selected when this comment was posted
+				$message = '<em>'.__('No users or groups were notified', 'edit-flow').'</em>';
+			} else {
+				$message = '<strong>'.__('Notified', 'edit-flow').':</strong> ' . $notification;
+			}
+			echo '<p class="ef-notification-meta">' . $message . '</p>';
+		}
 	}
 
 	/**
@@ -268,6 +292,7 @@ class EF_Editorial_Comments extends EF_Module
 				</h5>
 
 				<div class="comment-content"><?php comment_text(); ?></div>
+				<?php $this->get_comment_notification_meta($comment->comment_ID); ?>
 				<p class="row-actions"><?php echo $actions_string; ?></p>
 
 			</div>
@@ -291,6 +316,7 @@ class EF_Editorial_Comments extends EF_Module
       	// Set up comment data
 		$post_id = absint( $_POST['post_id'] );
 		$parent = absint( $_POST['parent'] );
+		$notification = $_POST['notification'];
 
       	// Only allow the comment if user can edit post
       	// @TODO: allow contributers to add comments as well (?)
@@ -331,6 +357,11 @@ class EF_Editorial_Comments extends EF_Module
 			// Insert Comment
 			$comment_id = wp_insert_comment($data);
 			$comment = get_comment($comment_id);
+
+			// Save the list of notified users/usergroups
+			if ($this->module_enabled( 'notifications' )) {
+				add_comment_meta( $comment_id, 'notification_list', $notification, false );
+			}
 
 			// Register actions -- will be used to set up notifications and other modules can hook into this
 			if ( $comment_id )

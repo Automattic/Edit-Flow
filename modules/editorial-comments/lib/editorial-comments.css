@@ -24,7 +24,13 @@
 		border-bottom: 1px solid #e5e5e5;
 		background: #fff;
 	}
-	#ef-comments li:hover p.row-actions {
+
+	.row-actions {
+		margin-top: 0;
+	}
+
+	#ef-comments li:hover p.row-actions,
+	#ef-comments li:hover .ef-notification-meta {
 		visibility: visible;
 	}
 	#ef-comments li p.row-actions {
@@ -112,3 +118,32 @@
 	margin-top: 10px;
 	margin-bottom: 10px;
 }
+
+input[readonly].ef-reply-notifier-message {
+	height: 2em;
+	width: 100%;
+	padding: 0.5em;
+	border: none;
+	font-size: 1em;
+}
+
+	label[for="ef-reply-notifier"] {
+		margin: 0.75em 0;
+		display: block;
+		cursor: default;
+	}
+
+	input[readonly].ef-selection-success {
+		border-left: 0.5em solid #80a029;
+	}
+
+	input[readonly].ef-none-selected {
+		border-left: 0.5em solid #a00;
+	}
+
+.ef-notification-meta {
+	text-align: right;
+	margin-bottom: 0;
+	visibility: hidden;
+}
+
