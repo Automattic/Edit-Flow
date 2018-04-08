@@ -126,7 +126,7 @@ input[readonly].ef-reply-notifier-message {
 	padding: 0.5em;
 	border: none;
 	font-size: 1em;
-	border-left: 0.5em solid #80a029;
+	border-left: 4px solid #46b450;
 }
 
 label[for="ef-reply-notifier"] {
@@ -136,7 +136,7 @@ label[for="ef-reply-notifier"] {
 }
 
 input[readonly].ef-none-selected {
-	border-left: 0.5em solid #a00;
+	border-left: 4px solid #dc3232;
 }
 
 .ef-notification-meta {
