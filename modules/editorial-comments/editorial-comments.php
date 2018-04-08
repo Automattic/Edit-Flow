@@ -230,9 +230,12 @@ class EF_Editorial_Comments extends EF_Module
 	}
 
 	/**
-	 * Print a list of notified users/usergroups
+	 * Maybe display who was notified underneath an editorial comment.
+	 * 
+	 * @param int $comment_id
+	 * @return void
 	 */
-	function maybe_output_comment_meta($comment_id) {
+	function maybe_output_comment_meta( $comment_id ) {
 		if ( ! $this->module_enabled( 'notifications' ) || ! apply_filters( 'ef_editorial_comments_show_notified_users', true ) ) {
 			return;
 		}
