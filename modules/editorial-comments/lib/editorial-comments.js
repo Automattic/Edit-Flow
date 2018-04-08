@@ -21,6 +21,11 @@ editorialCommentReply = {
 		// Bind click events to cancel and submit buttons
 		jQuery('a.ef-replycancel', row).click(function() { return editorialCommentReply.revert(); });
 		jQuery('a.ef-replysave', row).click(function() { return editorialCommentReply.send(); });
+
+		// Watch for changes to the subscribed users.
+		$( '#ef-post_following_box' ).on( 'following_list_updated', function() {
+			editorialCommentReply.notifiedMessage();
+		} );
 	},
 
 	revert : function() {

@@ -28,11 +28,10 @@ jQuery(document).ready(function($) {
 			url : (ajaxurl) ? ajaxurl : wpListL10n.url,
 			data : params,
 			success : function(x) { 
-				// Update the list of users/groups to be notified of new comment
-				// Check for editorialCommentReply, in case EF Comments are disabled
-				if (typeof editorialCommentReply == 'object') {
-					editorialCommentReply.notifiedMessage();
-				}
+
+				// This event is used to show an updated list of who will be notified of editorial comments and status updates.
+				$( '#ef-post_following_box' ).trigger( 'following_list_updated' );
+
 				var backgroundColor = parent_this.css( 'background-color' );
 				$(parent_this.parent().parent())
 					.animate( { 'backgroundColor':'#CCEEBB' }, 200 )
