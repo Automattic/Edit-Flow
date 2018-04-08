@@ -6,8 +6,11 @@ jQuery(document).ready(function($) {
 		post_id: $('#post_ID').val(),
 	};
 
-	// Display the user/group follower count in the post submit box
+	// Display the user/group follower count in the post submit box and watch for changes.
 	ef_displayFollowerCountInSubmitBox();
+	$( '#ef-post_following_box' ).on( 'following_list_updated', function() {
+		ef_displayFollowerCountInSubmitBox();
+	} );
 
 	$(document).on('click','.ef-post_following_list li input:checkbox, .ef-following_usergroups li input:checkbox', function() {
 		var user_group_ids = [];
@@ -30,9 +33,11 @@ jQuery(document).ready(function($) {
 			type : 'POST',
 			url : (ajaxurl) ? ajaxurl : wpListL10n.url,
 			data : params,
-			success : function(x) { 
-				// Update the user/group follower count in the post submit box
-				ef_displayFollowerCountInSubmitBox();
+			success : function(x) {
+
+				// This event is used to show an updated list of who will be notified of editorial comments and status updates.
+				$( '#ef-post_following_box' ).trigger( 'following_list_updated' );
+
 				var backgroundColor = parent_this.css( 'background-color' );
 				$(parent_this.parent().parent())
 					.animate( { 'backgroundColor':'#CCEEBB' }, 200 )
