@@ -365,7 +365,7 @@ class EF_Editorial_Comments extends EF_Module
 			$comment = get_comment($comment_id);
 
 			// Save the list of notified users/usergroups
-			if ( $this->module_enabled( 'notifications' ) ) {
+			if ( $this->module_enabled( 'notifications' ) && ! empty( $notification ) && __( 'No one will be notified.', 'edit-flow' ) !== $notification ) {
 				add_comment_meta( $comment_id, 'notification_list', $notification );
 			}
 
