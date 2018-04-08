@@ -236,7 +236,7 @@ class EF_Editorial_Comments extends EF_Module
 				// There were no users or user groups selected when this comment was posted
 				$message = '<em>'.__('No users or groups were notified', 'edit-flow').'</em>';
 			} else {
-				$message = '<strong>'.__('Notified', 'edit-flow').':</strong> ' . $notification;
+				$message = '<strong>'.__('Notified', 'edit-flow').':</strong> ' . esc_html( $notification );
 			}
 			echo '<p class="ef-notification-meta">' . $message . '</p>';
 		}
@@ -314,9 +314,9 @@ class EF_Editorial_Comments extends EF_Module
       	wp_get_current_user();
 
       	// Set up comment data
-		$post_id = absint( $_POST['post_id'] );
-		$parent = absint( $_POST['parent'] );
-		$notification = $_POST['notification'];
+		$post_id      = absint( $_POST['post_id'] );
+		$parent       = absint( $_POST['parent'] );
+		$notification = isset( $_POST['notification'] ) ? sanitize_text_field( $_POST['notification'] ) : '';
 
       	// Only allow the comment if user can edit post
       	// @TODO: allow contributers to add comments as well (?)
