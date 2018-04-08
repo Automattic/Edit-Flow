@@ -51,42 +51,38 @@ jQuery(document).ready(function($) {
 });
 
 /**
- * Count the users and user groups who will be notified of a status change
- * Display the message in the submit box
+ * Display the number of users and user groups who will be notified of a status change in the submit box.
  */
 var ef_displayFollowerCountInSubmitBox = function() {
-	var checkedFollowers, checkedUserGroups, countDisplay, message = '', followerMessage = '', userGroupMessage = '',conjunction = '';
+	var message_wrapper   = jQuery( '#post-follower-count-display' );
+	var subscribed_users  = jQuery( '#ef-post_following_users_box li input:checkbox:checked' ).length;
+	var subscribed_groups = jQuery( '#ef-following_usergroups li input:checkbox:checked' ).length;
 
-	// Get checked checkboxes
-	checkedFollowers = jQuery('.ef-post_following_list li input:checkbox:checked');
-	checkedUserGroups = jQuery('#ef-following_usergroups li input:checkbox:checked');
-	// checkedFollowers includes user groups
-	userCount = checkedFollowers.length - checkedUserGroups.length;
-	userGroupCount = checkedUserGroups.length;
-
-	// The <span> within which the message will be displayed
-	countDisplay = jQuery('#post-follower-count-display');
-
-	// Create the individual messages
-	if (userCount > 0) {
-		followerMessage = userCount + ((userCount === 1) ? ' user' : ' users');
-	}
-	if (userGroupCount > 0) {
-		userGroupMessage = userGroupCount + ((userGroupCount === 1) ? ' user group' : ' user groups');
+	var users_message_part = '';
+	if ( subscribed_users > 0 ) {
+		if ( 1 === subscribed_users ) {
+			users_message_part = subscribed_users + ' user';
+		} else {
+			users_message_part = subscribed_users + ' users';
+		}
 	}
 
-	if (userCount > 0 && userGroupCount > 0) {
-		// Both will be displayed, so we need a conjunction
-		conjunction = ' & ';
-		message = (followerMessage + conjunction + userGroupMessage);
-	} else if (userCount > 0 || userGroupCount > 0) {
-		// Only one will be displayed, the other is an empty string
-		message = (followerMessage + userGroupMessage);
-	} else {
-		// Default message
-		message = 'none';
+	var groups_message_part = '';
+	if ( subscribed_groups > 0 ) {
+		if ( 1 === subscribed_groups ) {
+			groups_message_part = subscribed_groups + ' user group';
+		} else {
+			groups_message_part = subscribed_groups + ' user groups';
+		}
 	}
 
-	// Print the message
-	countDisplay.html(message);
+	var message = 'none';
+	if ( subscribed_users > 0 && subscribed_groups > 0 ) {
+		message = users_message_part + ' and ' + groups_message_part;
+	} else if ( subscribed_users > 0 || subscribed_groups > 0 ) {
+		// Only one will be displayed, the other is an empty string.
+		message = users_message_part + groups_message_part;
+	}
+
+	message_wrapper.text( message );
 };
