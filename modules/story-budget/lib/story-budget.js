@@ -16,13 +16,21 @@ jQuery(document).ready(function($) {
 	$("h3.hndle,div.handlediv").click(function() {
 		$(this).parent().children("div.inside").toggle();
 	});
-	
+
 	// Change number of columns when choosing a new number from Screen Options
-	$("input[name=ef_story_budget_screen_columns]").click(function() {
-		var numColumns = $(this).val();
-		
-		jQuery(".postbox-container").css('width', (100 / numColumns) + '%' );
-	});
+	//$("input[name=ef_story_budget_screen_columns]").click(function() {
+		var columnsSwitch = $("input[name=ef_story_budget_screen_columns]");
+		columnsSwitch.click(function() {
+			var numColumns = parseInt($(this).val());
+			var classPrefix = 'columns-number-';
+			$(".postbox-container").removeClass(function() {
+				for (var index = 1, c = []; index <= columnsSwitch.length; index++) {
+					c.push( classPrefix + index )
+				}
+				return c.join(' ');
+			}).addClass(classPrefix + numColumns);
+		});
+	//});
 	
 	jQuery('h2 a.change-date').click(function(){
 		jQuery(this).hide();
