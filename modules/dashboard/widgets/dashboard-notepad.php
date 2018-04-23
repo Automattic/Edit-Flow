@@ -18,7 +18,7 @@ class EF_Dashboard_Notepad_Widget {
 		register_post_type( self::notepad_post_type, array(
 				'rewrite' => false,
 				'label' => __( 'Dashboard Note', 'edit-flow' )
-			) 
+			)
 		);
 
 		$this->edit_cap = apply_filters( 'ef_dashboard_notepad_edit_cap', $this->edit_cap );
@@ -60,7 +60,11 @@ class EF_Dashboard_Notepad_Widget {
 			wp_insert_post( $new_note );
 		}
 
-		wp_safe_redirect( wp_get_referer() );
+		$redirect = wp_get_referer();
+		if ( empty( $redirect ) ) {
+			$redirect = admin_url( $pagenow );
+		} // add value to empty referrer to avoid blank screen
+		wp_safe_redirect( $redirect );
 		exit;
 	}
 
@@ -83,12 +87,12 @@ class EF_Dashboard_Notepad_Widget {
 		$current_post = ( ! empty( $posts[0] ) ) ? $posts[0] : false;
 
 		if ( $current_post )
-			$last_updated = '<span id="dashboard-notepad-last-updated">' . sprintf( __( '%1$s last updated on %2$s', 'edit-flow' ), get_user_by( 'id', $current_post->post_author )->display_name, get_the_time( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $current_post ) ) . '</span>';
+			$last_updated = '<span id="dashboard-notepad-last-updated">' . sprintf( __( '%1$s last updated on %2$s', 'edit-flow' ), get_user_by( 'id', $current_post->post_author )->display_name, get_the_modified_time( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $current_post ) ) . '</span>';
 		else
 			$last_updated = '';
 
 		if ( current_user_can( $this->edit_cap ) ) {
-			echo '<form id="dashboard-notepad">';
+			echo '<form id="dashboard-notepad" method="post">'; // send POST to avoid overflow.
 			echo '<input type="hidden" name="action" value="dashboard-notepad" />';
 			echo '<input type="hidden" name="notepad-id" value="' . esc_attr( $current_id ) . '" />';
 			echo '<textarea style="width:100%" rows="10" name="note">';
