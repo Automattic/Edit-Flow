@@ -761,31 +761,30 @@ jQuery(document).ready(function($) {
 			$admins[] = get_option('admin_email');
 		}
 
-		$usergroup_users = array();
+		$usergroup_recipients = array();
 		if ( $this->module_enabled( 'user_groups' ) ) {
-			// Get following users and usergroups.
 			$usergroups = $this->get_following_usergroups( $post_id, 'ids' );
 			foreach ( (array) $usergroups as $usergroup_id ) {
 				$usergroup = $edit_flow->user_groups->get_usergroup_by( 'id', $usergroup_id );
 				foreach ( (array) $usergroup->user_ids as $user_id ) {
 					$usergroup_user = get_user_by( 'id', $user_id );
 					if ( $this->user_can_be_notified( $usergroup_user, $post_id ) ) {
-						$usergroup_users[] = $usergroup_user->user_email;
+						$usergroup_recipients[] = $usergroup_user->user_email;
 					}
 				}
 			}
 		}
 
-		$users = $this->get_following_users( $post_id, 'user_email' );
-		foreach( (array) $users as $key => $user ) {
+		$user_recipients = $this->get_following_users( $post_id, 'user_email' );
+		foreach( (array) $user_recipients as $key => $user ) {
 			$user_object = get_user_by( 'email', $user );
 			if ( ! $this->user_can_be_notified( $user_object, $post_id ) ) {
-				unset( $users[ $key ] );
+				unset( $user_recipients[ $key ] );
 			}
 		}
 
 		// Merge arrays, filter any duplicates, and remove empty entries.
-		$recipients = array_filter( array_unique( array_merge( $admins, $users, $usergroup_users ) ) );
+		$recipients = array_filter( array_unique( array_merge( $admins, $user_recipients, $usergroup_recipients ) ) );
 
 		// Process the recipients for this email to be sent.
 		foreach(  $recipients as $key => $user_email ) {
