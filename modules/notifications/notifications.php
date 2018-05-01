@@ -784,16 +784,11 @@ jQuery(document).ready(function($) {
 			}
 		}
 
-		// Merge arrays and filter any duplicates.
-		$recipients = array_unique( array_merge( $admins, $users, $usergroup_users ) );
+		// Merge arrays, filter any duplicates, and remove empty entries.
+		$recipients = array_filter( array_unique( array_merge( $admins, $users, $usergroup_users ) ) );
 
 		// Process the recipients for this email to be sent.
 		foreach(  $recipients as $key => $user_email ) {
-			// Get rid of empty email entries.
-			if ( empty( $recipients[ $key ] ) ) {
-				unset( $recipients[ $key ] );
-			}
-
 			// Don't send the email to the current user unless we've explicitly indicated they should receive it.
 			if ( false === apply_filters( 'ef_notification_email_current_user', false ) && wp_get_current_user()->user_email == $user_email ) {
 				unset( $recipients[ $key ] );
