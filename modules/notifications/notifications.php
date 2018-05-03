@@ -764,7 +764,7 @@ jQuery(document).ready(function($) {
 		}
 
 		$user_recipients = $this->get_following_users( $post_id, 'user_email' );
-		foreach( (array) $user_recipients as $key => $user ) {
+		foreach( $user_recipients as $key => $user ) {
 			$user_object = get_user_by( 'email', $user );
 			if ( ! $this->user_can_be_notified( $user_object, $post_id ) ) {
 				unset( $user_recipients[ $key ] );
@@ -782,7 +782,13 @@ jQuery(document).ready(function($) {
 			}
 		}
 
-		// Filter to allow further modification of recipients.
+		/**
+		 * Filters the list of notification recipients.
+		 *
+		 * @param array $recipients List of recipient email addresses.
+		 * @param WP_Post $post
+		 * @param bool $string True if the recipients list will later be returned as a string.
+		 */
 		$recipients = apply_filters( 'ef_notification_recipients', $recipients, $post, $string );
 
 		// If string set to true, return comma-delimited.
@@ -810,7 +816,14 @@ jQuery(document).ready(function($) {
 			$can_be_notified = $user->has_cap( 'edit_post', $post_id );
 		}
 
-		return apply_filters( 'ef_notification_user_can_be_notified', $can_be_notified, $user, $post_id );
+		/**
+		 * Filters if a user can be notified. Defaults to true if they can edit the post/page.
+		 *
+		 * @param bool $can_be_notified True if the user can be notified.
+		 * @param WP_User|bool $user The user object, otherwise false.
+		 * @param int $post_id The post the user will be notified about.
+		 */
+		return (bool) apply_filters( 'ef_notification_user_can_be_notified', $can_be_notified, $user, $post_id );
 	}
 
 	/**
