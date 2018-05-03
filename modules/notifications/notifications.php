@@ -752,7 +752,7 @@ jQuery(document).ready(function($) {
 
 		$post_id = $post->ID;
 		if ( ! $post_id ) {
-			return;
+			return $string ? '' : array();
 		}
 
 		// Email all admins if enabled.
