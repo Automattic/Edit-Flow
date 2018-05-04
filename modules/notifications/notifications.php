@@ -69,6 +69,9 @@ class EF_Notifications extends EF_Module {
 		
 		// Set up metabox and related actions
 		add_action( 'add_meta_boxes', array( $this, 'add_post_meta_box' ) );
+
+		// Add "access badge" to the subscribers list.
+		add_action( 'ef_user_subscribe_actions', array( $this, 'display_subscriber_access_badge' ), 10, 2 );
 	
 		// Saving post actions
 		// self::save_post_subscriptions() is hooked into transition_post_status so we can ensure usergroup data
@@ -354,6 +357,21 @@ jQuery(document).ready(function($) {
 		
 		<?php
 	}
+
+	/**
+	 * Show a badge next to a subscriber's name showing if they have the permissions needed to recieve notifications.
+	 *
+	 * @param int $user_id 
+	 * @param bool $checked True if the user is subscribed already, false otherwise.
+	 * @return void
+	 */	
+	function display_subscriber_access_badge( $user_id, $checked ) {
+		global $post;
+
+		if ( isset( $post ) && $checked && ! $this->user_can_be_notified( get_user_by( 'id', $user_id ), $post->ID ) ) {
+			echo '<span>' . esc_html__( 'No Access', 'edit-flow' ) . '</span>';
+		}
+	}
 	
 	/**
 	 * Called when a notification editorial metadata checkbox is checked. Handles saving of a user/usergroup to a post.
@@ -381,6 +399,14 @@ jQuery(document).ready(function($) {
 
 		if ( 'ef-selected-users[]' === $_POST['ef_notifications_name'] ) {
 			$this->save_post_following_users( $post, $user_group_ids );
+			
+			if ( defined( 'DOING_AJAX' ) && DOING_AJAX && isset( $_POST['post_id'] ) ) {
+				$subscribers_with_no_access = array_filter( $user_group_ids, function( $user_id ) {
+					return ! $this->user_can_be_notified( get_user_by( 'id', $user_id ), $_POST['post_id'] );
+				} );
+
+				wp_send_json_success( array( 'subscribers_with_no_access' => array_values( $subscribers_with_no_access ) ) );
+			}
 		}
 		
 		$groups_enabled = $this->module_enabled( 'user_groups' ) && in_array( get_post_type( $post_id ), $this->get_post_types_for_module( $edit_flow->user_groups->module ) );
@@ -802,6 +828,33 @@ jQuery(document).ready(function($) {
 		}
 	}
 	
+	/**
+	 * TODO: Remove this before merge. Duplicated function originally in PR #449
+	 * 
+	 * Check if a user can be notified.
+	 * This is based off of the ability to edit the post/page by default.
+	 * 
+	 * @since 0.8.3
+	 * @param WP_User $user
+	 * @param int $post_id
+	 * @return bool True if the user can be notified, false otherwise.
+	 */
+	function user_can_be_notified( $user, $post_id ) {
+		$can_be_notified = false;
+		if ( $user instanceof WP_User && is_user_member_of_blog( $user->ID ) && is_numeric( $post_id ) ) {
+			// The 'edit_post' cap check also covers the undocumented 'edit_page' cap.
+			$can_be_notified = $user->has_cap( 'edit_post', $post_id );
+		}
+		/**
+		 * Filters if a user can be notified. Defaults to true if they can edit the post/page.
+		 *
+		 * @param bool $can_be_notified True if the user can be notified.
+		 * @param WP_User|bool $user The user object, otherwise false.
+		 * @param int $post_id The post the user will be notified about.
+		 */
+		return (bool) apply_filters( 'ef_notification_user_can_be_notified', $can_be_notified, $user, $post_id );
+	}
+
 	/**
 	 * Set a user or users to follow a post
 	 *
