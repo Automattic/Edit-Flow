@@ -11,7 +11,7 @@ jQuery(document).ready(function($) {
 			$( container ).siblings( 'span' ).remove();
 		} else if ( user_has_no_access ) {
 			var span = $( '<span />' );
-			span.text( 'No Access' );
+			span.text( ef_notifications_localization.no_access );
 			$( container ).parent().prepend( span );
 		}
 	}
