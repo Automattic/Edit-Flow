@@ -473,8 +473,8 @@ class EF_Module {
 					<li>
 						<label for="<?php echo esc_attr( $input_id .'-'. $user->ID ) ?>">
 							<div class="ef-user-subscribe-actions">
-									<?php do_action( 'ef_user_subscribe_actions', $user->ID, $checked ) ?>
-									<input type="checkbox" id="<?php echo esc_attr( $input_id .'-'. $user->ID ) ?>" name="<?php echo esc_attr( $input_id ) ?>[]" value="<?php echo esc_attr( $user->ID ); ?>" <?php echo $checked; ?> />
+								<?php do_action( 'ef_user_subscribe_actions', $user->ID, $checked ) ?>
+								<input type="checkbox" id="<?php echo esc_attr( $input_id .'-'. $user->ID ) ?>" name="<?php echo esc_attr( $input_id ) ?>[]" value="<?php echo esc_attr( $user->ID ); ?>" <?php echo $checked; ?> />
 							</div>
 
 							<span class="ef-user_displayname"><?php echo esc_html( $user->display_name ); ?></span>
