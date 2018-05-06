@@ -195,7 +195,7 @@ class EF_Dashboard extends EF_Module {
 								<a href="<?php echo esc_url( $filter_link ); ?>">
 									<?php
 									$slug = $status->slug;
-									echo esc_html( $post_count->$slug ); ?>
+									echo (property_exists($post_count, $slug) ? esc_html( $post_count->$slug ) : 0); ?>
 								</a>
 							</td>
 							<td>
