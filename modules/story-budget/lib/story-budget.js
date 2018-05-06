@@ -20,8 +20,13 @@ jQuery(document).ready(function($) {
 	// Change number of columns when choosing a new number from Screen Options
 	$("input[name=ef_story_budget_screen_columns]").click(function() {
 		var numColumns = $(this).val();
-		
-		jQuery(".postbox-container").css('width', (100 / numColumns) + '%' );
+
+		var $postboxContainer = $(".postbox-container");
+		if ( $postboxContainer.hasClass('columns-number-1') ||
+			$postboxContainer.hasClass('columns-number-2') ||
+			$postboxContainer.hasClass('columns-number-3') )
+			$postboxContainer.removeClass('columns-number-1 columns-number-2 columns-number-3');
+		$postboxContainer.addClass('columns-number-' + numColumns );
 	});
 	
 	jQuery('h2 a.change-date').click(function(){
