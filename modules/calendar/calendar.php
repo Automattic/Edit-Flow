@@ -782,10 +782,14 @@ class EF_Calendar extends EF_Module {
 						$this->hidden = 0;
 						if ( !empty( $week_posts[$week_single_date] ) ) {
 
-							$week_posts[$week_single_date] = apply_filters( 'ef_calendar_posts_for_week', $week_posts[$week_single_date] );
+							$week_posts[$week_single_date] = apply_filters( 'ef_calendar_posts_for_week', $week_posts[$week_single_date], $week_single_date );
 
-							foreach ( $week_posts[$week_single_date] as $num => $post ){ 
-								echo $this->generate_post_li_html( $post, $week_single_date, $num ); 
+							foreach ( $week_posts[$week_single_date] as $num => $post ) {
+								$output = apply_filters( 'ef_pre_calendar_single_date_item_html', '', $this, $num, $post, $week_single_date );
+								if ( ! $output ) {
+									$output = $this->generate_post_li_html( $post, $week_single_date, $num );
+								}
+								echo $output;
 							} 
 
 						 } 
