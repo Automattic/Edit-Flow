@@ -68,9 +68,11 @@ class EF_Story_Budget extends EF_Module {
 		
 		add_action( 'admin_init', array( $this, 'handle_form_date_range_change' ) );
 		
-		include_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
-		if ( function_exists( 'add_screen_options_panel' ) )
-			add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', __( 'Screen Layout', 'edit-flow' ), array( $this, 'print_column_prefs' ), self::screen_id, array( $this, 'save_column_prefs' ), true );
+		if ( is_admin() ) {
+			include_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
+			if ( function_exists( 'add_screen_options_panel' ) )
+				add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', __( 'Screen Layout', 'edit-flow' ), array( $this, 'print_column_prefs' ), self::screen_id, array( $this, 'save_column_prefs' ), true );
+		}
 		
 		// Register the columns of data appearing on every term. This is hooked into admin_init
 		// so other Edit Flow modules can register their filters if needed
