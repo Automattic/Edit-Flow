@@ -285,7 +285,7 @@ class EF_Story_Budget extends EF_Module {
 			<?php $this->table_navigation(); ?>
 			<div class="metabox-holder">
 				<?php
-					echo '<div class="postbox-container columns-number-' . $this->num_columns . '">';
+					echo '<div class="postbox-container columns-number-' . absint( $this->num_columns ) . '">';
 					foreach( (array) $this->terms as $term ) {
 						$this->print_term( $term );
 					}
