@@ -518,8 +518,7 @@ class EF_Story_Budget extends EF_Module {
 				return $output;
 				break;
 			case 'post_modified':
-				$modified_time_gmt = strtotime( $post->post_modified_gmt . " GMT" );
-				return $this->timesince( $modified_time_gmt );
+				return sprintf( esc_html__( '%s ago', 'edit-flow' ), human_time_diff( get_the_time( 'U', $post->ID ), current_time( 'timestamp' ) ) );
 				break;
 			default:
 				break;
