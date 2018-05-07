@@ -65,13 +65,9 @@ class EF_Story_Budget extends EF_Module {
 
 		// Filter to allow users to pick a taxonomy other than 'category' for sorting their posts
 		$this->taxonomy_used = apply_filters( 'ef_story_budget_taxonomy_used', $this->taxonomy_used );
-		
+
 		add_action( 'admin_init', array( $this, 'handle_form_date_range_change' ) );
-		
-		include_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
-		if ( function_exists( 'add_screen_options_panel' ) )
-			add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', __( 'Screen Layout', 'edit-flow' ), array( $this, 'print_column_prefs' ), self::screen_id, array( $this, 'save_column_prefs' ), true );
-		
+		add_action( 'admin_init', array( $this, 'add_screen_options_panel' ) );
 		// Register the columns of data appearing on every term. This is hooked into admin_init
 		// so other Edit Flow modules can register their filters if needed
 		add_action( 'admin_init', array( $this, 'register_term_columns' ) );
@@ -225,6 +221,16 @@ class EF_Story_Budget extends EF_Module {
 			}
 		}
 		return $this->num_columns;
+	}
+	
+	/**
+	 * Add module options to the screen panel
+	 *
+	 * @since 0.8.3
+	 */
+	function add_screen_options_panel() {
+		require_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
+		add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', __( 'Screen Layout', 'edit-flow' ), array( $this, 'print_column_prefs' ), self::screen_id, array( $this, 'save_column_prefs' ), true );
 	}
 	
 	/**

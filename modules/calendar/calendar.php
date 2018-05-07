@@ -85,13 +85,12 @@ class EF_Calendar extends EF_Module {
 
 		// Define the create-post capability
 		$this->create_post_cap = apply_filters( 'ef_calendar_create_post_cap', 'edit_posts' );
-		
-		require_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
-		add_screen_options_panel( self::usermeta_key_prefix . 'screen_options', __( 'Calendar Options', 'edit-flow' ), array( $this, 'generate_screen_options' ), self::screen_id, false, true );
+
+		add_action( 'admin_init', array( $this, 'add_screen_options_panel' ) );
 		add_action( 'admin_init', array( $this, 'handle_save_screen_options' ) );
 		
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
-		add_action( 'admin_menu', array( $this, 'action_admin_menu' ) );		
+		add_action( 'admin_menu', array( $this, 'action_admin_menu' ) );
 		add_action( 'admin_print_styles', array( $this, 'add_admin_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		
@@ -242,6 +241,16 @@ class EF_Calendar extends EF_Module {
 		}
 		
 		return $output;	
+	}
+	
+	/**
+	 * Add module options to the screen panel
+	 *
+	 * @since 0.8.3
+	 */
+	function add_screen_options_panel() {
+		require_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
+		add_screen_options_panel( self::usermeta_key_prefix . 'screen_options', __( 'Calendar Options', 'edit-flow' ), array( $this, 'generate_screen_options' ), self::screen_id, false, true );		
 	}
 	
 	/**
