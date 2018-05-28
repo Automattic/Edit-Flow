@@ -28,7 +28,7 @@
 }
 
 .edit-flow-modules .edit-flow-module {
-	width: 210px;
+	width: 250px;
 	min-height: 150px;
 	position: relative;
 	float: left;
@@ -64,7 +64,7 @@
 	position: absolute;
 	bottom: 0px;
 	left: 10px;
-	width: 210px;
+	width: 250px;
 }
 
 .edit-flow-modules .edit-flow-module .button-primary {
