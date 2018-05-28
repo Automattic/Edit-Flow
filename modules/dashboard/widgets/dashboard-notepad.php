@@ -59,9 +59,6 @@ class EF_Dashboard_Notepad_Widget {
 		} else {
 			wp_insert_post( $new_note );
 		}
-
-		wp_safe_redirect( wp_get_referer() );
-		exit;
 	}
 
 	/**
@@ -73,10 +70,10 @@ class EF_Dashboard_Notepad_Widget {
 	public function notepad_widget() {
 
 		$args = array(
-			'posts_per_page'   => 1,
-			'post_status'      => 'draft',
-			'post_type'        => self::notepad_post_type,
-		);
+				'posts_per_page'   => 1,
+				'post_status'      => 'draft',
+				'post_type'        => self::notepad_post_type,
+			);
 		$posts = get_posts( $args );
 		$current_note = ( ! empty( $posts[0]->post_content ) ) ? $posts[0]->post_content : '';
 		$current_id = ( ! empty( $posts[0]->ID ) ) ? $posts[0]->ID : 0;
@@ -88,7 +85,7 @@ class EF_Dashboard_Notepad_Widget {
 			$last_updated = '';
 
 		if ( current_user_can( $this->edit_cap ) ) {
-			echo '<form id="dashboard-notepad">';
+			echo '<form method="post" id="dashboard-notepad">';
 			echo '<input type="hidden" name="action" value="dashboard-notepad" />';
 			echo '<input type="hidden" name="notepad-id" value="' . esc_attr( $current_id ) . '" />';
 			echo '<textarea style="width:100%" rows="10" name="note">';
