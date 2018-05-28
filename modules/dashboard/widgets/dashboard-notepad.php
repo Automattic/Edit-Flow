@@ -59,9 +59,6 @@ class EF_Dashboard_Notepad_Widget {
 		} else {
 			wp_insert_post( $new_note );
 		}
-
-		wp_safe_redirect( wp_get_referer() );
-		exit;
 	}
 
 	/**
@@ -81,14 +78,14 @@ class EF_Dashboard_Notepad_Widget {
 		$current_note = ( ! empty( $posts[0]->post_content ) ) ? $posts[0]->post_content : '';
 		$current_id = ( ! empty( $posts[0]->ID ) ) ? $posts[0]->ID : 0;
 		$current_post = ( ! empty( $posts[0] ) ) ? $posts[0] : false;
-
+		
 		if ( $current_post )
-			$last_updated = '<span id="dashboard-notepad-last-updated">' . sprintf( __( '%1$s last updated on %2$s', 'edit-flow' ), get_user_by( 'id', $current_post->post_author )->display_name, get_the_time( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $current_post ) ) . '</span>';
+			$last_updated = '<span id="dashboard-notepad-last-updated">' . sprintf( __( '%1$s last updated on %2$s', 'edit-flow' ), get_user_by( 'id', $current_post->post_author )->display_name, get_the_modified_time( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $current_post ) ) . '</span>';
 		else
 			$last_updated = '';
 
 		if ( current_user_can( $this->edit_cap ) ) {
-			echo '<form id="dashboard-notepad">';
+			echo '<form method="post" id="dashboard-notepad">';
 			echo '<input type="hidden" name="action" value="dashboard-notepad" />';
 			echo '<input type="hidden" name="notepad-id" value="' . esc_attr( $current_id ) . '" />';
 			echo '<textarea style="width:100%" rows="10" name="note">';
