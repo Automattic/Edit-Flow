@@ -73,15 +73,15 @@ class EF_Dashboard_Notepad_Widget {
 	public function notepad_widget() {
 
 		$args = array(
-			'posts_per_page'   => 1,
-			'post_status'      => 'draft',
-			'post_type'        => self::notepad_post_type,
-		);
+				'posts_per_page'   => 1,
+				'post_status'      => 'draft',
+				'post_type'        => self::notepad_post_type,
+			);
 		$posts = get_posts( $args );
 		$current_note = ( ! empty( $posts[0]->post_content ) ) ? $posts[0]->post_content : '';
 		$current_id = ( ! empty( $posts[0]->ID ) ) ? $posts[0]->ID : 0;
 		$current_post = ( ! empty( $posts[0] ) ) ? $posts[0] : false;
-		
+
 		if ( $current_post )
 			$last_updated = '<span id="dashboard-notepad-last-updated">' . sprintf( __( '%1$s last updated on %2$s', 'edit-flow' ), get_user_by( 'id', $current_post->post_author )->display_name, get_the_modified_time( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $current_post ) ) . '</span>';
 		else
