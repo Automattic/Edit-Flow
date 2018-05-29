@@ -35,7 +35,7 @@ class EF_Dashboard_Notepad_Widget {
 		global $pagenow;
 
 		if ( 'index.php' != $pagenow
-		|| ( empty( $_REQUEST['action'] ) || 'dashboard-notepad' != $_REQUEST['action'] ) )
+		|| ( empty( $_POST['action'] ) || 'dashboard-notepad' != $_POST['action'] ) )
 			return;
 
 		check_admin_referer( 'dashboard-notepad' );
@@ -43,17 +43,17 @@ class EF_Dashboard_Notepad_Widget {
 		if ( ! current_user_can( $this->edit_cap ) )
 			wp_die( EditFlow()->dashboard->messages['invalid-permissions'] );
 
-		$current_id = (int)$_REQUEST['notepad-id'];
+		$current_id = (int) $_POST['notepad-id'];
 		$current_notepad = get_post( $current_id );
 		$new_note = array(
-				'post_content'           => wp_filter_nohtml_kses( $_REQUEST['note'] ),
+				'post_content'           => wp_filter_nohtml_kses( $_POST['note'] ),
 				'post_type'              => self::notepad_post_type,
 				'post_status'            => 'draft',
 				'post_author'            => get_current_user_id(),
 			);
 		if ( $current_notepad
 			&& self::notepad_post_type == $current_notepad->post_type
-			&& ! isset ( $_REQUEST['create-note'] ) ) {
+			&& ! isset ( $_POST['create-note'] ) ) {
 			$new_note['ID'] = $current_id;
 			wp_update_post( $new_note );
 		} else {
