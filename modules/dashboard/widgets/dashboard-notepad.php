@@ -59,9 +59,6 @@ class EF_Dashboard_Notepad_Widget {
 		} else {
 			wp_insert_post( $new_note );
 		}
-
-		wp_safe_redirect( wp_get_referer() );
-		exit;
 	}
 
 	/**
@@ -88,7 +85,7 @@ class EF_Dashboard_Notepad_Widget {
 			$last_updated = '';
 
 		if ( current_user_can( $this->edit_cap ) ) {
-			echo '<form id="dashboard-notepad">';
+			echo '<form method="post" id="dashboard-notepad">';
 			echo '<input type="hidden" name="action" value="dashboard-notepad" />';
 			echo '<input type="hidden" name="notepad-id" value="' . esc_attr( $current_id ) . '" />';
 			echo '<textarea style="width:100%" rows="10" name="note">';
