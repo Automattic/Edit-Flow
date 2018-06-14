@@ -56,6 +56,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 
 == Upgrade Notice ==
 
+= 0.8.3 =
+Minor enhancements and bug fixes, translation updates.
+
 = 0.8.2 =
 Minor enhancements and bug fixes, translation updates.
 
@@ -102,6 +105,29 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 == Changelog ==
+
+= 0.8.3 (June 14, 2018) =
+* UI Improvement: Made primary buttons on Settings screen consistent with WordPress UI. Props [cojennin](https://github.com/cojennin).
+* UI Improvement: Display who particularly was notified about an editorial comment. Props [goodguyry](https://github.com/goodguyry), [WPprodigy](https://github.com/WPprodigy)
+* Improvement: Updated Russian translation and documentation. Props [achumakov](https://github.com/achumakov).
+* Improvement: Eliminate a few cases of raw SQL queries in favor of `date_query`. Props [justnorris](https://github.com/justnorris).
+* Improvement: Cache calendar items for each user individually to prevent potential cache pollution. Props [justnorris](https://github.com/justnorris).
+* Improvement: various i18n updates.
+* Improvement: Move ef_story_budget_posts_query_args filter down to allow overriding the date query in Story Budget module.
+* Improvement: Limit results in Calendar to 200 per page, potentially saving from trouble on websites with large amount of content.
+* Improvement: Don’t generate rewrite rules for notepad as they're unused.
+* Improvement: Support modifying HTML output of a Calendar day via ef_pre_calendar_single_date_item_html filter. Props [cklosowski](https://github.com/cklosowski).
+
+* Improvement: show custom post statuses in Calendar and Story Budget. Props [mikeyarce](https://github.com/mikeyarce)
+* WordPress Coding Standards improvements and code cleanup by many unsung heroes (primarily [justnorris](https://github.com/justnorris)).
+* Bug fix: Prevent user from removing "Draft" post status, breaking the auto-draft functionality.
+* Bug fix: Fix ef_pre_insert_editorial_comment filter so that it actually has meaning. Props [sudar](https://github.com/sudar).
+* Bug fix: Fix PHP Warning: array_map(): Argument #2 should be an array. Props Michael Auteri.
+* Bug fix: Always offset post times to UTC+0 for Calendars to prevent incorrect times when adding to iCalendar/Google Calendar. Props [justnorris](https://github.com/justnorris).
+* Bug fix: Use taxonomy when checking for term existence when trying to prevent term collision. Props [shadyvb](https://github.com/shadyvb).
+* Bug fix: Correctly handle screen options update for Story Budget columns. Props [raduconst](https://github.com/raduconst)
+* Bug fix: EF_Calendar::get_beginning_of_week and EF_Calendar::get_ending_of_week should respect DST now. Props [FewKinG](https://github.com/FewKinG)
+* Bug fix: Build home_url() previews with trailing slash. Props [jeremyfelt](https://github.com/jeremyfelt)
 
 = 0.8.2 (Sept 16, 2016) =
 * Improvement: Updated Spanish localization thanks to [moucho](https://github.com/moucho)
