@@ -21,11 +21,6 @@ editorialCommentReply = {
 		// Bind click events to cancel and submit buttons
 		jQuery('a.ef-replycancel', row).click(function() { return editorialCommentReply.revert(); });
 		jQuery('a.ef-replysave', row).click(function() { return editorialCommentReply.send(); });
-
-		// Watch for changes to the subscribed users.
-		$( '#ef-post_following_box' ).on( 'following_list_updated', function() {
-			editorialCommentReply.notifiedMessage();
-		} );
 	},
 
 	revert : function() {
@@ -70,9 +65,6 @@ editorialCommentReply = {
 		}
 		
 		jQuery('#ef-comment_respond').hide();
-
-		// Display who will be notified for this comment
-		this.notifiedMessage();
 		
 		// Show reply textbox
 		jQuery('#ef-replyrow')
@@ -109,8 +101,7 @@ editorialCommentReply = {
 		post.parent = (jQuery("#ef-comment_parent").val()=='') ? 0 : jQuery("#ef-comment_parent").val();
 		post._nonce = jQuery("#ef_comment_nonce").val();
 		post.post_id = jQuery("#ef-post_id").val();
-		post.notification = jQuery('#ef-reply-notifier').val();
-
+		
 		// Send the request
 		jQuery.ajax({
 			type : 'POST',
@@ -121,40 +112,6 @@ editorialCommentReply = {
 		});
 
 		return false;
-	},
-
-	/**
-	 * Display who will be notified of the new comment.
-	 */
-	notifiedMessage : function() {
-		var message_wrapper = jQuery( '#ef-reply-notifier' );
-
-		if ( ! message_wrapper[0] ) {
-			return;
-		}
-
-		var subscribed_users = jQuery( '.ef-post_following_list li input:checkbox:checked' );
-
-		// No users will be notified, so return early with a default message.
-		if ( 0 === subscribed_users.length ) {
-			message_wrapper.addClass( 'ef-none-selected' );
-			message_wrapper.val( __ef_localize_post_comment.none_notified );
-			return;
-		}
-
-		var usernames = [];
-		subscribed_users.each( function() {
-			usernames.push( $( this ).next().text() );
-		} );
-
-		// Convert array of usernames into a sentence.
-		var message = usernames.pop();
-		if ( usernames.length > 0 ) {
-			message = usernames.join( ', ' ) + ' ' + __ef_localize_post_comment.and + ' ' + message + '.';
-		}
-
-		message_wrapper.removeClass( 'ef-none-selected' );
-		message_wrapper.val( message );
 	},
 
 	show : function(xml) {
