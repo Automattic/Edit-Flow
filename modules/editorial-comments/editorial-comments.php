@@ -92,6 +92,11 @@ class EF_Editorial_Comments extends EF_Module
 			return;
 
 		wp_enqueue_script( 'edit_flow-post_comment', $this->module_url . 'lib/editorial-comments.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
+		wp_localize_script( 'edit_flow-post_comment', '__ef_localize_post_comment', array(
+			'and'           => esc_html__( 'and', 'edit-flow' ),
+			'none_notified' => esc_html__( 'No one will be notified.', 'edit-flow' ),
+		) );
+
 		wp_enqueue_style( 'edit-flow-editorial-comments-css', $this->module_url . 'lib/editorial-comments.css', false, EDIT_FLOW_VERSION, 'all' );
 
 		$thread_comments = (int) get_option('thread_comments');
@@ -197,6 +202,12 @@ class EF_Editorial_Comments extends EF_Module
 				<textarea id="ef-replycontent" name="replycontent" cols="40" rows="5"></textarea>
 			</div>
 
+			<?php if ( $this->module_enabled( 'notifications' ) ) : ?>
+				<label for="ef-reply-notifier"><?php esc_html_e( 'The following will be notified:', 'edit-flow' ); ?>
+					<input id="ef-reply-notifier" class="ef-reply-notifier-message" readonly>
+				</label>
+			<?php endif; ?>
+
 			<p id="ef-replysubmit">
 				<a class="ef-replysave button-primary alignright" href="#comments-form">
 					<span id="ef-replybtn"><?php _e('Submit Response', 'edit-flow') ?></span>
@@ -216,6 +227,28 @@ class EF_Editorial_Comments extends EF_Module
 		</div>
 
 		<?php
+	}
+
+	/**
+	 * Maybe display who was notified underneath an editorial comment.
+	 * 
+	 * @param int $comment_id
+	 * @return void
+	 */
+	function maybe_output_comment_meta( $comment_id ) {
+		if ( ! $this->module_enabled( 'notifications' ) || ! apply_filters( 'ef_editorial_comments_show_notified_users', true ) ) {
+			return;
+		}
+
+		$notification = get_comment_meta( $comment_id, 'notification_list', true );
+
+		if ( empty( $notification ) ) {
+			$message = esc_html__( 'No users or groups were notified.', 'edit-flow' );
+		} else {
+			$message = '<strong>'. esc_html__( 'Notified', 'edit-flow' ) . ':</strong> ' . esc_html( $notification );
+		}
+
+		echo '<p class="ef-notification-meta">' . $message . '</p>';
 	}
 
 	/**
@@ -268,6 +301,7 @@ class EF_Editorial_Comments extends EF_Module
 				</h5>
 
 				<div class="comment-content"><?php comment_text(); ?></div>
+				<?php $this->maybe_output_comment_meta( $comment->comment_ID ); ?>
 				<p class="row-actions"><?php echo $actions_string; ?></p>
 
 			</div>
@@ -290,7 +324,7 @@ class EF_Editorial_Comments extends EF_Module
 
       	// Set up comment data
 		$post_id = absint( $_POST['post_id'] );
-		$parent = absint( $_POST['parent'] );
+		$parent  = absint( $_POST['parent'] );
 
       	// Only allow the comment if user can edit post
       	// @TODO: allow contributers to add comments as well (?)
@@ -331,6 +365,15 @@ class EF_Editorial_Comments extends EF_Module
 			// Insert Comment
 			$comment_id = wp_insert_comment($data);
 			$comment = get_comment($comment_id);
+
+			// Save the list of notified users/usergroups.
+			if ( $this->module_enabled( 'notifications' ) && apply_filters( 'ef_editorial_comments_show_notified_users', true ) ) {
+				$notification = isset( $_POST['notification'] ) ? sanitize_text_field( $_POST['notification'] ) : '';
+
+				if ( ! empty( $notification ) && __( 'No one will be notified.', 'edit-flow' ) !== $notification ) {
+					add_comment_meta( $comment_id, 'notification_list', $notification );
+				}
+			}
 
 			// Register actions -- will be used to set up notifications and other modules can hook into this
 			if ( $comment_id )
