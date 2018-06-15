@@ -80,7 +80,7 @@ class EF_Dashboard_Notepad_Widget {
 		$current_post = ( ! empty( $posts[0] ) ) ? $posts[0] : false;
 
 		if ( $current_post )
-			$last_updated = '<span id="dashboard-notepad-last-updated">' . sprintf( __( '%1$s last updated on %2$s', 'edit-flow' ), get_user_by( 'id', $current_post->post_author )->display_name, get_the_time( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $current_post ) ) . '</span>';
+			$last_updated = '<span id="dashboard-notepad-last-updated">' . sprintf( __( '%1$s last updated on %2$s', 'edit-flow' ), get_user_by( 'id', $current_post->post_author )->display_name, get_the_modified_time( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $current_post ) ) . '</span>';
 		else
 			$last_updated = '';
 
