@@ -247,7 +247,7 @@ class EF_Custom_Status extends EF_Module {
 			// of manage posts if there is a post with the status
 			foreach ( $custom_statuses as $status ) {
 				register_post_status( $status->slug, array(
-					'label'       => $status->name
+					'label'       => esc_html__( $status->name, 'edit-flow' )
 					, 'protected'   => true
 					, '_builtin'    => false
 					, 'label_count' => _n_noop( "{$status->name} <span class='count'>(%s)</span>", "{$status->name} <span class='count'>(%s)</span>" )
@@ -423,9 +423,9 @@ class EF_Custom_Status extends EF_Module {
 			// Load the custom statuses
 			foreach( $custom_statuses as $status ) {
 				$all_statuses[] = array(
-					'name' => esc_js( $status->name ),
-					'slug' => esc_js( $status->slug ),
-					'description' => esc_js( $status->description ),
+					'name' => esc_html__( $status->name, 'edit-flow' ),
+					'slug' => $status->slug,
+					'description' => esc_html__( $status->description, 'edit-flow' ),
 				);
 			}
 
