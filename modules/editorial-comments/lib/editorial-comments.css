@@ -24,9 +24,16 @@
 		border-bottom: 1px solid #e5e5e5;
 		background: #fff;
 	}
-	#ef-comments li:hover p.row-actions {
+
+	.row-actions {
+		margin-top: 0;
+	}
+
+	#ef-comments li:hover p.row-actions,
+	#ef-comments li:hover .ef-notification-meta {
 		visibility: visible;
 	}
+
 	#ef-comments li p.row-actions {
 		text-align: right;
 	}
@@ -111,4 +118,28 @@
 #ef-comment-rbutton {
 	margin-top: 10px;
 	margin-bottom: 10px;
+}
+
+input[readonly].ef-reply-notifier-message {
+	height: 2em;
+	width: 100%;
+	padding: 0.5em;
+	border: none;
+	font-size: 1em;
+	border-left: 4px solid #46b450;
+}
+
+label[for="ef-reply-notifier"] {
+	margin: 0.75em 0;
+	display: block;
+	cursor: default;
+}
+
+input[readonly].ef-none-selected {
+	border-left: 4px solid #dc3232;
+}
+
+.ef-notification-meta {
+	margin-bottom: 0;
+	visibility: hidden;
 }
