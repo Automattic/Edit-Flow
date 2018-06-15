@@ -24,6 +24,8 @@
 	width: 100%;
 	overflow: hidden;
 	margin-top: 20px;
+	display: flex;
+	flex-wrap: wrap;
 }
 
 .edit-flow-modules .edit-flow-module {
@@ -89,6 +91,11 @@
 	box-shadow: none;
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#BBB', endColorstr='#888');
 	text-shadow: none;
+	float: right;
+}
+
+.edit-flow-modules .edit-flow-module .button-primary.enable-disable-edit-flow-module {
+	float: left;
 }
 
 .edit-flow-modules .edit-flow-module .button-primary.configure-edit-flow-module:hover {
