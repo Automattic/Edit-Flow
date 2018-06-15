@@ -57,7 +57,7 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 == Upgrade Notice ==
 
 = 0.8.3 =
-Minor enhancements and bug fixes, translation updates.
+Improvements and bugfixes.
 
 = 0.8.2 =
 Minor enhancements and bug fixes, translation updates.
