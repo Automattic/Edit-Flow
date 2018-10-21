@@ -375,6 +375,10 @@ class edit_flow {
 
 		wp_register_script( 'jquery-quicksearch', EDIT_FLOW_URL . 'common/js/jquery.quicksearch.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 
+
+		wp_register_script( 'list', EDIT_FLOW_URL . 'common/js/list.js', false, EDIT_FLOW_VERSION, true);
+		wp_register_script( 'jquery-twbsPagination', EDIT_FLOW_URL . 'common/js/jquery.twbsPagination.js', array('jquery'), EDIT_FLOW_VERSION, true);
+
 	}
 
 }
