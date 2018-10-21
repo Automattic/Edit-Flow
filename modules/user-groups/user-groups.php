@@ -101,7 +101,10 @@ class EF_User_Groups extends EF_Module {
 
 		// Javascript and CSS if we need it
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );	
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
+
+		// Ajax for retrieving users
+        add_action( 'wp_ajax_retrieve_users_in_usergroup', array( $this, 'ajax_retrieve_users_in_usergroups'));
 		
 	}
 	
@@ -632,6 +635,72 @@ class EF_User_Groups extends EF_Module {
 			</div></div></div>
 			<?php $wp_list_table->inline_edit(); ?>
 		<?php endif;
+	}
+
+	/*
+	 * Ajax processing for retrieving users in usergroups
+	 */
+	function ajax_retrieve_users_in_usergroups(){
+
+		$post_id = isset( $_POST['post_id'] ) ? intval($_POST['post_id']) : 0;
+		$selected = $this->get_following_users( $post_id, 'id' );
+
+		$search_keyword = isset( $_POST['search_keyword']) ? sanitize_text_field($_POST['search_keyword']) : '';
+
+		$users_per_page = isset( $_POST['users_per_page']) ? intval($_POST['users_per_page']) : 0;
+		$page = isset( $_POST['page']) ? intval($_POST['page']) : 0;
+		$offset = $users_per_page * ($page - 1);
+
+		$args = array(
+			'number' => $users_per_page,
+			'offset' => $offset,
+			'who' => 'authors',
+			'fields' => array(
+				'ID',
+				'display_name',
+				'user_email'
+			),
+			'orderby' => 'display_name',
+			'search' => '*' . $search_keyword .'*',
+			'search_columns' => array('display_name', 'user_email'),
+//            'include' => $selected
+		);
+
+		$usersQuery = new WP_User_Query($args);
+
+		$count_users = isset( $_POST['count_users']) ? filter_var($_POST['count_users'], FILTER_VALIDATE_BOOLEAN) : false;
+		if($count_users){
+			$users_count = $usersQuery->get_total();
+			wp_send_json($users_count);
+		}
+
+		$users = $usersQuery->get_results();
+
+
+		if ( ! is_array($selected)){
+			$selected = array();
+		}
+
+		// Compile users with selected users on top of the list
+		$users_with_selection = array();
+
+		foreach ($users as $user){
+
+			$user_arr['user-item-id'] = $user->ID;
+			$user_arr['user-item-name'] = $user->display_name;
+			$user_arr['user-item-email'] = $user->user_email;
+
+			if ( in_array($user->ID, $selected) ){
+				$user_arr['user_checked'] = true;
+			} else {
+				$user_arr['user_checked'] = false;
+			}
+
+			array_push($users_with_selection, $user_arr);
+		}
+
+		wp_send_json(['users' => $users_with_selection, 'users_total' => $usersQuery->get_total()]);
+
 	}
 	
 	/**

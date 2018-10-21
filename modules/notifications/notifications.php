@@ -103,9 +103,6 @@ class EF_Notifications extends EF_Module {
 
 		//Ajax for retrieving users
         add_action('wp_ajax_retrieve_users', array($this, 'ajax_retrieve_users'));
-
-        //Ajax for retrieving users count
-        add_action('wp_ajax_retrieve_users_count', array($this, 'ajax_retrieve_users_count'));
 	}
 	
 	/**
