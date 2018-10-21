@@ -379,10 +379,7 @@ jQuery(document).ready(function($) {
 		$post_id = isset( $_POST['post_id'] ) ? intval($_POST['post_id']) : 0;
 		$selected = $this->get_following_users( $post_id, 'id' );
 
-
 		$search_keyword = isset( $_POST['search_keyword']) ? sanitize_text_field($_POST['search_keyword']) : '';
-//		$search_keyword = 'jon';
-//		wp_send_json('*' . $search_keyword .'*');
 
 		$users_per_page = isset( $_POST['users_per_page']) ? intval($_POST['users_per_page']) : 0;
 	    $page = isset( $_POST['page']) ? intval($_POST['page']) : 0;
@@ -420,8 +417,6 @@ jQuery(document).ready(function($) {
 
 		// Compile users with selected users on top of the list
 		$users_with_selection = array();
-        $selected_users = array();
-		$unselected_users = array();
 
         foreach ($users as $user){
 
@@ -431,17 +426,12 @@ jQuery(document).ready(function($) {
 
             if ( in_array($user->ID, $selected) ){
                 $user_arr['user_checked'] = true;
-//                array_push($selected_users, $user_arr);
             } else {
                 $user_arr['user_checked'] = false;
-//	            array_push($unselected_users, $user_arr);
             }
 
             array_push($users_with_selection, $user_arr);
         }
-
-//        $users_with_selection = array_merge($selected_users, $unselected_users);
-
 
         wp_send_json(['users' => $users_with_selection, 'users_total' => $usersQuery->get_total()]);
 
