@@ -371,23 +371,6 @@ jQuery(document).ready(function($) {
 		<?php
 	}
 
-    /*
-     * Ajax processing for retrieving users count
-     */
-    function ajax_retrieve_users_count(){
-
-        check_ajax_referer('edit-flow-users-list-ajax', 'nonce');
-
-	    $args = array(
-		    'who' => 'authors',
-	    );
-
-	    $users_count = count(get_users($args));
-
-        wp_send_json($users_count);
-
-    }
-
 	/*
 	 * Ajax processing for retrieving users
 	 */
