@@ -483,6 +483,42 @@ class EF_Module {
 		<?php
 	}
 
+	/*
+	 * Template for paginated users list
+	 */
+	function users_list(){
+		?>
+        <div id="users">
+
+            <input type="text" class="search-users" placeholder="Search" />
+            <input type="button" class="button btn-search-users" value="search">
+            <input type="text" class="filter-users" placeholder="Filter this page" />
+
+            <!--                <button type="button" class="sort" data-sort="user-list-name">-->
+            <!--                    Sort by Name-->
+            <!--                </button>-->
+            <!---->
+            <!--                <button type="button" class="sort" data-sort="email">-->
+            <!--                    Sort by Email-->
+            <!--                </button>-->
+            <!---->
+            <!--                <button type="button" class="sort" data-sort="user_checked">-->
+            <!--                    Sort by Selected-->
+            <!--                </button>-->
+
+            <div class="users-list-infos">
+                <span class="users-total-info-text">Total users</span>
+                <span class="users-total-info-value"></span>
+            </div>
+
+            <ul class="list"></ul>
+
+            <ul id="users-pagination" class="pagination"></ul>
+        </div>
+		<?php
+
+	}
+
 	/**
 	 * Adds an array of capabilities to a role.
 	 *
