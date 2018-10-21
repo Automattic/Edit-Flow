@@ -100,7 +100,12 @@ class EF_Notifications extends EF_Module {
 		//Ajax for saving notifiction updates
 		add_action( 'wp_ajax_save_notifications', array( $this, 'ajax_save_post_subscriptions' ) );
 		add_action( 'wp_ajax_ef_notifications_user_post_subscription', array( $this, 'handle_user_post_subscription' ) );
-		
+
+		//Ajax for retrieving users
+        add_action('wp_ajax_retrieve_users', array($this, 'ajax_retrieve_users'));
+
+        //Ajax for retrieving users count
+        add_action('wp_ajax_retrieve_users_count', array($this, 'ajax_retrieve_users_count'));
 	}
 	
 	/**
@@ -191,6 +196,16 @@ class EF_Notifications extends EF_Module {
 			wp_enqueue_script( 'jquery-listfilterizer' );
 			wp_enqueue_script( 'jquery-quicksearch' );
 			wp_enqueue_script( 'edit-flow-notifications-js', $this->module_url . 'lib/notifications.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
+
+			wp_enqueue_script( 'list');
+			wp_enqueue_script( 'jquery-twbsPagination');
+
+
+			wp_localize_script( 'edit-flow-notifications-js', 'ajax_object',
+				array( 'ajax_url' => admin_url( 'admin-ajax.php' ),
+                       'ajax_nonce' => wp_create_nonce( "edit-flow-users-list-ajax" )
+                )
+            );
 		}
 	}
 	
@@ -336,7 +351,8 @@ jQuery(document).ready(function($) {
 				$select_form_args = array(
 					'list_class' => 'ef-post_following_list',
 				);
-				$this->users_select_form( $followers, $select_form_args ); ?>
+//				$this->users_select_form( $followers, $select_form_args );
+				$this->users_list(); ?>
 			</div>
 			
 			<?php if ( $this->module_enabled( 'user_groups' ) && in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $edit_flow->user_groups->module ) ) ): ?>
@@ -354,7 +370,133 @@ jQuery(document).ready(function($) {
 		
 		<?php
 	}
-	
+
+	function users_list(){
+	    ?>
+            <div id="users">
+
+                <input type="text" class="search-users" placeholder="Search" />
+                <input type="button" class="button btn-search-users" value="search">
+                <input type="text" class="filter-users" placeholder="Filter this page" />
+
+<!--                <button type="button" class="sort" data-sort="user-list-name">-->
+<!--                    Sort by Name-->
+<!--                </button>-->
+<!---->
+<!--                <button type="button" class="sort" data-sort="email">-->
+<!--                    Sort by Email-->
+<!--                </button>-->
+<!---->
+<!--                <button type="button" class="sort" data-sort="user_checked">-->
+<!--                    Sort by Selected-->
+<!--                </button>-->
+
+                <div class="users-list-infos">
+                    <span class="users-total-info-text">Total users</span>
+                    <span class="users-total-info-value"></span>
+                </div>
+
+                <ul class="list"></ul>
+
+                <ul id="users-pagination" class="pagination"></ul>
+            </div>
+        <?php
+
+    }
+
+    /*
+     * Ajax processing for retrieving users count
+     */
+    function ajax_retrieve_users_count(){
+
+        check_ajax_referer('edit-flow-users-list-ajax', 'nonce');
+
+	    $args = array(
+		    'who' => 'authors',
+	    );
+
+	    $users_count = count(get_users($args));
+
+        wp_send_json($users_count);
+
+    }
+
+	/*
+	 * Ajax processing for retrieving users
+	 */
+	function ajax_retrieve_users(){
+
+		$post_id = isset( $_POST['post_id'] ) ? intval($_POST['post_id']) : 0;
+		$selected = $this->get_following_users( $post_id, 'id' );
+
+
+		$search_keyword = isset( $_POST['search_keyword']) ? sanitize_text_field($_POST['search_keyword']) : '';
+//		$search_keyword = 'jon';
+//		wp_send_json('*' . $search_keyword .'*');
+
+		$users_per_page = isset( $_POST['users_per_page']) ? intval($_POST['users_per_page']) : 0;
+	    $page = isset( $_POST['page']) ? intval($_POST['page']) : 0;
+	    $offset = $users_per_page * ($page - 1);
+
+		$args = array(
+            'number' => $users_per_page,
+			'offset' => $offset,
+			'who' => 'authors',
+			'fields' => array(
+				'ID',
+				'display_name',
+				'user_email'
+			),
+			'orderby' => 'display_name',
+            'search' => '*' . $search_keyword .'*',
+            'search_columns' => array('display_name', 'user_email'),
+//            'include' => $selected
+		);
+
+		$usersQuery = new WP_User_Query($args);
+
+        $count_users = isset( $_POST['count_users']) ? filter_var($_POST['count_users'], FILTER_VALIDATE_BOOLEAN) : false;
+        if($count_users){
+            $users_count = $usersQuery->get_total();
+            wp_send_json($users_count);
+        }
+
+        $users = $usersQuery->get_results();
+
+
+		if ( ! is_array($selected)){
+			$selected = array();
+		}
+
+		// Compile users with selected users on top of the list
+		$users_with_selection = array();
+        $selected_users = array();
+		$unselected_users = array();
+
+        foreach ($users as $user){
+
+            $user_arr['user-item-id'] = $user->ID;
+            $user_arr['user-item-name'] = $user->display_name;
+            $user_arr['user-item-email'] = $user->user_email;
+
+            if ( in_array($user->ID, $selected) ){
+                $user_arr['user_checked'] = true;
+//                array_push($selected_users, $user_arr);
+            } else {
+                $user_arr['user_checked'] = false;
+//	            array_push($unselected_users, $user_arr);
+            }
+
+            array_push($users_with_selection, $user_arr);
+        }
+
+//        $users_with_selection = array_merge($selected_users, $unselected_users);
+
+
+        wp_send_json(['users' => $users_with_selection, 'users_total' => $usersQuery->get_total()]);
+
+	}
+
 	/**
 	 * Called when a notification editorial metadata checkbox is checked. Handles saving of a user/usergroup to a post.
 	 */
@@ -380,7 +522,8 @@ jQuery(document).ready(function($) {
 		}
 
 		if ( 'ef-selected-users[]' === $_POST['ef_notifications_name'] ) {
-			$this->save_post_following_users( $post, $user_group_ids );
+			$follow = isset( $_POST['follow'] ) ? filter_var($_POST['follow'], FILTER_VALIDATE_BOOLEAN) : true;
+			$this->save_post_following_users( $post, $user_group_ids, $follow );
 		}
 		
 		$groups_enabled = $this->module_enabled( 'user_groups' ) && in_array( get_post_type( $post_id ), $this->get_post_types_for_module( $edit_flow->user_groups->module ) );
@@ -444,7 +587,7 @@ jQuery(document).ready(function($) {
 	 *
 	 * @param int $post ID of the post
 	 */
-	function save_post_following_users( $post, $users = null ) {
+	function save_post_following_users( $post, $users = null, $follow = true ) {
 		if( !is_array( $users ) )
 			$users = array();
 		
@@ -459,8 +602,11 @@ jQuery(document).ready(function($) {
 		
 		$users = array_unique( array_map( 'intval', $users ) );
 
-		$follow = $this->follow_post_user( $post, $users, false );
-		
+		if ( $follow ) {
+			$this->follow_post_user( $post, $users, true );
+        } else {
+		    $this->unfollow_post_user($post, $users[0]);
+        }
 	}
 	
 	/**
@@ -475,8 +621,8 @@ jQuery(document).ready(function($) {
 		$usergroups = array_map( 'intval', $usergroups );
 
 		$follow = $this->follow_post_usergroups($post, $usergroups, false);
-	}	
-	
+	}
+
 	/**
 	 * Set up and send post status change notification email
 	 */
