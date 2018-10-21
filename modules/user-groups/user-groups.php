@@ -561,8 +561,9 @@ class EF_User_Groups extends EF_Module {
 					'input_id' => 'usergroup_users'
 				);
 			?>
-			<?php $this->users_select_form( $usergroup->user_ids , $select_form_args ); ?>
-		</div></div></div>
+            <?php $this->users_list(); ?>
+            <?php // $this->users_select_form( $usergroup->user_ids , $select_form_args ); ?>
+        </div></div></div>
 		<div id="col-left"><div class="col-wrap"><div class="form-wrap">		
 			<input type="hidden" name="form-action" value="edit-usergroup" />
 			<input type="hidden" name="usergroup_id" value="<?php echo esc_attr( $usergroup_id ); ?>" />
@@ -586,7 +587,7 @@ class EF_User_Groups extends EF_Module {
 			</p>
 		</div></div></div>
 		</form>
-		
+
 		<?php else :
 			/** Full page width view to allow adding a usergroup and edit the existing ones **/
 			$wp_list_table = new EF_Usergroups_List_Table();
