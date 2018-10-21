@@ -384,9 +384,11 @@ class EF_User_Groups extends EF_Module {
 			'description' => $description,
 		);
 		// Gracefully handle the case where all users have been unsubscribed from the user group
-		$users = isset( $_POST['usergroup_users'] ) ? (array)$_POST['usergroup_users'] : array();
-		$users = array_map( 'intval', $users );
-		$usergroup = $this->update_usergroup( $existing_usergroup->term_id, $args, $users );
+//		$users = isset( $_POST['usergroup_users'] ) ? (array)$_POST['usergroup_users'] : array();
+//		$users = array_map( 'intval', $users );
+//		$users = null;
+//		$usergroup = $this->update_usergroup( $existing_usergroup->term_id, $args, $users );
+		$usergroup = $this->update_usergroup( $existing_usergroup->term_id, $args );
 		if ( is_wp_error( $usergroup ) )
 			wp_die( __( 'Error updating user group.', 'edit-flow' ) );
 
