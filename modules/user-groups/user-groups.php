@@ -566,7 +566,7 @@ class EF_User_Groups extends EF_Module {
         </div></div></div>
 		<div id="col-left"><div class="col-wrap"><div class="form-wrap">		
 			<input type="hidden" name="form-action" value="edit-usergroup" />
-			<input type="hidden" name="usergroup_id" value="<?php echo esc_attr( $usergroup_id ); ?>" />
+			<input type="hidden" name="usergroup_id" id="usergroup_id" value="<?php echo esc_attr( $usergroup_id ); ?>" />
 			<?php
 				wp_original_referer_field();
 				wp_nonce_field( 'edit-usergroup' );
