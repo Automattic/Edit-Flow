@@ -728,7 +728,7 @@ class EF_User_Groups extends EF_Module {
 	 * Ajax handling saving and removing user from usergroup
 	 */
 	function ajax_save_user_to_usergroup(){
-	    $nonce = $_POST['nonce'];
+		check_ajax_referer('edit-flow-users-list-usergroups-ajax', 'nonce');
 
 		$add = isset( $_POST['add']) ? filter_var($_POST['add'], FILTER_VALIDATE_BOOLEAN) : false;
 		$remove = isset( $_POST['remove']) ? filter_var($_POST['remove'], FILTER_VALIDATE_BOOLEAN) : false;
