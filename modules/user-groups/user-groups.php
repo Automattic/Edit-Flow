@@ -694,7 +694,6 @@ class EF_User_Groups extends EF_Module {
 			$users_count = $usersQuery->get_total();
 			wp_send_json($users_count);
 		}
-//		wp_send_json(['response oyeee', $selected['user_ids']]);
 
 		$users = $usersQuery->get_results();
 
