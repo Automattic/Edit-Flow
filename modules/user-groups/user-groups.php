@@ -105,7 +105,10 @@ class EF_User_Groups extends EF_Module {
 
 		// Ajax for retrieving users
         add_action( 'wp_ajax_retrieve_users_in_usergroup', array( $this, 'ajax_retrieve_users_in_usergroups'));
-		
+
+        // Ajax for saving user to usergroup
+		add_action( 'wp_ajax_save_user_to_usergroup', array( $this, 'ajax_save_user_to_usergroup' ) );
+
 	}
 	
 	/**
@@ -234,7 +237,18 @@ class EF_User_Groups extends EF_Module {
 		if ( $this->is_whitelisted_functional_view() || $this->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-listfilterizer' );
 			wp_enqueue_script( 'jquery-quicksearch' );
-			wp_enqueue_script( 'edit-flow-user-groups-js', $this->module_url . 'lib/user-groups.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
+
+			wp_enqueue_script( 'list');
+			wp_enqueue_script( 'jquery-twbsPagination');
+
+
+			wp_enqueue_script( 'edit-flow-user-groups-js', $this->module_url . 'lib/user-groups.js', array( 'jquery', 'jquery-color', 'jquery-listfilterizer', 'jquery-quicksearch', 'list', 'jquery-twbsPagination' ), EDIT_FLOW_VERSION, true );
+
+			wp_localize_script( 'edit-flow-user-groups-js', 'ajax_object',
+				array( 'ajax_url' => admin_url( 'admin-ajax.php' ),
+				       'ajax_nonce' => wp_create_nonce( "edit-flow-users-list-usergroups-ajax" )
+				)
+			);
 		}
 			
 		if ( $this->is_whitelisted_settings_view( $this->module->name ) )	
@@ -638,12 +652,17 @@ class EF_User_Groups extends EF_Module {
 	}
 
 	/*
-	 * Ajax processing for retrieving users in usergroups
+	 * Ajax processing for retrieving users in usergroups.
+	 * It can return total number of users if $count_users flag is true
+	 * and return the users if $count_users is false
 	 */
 	function ajax_retrieve_users_in_usergroups(){
 
-		$post_id = isset( $_POST['post_id'] ) ? intval($_POST['post_id']) : 0;
-		$selected = $this->get_following_users( $post_id, 'id' );
+	    // find user ids who are selected in the usergroup
+		$usergroup_id = isset( $_POST['usergroup_id'] ) ? intval($_POST['usergroup_id']) : 0;
+		$usergroup_by_id = $this->get_usergroup_by('id', $usergroup_id);
+		$usergroup_by_id_arr = ($usergroup_by_id !== false) ? $usergroup_by_id->to_array() : array();
+		$selected = $usergroup_by_id_arr['user_ids'];
 
 		$search_keyword = isset( $_POST['search_keyword']) ? sanitize_text_field($_POST['search_keyword']) : '';
 
@@ -673,6 +692,7 @@ class EF_User_Groups extends EF_Module {
 			$users_count = $usersQuery->get_total();
 			wp_send_json($users_count);
 		}
+//		wp_send_json(['response oyeee', $selected['user_ids']]);
 
 		$users = $usersQuery->get_results();
 
@@ -702,6 +722,28 @@ class EF_User_Groups extends EF_Module {
 		wp_send_json(['users' => $users_with_selection, 'users_total' => $usersQuery->get_total()]);
 
 	}
+
+	/*
+	 * Ajax handling saving and removing user from usergroup
+	 */
+	function ajax_save_user_to_usergroup(){
+	    $nonce = $_POST['nonce'];
+
+		$add = isset( $_POST['add']) ? filter_var($_POST['add'], FILTER_VALIDATE_BOOLEAN) : false;
+		$remove = isset( $_POST['remove']) ? filter_var($_POST['remove'], FILTER_VALIDATE_BOOLEAN) : false;
+
+		$user_id = isset( $_POST['user_id'] ) ? intval( $_POST['user_id']) : 0;
+		$usergroup_id = isset( $_POST['usergroup_id'] ) ? intval( $_POST['usergroup_id']) : 0;
+
+		if($add){
+		    $this->add_user_to_usergroup($user_id, $usergroup_id);
+        }
+
+        if($remove){
+            $this->remove_user_from_usergroup($user_id, $usergroup_id);
+        }
+
+    }
 	
 	/**
 	 * Adds a form to the user profile page to allow adding usergroup selecting options
