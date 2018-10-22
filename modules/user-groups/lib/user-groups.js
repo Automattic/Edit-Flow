@@ -44,8 +44,7 @@ jQuery(document).ready(function ($) {
 
             jQuery.post(ajax_object.ajax_url, data_user_count)
                 .done(function (response) {
-                	console.log(data_user_count);
-                	console.log(response);
+
                     totalUsers = parseInt(response);
                     fillPaginatedUsersList(totalUsers, usersPerPage, '');
                 })
@@ -84,8 +83,7 @@ jQuery(document).ready(function ($) {
                     };
 
                     jQuery.post(ajax_object.ajax_url, data, function (response) {
-                    	console.log(data);
-                    	console.log(response);
+
                         // Add the users retrieved from wordpress db to list
                         for (var user of response.users) {
                             userList.add(user);
@@ -186,12 +184,6 @@ jQuery(document).ready(function ($) {
 
             jQuery.post(ajaxurl, params)
                 .done(function (response) {
-                    console.log(params);
-                    console.log(item_element);
-                    console.log(response);
-
-
-                    // item_element.css('background-color', 'black');
 
                     // Trigger visual effect when ajax successful
                     var backgroundColor = item_element.parent().css('background-color');

@@ -34,7 +34,6 @@ jQuery(document).ready(function($) {
                 data: params,
                 success: function (x) {
 
-                    console.log(params);
                     // This event is used to show an updated list of who will be notified of editorial comments and status updates.
                     $('#ef-post_following_box').trigger('following_list_updated');
 
@@ -214,9 +213,6 @@ jQuery(document).ready(function($) {
             user_group_ids.push($(this).data('user-item-id'));
             params.user_group_ids = user_group_ids;
 
-            console.log(params);
-            console.log($(this).find('input').is(':checked'));
-
             if (checkbox.is(':checked')) {
                 params.follow = true;
             } else {
@@ -225,7 +221,6 @@ jQuery(document).ready(function($) {
 
             jQuery.post(ajaxurl, params)
                 .done(function (response) {
-                    console.log(params);
                     // This event is used to show an updated list of who will be notified of editorial comments and status updates.
                     $('#ef-post_following_box').trigger('following_list_updated');
 
