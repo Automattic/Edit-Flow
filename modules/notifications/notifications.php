@@ -192,10 +192,11 @@ class EF_Notifications extends EF_Module {
 		if ( $this->is_whitelisted_functional_view() ) {
 			wp_enqueue_script( 'jquery-listfilterizer' );
 			wp_enqueue_script( 'jquery-quicksearch' );
-			wp_enqueue_script( 'edit-flow-notifications-js', $this->module_url . 'lib/notifications.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
 
 			wp_enqueue_script( 'list');
 			wp_enqueue_script( 'jquery-twbsPagination');
+
+			wp_enqueue_script( 'edit-flow-notifications-js', $this->module_url . 'lib/notifications.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch', 'list', 'jquery-twbsPagination' ), EDIT_FLOW_VERSION, true );
 
 
 			wp_localize_script( 'edit-flow-notifications-js', 'ajax_object',
