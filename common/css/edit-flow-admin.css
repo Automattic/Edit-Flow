@@ -30,7 +30,13 @@ Users list style
 
 .pagination li {
 	display:inline-block;
-	padding:5px;
+	padding-top:5px;
+}
+
+.page-item {
+	!important;
+	padding-right: 4px;
+	padding-left: 4px;
 }
 
 .user-item {
