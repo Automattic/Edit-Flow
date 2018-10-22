@@ -201,7 +201,7 @@ class EF_Notifications extends EF_Module {
 
 			wp_localize_script( 'edit-flow-notifications-js', 'ajax_object',
 				array( 'ajax_url' => admin_url( 'admin-ajax.php' ),
-                       'ajax_nonce' => wp_create_nonce( "edit-flow-users-list-ajax" )
+                       'ajax_nonce' => wp_create_nonce( "edit-flow-users-list-notifications-ajax" )
                 )
             );
 		}
@@ -373,6 +373,8 @@ jQuery(document).ready(function($) {
 	 * Ajax processing for retrieving users
 	 */
 	function ajax_retrieve_users(){
+
+	    check_ajax_referer("save_user_usergroups" , "nonce");
 
 		$post_id = isset( $_POST['post_id'] ) ? intval($_POST['post_id']) : 0;
 		$selected = $this->get_following_users( $post_id, 'id' );

@@ -77,7 +77,7 @@ jQuery(document).ready(function($) {
             // Data sent to WP through ajax for user counts
             var data_user_count = {
                 action: 'retrieve_users',
-                nonce: ajax_object.ajax_nonce,
+                nonce: $("#ef_notifications_nonce").val(),
                 count_users: true
             };
 
@@ -85,9 +85,11 @@ jQuery(document).ready(function($) {
                 .done(function (response) {
                     totalUsers = parseInt(response);
                     fillPaginatedUsersList(totalUsers, usersPerPage, '');
+
                 })
                 .fail(function (xhr, status, error) {
                     $('#ef-post_following_users_box').prev().append(' <p class="error">There was an error. Please reload the page.</p>');
+                    console.log(data_user_count);
                 });
 
         }
@@ -115,7 +117,7 @@ jQuery(document).ready(function($) {
                         post_id: $('#post_ID').val(),
                         page: page,
                         users_per_page: usersPerPage,
-                        nonce: ajax_object.ajax_nonce,
+                        nonce: $("#ef_notifications_nonce").val(),
                         search_keyword: searchKeyword,
                         count_users: false
                     };
@@ -146,7 +148,7 @@ jQuery(document).ready(function($) {
             // Data sent to WP through ajax for user counts
             var data_user_count = {
                 action: 'retrieve_users',
-                nonce: ajax_object.ajax_nonce,
+                nonce: $("#ef_notifications_nonce").val(),
                 count_users: true,
                 search_keyword: searchKeyword
             };

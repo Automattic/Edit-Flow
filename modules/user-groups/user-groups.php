@@ -658,6 +658,8 @@ class EF_User_Groups extends EF_Module {
 	 */
 	function ajax_retrieve_users_in_usergroups(){
 
+	    check_ajax_referer('edit-flow-users-list-usergroups-ajax', 'nonce');
+
 	    // find user ids who are selected in the usergroup
 		$usergroup_id = isset( $_POST['usergroup_id'] ) ? intval($_POST['usergroup_id']) : 0;
 		$usergroup_by_id = $this->get_usergroup_by('id', $usergroup_id);
