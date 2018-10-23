@@ -374,7 +374,7 @@ jQuery(document).ready(function($) {
 	 */
 	function ajax_retrieve_users(){
 
-	    check_ajax_referer("save_user_usergroups" , "nonce");
+		check_ajax_referer("save_user_usergroups" , "nonce");
 
 		$post_id = isset( $_POST['post_id'] ) ? intval($_POST['post_id']) : 0;
 		$selected = $this->get_following_users( $post_id, 'id' );
@@ -382,11 +382,11 @@ jQuery(document).ready(function($) {
 		$search_keyword = isset( $_POST['search_keyword']) ? sanitize_text_field($_POST['search_keyword']) : '';
 
 		$users_per_page = isset( $_POST['users_per_page']) ? intval($_POST['users_per_page']) : 0;
-	    $page = isset( $_POST['page']) ? intval($_POST['page']) : 0;
-	    $offset = $users_per_page * ($page - 1);
+		$page = isset( $_POST['page']) ? intval($_POST['page']) : 0;
+		$offset = $users_per_page * ($page - 1);
 
 		$args = array(
-            'number' => $users_per_page,
+			'number' => $users_per_page,
 			'offset' => $offset,
 			'who' => 'authors',
 			'fields' => array(
@@ -395,9 +395,9 @@ jQuery(document).ready(function($) {
 				'user_email'
 			),
 			'orderby' => 'display_name',
-            'search' => '*' . $search_keyword .'*',
-            'search_columns' => array('display_name', 'user_email'),
-//            'include' => $selected
+			'search' => '*' . $search_keyword .'*',
+			'search_columns' => array('display_name', 'user_email'),
+		//            'include' => $selected
 		);
 
 		$usersQuery = new WP_User_Query($args);
