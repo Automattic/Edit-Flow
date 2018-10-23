@@ -508,18 +508,6 @@ class EF_Module {
             <input type="text" class="filter-users" placeholder="Filter this page" />
 			<input type="hidden" id="total-users-count" value="<?php echo esc_attr($users_count) ?>"/>
 
-            <!--                <button type="button" class="sort" data-sort="user-list-name">-->
-            <!--                    Sort by Name-->
-            <!--                </button>-->
-            <!---->
-            <!--                <button type="button" class="sort" data-sort="email">-->
-            <!--                    Sort by Email-->
-            <!--                </button>-->
-            <!---->
-            <!--                <button type="button" class="sort" data-sort="user_checked">-->
-            <!--                    Sort by Selected-->
-            <!--                </button>-->
-
             <div class="users-list-infos">
                 <span class="users-total-info-text">Total users</span>
                 <span class="users-total-info-value"></span>
