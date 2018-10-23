@@ -104,9 +104,9 @@ class EF_User_Groups extends EF_Module {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 
 		// Ajax for retrieving users
-        add_action( 'wp_ajax_retrieve_users_in_usergroup', array( $this, 'ajax_retrieve_users_in_usergroups'));
+		add_action( 'wp_ajax_retrieve_users_in_usergroup', array( $this, 'ajax_retrieve_users_in_usergroups'));
 
-        // Ajax for saving user to usergroup
+		// Ajax for saving user to usergroup
 		add_action( 'wp_ajax_save_user_to_usergroup', array( $this, 'ajax_save_user_to_usergroup' ) );
 
 	}
@@ -578,9 +578,9 @@ class EF_User_Groups extends EF_Module {
 					'input_id' => 'usergroup_users'
 				);
 			?>
-            <?php $this->users_list(); ?>
-            <?php // $this->users_select_form( $usergroup->user_ids , $select_form_args ); ?>
-        </div></div></div>
+			<?php $this->users_list(); ?>
+			<?php // $this->users_select_form( $usergroup->user_ids , $select_form_args ); ?>
+		</div></div></div>
 		<div id="col-left"><div class="col-wrap"><div class="form-wrap">		
 			<input type="hidden" name="form-action" value="edit-usergroup" />
 			<input type="hidden" name="usergroup_id" id="usergroup_id" value="<?php echo esc_attr( $usergroup_id ); ?>" />
@@ -658,9 +658,9 @@ class EF_User_Groups extends EF_Module {
 	 */
 	function ajax_retrieve_users_in_usergroups(){
 
-	    check_ajax_referer('edit-flow-users-list-usergroups-ajax', 'nonce');
+		check_ajax_referer('edit-flow-users-list-usergroups-ajax', 'nonce');
 
-	    // find user ids who are selected in the usergroup
+		// find user ids who are selected in the usergroup
 		$usergroup_id = isset( $_POST['usergroup_id'] ) ? intval($_POST['usergroup_id']) : 0;
 		$usergroup_by_id = $this->get_usergroup_by('id', $usergroup_id);
 		$usergroup_by_id_arr = ($usergroup_by_id !== false) ? $usergroup_by_id->to_array() : array();
@@ -684,7 +684,7 @@ class EF_User_Groups extends EF_Module {
 			'orderby' => 'display_name',
 			'search' => '*' . $search_keyword .'*',
 			'search_columns' => array('display_name', 'user_email'),
-//            'include' => $selected
+		//            'include' => $selected
 		);
 
 		$usersQuery = new WP_User_Query($args);
@@ -737,12 +737,12 @@ class EF_User_Groups extends EF_Module {
 		$usergroup_id = isset( $_POST['usergroup_id'] ) ? intval( $_POST['usergroup_id']) : 0;
 
 		if($add){
-		    $this->add_user_to_usergroup($user_id, $usergroup_id);
-        }
+			$this->add_user_to_usergroup($user_id, $usergroup_id);
+		}
 
-        if($remove){
-            $this->remove_user_from_usergroup($user_id, $usergroup_id);
-        }
+		if($remove){
+			$this->remove_user_from_usergroup($user_id, $usergroup_id);
+		}
 
     }
 	
