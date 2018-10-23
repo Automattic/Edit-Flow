@@ -202,9 +202,7 @@ class EF_Notifications extends EF_Module {
 
 
 			wp_localize_script( 'edit-flow-notifications-js', 'ajax_object',
-				array( 'ajax_url' => admin_url( 'admin-ajax.php' ),
-                       'ajax_nonce' => wp_create_nonce( "edit-flow-users-list-notifications-ajax" )
-                )
+				array( 'ajax_url' => admin_url( 'admin-ajax.php' ), 'ajax_nonce' => wp_create_nonce( "edit-flow-users-list-notifications-ajax" ) )
             );
 		}
 	}
@@ -399,43 +397,42 @@ jQuery(document).ready(function($) {
 			'orderby' => 'display_name',
 			'search' => '*' . $search_keyword .'*',
 			'search_columns' => array('display_name', 'user_email'),
-		//            'include' => $selected
 		);
 
 		$usersQuery = new WP_User_Query($args);
 
-        $count_users = isset( $_POST['count_users']) ? filter_var($_POST['count_users'], FILTER_VALIDATE_BOOLEAN) : false;
-        if($count_users){
-            $users_count = $usersQuery->get_total();
-            wp_send_json($users_count);
-        }
+		$count_users = isset( $_POST['count_users']) ? filter_var($_POST['count_users'], FILTER_VALIDATE_BOOLEAN) : false;
+		if($count_users){
+			$users_count = $usersQuery->get_total();
+			wp_send_json($users_count);
+		}
 
-        $users = $usersQuery->get_results();
+		$users = $usersQuery->get_results();
 
 
 		if ( ! is_array($selected)){
 			$selected = array();
 		}
-		
+
 		// Compile users with selected users on top of the list
 		$users_with_selection = array();
 
-        foreach ($users as $user){
+		foreach ($users as $user){
 
-            $user_arr['user-item-id'] = $user->ID;
-            $user_arr['user-item-name'] = $user->display_name;
-            $user_arr['user-item-email'] = $user->user_email;
+			$user_arr['user-item-id'] = $user->ID;
+			$user_arr['user-item-name'] = $user->display_name;
+			$user_arr['user-item-email'] = $user->user_email;
 
-            if ( in_array($user->ID, $selected) ){
-                $user_arr['user_checked'] = true;
-            } else {
-                $user_arr['user_checked'] = false;
-            }
+			if ( in_array($user->ID, $selected) ){
+				$user_arr['user_checked'] = true;
+			} else {
+				$user_arr['user_checked'] = false;
+			}
 
-            array_push($users_with_selection, $user_arr);
-        }
+			array_push($users_with_selection, $user_arr);
+		}
 
-        wp_send_json(['users' => $users_with_selection, 'users_total' => $usersQuery->get_total()]);
+		wp_send_json(['users' => $users_with_selection, 'users_total' => $usersQuery->get_total()]);
 
 	}
 
