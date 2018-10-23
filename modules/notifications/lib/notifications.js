@@ -69,30 +69,7 @@ jQuery(document).ready(function($) {
         var userList = new List('users', options);
         var usersPerPage = 10;
         var totalUsers = 0;
-
-        // Fill the initial users list on document load
-        function initiateUsersList() {
-
-            //// Retrieve total user counts for pagination numbering
-            // Data sent to WP through ajax for user counts
-            var data_user_count = {
-                action: 'retrieve_users',
-                nonce: $("#ef_notifications_nonce").val(),
-                count_users: true
-            };
-
-            jQuery.post(ajax_object.ajax_url, data_user_count)
-                .done(function (response) {
-                    totalUsers = parseInt(response);
-                    fillPaginatedUsersList(totalUsers, usersPerPage, '');
-
-                })
-                .fail(function (xhr, status, error) {
-                    $('#ef-post_following_users_box').prev().append(' <p class="error">There was an error. Please reload the page.</p>');
-                    console.log(data_user_count);
-                });
-
-        }
+        var totalUsersCount = $('#total-users-count').val();
 
         function fillPaginatedUsersList(totalUsers, usersPerPage, searchKeyword) {
 
@@ -144,7 +121,7 @@ jQuery(document).ready(function($) {
         }
 
         function fillUsersListByKeyword(searchKeyword) {
-            //// Retrieve total user counts for pagination numbering
+						
             // Data sent to WP through ajax for user counts
             var data_user_count = {
                 action: 'retrieve_users',
@@ -237,10 +214,10 @@ jQuery(document).ready(function($) {
                     $('#ef-post_following_users_box').prev().append(' <p class="error">There was an error. Please reload the page.</p>');
                 });
 
-
         });
 
-        initiateUsersList();
+        // Fill the initial users list on document load
+        fillPaginatedUsersList(totalUsersCount, usersPerPage, '');
 
     }// checks post_id
 });

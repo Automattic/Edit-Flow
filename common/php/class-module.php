@@ -487,12 +487,26 @@ class EF_Module {
 	 * Template for paginated users list
 	 */
 	function users_list(){
+
+		// Get the count of all authors, the count is used to initialize users list
+
+		$args = array(
+			'who' => 'authors',
+			'fields' => array(
+				'ID',
+			),
+		);
+
+		$usersQuery = new WP_User_Query( array('who' => 'authors', 'fields' => 'ID') );
+		$users_count = $usersQuery->get_total();
+
 		?>
         <div id="users">
 
             <input type="text" class="search-users" placeholder="Search" />
             <input type="button" class="button btn-search-users" value="search">
             <input type="text" class="filter-users" placeholder="Filter this page" />
+			<input type="hidden" id="total-users-count" value="<?php echo esc_attr($users_count) ?>"/>
 
             <!--                <button type="button" class="sort" data-sort="user-list-name">-->
             <!--                    Sort by Name-->
