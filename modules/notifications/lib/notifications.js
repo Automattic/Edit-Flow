@@ -200,8 +200,6 @@ jQuery(document).ready(function($) {
 
             var item_element = $(this);
             var checkbox = item_element.find("input[type='checkbox']");
-            var user_group_ids = [];
-
 
             // check the checkbox when .user-item element is clicked
             if (!$(e.target).is(':checkbox') && !checkbox.is(':checked')) {
@@ -209,23 +207,25 @@ jQuery(document).ready(function($) {
             } else if ((!$(e.target).is(':checkbox') && checkbox.is(':checked'))) {
                 checkbox.attr('checked', false);
             }
+			
+			var data = {
+				action: 'save_user_in_notification',
+				post_id: post_id,
+				nonce: $("#ef_notifications_nonce").val(),
+				user_id: $(this).data('user-item-id')
+			}
 
-            params.ef_notifications_name = 'ef-selected-users[]';
-            params._nonce = $("#ef_notifications_nonce").val();
-            user_group_ids.push($(this).data('user-item-id'));
-            params.user_group_ids = user_group_ids;
-
-            if (checkbox.is(':checked')) {
-                params.follow = true;
+			// add the user to notification if the checkbox checked or remove if unchecked
+			if (checkbox.is(':checked')) {
+                data.follow = true;
             } else {
-                params.follow = false;
-            }
+                data.follow = false;
+			}
 
-            jQuery.post(ajaxurl, params)
+            jQuery.post(ajaxurl, data)
                 .done(function (response) {
                     // This event is used to show an updated list of who will be notified of editorial comments and status updates.
                     $('#ef-post_following_box').trigger('following_list_updated');
-
 
                     // Trigger visual effect when ajax successful
                     var backgroundColor = item_element.parent().css('background-color');

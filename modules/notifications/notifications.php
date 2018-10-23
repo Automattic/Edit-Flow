@@ -102,7 +102,9 @@ class EF_Notifications extends EF_Module {
 		add_action( 'wp_ajax_ef_notifications_user_post_subscription', array( $this, 'handle_user_post_subscription' ) );
 
 		//Ajax for retrieving users
-        add_action('wp_ajax_retrieve_users', array($this, 'ajax_retrieve_users'));
+		add_action('wp_ajax_retrieve_users', array($this, 'ajax_retrieve_users'));
+		//Ajax to save user notification
+		add_action('wp_ajax_save_user_in_notification', array( $this, 'ajax_save_user_in_notification' ));
 	}
 	
 	/**
@@ -414,7 +416,7 @@ jQuery(document).ready(function($) {
 		if ( ! is_array($selected)){
 			$selected = array();
 		}
-
+		
 		// Compile users with selected users on top of the list
 		$users_with_selection = array();
 
@@ -435,6 +437,46 @@ jQuery(document).ready(function($) {
 
         wp_send_json(['users' => $users_with_selection, 'users_total' => $usersQuery->get_total()]);
 
+	}
+
+	function ajax_save_user_in_notification(){
+		
+		check_ajax_referer('save_user_usergroups', 'nonce');
+
+		$post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : 0;
+		$post    = get_post( $post_id );
+		$user_id = isset( $_POST['user_id']) ? intval( $_POST['user_id'] ) : 0;
+		$follow = isset( $_POST['follow']) ? filter_var($_POST['follow'], FILTER_VALIDATE_BOOLEAN) : false;
+
+		//// Add selected user, current user, and author to notification if they are set to receive notifications
+		$users = array();
+		$users[] = $user_id;
+
+		// Add current user to notified users
+		$current_user = wp_get_current_user();
+		if ( $current_user && apply_filters( 'ef_notification_auto_subscribe_current_user', true, 'subscription_action' ) )
+			$users[] = $current_user->ID;
+		
+		// Add post author to notified users
+		if ( apply_filters( 'ef_notification_auto_subscribe_post_author', true, 'subscription_action' ) )
+			$users[] = $post->post_author;
+		
+		$users = array_unique( array_map( 'intval', $users ) );
+
+		// check if the post used for notification is valid
+		$valid_post = ! is_null( $post ) && ! wp_is_post_revision( $post_id ) && ! wp_is_post_autosave( $post_id );
+		if ( ! $valid_post || ! current_user_can( $this->edit_post_subscriptions_cap ) ) {
+			die();
+		}
+
+		// do follow or unfollow based on checkbox in the frontend
+		if ( $follow ) {
+			$this->follow_post_user( $post, $users, true );
+		} else {
+		    $this->unfollow_post_user($post, $user_id);
+        }
+
+		wp_send_json_success('change to notification list is saved');
 	}
 
 	/**
@@ -462,8 +504,7 @@ jQuery(document).ready(function($) {
 		}
 
 		if ( 'ef-selected-users[]' === $_POST['ef_notifications_name'] ) {
-			$follow = isset( $_POST['follow'] ) ? filter_var($_POST['follow'], FILTER_VALIDATE_BOOLEAN) : true;
-			$this->save_post_following_users( $post, $user_group_ids, $follow );
+			$this->save_post_following_users( $post, $user_group_ids );
 		}
 		
 		$groups_enabled = $this->module_enabled( 'user_groups' ) && in_array( get_post_type( $post_id ), $this->get_post_types_for_module( $edit_flow->user_groups->module ) );
@@ -527,7 +568,7 @@ jQuery(document).ready(function($) {
 	 *
 	 * @param int $post ID of the post
 	 */
-	function save_post_following_users( $post, $users = null, $follow = true ) {
+	function save_post_following_users( $post, $users = null ) {
 		if( !is_array( $users ) )
 			$users = array();
 		
@@ -542,11 +583,8 @@ jQuery(document).ready(function($) {
 		
 		$users = array_unique( array_map( 'intval', $users ) );
 
-		if ( $follow ) {
-			$this->follow_post_user( $post, $users, true );
-        } else {
-		    $this->unfollow_post_user($post, $users[0]);
-        }
+		$follow = $this->follow_post_user( $post, $users, false );
+		
 	}
 	
 	/**
