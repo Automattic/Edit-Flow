@@ -488,25 +488,25 @@ class EF_Module {
 	 */
 	function users_list(){
 
-		// Get the count of all authors, the count is used to initialize users list
+        // Get the count of all authors, the count is used to initialize users list
+        $args = array(
+            'who' => 'authors',
+            'fields' => array(
+                'ID',
+            ),
+        );
 
-		$args = array(
-			'who' => 'authors',
-			'fields' => array(
-				'ID',
-			),
-		);
+        $usersQuery = new WP_User_Query( array('who' => 'authors', 'fields' => 'ID') );
+        $users_count = $usersQuery->get_total();
 
-		$usersQuery = new WP_User_Query( array('who' => 'authors', 'fields' => 'ID') );
-		$users_count = $usersQuery->get_total();
+        ?>
 
-		?>
         <div id="users">
 
             <input type="text" class="search-users" placeholder="Search" />
             <input type="button" class="button btn-search-users" value="search">
             <input type="text" class="filter-users" placeholder="Filter this page" />
-			<input type="hidden" id="total-users-count" value="<?php echo esc_attr($users_count) ?>"/>
+            <input type="hidden" id="total-users-count" value="<?php echo esc_attr($users_count) ?>"/>
 
             <div class="users-list-infos">
                 <span class="users-total-info-text">Total users</span>
@@ -517,8 +517,8 @@ class EF_Module {
 
             <ul id="users-pagination" class="pagination"></ul>
         </div>
-		<?php
 
+        <?php
 	}
 
 	/**
