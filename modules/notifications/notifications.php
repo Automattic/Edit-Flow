@@ -105,8 +105,8 @@ class EF_Notifications extends EF_Module {
 		add_action('wp_ajax_retrieve_users', array($this, 'ajax_retrieve_users'));
 		//Ajax to save user notification
 		add_action('wp_ajax_save_user_in_notification', array( $this, 'ajax_save_user_in_notification' ));
-        //Ajax for retrieving total users count by search keyword
-        add_action('wp_ajax_retrieve_users_count_by_keyword', array( $this, 'ajax_retrieve_users_count_by_keyword' ));
+		//Ajax for retrieving total users count by search keyword
+		add_action('wp_ajax_retrieve_users_count_by_keyword', array( $this, 'ajax_retrieve_users_count_by_keyword' ));
     }
 	
 	/**

@@ -108,8 +108,8 @@ class EF_User_Groups extends EF_Module {
 
 		// Ajax for saving user to usergroup
 		add_action( 'wp_ajax_save_user_to_usergroup', array( $this, 'ajax_save_user_to_usergroup' ) );
-        //Ajax for retrieving total users count by search keyword
-        add_action( 'wp_ajax_retrieve_users_count_in_usergroup_by_keyword', array( $this, 'ajax_retrieve_users_count_in_usergroup_by_keyword' ));
+		//Ajax for retrieving total users count by search keyword
+		add_action( 'wp_ajax_retrieve_users_count_in_usergroup_by_keyword', array( $this, 'ajax_retrieve_users_count_in_usergroup_by_keyword' ));
 
 	}
 	
@@ -714,7 +714,6 @@ class EF_User_Groups extends EF_Module {
         );
 
         $users = get_users($args);
-
 
         if ( ! is_array($selected)){
             $selected = array();
