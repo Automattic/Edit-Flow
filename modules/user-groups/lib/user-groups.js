@@ -90,7 +90,6 @@ jQuery(document).ready(function ($) {
                 search_keyword: searchKeyword
             };
 
-			console.log(data_user_count);
             jQuery.post(ajax_object.ajax_url, data_user_count, function (response) {
 
                 totalUsers = parseInt(response);
