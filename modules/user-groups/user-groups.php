@@ -108,6 +108,8 @@ class EF_User_Groups extends EF_Module {
 
 		// Ajax for saving user to usergroup
 		add_action( 'wp_ajax_save_user_to_usergroup', array( $this, 'ajax_save_user_to_usergroup' ) );
+        //Ajax for retrieving total users count by search keyword
+        add_action( 'wp_ajax_retrieve_users_count_in_usergroup_by_keyword', array( $this, 'ajax_retrieve_users_count_in_usergroup_by_keyword' ));
 
 	}
 	
@@ -651,76 +653,92 @@ class EF_User_Groups extends EF_Module {
 		<?php endif;
 	}
 
-	/*
+    /**
+     * Ajax for retrieving the total count of users
+     */
+    function ajax_retrieve_users_count_in_usergroup_by_keyword(){
+
+        check_ajax_referer("edit-flow-users-list-usergroups-ajax" , "nonce");
+
+        $search_keyword = isset( $_POST['search_keyword']) ? sanitize_text_field($_POST['search_keyword']) : '';
+
+        $args = array(
+            'who' => 'authors',
+            'fields' => array(
+                'ID',
+            ),
+            'search' => '*' . $search_keyword .'*',
+            'search_columns' => array('display_name', 'user_email'),
+            'count_total' => true
+        );
+
+        $usersQuery = new WP_User_Query( $args );
+        $users_count = $usersQuery->get_total();
+        
+        wp_send_json($users_count);
+
+    }
+
+	/**
 	 * Ajax processing for retrieving users in usergroups.
-	 * It can return total number of users if $count_users flag is true
-	 * and return the users if $count_users is false
 	 */
 	function ajax_retrieve_users_in_usergroups(){
 
-		check_ajax_referer('edit-flow-users-list-usergroups-ajax', 'nonce');
+        check_ajax_referer('edit-flow-users-list-usergroups-ajax', 'nonce');
 
-		// find user ids who are selected in the usergroup
-		$usergroup_id = isset( $_POST['usergroup_id'] ) ? intval($_POST['usergroup_id']) : 0;
-		$usergroup_by_id = $this->get_usergroup_by('id', $usergroup_id);
-		$usergroup_by_id_arr = ($usergroup_by_id !== false) ? $usergroup_by_id->to_array() : array();
-		$selected = $usergroup_by_id_arr['user_ids'];
+        // find user ids who are selected in the usergroup
+        $usergroup_id = isset( $_POST['usergroup_id'] ) ? intval($_POST['usergroup_id']) : 0;
+        $usergroup_by_id = $this->get_usergroup_by('id', $usergroup_id);
+        $usergroup_by_id_arr = ($usergroup_by_id !== false) ? $usergroup_by_id->to_array() : array();
+        $selected = $usergroup_by_id_arr['user_ids'];
 
-		$search_keyword = isset( $_POST['search_keyword']) ? sanitize_text_field($_POST['search_keyword']) : '';
+        $search_keyword = isset( $_POST['search_keyword']) ? sanitize_text_field($_POST['search_keyword']) : '';
 
-		$users_per_page = isset( $_POST['users_per_page']) ? intval($_POST['users_per_page']) : 0;
-		$page = isset( $_POST['page']) ? intval($_POST['page']) : 0;
-		$offset = $users_per_page * ($page - 1);
+        $users_per_page = isset( $_POST['users_per_page']) ? intval($_POST['users_per_page']) : 0;
+        $page = isset( $_POST['page']) ? intval($_POST['page']) : 0;
+        $offset = $users_per_page * ($page - 1);
 
-		$args = array(
-			'number' => $users_per_page,
-			'offset' => $offset,
-			'who' => 'authors',
-			'fields' => array(
-				'ID',
-				'display_name',
-				'user_email'
-			),
-			'orderby' => 'display_name',
-			'search' => '*' . $search_keyword .'*',
-			'search_columns' => array('display_name', 'user_email'),
-		//            'include' => $selected
-		);
+        $args = array(
+            'number' => $users_per_page,
+            'offset' => $offset,
+            'who' => 'authors',
+            'fields' => array(
+                'ID',
+                'display_name',
+                'user_email'
+            ),
+            'orderby' => 'display_name',
+            'search' => '*' . $search_keyword .'*',
+            'search_columns' => array('display_name', 'user_email'),
+        //            'include' => $selected
+        );
 
-		$usersQuery = new WP_User_Query($args);
-
-		$count_users = isset( $_POST['count_users']) ? filter_var($_POST['count_users'], FILTER_VALIDATE_BOOLEAN) : false;
-		if($count_users){
-			$users_count = $usersQuery->get_total();
-			wp_send_json($users_count);
-		}
-
-		$users = $usersQuery->get_results();
+        $users = get_users($args);
 
 
-		if ( ! is_array($selected)){
-			$selected = array();
-		}
+        if ( ! is_array($selected)){
+            $selected = array();
+        }
 
-		// Compile users with selected users on top of the list
-		$users_with_selection = array();
+        // Compile users with selected users on top of the list
+        $users_with_selection = array();
 
-		foreach ($users as $user){
+        foreach ($users as $user){
 
-			$user_arr['user-item-id'] = $user->ID;
-			$user_arr['user-item-name'] = $user->display_name;
-			$user_arr['user-item-email'] = $user->user_email;
+            $user_arr['user-item-id'] = $user->ID;
+            $user_arr['user-item-name'] = $user->display_name;
+            $user_arr['user-item-email'] = $user->user_email;
 
-			if ( in_array($user->ID, $selected) ){
-				$user_arr['user_checked'] = true;
-			} else {
-				$user_arr['user_checked'] = false;
-			}
+            if ( in_array($user->ID, $selected) ){
+                $user_arr['user_checked'] = true;
+            } else {
+                $user_arr['user_checked'] = false;
+            }
 
-			array_push($users_with_selection, $user_arr);
-		}
+            array_push($users_with_selection, $user_arr);
+        }
 
-		wp_send_json(['users' => $users_with_selection, 'users_total' => $usersQuery->get_total()]);
+        wp_send_json(['users' => $users_with_selection]);
 
 	}
 

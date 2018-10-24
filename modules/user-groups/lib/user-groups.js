@@ -56,8 +56,7 @@ jQuery(document).ready(function ($) {
                         page: page,
                         users_per_page: usersPerPage,
                         nonce: ajax_object.ajax_nonce,
-                        search_keyword: searchKeyword,
-                        count_users: false
+                        search_keyword: searchKeyword
                     };
 
                     jQuery.post(ajax_object.ajax_url, data, function (response) {
@@ -86,12 +85,12 @@ jQuery(document).ready(function ($) {
             //// Retrieve total user counts for pagination numbering
             // Data sent to WP through ajax for user counts
             var data_user_count = {
-                action: 'retrieve_users_in_usergroup',
+                action: 'retrieve_users_count_in_usergroup_by_keyword',
                 nonce: ajax_object.ajax_nonce,
-                count_users: true,
                 search_keyword: searchKeyword
             };
 
+			console.log(data_user_count);
             jQuery.post(ajax_object.ajax_url, data_user_count, function (response) {
 
                 totalUsers = parseInt(response);
