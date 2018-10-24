@@ -105,7 +105,9 @@ class EF_Notifications extends EF_Module {
 		add_action('wp_ajax_retrieve_users', array($this, 'ajax_retrieve_users'));
 		//Ajax to save user notification
 		add_action('wp_ajax_save_user_in_notification', array( $this, 'ajax_save_user_in_notification' ));
-	}
+        //Ajax for retrieving total users count by search keyword
+        add_action('wp_ajax_retrieve_users_count_by_keyword', array( $this, 'ajax_retrieve_users_count_by_keyword' ));
+    }
 	
 	/**
 	 * Load the capabilities onto users the first time the module is run
@@ -369,7 +371,32 @@ jQuery(document).ready(function($) {
 		<?php
 	}
 
-	/*
+    /**
+     * Ajax for retrieving the total count of users
+     */
+    function ajax_retrieve_users_count_by_keyword(){
+
+        check_ajax_referer("save_user_usergroups" , "nonce");
+
+        $search_keyword = isset( $_POST['search_keyword']) ? sanitize_text_field($_POST['search_keyword']) : '';
+
+        $args = array(
+            'who' => 'authors',
+            'fields' => array(
+                'ID',
+            ),
+            'search' => '*' . $search_keyword .'*',
+            'search_columns' => array('display_name', 'user_email'),
+            'count_total' => true
+        );
+
+        $usersQuery = new WP_User_Query( $args );
+        $users_count = $usersQuery->get_total();
+        wp_send_json($users_count);
+
+    }
+
+	/**
 	 * Ajax processing for retrieving users
 	 */
 	function ajax_retrieve_users(){
@@ -399,16 +426,7 @@ jQuery(document).ready(function($) {
 			'search_columns' => array('display_name', 'user_email'),
 		);
 
-		$usersQuery = new WP_User_Query($args);
-
-		$count_users = isset( $_POST['count_users']) ? filter_var($_POST['count_users'], FILTER_VALIDATE_BOOLEAN) : false;
-		if($count_users){
-			$users_count = $usersQuery->get_total();
-			wp_send_json($users_count);
-		}
-
-		$users = $usersQuery->get_results();
-
+        $users = get_users($args);
 
 		if ( ! is_array($selected)){
 			$selected = array();
@@ -432,7 +450,7 @@ jQuery(document).ready(function($) {
 			array_push($users_with_selection, $user_arr);
 		}
 
-		wp_send_json(['users' => $users_with_selection, 'users_total' => $usersQuery->get_total()]);
+		wp_send_json(['users' => $users_with_selection]);
 
 	}
 

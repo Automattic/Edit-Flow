@@ -96,7 +96,6 @@ jQuery(document).ready(function($) {
                         users_per_page: usersPerPage,
                         nonce: $("#ef_notifications_nonce").val(),
                         search_keyword: searchKeyword,
-                        count_users: false
                     };
 
                     jQuery.post(ajax_object.ajax_url, data, function (response) {
@@ -124,9 +123,8 @@ jQuery(document).ready(function($) {
 						
             // Data sent to WP through ajax for user counts
             var data_user_count = {
-                action: 'retrieve_users',
+                action: 'retrieve_users_count_by_keyword',
                 nonce: $("#ef_notifications_nonce").val(),
-                count_users: true,
                 search_keyword: searchKeyword
             };
 
