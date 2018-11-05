@@ -372,7 +372,7 @@ jQuery(document).ready(function($) {
 	}
 
     /**
-     * Ajax for retrieving the total count of users
+     * Ajax endpoint for retrieving the total count of users in notification
      */
     function ajax_retrieve_users_count_by_keyword(){
 
@@ -397,7 +397,7 @@ jQuery(document).ready(function($) {
     }
 
 	/**
-	 * Ajax processing for retrieving users
+	 * Ajax endpoint for retrieving users in notification
 	 */
 	function ajax_retrieve_users(){
 
@@ -463,7 +463,7 @@ jQuery(document).ready(function($) {
 		$user_id = isset( $_POST['user_id']) ? intval( $_POST['user_id'] ) : 0;
 		$follow = isset( $_POST['follow']) ? filter_var($_POST['follow'], FILTER_VALIDATE_BOOLEAN) : false;
 
-		//// Add selected user, current user, and author to notification if they are set to receive notifications
+		// Add selected user, current user, and author to notification if they are set to receive notifications
 		$users = array();
 		$users[] = $user_id;
 

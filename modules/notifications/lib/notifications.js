@@ -46,8 +46,6 @@ jQuery( document ).ready( function( $ ) {
 			} );
 		} );
 
-		//// Users list for notifications meta
-
 		// Options for the list
 		var options = {
 			// values used for filters
@@ -67,8 +65,16 @@ jQuery( document ).ready( function( $ ) {
 		var userList = new List( 'users', options );
 		var usersPerPage = 10;
 		var totalUsers = 0;
-		var totalUsersCount = $( '#total-users-count' ).val();
+		var totalUsersCount = $( '#total-users-count' ).val(); //embedded total users in the hidden html
 
+		/**
+		 * The function will show paginated users list. Each users page will show a number of users defined by the parameter.
+		 * Total users pages will be calculated by dividing totalUsers with usersPerPage. Each users page retrieved using ajax.
+		 * 
+		 * @param {number} totalUsers Total users related to the search keyword
+		 * @param {number} usersPerPage Total user shown in a users page
+		 * @param {string} searchKeyword The keyword for users to be shown in the page
+		 */
 		function fillPaginatedUsersList( totalUsers, usersPerPage, searchKeyword ) {
 			// remove pagination if it existed
 			if ( $( '#users-pagination' ).data( 'twbs-pagination' ) ) {
@@ -113,6 +119,12 @@ jQuery( document ).ready( function( $ ) {
 			} );
 		}
 
+		/**
+		 * This will populate users based on a keyword. First it will retrieve the count of users based on the keyword.
+		 * The count then will be used as base to calculate pagination related variables in fillPaginatedUsersList
+		 * 
+		 * @param {string} searchKeyword Text based on users for to be shown in the users list. Can contain wildcard.
+		 */
 		function fillUsersListByKeyword( searchKeyword ) {
 			// Data sent to WP through ajax for user counts
 			var data_user_count = {
@@ -135,6 +147,7 @@ jQuery( document ).ready( function( $ ) {
 			} );
 		}
 
+		// jQuery bind to search users when pressing Enter key
 		$( '.search-users' ).bind( 'keypress', function( e ) {
 			if ( e.keyCode == 13 ) {
 				clearTimeout( $.data( this, 'timer' ) );
@@ -149,6 +162,7 @@ jQuery( document ).ready( function( $ ) {
 			}
 		} );
 
+		// jQuery binding search button click
 		$( '.btn-search-users' ).click( function( e ) {
 			clearTimeout( $.data( this, 'timer' ) );
 
@@ -161,6 +175,7 @@ jQuery( document ).ready( function( $ ) {
 			$( this ).data( 'timer', wait );
 		} );
 
+		// Ajax for saving checked/unchecked user
 		$( document ).on( 'click', '.user-item', function( e ) {
 			var item_element = $( this );
 			var checkbox = item_element.find( "input[type='checkbox']" );

@@ -484,7 +484,7 @@ class EF_Module {
 	}
 
 	/*
-	 * Template for paginated users list
+	 * Template for displaying paginated users list in notification and user group
 	 */
 	function users_list(){
 

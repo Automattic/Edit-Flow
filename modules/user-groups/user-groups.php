@@ -654,7 +654,7 @@ class EF_User_Groups extends EF_Module {
 	}
 
     /**
-     * Ajax for retrieving the total count of users
+     * Ajax endpoint for retrieving the total count of users
      */
     function ajax_retrieve_users_count_in_usergroup_by_keyword(){
 
@@ -680,7 +680,7 @@ class EF_User_Groups extends EF_Module {
     }
 
 	/**
-	 * Ajax processing for retrieving users in usergroups.
+	 * Ajax endpoint for retrieving users in usergroups.
 	 */
 	function ajax_retrieve_users_in_usergroups(){
 
@@ -719,7 +719,6 @@ class EF_User_Groups extends EF_Module {
             $selected = array();
         }
 
-        // Compile users with selected users on top of the list
         $users_with_selection = array();
 
         foreach ($users as $user){
