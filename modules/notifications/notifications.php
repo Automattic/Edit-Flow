@@ -602,6 +602,9 @@ jQuery(document).ready(function($) {
 	
 	/**
 	 * Set up and set editorial comment notification email
+	 * 
+	 * @param WP_Comment $comment
+	 * @return boolean
 	 */
 	function notification_comment( $comment ) {
 		
@@ -621,7 +624,10 @@ jQuery(document).ready(function($) {
 		$post_id = $post->ID;
 		$post_type = get_post_type_object( $post->post_type )->labels->singular_name;
 		$post_title = ef_draft_or_post_title( $post_id );
-	
+
+		// Fetch the text list of people who were notified from comment meta @see EF_Editorial_Comments->maybe_output_comment_meta()
+		$notification_list = get_comment_meta( $comment->comment_ID, 'notification_list', true );
+
 		// Check if this a reply
 		//$parent_ID = isset( $comment->comment_parent_ID ) ? $comment->comment_parent_ID : 0;
 		//if($parent_ID) $parent = get_comment($parent_ID);
@@ -651,6 +657,11 @@ jQuery(document).ready(function($) {
 			
 		}
 		*/
+		
+		// Insert the notification list from comment meta @see EF_Editorial_Comments->maybe_output_comment_meta()
+		if ($notification_list) {
+			$body .= esc_html__( 'Notified', 'edit-flow' ) . ": $notification_list\n";
+		}
 		
 		$body .= "\r\n--------------------\r\n";
 		
