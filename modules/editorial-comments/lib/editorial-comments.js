@@ -144,7 +144,7 @@ editorialCommentReply = {
 
 		var usernames = [];
 		subscribed_users.each( function() {
-			usernames.push( $( this ).next().text() );
+			usernames.push( $( this ).parent().siblings('.ef-user_displayname').text() );
 		} );
 
 		// Convert array of usernames into a sentence.
