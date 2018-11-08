@@ -67,15 +67,6 @@
 	width: 210px;
 }
 
-.edit-flow-modules .edit-flow-module .button-primary {
-	color: #f1f1f1;
-	border: solid 1px #538312;
-	background: #64991e;
-	background: -webkit-gradient(linear, left top, left bottom, from(#86C67C), to(#3D8B37));
-	background: -moz-linear-gradient(top,  #86C67C,  #3D8B37);
-	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#86C67C', endColorstr='#3D8B37');
-}
-
 .edit-flow-modules .edit-flow-module .button-primary:hover {
 	color: #FFFFFF;
 	border-color: #3B5D0C;
