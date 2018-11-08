@@ -30,17 +30,16 @@
 	font-size: 14px;
 }
 
-
-.postbox-container {
-	float: left;
-	padding-right: 0;
-}
-
 .postbox {
 	display: block;
-	margin-bottom: 10px;
-	margin-left: 10px;
-	margin-right: 10px;
+	margin: 0 auto 10px;
+	justify-content: space-between;
+}
+
+.postbox-container {
+	padding-right: 0;
+	display: flex;
+	flex-flow: row wrap;
 }
 
 .postbox .inside {

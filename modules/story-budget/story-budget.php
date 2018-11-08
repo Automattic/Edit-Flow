@@ -65,13 +65,9 @@ class EF_Story_Budget extends EF_Module {
 
 		// Filter to allow users to pick a taxonomy other than 'category' for sorting their posts
 		$this->taxonomy_used = apply_filters( 'ef_story_budget_taxonomy_used', $this->taxonomy_used );
-		
+
 		add_action( 'admin_init', array( $this, 'handle_form_date_range_change' ) );
-		
-		include_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
-		if ( function_exists( 'add_screen_options_panel' ) )
-			add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', __( 'Screen Layout', 'edit-flow' ), array( $this, 'print_column_prefs' ), self::screen_id, array( $this, 'save_column_prefs' ), true );
-		
+		add_action( 'admin_init', array( $this, 'add_screen_options_panel' ) );
 		// Register the columns of data appearing on every term. This is hooked into admin_init
 		// so other Edit Flow modules can register their filters if needed
 		add_action( 'admin_init', array( $this, 'register_term_columns' ) );
@@ -228,6 +224,16 @@ class EF_Story_Budget extends EF_Module {
 	}
 	
 	/**
+	 * Add module options to the screen panel
+	 *
+	 * @since 0.8.3
+	 */
+	function add_screen_options_panel() {
+		require_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
+		add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', __( 'Screen Layout', 'edit-flow' ), array( $this, 'print_column_prefs' ), self::screen_id, array( $this, 'save_column_prefs' ), true );
+	}
+	
+	/**
 	 * Print column number preferences for screen options
 	 */
 	function print_column_prefs() {
@@ -284,23 +290,25 @@ class EF_Story_Budget extends EF_Module {
 			<?php $this->print_messages(); ?>
 			<?php $this->table_navigation(); ?>
 			<div class="metabox-holder">
-			<?php
-				// Handle the calculation of terms to postbox-containers
-				$terms_per_container = ceil( count( $terms ) / $this->num_columns );
-				$term_index = 0;
-				// Show just one column if we've filtered to one term
-				if ( count( $this->terms ) == 1 )
-					$this->num_columns = 1;
-				for( $i = 1; $i <= $this->num_columns; $i++ ) {
-					echo '<div class="postbox-container" style="width:' . ( 100 / $this->num_columns ) . '%;">';
-					for( $j = 0; $j < $terms_per_container; $j++ ) {
-						if ( isset( $this->terms[$term_index] ) )
-							$this->print_term( $this->terms[$term_index] );
-						$term_index++;
+				<?php
+					echo '<div class="postbox-container columns-number-' . absint( $this->num_columns ) . '">';
+					foreach( (array) $this->terms as $term ) {
+						$this->print_term( $term );
 					}
+
 					echo '</div>';
-				}
-			?>
+				?>
+				<style>
+					<?php
+					  for ( $i = 1; $i <= $this->max_num_columns; ++$i ) {
+						?>
+					.columns-number-<?php echo (int) $i; ?> .postbox {
+						flex-basis: <?php echo  99 / $i ?>%;
+					}
+					<?php
+				  }
+				?>
+				</style>
 			</div>
 		</div>
 		<?php
@@ -510,8 +518,7 @@ class EF_Story_Budget extends EF_Module {
 				return $output;
 				break;
 			case 'post_modified':
-				$modified_time_gmt = strtotime( $post->post_modified_gmt . " GMT" );
-				return $this->timesince( $modified_time_gmt );
+				return sprintf( esc_html__( '%s ago', 'edit-flow' ), human_time_diff( get_the_time( 'U', $post->ID ), current_time( 'timestamp' ) ) );
 				break;
 			default:
 				break;

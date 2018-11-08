@@ -36,6 +36,10 @@ jQuery(document).ready(function($) {
 			url : (ajaxurl) ? ajaxurl : wpListL10n.url,
 			data : params,
 			success : function( response ) { 
+
+				// This event is used to show an updated list of who will be notified of editorial comments and status updates.
+				$( '#ef-post_following_box' ).trigger( 'following_list_updated' );
+
 				var backgroundColor = parent_this.css( 'background-color' );
 				$(parent_this.parents('li'))
 					.animate( { 'backgroundColor':'#CCEEBB' }, 200 )

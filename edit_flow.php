@@ -4,7 +4,7 @@ Plugin Name: Edit Flow
 Plugin URI: http://editflow.org/
 Description: Remixing the WordPress admin for better editorial workflow options.
 Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Automattic, and others
-Version: 0.8.2
+Version: 0.8.3
 Author URI: http://editflow.org/
 
 Copyright 2009-2016 Mohammad Jangda, Daniel Bachhuber, et al.
@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 // Define contants
-define( 'EDIT_FLOW_VERSION' , '0.8.3-alpha' );
+define( 'EDIT_FLOW_VERSION' , '0.8.3' );
 define( 'EDIT_FLOW_ROOT' , dirname(__FILE__) );
 define( 'EDIT_FLOW_FILE_PATH' , EDIT_FLOW_ROOT . '/' . basename(__FILE__) );
 define( 'EDIT_FLOW_URL' , plugins_url( '/', __FILE__ ) );
@@ -128,8 +128,12 @@ class edit_flow {
 			}
 		}
 		
-		// Supplementary plugins can hook into this, include their own modules
-		// and add them to the $edit_flow object
+		/**
+		 * Fires after edit_flow has loaded all Edit Flow internal modules. 
+		 *
+		 * Plugin authors can hook into this action, include their own modules add them to the $edit_flow object
+		 *    
+		 */
 		do_action( 'ef_modules_loaded' );
 		
 	}
@@ -147,6 +151,13 @@ class edit_flow {
 
 		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
 
+		/**
+		 * Fires after setup of all edit_flow actions.
+		 *
+		 * Plugin authors can hook into this action to manipulate the edit_flow class after initial actions have been registered.
+		 * 
+		 * @param edit_flow $this The core edit flow class
+		 */
 		do_action_ref_array( 'editflow_after_setup_actions', array( &$this ) );
 	}
 
@@ -169,6 +180,12 @@ class edit_flow {
 			if ( isset( $mod_data->options->enabled ) && $mod_data->options->enabled == 'on' )
 				$this->$mod_name->init();
 		
+		/**
+		 * Fires after edit_flow has loaded all modules and module options.
+		 *
+		 * Plugin authors can hook into this action to trigger functionaltiy after all Edit Flow module's have been loaded.
+		 *    
+		 */
 		do_action( 'ef_init' );
 	}
 
@@ -248,6 +265,14 @@ class edit_flow {
 			add_action( 'load-edit-flow_page_' . $args['settings_slug'], array( &$this->$name, 'action_settings_help_menu' ) );
 		
 		$this->modules->$name = (object) $args;
+
+		/**
+		 * Fires after edit_flow has registered a module.
+		 *
+		 * Plugin authors can hook into this action to trigger functionaltiy after a module has been loaded.
+		 *
+		 * @param string $name The name of the registered module
+		 */
 		do_action( 'ef_module_registered', $name );
 		return $this->modules->$name;
 	}
@@ -268,6 +293,13 @@ class edit_flow {
 
 			$this->$mod_name->module = $this->modules->$mod_name;
 		}
+
+		/**
+		 * Fires after edit_flow has loaded all of the module options from the database.
+		 *
+		 * Plugin authors can hook into this action to read and manipulate module settings.
+		 *    	
+		 */
 		do_action( 'ef_module_options_loaded' );
 	}
 
@@ -288,6 +320,9 @@ class edit_flow {
 	
 	/**
 	 * Get a module by one of its descriptive values
+	 *
+	 * @param string $key The property to use for searching a module (ex: 'name')
+	 * @param string|int|array $value The value to compare (using ==)
 	 */
 	function get_module_by( $key, $value ) {
 		$module = false;

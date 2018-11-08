@@ -85,13 +85,12 @@ class EF_Calendar extends EF_Module {
 
 		// Define the create-post capability
 		$this->create_post_cap = apply_filters( 'ef_calendar_create_post_cap', 'edit_posts' );
-		
-		require_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
-		add_screen_options_panel( self::usermeta_key_prefix . 'screen_options', __( 'Calendar Options', 'edit-flow' ), array( $this, 'generate_screen_options' ), self::screen_id, false, true );
+
+		add_action( 'admin_init', array( $this, 'add_screen_options_panel' ) );
 		add_action( 'admin_init', array( $this, 'handle_save_screen_options' ) );
 		
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
-		add_action( 'admin_menu', array( $this, 'action_admin_menu' ) );		
+		add_action( 'admin_menu', array( $this, 'action_admin_menu' ) );
 		add_action( 'admin_print_styles', array( $this, 'add_admin_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		
@@ -242,6 +241,16 @@ class EF_Calendar extends EF_Module {
 		}
 		
 		return $output;	
+	}
+	
+	/**
+	 * Add module options to the screen panel
+	 *
+	 * @since 0.8.3
+	 */
+	function add_screen_options_panel() {
+		require_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
+		add_screen_options_panel( self::usermeta_key_prefix . 'screen_options', __( 'Calendar Options', 'edit-flow' ), array( $this, 'generate_screen_options' ), self::screen_id, false, true );		
 	}
 	
 	/**
@@ -782,10 +791,14 @@ class EF_Calendar extends EF_Module {
 						$this->hidden = 0;
 						if ( !empty( $week_posts[$week_single_date] ) ) {
 
-							$week_posts[$week_single_date] = apply_filters( 'ef_calendar_posts_for_week', $week_posts[$week_single_date] );
+							$week_posts[$week_single_date] = apply_filters( 'ef_calendar_posts_for_week', $week_posts[$week_single_date], $week_single_date );
 
-							foreach ( $week_posts[$week_single_date] as $num => $post ){ 
-								echo $this->generate_post_li_html( $post, $week_single_date, $num ); 
+							foreach ( $week_posts[$week_single_date] as $num => $post ) {
+								$output = apply_filters( 'ef_pre_calendar_single_date_item_html', '', $this, $num, $post, $week_single_date );
+								if ( ! $output ) {
+									$output = $this->generate_post_li_html( $post, $week_single_date, $num );
+								}
+								echo $output;
 							} 
 
 						 } 
@@ -1297,23 +1310,23 @@ class EF_Calendar extends EF_Module {
 	
 	/**
 	 * Given a day in string format, returns the day at the beginning of that week, which can be the given date.
-	 * The end of the week is determined by the blog option, 'start_of_week'.
+	 * The beginning of the week is determined by the blog option, 'start_of_week'.
 	 *
 	 * @see http://www.php.net/manual/en/datetime.formats.date.php for valid date formats
 	 *
 	 * @param string $date String representing a date
-	 * @param string $format Date format in which the end of the week should be returned
+	 * @param string $format Date format in which the beginning of the week should be returned
 	 * @param int $week Number of weeks we're offsetting the range	
-	 * @return string $formatted_start_of_week End of the week
+	 * @return string $formatted_start_of_week Beginning of the week
 	 */
 	function get_beginning_of_week( $date, $format = 'Y-m-d', $week = 1 ) {
 
 		$date = strtotime( $date );
 		$start_of_week = get_option( 'start_of_week' );
 		$day_of_week = date( 'w', $date );
-		$date += (( $start_of_week - $day_of_week - 7 ) % 7) * 60 * 60 * 24 * $week;
-		$additional = 3600 * 24 * 7 * ( $week - 1 );
-		$formatted_start_of_week = date( $format, $date + $additional );
+		$date += (( $start_of_week - $day_of_week - 7 ) % 7) * 60 * 60 * 24 ;
+		$date = strtotime ( '+' . ( $week - 1 ) . ' week', $date ) ;
+                $formatted_start_of_week = date( $format, $date );
 		return $formatted_start_of_week;
 		
 	}
@@ -1335,8 +1348,8 @@ class EF_Calendar extends EF_Module {
 		$end_of_week = get_option( 'start_of_week' ) - 1;
 		$day_of_week = date( 'w', $date );
 		$date += (( $end_of_week - $day_of_week + 7 ) % 7) * 60 * 60 * 24;
-		$additional = 3600 * 24 * 7 * ( $week - 1 );
-		$formatted_end_of_week = date( $format, $date + $additional );
+		$date = strtotime ( '+' . ( $week - 1 ) . ' week', $date ) ;
+		$formatted_end_of_week = date( $format, $date );
 		return $formatted_end_of_week;
 		
 	}
