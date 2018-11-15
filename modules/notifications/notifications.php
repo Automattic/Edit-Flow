@@ -662,7 +662,7 @@ jQuery(document).ready(function($) {
 		$body .= "\r\n--------------------\r\n";
 		// Insert the notification list from comment meta @see EF_Editorial_Comments->maybe_output_comment_meta()
 		if ($notification_list) {
-			$body .= esc_html__( 'Notified', 'edit-flow' ) . ": $notification_list\n";
+			$body .= esc_html__( 'Notified', 'edit-flow' ) . ": " . esc_html( $notification_list ) . "\n";
 		}
 		
 		$edit_link = htmlspecialchars_decode( get_edit_post_link( $post_id ) );
