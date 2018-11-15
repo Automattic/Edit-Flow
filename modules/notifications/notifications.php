@@ -637,7 +637,7 @@ jQuery(document).ready(function($) {
 	 * Set up and set editorial comment notification email
 	 * 
 	 * @param WP_Comment $comment
-	 * @return boolean
+	 * @return boolean|null|void
 	 */
 	function notification_comment( $comment ) {
 		
