@@ -8,7 +8,10 @@
  * - Thoroughly test what happens when the default post statuses 'Draft' and 'Pending Review' no longer exist
  * - Ensure all of the form processing uses our messages functionality
  */
-if ( !class_exists( 'EF_Custom_Status' ) ) {
+
+ require_once __DIR__ . '/compat/block-editor.php';
+
+ if ( !class_exists( 'EF_Custom_Status' ) ) {
 
 class EF_Custom_Status extends EF_Module {
 
@@ -62,6 +65,11 @@ class EF_Custom_Status extends EF_Module {
 			'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/custom-statuses/">Custom Status Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
 		);
 		$this->module = EditFlow()->register_module( 'custom_status', $args );
+
+		$this->compat = (new EF_Custom_Status_Block_Editor_Compat())->init( $this, array(
+			'admin_enqueue_scripts' => 'action_admin_enqueue_scripts',
+		) );
+
 
 	}
 
@@ -312,6 +320,8 @@ class EF_Custom_Status extends EF_Module {
 				'cancel'    => esc_html__( 'Cancel', 'edit-flow' ),
 			));
 		}
+
+
 	}
 
 	/**
@@ -730,11 +740,11 @@ class EF_Custom_Status extends EF_Module {
 	}
 	/**
 	 * Check if Post State is a Status and display if it is not.
-	 * 
+	 *
 	 * @param array $post_states An array of post display states.
 	 */
 	function check_if_post_state_is_status($post_states) {
-		
+
 		global $post;
 		$statuses = get_post_status_object(get_post_status($post->ID));
 		foreach ( $post_states as $state ) {
@@ -1372,7 +1382,7 @@ class EF_Custom_Status extends EF_Module {
 		}
 
 		//If empty, keep empty.
-		if ( empty( $postarr['post_date_gmt'] ) 
+		if ( empty( $postarr['post_date_gmt'] )
 		|| '0000-00-00 00:00:00' == $postarr['post_date_gmt'] ) {
 			$data['post_date_gmt'] = '0000-00-00 00:00:00';
 		}
@@ -1417,7 +1427,7 @@ class EF_Custom_Status extends EF_Module {
 		$wpdb->update( $wpdb->posts, array( 'post_name' => '' ), array( 'ID' => $post_id ) );
 		clean_post_cache( $post_id );
 	}
-	
+
 
 	/**
 	 * Another hack! hack! hack! until core better supports custom statuses
@@ -1438,7 +1448,7 @@ class EF_Custom_Status extends EF_Module {
 			|| 'post.php' != $pagenow
 			|| !in_array( $post->post_status, $status_slugs )
 			|| !in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) )
-			|| strpos( $preview_link, 'preview_id' ) !== false 
+			|| strpos( $preview_link, 'preview_id' ) !== false
 			|| $post->filter == 'sample' )
 			return $preview_link;
 
@@ -1486,10 +1496,10 @@ class EF_Custom_Status extends EF_Module {
 		return $this->get_preview_link( $post );
 	}
 
-	/** 
+	/**
 	 * Fix get_sample_permalink. Previosuly the 'editable_slug' filter was leveraged
 	 * to correct the sample permalink a user could edit on post.php. Since 4.4.40
-	 * the `get_sample_permalink` filter was added which allows greater flexibility in 
+	 * the `get_sample_permalink` filter was added which allows greater flexibility in
 	 * manipulating the slug. Critical for cases like editing the sample permalink on
 	 * hierarchical post types.
 	 * @since 0.8.2
@@ -1549,8 +1559,8 @@ class EF_Custom_Status extends EF_Module {
 
 	/**
 	 * Hack to work around post status check in get_sample_permalink_html
-	 * 
-	 * 
+	 *
+	 *
 	 * The get_sample_permalink_html checks the status of the post and if it's
 	 * a draft generates a certain permalink structure.
 	 * We need to do the same work it's doing for custom statuses in order
@@ -1558,7 +1568,7 @@ class EF_Custom_Status extends EF_Module {
 	 * @see https://core.trac.wordpress.org/browser/tags/4.5.2/src/wp-admin/includes/post.php#L1296
 	 *
 	 * @since 0.8.2
-	 * 
+	 *
 	 * @param string  $return    Sample permalink HTML markup
 	 * @param int 	  $post_id   Post ID
 	 * @param string  $new_title New sample permalink title
@@ -1902,7 +1912,7 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		$actions['edit'] = "<a href='$item_edit_link'>" . __( 'Edit', 'edit-flow' ) . "</a>";
 		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';
 		$actions['make_default'] = sprintf( '<a href="%1$s">' . __( 'Make&nbsp;Default', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'make-default', 'term-id' => $item->term_id ) ) );
-		
+
 		// Prevent deleting draft status
 		if( 'draft' !== $item->slug && $item->slug !== $this->default_status  ) {
 			$actions['delete delete-status'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array( 'action' => 'delete-status', 'term-id' => $item->term_id ) ) );
@@ -1917,7 +1927,7 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		return $output;
 
 	}
-		
+
 	/**
 	 * Displayed column showing the description of the status
 	 *
