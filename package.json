@@ -1,0 +1,39 @@
+{
+  "name": "edit-flow",
+  "version": "2.0.0",
+  "description": "Edit Flow",
+  "main": "dist/index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Automattic/Edit-Flow.git"
+  },
+  "author": "Automattic",
+  "license": "GPL-2.0-or-later",
+  "bugs": {
+    "url": "https://github.com/Automattic/Edit-Flow/issues"
+  },
+  "homepage": "https://github.com/Automattic/Edit-Flow#readme",
+  "devDependencies": {
+    "@babel/core": "^7.2.0",
+    "@babel/preset-env": "^7.2.0",
+    "babel-loader": "^8.0.4",
+    "babel-plugin-add-module-exports": "^1.0.0",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-preset-env": "^1.7.0",
+    "css-loader": "^2.0.0",
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "node-sass": "^4.10.0",
+    "sass-loader": "^7.1.0",
+    "webpack": "^4.27.1",
+    "webpack-cli": "^3.1.2"
+  },
+  "dependencies": {
+    "@wordpress/components": "^7.0.3"
+  }
+}
