@@ -1,13 +1,21 @@
 var ExtractText = require('extract-text-webpack-plugin');
 var debug = process.env.NODE_ENV !== 'production';
-// var webpack = require('webpack');
 
+var glob = require("glob");
+
+const entries = glob.sync("./blocks/src/**/block.js").reduce((acc, item) => {
+  const name = item.replace( /blocks\/src\/(.*)\/block.js/, '$1' )
+  acc[ name ] = item;
+  return acc;
+}, {});
+
+// @todo
 var extractEditorSCSS = new ExtractText({
-  filename: './blocks.editor.build.css'
+  filename: './[name].editor.build.css'
 });
 
 var extractBlockSCSS = new ExtractText({
-  filename: './blocks.style.build.css'
+  filename: './[name].style.build.css'
 });
 
 var plugins = [extractEditorSCSS, extractBlockSCSS];
@@ -28,12 +36,13 @@ var scssConfig = {
 
 module.exports = {
   context: __dirname,
-  devtool: false,
-  mode: 'production',
-  entry: './blocks/src/blocks.js',
+  devtool: debug ? 'inline-sourcemap' : null,
+  mode: debug ? 'development' : 'production',
+  // entry: './blocks/src/blocks.js',
+  entry: entries,
   output: {
     path: __dirname + '/blocks/dist/',
-    filename: 'blocks.build.js'
+    filename: "[name].build.js"
   },
   externals: {
     'react': "React",
