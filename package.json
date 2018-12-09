@@ -7,6 +7,8 @@
     "test": "tests"
   },
   "scripts": {
+    "dev": "npx webpack --watch",
+    "build": "npx webpack --production --debug false",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
