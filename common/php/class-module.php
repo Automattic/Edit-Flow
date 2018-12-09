@@ -6,15 +6,25 @@
  */
 
 if ( !class_exists( 'EF_Module' ) ) {
-	
+
 class EF_Module {
 
-	var $published_statuses = array(
-								'publish',
-								'future',
-								'private',
-							);
-	
+	public $published_statuses = array(
+		'publish',
+		'future',
+		'private',
+	);
+
+	/**
+	 * Associative array of hook_name => callback_name
+	 * This is used for Gutenberg-compat initialization
+	 * [
+	 *  	'init' => 'init_callback_on_module_instance'
+	 * ]
+	 * @var array
+	 */
+	protected $compat_hooks = [];
+
 	function __construct() {}
 
 	/**
@@ -33,7 +43,7 @@ class EF_Module {
 
 	/**
 	 * Gets an array of allowed post types for a module
-	 * 
+	 *
 	 * @return array post-type-slug => post-type-label
 	 */
 	function get_all_post_types() {
@@ -43,7 +53,7 @@ class EF_Module {
 			'page' => __( 'Page' ),
 		);
 		$custom_post_types = $this->get_supported_post_types_for_module();
-		
+
 		foreach( $custom_post_types as $custom_post_type => $args ) {
 			$allowed_post_types[$custom_post_type] = $args->label;
 		}
@@ -90,7 +100,7 @@ class EF_Module {
 		$pt_args = apply_filters( 'edit_flow_supported_module_post_types_args', $pt_args, $module );
 		return get_post_types( $pt_args, 'objects' );
 	}
-	
+
 	/**
 	 * Collect all of the active post types for a given module
 	 *
@@ -100,7 +110,7 @@ class EF_Module {
 	 * @since 0.7
 	 */
 	function get_post_types_for_module( $module ) {
-		
+
 		$post_types = array();
 		if ( isset( $module->options->post_types ) && is_array( $module->options->post_types ) ) {
 			foreach( $module->options->post_types as $post_type => $value )
@@ -109,7 +119,7 @@ class EF_Module {
 		}
 		return $post_types;
 	}
-	
+
 	/**
 	 * Get all of the currently available post statuses
 	 * This should be used in favor of calling $edit_flow->custom_status->get_custom_statuses() directly
@@ -120,7 +130,7 @@ class EF_Module {
 	 */
 	function get_post_statuses() {
 		global $edit_flow;
-		
+
 		if ( $this->module_enabled('custom_status') ) {
 		 	return $edit_flow->custom_status->get_custom_statuses();
 		} else {
@@ -130,13 +140,13 @@ class EF_Module {
 
 	/**
 	 * Get core's 'draft' and 'pending' post statuses, but include our special attributes
-	 * 
+	 *
 	 * @since 0.8.1
-	 * 
+	 *
 	 * @return array
 	 */
 	protected function get_core_post_statuses() {
-		
+
 		return array(
 				(object)array(
 					'name'         => __( 'Draft' ),
@@ -149,21 +159,21 @@ class EF_Module {
 					'description'  => '',
 					'slug'         => 'pending',
 					'position'     => 2,
-				),				
+				),
 			);
 	}
 
 	/**
 	 * Gets the name of the default custom status. If custom statuses are disabled,
 	 * returns 'draft'.
-	 * 
+	 *
 	 * @return str Name of the status
 	 */
 	function get_default_post_status(){
 
 		// Check if custom status module is enabled
 		$custom_status_module = EditFlow()->custom_status->module->options;
-		
+
 		if( $custom_status_module->enabled == 'on' )
 			return $custom_status_module->default_status;
 		else
@@ -193,21 +203,21 @@ class EF_Module {
 	 * @since 0.7
 	 */
 	function enqueue_datepicker_resources() {
-		
+
 		// Add the first day of the week as an available variable to wp_head
-		echo "<script type=\"text/javascript\">var ef_week_first_day=\"" . get_option( 'start_of_week' ) . "\";</script>";		
+		echo "<script type=\"text/javascript\">var ef_week_first_day=\"" . get_option( 'start_of_week' ) . "\";</script>";
 
 		wp_enqueue_script( 'jquery-ui-datepicker' );
 
 		//Timepicker needs to come after jquery-ui-datepicker and jquery
-		wp_enqueue_script( 'edit_flow-timepicker', EDIT_FLOW_URL . 'common/js/jquery-ui-timepicker-addon.js', array( 'jquery', 'jquery-ui-datepicker' ), EDIT_FLOW_VERSION, true );		
+		wp_enqueue_script( 'edit_flow-timepicker', EDIT_FLOW_URL . 'common/js/jquery-ui-timepicker-addon.js', array( 'jquery', 'jquery-ui-datepicker' ), EDIT_FLOW_VERSION, true );
 		wp_enqueue_script( 'edit_flow-date_picker', EDIT_FLOW_URL . 'common/js/ef_date.js', array( 'jquery', 'jquery-ui-datepicker', 'edit_flow-timepicker' ), EDIT_FLOW_VERSION, true );
 
 		// Now styles
 		wp_enqueue_style( 'jquery-ui-datepicker', EDIT_FLOW_URL . 'common/css/jquery.ui.datepicker.css', array( 'wp-jquery-ui-dialog' ), EDIT_FLOW_VERSION, 'screen' );
 		wp_enqueue_style( 'jquery-ui-theme', EDIT_FLOW_URL . 'common/css/jquery.ui.theme.css', false, EDIT_FLOW_VERSION, 'screen' );
 	}
-	
+
 	/**
 	 * Checks for the current post type
 	 *
@@ -239,7 +249,7 @@ class EF_Module {
 
 		return $post_type;
 	}
-	
+
 	/**
 	 * Wrapper for the get_user_meta() function so we can replace it if we need to
 	 *
@@ -251,16 +261,16 @@ class EF_Module {
 	 * @return string|bool|array $value Whatever the stored value was
 	 */
 	function get_user_meta( $user_id, $key, $string = true ) {
-		
+
 		$response = null;
 		$response = apply_filters( 'ef_get_user_meta', $response, $user_id, $key, $string );
 		if ( !is_null( $response ) )
 			return $response;
-			
+
 		return get_user_meta( $user_id, $key, $string );
-		
+
 	}
-	
+
 	/**
 	 * Wrapper for the update_user_meta() function so we can replace it if we need to
 	 *
@@ -273,16 +283,16 @@ class EF_Module {
 	 * @return bool $success Whether we were successful in saving
 	 */
 	function update_user_meta( $user_id, $key, $value, $previous = null ) {
-		
+
 		$response = null;
 		$response = apply_filters( 'ef_update_user_meta', $response, $user_id, $key, $value, $previous );
 		if ( !is_null( $response ) )
 			return $response;
-			
+
 		return update_user_meta( $user_id, $key, $value, $previous );
-		
-	}	
-	
+
+	}
+
 	/**
 	 * Take a status and a message, JSON encode and print
 	 *
@@ -295,7 +305,7 @@ class EF_Module {
 		echo json_encode( array( 'status' => $status, 'message' => $message ) );
 		exit;
 	}
-	
+
 	/**
 	 * Whether or not the current page is a user-facing Edit Flow View
 	 * @todo Think of a creative way to make this work
@@ -305,12 +315,12 @@ class EF_Module {
 	 * @param string $module_name (Optional) Module name to check against
 	 */
 	function is_whitelisted_functional_view( $module_name = null ) {
-		
+
 		// @todo complete this method
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * Whether or not the current page is an Edit Flow settings view (either main or module)
 	 * Determination is based on $pagenow, $_GET['page'], and the module's $settings_slug
@@ -323,28 +333,28 @@ class EF_Module {
 	 */
 	function is_whitelisted_settings_view( $module_name = null ) {
 		global $pagenow, $edit_flow;
-		
+
 		// All of the settings views are based on admin.php and a $_GET['page'] parameter
 		if ( $pagenow != 'admin.php' || !isset( $_GET['page'] ) )
 			return false;
-		
+
 		// Load all of the modules that have a settings slug/ callback for the settings page
 		foreach ( $edit_flow->modules as $mod_name => $mod_data ) {
 			if ( isset( $mod_data->options->enabled ) && $mod_data->options->enabled == 'on' && $mod_data->configure_page_cb )
 				$settings_view_slugs[] = $mod_data->settings_slug;
 		}
-	
+
 		// The current page better be in the array of registered settings view slugs
 		if ( !in_array( $_GET['page'], $settings_view_slugs ) )
 			return false;
-		
+
 		if ( $module_name && $edit_flow->modules->$module_name->settings_slug != $_GET['page'] )
 			return false;
-			
+
 		return true;
 	}
-	
-	
+
+
 	/**
 	 * This is a hack, Hack, HACK!!!
 	 * Encode all of the given arguments as a serialized array, and then base64_encode
@@ -358,7 +368,7 @@ class EF_Module {
 	function get_encoded_description( $args = array() ) {
 		return base64_encode( maybe_serialize( $args ) );
 	}
-	
+
 	/**
 	 * If given an encoded string from a term's description field,
 	 * return an array of values. Otherwise, return the original string
@@ -371,7 +381,7 @@ class EF_Module {
 	function get_unencoded_description( $string_to_unencode ) {
 		return maybe_unserialize( base64_decode( $string_to_unencode ) );
 	}
-	
+
 	/**
 	 * Get the publicly accessible URL for the module based on the filename
 	 *
@@ -384,7 +394,7 @@ class EF_Module {
 		$module_url = plugins_url( '/', $file );
 		return trailingslashit( $module_url );
 	}
-	
+
 	/**
 	 * Produce a human-readable version of the time since a timestamp
 	 *
@@ -430,7 +440,7 @@ class EF_Module {
 
 		return sprintf( _n( "1 $name ago", "$count ${name}s ago", $count), $count);
 	}
-	
+
 	/**
 	 * Displays a list of users that can be selected!
 	 *
@@ -445,7 +455,7 @@ class EF_Module {
 
 		// Set up arguments
 		$defaults = array(
-			'list_class' => 'ef-users-select-form', 
+			'list_class' => 'ef-users-select-form',
 			'input_id' => 'ef-selected-users'
 		);
 		$parsed_args = wp_parse_args( $args, $defaults );
@@ -506,7 +516,7 @@ class EF_Module {
 			return;
 
 		global $wp_roles;
-		
+
 		if ( $wp_roles->is_role( $role ) ) {
 			$role = get_role( $role );
 			foreach ( $caps as $cap ) {
@@ -522,19 +532,19 @@ class EF_Module {
 	 * @since 0.7
 	 */
 	function action_settings_help_menu() {
-		
+
 		$screen = get_current_screen();
-		
-		if ( !method_exists( $screen, 'add_help_tab' ) ) 
+
+		if ( !method_exists( $screen, 'add_help_tab' ) )
 			return;
-		
-		if ( $screen->id != 'edit-flow_page_' . $this->module->settings_slug ) 
+
+		if ( $screen->id != 'edit-flow_page_' . $this->module->settings_slug )
 			return;
 
 		// Make sure we have all of the required values for our tab
 		if ( isset( $this->module->settings_help_tab['id'], $this->module->settings_help_tab['title'], $this->module->settings_help_tab['content'] ) ) {
 			$screen->add_help_tab( $this->module->settings_help_tab );
-		
+
 			if ( isset( $this->module->settings_help_sidebar ) ) {
 				$screen->set_help_sidebar( $this->module->settings_help_sidebar );
 			}
@@ -577,6 +587,15 @@ class EF_Module {
 			wp_update_term( $term->term_id, $taxonomy, array( 'description' => $new_description ) );
 		}
 	}
-	
+
+	/**
+	 * Return compatibility hooks for the current instance
+	 *
+	 * @return array
+	 */
+	function get_compat_hooks() {
+		return isset( $this->compat_hooks ) && is_array( $this->compat_hooks ) ? $this->compat_hooks : [];
+	}
+
 }
 }

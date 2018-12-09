@@ -1,7 +1,7 @@
 <?php
 /**
  * Experiment: a trait that abstracts the logic to overwrite anything that a specific module does.
- * A prime use case would be not enqueueing
+ * A prime use case would be not enqueueing EF classic editor assets.
  *
  */
 trait Block_Editor_Compatible {
@@ -18,20 +18,24 @@ trait Block_Editor_Compatible {
    *
    * @return void
    */
-  function init( $module_instance, $hooks = [] ) {
+  function __construct( $module_instance, $hooks = [] ) {
     $this->ef_module = $module_instance;
     $this->hooks = $hooks;
     // Highly debatable
-    add_action( 'admin_init', array( $this, 'action_admin_init' ), 0 );
-    return $this;
+    add_action( 'admin_init', [ $this, 'action_admin_init' ], 0 );
   }
 
   /**
-   * `wp` is the first place where we know whether Gutenberg is loaded or not.
+   * Unhook the module's hooks and use the module's Compat hooks instead.
+   *
+   * This is currently run on admin_init, but needs more testing.
+   *
+   * @since 0.9
    *
    * @return void
    */
   function action_admin_init() {
+    // This conditional is probably not catching all the instances where Gutenberg might be enabled.
     if ( ! isset( $_GET['classic-editor'] ) ) {
       foreach( $this->hooks as $hook => $callback ) {
         remove_action( $hook, array( $this->ef_module, $callback ) );

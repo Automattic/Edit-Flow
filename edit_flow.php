@@ -103,6 +103,11 @@ class edit_flow {
 		foreach( $module_dirs as $module_dir ) {
 			if ( file_exists( EDIT_FLOW_ROOT . "/modules/{$module_dir}/$module_dir.php" ) ) {
 				include_once( EDIT_FLOW_ROOT . "/modules/{$module_dir}/$module_dir.php" );
+
+				// Try to load Gutenberg compat files
+				if ( file_exists( EDIT_FLOW_ROOT . "/modules/{$module_dir}/compat/block-editor.php" ) )
+					include_once( EDIT_FLOW_ROOT . "/modules/{$module_dir}/compat/block-editor.php" );
+
 				// Prepare the class name because it should be standardized
 				$tmp = explode( '-', $module_dir );
 				$class_name = '';
@@ -128,6 +133,10 @@ class edit_flow {
 		foreach( $class_names as $slug => $class_name ) {
 			if ( class_exists( $class_name ) ) {
 				$this->$slug = new $class_name();
+				$compat_class_name = "{$class_name}_Block_Editor_Compat";
+				if ( class_exists( $compat_class_name ) ) {
+					$this->$slug->compat = new $compat_class_name( $this->$slug, $this->$slug->get_compat_hooks() );
+				}
 			}
 		}
 

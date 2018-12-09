@@ -7,8 +7,8 @@
     "test": "tests"
   },
   "scripts": {
-    "dev": "npx webpack --watch",
-    "build": "npx webpack --production --debug false",
+    "dev": "webpack --watch",
+    "build": "webpack --production --debug false",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -35,6 +35,5 @@
     "webpack": "^4.27.1",
     "webpack-cli": "^3.1.2"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }

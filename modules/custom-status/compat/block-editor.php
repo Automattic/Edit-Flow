@@ -1,7 +1,7 @@
 <?php
 class EF_Custom_Status_Block_Editor_Compat {
 	protected $ef_module;
-	// @see the trait for the implementation details
+	// @see commmon/php/trait-block-editor-compatible
 	use Block_Editor_Compatible;
 
 	/**
