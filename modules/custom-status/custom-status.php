@@ -9,7 +9,6 @@
  * - Ensure all of the form processing uses our messages functionality
  */
 
- require_once __DIR__ . '/compat/block-editor.php';
 
  if ( !class_exists( 'EF_Custom_Status' ) ) {
 
@@ -18,6 +17,15 @@ class EF_Custom_Status extends EF_Module {
 	var $module;
 
 	private $custom_statuses_cache = array();
+
+	/**
+	 * Define tho hooks that need to be unhooked/rehooked to make the module Gutenberg-ready.
+	 *
+	 * @var array
+	 */
+	protected $compat_hooks = [
+		'admin_enqueue_scripts' => 'action_admin_enqueue_scripts',
+	];
 
 	// This is taxonomy name used to store all our custom statuses
 	const taxonomy_key = 'post_status';
@@ -62,15 +70,9 @@ class EF_Custom_Status extends EF_Module {
 				'title' => __('Overview', 'edit-flow'),
 				'content' => __('<p>Edit Flow’s custom statuses allow you to define the most important stages of your editorial workflow. Out of the box, WordPress only offers “Draft” and “Pending Review” as post states. With custom statuses, you can create your own post states like “In Progress”, “Pitch”, or “Waiting for Edit” and keep or delete the originals. You can also drag and drop statuses to set the best order for your workflow.</p><p>Custom statuses are fully integrated into the rest of Edit Flow and the WordPress admin. On the calendar and story budget, you can filter your view to see only posts of a specific post state. Furthermore, email notifications can be sent to a specific group of users when a post changes state.</p>', 'edit-flow'),
 				),
-			'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/custom-statuses/">Custom Status Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
+			'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/custom-statuses/">Custom Status Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/Automattic/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
 		);
 		$this->module = EditFlow()->register_module( 'custom_status', $args );
-
-		$this->compat = (new EF_Custom_Status_Block_Editor_Compat())->init( $this, array(
-			'admin_enqueue_scripts' => 'action_admin_enqueue_scripts',
-		) );
-
-
 	}
 
 	/**
@@ -1391,13 +1393,13 @@ class EF_Custom_Status extends EF_Module {
 	}
 
 	/**
-	 * Another hack! hack! hack! until core better supports custom statuses
+	 * Another hack! hack! hack! until core better supports custom statuses`
 	 *
 	 * @since 0.7.4
 	 *
 	 * Keep the post_name value empty for posts with custom statuses
 	 * Unless they've set it customly
-	 * @see https://github.com/danielbachhuber/Edit-Flow/issues/123
+	 * @see https://github.com/Automattic/Edit-Flow/issues/123
 	 * @see http://core.trac.wordpress.org/browser/tags/3.4.2/wp-includes/post.php#L2530
 	 * @see http://core.trac.wordpress.org/browser/tags/3.4.2/wp-includes/post.php#L2646
 	 */
