@@ -1,12 +1,11 @@
 import './editor.scss';
 
-import { SelectControl } from '@wordpress/components';
-
 let { __ } = wp.i18n;
 let { PluginPostStatusInfo } = wp.editPost;
 let { registerPlugin } = wp.plugins;
 let { withSelect, withDispatch } = wp.data;
 let { compose } = wp.compose;
+let { SelectControl } = wp.components;
 
 /**
  * Map Custom Statuses as options for SelectControl
