@@ -9,7 +9,7 @@ class EF_Custom_Status_Block_Editor_Compat {
       return;
 
 		wp_enqueue_style( 'edit-flow-blocks', EDIT_FLOW_URL . 'blocks/dist/blocks.editor.build.css', false, null  );
-		wp_enqueue_script( 'edit-flow-blocks', EDIT_FLOW_URL . 'blocks/dist/blocks.build.js', array("wp-blocks", "wp-element", "wp-edit-post", "wp-plugins") );
+		wp_enqueue_script( 'edit-flow-blocks', EDIT_FLOW_URL . 'blocks/dist/blocks.build.js', array("wp-blocks", "wp-element", "wp-edit-post", "wp-plugins", "wp-components" ) );
 
 		wp_localize_script( 'edit-flow-blocks', 'EditFlowCustomStatuses', $this->get_custom_statuses() );
 

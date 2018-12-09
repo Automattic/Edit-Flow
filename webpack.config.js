@@ -35,6 +35,10 @@ module.exports = {
     path: __dirname + '/blocks/dist/',
     filename: 'blocks.build.js'
   },
+  externals: {
+    'react': "React",
+    "react-dom": "ReactDOM"
+  },
   module: {
     rules: [
       {

@@ -34,6 +34,5 @@
     "webpack-cli": "^3.1.2"
   },
   "dependencies": {
-    "@wordpress/components": "^7.0.3"
   }
 }
