@@ -1,6 +1,5 @@
 var ExtractText = require('extract-text-webpack-plugin');
 var debug = process.env.NODE_ENV !== 'production';
-
 var glob = require("glob");
 
 const entries = glob.sync("./blocks/src/**/block.js").reduce((acc, item) => {
@@ -36,7 +35,7 @@ var scssConfig = {
 
 module.exports = {
   context: __dirname,
-  devtool: debug ? 'inline-sourcemap' : null,
+  devtool: debug ? 'sourcemap' : null,
   mode: debug ? 'development' : 'production',
   // entry: './blocks/src/blocks.js',
   entry: entries,

@@ -25,20 +25,6 @@ yarn
 
 This should leave you with everything you need for development, including local copy of Webpack and webpack-cli.
 
-#### Development
-
-To watch for the changes run:
-
-```npm run dev```
-
-This will start Webpack and make it watch for changes.
-
-#### Build for production
-
-```npm run build```
-
-This will generate optimized/minified production-ready files.
-
 
 ## Anatomy of an Edit Flow block.
 
@@ -104,3 +90,18 @@ This way the code for existing modules doesn't need to be modified, except addin
 On the instantiation of the module's compat, we'll iterate over `$compat_hooks` and remove hooks registered by the module, and add ones coming from compat class.
 
 #### JavaScript
+
+##### Development
+
+```npm run dev```
+
+This will start Webpack and make it watch for changes.
+
+##### Build for production
+
+```npm run build```
+
+This will generate optimized/minified production-ready files.
+
+
+##### File Structure
