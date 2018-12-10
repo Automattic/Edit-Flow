@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "webpack --watch",
-    "build": "webpack --production --debug false",
+    "build": "webpack --production --verbose",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
