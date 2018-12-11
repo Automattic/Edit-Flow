@@ -19,7 +19,7 @@ class EF_Custom_Status extends EF_Module {
 	private $custom_statuses_cache = array();
 
 	/**
-	 * Define tho hooks that need to be unhooked/rehooked to make the module Gutenberg-ready.
+	 * Define the hooks that need to be unhooked/rehooked to make the module Gutenberg-ready.
 	 *
 	 * @var array
 	 */
