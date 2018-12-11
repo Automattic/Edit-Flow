@@ -42,7 +42,7 @@ let EditFlowCustomPostStati = ( { onUpdate, status } ) => (
     /> : null }
 
     <small className="edit-flow-extended-post-status-note">
-      { status !== 'publish' ? __( `Note: this will override all status settings above.`, 'edit-flow' ) : __( 'Please switch to draft first.' ) }
+      { status !== 'publish' ? __( `Note: this will override all status settings above.`, 'edit-flow' ) : __( 'To select a custom status, please unpublish the content first.', 'edit-flow' ) }
     </small>
   </PluginPostStatusInfo>
 );
