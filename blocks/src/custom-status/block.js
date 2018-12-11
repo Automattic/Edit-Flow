@@ -13,7 +13,7 @@ let { SelectControl } = wp.components;
  */
 let statuses = window.EditFlowCustomStatuses.map( s => ({ label: s.name, value: s.slug }) );
 
-let getStatusLabel = slug => statuses.find( s => s.value === slug ).label
+let getStatusLabel = slug => statuses.find( s => s.value === slug ).label;
 
 // Hack :(
 // @see https://github.com/WordPress/gutenberg/issues/3144
