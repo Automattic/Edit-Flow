@@ -27,6 +27,24 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
+/**
+ * Print admin notice regarding having an old version of PHP.
+ *
+ * @since 0.9
+ */
+function _ef_print_php_version_admin_notice() {
+	?>
+	<div class="notice notice-error">
+			<p><?php esc_html_e( 'Edit Flow requires PHP 5.4+. Please contact your host to update your PHP version.', 'edit-flow' ); ?></p>
+		</div>
+	<?php
+}
+
+if ( version_compare( phpversion(), '5.4', '<' ) ) {
+	add_action( 'admin_notices', '_ef_print_php_version_admin_notice' );
+	return;
+}
+
 // Define contants
 define( 'EDIT_FLOW_VERSION' , '0.8.3' );
 define( 'EDIT_FLOW_ROOT' , dirname(__FILE__) );
