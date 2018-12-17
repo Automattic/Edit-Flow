@@ -63,6 +63,6 @@ let plugin = compose(
  * Kick it off
  */
 registerPlugin( 'edit-flow-custom-status', {
-	icon: 'edit-flow',
+  icon: 'edit-flow',
   render: plugin
 } );
