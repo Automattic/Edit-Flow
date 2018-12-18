@@ -38,10 +38,10 @@ There are two parts for Block Editor compatibility implementation for each modul
 On the PHP side, in the module's folder create a `compat` sub-folder, and in it, create a file named `block-editor.php`.
 
 That file has to contain the class ${EF_Module_Class_Name}_Block_Editor_Compat.
-E.g. for the `Custom Status` Module, which class name is `EF_Custom_Status`, the compat class name has to be `EF_Custom_Status_Block_Editor_Compat`.
+E.g., for the `Custom Status` Module, which class name is `EF_Custom_Status`, the compat class name has to be `EF_Custom_Status_Block_Editor_Compat`.
 
 
-Here's a super contrived example of a fictional module:
+Here's a  contrived example of a fictional module:
 
 `modules/fictional-module/fictional-module.php`:
 
@@ -52,7 +52,7 @@ class EF_Fictional_Module {
     'admin_enqueue_scripts' => 'module_admin_scripts'
   ];
 
-  function my_modules_admin_enqueue_scripts_action() {
+  function module_admin_scripts() {
     // something-something, not compatible with Gutenberg
   }
 }
@@ -66,7 +66,7 @@ class EF_Fictional_Module_Block_Editor_Compat {
   // @see in "common/php/trait-block-editor-compatible.php
   use Block_Editor_Compatible;
 
-  // Holds the reference to the module, so we can use the module's logic
+  // Holds the reference to the module, so that we can use the module's logic.
   $ef_module;
 
   function module_admin_scripts() {
@@ -77,7 +77,7 @@ class EF_Fictional_Module_Block_Editor_Compat {
 
 **Important**
 
-To avoid any sort of class inheritance Edit Flow compat files use a trait [Block_Editor_Compatible](common/php/trait-block-editor-compatible.php). Right now it only contains the constructor that's shared between compat modules, but in the future using traits approach might be more flexible.
+To avoid  class inheritance complexities, Edit Flow compat files use a trait [Block_Editor_Compatible](common/php/trait-block-editor-compatible.php). Be sure to check it out before implementing compatibility for other modules.
 
 ##### How does it work?
 
@@ -87,21 +87,41 @@ We have modified the loader logic in the main Edit_Flow class to try to instanti
 
 This way the code for existing modules doesn't need to be modified, except adding the `protected $compat_hooks` property.
 
-On the instantiation of the module's compat, we'll iterate over `$compat_hooks` and remove hooks registered by the module, and add ones coming from compat class.
+On the instantiation of the module's compatibility class, we'll iterate over `$compat_hooks` and remove the hooks registered by the module, and add ones defined in the compat class.
 
 #### JavaScript
 
 ##### Development
 
-```npm run dev```
+To start the Webpack in watch mode:
 
-This will start Webpack and make it watch for changes.
+```npm run dev```
 
 ##### Build for production
 
+To generate optimized/minified production-ready files:
+
 ```npm run build```
 
-This will generate optimized/minified production-ready files.
-
-
 ##### File Structure
+
+```
+blocks/
+  # Source files:
+  src/
+    module-slug/
+      block.js # Gutenberg Block code for the module
+      editor.scss # Editor styles
+      style.scss # Front-end styles
+  # Build
+  dist/
+    module-slug.build.js # Built block js
+    module-slug.editor.build.css # Built editor CSS
+    module-slug.style.build.css # Built front-end CSS
+```
+
+The files from `dist/` should be enqueued in the compat class for the module.
+
+See [Custom Statuses Compatibility Class](modules/custom-status/compat/block-editor.php) for implementation details. 
+
+**Please note:** this is a Work-In-Progress, most likely there will be major changes in the near future. 
