@@ -123,9 +123,9 @@ class edit_flow {
 				include_once( EDIT_FLOW_ROOT . "/modules/{$module_dir}/$module_dir.php" );
 
 				// Try to load Gutenberg compat files
-				if ( file_exists( EDIT_FLOW_ROOT . "/modules/{$module_dir}/compat/block-editor.php" ) )
+				if ( file_exists( EDIT_FLOW_ROOT . "/modules/{$module_dir}/compat/block-editor.php" ) ) {
 					include_once( EDIT_FLOW_ROOT . "/modules/{$module_dir}/compat/block-editor.php" );
-
+				}
 				// Prepare the class name because it should be standardized
 				$tmp = explode( '-', $module_dir );
 				$class_name = '';
