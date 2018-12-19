@@ -21,14 +21,15 @@
 }
 
 .edit-flow-modules {
-	min-width: 740px;
 	width: 100%;
 	overflow: hidden;
 	margin-top: 20px;
+	display: flex;
+	flex-wrap: wrap;
 }
 
 .edit-flow-modules .edit-flow-module {
-	width: 210px;
+	width: 250px;
 	min-height: 150px;
 	position: relative;
 	float: left;
@@ -64,16 +65,7 @@
 	position: absolute;
 	bottom: 0px;
 	left: 10px;
-	width: 210px;
-}
-
-.edit-flow-modules .edit-flow-module .button-primary {
-	color: #f1f1f1;
-	border: solid 1px #538312;
-	background: #64991e;
-	background: -webkit-gradient(linear, left top, left bottom, from(#86C67C), to(#3D8B37));
-	background: -moz-linear-gradient(top,  #86C67C,  #3D8B37);
-	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#86C67C', endColorstr='#3D8B37');
+	width: 250px;
 }
 
 .edit-flow-modules .edit-flow-module .button-primary:hover {
@@ -90,6 +82,11 @@
 	box-shadow: none;
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#BBB', endColorstr='#888');
 	text-shadow: none;
+	float: right;
+}
+
+.edit-flow-modules .edit-flow-module .button-primary.enable-disable-edit-flow-module {
+	float: left;
 }
 
 .edit-flow-modules .edit-flow-module .button-primary.configure-edit-flow-module:hover {

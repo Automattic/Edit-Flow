@@ -844,6 +844,9 @@ class EF_User_Groups extends EF_Module {
 				$usergroup->$key = $value;
 			}
 		}
+
+		$usergroup = apply_filters( 'ef_usergroup_object', $usergroup );
+
 		return $usergroup;
 	}
 	
