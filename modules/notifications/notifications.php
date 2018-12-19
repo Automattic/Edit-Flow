@@ -872,33 +872,6 @@ jQuery(document).ready(function($) {
 	}
 
 	/**
-	 * TODO: Remove this before merge. Duplicated function originally in PR #449
-	 * 
-	 * Check if a user can be notified.
-	 * This is based off of the ability to edit the post/page by default.
-	 * 
-	 * @since 0.8.3
-	 * @param WP_User $user
-	 * @param int $post_id
-	 * @return bool True if the user can be notified, false otherwise.
-	 */
-	function user_can_be_notified( $user, $post_id ) {
-		$can_be_notified = false;
-		if ( $user instanceof WP_User && is_user_member_of_blog( $user->ID ) && is_numeric( $post_id ) ) {
-			// The 'edit_post' cap check also covers the undocumented 'edit_page' cap.
-			$can_be_notified = $user->has_cap( 'edit_post', $post_id );
-		}
-		/**
-		 * Filters if a user can be notified. Defaults to true if they can edit the post/page.
-		 *
-		 * @param bool $can_be_notified True if the user can be notified.
-		 * @param WP_User|bool $user The user object, otherwise false.
-		 * @param int $post_id The post the user will be notified about.
-		 */
-		return (bool) apply_filters( 'ef_notification_user_can_be_notified', $can_be_notified, $user, $post_id );
-	}
-
-	/**
 	 * Set a user or users to follow a post
 	 *
 	 * @param int|object         $post      Post object or ID
