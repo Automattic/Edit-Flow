@@ -6,31 +6,46 @@
 	background-position: 5px 7px;
 }
 
-.ef-post_following_list {
+.ef-post_following_list li {
+	padding: 10px 5px 5px 5px;
+	margin: 0;
+	border-bottom: 1px solid #ccc;
+	min-height: 36px;
 }
 
-	.ef-post_following_list li {
-		padding: 10px 5px 5px 5px;
-		margin: 0;
-		border-bottom: 1px solid #ccc;
-	}
-		.ef-post_following_list li:hover {
-			background: #EAF2FA;
-		}
-	.ef-post_following_list li input {
-		float: right;
-	}
-	.ef-post_following_list .ef-user_displayname,
-	.ef-post_following_list .ef-usergroup_name {
-		display: block;
-		font-size: 14px;
-	}
-	.ef-post_following_list .ef-user_useremail,
-	.ef-post_following_list .ef-usergroup_description {
-		display: block;
-		color: #ccc;
-		font-size: 12px;
-	}
+.ef-post_following_list li:hover {
+	background: #EAF2FA;
+}
+
+.ef-post_following_list li input {
+	float: right;
+	margin-top: 0;
+}
+
+.ef-post_following_list .ef-user_displayname,
+.ef-post_following_list .ef-usergroup_name {
+	display: block;
+	font-size: 14px;
+}
+
+.ef-post_following_list .ef-user_useremail,
+.ef-post_following_list .ef-usergroup_description {
+	display: block;
+	color: #ccc;
+	font-size: 12px;
+}
+
+.ef-post_following_list li .ef-user-subscribe-actions {
+	float: right;
+	margin-top: 5px;
+}
+
+.ef-post_following_list li .ef-user-subscribe-actions span {
+	margin-right: 10px;
+	border: solid 2px #FFCCCC;
+	color: #FFCCCC;
+	padding: 4px;
+}
 
 #ef-post_following_box {
 	margin:10px 0;	
