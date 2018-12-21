@@ -208,38 +208,7 @@ class EF_Module {
 		wp_enqueue_style( 'jquery-ui-theme', EDIT_FLOW_URL . 'common/css/jquery.ui.theme.css', false, EDIT_FLOW_VERSION, 'screen' );
 	}
 	
-	/**
-	 * Checks for the current post type
-	 *
-	 * @since 0.7
-	 * @return string|null $post_type The post type we've found, or null if no post type
-	 */
-	function get_current_post_type() {
-		global $post, $typenow, $pagenow, $current_screen;
-		//get_post() needs a variable
-		$post_id = isset( $_REQUEST['post'] ) ? (int)$_REQUEST['post'] : false;
 
-		if ( $post && $post->post_type ) {
-			$post_type = $post->post_type;
-		} elseif ( $typenow ) {
-			$post_type = $typenow;
-		} elseif ( $current_screen && !empty( $current_screen->post_type ) ) {
-			$post_type = $current_screen->post_type;
-		} elseif ( isset( $_REQUEST['post_type'] ) ) {
-			$post_type = sanitize_key( $_REQUEST['post_type'] );
-		} elseif ( 'post.php' == $pagenow
-			&& $post_id
-			&& !empty( get_post( $post_id )->post_type ) ) {
-			$post_type = get_post( $post_id )->post_type;
-		} elseif ( 'edit.php' == $pagenow && empty( $_REQUEST['post_type'] ) ) {
-			$post_type = 'post';
-		} else {
-			$post_type = null;
-		}
-
-		return $post_type;
-	}
-	
 	/**
 	 * Wrapper for the get_user_meta() function so we can replace it if we need to
 	 *
@@ -295,55 +264,6 @@ class EF_Module {
 		echo json_encode( array( 'status' => $status, 'message' => $message ) );
 		exit;
 	}
-	
-	/**
-	 * Whether or not the current page is a user-facing Edit Flow View
-	 * @todo Think of a creative way to make this work
-	 *
-	 * @since 0.7
-	 *
-	 * @param string $module_name (Optional) Module name to check against
-	 */
-	function is_whitelisted_functional_view( $module_name = null ) {
-		
-		// @todo complete this method
-		
-		return true;
-	}
-	
-	/**
-	 * Whether or not the current page is an Edit Flow settings view (either main or module)
-	 * Determination is based on $pagenow, $_GET['page'], and the module's $settings_slug
-	 * If there's no module name specified, it will return true against all Edit Flow settings views
-	 *
-	 * @since 0.7
-	 *
-	 * @param string $module_name (Optional) Module name to check against
-	 * @return bool $is_settings_view Return true if it is
-	 */
-	function is_whitelisted_settings_view( $module_name = null ) {
-		global $pagenow, $edit_flow;
-		
-		// All of the settings views are based on admin.php and a $_GET['page'] parameter
-		if ( $pagenow != 'admin.php' || !isset( $_GET['page'] ) )
-			return false;
-		
-		// Load all of the modules that have a settings slug/ callback for the settings page
-		foreach ( $edit_flow->modules as $mod_name => $mod_data ) {
-			if ( isset( $mod_data->options->enabled ) && $mod_data->options->enabled == 'on' && $mod_data->configure_page_cb )
-				$settings_view_slugs[] = $mod_data->settings_slug;
-		}
-	
-		// The current page better be in the array of registered settings view slugs
-		if ( !in_array( $_GET['page'], $settings_view_slugs ) )
-			return false;
-		
-		if ( $module_name && $edit_flow->modules->$module_name->settings_slug != $_GET['page'] )
-			return false;
-			
-		return true;
-	}
-	
 	
 	/**
 	 * This is a hack, Hack, HACK!!!
@@ -573,6 +493,7 @@ class EF_Module {
 			wp_update_term( $term->term_id, $taxonomy, array( 'description' => $new_description ) );
 		}
 	}
-	
+
+
 }
 }

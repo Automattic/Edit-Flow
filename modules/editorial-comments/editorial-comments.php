@@ -8,8 +8,9 @@
 
 if ( !class_exists( 'EF_Editorial_Comments' ) ) {
 
-class EF_Editorial_Comments extends EF_Module
+class EF_Editorial_Comments extends EF_Module_With_View implements EF_Style_Interface, EF_Script_Interface
 {
+
 	// This is comment type used to differentiate editorial comments
 	const comment_type = 'editorial-comment';
 
@@ -51,8 +52,11 @@ class EF_Editorial_Comments extends EF_Module
 
 		add_action( 'add_meta_boxes', array ( $this, 'add_post_meta_box' ) );
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_scripts' ) );
 		add_action( 'wp_ajax_editflow_ajax_insert_comment', array( $this, 'ajax_insert_comment' ) );
+
+		// Load CSS and JS resources that we probably need
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
 		// Add Editorial Comments to the calendar if the calendar is activated
 		if ( $this->module_enabled( 'calendar' ) ) {
@@ -80,16 +84,22 @@ class EF_Editorial_Comments extends EF_Module
 	/**
 	 * Load any of the admin scripts we need but only on the pages we need them
 	 */
-	function add_admin_scripts( ) {
-		global $pagenow;
+	function enqueue_admin_styles() {
 
-		$post_type = $this->get_current_post_type();
-		$supported_post_types = $this->get_post_types_for_module( $this->module );
-		if ( !in_array( $post_type, $supported_post_types ) )
-			return;
+		if( ! $this->is_active_editor_view() ) {
+			return false;
+		}
+		
+		wp_enqueue_style( 'edit-flow-editorial-comments-css', $this->module_url . 'lib/editorial-comments.css', false, EDIT_FLOW_VERSION, 'all' );
 
-		if ( !in_array( $pagenow, array( 'post.php', 'page.php', 'post-new.php', 'page-new.php' ) ) )
-			return;
+
+	}
+
+	public function enqueue_admin_scripts() {
+
+		if( ! $this->is_active_editor_view() ) {
+			return false;
+		}
 
 		wp_enqueue_script( 'edit_flow-post_comment', $this->module_url . 'lib/editorial-comments.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
 		wp_localize_script( 'edit_flow-post_comment', '__ef_localize_post_comment', array(
@@ -97,15 +107,12 @@ class EF_Editorial_Comments extends EF_Module
 			'none_notified' => esc_html__( 'No one will be notified.', 'edit-flow' ),
 		) );
 
-		wp_enqueue_style( 'edit-flow-editorial-comments-css', $this->module_url . 'lib/editorial-comments.css', false, EDIT_FLOW_VERSION, 'all' );
-
 		$thread_comments = (int) get_option('thread_comments');
 		?>
 		<script type="text/javascript">
-			var ef_thread_comments = <?php echo ($thread_comments) ? $thread_comments : 0; ?>;
+            var ef_thread_comments = <?php echo ($thread_comments) ? $thread_comments : 0; ?>;
 		</script>
 		<?php
-
 	}
 
 	/**

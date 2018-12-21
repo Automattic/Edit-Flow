@@ -2,8 +2,8 @@
 
 if ( !class_exists('EF_Settings') ) {
 
-class EF_Settings extends EF_Module {
-	
+class EF_Settings extends EF_Module_With_View {
+
 	var $module;
 	
 	/**
@@ -65,7 +65,7 @@ class EF_Settings extends EF_Module {
 	
 	function action_admin_enqueue_scripts() {
 		
-		if ( $this->is_whitelisted_settings_view() )
+		if ( $this->is_module_settings_view() )
 			wp_enqueue_script( 'edit-flow-settings-js', $this->module_url . 'lib/settings.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 			
 	}
@@ -75,7 +75,7 @@ class EF_Settings extends EF_Module {
 	 */
 	function action_admin_print_styles() {		
 		
-		if ( $this->is_whitelisted_settings_view() )
+		if ( $this->is_module_settings_view() )
 			wp_enqueue_style( 'edit_flow-settings-css', $this->module_url . 'lib/settings.css', false, EDIT_FLOW_VERSION );
 		
 		
