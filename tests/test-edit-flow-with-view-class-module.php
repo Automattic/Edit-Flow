@@ -1,9 +1,9 @@
 <?php
 
-class WP_Test_Edit_Flow_Class_Module extends WP_UnitTestCase {
+class WP_Test_Edit_Flow_With_View_Class_Module extends WP_UnitTestCase {
 
 	protected static $admin_user_id;
-	protected static $EditFlowModule;
+	protected static $EF_Module_With_View;
 
 	public static function wpSetUpBeforeClass( $factory ) {
 		self::$admin_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
@@ -21,13 +21,13 @@ class WP_Test_Edit_Flow_Class_Module extends WP_UnitTestCase {
 	function setUp() {
 		parent::setUp();
 		
-		self::$EditFlowModule = new EF_Module();
+		self::$EF_Module_With_View = new EF_Module_With_View();
 
 		$this->_flush_roles();
 	}
 
 	function tearDown() {
-		self::$EditFlowModule = null;
+		self::$EF_Module_With_View = null;
 	}
 	
 	function test_add_caps_to_role() {
@@ -36,7 +36,7 @@ class WP_Test_Edit_Flow_Class_Module extends WP_UnitTestCase {
 		);
 
 		foreach( $usergroup_roles as $role => $caps ) {
-			self::$EditFlowModule->add_caps_to_role( $role, $caps );
+			self::$EF_Module_With_View->add_caps_to_role( $role, $caps );
 		}
 
 		$user = new WP_User( self::$admin_user_id );
@@ -52,7 +52,7 @@ class WP_Test_Edit_Flow_Class_Module extends WP_UnitTestCase {
 	function test_current_post_type_post_type_set() {
 		$_REQUEST['post_type'] = 'not-real';
 
-		$this->assertEquals( 'not-real', self::$EditFlowModule->get_current_post_type() );
+		$this->assertEquals( 'not-real', self::$EF_Module_With_View->get_current_post_type() );
 	}
 
 	function test_current_post_type_post_screen() {
@@ -64,7 +64,7 @@ class WP_Test_Edit_Flow_Class_Module extends WP_UnitTestCase {
 
 		$_REQUEST['post'] = $post_id; 
 
-		$this->assertEquals( 'post', self::$EditFlowModule->get_current_post_type() );
+		$this->assertEquals( 'post', self::$EF_Module_With_View->get_current_post_type() );
 
 		unset( $_REQUEST['post_type'] );
 		set_current_screen( 'front' );
@@ -73,7 +73,7 @@ class WP_Test_Edit_Flow_Class_Module extends WP_UnitTestCase {
 	function test_current_post_type_edit_screen() {
 		set_current_screen( 'edit.php' );		
 
-		$this->assertEquals( 'post', self::$EditFlowModule->get_current_post_type() );
+		$this->assertEquals( 'post', self::$EF_Module_With_View->get_current_post_type() );
 
 		set_current_screen( 'front' );
 	}
@@ -82,7 +82,7 @@ class WP_Test_Edit_Flow_Class_Module extends WP_UnitTestCase {
 		register_post_type( 'content' );
 		set_current_screen( 'content' );
 
-		$this->assertEquals( 'content', self::$EditFlowModule->get_current_post_type() );
+		$this->assertEquals( 'content', self::$EF_Module_With_View->get_current_post_type() );
 
 		_unregister_post_type( 'content' );
 		set_current_screen( 'front' );
