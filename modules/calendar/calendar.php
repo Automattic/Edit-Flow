@@ -902,6 +902,7 @@ class EF_Calendar extends EF_Module {
 					<div class="inner">
 						<span class="item-headline post-title"><strong><?php echo esc_html( _draft_or_post_title( $post->ID ) ); ?></strong></span>
 					</div>
+					<?php do_action( 'ef_calendar_item_html', $post->ID ); ?>
 				</div>
 				<div class="item-inner">
 					<?php $this->get_inner_information( $this->get_post_information_fields( $post ), $post ); ?>
