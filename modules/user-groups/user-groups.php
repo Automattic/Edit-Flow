@@ -761,14 +761,16 @@ class EF_User_Groups extends EF_Module {
 		} else {
 
 			?>
-			<ul id="<?php echo $list_id ?>" class="<?php echo $list_class ?>">
+			<ul id="<?php echo esc_attr( $list_id ) ?>" class="<?php echo esc_attr( $list_class ) ?>">
 			<?php
 			foreach( $usergroups as $usergroup ) {
 				$checked = ( in_array( $usergroup->term_id, $selected ) ) ? ' checked="checked"' : '';
 				?>
 				<li>
 					<label for="<?php echo $input_id . esc_attr( $usergroup->term_id ); ?>" title="<?php echo esc_attr($usergroup->description) ?>">
-						<input type="checkbox" id="<?php echo $input_id . esc_attr( $usergroup->term_id ) ?>" name="<?php echo $input_id ?>[]" value="<?php echo esc_attr( $usergroup->term_id ) ?>"<?php echo $checked ?> />
+						<div class="ef-user-subscribe-actions">
+							<input type="checkbox" id="<?php echo esc_attr( $input_id . $usergroup->term_id ) ?>" name="<?php echo esc_attr( $input_id )?>[]" value="<?php echo esc_attr( $usergroup->term_id ) ?>"<?php echo $checked ?> />
+						</div>
 						<span class="ef-usergroup_name"><?php echo esc_html( $usergroup->name ); ?></span>
 						<span class="ef-usergroup_description" title="<?php echo esc_attr($usergroup->description) ?>">
 							<?php echo (strlen($usergroup->description) >= 50) ? substr_replace(esc_html($usergroup->description), '...', 50) : esc_html($usergroup->description); ?>

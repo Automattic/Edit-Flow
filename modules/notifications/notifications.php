@@ -333,6 +333,7 @@ jQuery(document).ready(function($) {
 	 */	
 	function notifications_meta_box() {
 		global $post, $post_ID, $edit_flow;
+		add_filter( 'ef_users_select_form_get_users_args', [ $this, 'ef_users_select_form_get_users_args' ] );
 
 		?>
 		<div id="ef-post_following_box">
@@ -363,6 +364,18 @@ jQuery(document).ready(function($) {
 		</div>
 		
 		<?php
+		add_filter( 'ef_users_select_form_get_users_args', [ $this, 'ef_users_select_form_get_users_args' ] );
+	}
+
+	/**
+	 * Don't display current user in the list of who's going to get a notification for an Editorial comment
+	 *
+	 * @param array $args get_users arguments
+	 * @return array
+	 */
+	function ef_users_select_form_get_users_args( $args ) {
+		$args['exclude'] = [ get_current_user_id() ];
+		return $args;
 	}
 
 	/**
