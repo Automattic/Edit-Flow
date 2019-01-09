@@ -71,7 +71,7 @@ class EF_Notifications extends EF_Module {
 		add_action( 'add_meta_boxes', array( $this, 'add_post_meta_box' ) );
 
 		// Add "access badge" to the subscribers list.
-		add_action( 'ef_user_subscribe_actions', array( $this, 'display_subscriber_access_badge' ), 10, 2 );
+		add_action( 'ef_user_subscribe_actions', array( $this, 'display_subscriber_warning_badges' ), 10, 2 );
 	
 		// Saving post actions
 		// self::save_post_subscriptions() is hooked into transition_post_status so we can ensure usergroup data
@@ -198,7 +198,8 @@ class EF_Notifications extends EF_Module {
 				'edit-flow-notifications-js',
 				'ef_notifications_localization',
 				array(
-					'no_access' => esc_html__( 'No Access', 'edit-flow' )
+					'no_access' => esc_html__( 'No Access', 'edit-flow' ),
+					'no_email' => esc_html__( 'No Email', 'edit-flow' )
 				)
 			);
 		}
@@ -365,18 +366,32 @@ jQuery(document).ready(function($) {
 	}
 
 	/**
-	 * Show a badge next to a subscriber's name showing if they have the permissions needed to recieve notifications.
+	 * Show warning badges next to a subscriber's name if they won't receive notifications
 	 *
+	 * Applies on initial loading of list via. PHP. JS will set these spans based on AJAX response when box is ticked/unticked.
+	 * 
 	 * @param int $user_id 
 	 * @param bool $checked True if the user is subscribed already, false otherwise.
 	 * @return void
 	 */	
-	function display_subscriber_access_badge( $user_id, $checked ) {
+	function display_subscriber_warning_badges( $user_id, $checked ) {
 		global $post;
 
-		if ( isset( $post ) && $checked && ! $this->user_can_be_notified( get_user_by( 'id', $user_id ), $post->ID ) ) {
+		if (!isset( $post ) OR !$checked ) {
+			return;
+		}
+		
+		// Add No Access span if they won't be notified
+		if (! $this->user_can_be_notified( get_user_by( 'id', $user_id ), $post->ID )) {
 			// span.post_following_list-no_access is also added in notifications.js after AJAX that ticks/unticks a user
 			echo '<span class="post_following_list-no_access">' . esc_html__( 'No Access', 'edit-flow' ) . '</span>';
+		}
+		
+		// Add No Email span if they have no email
+		$user_object = get_user_by( 'id', $user_id );
+		if ( !is_a( $user_object, 'WP_User') OR empty( $user_object->user_email )  ) {
+			// span.post_following_list-no_email is also added in notifications.js after AJAX that ticks/unticks a user
+			echo '<span class="post_following_list-no_email">' . esc_html__( 'No Email', 'edit-flow' ) . '</span>';
 		}
 	}
 	
@@ -408,11 +423,28 @@ jQuery(document).ready(function($) {
 			$this->save_post_following_users( $post, $user_group_ids );
 			
 			if ( defined( 'DOING_AJAX' ) && DOING_AJAX && isset( $_POST['post_id'] ) ) {
+				
+				// Determine if any of the selected users won't have notification access
 				$subscribers_with_no_access = array_filter( $user_group_ids, function( $user_id ) {
 					return ! $this->user_can_be_notified( get_user_by( 'id', $user_id ), $_POST['post_id'] );
 				} );
 
-				wp_send_json_success( array( 'subscribers_with_no_access' => array_values( $subscribers_with_no_access ) ) );
+				// Determine if any of the selected users are missing their emails				
+				$subscribers_with_no_email = array();
+				foreach ( $user_group_ids AS $user_id ) {
+					$user_object = get_user_by( 'id', $user_id );
+					if ( !is_a( $user_object, 'WP_User') OR empty( $user_object->user_email )  ) {
+						$subscribers_with_no_email[] = $user_id;
+					}
+				}
+				
+				// Assemble the json reply with various lists of problematic users
+				$json_success = array( 
+					'subscribers_with_no_access' => array_values( $subscribers_with_no_access ),
+					'subscribers_with_no_email' => array_values( $subscribers_with_no_email ),
+				);
+				
+				wp_send_json_success( $json_success );
 			}
 		}
 		

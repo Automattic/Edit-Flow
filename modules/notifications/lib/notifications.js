@@ -5,13 +5,25 @@ jQuery(document).ready(function($) {
 		action: 'save_notifications',
 		post_id: $('#post_ID').val(),
 	};
-
-	var toggle_no_access_badge = function( container, user_has_no_access ) {
+	
+	var toggle_warning_badges = function( container, response ) {
+		// Remove any existing badges
 		if ( $( container ).siblings( 'span' ).length ) {
 			$( container ).siblings( 'span' ).remove();
-		} else if ( user_has_no_access ) {
+		}
+		
+		// "No Access" If this user was flagged as not having access
+		var user_has_no_access = response.data.subscribers_with_no_access.includes( parseInt( $( container ).val() ) );
+		if ( user_has_no_access ) {
 			var span = $( '<span />' ).addClass( 'post_following_list-no_access' );
 			span.text( ef_notifications_localization.no_access );
+			$( container ).parent().prepend( span );
+		}
+		// "No Email" If this user was flagged as not having an email
+		var user_has_no_email = response.data.subscribers_with_no_email.includes( parseInt( $( container ).val() ) );
+		if ( user_has_no_email ) {
+			var span = $( '<span />' ).addClass( 'post_following_list-no_email' );
+			span.text( ef_notifications_localization.no_email );
 			$( container ).parent().prepend( span );
 		}
 	}
@@ -44,10 +56,9 @@ jQuery(document).ready(function($) {
 					.animate( { 'backgroundColor':'#CCEEBB' }, 200 )
 					.animate( { 'backgroundColor':backgroundColor }, 200 );
 
-					// Toggle the "No Access" badge if the selected user does not have access.
+					// Toggle the warning badges ("No Access" and "No Email") to signal the user won't receive notifications
 					if ( undefined !== response.data ) {
-						var user_has_no_access = response.data.subscribers_with_no_access.includes( parseInt( $( parent_this ).val() ) );
-						toggle_no_access_badge( $( parent_this ), user_has_no_access );
+						toggle_warning_badges( $( parent_this ), response );
 					}
 				
 					// This event is used to show an updated list of who will be notified of editorial comments and status updates.
