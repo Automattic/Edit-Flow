@@ -469,13 +469,16 @@ class EF_Module {
 
 		<?php if( !empty($users) ) : ?>
 			<ul class="<?php echo esc_attr( $list_class ) ?>">
-				<?php foreach( $users as $user ) : ?>
-					<?php $checked = ( in_array($user->ID, $selected) ) ? 'checked="checked"' : ''; ?>
+				<?php foreach( $users as $user ) : 
+					$checked = ( in_array($user->ID, $selected) ) ? 'checked="checked"' : '';
+					// Add a class to checkbox of current user so we know not to add them in notified list during notifiedMessage() js function
+					$current_user_class = ( get_current_user_id() == $user->ID ) ? 'class="post_following_list-current_user" ' : '';
+				?>
 					<li>
 						<label for="<?php echo esc_attr( $input_id .'-'. $user->ID ) ?>">
 							<div class="ef-user-subscribe-actions">
 								<?php do_action( 'ef_user_subscribe_actions', $user->ID, $checked ) ?>
-								<input type="checkbox" id="<?php echo esc_attr( $input_id .'-'. $user->ID ) ?>" name="<?php echo esc_attr( $input_id ) ?>[]" value="<?php echo esc_attr( $user->ID ); ?>" <?php echo $checked; ?> />
+								<input type="checkbox" id="<?php echo esc_attr( $input_id .'-'. $user->ID ) ?>" name="<?php echo esc_attr( $input_id ) ?>[]" value="<?php echo esc_attr( $user->ID ); ?>" <?php echo $checked; echo $current_user_class; ?> />
 							</div>
 
 							<span class="ef-user_displayname"><?php echo esc_html( $user->display_name ); ?></span>
