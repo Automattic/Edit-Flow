@@ -10,7 +10,7 @@ jQuery(document).ready(function($) {
 		if ( $( container ).siblings( 'span' ).length ) {
 			$( container ).siblings( 'span' ).remove();
 		} else if ( user_has_no_access ) {
-			var span = $( '<span />' );
+			var span = $( '<span />' ).addClass( 'post_following_list-no_access' );
 			span.text( ef_notifications_localization.no_access );
 			$( container ).parent().prepend( span );
 		}
@@ -38,8 +38,6 @@ jQuery(document).ready(function($) {
 
 			success : function( response ) { 
 
-				// This event is used to show an updated list of who will be notified of editorial comments and status updates.
-				$( '#ef-post_following_box' ).trigger( 'following_list_updated' );
 
 				var backgroundColor = parent_this.css( 'background-color' );
 				$(parent_this.parents('li'))
@@ -51,6 +49,9 @@ jQuery(document).ready(function($) {
 						var user_has_no_access = response.data.subscribers_with_no_access.includes( parseInt( $( parent_this ).val() ) );
 						toggle_no_access_badge( $( parent_this ), user_has_no_access );
 					}
+				
+					// This event is used to show an updated list of who will be notified of editorial comments and status updates.
+					$( '#ef-post_following_box' ).trigger( 'following_list_updated' );
 			},
 			error : function(r) { 
 				$('#ef-post_following_users_box').prev().append(' <p class="error">There was an error. Please reload the page.</p>');

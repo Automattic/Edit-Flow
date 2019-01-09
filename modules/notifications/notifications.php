@@ -375,7 +375,8 @@ jQuery(document).ready(function($) {
 		global $post;
 
 		if ( isset( $post ) && $checked && ! $this->user_can_be_notified( get_user_by( 'id', $user_id ), $post->ID ) ) {
-			echo '<span>' . esc_html__( 'No Access', 'edit-flow' ) . '</span>';
+			// span.post_following_list-no_access is also added in notifications.js after AJAX that ticks/unticks a user
+			echo '<span class="post_following_list-no_access">' . esc_html__( 'No Access', 'edit-flow' ) . '</span>';
 		}
 	}
 	
