@@ -18,6 +18,7 @@ jQuery(document).ready(function($) {
 			var span = $( '<span />' ).addClass( 'post_following_list-no_access' );
 			span.text( ef_notifications_localization.no_access );
 			$( container ).parent().prepend( span );
+			warning_background = true;
 		}
 		// "No Email" If this user was flagged as not having an email
 		var user_has_no_email = response.data.subscribers_with_no_email.includes( parseInt( $( container ).val() ) );
@@ -25,6 +26,7 @@ jQuery(document).ready(function($) {
 			var span = $( '<span />' ).addClass( 'post_following_list-no_email' );
 			span.text( ef_notifications_localization.no_email );
 			$( container ).parent().prepend( span );
+			warning_background = true;
 		}
 	}
 
@@ -49,20 +51,26 @@ jQuery(document).ready(function($) {
 			data : params,
 
 			success : function( response ) { 
-
-
+				// Reset background color (set during toggle_warning_badges if there's a warning)
+				warning_background = false;
+				
+				// Toggle the warning badges ("No Access" and "No Email") to signal the user won't receive notifications
+				if ( undefined !== response.data ) {
+					toggle_warning_badges( $( parent_this ), response );
+				}
+				// Green 40% by default
+				var backgroundHighlightColor = "#90d296";
+				if ( warning_background ) {
+					// Red 40% if there's a warning
+					var backgroundHighlightColor = "#ea8484";
+				}
 				var backgroundColor = parent_this.css( 'background-color' );
 				$(parent_this.parents('li'))
-					.animate( { 'backgroundColor':'#CCEEBB' }, 200 )
+					.animate( { 'backgroundColor': backgroundHighlightColor }, 200 )
 					.animate( { 'backgroundColor':backgroundColor }, 200 );
-
-					// Toggle the warning badges ("No Access" and "No Email") to signal the user won't receive notifications
-					if ( undefined !== response.data ) {
-						toggle_warning_badges( $( parent_this ), response );
-					}
-				
-					// This event is used to show an updated list of who will be notified of editorial comments and status updates.
-					$( '#ef-post_following_box' ).trigger( 'following_list_updated' );
+			  
+				// This event is used to show an updated list of who will be notified of editorial comments and status updates.
+				$( '#ef-post_following_box' ).trigger( 'following_list_updated' );
 			},
 			error : function(r) { 
 				$('#ef-post_following_users_box').prev().append(' <p class="error">There was an error. Please reload the page.</p>');
