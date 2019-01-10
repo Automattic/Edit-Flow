@@ -40,10 +40,11 @@
 	margin-top: 5px;
 }
 
-.ef-post_following_list li .ef-user-subscribe-actions span {
+.ef-post_following_list li .ef-user-subscribe-actions .post_following_list-no_email,
+.ef-post_following_list li .ef-user-subscribe-actions .post_following_list-no_access {
 	margin-right: 10px;
-	border: solid 2px #FFCCCC;
-	color: #FFCCCC;
+	border: solid 2px #DC3232;
+	color: #DC3232;
 	padding: 4px;
 }
 
