@@ -688,7 +688,7 @@ class EF_User_Groups extends EF_Module {
 			return array( &$errors, $update, &$user );
 
 		// `get_current_screen()` is defined on most admin pages, but not all.
-		if( is_admin() && function_exists( 'get_current_screen' ) ){
+		if( function_exists( 'get_current_screen' ) ){
 			//Don't allow update of user groups from network
 			if ( ( !is_null( get_current_screen() ) ) && ( get_current_screen()->is_network ) ) {
 				return;
