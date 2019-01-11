@@ -3,9 +3,9 @@ Contributors: batmoo, danielbachhuber, sbressler, automattic
 Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 4.5
-Tested up to: 4.9.6
-Stable tag: 0.8.3
 Requires PHP: 5.4
+Tested up to: 5.0.3
+Stable tag: 0.9
 
 Redefining your editorial workflow.
 
@@ -45,7 +45,9 @@ Yep, in the sense that you can activate Edit Flow on each subsite. Edit Flow doe
 
 = Edit Flow doesn't do X, Y, and Z. That makes me sad. =
 
-For support questions, feedback and ideas, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10), which we look at often. For everything else, say [hello@editflow.org](mailto:hello@editflow.org).
+All development happens on [GitHub](https://github.com/Automattic/Edit-Flow).
+
+For support questions, feedback and ideas, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10), which we look at often. For everything else, say [hello@editflow.org](mailto:hello@editflow.org). 
 
 == Screenshots ==
 
@@ -56,6 +58,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 5. View all of your upcoming posts with the more traditional story budget view, and hit the print button to take it to your planning meeting.
 
 == Upgrade Notice ==
+
+= 0.9 = 
+Bump minimum version of PHP to 5.4. Start implementation of Block Editor compatible modules, various improvements and bugfixes.
 
 = 0.8.3 =
 Improvements and bugfixes.
@@ -107,6 +112,13 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
+= 0.9 (January 10, 2018) =
+* Feature: Block Editor compatibility for Custom Status module. Props [rinatkhaziev](https://github.com/rinatkhaziev). See [BLOCKS.md](BLOCKS.md) for details.
+* Feature: new filter `ef_calendar_item_html` for Calendar module that allows to print custom markup for each day.
+* UI Improvement: start removing arbitrary colors and conform to WP Color guide. A collective effort.
+* UI Improvement: Add [NO ACCESS] and [NO EMAIL] to the list of notified users to indicate that a user doesn't have the access to the post and that a user doesn't have an email set, respectively. Props [WPprodigy](https://github.com/WPprodigy) [jerclarke](https://github.com/jerclarke).
+
+
 = 0.8.3 (June 14, 2018) =
 * UI Improvement: Made primary buttons on Settings screen consistent with WordPress UI. Props [cojennin](https://github.com/cojennin).
 * UI Improvement: Display who particularly was notified about an editorial comment. Props [goodguyry](https://github.com/goodguyry), [WPprodigy](https://github.com/WPprodigy)
@@ -138,7 +150,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Improvement: Internationalization improvements in settings and calendar. Props [robertsky](https://github.com/robertsky)
 * Improvement: Corrections made to Brazilian Portuguese translation. Props [angelosds](https://github.com/angelosds)
 * Improvement: Updates Travis CI to support containerization, PHP 7 and HHVM
-* Bug fix: Fix PHP warning in class-module.php. Props [jeremyclarke](https://github.com/jeremyclarke)
+* Bug fix: Fix PHP warning in class-module.php. Props [jerclarke](https://github.com/jerclarke)
 * Bug fix: Add label to Dashboard Notes so it displays as "Dashboard Notes" when exporting
 * Bug fix: Clean up PHP code to comply with PHP Strict Standards
 * Bug fix: Removed deprecated get_currentuserinfo. Props [kraftbj](https://github.com/kraftbj)

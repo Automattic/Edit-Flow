@@ -1,10 +1,4 @@
 # Edit Flow
-Contributors: batmoo, danielbachhuber, sbressler, automattic
-Donate link: http://editflow.org/contribute/
-Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
-Requires at least: 4.5
-Tested up to: 4.9.6
-Stable tag: 0.8.3
 
 Redefining your editorial workflow.
 
@@ -23,6 +17,9 @@ Edit Flow empowers you to collaborate with your editorial team inside WordPress.
 * [User Groups](http://editflow.org/features/user-groups/) - Keep your users organized by department or function.
 
 More details for each feature, screenshots and documentation can be found on [our website](http://www.editflow.org/).
+
+All development happens on [GitHub](https://github.com/Automattic/Edit-Flow).
+
 
 We'd love to hear from you! For support questions, feedback and ideas, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10), which we look at often. If you'd like to contribute code, [we'd love to have you involved](http://editflow.org/contribute/).
 
@@ -55,6 +52,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 5. View all of your upcoming posts with the more traditional story budget view, and hit the print button to take it to your planning meeting.
 
 ## Upgrade Notice
+
+**0.9**
+Bump minimum version of PHP to 5.4. Start implementation of Block Editor compatible modules, various improvements and bugfixes.
 
 **0.8.3**
 Improvements and bugfixes.
@@ -105,6 +105,12 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 ## Changelog
+
+**0.9 (January 10, 2018)**
+* Feature: Block Editor compatibility for Custom Status module. Props [rinatkhaziev](https://github.com/rinatkhaziev). See [BLOCKS.md](BLOCKS.md) for details.
+* Feature: new filter `ef_calendar_item_html` for Calendar module that allows to print custom markup for each day.
+* UI Improvement: start removing arbitrary colors and conform to WP Color guide. A collective effort.
+* UI Improvement: Add [NO ACCESS] and [NO EMAIL] to the list of notified users to indicate that a user doesn't have the access to the post and that a user doesn't have an email set, respectively. Props [WPprodigy](https://github.com/WPprodigy), [jerclarke](https://github.com/jerclarke).
 
 **0.8.3 (June 14, 2018)**
 * UI Improvement: Made primary buttons on Settings screen consistent with WordPress UI. Props [cojennin](https://github.com/cojennin).
