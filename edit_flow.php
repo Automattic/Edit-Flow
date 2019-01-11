@@ -7,7 +7,7 @@ Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Automattic, and other
 Version: 0.8.3
 Author URI: http://editflow.org/
 
-Copyright 2009-2016 Mohammad Jangda, Daniel Bachhuber, et al.
+Copyright 2009-2019 Mohammad Jangda, Daniel Bachhuber, Automattic, et al.
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
 
