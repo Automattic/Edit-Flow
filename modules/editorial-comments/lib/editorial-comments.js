@@ -23,7 +23,7 @@ editorialCommentReply = {
 		jQuery('a.ef-replysave', row).click(function() { return editorialCommentReply.send(); });
 
 		// Watch for changes to the subscribed users.
-		$( '#ef-post_following_box' ).on( 'following_list_updated', function() {
+		jQuery( '#ef-post_following_box' ).on( 'following_list_updated', function() {
 			editorialCommentReply.notifiedMessage();
 		} );
 	},
