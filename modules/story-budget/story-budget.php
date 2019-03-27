@@ -471,7 +471,11 @@ class EF_Story_Budget extends EF_Module {
 		?>
 		<tr id='post-<?php echo esc_attr( $post->ID ); ?>' class='alternate' valign="top">
 			<?php foreach( (array)$this->term_columns as $key => $name ) {
-				echo '<td>';
+				if ( $key === 'title' ) {
+					echo '<td class="post-title">';
+				} else {
+					echo '<td>';
+				}
 				if ( method_exists( $this, 'term_column_' . $key ) ) {
 					$method = 'term_column_' . $key;
 					echo $this->$method( $post, $parent_term );
@@ -533,14 +537,30 @@ class EF_Story_Budget extends EF_Module {
 	 */
 	function term_column_title( $post, $parent_term ) {
 		$post_title = _draft_or_post_title( $post->ID );
-		
+
 		$post_type_object = get_post_type_object( $post->post_type );
 		$can_edit_post = current_user_can( $post_type_object->cap->edit_post, $post->ID );
 		if ( $can_edit_post )
-			$output = '<strong><a href="' . get_edit_post_link( $post->ID ) . '">' . esc_html( $post_title ) . '</a></strong>'; 
+			$output = '<strong><a href="' . get_edit_post_link( $post->ID ) . '">' . esc_html( $post_title ) . '</a></strong>';
 		else
 			$output = '<strong>' . esc_html( $post_title ) . '</strong>';
-		
+
+		/*
+		 * the setup_postadata is still not fixed so the_excerpt cannot be used
+		 * and the logic of get_the_excerpt function is replicated
+		*/
+		if ( current_user_can( 'read_post', $post->ID ) ) {
+			if ( post_password_required( $post ) ) {
+				$output .= '<p>' . __( 'There is no excerpt because this is a protected post.', 'edit-flow' ) . '</p>';
+			} elseif ( $post->post_excerpt ) {
+				$output .= '<p>' . wp_trim_excerpt( $post->post_excerpt ) . '</p>';
+			} else {
+				$excerpt_length = apply_filters( 'excerpt_length', 15 );
+				$excerpt_more = apply_filters( 'excerpt_more', ' ' . '[&hellip;]' );
+				$output .= '<p>' . wp_trim_words( $post->post_content, $excerpt_length, $excerpt_more ) . '</p>';
+			}
+		}
+
 		// Edit or Trash or View
 		$output .= '<div class="row-actions">';
 		$item_actions = array();
@@ -629,7 +649,7 @@ class EF_Story_Budget extends EF_Module {
 		</div><!-- /alignleft actions -->
 		
 		<div class="print-box" style="float:right; margin-right: 30px;"><!-- Print link -->
-			<a href="#" id="print_link"><?php _e( 'Print', 'edit-flow' ); ?></a>
+			<a href="#" id="toggle_details"><?php _e( 'Toggle Post Details', 'edit-flow' ); ?></a> | <a href="#" id="print_link"><?php _e( 'Print', 'edit-flow' ); ?></a>
 		</div>
 		<div class="clear"></div>
 		
