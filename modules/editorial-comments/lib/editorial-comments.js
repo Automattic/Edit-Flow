@@ -145,8 +145,8 @@ editorialCommentReply = {
 		var usernames = [];
 		subscribed_users.each( function() {			
 			// Add usernames of checked users to the list if they don't have a blocking class
-			if ( ! $( this ).siblings().is( '.post_following_list-no_email,.post_following_list-no_access' ) && ! $( this ).hasClass( 'post_following_list-current_user' ) ) {
-				usernames.push( $( this ).parent().siblings( '.ef-user_displayname, .ef-usergroup_name' ).text() );
+			if ( ! jQuery( this ).siblings().is( '.post_following_list-no_email,.post_following_list-no_access' ) && ! jQuery( this ).hasClass( 'post_following_list-current_user' ) ) {
+				usernames.push( jQuery( this ).parent().siblings( '.ef-user_displayname, .ef-usergroup_name' ).text() );
 			}
 		} );
 
