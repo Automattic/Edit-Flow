@@ -37,6 +37,7 @@ jQuery(document).ready(function($) {
 		$('h2 form .form-value').hide();
 		$('h2 form input').show();
 		$('h2 form a.change-date-cancel').show();
+		$('h2 form span.or-between-buttons').show();
 		return false;
 	});
 	
@@ -45,6 +46,7 @@ jQuery(document).ready(function($) {
 		$('h2 form .form-value').show();
 		$('h2 form input').hide();
 		$('h2 form a.change-date').show();
+		$('h2 form span.or-between-buttons').hide();
 		return false;
 	});
 });

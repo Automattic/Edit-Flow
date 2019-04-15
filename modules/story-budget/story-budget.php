@@ -188,7 +188,8 @@ class EF_Story_Budget extends EF_Module {
 	 */
 	function handle_form_date_range_change() {
 		
-		if ( !isset( $_POST['ef-story-budget-range-submit'], $_POST['ef-story-budget-number-days'], $_POST['ef-story-budget-start-date'] ) )
+		if ( !isset( $_POST['ef-story-budget-number-days'], $_POST['ef-story-budget-start-date'] ) &&
+		     ( !isset( $_POST['ef-story-budget-range-submit'] ) || !isset( $_POST['ef-story-budget-today-submit'] ) ) )
 			return;
 			
 		if ( !wp_verify_nonce( $_POST['nonce'], 'change-date' ) )
@@ -196,7 +197,11 @@ class EF_Story_Budget extends EF_Module {
 		
 		$current_user = wp_get_current_user();
 		$user_filters = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
-		$user_filters['start_date'] = date( 'Y-m-d', strtotime( $_POST['ef-story-budget-start-date'] ) );
+		if ( isset( $_POST['ef-story-budget-today-submit'] ) ) {
+			$user_filters['start_date'] = date( 'Y-m-d' );
+		} else {
+			$user_filters['start_date'] = date( 'Y-m-d', strtotime( $_POST['ef-story-budget-start-date'] ) );
+		}
 		$user_filters['number_days'] = (int)$_POST['ef-story-budget-number-days'];
 		if ( $user_filters['number_days'] <= 1 )
 			$user_filters['number_days'] = 1;
@@ -339,6 +344,9 @@ class EF_Story_Budget extends EF_Module {
 		$output .= '&nbsp;&nbsp;<span class="change-date-buttons">';
 		$output .= '<input id="ef-story-budget-range-submit" name="ef-story-budget-range-submit" type="submit"';
 		$output .= ' class="button-primary" value="' . __( 'Change', 'edit-flow' ) . '" />';
+		$output .= '<span class="or-between-buttons hidden">' . __( '&nbsp;or&nbsp;', 'edit-flow') . '</span>';
+		$output .= '<input id="ef-story-budget-today-submit" name="ef-story-budget-today-submit" type="submit"';
+		$output .= ' class="button-primary" value="' . __( 'Today', 'edit-flow' ) . '" />';
 		$output .= '&nbsp;';
 		$output .= '<a class="change-date-cancel hidden" href="#">' . __( 'Cancel', 'edit-flow' ) . '</a>';
 		$output .= '<a class="change-date" href="#">' . __( 'Change', 'edit-flow' ) . '</a>';
