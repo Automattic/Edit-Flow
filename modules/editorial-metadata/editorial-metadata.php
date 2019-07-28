@@ -103,6 +103,9 @@ class EF_Editorial_Metadata extends EF_Module {
 			add_filter( "manage_{$post_type}_posts_columns", array( $this, 'filter_manage_posts_columns' ) );
 			add_action( "manage_{$post_type}_posts_custom_column", array( $this, 'action_manage_posts_custom_column' ), 10, 2 );
 		}
+
+		// Add Editorial Metadata to quick edit box
+		add_action( 'quick_edit_custom_box', array( $this, 'action_quick_edit_custom_box' ), 10, 2 );
 		
 		// Add Editorial Metadata to the calendar if the calendar is activated
 		if ( $this->module_enabled( 'calendar' ) )
@@ -243,11 +246,14 @@ class EF_Editorial_Metadata extends EF_Module {
 		}
 		// A bit of custom CSS for the Manage Posts view if we have viewable metadata
 		if ( $current_screen->base == 'edit' && in_array( $current_post_type, $supported_post_types ) ) {
+			// data to pass for quick edit
+			$ef_quick_edit_data = array();
+
 			$terms = $this->get_editorial_metadata_terms();
 			$viewable_terms = array();
 			foreach( $terms as $term ) {
-				if ( $term->viewable ) 
-					$viewable_terms[] = $term;
+				if ( $term->viewable )
+					$viewable_terms[] = $term; 
 			}
 			if ( !empty( $viewable_terms ) ) {
 				$css_rules = array(
@@ -286,6 +292,12 @@ class EF_Editorial_Metadata extends EF_Module {
 							);
 							break;
 					}
+
+					// quick edit lookup selector and type by input name
+					$ef_quick_edit_data['_ef_editorial_meta_' . $viewable_term->type . '_' . $viewable_term->slug] = array(
+						'type' => $viewable_term->type,
+						'selector' => '.column-' . $this->module->slug . '-' . $viewable_term->slug
+					);
 				}
 				// Allow users to filter out rules if there's something wonky
 				$css_rules = apply_filters( 'ef_editorial_metadata_manage_posts_css_rules', $css_rules );
@@ -295,7 +307,13 @@ class EF_Editorial_Metadata extends EF_Module {
 				}
 				echo '</style>';
 			}
-			
+
+			// Javascript for quick edit ( display input values )
+			$ef_quick_edit_handle = 'edit-flow-editorial-metadata-quick-edit';
+
+			wp_register_script( $ef_quick_edit_handle, EDIT_FLOW_URL . 'modules/editorial-metadata/lib/editorial-metadata-quick-edit.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
+			wp_localize_script( $ef_quick_edit_handle, 'ef_quick_edit', $ef_quick_edit_data );
+			wp_enqueue_script( $ef_quick_edit_handle );
 		}
 		
 		// Load Javascript specific to the editorial metadata configuration view
@@ -373,69 +391,93 @@ class EF_Editorial_Metadata extends EF_Module {
 			echo '<p>' . $message . '</p>';
 		} else {
 			foreach ( $terms as $term ) {
-				$postmeta_key = $this->get_postmeta_key( $term );
-				$current_metadata = esc_attr( $this->get_postmeta_value( $term, $post->ID ) );
-				$type = $term->type;
-				$description = $term->description;
-				if ( $description )
-					$description_span = "<span class='description'>$description</span>";
-				else
-					$description_span = '';
-				echo "<div class='" . self::metadata_taxonomy . " " . self::metadata_taxonomy . "_$type'>";
-				switch( $type ) {
-					case "date":
-						// TODO: Move this to a function
-						if ( !empty( $current_metadata ) ) {
-							// Turn timestamp into a human-readable date
-							$current_metadata = $this->show_date_or_datetime( intval( $current_metadata ) );	
-						}
-						echo "<label for='$postmeta_key'>{$term->name}</label>";
-						if ( $description_span )
-							echo "<label for='$postmeta_key'>$description_span</label>";
-						echo "<input id='$postmeta_key' name='$postmeta_key' type='text' class='date-time-pick' value='$current_metadata' />";
-						break;
-					case "location":
-						echo "<label for='$postmeta_key'>{$term->name}</label>";
-						if ( $description_span )
-							echo "<label for='$postmeta_key'>$description_span</label>";
-						echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
-						if ( !empty( $current_metadata ) )
-							echo "<div><a href='http://maps.google.com/?q={$current_metadata}&t=m' target='_blank'>" . sprintf( __( 'View &#8220;%s&#8221; on Google Maps', 'edit-flow' ), $current_metadata ) . "</a></div>";
-						break;
-					case "text":
-						echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
-						echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
-						break;
-					case "paragraph":
-						echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
-						echo "<textarea id='$postmeta_key' name='$postmeta_key'>$current_metadata</textarea>";
-						break;
-					case "checkbox":
-						echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
-						echo "<input id='$postmeta_key' name='$postmeta_key' type='checkbox' value='1' " . checked($current_metadata, 1, false) . " />";
-						break;
-					case "user": 
-						echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
-						$user_dropdown_args = array( 
-								'show_option_all' => __( '-- Select a user --', 'edit-flow' ), 
-								'name'     => $postmeta_key,
-								'selected' => $current_metadata 
-							);
-						$user_dropdown_args = apply_filters( 'ef_editorial_metadata_user_dropdown_args', $user_dropdown_args );
-						wp_dropdown_users( $user_dropdown_args );
-						break;
-					case "number":
-						echo "<label for='$postmeta_key'>{$term->name}$description_span</label>";
-						echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
-						break;					
-					default:
-						echo "<p>" . __( 'This editorial metadata type is not yet supported.', 'edit-flow' ) . "</p>";
-				}
-			echo "</div>";
-			echo "<div class='clear'></div>";
-		} // Done iterating through metadata terms
+				$this->display_field( $term, $post->ID );
+			} // Done iterating through metadata terms
 		}		
 		echo "</div>";
+	}
+
+	/**
+	 * Displays HTML output for inputs in meta box and quick edit box
+	 *
+	 * @param object $term 
+	 * @param int $post_id
+	 * @param boolean $quick_edit
+	 */
+	public function display_field( $term, $post_id = 0, $quick_edit = false ) {
+		$postmeta_key = $this->get_postmeta_key( $term );
+		$current_metadata = esc_attr( $this->get_postmeta_value( $term, $post_id ) );
+		$type = $term->type;
+		$description = $term->description;
+
+		if ( $description && $post_id )
+			$description_span = "<span class='description'>$description</span>";
+		else
+			$description_span = '';
+		echo "<div class='" . self::metadata_taxonomy . " " . self::metadata_taxonomy . "_$type'>";
+
+		if( $type == 'date' || $type == 'location' ) {
+			$label = "<label for='$postmeta_key'>{$term->name}</label>";
+		} else {
+			$label = "<label for='$postmeta_key'>{$term->name}$description_span</label>";
+		}
+
+		if( $quick_edit )
+			$label = "<div class='ef_editorial_meta_left'>$label</div>";
+
+		echo $label;
+
+		if( $quick_edit )
+			echo "<div class='ef_editorial_meta_right'>";
+
+		switch( $type ) {
+			case "date":
+				// TODO: Move this to a function
+				if ( !empty( $current_metadata ) ) {
+					// Turn timestamp into a human-readable date
+					$current_metadata = $this->show_date_or_datetime( intval( $current_metadata ) );	
+				}
+				if ( $description_span )
+					echo "<label for='$postmeta_key'>$description_span</label>";
+				echo "<input id='$postmeta_key' name='$postmeta_key' type='text' class='date-time-pick' value='$current_metadata' />";
+				break;
+			case "location":
+				if ( $description_span )
+					echo "<label for='$postmeta_key'>$description_span</label>";
+				echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
+				if ( !empty( $current_metadata ) )
+					echo "<div><a href='http://maps.google.com/?q={$current_metadata}&t=m' target='_blank'>" . sprintf( __( 'View &#8220;%s&#8221; on Google Maps', 'edit-flow' ), $current_metadata ) . "</a></div>";
+				break;
+			case "text":
+				echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
+				break;
+			case "paragraph":
+				echo "<textarea id='$postmeta_key' name='$postmeta_key'>$current_metadata</textarea>";
+				break;
+			case "checkbox":
+				echo "<input id='$postmeta_key' name='$postmeta_key' type='checkbox' value='1' " . checked($current_metadata, 1, false) . " />";
+				break;
+			case "user": 
+				$user_dropdown_args = array( 
+						'show_option_all' => __( '-- Select a user --', 'edit-flow' ), 
+						'name'     => $postmeta_key,
+						'selected' => $current_metadata 
+					);
+				$user_dropdown_args = apply_filters( 'ef_editorial_metadata_user_dropdown_args', $user_dropdown_args );
+				wp_dropdown_users( $user_dropdown_args );
+				break;
+			case "number":
+				echo "<input id='$postmeta_key' name='$postmeta_key' type='text' value='$current_metadata' />";
+				break;					
+			default:
+				echo "<p>" . __( 'This editorial metadata type is not yet supported.', 'edit-flow' ) . "</p>";
+		}
+
+		if( $quick_edit )
+			echo "</div>";
+
+		echo "</div>";
+		echo "<div class='clear'></div>";
 	}
 	
 	/**
@@ -653,13 +695,15 @@ class EF_Editorial_Metadata extends EF_Module {
 		$screen = get_current_screen();
 		if ( $screen ) {
 			add_filter( "manage_{$screen->id}_sortable_columns", array( $this, 'filter_manage_posts_sortable_columns' ) );
-			$terms = $this->get_editorial_metadata_terms( array( 'viewable' => true ) );
-			foreach( $terms as $term ) {
-				// Prefixing slug with module slug because it isn't stored prefixed and we want to avoid collisions
-				$key = $this->module->slug . '-' . $term->slug;
-				$posts_columns[$key] = $term->name;
-			}
 		}
+			
+		$terms = $this->get_editorial_metadata_terms( array( 'viewable' => true ) );
+		foreach( $terms as $term ) {
+			// Prefixing slug with module slug because it isn't stored prefixed and we want to avoid collisions
+			$key = $this->module->slug . '-' . $term->slug;
+			$posts_columns[$key] = $term->name;
+		}
+		
 		return $posts_columns;
 	}
 	
@@ -721,6 +765,56 @@ class EF_Editorial_Metadata extends EF_Module {
 			echo $this->generate_editorial_metadata_term_output( $term, $current_metadata );
 		}
 		
+	}
+	
+	/**
+	 * Handle the output of editorial metadata quick edit box
+	 *
+	 * @since 2.7
+	 * @uses do_action( 'quick_edit_custom_box' ) in wp-admin/includes/class-wp-terms-list-table.php
+	 *
+	 * @param string $column_name Unique string for the column
+	 * @param string $post_type Type of posts
+	 */
+	function action_quick_edit_custom_box( $column_name, $post_type ) {
+		$supported_post_types = $this->get_post_types_for_module( $this->module );
+
+		if( !in_array( $post_type, $supported_post_types ) )
+			return;
+
+		$terms = $this->get_editorial_metadata_terms( array( 'viewable' => true ) );
+		$terms_count = count( $terms );
+
+		if( !$terms_count )
+			return;
+
+		$counter = -1; 
+
+		foreach( $terms as $term ) {
+			$counter++;
+
+			$key = $this->module->slug . '-' . $term->slug;
+			if ( $column_name != $key )
+				continue;
+
+			// Wrap inputs in fieldset
+			if( $counter === 0 ) {
+				echo '<div class="clear"></div>';
+				echo '<fieldset class="ef_editorial_meta_quick_edit">';
+				echo '<div class="inline-edit-col">';
+
+				// Add nonce for verification upon save
+				echo "<input type='hidden' name='" . self::metadata_taxonomy . "_nonce' value='" . wp_create_nonce(__FILE__) . "' />";
+			}
+
+			$this->display_field( $term , 0, true );
+
+			// Wrap inputs in fieldset
+			if( $counter === $terms_count - 1 ) {
+				echo '</div>';
+				echo '</fieldset>';
+			}
+		}
 	}
 	
 	/**

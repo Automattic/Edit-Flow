@@ -73,6 +73,61 @@
 	margin-top: 6px;
 }
 
+/* Quick edit styles */
+#wpbody-content .inline-edit-row fieldset.ef_editorial_meta_quick_edit {
+	width: 40%;
+	margin-top: 3px;
+}
+
+.ef_editorial_meta_quick_edit .ef_editorial_meta,
+.ef_editorial_meta_quick_edit .ef_editorial_meta_left,
+.ef_editorial_meta_quick_edit .ef_editorial_meta_right {
+	box-sizing: border-box;
+}
+
+.ef_editorial_meta_quick_edit .ef_editorial_meta {
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    margin: -5px -5px 2px -5px;
+}
+
+.ef_editorial_meta_quick_edit .ef_editorial_meta_left,
+.ef_editorial_meta_quick_edit .ef_editorial_meta_right {
+	padding: 5px;
+}
+
+.ef_editorial_meta_quick_edit .ef_editorial_meta_left {
+    width: 8em;
+}
+
+.ef_editorial_meta_quick_edit .ef_editorial_meta_right {
+	width: calc(100% - 8em);
+}
+
+.ef_editorial_meta_quick_edit label {
+	line-height: unset !important;
+	margin: 0 !important;
+	font-style: italic;
+}
+
+.ef_editorial_meta_quick_edit input[type=text],
+.ef_editorial_meta_quick_edit textarea {
+	width: 100%;
+}
+
+@media screen and ( max-width: 782px ) {
+	#wpbody-content .inline-edit-row fieldset.ef_editorial_meta_quick_edit,
+	.ef_editorial_meta_quick_edit .ef_editorial_meta_left,
+	.ef_editorial_meta_quick_edit .ef_editorial_meta_right {
+		width: 100%;
+	}
+}
+
 /*
  * If editorial metadata is in the main post column, allow the metadata to be laid out in
  * multiple columns in browsers that support it.
