@@ -33,7 +33,7 @@
 				var selector = ef_quick_edit[name].selector,
 					type = ef_quick_edit[name].type,
 					val = $( selector, $post_row ).text(),
-					$input = $( '#' + name, $edit_row );
+					$input = $( '[name="' + name + '"]', $edit_row );
 
 				if ( type == 'checkbox' ) {
 					val = val.toLowerCase();
@@ -42,6 +42,17 @@
 					$input.find( 'option' ).filter( function() {
 						return $( this ).text() == val;
 					} ).prop( 'selected', true );
+				} else if ( type == 'date' ) {
+					var date = new Date( val.replace( 'at ', '' ) );
+
+					// init datetime picker
+					$input.datetimepicker( {
+						dateFormat: 'M dd yy',
+						firstDay: ef_week_first_day,
+						alwaysSetTime: false,
+						controlType: 'select',
+						defaultDate: date
+					} ).datetimepicker( 'setDate', date );
 				} else {
 					$input.val( val );
 				}

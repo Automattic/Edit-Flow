@@ -439,7 +439,10 @@ class EF_Editorial_Metadata extends EF_Module {
 				}
 				if ( $description_span )
 					echo "<label for='$postmeta_key'>$description_span</label>";
-				echo "<input id='$postmeta_key' name='$postmeta_key' type='text' class='date-time-pick' value='$current_metadata' />";
+
+				$class = !$quick_edit ? 'date-time-pick' : '';
+
+				echo "<input id='$postmeta_key' name='$postmeta_key' type='text' class='$class' value='$current_metadata' />";
 				break;
 			case "location":
 				if ( $description_span )
@@ -766,7 +769,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		}
 		
 	}
-	
+
 	/**
 	 * Handle the output of editorial metadata quick edit box
 	 *
