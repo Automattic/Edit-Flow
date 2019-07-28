@@ -43,16 +43,24 @@
 						return $( this ).text() == val;
 					} ).prop( 'selected', true );
 				} else if ( type == 'date' ) {
-					var date = new Date( val.replace( 'at ', '' ) );
+					var date = '',
+						args = {
+							dateFormat: 'M dd yy',
+							firstDay: ef_week_first_day,
+							alwaysSetTime: false,
+							controlType: 'select'
+						};
+
+					if( val ) {
+						date = new Date( val.replace( 'at ', '' ) );
+						args['defaultDate'] = date;
+					}
 
 					// init datetime picker
-					$input.datetimepicker( {
-						dateFormat: 'M dd yy',
-						firstDay: ef_week_first_day,
-						alwaysSetTime: false,
-						controlType: 'select',
-						defaultDate: date
-					} ).datetimepicker( 'setDate', date );
+					$input.datetimepicker( args );
+
+					if( val )
+						$input.datetimepicker( 'setDate', date );
 				} else {
 					$input.val( val );
 				}
