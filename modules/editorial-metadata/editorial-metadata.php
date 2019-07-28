@@ -400,9 +400,9 @@ class EF_Editorial_Metadata extends EF_Module {
 	/**
 	 * Displays HTML output for inputs in meta box and quick edit box
 	 *
-	 * @param object $term 
-	 * @param int $post_id
-	 * @param boolean $quick_edit
+	 * @param object $term Term's object representation
+	 * @param int $post_id The ID of the post
+	 * @param boolean $quick_edit If in quick edit box or not
 	 */
 	public function display_field( $term, $post_id = 0, $quick_edit = false ) {
 		$postmeta_key = $this->get_postmeta_key( $term );
