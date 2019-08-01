@@ -105,7 +105,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		}
 
 		// Add Editorial Metadata to quick edit box
-		// add_action( 'quick_edit_custom_box', array( $this, 'action_quick_edit_custom_box' ), 10, 2 );
+		add_action( 'quick_edit_custom_box', array( $this, 'action_quick_edit_custom_box' ), 10, 2 );
 		
 		// Add Editorial Metadata to the calendar if the calendar is activated
 		if ( $this->module_enabled( 'calendar' ) )
