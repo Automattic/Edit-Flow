@@ -117,6 +117,7 @@ class EF_Custom_Status extends EF_Module {
 		add_filter( 'post_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
 		add_filter( 'page_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
 		add_filter( 'post_type_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
+		add_filter( 'preview_post_link', array( $this, 'fix_preview_link_part_three' ), 11, 2 );
 		add_filter( 'get_sample_permalink', array( $this, 'fix_get_sample_permalink' ), 10, 5 );
 		add_filter( 'get_sample_permalink_html', array( $this, 'fix_get_sample_permalink_html' ), 10, 5);
 		add_filter( 'post_row_actions', array( $this, 'fix_post_row_actions' ), 10, 2 );
@@ -1496,6 +1497,27 @@ class EF_Custom_Status extends EF_Module {
 		}
 
 		return $this->get_preview_link( $post );
+	}
+
+	/**
+	 * Another hack! hack! hack! until core better supports custom statuses
+	 *
+	 * @since 0.9
+	 *
+	 * The preview link for a saved unpublished post with a custom status returns a 'preview_nonce'
+	 * in it and needs to be removed when previewing it to return a viewable preview link.
+	 * @see https://github.com/Automattic/Edit-Flow/issues/513
+	 */
+	public function fix_preview_link_part_three( $preview_link, $query_args ) {
+		if ( $autosave = wp_get_post_autosave( $query_args->ID, $query_args->post_author ) ) {
+		    foreach ( array_intersect( array_keys( _wp_post_revision_fields( $query_args ) ), array_keys( _wp_post_revision_fields( $autosave ) ) ) as $field ) {
+		        if ( normalize_whitespace( $query_args->$field ) != normalize_whitespace( $autosave->$field ) ) {
+		        	// Pass through, it's a personal preview.
+		            return $preview_link;
+		        }
+		   }
+		}
+		return remove_query_arg( [ 'preview_nonce' ], $preview_link );  
 	}
 
 	/**
