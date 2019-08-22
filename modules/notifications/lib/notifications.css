@@ -108,3 +108,11 @@
 #ef-usergroup-users h4 {
 	margin-top: 0;
 }
+
+.ef-post_following_list .post-author {
+	margin-right: 10px;
+	border: solid 2px #b8b8b8;
+	color: #b8b8b8;
+	padding: 4px;
+}
+
