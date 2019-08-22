@@ -44,7 +44,7 @@ jQuery(document).ready(function($) {
 			return;
 		}
 		if ( true == post_author_is_follower && true == post_author_auto_subscribe ) {
-			$("label[for='ef-selected-users-" + post_author_id + "'] .ef-user-subscribe-actions").prepend( "<span class='post-author'>Post Author</span>" );
+			$("label[for='ef-selected-users-" + post_author_id + "'] .ef-user-subscribe-actions").prepend( "<span class='post-author'>" + ef_notifications_localization.post_author + "</span>" );
 		}
 	}
 

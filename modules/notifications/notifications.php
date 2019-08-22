@@ -199,7 +199,8 @@ class EF_Notifications extends EF_Module {
 				'ef_notifications_localization',
 				array(
 					'no_access' => esc_html__( 'No Access', 'edit-flow' ),
-					'no_email' => esc_html__( 'No Email', 'edit-flow' )
+					'no_email' => esc_html__( 'No Email', 'edit-flow' ),
+					'post_author' => esc_html__( 'Post Author', 'edit-flow' ),
 				)
 			);
 		}
