@@ -30,6 +30,30 @@ jQuery(document).ready(function($) {
 		}
 	}
 
+	var maybe_disable_post_author_checkbox = function( ) {
+		if ( typeof post_author_is_follower == 'undefined' ) {
+			return;
+		}
+		if ( true == post_author_is_follower && true == post_author_auto_subscribe ) {
+			$('#ef-selected-users-' + post_author_id ).prop('disabled', true);
+		}
+	}
+
+	var display_post_author_warning = function( ) {
+		if ( typeof post_author_is_follower == 'undefined' ) {
+			return;
+		}
+		if ( true == post_author_is_follower && true == post_author_auto_subscribe ) {
+			$("label[for='ef-selected-users-" + post_author_id + "'] .ef-user-subscribe-actions").prepend( "<span class='post-author'>Post Author</span>" );
+		}
+	}
+
+	if ( typeof post_author_is_follower !== 'undefined' 
+	&& typeof post_author_auto_subscribe !== 'undefined' ) {
+		maybe_disable_post_author_checkbox();
+		display_post_author_warning();
+	}
+
 	$(document).on('click','.ef-post_following_list li input:checkbox, .ef-following_usergroups li input:checkbox', function() {
 		var user_group_ids = [];
 		var parent_this = $(this);
