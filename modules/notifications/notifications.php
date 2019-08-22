@@ -512,11 +512,6 @@ jQuery(document).ready(function($) {
 	function save_post_following_users( $post, $users = null ) {
 		if( !is_array( $users ) )
 			$users = array();
-		
-		// Add current user to following users
-		$user = wp_get_current_user();
-		if ( $user && apply_filters( 'ef_notification_auto_subscribe_current_user', true, 'subscription_action' ) )
-			$users[] = $user->ID;
 
 		// Add post author to following users
 		if ( apply_filters( 'ef_notification_auto_subscribe_post_author', true, 'subscription_action' ) )
