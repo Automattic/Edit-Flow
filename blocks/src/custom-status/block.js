@@ -4,7 +4,7 @@ import './style.scss';
 let { __ } = wp.i18n;
 let { PluginPostStatusInfo } = wp.editPost;
 let { registerPlugin } = wp.plugins;
-let { withSelect, withDispatch } = wp.data;
+let { subscribe, dispatch, select, withSelect, withDispatch } = wp.data;
 let { compose } = wp.compose;
 let { SelectControl } = wp.components;
 
@@ -23,6 +23,15 @@ let sideEffectL10nManipulation = status => {
     document.querySelector('.editor-post-save-draft').innerText = `${__( 'Save' ) } ${status}`
   }
 }
+
+// Set the status to the default custom status.
+subscribe(function () {
+  var status = select('core/editor').getEditedPostAttribute('status');
+  if ( status ) { 
+    sideEffectL10nManipulation( getStatusLabel( status ) );
+  }
+})
+let changeStatus = dispatch('core/editor').editPost( { status: ef_default_custom_status });
 
 /**
  * Custom status component
