@@ -27,11 +27,11 @@ let sideEffectL10nManipulation = status => {
 // Set the status to the default custom status.
 subscribe(function () {
   var status = select('core/editor').getEditedPostAttribute('status');
-  if ( status ) { 
+  if ( typeof status !== 'undefined' && status !== 'publish' ) { 
     sideEffectL10nManipulation( getStatusLabel( status ) );
   }
 })
-let changeStatus = dispatch('core/editor').editPost( { status: ef_default_custom_status });
+dispatch('core/editor').editPost( { status: ef_default_custom_status });
 
 /**
  * Custom status component
