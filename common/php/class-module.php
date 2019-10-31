@@ -28,6 +28,17 @@ class EF_Module {
 	function __construct() {}
 
 	/**
+	 * Returns whether the current module is enabled.
+	 *
+	 * @since 0.9.1
+	 *
+	 * @return <code>true</code> if the module is enabled, <code>false</code> otherwise
+	 */
+	public function is_enabled() {
+		return $this->module->options->enabled === 'on';
+	}
+
+	/**
 	 * Returns whether the module with the given name is enabled.
 	 *
 	 * @since 0.7
@@ -38,7 +49,7 @@ class EF_Module {
 	function module_enabled( $slug ) {
 		global $edit_flow;
 
-		return isset( $edit_flow->$slug ) && $edit_flow->$slug->module->options->enabled == 'on';
+		return isset( $edit_flow->$slug ) && $edit_flow->$slug->is_enabled();
 	}
 
 	/**
