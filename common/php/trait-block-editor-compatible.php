@@ -49,6 +49,10 @@ trait Block_Editor_Compatible {
 	 * @return void
 	 */
 	function action_init_for_admin() {
+		if ( ! $this->ef_module->is_enabled() ) {
+			return;
+		}
+
 		$this->check_active_plugins();
 
 		if ( $this->should_apply_compat() ) {
