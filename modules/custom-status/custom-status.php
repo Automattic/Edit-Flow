@@ -282,11 +282,13 @@ class EF_Custom_Status extends EF_Module {
 		if ( ! in_array( $pagenow, array( 'edit.php', 'post.php', 'post-new.php' ) ) )
 			return false;
 
-		if ( is_null( $post_type ) )
+		if ( is_null( $post_type ) ) {
 			$post_type = $this->get_current_post_type();
+		}
 
-		if ( $post_type && ! in_array( $post_type, $this->get_post_types_for_module( $this->module ) ) )
+		if ( $post_type && ! in_array( $post_type, $this->get_post_types_for_module( $this->module ) ) ) {
 			return true;
+		}
 
 		return false;
 	}
@@ -300,8 +302,9 @@ class EF_Custom_Status extends EF_Module {
 	function action_admin_enqueue_scripts() {
 		global $pagenow;
 
-		if ( $this->disable_custom_statuses_for_post_type() )
+		if ( $this->disable_custom_statuses_for_post_type() ) {
 			return;
+		}
 
 		// Load Javascript we need to use on the configuration views (jQuery Sortable and Quick Edit)
 		if ( $this->is_whitelisted_settings_view( $this->module->name ) ) {
