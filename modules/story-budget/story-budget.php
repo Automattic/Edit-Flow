@@ -329,12 +329,12 @@ class EF_Story_Budget extends EF_Module {
 		$output = '<form method="POST" action="' . menu_page_url( $this->module->slug, false ) . '">';
 
 		$start_date_value = '<input type="text" id="ef-story-budget-start-date" name="ef-story-budget-start-date"'
-		                    . ' size="10" class="date-pick" value="'
-		                    . esc_attr( date_i18n( get_option( 'date_format' ), strtotime( $this->user_filters['start_date'] ) ) ) . '" />'
-		                    . '&nbsp;<input id="ef-story-budget-today-submit" name="ef-story-budget-today-submit" type="submit"'
-		                    . 'class="button-primary" value="' . __( 'Today', 'edit-flow' ) . '" />'
-		                    . '<span class="form-value">';
-		
+			. ' size="10" class="date-pick" value="'
+			. esc_attr( date_i18n( get_option( 'date_format' ), strtotime( $this->user_filters[ 'start_date' ] ) ) ) . '" />'
+			. '&nbsp;<input id="ef-story-budget-today-submit" name="ef-story-budget-today-submit" type="submit"'
+			. 'class="button-primary" value="' . __( 'Today', 'edit-flow' ) . '" />'
+			. '<span class="form-value">';
+
 		$start_date_value .= esc_html( date_i18n( get_option( 'date_format' ), strtotime( $this->user_filters['start_date'] ) ) );
 		$start_date_value .= '</span>';
 		
