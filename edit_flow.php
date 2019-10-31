@@ -95,9 +95,8 @@ class edit_flow {
 	}
 
 	private function setup_globals() {
-
 		$this->modules = new stdClass();
-
+		$this->modules_count = 0;
 	}
 
 	/**
@@ -295,6 +294,8 @@ class edit_flow {
 			add_action( 'load-edit-flow_page_' . $args['settings_slug'], array( &$this->$name, 'action_settings_help_menu' ) );
 
 		$this->modules->$name = (object) $args;
+
+		$this->modules_count++;
 
 		/**
 		 * Fires after edit_flow has registered a module.

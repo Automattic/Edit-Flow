@@ -225,18 +225,18 @@ class EF_Settings extends EF_Module {
 		<?php endif; ?>
 		<?php
 	}
-	
+
 	function print_modules() {
 		global $edit_flow;
-		
-		if ( !count( $edit_flow->modules ) ) {
+
+		if ( ! $edit_flow->modules_count ) {
 			echo '<div class="message error">' . __( 'There are no Edit Flow modules registered', 'edit-flow' ) . '</div>';
 		} else {
-			
+
 			foreach ( $edit_flow->modules as $mod_name => $mod_data ) {
 				if ( $mod_data->autoload )
 					continue;
-				
+
 				$classes = array(
 					'edit-flow-module',
 				);
