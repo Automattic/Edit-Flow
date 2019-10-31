@@ -420,6 +420,7 @@ jQuery(document).ready(function($) {
 		}
 
 		if ( 'ef-selected-users[]' === $_POST['ef_notifications_name'] ) {
+		    add_filter('ef_notification_auto_subscribe_current_user', false, 10, 3);
 			$this->save_post_following_users( $post, $user_group_ids );
 			
 			if ( defined( 'DOING_AJAX' ) && DOING_AJAX && isset( $_POST['post_id'] ) ) {
@@ -509,7 +510,7 @@ jQuery(document).ready(function($) {
 	 *
 	 * @param int $post ID of the post
 	 */
-	function save_post_following_users( $post, $users = null ) {
+	function save_post_following_users( $post, $users = null, $options = array() ) {
 		if( !is_array( $users ) )
 			$users = array();
 		
