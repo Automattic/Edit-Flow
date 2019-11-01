@@ -447,7 +447,8 @@ jQuery(document).ready(function($) {
 				
 				wp_send_json_success( $json_success );
 			}
-			remove_filter( 'ef_notification_auto_subscribe_current_user' );
+			// Remove auto-subscribe prevention behavior from earlier.
+			remove_filter( 'ef_notification_auto_subscribe_current_user', '__return_false', PHP_INT_MAX );
 		}
 		
 		$groups_enabled = $this->module_enabled( 'user_groups' ) && in_array( get_post_type( $post_id ), $this->get_post_types_for_module( $edit_flow->user_groups->module ) );
