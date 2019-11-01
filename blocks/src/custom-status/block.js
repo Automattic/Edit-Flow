@@ -73,17 +73,25 @@ let EditFlowCustomPostStati = ( { onUpdate, status } ) => (
   </PluginPostStatusInfo>
 );
 
-let plugin = compose(
-  withSelect((select) => ({
+const mapSelectToProps = ( select ) => {
+  return {
     status: select('core/editor').getEditedPostAttribute('status'),
-  })),
-  withDispatch((dispatch) => ({
-    onUpdate(status) {
-      dispatch('core/editor').editPost( { status } );
+  };
+};
+
+const mapDispatchToProps = ( dispatch ) => {
+  return {
+    onUpdate( status ) {
+      dispatch( 'core/editor' ).editPost( { status } );
       sideEffectL10nManipulation( getStatusLabel( status ) );
-    }
-  }))
-)(EditFlowCustomPostStati);
+    },
+  };
+};
+
+let plugin = compose(
+  withSelect( mapSelectToProps ),
+  withDispatch( mapDispatchToProps )
+)( EditFlowCustomPostStati );
 
 /**
  * Kick it off
