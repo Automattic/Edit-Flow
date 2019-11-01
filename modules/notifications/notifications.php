@@ -420,6 +420,7 @@ jQuery(document).ready(function($) {
 		}
 
 		if ( 'ef-selected-users[]' === $_POST['ef_notifications_name'] ) {
+			// Prevent auto-subscribing users that have opted out of notifications.
 			add_filter( 'ef_notification_auto_subscribe_current_user', '__return_false', PHP_INT_MAX );
 			$this->save_post_following_users( $post, $user_group_ids );
 			
