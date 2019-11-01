@@ -687,9 +687,14 @@ class EF_User_Groups extends EF_Module {
 		if ( !$update )
 			return array( &$errors, $update, &$user );
 
-		//Don't allow update of user groups from network
-		if ( ( !is_null( get_current_screen() ) ) && ( get_current_screen()->is_network ) )
-			return;
+		// `get_current_screen()` is defined on most admin pages, but not all.
+		if( function_exists( 'get_current_screen' ) ){
+			//Don't allow update of user groups from network
+			$screen = get_current_screen();
+			if ( ! is_null( $screen ) && $screen->is_network ) {
+				return;
+			}
+		}
 
 		if ( current_user_can( $this->manage_usergroups_cap ) && wp_verify_nonce( $_POST['ef_edit_profile_usergroups_nonce'], 'ef_edit_profile_usergroups_nonce' ) ) {
 			// Sanitize the data and save
