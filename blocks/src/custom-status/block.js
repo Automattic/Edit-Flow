@@ -4,7 +4,7 @@ import './style.scss';
 let { __ } = wp.i18n;
 let { PluginPostStatusInfo } = wp.editPost;
 let { registerPlugin } = wp.plugins;
-let { withSelect, withDispatch } = wp.data;
+let { subscribe, dispatch, select, withSelect, withDispatch } = wp.data;
 let { compose } = wp.compose;
 let { SelectControl } = wp.components;
 
@@ -20,9 +20,35 @@ let getStatusLabel = slug => statuses.find( s => s.value === slug ).label;
 let sideEffectL10nManipulation = status => {
   let node = document.querySelector('.editor-post-save-draft');
   if ( node ) {
-    document.querySelector('.editor-post-save-draft').innerText = `${__( 'Save' ) } ${status}`
+    document.querySelector( '.editor-post-save-draft' ).innerText = `${ __( 'Save' ) }`
   }
 }
+
+// Set the status to the default custom status.
+subscribe( function () {
+  const postId = select( 'core/editor' ).getCurrentPostId();
+  // Post isn't ready yet so don't do anything.
+  if ( ! postId ) {
+    return;
+  }
+
+  // For new posts, we need to force the our default custom status.
+  // Otherwise WordPress will force it to "Draft".
+  const isCleanNewPost = select( 'core/editor' ).isCleanNewPost();
+  if ( isCleanNewPost ) {
+    dispatch( 'core/editor' ).editPost( {
+      status: ef_default_custom_status
+    } );
+
+    return;
+  }
+
+  // Update the "Save" button.
+  var status = select( 'core/editor' ).getEditedPostAttribute( 'status' );
+  if ( typeof status !== 'undefined' && status !== 'publish' ) {
+    sideEffectL10nManipulation( getStatusLabel( status ) );
+  }
+} );
 
 /**
  * Custom status component
@@ -47,17 +73,25 @@ let EditFlowCustomPostStati = ( { onUpdate, status } ) => (
   </PluginPostStatusInfo>
 );
 
-let plugin = compose(
-  withSelect((select) => ({
+const mapSelectToProps = ( select ) => {
+  return {
     status: select('core/editor').getEditedPostAttribute('status'),
-  })),
-  withDispatch((dispatch) => ({
-    onUpdate(status) {
-      dispatch('core/editor').editPost( { status } );
+  };
+};
+
+const mapDispatchToProps = ( dispatch ) => {
+  return {
+    onUpdate( status ) {
+      dispatch( 'core/editor' ).editPost( { status } );
       sideEffectL10nManipulation( getStatusLabel( status ) );
-    }
-  }))
-)(EditFlowCustomPostStati);
+    },
+  };
+};
+
+let plugin = compose(
+  withSelect( mapSelectToProps ),
+  withDispatch( mapDispatchToProps )
+)( EditFlowCustomPostStati );
 
 /**
  * Kick it off
