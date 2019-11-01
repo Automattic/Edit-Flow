@@ -349,9 +349,9 @@ jQuery(document).ready(function($) {
 				$post_author_auto_subscribe = apply_filters( 'ef_notification_auto_subscribe_post_author', true, 'subscription_action' ) ? 'true' : 'false' ;
 
 				wp_add_inline_script( 'edit-flow-notifications-js', 
-					'var post_author_id = ' . $post->post_author . '; ' . 
-					'var post_author_is_follower = ' . $post_author_is_follower . '; ' .
-					'var post_author_auto_subscribe = ' . $post_author_auto_subscribe . ';',
+					'var ef_post_author_id = ' . wp_json_encode( $post->post_author ) . '; ' . 
+					'var ef_post_author_is_follower = ' .  $post_author_is_follower  . '; ' .
+					'var ef_post_author_auto_subscribe = ' .  $post_author_auto_subscribe  . ';',
 					'before'
 				);
 
