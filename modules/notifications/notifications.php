@@ -420,7 +420,7 @@ jQuery(document).ready(function($) {
 		}
 
 		if ( 'ef-selected-users[]' === $_POST['ef_notifications_name'] ) {
-		    add_filter('ef_notification_auto_subscribe_current_user', false, 10, 3);
+			add_filter( 'ef_notification_auto_subscribe_current_user', '__return_false', PHP_INT_MAX );
 			$this->save_post_following_users( $post, $user_group_ids );
 			
 			if ( defined( 'DOING_AJAX' ) && DOING_AJAX && isset( $_POST['post_id'] ) ) {
@@ -447,6 +447,7 @@ jQuery(document).ready(function($) {
 				
 				wp_send_json_success( $json_success );
 			}
+			remove_filter( 'ef_notification_auto_subscribe_current_user' );
 		}
 		
 		$groups_enabled = $this->module_enabled( 'user_groups' ) && in_array( get_post_type( $post_id ), $this->get_post_types_for_module( $edit_flow->user_groups->module ) );
@@ -510,7 +511,7 @@ jQuery(document).ready(function($) {
 	 *
 	 * @param int $post ID of the post
 	 */
-	function save_post_following_users( $post, $users = null, $options = array() ) {
+	function save_post_following_users( $post, $users = null ) {
 		if( !is_array( $users ) )
 			$users = array();
 		
