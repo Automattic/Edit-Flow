@@ -25,13 +25,30 @@ let sideEffectL10nManipulation = status => {
 }
 
 // Set the status to the default custom status.
-subscribe(function () {
-  var status = select('core/editor').getEditedPostAttribute('status');
-  if ( typeof status !== 'undefined' && status !== 'publish' ) { 
+subscribe( function () {
+  const postId = select( 'core/editor' ).getCurrentPostId();
+  // Post isn't ready yet so don't do anything.
+  if ( ! postId ) {
+    return;
+  }
+
+  // For new posts, we need to force the our default custom status.
+  // Otherwise WordPress will force it to "Draft".
+  const isCleanNewPost = select( 'core/editor' ).isCleanNewPost();
+  if ( isCleanNewPost ) {
+    dispatch( 'core/editor' ).editPost( {
+      status: ef_default_custom_status
+    } );
+
+    return;
+  }
+
+  // Update the "Save" button.
+  var status = select( 'core/editor' ).getEditedPostAttribute( 'status' );
+  if ( typeof status !== 'undefined' && status !== 'publish' ) {
     sideEffectL10nManipulation( getStatusLabel( status ) );
   }
-})
-dispatch('core/editor').editPost( { status: ef_default_custom_status });
+} );
 
 /**
  * Custom status component
