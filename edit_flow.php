@@ -4,7 +4,7 @@ Plugin Name: Edit Flow
 Plugin URI: http://editflow.org/
 Description: Remixing the WordPress admin for better editorial workflow options.
 Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Automattic, and others
-Version: 0.9
+Version: 0.9.1
 Author URI: http://editflow.org/
 
 Copyright 2009-2019 Mohammad Jangda, Daniel Bachhuber, Automattic, et al.
@@ -35,18 +35,18 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 function _ef_print_php_version_admin_notice() {
 	?>
 	<div class="notice notice-error">
-			<p><?php esc_html_e( 'Edit Flow requires PHP 5.4+. Please contact your host to update your PHP version.', 'edit-flow' ); ?></p>
+			<p><?php esc_html_e( 'Edit Flow requires PHP 5.6+. Please contact your host to update your PHP version.', 'edit-flow' ); ?></p>
 		</div>
 	<?php
 }
 
-if ( version_compare( phpversion(), '5.4', '<' ) ) {
+if ( version_compare( phpversion(), '5.6', '<' ) ) {
 	add_action( 'admin_notices', '_ef_print_php_version_admin_notice' );
 	return;
 }
 
 // Define contants
-define( 'EDIT_FLOW_VERSION' , '0.9' );
+define( 'EDIT_FLOW_VERSION' , '0.9.1' );
 define( 'EDIT_FLOW_ROOT' , dirname(__FILE__) );
 define( 'EDIT_FLOW_FILE_PATH' , EDIT_FLOW_ROOT . '/' . basename(__FILE__) );
 define( 'EDIT_FLOW_URL' , plugins_url( '/', __FILE__ ) );
