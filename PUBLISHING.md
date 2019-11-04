@@ -104,6 +104,8 @@ Add a message that indicates what version number we're releasing.
 
 From a test site, download the latest version and make sure things work as expected.
 
+For a quick-and-easy test site, use https://jurassic.ninja
+
 6. Celebrate.
 
 We're done! High five! Go enjoy a beverage/dessert/guilty pleasure of your choice!
