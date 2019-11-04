@@ -5,6 +5,7 @@ node_modules
 package-lock.json
 package.json
 phpunit.xml
+PUBLISHING.md
 README.md
 vipgo-helper.php
 wpcom-helper.php

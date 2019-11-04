@@ -71,12 +71,24 @@ done
 echo "Done!"
 
 # Tag the release.
-# svn cp trunk tags/$TARGET
+svn cp trunk tags/$TARGET
 
-# Change stable tag in the tag itself, and commit (tags shouldn't be modified after comitted)
-# perl -pi -e "s/Stable tag: .*/Stable tag: $TARGET/" tags/$TARGET/readme.txt
-# svn ci
-
-# Update trunk to point to the freshly tagged and shipped release.
-# perl -pi -e "s/Stable tag: .*/Stable tag: $TARGET/" trunk/readme.txt
-# svn ci
+# Instructions for next steps
+echo ""
+echo "================"
+echo "Plugin release for $TARGET has been staged."
+echo ""
+echo "Please validate 'svn status' results before committing."
+echo ""
+echo "Some helpful commands:"
+echo ""
+echo "- rm files:"
+echo "svn st | grep ^\! | awk '{print \$2}' | xargs svn rm"
+echo "- add files:"
+echo "svn st | grep ^? | awk '{print \$2}' | xargs svn add"
+echo "- review changes:"
+echo "svn diff | colordiff | less -FRX"
+echo ""
+echo "Are there any new files that shouldn't be deployed?"
+echo "Please add them to .svnignore in the GitHub repo."
+echo "================"
