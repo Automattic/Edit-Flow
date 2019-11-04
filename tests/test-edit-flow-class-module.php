@@ -35,7 +35,7 @@ class WP_Test_Edit_Flow_Class_Module extends WP_UnitTestCase {
 			'administrator' => array( 'edit_usergroups' ),
 		);
 
-		foreach( $usergroup_roles as $role => $caps ) {
+		foreach ( $usergroup_roles as $role => $caps ) {
 			self::$EditFlowModule->add_caps_to_role( $role, $caps );
 		}
 
@@ -58,9 +58,11 @@ class WP_Test_Edit_Flow_Class_Module extends WP_UnitTestCase {
 	function test_current_post_type_post_screen() {
 		set_current_screen( 'post.php' );
 
-		$post_id = $this->factory->post->create( array (
-			'post_author' => self::$admin_user_id
-		) );
+		$post_id = $this->factory->post->create(
+			array(
+				'post_author' => self::$admin_user_id,
+			) 
+		);
 
 		$_REQUEST['post'] = $post_id; 
 
@@ -71,7 +73,7 @@ class WP_Test_Edit_Flow_Class_Module extends WP_UnitTestCase {
 	}
 
 	function test_current_post_type_edit_screen() {
-		set_current_screen( 'edit.php' );		
+		set_current_screen( 'edit.php' );       
 
 		$this->assertEquals( 'post', self::$EditFlowModule->get_current_post_type() );
 

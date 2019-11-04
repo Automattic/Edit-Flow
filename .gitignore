@@ -1,3 +1,5 @@
 .svn
 .DS_Store
 *.map
+vendor
+node_modules

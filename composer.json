@@ -11,5 +11,9 @@
 	},
     "require"    : {
         "composer/installers": "~1.0"
+    },
+    "require-dev": {
+        "automattic/vipwpcs": "^2.0",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0"
     }
 }

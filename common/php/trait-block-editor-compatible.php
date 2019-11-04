@@ -31,7 +31,7 @@ trait Block_Editor_Compatible {
 	 */
 	function __construct( $module_instance, $hooks = [] ) {
 		$this->ef_module = $module_instance;
-		$this->hooks = $hooks;
+		$this->hooks     = $hooks;
 
 		if ( is_admin() ) {
 
@@ -66,7 +66,7 @@ trait Block_Editor_Compatible {
 	}
 
 	function check_active_plugins() {
-		include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		include_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 		self::$active_plugins = [
 			'classic-editor' => is_plugin_active( 'classic-editor' ),
@@ -121,14 +121,21 @@ trait Block_Editor_Compatible {
 			 */
 			// phpcs:ignore WordPress.VIP.SuperGlobalInputUsage.AccessDetected, WordPress.Security.NonceVerification.NoNonceVerification
 			self::is_at_least_50() && ! self::is_plugin_active( 'classic-editor' ),
-			self::is_at_least_50() && self::is_plugin_active( 'classic-editor' ) && ( get_option( 'classic-editor-replace' ) === 'block' && ! isset( $_GET[ 'classic-editor__forget' ] ) ),
-			self::is_at_least_50() && self::is_plugin_active( 'classic-editor' ) && ( get_option( 'classic-editor-replace' ) === 'classic' && isset( $_GET[ 'classic-editor__forget' ] ) ),
+			self::is_at_least_50() && self::is_plugin_active( 'classic-editor' ) && ( get_option( 'classic-editor-replace' ) === 'block' && ! isset( $_GET['classic-editor__forget'] ) ),
+			self::is_at_least_50() && self::is_plugin_active( 'classic-editor' ) && ( get_option( 'classic-editor-replace' ) === 'classic' && isset( $_GET['classic-editor__forget'] ) ),
 			/**
 			 * < 5.0 but Gutenberg plugin is active.
 			 */
 			! self::is_at_least_50() && self::is_plugin_active( 'gutenberg' ),
 		];
 
-		return count( array_filter( $conditions, function( $c ) { return (bool) $c; } ) ) > 0;
+		return count(
+			array_filter(
+				$conditions,
+				function( $c ) {
+					return (bool) $c;
+				} 
+			) 
+		) > 0;
 	}
 }

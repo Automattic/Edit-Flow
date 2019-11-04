@@ -1,15 +1,15 @@
 language: php
 
 php:
-    - "5.6"
-    - "7.2"
-    - "7.3"
+  - "5.6"
+  - "7.2"
+  - "7.3"
 
 services:
-    - mysql
+  - mysql
 
 env:
-    - WP_VERSION=latest WP_MULTISITE=0 #Current stable release
+  - WP_VERSION=latest WP_MULTISITE=0 #Current stable release
 
 # Test WP 5.1 and 5.2 and on PHP 5.6, 7.2 and 7.3 (w and w/o multisite enabled)
 # Test WP master on PHP nightly and allow_failures (w/o multisite enabled)
@@ -18,7 +18,9 @@ matrix:
   include:
     # current stable release w/ multisite
     - php: "5.6"
-      env: WP_VERSION=5.1 WP_MULTISITE=0
+      env: 
+        - WP_VERSION=5.1 WP_MULTISITE=0
+        #- SNIFF=1
     - php: "7.2"
       env: WP_VERSION=5.1 WP_MULTISITE=0
     - php: "7.3"
@@ -47,16 +49,41 @@ matrix:
     - php: "nightly"
 
 before_script:
-    - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
-    - export COMPOSER_BIN_DIR="$HOME/.config/composer/vendor/bin"
-    - export PATH="$COMPOSER_BIN_DIR:$PATH"
-    - |
-        if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
-          composer global require "phpunit/phpunit=5.7.*"
-        fi
-    - phpunit --version
-    - php --version
+  # Set up CodeSniffer
+  # - export PHPCS_DIR=/tmp/phpcs
+  # - export SNIFFS_DIR=/tmp/sniffs
+  # Install CodeSniffer for WordPress Coding Standards checks.
+  # - if [[ "$SNIFF" == "1" ]]; then git clone -b master --depth 1 https://github.com/squizlabs/PHP_CodeSniffer.git $PHPCS_DIR; fi
+  # Install WordPress Coding Standards.
+  # - if [[ "$SNIFF" == "1" ]]; then git clone -b master --depth 1 https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards.git $SNIFFS_DIR; fi
+  # Install PHP Compatibility sniffs.
+  # - if [[ "$SNIFF" == "1" ]]; then git clone -b master --depth 1 https://github.com/wimg/PHPCompatibility.git $SNIFFS_DIR/PHPCompatibility; fi
+  # Set install path for PHPCS sniffs.
+  # @link https://github.com/squizlabs/PHP_CodeSniffer/blob/4237c2fc98cc838730b76ee9cee316f99286a2a7/CodeSniffer.php#L1941
+  # - if [[ "$SNIFF" == "1" ]]; then $PHPCS_DIR/scripts/phpcs --config-set installed_paths $SNIFFS_DIR; fi
+  # After CodeSniffer install you should refresh your path.
+  # - if [[ "$SNIFF" == "1" ]]; then phpenv rehash; fi
+  # - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
+  # - export COMPOSER_BIN_DIR="$HOME/.config/composer/vendor/bin"
+  # - export PATH="$COMPOSER_BIN_DIR:$PATH"
+  - |
+    if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
+      composer global require "phpunit/phpunit=5.7.*"
+    fi
+  - phpunit --version
+  - php --version
 
-script: phpunit
+script:
+  - phpunit
+  # WordPress Coding Standards.
+  # @link https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards
+  # @link http://pear.php.net/package/PHP_CodeSniffer/
+  # -p flag: Show progress of the run.
+  # -s flag: Show sniff codes in all reports.
+  # -v flag: Print verbose output.
+  # -n flag: Do not print warnings. (shortcut for --warning-severity=0)
+  # --standard: Use WordPress as the standard.
+  # --extensions: Only sniff PHP files.
+  # - if [[ "$SNIFF" == "1" ]]; then $PHPCS_DIR/scripts/phpcs -p -s -v -n . --standard="WordPress-VIP" --extensions=php; fi
 
 sudo: false

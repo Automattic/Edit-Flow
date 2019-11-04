@@ -52,7 +52,7 @@ abstract class WP_Edit_Flow_Ajax_UnitTestCase extends WP_UnitTestCase {
 	public function tearDown() {
 		parent::tearDown();
 		$_POST = array();
-		$_GET = array();
+		$_GET  = array();
 		unset( $GLOBALS['post'] );
 		unset( $GLOBALS['comment'] );
 		remove_filter( 'wp_die_ajax_handler', array( $this, 'getDieHandler' ), 1, 1 );
@@ -83,8 +83,9 @@ abstract class WP_Edit_Flow_Ajax_UnitTestCase extends WP_UnitTestCase {
 
 		// Save the output
 		$buffer = ob_get_clean();
-		if ( !empty( $buffer ) )
+		if ( ! empty( $buffer ) ) {
 			$this->_last_response = $buffer;
+		}
 	}
 
 	/**
