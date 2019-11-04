@@ -1,0 +1,16 @@
+BLOCKS.md
+CONTRIBUTING.md
+composer.json
+node_modules
+package-lock.json
+package.json
+phpunit.xml
+PUBLISHING.md
+README.md
+vipgo-helper.php
+wpcom-helper.php
+webpack.config.js
+bin
+documentation
+tests
+tools
