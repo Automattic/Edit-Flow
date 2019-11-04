@@ -70,9 +70,6 @@ for file in $( cat "$EDIT_FLOW_GIT_DIR/.svnignore" 2>/dev/null ); do
 done
 echo "Done!"
 
-# Tag the release.
-svn cp trunk tags/$TARGET
-
 # Instructions for next steps
 echo ""
 echo "================"
@@ -82,12 +79,16 @@ echo "Please validate 'svn status' results before committing."
 echo ""
 echo "Some helpful commands:"
 echo ""
+echo "- goto dir"
+echo "cd $EDIT_FLOW_SVN_DIR"
 echo "- rm files:"
 echo "svn st | grep ^\! | awk '{print \$2}' | xargs svn rm"
 echo "- add files:"
 echo "svn st | grep ^? | awk '{print \$2}' | xargs svn add"
 echo "- review changes:"
 echo "svn diff | colordiff | less -FRX"
+echo "- tag the release"
+echo "svn cp trunk tags/$TARGET"
 echo ""
 echo "Are there any new files that shouldn't be deployed?"
 echo "Please add them to .svnignore in the GitHub repo."
