@@ -287,13 +287,16 @@ jQuery(document).ready(function($) {
 	 * @since 0.8
 	 */
 	private function get_follow_action_parts( $post ) {
+		$current_user = wp_get_current_user();
 
 		$args = array(
-				'action'     => 'ef_notifications_user_post_subscription',
-				'post_id'    => $post->ID,
-			);
-		$following_users = $this->get_following_users( $post->ID );
-		if ( in_array( wp_get_current_user()->user_login, $following_users ) ) {
+			'action'     => 'ef_notifications_user_post_subscription',
+			'post_id'    => $post->ID,
+		);
+
+		$is_following = $this->is_user_following( $current_user, $post );
+
+		if ( $is_following ) {
 			$args['method'] = 'unfollow';
 			$title_text = __( 'Click to unfollow updates to this post', 'edit-flow' );
 			$follow_text = __( 'Following', 'edit-flow' );
@@ -1115,6 +1118,27 @@ jQuery(document).ready(function($) {
 			$users = array();
 		return $users;
 
+	}
+
+	/**
+	 * Returns true if a user is following the post
+	 *
+	 * @param object $user The user to check
+	 * @param object $post The post to check
+	 * @return boolean If the user is following the post
+	 */
+	function is_user_following( $user, $post ) {
+
+		// Get following_users terms for the post
+		$users = wp_get_object_terms( $post->ID, $this->following_users_taxonomy, array('fields' => 'names') );
+
+		// Don't have any following users
+		if( !$users || is_wp_error($users) )
+			return false;
+
+		return true;
+
+		return in_array( $user->user_login, $users );
 	}
 	
 	/**
