@@ -9,7 +9,7 @@ services:
     - mysql
 
 env:
-    - WP_VERSION=latest WP_MULTISITE=0 #Current stable release
+    - RUN_PHPCS=1 WP_VERSION=latest WP_MULTISITE=0 #Current stable release
 
 # Test WP 5.1 and 5.2 and on PHP 5.6, 7.2 and 7.3 (w and w/o multisite enabled)
 
@@ -41,6 +41,12 @@ matrix:
     - php: "7.3"
       env: WP_VERSION=5.2 WP_MULTISITE=1
 
+install:
+    - |
+      if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
+        composer install
+      fi
+
 before_script:
     - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
     - export COMPOSER_BIN_DIR="$HOME/.config/composer/vendor/bin"
@@ -52,6 +58,11 @@ before_script:
     - phpunit --version
     - php --version
 
-script: phpunit
+script: 
+  - |
+      if [[ ${TRAVIS_PHP_VERSION:0:2} == "7."  ]] && [[ ${ RUN_PHPCS } == "1" ]]; then
+        bash bin/phpcs-diff.sh
+      fi
+  - phpunit
 
 sudo: false
