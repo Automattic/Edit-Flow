@@ -53,6 +53,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 
 ## Upgrade Notice
 
+**0.9.2**
+Fixes issues with scheduling and trashing posts in block editor.
+
 **0.9.1**
 Bump PHP minimum to 5.6 to match WordPress core. Plus, various bug fixes.
 
@@ -108,6 +111,10 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 ## Changelog
+
+**0.9.1 (November 24, 2019)**
+* Bug fix: Prevent issues with scheduling and trashing posts when using the block editor (https://github.com/Automattic/Edit-Flow/pull/556 -- props cojennin, davisshaver, batmoo)
+
 
 **0.9.1 (November 4, 2019)**
 * Bug fix: Prevent custom status from being reverted when using Gutenberg (https://github.com/Automattic/Edit-Flow/pull/521 -- props mikeyarce, batmoo)
