@@ -13,11 +13,16 @@ let { SelectControl } = wp.components;
  */
 let statuses = window.EditFlowCustomStatuses.map( s => ({ label: s.name, value: s.slug }) );
 
-let getStatusLabel = slug => statuses.find( s => s.value === slug ).label;
-
-// Hack :(
-// @see https://github.com/WordPress/gutenberg/issues/3144
-let sideEffectL10nManipulation = status => {
+/**
+ * Hack :(
+ *
+ * @see https://github.com/WordPress/gutenberg/issues/3144
+ *
+ * Gutenberg overrides the label of the Save button after save (i.e. "Save Draft"). But there's no way to subscribe to a "post save" message.
+ *
+ * So instead, we're keeping the button label generic ("Save"). There's a brief period where it still flips to "Save Draft" but that's something we need to work upstream to find a good fix for.
+ */
+let sideEffectL10nManipulation = () => {
   let node = document.querySelector('.editor-post-save-draft');
   if ( node ) {
     document.querySelector( '.editor-post-save-draft' ).innerText = `${ __( 'Save' ) }`
@@ -46,7 +51,7 @@ subscribe( function () {
   // Update the "Save" button.
   var status = select( 'core/editor' ).getEditedPostAttribute( 'status' );
   if ( typeof status !== 'undefined' && status !== 'publish' ) {
-    sideEffectL10nManipulation( getStatusLabel( status ) );
+    sideEffectL10nManipulation();
   }
 } );
 
@@ -83,7 +88,7 @@ const mapDispatchToProps = ( dispatch ) => {
   return {
     onUpdate( status ) {
       dispatch( 'core/editor' ).editPost( { status } );
-      sideEffectL10nManipulation( getStatusLabel( status ) );
+      sideEffectL10nManipulation();
     },
   };
 };
