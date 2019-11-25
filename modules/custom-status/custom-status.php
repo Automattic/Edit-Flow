@@ -416,32 +416,14 @@ class EF_Custom_Status extends EF_Module {
 
 			$custom_statuses = apply_filters( 'ef_custom_status_list', $custom_statuses, $post );
 
-			// All right, we want to set up the JS var which contains all custom statuses
-			$all_statuses = array();
-
-			// The default statuses from WordPress
-			$all_statuses[] = array(
-				'name' => __( 'Published', 'edit-flow' ),
-				'slug' => 'publish',
-				'description' => '',
-			);
-			$all_statuses[] = array(
-				'name' => __( 'Privately Published', 'edit-flow' ),
-				'slug' => 'private',
-				'description' => '',
-			);
-			$all_statuses[] = array(
-				'name' => __( 'Scheduled', 'edit-flow' ),
-				'slug' => 'future',
-				'description' => '',
-			);
-
-			// Load the custom statuses
-			foreach( $custom_statuses as $status ) {
-				$all_statuses[] = array(
-					'name' => esc_js( $status->name ),
-					'slug' => esc_js( $status->slug ),
-					'description' => esc_js( $status->description ),
+			$all_statuses = array_merge( $custom_statuses, $this->get_default_statuses() );
+			
+			$statuses_js = array();
+			foreach( $all_statuses as $status ) {
+				$statuses_js[] = array (
+					'name' => $status->name,
+					'slug' => $status->slug,
+					'description' => $status->description,
 				);
 			}
 
@@ -452,7 +434,7 @@ class EF_Custom_Status extends EF_Module {
 			// Now, let's print the JS vars
 			?>
 			<script type="text/javascript">
-				var custom_statuses = <?php echo json_encode( $all_statuses ); ?>;
+				var custom_statuses =  <?php echo wp_json_encode( $statuses_js ); ?>;
 				var ef_default_custom_status = '<?php echo esc_js( $this->get_default_custom_status()->slug ); ?>';
 				var current_status = '<?php echo esc_js( $selected ); ?>';
 				var current_status_name = '<?php echo esc_js( $selected_name ); ?>';
@@ -648,6 +630,41 @@ class EF_Custom_Status extends EF_Module {
 		$this->custom_statuses_cache[ $arg_hash ] = $ordered_statuses;
 
 		return $ordered_statuses;
+	}
+
+	/**
+	 * The default statuses from core. Returned as an array of stdClass to 
+	 * make it easy to merge with our custom statuses (which are WPTerm objects)
+	 * 
+	 * @return array an array of stdClass objects
+	 */
+	function get_default_statuses() {
+		// The default statuses from WordPress
+		$published_status = new stdClass();
+		$published_status->name = __( 'Published', 'edit-flow' );
+		$published_status->slug = 'publish';
+		$published_status->description = '';
+
+		$private_status = new stdClass();
+		$private_status->name = __( 'Privately Published', 'edit-flow' );
+		$private_status->slug = 'private';
+		$private_status->description = '';
+
+		$scheduled_status = new stdClass();
+		$scheduled_status->name = __( 'Scheduled', 'edit-flow' );
+		$scheduled_status->slug = 'future';
+		$scheduled_status->description = '';
+
+		return array( $published_status, $private_status, $scheduled_status );
+	}
+
+	/**
+	 * Get all statuses (WP Core and Edit Flow)
+	 *
+	 * @return array $statuses All of the statuses
+	 */
+	public function get_all_statuses() {
+		return array_merge( $this->get_custom_statuses(), $this->get_default_statuses() );
 	}
 
 	/**
