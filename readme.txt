@@ -5,7 +5,7 @@ Tags: edit flow, workflow, editorial, newsroom, management, journalism, post sta
 Requires at least: 5.1
 Requires PHP: 5.6
 Tested up to: 5.3
-Stable tag: 0.9.1
+Stable tag: 0.9.2
 
 Redefining your editorial workflow.
 
@@ -56,6 +56,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 5. View all of your upcoming posts with the more traditional story budget view, and hit the print button to take it to your planning meeting.
 
 == Upgrade Notice ==
+
+= 0.9.2 =
+Fixes issues with scheduling and trashing posts in block editor.
 
 = 0.9.1 =
 Bump PHP minimum to 5.6 to match WordPress core. Plus, various bug fixes.
@@ -113,7 +116,10 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
-= 0.9.1 (November 4, 2019)
+= 0.9.1 (November 24, 2019) =
+* Bug fix: Prevent issues with scheduling and trashing posts when using the block editor (https://github.com/Automattic/Edit-Flow/pull/556 -- props cojennin, davisshaver, batmoo)
+
+= 0.9.1 (November 4, 2019) =
 * Bug fix: Prevent custom status from being reverted when using Gutenberg (https://github.com/Automattic/Edit-Flow/pull/521 -- props mikeyarce, batmoo)
 * Bug fix: Don't break post previews when using custom statuses (https://github.com/Automattic/Edit-Flow/pull/515 -- props
 rebeccahum)
