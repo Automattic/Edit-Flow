@@ -4,13 +4,43 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 	protected static $admin_user_id;
 	protected static $EF_Custom_Status;
-		
+	protected static $table_posts = array();
+	protected static $post_statuses = [
+		'draft' => 'Draft', 
+		'publish' => 'Published', 
+		'future' => 'Scheduled', 
+		'pitch' => 'Pitch'];
+	
+	/**
+	 * @var WP_Posts_List_Table
+	 */
+	protected $table;
+
 	public static function wpSetUpBeforeClass( $factory ) {
 		self::$admin_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
 		
 		self::$EF_Custom_Status = new EF_Custom_Status();
 		self::$EF_Custom_Status->install();
 		self::$EF_Custom_Status->init();
+
+		$index = 0;
+		foreach ( self::$post_statuses as $status => $name ) {
+			$args =	array(
+				'post_type'  => 'post',
+				'post_title' => sprintf( 'A Post %d', $index ),
+				'post_status' => $status
+			);
+			if ( $status === 'future' ) {
+				$future_date = strftime( "%Y-%m-%d %H:%M:%S" , strtotime( '+1 day' ) );
+				
+				$args = array_merge(
+					$args,
+					array( 'post_date' => $future_date )
+				);
+			}
+			self::$table_posts[ $status ] = $factory->post->create_and_get($args);
+			$index += 1;
+		}
 	}
 
 	public static function wpTearDownAfterClass() {
@@ -20,6 +50,8 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 	function setUp() {
 		parent::setUp();
+
+		$this->table = _get_list_table( 'WP_Posts_List_Table', array( 'screen' => 'edit' ) );
 
 		global $pagenow;
 		$pagenow = 'post.php';
@@ -331,5 +363,96 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		$actual = get_sample_permalink( $child );
 		$this->assertSame( home_url() . '/publish-parent-page/%pagename%/', $actual[0] );
 		$this->assertSame( 'child-page', $actual[1] );
+	}
+
+	/**
+	 * The post status should be shown or hidden depending on the screen and status.
+	 * On the "All" screen, all statuses should be shown except "Publish"
+	 */
+	public function test_post_state_is_shown_on_all() {
+		foreach( self::$post_statuses as $post_status => $status_name ) {
+			$output = $this->_test_list_hierarchical_page( array(
+				'paged' => 1,
+				'posts_per_page' => 1,
+				'post_status' => $post_status
+			) );	
+
+			$this->assertContains( self::$table_posts[ $post_status ]->post_title, $output );
+			/**
+			 * On edit post list screen, publish status does not appear in post title
+			 */
+			if ( 'publish' === $post_status ) {
+				$this->assertNotContains( "<span class='post-state'>$status_name</span>", $output );
+			} else {
+				$this->assertContains( "<span class='post-state'>$status_name</span>", $output );
+			}
+		}
+	}
+
+	/**
+	 * The post status on the "Scheduled" screen should be shown
+	 */
+	public function test_post_state_is_shown_on_scheduled() {
+		$_REQUEST['post_status'] = 'future';
+
+		$output = $this->_test_list_hierarchical_page( array(
+			'paged' => 1,
+			'posts_per_page' => 1,
+			'post_status' => 'future'
+		) );	
+
+		$this->assertContains( self::$table_posts[ 'future' ]->post_title, $output );
+		$this->assertContains( "<span class='post-state'>" . self::$post_statuses[ 'future' ] . "</span>", $output );
+	}
+
+	/**
+	 * The post status on the "Pitch" screen should be hidden
+	 */
+	public function test_post_state_is_not_shown_on_pitch() {
+		$_REQUEST['post_status'] = 'pitch';
+		
+		$output = $this->_test_list_hierarchical_page( array(
+			'paged' => 1,
+			'posts_per_page' => 1,
+			'post_status' => 'pitch'
+		) );	
+
+		$this->assertContains( self::$table_posts[ 'pitch' ]->post_title, $output );
+		$this->assertNotContains( "<span class='post-state'>" . self::$post_statuses[ 'pitch' ] . "</span>", $output );
+	}
+
+	/**
+	 * Helper function to test the output of a page which uses `WP_Posts_List_Table`.
+	 *
+	 * @param array $args         Query args for the list of posts.
+	 */
+	protected function _test_list_hierarchical_page( array $args ) {
+		$matches = array();
+		$_REQUEST['paged']   = $args['paged'];
+		$GLOBALS['per_page'] = $args['posts_per_page'];
+		$args = array_merge(
+			array(
+				'post_type' => 'post',
+			),
+			$args
+		);
+		// Mimic the behaviour of `wp_edit_posts_query()`:
+		if ( ! isset( $args['orderby'] ) ) {
+			$args['orderby']                = 'menu_order title';
+			$args['order']                  = 'asc';
+			$args['posts_per_page']         = -1;
+			$args['posts_per_archive_page'] = -1;
+		}
+		$posts = new WP_Query( $args );
+		ob_start();
+		$this->table->set_hierarchical_display( true );
+		$this->table->display_rows( $posts->posts );
+		$output = ob_get_clean();
+		// Clean up.
+		unset( $_REQUEST['paged'] );
+		unset( $GLOBALS['per_page'] );
+		preg_match_all( '|<tr[^>]*>|', $output, $matches );
+		
+		return $output;
 	}
 }
