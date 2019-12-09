@@ -3,20 +3,19 @@
 class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 	protected static $admin_user_id;
-	protected static $ef_custom_status;
-
-
+	protected $old_wp_scripts;
+		
 	public static function wpSetUpBeforeClass( $factory ) {
-		self::$admin_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
+		global $edit_flow;
 
-		self::$ef_custom_status = new EF_Custom_Status();
-		self::$ef_custom_status->install();
-		self::$ef_custom_status->init();
+		self::$admin_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
+		
+		$edit_flow->custom_status->install();
+		$edit_flow->custom_status->init();
 	}
 
 	public static function wpTearDownAfterClass() {
 		self::delete_user( self::$admin_user_id );
-		self::$ef_custom_status = null;
 	}
 
 	function setUp() {
@@ -24,11 +23,21 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 		global $pagenow;
 		$pagenow = 'post.php';
+
+		$this->old_wp_scripts = isset( $GLOBALS['wp_scripts'] ) ? $GLOBALS['wp_scripts'] : null;
+		remove_action( 'wp_default_scripts', 'wp_default_scripts' );
+		remove_action( 'wp_default_scripts', 'wp_default_packages' );
+		$GLOBALS['wp_scripts']                  = new WP_Scripts();
+		$GLOBALS['wp_scripts']->default_version = get_bloginfo( 'version' );
 	}
 
 	function tearDown() {
 		global $pagenow;
 		$pagenow = 'index.php';
+
+		$GLOBALS['wp_scripts'] = $this->old_wp_scripts;
+		add_action( 'wp_default_scripts', 'wp_default_scripts' );
+		add_action( 'wp_default_scripts', 'wp_default_packages' );
 
 		parent::tearDown();
 	}
@@ -371,5 +380,126 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 		$post_states = apply_filters( 'display_post_states', array(), get_post( $post ) );
 		$this->assertFalse( array_key_exists( 'pitch', $post_states ) );
+	}
+	
+	/**
+	 * On the custom status settings page, the custom status settings js should be enqueued
+	 */
+	public function test_scripts_enqueued_custom_status_settings_screen() {
+		global $edit_flow, $pagenow, $wp_scripts;
+
+		wp_default_scripts( $wp_scripts );
+		wp_default_packages( $wp_scripts );
+
+		$pagenow      = 'admin.php';
+		$_GET['page'] = 'ef-custom-status-settings';
+
+		// Custom Status Settings JS has a dependency on `edit-flow-settings-js`
+		$edit_flow->settings->action_admin_enqueue_scripts();
+		$edit_flow->custom_status->enqueue_admin_scripts();
+
+		$expected = "<script type='text/javascript' src='" . $edit_flow->custom_status->module_url . 'lib/custom-status-configure.js?ver=' . EDIT_FLOW_VERSION . "'></script>";
+
+		$footer = get_echo( 'wp_print_footer_scripts' );
+
+		$this->assertContains( $expected, $footer );
+
+	}
+
+	/**
+	 * The custom status settings js should not be enqueued on pages other than the
+	 * custom status settings page
+	 */
+	public function test_scripts_not_enqueued_custom_status_settings_screen() {
+		global $edit_flow, $pagenow, $wp_scripts;
+
+		wp_default_scripts( $wp_scripts );
+		wp_default_packages( $wp_scripts );
+
+		$pagenow = 'post-new.php';
+
+		$edit_flow->settings->action_admin_enqueue_scripts();
+		$edit_flow->custom_status->enqueue_admin_scripts();
+
+		$expected = "<script type='text/javascript' src='" . $edit_flow->custom_status->module_url . 'lib/custom-status-configure.js?ver=' . EDIT_FLOW_VERSION . "'></script>";
+
+		$footer = get_echo( 'wp_print_footer_scripts' );
+
+		$this->assertNotContains( $expected, $footer );
+	}
+
+	/**
+	 * The custom status js should be enqueued on pages like post.php with a valid post type
+	 */
+	public function test_scripts_enqueued_custom_status_post() {
+		global $edit_flow, $pagenow, $wp_scripts;
+
+		set_current_screen( 'admin' );
+
+		wp_default_scripts( $wp_scripts );
+		wp_default_packages( $wp_scripts );
+
+		$pagenow               = 'post-new.php';
+		$_REQUEST['post_type'] = 'post';
+
+		wp_set_current_user( self::$admin_user_id );
+
+		$edit_flow->custom_status->enqueue_admin_scripts();
+
+		$expected = "src='" . $edit_flow->custom_status->module_url . 'lib/custom-status.js?ver=' . EDIT_FLOW_VERSION . "'></script>";
+
+		$footer = get_echo( 'wp_print_footer_scripts' );
+
+		$this->assertContains( $expected, $footer );
+	}
+
+	/**
+	 * The custom status js should be enqueued on pages like edit.php to ensure
+	 * quick edit capability works as expected
+	 */
+	public function test_scripts_enqueued_custom_status_edit_post() {
+		global $edit_flow, $pagenow, $wp_scripts;
+
+		set_current_screen( 'admin' );
+
+		wp_default_scripts( $wp_scripts );
+		wp_default_packages( $wp_scripts );
+
+		$pagenow               = 'edit.php';
+		$_REQUEST['post_type'] = 'post';
+
+		wp_set_current_user( self::$admin_user_id );
+
+		$edit_flow->custom_status->enqueue_admin_scripts();
+
+		$expected = "src='" . $edit_flow->custom_status->module_url . 'lib/custom-status.js?ver=' . EDIT_FLOW_VERSION . "'></script>";
+
+		$footer = get_echo( 'wp_print_footer_scripts' );
+
+		$this->assertContains( $expected, $footer );
+	}
+
+	/**
+	 * The custom status js should not be enqueued on pages like admin.php
+	 */
+	public function test_scripts_not_enqueued_custom_status_admin() {
+		global $edit_flow, $pagenow, $wp_scripts;
+
+		set_current_screen( 'admin' );
+
+		wp_default_scripts( $wp_scripts );
+		wp_default_packages( $wp_scripts );
+
+		$pagenow = 'admin.php';
+
+		wp_set_current_user( self::$admin_user_id );
+
+		$edit_flow->custom_status->enqueue_admin_scripts();
+
+		$expected = "<script type='text/javascript' src='" . $edit_flow->custom_status->module_url . 'lib/custom-status.js?ver=' . EDIT_FLOW_VERSION . "'></script>";
+
+		$footer = get_echo( 'wp_print_footer_scripts' );
+
+		$this->assertNotContains( $expected, $footer );
 	}
 }
