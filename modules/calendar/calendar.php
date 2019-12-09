@@ -91,7 +91,7 @@ class EF_Calendar extends EF_Module {
 		
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 		add_action( 'admin_menu', array( $this, 'action_admin_menu' ) );
-		add_action( 'admin_print_styles', array( $this, 'add_admin_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		
 		// Ajax manipulation for the calendar
@@ -173,11 +173,12 @@ class EF_Calendar extends EF_Module {
 	 *
 	 * @uses wp_enqueue_style()
 	 */
-	function add_admin_styles() {
-		global $pagenow;
-		// Only load calendar styles on the calendar page
-		if ( $pagenow == 'index.php' && isset( $_GET['page'] ) && $_GET['page'] == 'calendar' )
-			wp_enqueue_style( 'edit-flow-calendar-css', $this->module_url . 'lib/calendar.css', false, EDIT_FLOW_VERSION );
+	function enqueue_admin_styles() {
+		if ( ! $this->is_calendar_view() ) {
+			return;
+		}
+
+		wp_enqueue_style( 'edit-flow-calendar-css', $this->module_url . 'lib/calendar.css', false, EDIT_FLOW_VERSION );
 	}
 	
 	/**
@@ -188,24 +189,28 @@ class EF_Calendar extends EF_Module {
 	 */
 	function enqueue_admin_scripts() {
 
+		if ( ! $this->is_calendar_view() ) {
+			return;
+		}
+
 		$this->enqueue_datepicker_resources();
 		
-		if ( $this->is_whitelisted_functional_view() ) {
-			$js_libraries = array(
-				'jquery',
-				'jquery-ui-core',
-				'jquery-ui-sortable',
-				'jquery-ui-draggable',
-				'jquery-ui-droppable',
-			);
-			foreach( $js_libraries as $js_library ) {
-				wp_enqueue_script( $js_library );
-			}
-			wp_enqueue_script( 'edit-flow-calendar-js', $this->module_url . 'lib/calendar.js', $js_libraries, EDIT_FLOW_VERSION, true );
-			
-			$ef_cal_js_params = array( 'can_add_posts' => current_user_can( $this->create_post_cap ) ? 'true' : 'false' );
-			wp_localize_script( 'edit-flow-calendar-js', 'ef_calendar_params', $ef_cal_js_params );
+		$js_libraries = array(
+			'jquery',
+			'jquery-ui-core',
+			'jquery-ui-sortable',
+			'jquery-ui-draggable',
+			'jquery-ui-droppable',
+		);
+
+		foreach( $js_libraries as $js_library ) {
+			wp_enqueue_script( $js_library );
 		}
+
+		wp_enqueue_script( 'edit-flow-calendar-js', $this->module_url . 'lib/calendar.js', $js_libraries, EDIT_FLOW_VERSION, true );
+		
+		$ef_cal_js_params = array( 'can_add_posts' => current_user_can( $this->create_post_cap ) ? 'true' : 'false' );
+		wp_localize_script( 'edit-flow-calendar-js', 'ef_calendar_params', $ef_cal_js_params );
 		
 	}
 	
@@ -1851,7 +1856,12 @@ class EF_Calendar extends EF_Module {
 		$wpdb->update( $wpdb->posts, array( 'post_date' => $post_date ), array( 'ID' => $post_ID ) );
 		clean_post_cache( $post_ID );
 	}
-	
+
+	public function is_calendar_view() {
+		global $pagenow;
+		
+		return ( 'index.php' === $pagenow && isset( $_GET['page'] ) && $_GET['page'] === 'calendar' );
+	}	
 } // EF_Calendar
 	
 } // class_exists('EF_Calendar')

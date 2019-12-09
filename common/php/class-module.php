@@ -215,15 +215,15 @@ class EF_Module {
 	 */
 	function enqueue_datepicker_resources() {
 
-		// Add the first day of the week as an available variable to wp_head
-		echo "<script type=\"text/javascript\">var ef_week_first_day=\"" . get_option( 'start_of_week' ) . "\";</script>";
-
 		wp_enqueue_script( 'jquery-ui-datepicker' );
 
 		//Timepicker needs to come after jquery-ui-datepicker and jquery
 		wp_enqueue_script( 'edit_flow-timepicker', EDIT_FLOW_URL . 'common/js/jquery-ui-timepicker-addon.js', array( 'jquery', 'jquery-ui-datepicker' ), EDIT_FLOW_VERSION, true );
 		wp_enqueue_script( 'edit_flow-date_picker', EDIT_FLOW_URL . 'common/js/ef_date.js', array( 'jquery', 'jquery-ui-datepicker', 'edit_flow-timepicker' ), EDIT_FLOW_VERSION, true );
 
+		// Add the first day of the week as an available variable
+		wp_add_inline_script( 'edit_flow-date_picker', 'var ef_week_first_day = ' . wp_json_encode( get_option( 'start_of_week' ) ) . ';' );
+		
 		// Now styles
 		wp_enqueue_style( 'jquery-ui-datepicker', EDIT_FLOW_URL . 'common/css/jquery.ui.datepicker.css', array( 'wp-jquery-ui-dialog' ), EDIT_FLOW_VERSION, 'screen' );
 		wp_enqueue_style( 'jquery-ui-theme', EDIT_FLOW_URL . 'common/css/jquery.ui.theme.css', false, EDIT_FLOW_VERSION, 'screen' );
