@@ -749,16 +749,16 @@ class EF_Custom_Status extends EF_Module {
 	 *
 	 * @param array $post_states An array of post display states.
 	 */
-	function check_if_post_state_is_status($post_states) {
+	function check_if_post_state_is_status( $post_states, $post ) {
 
-		global $post;
-		$statuses = get_post_status_object(get_post_status($post->ID));
+		$statuses = get_post_status_object( get_post_status( $post->ID ) );
 		foreach ( $post_states as $state ) {
 			if ( $state !== $statuses->label ) {
 				echo '<span class="show"></span>';
 			}
 		}
-			return $post_states;
+			
+		return $post_states;
 	}
 
 	/**

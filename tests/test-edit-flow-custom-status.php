@@ -4,6 +4,11 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 	protected static $admin_user_id;
 	protected static $EF_Custom_Status;
+
+	/**
+	 * @var \Walker_Nav_Menu The instance of the walker.
+	 */
+	public $walker;
 		
 	public static function wpSetUpBeforeClass( $factory ) {
 		self::$admin_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
@@ -20,6 +25,10 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 	function setUp() {
 		parent::setUp();
+
+		/** Walker_Nav_Menu class */
+		require_once ABSPATH . 'wp-admin/includes/class-walker-nav-menu-checklist.php';
+		$this->walker = new Walker_Nav_Menu_Checklist();
 
 		global $pagenow;
 		$pagenow = 'post.php';
@@ -331,5 +340,40 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		$actual = get_sample_permalink( $child );
 		$this->assertSame( home_url() . '/publish-parent-page/%pagename%/', $actual[0] );
 		$this->assertSame( 'child-page', $actual[1] );
+	}
+
+	/**
+	 * Validate the usage of $post in `check_if_post_state_is_status` hook
+	 */
+	public function test_walker_nav_menu_checklist_title() {
+		$expected   = '';
+		$post_id    = $this->factory->post->create();
+		$post_title = get_the_title( $post_id );
+
+		$item = array(
+			'ID'        				=> $post_id,
+			'object_id' 				=> $post_id,
+			'title'     				=> $post_title,
+			'menu_item_parent' 	=> null,
+			'object' 						=> null,
+			'type'							=> 'post',
+			'url'								=> '',
+			'attr_title'				=> '',
+			'classes'						=> array(),
+			'target'    				=> '_blank',
+			'xfn'       				=> '',
+			'current'   				=> false,
+		);
+
+		$args = array(
+			'before'      => '',
+			'after'       => '',
+			'link_before' => '',
+			'link_after'  => '',
+		);
+
+		$this->walker->start_el( $expected, (object) $item, 0, (object) $args );
+
+		$this->assertStringStartsWith( "<li><label class=\"menu-item-title\"><input type=\"checkbox\" class=\"menu-item-checkbox\" name=\"menu-item[-1][menu-item-object-id]\" value=\"$post_id\" /> $post_title</label>", $expected );
 	}
 }
