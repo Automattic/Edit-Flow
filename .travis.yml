@@ -60,7 +60,7 @@ before_script:
 
 script: 
   - |
-      if [[ ${TRAVIS_PHP_VERSION:0:2} == "7."  ]] && [[ ${ RUN_PHPCS } == "1" ]]; then
+      if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]] && [[ ${RUN_PHPCS} == "1" ]]; then
         bash bin/phpcs-diff.sh
       fi
   - phpunit
