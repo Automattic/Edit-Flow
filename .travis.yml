@@ -25,16 +25,14 @@ matrix:
       env: WP_VERSION=5.2 WP_MULTISITE=0
     - php: "7.3"
       env: WP_VERSION=5.2 WP_MULTISITE=0
-    - php: "7.4"
-      env: WP_VERSION=5.2 WP_MULTISITE=0
+    # - skip PHP 7.4 and WP 5.2 (not compatible)
     - php: "5.6"
       env: WP_VERSION=5.2 WP_MULTISITE=1
     - php: "7.2"
       env: WP_VERSION=5.2 WP_MULTISITE=1
     - php: "7.3"
       env: WP_VERSION=5.2 WP_MULTISITE=1
-    - php: "7.4"
-      env: WP_VERSION=5.2 WP_MULTISITE=1
+    # - skip PHP 7.4 and WP 5.2 (not compatible)
 
 before_script:
     - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
