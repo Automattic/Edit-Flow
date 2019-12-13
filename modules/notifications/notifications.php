@@ -601,7 +601,7 @@ jQuery(document).ready(function($) {
 			 * Then, we attempt to set them to a sensible default before we start the
 			 * mega if/else block
 			 */
-			if ( !is_null( $old_status_post_obj ) ) {
+			if ( ! is_null( $old_status_post_obj ) ) {
 				$old_status_friendly_name = $old_status_post_obj->label;
 			}
 			
