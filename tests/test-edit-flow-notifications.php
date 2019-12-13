@@ -31,6 +31,7 @@ class WP_Test_Edit_Flow_Notifications extends WP_UnitTestCase {
 	public static function wpTearDownAfterClass() {
 		self::delete_user( self::$admin_user_id );
 		self::$EF_Notifications = null;
+		parent::wpTearDownAfterClass();
 	}
 
 	function setUp() {
