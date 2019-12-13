@@ -3,42 +3,34 @@
 class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 	protected static $admin_user_id;
-	protected static $EF_Custom_Status;
+	protected static $ef_custom_status;
 
-	/**
-	 * @var \Walker_Nav_Menu The instance of the walker.
-	 */
-	public $walker;
 		
 	public static function wpSetUpBeforeClass( $factory ) {
 		self::$admin_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
 		
-		self::$EF_Custom_Status = new EF_Custom_Status();
-		self::$EF_Custom_Status->install();
-		self::$EF_Custom_Status->init();
+		self::$ef_custom_status = new EF_Custom_Status();
+		self::$ef_custom_status->install();
+		self::$ef_custom_status->init();
 	}
 
 	public static function wpTearDownAfterClass() {
 		self::delete_user( self::$admin_user_id );
-		self::$EF_Custom_Status = null;
+		self::$ef_custom_status = null;
 	}
 
 	function setUp() {
 		parent::setUp();
-
-		/** Walker_Nav_Menu class */
-		require_once ABSPATH . 'wp-admin/includes/class-walker-nav-menu-checklist.php';
-		$this->walker = new Walker_Nav_Menu_Checklist();
 
 		global $pagenow;
 		$pagenow = 'post.php';
 	}
 
 	function tearDown() {
-		parent::tearDown();
-
 		global $pagenow;
 		$pagenow = 'index.php';
+
+		parent::tearDown();
 	}
 
 	/**
@@ -343,37 +335,38 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Validate the usage of $post in `check_if_post_state_is_status` hook
+	 * Validate the usage of $post in `check_if_post_state_is_status` hook with status shown
 	 */
-	public function test_walker_nav_menu_checklist_title() {
-		$expected   = '';
-		$post_id    = $this->factory->post->create();
-		$post_title = get_the_title( $post_id );
+	public function test_check_if_post_state_is_status_shown() {
+		$post = self::factory()->post->create( array(
+			'post_type'  => 'post',
+			'post_title' => 'Post',
+			'post_status' => 'pitch',
+			'post_author' => self::$admin_user_id
+		) );
 
-		$item = array(
-			'ID'        				=> $post_id,
-			'object_id' 				=> $post_id,
-			'title'     				=> $post_title,
-			'menu_item_parent' 	=> null,
-			'object' 						=> null,
-			'type'							=> 'post',
-			'url'								=> '',
-			'attr_title'				=> '',
-			'classes'						=> array(),
-			'target'    				=> '_blank',
-			'xfn'       				=> '',
-			'current'   				=> false,
-		);
+		ob_start();
+		$post_states = apply_filters( 'display_post_states', [ 'Pitch', 'Liveblog' ], get_post( $post ) );
+		$output = ob_get_clean();
 
-		$args = array(
-			'before'      => '',
-			'after'       => '',
-			'link_before' => '',
-			'link_after'  => '',
-		);
+		$this->assertContains( '<span class="show"></span>', $output );
+	}
 
-		$this->walker->start_el( $expected, (object) $item, 0, (object) $args );
+	/**
+	 * Validate the usage of $post in `check_if_post_state_is_status` hook with status not shown
+	 */
+	public function test_check_if_post_state_is_status_not_shown() {
+		$post = self::factory()->post->create( array(
+			'post_type'  => 'post',
+			'post_title' => 'Post',
+			'post_status' => 'pitch',
+			'post_author' => self::$admin_user_id
+		) );
 
-		$this->assertStringStartsWith( "<li><label class=\"menu-item-title\"><input type=\"checkbox\" class=\"menu-item-checkbox\" name=\"menu-item[-1][menu-item-object-id]\" value=\"$post_id\" /> $post_title</label>", $expected );
+		ob_start();
+		$post_states = apply_filters( 'display_post_states', [ 'Pitch' ], get_post( $post ) );
+		$output = ob_get_clean();
+
+		$this->assertNotContains( '<span class="show"></span>', $output );
 	}
 }
