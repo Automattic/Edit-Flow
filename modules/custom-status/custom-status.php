@@ -112,7 +112,7 @@ class EF_Custom_Status extends EF_Module {
 		// These seven-ish methods are hacks for fixing bugs in WordPress core
 		add_action( 'admin_init', array( $this, 'check_timestamp_on_publish' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'fix_custom_status_timestamp' ), 10, 2 );
-		add_action( 'wp_insert_post', array( $this, 'fix_post_name' ), 10, 2 );
+		add_action( 'pre_wp_unique_post_slug', array( $this, 'fix_post_name' ), 11, 6 );
 		add_filter( 'preview_post_link', array( $this, 'fix_preview_link_part_one' ) );
 		add_filter( 'post_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
 		add_filter( 'page_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
@@ -1397,41 +1397,51 @@ class EF_Custom_Status extends EF_Module {
 	}
 
 	/**
-	 * Another hack! hack! hack! until core better supports custom statuses`
+	 * A new hack! hack! hack! until core better supports custom statuses
 	 *
-	 * @since 0.7.4
+	 * @since 0.9.3
 	 *
 	 * Keep the post_name value empty for posts with custom statuses
-	 * Unless they've set it customly
+	 * Unless it's already been set
 	 * @see https://github.com/Automattic/Edit-Flow/issues/123
 	 * @see http://core.trac.wordpress.org/browser/tags/3.4.2/wp-includes/post.php#L2530
 	 * @see http://core.trac.wordpress.org/browser/tags/3.4.2/wp-includes/post.php#L2646
+	 * @see https://core.trac.wordpress.org/browser/tags/5.3.1/src/wp-includes/post.php#L3843
+	 * @see https://core.trac.wordpress.org/browser/tags/5.3.1/src/wp-includes/post.php#L3924
 	 */
-	public function fix_post_name( $post_id, $post ) {
-		global $pagenow;
+	public function fix_post_name( $override_slug, $slug, $post_ID, $post_status, $post_type, $post_parent ) {
+		$post = get_post( $post_ID );
 
-		/*
-		 * Filters the $post object that will be modified
-		 *
-		 * @param $post WP_Post Post object being processed.
+		/**
+		 * Post doesn't exist, default behaviour
 		 */
-		$post = apply_filters( 'ef_fix_post_name_post', $post );
+		if ( ! $post ) {
+			return null;
+		}
 
-		// Only modify if we're using a pre-publish status on a supported custom post type
+		// If the slug is already set, return it, we're done here
+		if ( $post->post_name ) {
+			return $slug;
+		}
+
+		/**
+		 * If it's a core status that doesn't set a slug, don't set the slug
+		 */
+		if ( in_array( $post_status, array( 'draft', 'pending', 'auto-draft' ) ) || ( 'inherit' == $post_status && 'revision' == $post_type ) || 'user_request' === $post_type ) {
+			return '';
+		}
+
+		/**
+		 * If it's a custom status for a supported post type , don't set a slug
+		 */
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
-		if ( 'post.php' != $pagenow
-			|| ! in_array( $post->post_status, $status_slugs )
-			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
-			return;
+		if ( in_array( $post_status, $status_slugs ) 
+		&& in_array( $post_type, $this->get_post_types_for_module( $this->module ) ) ) {
+			return '';
+		}
 
-		// The slug has been set by the meta box
-		if ( ! empty( $_POST['post_name'] ) )
-			return;
-
-		global $wpdb;
-
-		$wpdb->update( $wpdb->posts, array( 'post_name' => '' ), array( 'ID' => $post_id ) );
-		clean_post_cache( $post_id );
+		// Proceed with default slug behaviour
+		return null;
 	}
 
 
@@ -1539,49 +1549,18 @@ class EF_Custom_Status extends EF_Module {
 	 * @return string $link Direct link to complete the action
 	 */
 	public function fix_get_sample_permalink( $permalink, $post_id, $title, $name, $post ) {
-		//Should we be doing anything at all?
-		if( !in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
-			return $permalink;
+		remove_filter( 'get_sample_permalink', array( $this, 'fix_get_sample_permalink' ), 10, 5 );
+		remove_action( 'pre_wp_unique_post_slug', array( $this, 'fix_post_name' ), 11, 6 );
 
-		//Is this published?
-		if( in_array( $post->post_status, $this->published_statuses ) )
-			return $permalink;
-
-		//Are we overriding the permalink? Don't do anything
-		if( isset( $_POST['action'] ) && $_POST['action'] == 'sample-permalink' )
-			return $permalink;
-
-		list( $permalink, $post_name ) = $permalink;
-
-		$post_name = $post->post_name ? $post->post_name : sanitize_title( $post->post_title );
-		$post->post_name = $post_name;
-
-		$ptype = get_post_type_object( $post->post_type );
-
-		if ( $ptype->hierarchical ) {
-			$post->filter = 'sample';
-
-			$uri = get_page_uri( $post->ID ) . $post_name;
-
-			if ( $uri ) {
-				$uri = untrailingslashit($uri);
-				$uri = strrev( stristr( strrev( $uri ), '/' ) );
-				$uri = untrailingslashit($uri);
-			}
-
-			/** This filter is documented in wp-admin/edit-tag-form.php */
-			$uri = apply_filters( 'editable_slug', $uri, $post );
-
-			if ( !empty($uri) ) {
-				$uri .= '/';
-			}
-
-			$permalink = str_replace('%pagename%', "{$uri}%pagename%", $permalink);
-		}
-
-		unset($post->post_name);
-
-		return array( $permalink, $post_name );
+		$new_name = $name ? $name : $post->post_name;
+		
+		var_dump( $title, $name );
+		$permalink = get_sample_permalink( $post_id, null, sanitize_title( $new_name ? $new_name : $title, $post->ID ) );
+		
+		add_filter( 'get_sample_permalink', array( $this, 'fix_get_sample_permalink' ), 10, 5 );
+		add_action( 'pre_wp_unique_post_slug', array( $this, 'fix_post_name' ), 11, 6 );
+		
+		return $permalink;
 	}
 
 	/**
