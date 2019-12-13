@@ -24,29 +24,15 @@ class WP_Test_Edit_Flow_Notifications extends WP_UnitTestCase {
 
 		self::$admin_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
 		
-		self::$EF_Notifications = new EF_Notifications();
-		self::$EF_Notifications->install();
-		self::$EF_Notifications->init();
+		self::$ef_notifications = new EF_Notifications();
+		self::$ef_notifications->install();
+		self::$ef_notifications->init();
 	}
 
 	public static function wpTearDownAfterClass() {
 		self::delete_user( self::$admin_user_id );
-		self::$EF_Notifications = null;
+		self::$ef_notifications = null;
 		parent::wpTearDownAfterClass();
-	}
-
-	function setUp() {
-		parent::setUp();
-
-		global $pagenow;
-		$pagenow = 'post.php';
-	}
-
-	function tearDown() {
-		parent::tearDown();
-
-		global $pagenow;
-		$pagenow = 'index.php';
 	}
 
 	/**
