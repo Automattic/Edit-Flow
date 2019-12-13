@@ -6,7 +6,6 @@ class WP_Test_Edit_Flow_Notifications extends WP_UnitTestCase {
 	protected static $ef_notifications;
 		
 	public static function wpSetUpBeforeClass( $factory ) {
-		parent::wpSetUpBeforeClass();
 		global $edit_flow;
 
 		/**
@@ -32,7 +31,6 @@ class WP_Test_Edit_Flow_Notifications extends WP_UnitTestCase {
 	public static function wpTearDownAfterClass() {
 		self::delete_user( self::$admin_user_id );
 		self::$ef_notifications = null;
-		parent::wpTearDownAfterClass();
 	}
 
 	/**
