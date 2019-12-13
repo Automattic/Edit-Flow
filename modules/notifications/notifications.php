@@ -605,7 +605,7 @@ jQuery(document).ready(function($) {
 				$old_status_friendly_name = $old_status_post_obj->label;
 			}
 			
-			if ( !is_null( $new_status_post_obj ) ) {
+			if ( ! is_null( $new_status_post_obj ) ) {
 				$new_status_friendly_name = $new_status_post_obj->label;
 			}
 			
