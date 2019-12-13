@@ -6,6 +6,7 @@ class WP_Test_Edit_Flow_Notifications extends WP_UnitTestCase {
 	protected static $ef_notifications;
 		
 	public static function wpSetUpBeforeClass( $factory ) {
+		parent::wpSetUpBeforeClass();
 		global $edit_flow;
 
 		/**
