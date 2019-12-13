@@ -7,9 +7,29 @@
     "test": "tests"
   },
   "scripts": {
-    "dev": "webpack --watch",
     "build": "webpack --mode production --verbose",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "check-engines": "wp-scripts check-engines",
+    "dev": "webpack --watch",
+    "env": "wp-scripts env",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test-e2e": "wp-scripts test-e2e --config tests/e2e/jest.config.js",
+    "test-e2e:watch": "npm run test-e2e -- --watch",
+    "test-unit-php": "wp-scripts env test-php"
+  },
+  "wp-env": {
+    "plugin-dir": "Edit-Flow",
+    "plugin-name": "Edit Flow",
+    "docker-template": "./bin/docker-compose.override.yml.template",
+    "welcome-logo": [
+      " _______  ______   ___   _______    _______  ___      _______  _     _  ",
+      "|       ||      | |   | |       |  |       ||   |    |       || | _ | |",
+      "|    ___||  _    ||   | |_     _|  |    ___||   |    |   _   || || || |",
+      "|   |___ | | |   ||   |   |   |    |   |___ |   |    |  | |  ||       |",
+      "|    ___|| |_|   ||   |   |   |    |    ___||   |___ |  |_|  ||       |",
+      "|   |___ |       ||   |   |   |    |   |    |       ||       ||   _   |",
+      "|_______||______| |___|   |___|    |___|    |_______||_______||__| |__|"
+    ],
+    "welcome-build-command": "npm run dev"
   },
   "repository": {
     "type": "git",
@@ -24,16 +44,22 @@
   "devDependencies": {
     "@babel/core": "^7.2.0",
     "@babel/preset-env": "^7.2.0",
+    "@wordpress/scripts": "^6.0.0",
     "babel-loader": "^8.0.4",
     "babel-plugin-add-module-exports": "^1.0.0",
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-preset-env": "^1.7.0",
     "css-loader": "^2.0.0",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
-    "node-sass": "^4.10.0",
-    "sass-loader": "^7.1.0",
+    "lodash": "^4.17.15",
+    "node-sass": "^4.13.0",
+    "sass-loader": "^7.3.1",
     "webpack": "^4.27.1",
     "webpack-cli": "^3.1.2"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@wordpress/e2e-test-utils": "^3.0.0",
+    "@wordpress/jest-console": "^3.4.0",
+    "@wordpress/jest-puppeteer-axe": "^1.4.0"
+  }
 }
