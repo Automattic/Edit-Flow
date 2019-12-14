@@ -1,23 +1,31 @@
-jQuery(document).ready(function($) {
-  var dateTimePicks = jQuery(".date-time-pick");
+/* global document, jQuery, ef_week_first_day  */
 
-  dateTimePicks.each(function() {
-    var $dTP = jQuery(this);
+jQuery( document ).ready( function() {
+	const dateTimePicks = jQuery( '.date-time-pick' );
 
-    $dTP.datetimepicker({
-      dateFormat: "M dd yy",
-      firstDay: ef_week_first_day,
-      alwaysSetTime: false,
-      controlType: "select",
-      altField: '#' + $dTP.prop("id") + "_hidden",
-      altFieldTimeOnly: false,
-      altFormat: "yy-mm-dd",
-      altTimeFormat: "HH:mm"
-    });
-  });
+	dateTimePicks.each( function() {
+		const $dTP = jQuery( this );
 
-  jQuery(".date-pick").datepicker({
-    dateFormat: "M dd yy",
-    firstDay: ef_week_first_day
-  });
-});
+		$dTP.datetimepicker( {
+			dateFormat: 'M dd yy',
+			firstDay: ef_week_first_day,
+			alwaysSetTime: false,
+			controlType: 'select',
+			altField: '#' + $dTP.prop( 'id' ) + '_hidden',
+			altFieldTimeOnly: false,
+			altFormat: 'yy-mm-dd',
+			altTimeFormat: 'HH:mm',
+		} );
+	} );
+
+	const datePicks = jQuery( '.date-pick' );
+	datePicks.each( function() {
+		const $datePicker = jQuery( this );
+
+		$datePicker.datepicker( {
+			firstDay: ef_week_first_day,
+			altField: '#' + $datePicker.prop( 'id' ) + '_hidden',
+			altFormat: 'yy-mm-dd',
+		} );
+	} );
+} );
