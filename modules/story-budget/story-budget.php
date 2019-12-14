@@ -198,9 +198,9 @@ class EF_Story_Budget extends EF_Module {
 		$current_user = wp_get_current_user();
 		$user_filters = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
 		if ( isset( $_POST['ef-story-budget-today-submit'] ) ) {
-			$user_filters['start_date'] = date( 'Y-m-d' );
+			$user_filters['start_date'] = current_time( 'Y-m-d' );
 		} else {
-			$user_filters['start_date'] = date( 'Y-m-d', strtotime( $_POST['ef-story-budget-start-date'] ) );
+			$user_filters['start_date'] = date_i18n( 'Y-m-d', strtotime( $_POST['ef-story-budget-start-date'] ) );
 		}
 		$user_filters['number_days'] = (int)$_POST['ef-story-budget-number-days'];
 		if ( $user_filters['number_days'] <= 1 )
@@ -332,7 +332,7 @@ class EF_Story_Budget extends EF_Module {
 			. ' size="10" class="date-pick" value="'
 			. esc_attr( date_i18n( get_option( 'date_format' ), strtotime( $this->user_filters[ 'start_date' ] ) ) ) . '" />'
 			. '&nbsp;<input id="ef-story-budget-today-submit" name="ef-story-budget-today-submit" type="submit"'
-			. 'class="button-primary" value="' . __( 'Today', 'edit-flow' ) . '" />'
+			. 'class="button-secondary" value="' . __( 'Today', 'edit-flow' ) . '" />'
 			. '<span class="form-value">';
 
 		$start_date_value .= esc_html( date_i18n( get_option( 'date_format' ), strtotime( $this->user_filters['start_date'] ) ) );
