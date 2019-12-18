@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "webpack --watch",
     "build": "webpack --mode production --verbose",
-    "lint": "eslint -f json blocks common modules | eslines",
+    "lint": "eslint --quiet -f json blocks common modules | eslines --quiet",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
