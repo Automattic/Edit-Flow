@@ -2,3 +2,4 @@
 .DS_Store
 *.map
 node_modules
+vendor
