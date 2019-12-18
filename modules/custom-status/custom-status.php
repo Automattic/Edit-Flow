@@ -112,6 +112,7 @@ class EF_Custom_Status extends EF_Module {
 		// These seven-ish methods are hacks for fixing bugs in WordPress core
 		add_action( 'admin_init', array( $this, 'check_timestamp_on_publish' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'fix_custom_status_timestamp' ), 10, 2 );
+		add_filter( 'wp_insert_post_data', array( $this, 'maybe_keep_post_name_empty' ), 10, 2 );
 		add_action( 'wp_insert_post', array( $this, 'fix_post_name' ), 10, 2 );
 		add_filter( 'preview_post_link', array( $this, 'fix_preview_link_part_one' ) );
 		add_filter( 'post_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
@@ -1397,6 +1398,35 @@ class EF_Custom_Status extends EF_Module {
 	}
 
 	/**
+	 * A new hack! hack! hack! until core better supports custom statuses`
+	 *
+	 * @since 0.9.3
+	 *
+	 * If the slug should stay empty, mark it
+	 * @see https://github.com/Automattic/Edit-Flow/issues/123
+	 * @see http://core.trac.wordpress.org/browser/tags/3.4.2/wp-includes/post.php#L2530
+	 * @see http://core.trac.wordpress.org/browser/tags/3.4.2/wp-includes/post.php#L2646
+	 */
+	public function maybe_keep_post_name_empty( $data, $postarr ) {
+		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
+
+		if ( ! in_array( $data['post_status'], $status_slugs )
+			|| ! in_array( $data['post_type'], $this->get_post_types_for_module( $this->module ) ) ) {
+				$data['post_name'] = !isset( $postarr['post_name'] ) ? $data['post_name'] : $postarr['post_name'];
+
+				return $data;
+		}
+
+		if ( empty( $postarr['post_name'] ) ) {
+			add_post_meta( $postarr['ID'], '_ef_keep_post_name_empty', true );
+		}
+
+		$data['post_name'] = '';
+
+		return $data;
+	}
+
+	/**
 	 * Another hack! hack! hack! until core better supports custom statuses`
 	 *
 	 * @since 0.7.4
@@ -1408,7 +1438,6 @@ class EF_Custom_Status extends EF_Module {
 	 * @see http://core.trac.wordpress.org/browser/tags/3.4.2/wp-includes/post.php#L2646
 	 */
 	public function fix_post_name( $post_id, $post ) {
-		global $pagenow;
 
 		/*
 		 * Filters the $post object that will be modified
@@ -1419,19 +1448,20 @@ class EF_Custom_Status extends EF_Module {
 
 		// Only modify if we're using a pre-publish status on a supported custom post type
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
-		if ( 'post.php' != $pagenow
-			|| ! in_array( $post->post_status, $status_slugs )
+		if ( ! in_array( $post->post_status, $status_slugs )
 			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
 			return;
 
-		// The slug has been set by the meta box
-		if ( ! empty( $_POST['post_name'] ) )
-			return;
 
-		global $wpdb;
+		if ( metadata_exists( 'post', $post_id, '_ef_keep_post_name_empty' ) ) {
+			delete_post_meta( $post_id, '_ef_keep_post_name_empty');
 
-		$wpdb->update( $wpdb->posts, array( 'post_name' => '' ), array( 'ID' => $post_id ) );
-		clean_post_cache( $post_id );
+			global $wpdb;
+
+			$wpdb->update( $wpdb->posts, array( 'post_name' => '' ), array( 'ID' => $post_id ) );
+			clean_post_cache( $post_id );
+		}
+
 	}
 
 
@@ -1539,49 +1569,24 @@ class EF_Custom_Status extends EF_Module {
 	 * @return string $link Direct link to complete the action
 	 */
 	public function fix_get_sample_permalink( $permalink, $post_id, $title, $name, $post ) {
-		//Should we be doing anything at all?
-		if( !in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
+
+		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
+
+		if ( !in_array( $post->post_status, $status_slugs )
+			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) ) {
 			return $permalink;
-
-		//Is this published?
-		if( in_array( $post->post_status, $this->published_statuses ) )
-			return $permalink;
-
-		//Are we overriding the permalink? Don't do anything
-		if( isset( $_POST['action'] ) && $_POST['action'] == 'sample-permalink' )
-			return $permalink;
-
-		list( $permalink, $post_name ) = $permalink;
-
-		$post_name = $post->post_name ? $post->post_name : sanitize_title( $post->post_title );
-		$post->post_name = $post_name;
-
-		$ptype = get_post_type_object( $post->post_type );
-
-		if ( $ptype->hierarchical ) {
-			$post->filter = 'sample';
-
-			$uri = get_page_uri( $post->ID ) . $post_name;
-
-			if ( $uri ) {
-				$uri = untrailingslashit($uri);
-				$uri = strrev( stristr( strrev( $uri ), '/' ) );
-				$uri = untrailingslashit($uri);
-			}
-
-			/** This filter is documented in wp-admin/edit-tag-form.php */
-			$uri = apply_filters( 'editable_slug', $uri, $post );
-
-			if ( !empty($uri) ) {
-				$uri .= '/';
-			}
-
-			$permalink = str_replace('%pagename%', "{$uri}%pagename%", $permalink);
 		}
 
-		unset($post->post_name);
+		remove_filter( 'get_sample_permalink', array( $this, 'fix_get_sample_permalink' ), 10, 5 );
 
-		return array( $permalink, $post_name );
+		$new_name = 	! is_null( $name ) ? $name : $post->post_name;
+		$new_title = 	! is_null( $title ) ? $title : $post->post_title;
+
+		$permalink = get_sample_permalink( $post_id, $title, sanitize_title( $new_name ? $new_name : $new_title, $post->ID ) );
+
+		add_filter( 'get_sample_permalink', array( $this, 'fix_get_sample_permalink' ), 10, 5 );
+
+		return $permalink;
 	}
 
 	/**
@@ -1596,75 +1601,28 @@ class EF_Custom_Status extends EF_Module {
 	 *
 	 * @since 0.8.2
 	 *
-	 * @param string  $return    Sample permalink HTML markup
-	 * @param int 	  $post_id   Post ID
-	 * @param string  $new_title New sample permalink title
-	 * @param string  $new_slug  New sample permalink kslug
-	 * @param WP_Post $post 	 Post object
+	 * @param string  $return    Sample permalink HTML markup.
+	 * @param int     $post_id   Post ID.
+	 * @param string  $new_title New sample permalink title.
+	 * @param string  $new_slug  New sample permalink slug.
+	 * @param WP_Post $post      Post object.
 	 */
-	function fix_get_sample_permalink_html( $return, $post_id, $new_title, $new_slug, $post ) {
+	function fix_get_sample_permalink_html( $permalink, $post_id, $new_title, $new_slug, $post ) {
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
 
-		list($permalink, $post_name) = get_sample_permalink($post->ID, $new_title, $new_slug);
-
-		$view_link = false;
-		$preview_target = '';
-
-		if ( current_user_can( 'read_post', $post_id ) ) {
-			if ( in_array( $post->post_status, $status_slugs ) ) {
-				$view_link = $this->get_preview_link( $post );
-				$preview_target = " target='wp-preview-{$post->ID}'";
-			} else {
-				if ( 'publish' === $post->post_status || 'attachment' === $post->post_type ) {
-					$view_link = get_permalink( $post );
-				} else {
-					// Allow non-published (private, future) to be viewed at a pretty permalink.
-					$view_link = str_replace( array( '%pagename%', '%postname%' ), $post->post_name, $permalink );
-				}
-			}
+		if ( !in_array( $post->post_status, $status_slugs )
+			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) ) {
+			return $permalink;
 		}
 
-		// Permalinks without a post/page name placeholder don't have anything to edit
-		if ( false === strpos( $permalink, '%postname%' ) && false === strpos( $permalink, '%pagename%' ) ) {
-			$return = '<strong>' . __( 'Permalink:' ) . "</strong>\n";
+		remove_filter( 'get_sample_permalink_html', array( $this, 'fix_get_sample_permalink_html' ), 10, 5);
 
-			if ( false !== $view_link ) {
-				$display_link = urldecode( $view_link );
-				$return .= '<a id="sample-permalink" href="' . esc_url( $view_link ) . '"' . $preview_target . '>' . $display_link . "</a>\n";
-			} else {
-				$return .= '<span id="sample-permalink">' . $permalink . "</span>\n";
-			}
+		$post->post_status = 'draft';
+		$sample_permalink_html = get_sample_permalink_html( $post, $new_title, $new_slug );
 
-			// Encourage a pretty permalink setting
-			if ( '' == get_option( 'permalink_structure' ) && current_user_can( 'manage_options' ) && !( 'page' == get_option('show_on_front') && $id == get_option('page_on_front') ) ) {
-				$return .= '<span id="change-permalinks"><a href="options-permalink.php" class="button button-small" target="_blank">' . __('Change Permalinks') . "</a></span>\n";
-			}
-		} else {
-			if ( function_exists( 'mb_strlen' ) ) {
-				if ( mb_strlen( $post_name ) > 34 ) {
-					$post_name_abridged = mb_substr( $post_name, 0, 16 ) . '&hellip;' . mb_substr( $post_name, -16 );
-				} else {
-					$post_name_abridged = $post_name;
-				}
-			} else {
-				if ( strlen( $post_name ) > 34 ) {
-					$post_name_abridged = substr( $post_name, 0, 16 ) . '&hellip;' . substr( $post_name, -16 );
-				} else {
-					$post_name_abridged = $post_name;
-				}
-			}
+		add_filter( 'get_sample_permalink_html', array( $this, 'fix_get_sample_permalink_html' ), 10, 5);
 
-			$post_name_html = '<span id="editable-post-name">' . $post_name_abridged . '</span>';
-			$display_link = str_replace( array( '%pagename%', '%postname%' ), $post_name_html, urldecode( $permalink ) );
-
-			$return = '<strong>' . __( 'Permalink:' ) . "</strong>\n";
-			$return .= '<span id="sample-permalink"><a href="' . esc_url( $view_link ) . '"' . $preview_target . '>' . $display_link . "</a></span>\n";
-			$return .= '&lrm;'; // Fix bi-directional text display defect in RTL languages.
-			$return .= '<span id="edit-slug-buttons"><button type="button" class="edit-slug button button-small hide-if-no-js" aria-label="' . __( 'Edit permalink' ) . '">' . __( 'Edit' ) . "</button></span>\n";
-			$return .= '<span id="editable-post-name-full">' . $post_name . "</span>\n";
-		}
-
-		return $return;
+		return $sample_permalink_html;
 	}
 
 
