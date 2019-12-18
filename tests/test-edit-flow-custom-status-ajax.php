@@ -2,6 +2,7 @@
 
 /**
  * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
 class WP_Test_Edit_Flow_Custom_Status_Ajax extends WP_Edit_Flow_Ajax_UnitTestCase {
 
