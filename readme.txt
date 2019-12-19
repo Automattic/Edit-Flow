@@ -5,7 +5,7 @@ Tags: edit flow, workflow, editorial, newsroom, management, journalism, post sta
 Requires at least: 5.1
 Requires PHP: 5.6
 Tested up to: 5.3
-Stable tag: 0.9.2
+Stable tag: 0.9.3
 
 Redefining your editorial workflow.
 
@@ -56,6 +56,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 5. View all of your upcoming posts with the more traditional story budget view, and hit the print button to take it to your planning meeting.
 
 == Upgrade Notice ==
+
+= 0.9.3 =
+Fixes for localization and notifications
 
 = 0.9.2 =
 Fixes issues with scheduling and trashing posts in block editor.
@@ -115,6 +118,12 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 == Changelog ==
+
+= 0.9.3 (December 18, 2019) =
+* Bug fix: parse date time from numeric string instead of textual date (https://github.com/Automattic/Edit-Flow/pull/546 -- props batmoo, cojennin)
+* Bug fix: ensure status friendly names are used in notifications (https://github.com/Automattic/Edit-Flow/pull/560 -- props batmoo, cojennin)
+* Bug fix: fix WP Menu post title notice (https://github.com/Automattic/Edit-Flow/pull/552 - props batmoo, cojennin)
+* Updates to tests, build pipeline (props batmoo, dchymko, cojennin)
 
 = 0.9.1 (November 24, 2019) =
 * Bug fix: Prevent issues with scheduling and trashing posts when using the block editor (https://github.com/Automattic/Edit-Flow/pull/556 -- props cojennin, davisshaver, batmoo)
