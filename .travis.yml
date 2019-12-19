@@ -106,4 +106,5 @@ script:
   - |
     if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]] && [[ ${RUN_PHPCS} == "1" ]]; then
       bash bin/phpcs-diff.sh
+      npm run lint
     fi

@@ -8,6 +8,10 @@
 	margin-top: 30px;
 }
 
+.date-time-pick {
+	z-index: 999;
+	position: relative;
+}
 
 /*
 	Override Gutenberg 2.0

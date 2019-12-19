@@ -586,6 +586,28 @@ jQuery(document).ready(function($) {
 				$current_user_display_name = __( 'WordPress Scheduler', 'edit-flow' );
 				$current_user_email = '';
 			}
+
+			$old_status_post_obj = get_post_status_object( $old_status );
+			$new_status_post_obj = get_post_status_object( $new_status );
+			$old_status_friendly_name = '';
+			$new_status_friendly_name = '';
+
+			/**
+			 * get_post_status_object will return null for certain statuses (i.e., 'new')
+			 * The mega if/else block below should catch all cases, but just in case, we 
+			 * make sure to at least set $old_status_friendly_name and $new_status_friendly_name
+			 * to an empty string to ensure they're at least set.
+			 * 
+			 * Then, we attempt to set them to a sensible default before we start the
+			 * mega if/else block
+			 */
+			if ( ! is_null( $old_status_post_obj ) ) {
+				$old_status_friendly_name = $old_status_post_obj->label;
+			}
+			
+			if ( ! is_null( $new_status_post_obj ) ) {
+				$new_status_friendly_name = $new_status_post_obj->label;
+			}
 			
 			// Email subject and first line of body 
 			// Set message subjects according to what action is being taken on the Post	
@@ -625,15 +647,10 @@ jQuery(document).ready(function($) {
 				$subject = sprintf( __( '[%1$s] %2$s Status Changed for "%3$s"', 'edit-flow' ), $blogname, $post_type, $post_title );
 				/* translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user email */
 				$body .= sprintf( __( 'Status was changed for %1$s #%2$s "%3$s" by %4$s %5$s', 'edit-flow'), $post_type, $post_id, $post_title, $current_user_display_name, $current_user_email ) . "\r\n";
-				$old_status_post_obj = get_post_status_object( $old_status );
-				$old_status_friendly_name = $old_status_post_obj->label;
 			}
 			
 			/* translators: 1: date, 2: time, 3: timezone */
 			$body .= sprintf( __( 'This action was taken on %1$s at %2$s %3$s', 'edit-flow' ), date_i18n( get_option( 'date_format' ) ), date_i18n( get_option( 'time_format' ) ), get_option( 'timezone_string' ) ) . "\r\n";
-
-			$new_status_post_obj = get_post_status_object( $new_status );
-			$new_status_friendly_name = $new_status_post_obj->label;
 						
 			// Email body
 			$body .= "\r\n";

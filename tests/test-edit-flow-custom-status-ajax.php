@@ -1,8 +1,16 @@
 <?php
 
-require_once( ABSPATH . 'wp-admin/includes/ajax-actions.php' );
-
+/**
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
+ */
 class WP_Test_Edit_Flow_Custom_Status_Ajax extends WP_Edit_Flow_Ajax_UnitTestCase {
+
+	function setUp() {
+		parent::setUp();
+
+		require_once( ABSPATH . 'wp-admin/includes/ajax-actions.php' );
+	}
 
 	/**
 	 * A post with 'future' status should not have post_date_gmt
