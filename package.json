@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "webpack --watch",
     "build": "webpack --mode production --verbose",
+    "lint": "eslint --quiet -f json blocks common modules | eslines --quiet",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -24,16 +25,31 @@
   "devDependencies": {
     "@babel/core": "^7.2.0",
     "@babel/preset-env": "^7.2.0",
+    "babel-eslint": "10.0.3",
     "babel-loader": "^8.0.4",
     "babel-plugin-add-module-exports": "^1.0.0",
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-preset-env": "^1.7.0",
     "css-loader": "^2.0.0",
+    "eslines": "1.1.0",
+    "eslint": "5.16.0",
+    "eslint-config-wpvip": "github:automattic/eslint-config-wpvip#00fb352",
+    "eslint-plugin-flowtype": "4.5.2",
+    "eslint-plugin-import": "2.19.1",
+    "eslint-plugin-jest": "23.1.1",
+    "eslint-plugin-json": "2.0.1",
+    "eslint-plugin-jsx-a11y": "6.2.3",
+    "eslint-plugin-no-async-foreach": "0.1.1",
+    "eslint-plugin-react": "7.17.0",
+    "eslint-plugin-wpcalypso": "4.1.0",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "node-sass": "^4.10.0",
     "sass-loader": "^7.1.0",
     "webpack": "^4.27.1",
     "webpack-cli": "^3.1.2"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "eslintConfig": {
+    "extends": "wpvip"
+  }
 }

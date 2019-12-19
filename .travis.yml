@@ -45,6 +45,10 @@ before_script:
     - export COMPOSER_BIN_DIR="$HOME/.config/composer/vendor/bin"
     - export PATH="$COMPOSER_BIN_DIR:$PATH"
     - |
+        if [[ ${RUN_PHPCS} == "1" ]]; then
+          npm install
+        fi
+    - |
         if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
           composer global require "phpunit/phpunit=5.7.*"
         fi
@@ -55,6 +59,7 @@ script:
   - |
       if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]] && [[ ${RUN_PHPCS} == "1" ]]; then
         bash bin/phpcs-diff.sh
+        npm run lint
       fi
   - phpunit
 
