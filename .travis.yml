@@ -1,23 +1,24 @@
-language: php
+dist: trusty
 
-php:
-    - "5.6"
-    - "7.2"
-    - "7.3"
-    - "7.4"
+language: generic
 
 services:
-    - mysql
-
-env:
-    - RUN_PHPCS=1 WP_VERSION=latest WP_MULTISITE=0 #Current stable release
-
-# Test WP 5.2 and on PHP 5.6, 7.2, 7.3, and 7.4 (w/ and w/o multisite enabled)
+  - docker
 
 matrix:
   include:
     # current stable release w/ multisite
-    - env: WP_VERSION=latest WP_MULTISITE=1
+    - php: "5.6"
+      env: WP_VERSION=latest WP_MULTISITE=0
+    - php: "7.2"
+      env: WP_VERSION=latest WP_MULTISITE=0
+    - php: "7.3"
+      env: WP_VERSION=latest WP_MULTISITE=0
+    - php: "7.4"
+      env: RUN_PHPCS=1 WP_VERSION=latest WP_MULTISITE=0
+      # Only need to run PHPCS on one test
+    - php: "7.4"
+      env: WP_VERSION=latest WP_MULTISITE=1
     # n-1 major release
     - php: "5.6"
       env: WP_VERSION=5.2 WP_MULTISITE=0
@@ -34,33 +35,76 @@ matrix:
       env: WP_VERSION=5.2 WP_MULTISITE=1
     # - skip PHP 7.4 and WP 5.2 (not compatible)
 
-install:
-    - |
-      if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
-        composer install
-      fi
+env:
+  global:
+    - WP_DEVELOP_DIR: ./wordpress
+    - INSTALL_COMPOSER: true
+    - INSTALL_WORDPRESS: true
+    - WP_VERSION: latest 
+    - WP_MULTISITE: 0
 
-before_script:
-    - bash bin/install-wp-tests.sh wordpress_test root '' localhost $WP_VERSION
-    - export COMPOSER_BIN_DIR="$HOME/.config/composer/vendor/bin"
-    - export PATH="$COMPOSER_BIN_DIR:$PATH"
-    - |
-        if [[ ${RUN_PHPCS} == "1" ]]; then
-          npm install
-        fi
-    - |
-        if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
-          composer global require "phpunit/phpunit=5.7.*"
-        fi
-    - phpunit --version
-    - php --version
-
-script: 
+before_install:
+  - nvm install --latest-npm
   - |
-      if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]] && [[ ${RUN_PHPCS} == "1" ]]; then
-        bash bin/phpcs-diff.sh
-        npm run lint
-      fi
-  - phpunit
+    if [[ "$INSTALL_WORDPRESS" = "true" ]]; then
+      # Upgrade docker-compose.
+      sudo rm /usr/local/bin/docker-compose
+      curl -sL https://github.com/docker/compose/releases/download/1.24.0/docker-compose-`uname -s`-`uname -m` > docker-compose
+      chmod +x docker-compose
+      sudo mv docker-compose /usr/local/bin
+    fi
 
-sudo: false
+install:
+  # Build Edit Flow.
+  - npm ci
+  - npm run build
+  - |
+    if [[ "$INSTALL_WORDPRESS" = "true" ]]; then
+      # Download and unpack WordPress.
+      curl -sL https://github.com/WordPress/WordPress/archive/master.zip -o /tmp/wordpress-latest.zip
+      unzip -q /tmp/wordpress-latest.zip -d /tmp
+      mkdir -p wordpress/src
+      mv /tmp/WordPress-master/* wordpress/src
+
+      # Create the upload directory with permissions that Travis can handle.
+      mkdir -p wordpress/src/wp-content/uploads
+      chmod 767 wordpress/src/wp-content/uploads
+
+      # Grab the tools we need for WordPress' local-env.
+      curl -sL https://github.com/WordPress/wordpress-develop/archive/master.zip -o /tmp/wordpress-develop.zip
+      unzip -q /tmp/wordpress-develop.zip -d /tmp
+      mv \
+        /tmp/wordpress-develop-master/tools \
+        /tmp/wordpress-develop-master/tests \
+        /tmp/wordpress-develop-master/.env \
+        /tmp/wordpress-develop-master/docker-compose.yml \
+        /tmp/wordpress-develop-master/wp-cli.yml \
+        /tmp/wordpress-develop-master/*config-sample.php \
+        /tmp/wordpress-develop-master/package.json wordpress
+
+      # Install WordPress.
+      cd wordpress
+      chmod -R 777 .
+      npm install dotenv wait-on
+      npm run env:start
+      sleep 10
+      npm run env:install
+      cd ..
+
+      # Connect Edit Flow to WordPress.
+      npm run env connect
+      npm run env cli plugin activate Edit-Flow
+    fi
+  - |
+    if [[ "$INSTALL_COMPOSER" = "true" ]]; then
+      npm run env docker-run -- php composer install
+    fi
+
+script:
+  - npm run test-unit-php
+  - $( npm bin )/wp-scripts test-e2e --config=./tests/e2e/jest.config.js
+  - |
+    if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]] && [[ ${RUN_PHPCS} == "1" ]]; then
+      bash bin/phpcs-diff.sh
+      npm run lint
+    fi
