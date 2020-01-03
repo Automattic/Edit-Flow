@@ -6,8 +6,8 @@ PHPCS_FILE=$(mktemp)
 
 git remote set-branches --add origin master
 git fetch
-git diff -- '*.php' origin/master... > $DIFF_FILE
+git diff -- '*.php' origin/master.. > $DIFF_FILE
 
-$DIR/../vendor/bin/phpcs --standard=phpcs.xml.dist --report=json > $PHPCS_FILE || true 
+$DIR/../vendor/bin/phpcs --extensions=php --standard=phpcs.xml.dist --report=json > $PHPCS_FILE || true 
 
 $DIR/../vendor/bin/diffFilter --phpcs $DIFF_FILE $PHPCS_FILE 0
