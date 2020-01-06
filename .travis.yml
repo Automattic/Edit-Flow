@@ -15,8 +15,8 @@ matrix:
     - php: "7.3"
       env: WP_VERSION=latest WP_MULTISITE=0
     - php: "7.4"
-      env: RUN_PHPCS=1 WP_VERSION=latest WP_MULTISITE=0
-      # Only need to run PHPCS on one test
+      env: RUN_EXTRA=1 WP_VERSION=latest WP_MULTISITE=0
+      # Only need to run extras on one test
     - php: "7.4"
       env: WP_VERSION=latest WP_MULTISITE=1
     # n-1 major release
@@ -102,9 +102,9 @@ install:
 
 script:
   - npm run test-unit-php
-  - $( npm bin )/wp-scripts test-e2e --config=./tests/e2e/jest.config.js
   - |
-    if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]] && [[ ${RUN_PHPCS} == "1" ]]; then
+    if [[ ${RUN_EXTRA} == "1" ]]; then
+      $( npm bin )/wp-scripts test-e2e --config=./tests/e2e/jest.config.js
       bash bin/phpcs-diff.sh
       npm run lint
     fi
