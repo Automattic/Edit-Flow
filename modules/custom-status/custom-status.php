@@ -113,6 +113,7 @@ class EF_Custom_Status extends EF_Module {
 		add_action( 'admin_init', array( $this, 'check_timestamp_on_publish' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'fix_custom_status_timestamp' ), 10, 2 );
 		add_filter( 'wp_insert_post_data', array( $this, 'maybe_keep_post_name_empty' ), 10, 2 );
+		add_action( 'save_post', array( $this, 'maybe_set_post_name_empty_on_new_post' ), 10, 3 );
 		add_action( 'wp_insert_post', array( $this, 'fix_post_name' ), 10, 2 );
 		add_filter( 'preview_post_link', array( $this, 'fix_preview_link_part_one' ) );
 		add_filter( 'post_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
@@ -1417,13 +1418,30 @@ class EF_Custom_Status extends EF_Module {
 				return $data;
 		}
 
-		if ( empty( $postarr['post_name'] ) ) {
+		if ( !empty( $postarr['ID'] ) && empty( $postarr['post_name'] ) ) {
 			add_post_meta( $postarr['ID'], '_ef_keep_post_name_empty', true );
 		}
 
 		$data['post_name'] = '';
 
 		return $data;
+	}
+
+	public function maybe_set_post_name_empty_on_new_post( $post_id, $post, $updated ) {
+
+		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
+
+		if ( ! in_array( $post->post_status, $status_slugs )
+			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) ) {
+				return;
+		}
+
+		if ( ! $updated ) {
+			global $wpdb;
+
+			$wpdb->update( $wpdb->posts, array( 'post_name' => '' ), array( 'ID' => $post_id ) );
+			clean_post_cache( $post_id );
+		}
 	}
 
 	/**

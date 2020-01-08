@@ -369,4 +369,210 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 		$this->assertNotContains( '<span class="show"></span>', $output );
 	}
+
+	/**
+	 * When a post with a custom status is inserted, post_name should remain empty
+	 */
+	public function test_post_with_custom_status_post_name_not_set() {
+		$post = array (
+			'post_type' => 'post',
+			'post_title' => 'Post',
+			'post_status' => 'pitch',
+			'post_author' => self::$admin_user_id
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		$this->assertEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a post with a custom status that replaces a core status is inserted, post_name should remain empty
+	 */
+	public function test_post_with_custom_status_replacing_core_status_post_name_not_set() {
+		$post = array (
+			'post_type' => 'post',
+			'post_title' => 'Post',
+			'post_status' => 'draft',
+			'post_author' => self::$admin_user_id
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		$this->assertEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a post with a "scheduled" status is inserted, post_name should be set
+	 */
+	public function test_post_with_scheduled_status_post_name_not_set() {
+		$post = array (
+			'post_type' => 'post',
+			'post_title' => 'Post',
+			'post_status' => 'future',
+			'post_author' => self::$admin_user_id
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		$this->assertNotEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a post with a "publish" status is inserted, post_name should be set
+	 */
+	public function test_post_with_publish_status_post_name_is_set() {
+		$post = array (
+			'post_type' => 'post',
+			'post_title' => 'Post',
+			'post_status' => 'publish',
+			'post_author' => self::$admin_user_id
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		$this->assertNotEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a page with a custom status is inserted, post_name should remain empty
+	 */
+	public function test_page_with_custom_status_post_name_not_set() {
+		$post = array (
+			'post_type' => 'page',
+			'post_title' => 'Page',
+			'post_status' => 'pitch',
+			'post_author' => self::$admin_user_id
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		$this->assertEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a page with a custom status that replaces a core status is inserted, post_name should remain empty
+	 */
+	public function test_page_with_custom_status_replacing_core_status_post_name_not_set() {
+		$post = array (
+			'post_type' => 'page',
+			'post_title' => 'Page',
+			'post_status' => 'draft',
+			'post_author' => self::$admin_user_id
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		$this->assertEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a page with a "scheduled" status is inserted, post_name should be set
+	 */
+	public function test_page_with_scheduled_status_post_name_not_set() {
+		$post = array (
+			'post_type' => 'page',
+			'post_title' => 'Page',
+			'post_status' => 'future',
+			'post_author' => self::$admin_user_id
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		$this->assertNotEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a post with a "publish" status is inserted, post_name should be set
+	 */
+	public function test_page_with_publish_status_post_name_is_set() {
+		$post = array (
+			'post_type' => 'page',
+			'post_title' => 'Page',
+			'post_status' => 'publish',
+			'post_author' => self::$admin_user_id
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		$this->assertNotEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a post with a custom status is updated, post_name should remain empty
+	 */
+	public function test_post_with_custom_status_updated_post_name_not_set() {
+		$post = array (
+			'post_type' => 'post',
+			'post_title' => 'Post',
+			'post_status' => 'pitch',
+			'post_author' => self::$admin_user_id
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		wp_insert_post( array_merge( $post, [ 'post_title' => 'New Post' ] ) );
+
+		$this->assertEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a post with a custom status replacing a core status is updated, post_name should remain empty
+	 */
+	public function test_post_with_custom_status_replacing_core_status_updated_post_name_not_set() {
+		$post = array (
+			'post_type' => 'post',
+			'post_title' => 'Post',
+			'post_status' => 'draft',
+			'post_author' => self::$admin_user_id
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		wp_insert_post( array_merge( $post, [ 'post_title' => 'New Post' ] ) );
+
+		$this->assertEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a post with a "publish" status is updated, post_name should not change
+	 */
+	public function test_post_with_publish_status_updated_post_name_does_not_change() {
+		$post = array (
+			'post_type' => 'post',
+			'post_title' => 'Post',
+			'post_status' => 'publish',
+			'post_author' => self::$admin_user_id
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		wp_insert_post( array_merge( $post, [ 'post_title' => 'New Post' ] ) );
+
+		$post_updated = get_post( $post_id );
+
+		$this->assertEquals( $post_inserted->post_name, $post_updated->post_name );
+	}
 }
