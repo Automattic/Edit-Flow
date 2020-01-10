@@ -3,13 +3,14 @@
 }
 
 	.ef-post_following_list li {
-		padding: 10px 5px 5px 5px;
 		margin: 0;
 		border-bottom: 1px solid #ccc;
 	}
-		.ef-post_following_list li:hover {
-			background: #EAF2FA;
-		}
+	
+	.ef-post_following_list li:hover {
+		background: #EAF2FA;
+	}
+	
 	.ef-post_following_list li input {
 		float: right;
 	}
