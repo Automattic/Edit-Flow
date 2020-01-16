@@ -92,6 +92,9 @@ class EF_Custom_Status extends EF_Module {
 		add_action( 'admin_notices', array( $this, 'no_js_notice' ) );
 		add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
 
+		// Add custom statuses to the post states.
+		add_filter( 'display_post_states', array( $this, 'add_status_to_post_states' ), 10, 2 );
+
 		// Methods for handling the actions of creating, making default, and deleting post stati
 		add_action( 'admin_init', array( $this, 'handle_add_custom_status' ) );
 		add_action( 'admin_init', array( $this, 'handle_edit_custom_status' ) );
@@ -689,6 +692,26 @@ class EF_Custom_Status extends EF_Module {
 
 		// Make the database call
 		$result = $wpdb->update( $wpdb->posts, array( 'post_status' => $new_status ), array( 'post_status' => $old_status ), array( '%s' ));
+	}
+
+	/**
+	 * Display our custom post statuses in post listings when needed.
+	 *
+	 * @param array   $post_states An array of post display states.
+	 * @param WP_Post $post The current post object.
+	 *
+	 * @return array $post_states
+	 */
+	function add_status_to_post_states( $post_states, $post ) {
+		// Return early if this post type doesn't support custom statuses.
+		if ( ! in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $this->module ) ) ) {
+			return $post_states;
+		}
+
+		$post_status = get_post_status_object( get_post_status( $post->ID ) );
+		$post_states[ $post_status->name ] = $post_status->label;
+
+		return $post_states;
 	}
 
 	/**
