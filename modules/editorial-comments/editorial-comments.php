@@ -295,7 +295,7 @@ class EF_Editorial_Comments extends EF_Module
 			<div class="post-comment-wrap">
 				<h5 class="comment-meta">
 					<?php printf( __('<span class="comment-author">%1$s</span><span class="meta"> said on %2$s at %3$s</span>', 'edit-flow'),
-							comment_author_email_link( $comment->comment_author ),
+							esc_html( $comment->comment_author ),
 							get_comment_date( get_option( 'date_format' ) ),
 							get_comment_time() ); ?>
 				</h5>
