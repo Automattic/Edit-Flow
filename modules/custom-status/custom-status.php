@@ -703,7 +703,7 @@ class EF_Custom_Status extends EF_Module {
 	 * @return array $post_states
 	 */
 	function add_status_to_post_states( $post_states, $post ) {
-		if ( ! in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $this->module ) ) ) {
+		if ( ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ), true ) ) {
 			// Return early if this post type doesn't support custom statuses.
 			return $post_states;
 		}

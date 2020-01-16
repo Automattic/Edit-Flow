@@ -5,10 +5,10 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 	protected static $admin_user_id;
 	protected static $ef_custom_status;
 
-		
+
 	public static function wpSetUpBeforeClass( $factory ) {
 		self::$admin_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
-		
+
 		self::$ef_custom_status = new EF_Custom_Status();
 		self::$ef_custom_status->install();
 		self::$ef_custom_status->init();
@@ -151,7 +151,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 	/**
 	 * When a post_date is in the future check that post_date_gmt
-	 * is not set when the status is not 'future' 
+	 * is not set when the status is not 'future'
 	 */
 	function test_insert_scheduled_post_gmt_set() {
 		$future_date = strftime( "%Y-%m-%d %H:%M:%S", strtotime('+1 day') );
@@ -209,9 +209,9 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		global $pagenow;
 		wp_set_current_user( self::$admin_user_id );
 
-		$p = self::factory()->post->create( array( 
-			'post_status' => 'pitch', 
-			'post_author' => self::$admin_user_id 
+		$p = self::factory()->post->create( array(
+			'post_status' => 'pitch',
+			'post_author' => self::$admin_user_id
 		) );
 
 		$pagenow = 'index.php';
@@ -232,8 +232,8 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 		$this->set_permalink_structure( '/%postname%/' );
 
-		$p = self::factory()->post->create( array( 
-			'post_status' => 'pending', 
+		$p = self::factory()->post->create( array(
+			'post_status' => 'pending',
 			'post_name' => 'baz-صورة',
 			'post_author' => self::$admin_user_id
 		) );
@@ -256,10 +256,10 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		$this->set_permalink_structure( '/%postname%/' );
 
 		// Published posts should use published permalink
-		$p = self::factory()->post->create( array( 
-			'post_status' => 'publish', 
+		$p = self::factory()->post->create( array(
+			'post_status' => 'publish',
 			'post_name' => 'foo-صورة',
-			'post_author' => self::$admin_user_id 
+			'post_author' => self::$admin_user_id
 		) );
 
 		wp_set_current_user( self::$admin_user_id );
@@ -334,39 +334,42 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		$this->assertSame( 'child-page', $actual[1] );
 	}
 
-	/**
-	 * Validate the usage of $post in `check_if_post_state_is_status` hook with status shown
-	 */
-	public function test_check_if_post_state_is_status_shown() {
+	public function test_ensure_post_state_is_added() {
 		$post = self::factory()->post->create( array(
-			'post_type'  => 'post',
-			'post_title' => 'Post',
+			'post_type'   => 'post',
+			'post_title'  => 'Post',
 			'post_status' => 'pitch',
 			'post_author' => self::$admin_user_id
 		) );
 
-		ob_start();
-		$post_states = apply_filters( 'display_post_states', [ 'Pitch', 'Liveblog' ], get_post( $post ) );
-		$output = ob_get_clean();
-
-		$this->assertContains( '<span class="show"></span>', $output );
+		$post_states = apply_filters( 'display_post_states', [], get_post( $post ) );
+		$this->assertArrayHasKey( 'pitch', $post_states );
 	}
 
-	/**
-	 * Validate the usage of $post in `check_if_post_state_is_status` hook with status not shown
-	 */
-	public function test_check_if_post_state_is_status_not_shown() {
+	public function test_ensure_post_state_is_skipped_for_unsupported_post_type() {
 		$post = self::factory()->post->create( array(
-			'post_type'  => 'post',
-			'post_title' => 'Post',
+			'post_type'   => 'customposttype',
+			'post_title'  => 'Post',
 			'post_status' => 'pitch',
 			'post_author' => self::$admin_user_id
 		) );
 
-		ob_start();
-		$post_states = apply_filters( 'display_post_states', [ 'Pitch' ], get_post( $post ) );
-		$output = ob_get_clean();
+		$post_states = apply_filters( 'display_post_states', [], get_post( $post ) );
+		$this->assertFalse( array_key_exists( 'pitch', $post_states ) );
+	}
 
-		$this->assertNotContains( '<span class="show"></span>', $output );
+	public function test_ensure_post_state_is_skipped_when_filtered() {
+		$post = self::factory()->post->create( array(
+			'post_type'   => 'post',
+			'post_title'  => 'Post',
+			'post_status' => 'pitch',
+			'post_author' => self::$admin_user_id
+		) );
+
+		// Act like the status has been filtered.
+		$_REQUEST['post_status'] = 'pitch';
+
+		$post_states = apply_filters( 'display_post_states', [], get_post( $post ) );
+		$this->assertFalse( array_key_exists( 'pitch', $post_states ) );
 	}
 }
