@@ -702,7 +702,7 @@ class EF_Custom_Status extends EF_Module {
 	 *
 	 * @return array $post_states
 	 */
-	function add_status_to_post_states( $post_states, $post ) {
+	public function add_status_to_post_states( $post_states, $post ) {
 		if ( ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ), true ) ) {
 			// Return early if this post type doesn't support custom statuses.
 			return $post_states;
@@ -716,7 +716,7 @@ class EF_Custom_Status extends EF_Module {
 			return $post_states;
 		}
 
-		$statuses_to_ignore = [ 'future', 'trash', 'publish' ];
+		$statuses_to_ignore = array( 'future', 'trash', 'publish' );
 		if ( in_array( $post_status->name, $statuses_to_ignore, true ) ) {
 			// Let WP core handle these more gracefully.
 			return $post_states;
@@ -1487,7 +1487,7 @@ class EF_Custom_Status extends EF_Module {
 		        }
 		   }
 		}
-		return remove_query_arg( [ 'preview_nonce' ], $preview_link );
+		return remove_query_arg( array( 'preview_nonce' ), $preview_link );
 	}
 
 	/**

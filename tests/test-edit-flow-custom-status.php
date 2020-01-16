@@ -211,7 +211,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 		$p = self::factory()->post->create( array(
 			'post_status' => 'pitch',
-			'post_author' => self::$admin_user_id
+			'post_author' => self::$admin_user_id,
 		) );
 
 		$pagenow = 'index.php';
@@ -259,7 +259,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		$p = self::factory()->post->create( array(
 			'post_status' => 'publish',
 			'post_name' => 'foo-صورة',
-			'post_author' => self::$admin_user_id
+			'post_author' => self::$admin_user_id,
 		) );
 
 		wp_set_current_user( self::$admin_user_id );
@@ -342,7 +342,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 			'post_author' => self::$admin_user_id
 		) );
 
-		$post_states = apply_filters( 'display_post_states', [], get_post( $post ) );
+		$post_states = apply_filters( 'display_post_states', array(), get_post( $post ) );
 		$this->assertArrayHasKey( 'pitch', $post_states );
 	}
 
@@ -351,10 +351,10 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 			'post_type'   => 'customposttype',
 			'post_title'  => 'Post',
 			'post_status' => 'pitch',
-			'post_author' => self::$admin_user_id
+			'post_author' => self::$admin_user_id,
 		) );
 
-		$post_states = apply_filters( 'display_post_states', [], get_post( $post ) );
+		$post_states = apply_filters( 'display_post_states', array(), get_post( $post ) );
 		$this->assertFalse( array_key_exists( 'pitch', $post_states ) );
 	}
 
@@ -369,7 +369,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		// Act like the status has been filtered.
 		$_REQUEST['post_status'] = 'pitch';
 
-		$post_states = apply_filters( 'display_post_states', [], get_post( $post ) );
+		$post_states = apply_filters( 'display_post_states', array(), get_post( $post ) );
 		$this->assertFalse( array_key_exists( 'pitch', $post_states ) );
 	}
 }
