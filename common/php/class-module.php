@@ -488,10 +488,10 @@ class EF_Module {
 		if ( !is_array($selected) ) $selected = array();
 		?>
 
-		<?php if( !empty($users) ) : ?>
+		<?php if ( ! empty ( $users ) ) : ?>
 			<ul class="<?php echo esc_attr( $list_class ) ?>">
-				<?php foreach( $users as $user ) : 
-					$checked = ( in_array($user->ID, $selected) ) ? 'checked="checked"' : '';
+				<?php foreach( $users as $user ) :
+					$checked = ( in_array( $user->ID, $selected ) ) ? 'checked="checked"' : '';
 					// Add a class to checkbox of current user so we know not to add them in notified list during notifiedMessage() js function
 					$current_user_class = ( get_current_user_id() == $user->ID ) ? 'class="post_following_list-current_user" ' : '';
 				?>
@@ -503,7 +503,10 @@ class EF_Module {
 							</div>
 
 							<span class="ef-user_displayname"><?php echo esc_html( $user->display_name ); ?></span>
-							<span class="ef-user_useremail"><?php echo esc_html( $user->user_email ); ?></span>
+
+							<?php if ( apply_filters( 'ef_users_select_form_show_email_address', true, $user ) ) : ?>
+								<span class="ef-user_useremail"><?php echo esc_html( $user->user_email ); ?></span>
+							<?php endif; ?>
 						</label>
 					</li>
 				<?php endforeach; ?>
