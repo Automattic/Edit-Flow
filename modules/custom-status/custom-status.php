@@ -100,15 +100,6 @@ class EF_Custom_Status extends EF_Module {
 		add_action( 'wp_ajax_update_status_positions', array( $this, 'handle_ajax_update_status_positions' ) );
 		add_action( 'wp_ajax_inline_save_status', array( $this, 'ajax_inline_save_status' ) );
 
-		// Hook to add the status column to Manage Posts
-
-		add_filter( 'manage_posts_columns', array( $this, '_filter_manage_posts_columns') );
-		add_action( 'manage_posts_custom_column', array( $this, '_filter_manage_posts_custom_column') );
-
-		// We need these for pages (http://core.trac.wordpress.org/browser/tags/3.3.1/wp-admin/includes/class-wp-posts-list-table.php#L283)
-		add_filter( 'manage_pages_columns', array( $this, '_filter_manage_posts_columns' ) );
-		add_action( 'manage_pages_custom_column', array( $this, '_filter_manage_posts_custom_column' ) );
-
 		// These seven-ish methods are hacks for fixing bugs in WordPress core
 		add_action( 'admin_init', array( $this, 'check_timestamp_on_publish' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'fix_custom_status_timestamp' ), 10, 2 );
@@ -698,47 +689,6 @@ class EF_Custom_Status extends EF_Module {
 
 		// Make the database call
 		$result = $wpdb->update( $wpdb->posts, array( 'post_status' => $new_status ), array( 'post_status' => $old_status ), array( '%s' ));
-	}
-
-	/**
-	 * Insert new column header for post status after the title column
-	 *
-	 * @param array $posts_columns Columns currently shown on the Edit Posts screen
-	 * @return array Same array as the input array with a "status" column added after the "title" column
-	 */
-	function _filter_manage_posts_columns( $posts_columns ) {
-		// Return immediately if the supplied parameter isn't an array (which shouldn't happen in practice?)
-		// http://wordpress.org/support/topic/plugin-edit-flow-bug-shows-2-drafts-when-there-are-none-leads-to-error-messages
-		if ( !is_array( $posts_columns ) )
-			return $posts_columns;
-
-		// Only do it for the post types this module is activated for
-		if ( !in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $this->module ) ) )
-			return $posts_columns;
-
-		$result = array();
-		foreach ( $posts_columns as $key => $value ) {
-			if ($key == 'title') {
-				$result[$key] = $value;
-				$result['status'] = __('Status', 'edit-flow');
-			} else $result[$key] = $value;
-		}
-		return $result;
-
-	}
-
-	/**
-	 * Adds a Post's status to its row on the Edit page
-	 *
-	 * @param string $column_name
-	 **/
-	function _filter_manage_posts_custom_column( $column_name ) {
-
-		if ( $column_name == 'status' ) {
-			global $post;
-			$post_status_obj = get_post_status_object( get_post_status( $post->ID ) );
-			echo esc_html( $post_status_obj->label );
-		}
 	}
 
 	/**
