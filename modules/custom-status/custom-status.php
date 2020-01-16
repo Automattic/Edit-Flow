@@ -419,8 +419,8 @@ class EF_Custom_Status extends EF_Module {
 			$all_statuses = array_merge( $custom_statuses, $this->get_default_statuses() );
 			
 			$statuses_js = array();
-			foreach( $all_statuses as $status ) {
-				$statuses_js[] = array (
+			foreach ( $all_statuses as $status ) {
+				$statuses_js[] = array(
 					'name' => $status->name,
 					'slug' => $status->slug,
 					'description' => $status->description,
@@ -638,7 +638,7 @@ class EF_Custom_Status extends EF_Module {
 	 * 
 	 * @return array an array of stdClass objects
 	 */
-	function get_default_statuses() {
+	public function get_default_statuses() {
 		// The default statuses from WordPress
 		$published_status = new stdClass();
 		$published_status->name = __( 'Published', 'edit-flow' );
