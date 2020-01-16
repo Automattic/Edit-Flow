@@ -125,9 +125,6 @@ class EF_Custom_Status extends EF_Module {
 
 		// Pagination for custom post statuses when previewing posts
 		add_filter( 'wp_link_pages_link', array( $this, 'modify_preview_link_pagination_url' ), 10, 2 );
-
-		// Filter through Post States and run a function to check if they are also a Status
-		add_filter( 'display_post_states', array( $this, 'check_if_post_state_is_status' ), 10, 2 );
 	}
 
 	/**
@@ -315,7 +312,6 @@ class EF_Custom_Status extends EF_Module {
 		// Custom javascript to modify the post status dropdown where it shows up
 		if ( $this->is_whitelisted_page() ) {
 			wp_enqueue_script( 'edit_flow-custom_status', $this->module_url . 'lib/custom-status.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
-			wp_enqueue_style( 'edit_flow-custom_status', $this->module_url . 'lib/custom-status.css', false, EDIT_FLOW_VERSION, 'all' );
 			wp_localize_script('edit_flow-custom_status', '__ef_localize_custom_status', array(
 				'no_change' => esc_html__( "&mdash; No Change &mdash;", 'edit-flow' ),
 				'published' => esc_html__( 'Published', 'edit-flow' ),
@@ -743,22 +739,6 @@ class EF_Custom_Status extends EF_Module {
 			$post_status_obj = get_post_status_object( get_post_status( $post->ID ) );
 			echo esc_html( $post_status_obj->label );
 		}
-	}
-	/**
-	 * Check if Post State is a Status and display if it is not.
-	 *
-	 * @param array $post_states An array of post display states.
-	 */
-	function check_if_post_state_is_status( $post_states, $post ) {
-
-		$statuses = get_post_status_object( get_post_status( $post->ID ) );
-		foreach ( $post_states as $state ) {
-			if ( $state !== $statuses->label ) {
-				echo '<span class="show"></span>';
-			}
-		}
-			
-		return $post_states;
 	}
 
 	/**
@@ -1520,7 +1500,7 @@ class EF_Custom_Status extends EF_Module {
 		        }
 		   }
 		}
-		return remove_query_arg( [ 'preview_nonce' ], $preview_link );  
+		return remove_query_arg( [ 'preview_nonce' ], $preview_link );
 	}
 
 	/**
