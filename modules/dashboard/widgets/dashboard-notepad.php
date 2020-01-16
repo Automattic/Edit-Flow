@@ -18,7 +18,7 @@ class EF_Dashboard_Notepad_Widget {
 		register_post_type( self::notepad_post_type, array(
 				'rewrite' => false,
 				'label' => __( 'Dashboard Note', 'edit-flow' )
-			) 
+			)
 		);
 
 		$this->edit_cap = apply_filters( 'ef_dashboard_notepad_edit_cap', $this->edit_cap );
@@ -45,13 +45,13 @@ class EF_Dashboard_Notepad_Widget {
 		}
 
 		$note_data = array(
-			'post_content' => wp_filter_nohtml_kses( $_POST['note'] ),
+			'post_content' => isset( $_POST['note'] ) ? wp_filter_nohtml_kses( $_POST['note'] ) : '',
 			'post_type'    => self::notepad_post_type,
 			'post_status'  => 'draft',
 			'post_author'  => get_current_user_id(),
 		);
 
-		$existing_notepad = get_post( absint( $_POST['notepad-id'] ) );
+		$existing_notepad = isset( $_POST['notepad-id'] ) ? get_post( absint( $_POST['notepad-id'] ) ) : null;
 		if ( isset( $existing_notepad->post_type ) && self::notepad_post_type === $existing_notepad->post_type ) {
 			$note_data['ID'] = $existing_notepad->ID;
 		}
