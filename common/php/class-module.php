@@ -504,7 +504,7 @@ class EF_Module {
 
 							<span class="ef-user_displayname"><?php echo esc_html( $user->display_name ); ?></span>
 
-							<?php if ( apply_filters( 'ef_users_select_form_show_email_address', true, $user ) ) : ?>
+							<?php if ( apply_filters( 'ef_display_user_email_address', true, $user->ID ) ) : ?>
 								<span class="ef-user_useremail"><?php echo esc_html( $user->user_email ); ?></span>
 							<?php endif; ?>
 						</label>
