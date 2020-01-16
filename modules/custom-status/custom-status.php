@@ -703,12 +703,26 @@ class EF_Custom_Status extends EF_Module {
 	 * @return array $post_states
 	 */
 	function add_status_to_post_states( $post_states, $post ) {
-		// Return early if this post type doesn't support custom statuses.
 		if ( ! in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $this->module ) ) ) {
+			// Return early if this post type doesn't support custom statuses.
 			return $post_states;
 		}
 
 		$post_status = get_post_status_object( get_post_status( $post->ID ) );
+
+		$filtered_status = isset( $_REQUEST['post_status'] ) ? $_REQUEST['post_status'] : '';
+		if ( $filtered_status === $post_status->name ) {
+			// No need to display the post status if a specific status was already requested.
+			return $post_states;
+		}
+
+		$statuses_to_ignore = [ 'future', 'trash', 'publish' ];
+		if ( in_array( $post_status->name, $statuses_to_ignore, true ) ) {
+			// Let WP core handle these more gracefully.
+			return $post_states;
+		}
+
+		// Add the post status to display. Will also ensure the same status isn't shown twice.
 		$post_states[ $post_status->name ] = $post_status->label;
 
 		return $post_states;
