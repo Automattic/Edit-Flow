@@ -92,6 +92,9 @@ class EF_Custom_Status extends EF_Module {
 		add_action( 'admin_notices', array( $this, 'no_js_notice' ) );
 		add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
 
+		// Add custom statuses to the post states.
+		add_filter( 'display_post_states', array( $this, 'add_status_to_post_states' ), 10, 2 );
+
 		// Methods for handling the actions of creating, making default, and deleting post stati
 		add_action( 'admin_init', array( $this, 'handle_add_custom_status' ) );
 		add_action( 'admin_init', array( $this, 'handle_edit_custom_status' ) );
@@ -99,15 +102,6 @@ class EF_Custom_Status extends EF_Module {
 		add_action( 'admin_init', array( $this, 'handle_delete_custom_status' ) );
 		add_action( 'wp_ajax_update_status_positions', array( $this, 'handle_ajax_update_status_positions' ) );
 		add_action( 'wp_ajax_inline_save_status', array( $this, 'ajax_inline_save_status' ) );
-
-		// Hook to add the status column to Manage Posts
-
-		add_filter( 'manage_posts_columns', array( $this, '_filter_manage_posts_columns') );
-		add_action( 'manage_posts_custom_column', array( $this, '_filter_manage_posts_custom_column') );
-
-		// We need these for pages (http://core.trac.wordpress.org/browser/tags/3.3.1/wp-admin/includes/class-wp-posts-list-table.php#L283)
-		add_filter( 'manage_pages_columns', array( $this, '_filter_manage_posts_columns' ) );
-		add_action( 'manage_pages_custom_column', array( $this, '_filter_manage_posts_custom_column' ) );
 
 		// These seven-ish methods are hacks for fixing bugs in WordPress core
 		add_action( 'admin_init', array( $this, 'check_timestamp_on_publish' ) );
@@ -125,9 +119,6 @@ class EF_Custom_Status extends EF_Module {
 
 		// Pagination for custom post statuses when previewing posts
 		add_filter( 'wp_link_pages_link', array( $this, 'modify_preview_link_pagination_url' ), 10, 2 );
-
-		// Filter through Post States and run a function to check if they are also a Status
-		add_filter( 'display_post_states', array( $this, 'check_if_post_state_is_status' ), 10, 2 );
 	}
 
 	/**
@@ -315,7 +306,6 @@ class EF_Custom_Status extends EF_Module {
 		// Custom javascript to modify the post status dropdown where it shows up
 		if ( $this->is_whitelisted_page() ) {
 			wp_enqueue_script( 'edit_flow-custom_status', $this->module_url . 'lib/custom-status.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
-			wp_enqueue_style( 'edit_flow-custom_status', $this->module_url . 'lib/custom-status.css', false, EDIT_FLOW_VERSION, 'all' );
 			wp_localize_script('edit_flow-custom_status', '__ef_localize_custom_status', array(
 				'no_change' => esc_html__( "&mdash; No Change &mdash;", 'edit-flow' ),
 				'published' => esc_html__( 'Published', 'edit-flow' ),
@@ -705,59 +695,36 @@ class EF_Custom_Status extends EF_Module {
 	}
 
 	/**
-	 * Insert new column header for post status after the title column
+	 * Display our custom post statuses in post listings when needed.
 	 *
-	 * @param array $posts_columns Columns currently shown on the Edit Posts screen
-	 * @return array Same array as the input array with a "status" column added after the "title" column
+	 * @param array   $post_states An array of post display states.
+	 * @param WP_Post $post The current post object.
+	 *
+	 * @return array $post_states
 	 */
-	function _filter_manage_posts_columns( $posts_columns ) {
-		// Return immediately if the supplied parameter isn't an array (which shouldn't happen in practice?)
-		// http://wordpress.org/support/topic/plugin-edit-flow-bug-shows-2-drafts-when-there-are-none-leads-to-error-messages
-		if ( !is_array( $posts_columns ) )
-			return $posts_columns;
-
-		// Only do it for the post types this module is activated for
-		if ( !in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $this->module ) ) )
-			return $posts_columns;
-
-		$result = array();
-		foreach ( $posts_columns as $key => $value ) {
-			if ($key == 'title') {
-				$result[$key] = $value;
-				$result['status'] = __('Status', 'edit-flow');
-			} else $result[$key] = $value;
+	public function add_status_to_post_states( $post_states, $post ) {
+		if ( ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ), true ) ) {
+			// Return early if this post type doesn't support custom statuses.
+			return $post_states;
 		}
-		return $result;
 
-	}
+		$post_status = get_post_status_object( get_post_status( $post->ID ) );
 
-	/**
-	 * Adds a Post's status to its row on the Edit page
-	 *
-	 * @param string $column_name
-	 **/
-	function _filter_manage_posts_custom_column( $column_name ) {
-
-		if ( $column_name == 'status' ) {
-			global $post;
-			$post_status_obj = get_post_status_object( get_post_status( $post->ID ) );
-			echo esc_html( $post_status_obj->label );
+		$filtered_status = isset( $_REQUEST['post_status'] ) ? $_REQUEST['post_status'] : '';
+		if ( $filtered_status === $post_status->name ) {
+			// No need to display the post status if a specific status was already requested.
+			return $post_states;
 		}
-	}
-	/**
-	 * Check if Post State is a Status and display if it is not.
-	 *
-	 * @param array $post_states An array of post display states.
-	 */
-	function check_if_post_state_is_status( $post_states, $post ) {
 
-		$statuses = get_post_status_object( get_post_status( $post->ID ) );
-		foreach ( $post_states as $state ) {
-			if ( $state !== $statuses->label ) {
-				echo '<span class="show"></span>';
-			}
+		$statuses_to_ignore = array( 'future', 'trash', 'publish' );
+		if ( in_array( $post_status->name, $statuses_to_ignore, true ) ) {
+			// Let WP core handle these more gracefully.
+			return $post_states;
 		}
-			
+
+		// Add the post status to display. Will also ensure the same status isn't shown twice.
+		$post_states[ $post_status->name ] = $post_status->label;
+
 		return $post_states;
 	}
 
@@ -1520,7 +1487,7 @@ class EF_Custom_Status extends EF_Module {
 		        }
 		   }
 		}
-		return remove_query_arg( [ 'preview_nonce' ], $preview_link );  
+		return remove_query_arg( array( 'preview_nonce' ), $preview_link );
 	}
 
 	/**
