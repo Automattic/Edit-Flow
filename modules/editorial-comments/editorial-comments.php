@@ -136,18 +136,18 @@ class EF_Editorial_Comments extends EF_Module
 
 			<?php
 			// Show comments only if not a new post
-			if( ! in_array( $post->post_status, array( 'new', 'auto-draft' ) ) ) :
+			if ( ! in_array( $post->post_status, array( 'new', 'auto-draft' ) ) ) :
 
 				// Unused since switched to wp_list_comments
-				$editorial_comments = ef_get_comments_plus (
-								array(
-									'post_id' => $post->ID,
-									'comment_type' => self::comment_type,
-									'orderby' => 'comment_date',
-									'order' => 'ASC',
-									'status' => self::comment_type
-								)
-							);
+				$editorial_comments = get_comments(
+					array(
+						'post_id' => $post->ID,
+						'comment_type' => self::comment_type,
+						'orderby' => 'comment_date',
+						'order' => 'ASC',
+						'status' => self::comment_type
+					)
+				);
 				?>
 
 				<ul id="ef-comments">
@@ -477,120 +477,13 @@ class EF_Editorial_Comments extends EF_Module
 }
 
 /**
- * Retrieve a list of comments -- overloaded from get_comments and with mods by filosofo (SVN Ticket #10668)
+ * Deprecated. Used to retrieve a list of comments.
+ * Was needed before https://core.trac.wordpress.org/ticket/10668 was available.
  *
- * @param mixed $args Optional. Array or string of options to override defaults.
+ * @param mixed $args Optional. Array or string of options.
  * @return array List of comments.
  */
 function ef_get_comments_plus( $args = '' ) {
-	global $wpdb;
-
-	$defaults = array(
-	                'author_email' => '',
-	                'ID' => '',
-	                'karma' => '',
-	                'number' => '',
-	                'offset' => '',
-	                'orderby' => '',
-	                'order' => 'DESC',
-	                'parent' => '',
-	                'post_ID' => '',
-	                'post_id' => 0,
-	                'status' => '',
-	                'type' => '',
-	                'user_id' => '',
-	        );
-
-	$args = wp_parse_args( $args, $defaults );
-	extract( $args, EXTR_SKIP );
-
-	// $args can be whatever, only use the args defined in defaults to compute the key
-	$key = md5( serialize( compact(array_keys($defaults)) )  );
-	$last_changed = wp_cache_get('last_changed', 'comment');
-	if ( !$last_changed ) {
-		$last_changed = time();
-		wp_cache_set('last_changed', $last_changed, 'comment');
-	}
-	$cache_key = "get_comments:$key:$last_changed";
-
-	if ( $cache = wp_cache_get( $cache_key, 'comment' ) ) {
-		return $cache;
-	}
-
-	$post_id = absint($post_id);
-
-	if ( 'hold' == $status )
-		$approved = "comment_approved = '0'";
-	elseif ( 'approve' == $status )
-		$approved = "comment_approved = '1'";
-	elseif ( 'spam' == $status )
-		$approved = "comment_approved = 'spam'";
-	elseif( ! empty( $status ) )
-		$approved = $wpdb->prepare( "comment_approved = %s", $status );
-	else
-		$approved = "( comment_approved = '0' OR comment_approved = '1' )";
-
-	$order = ( 'ASC' == $order ) ? 'ASC' : 'DESC';
-
-	if ( ! empty( $orderby ) ) {
-            $ordersby = is_array($orderby) ? $orderby : preg_split('/[,\s]/', $orderby);
-            $ordersby = array_intersect(
-                    $ordersby,
-                    array(
-                            'comment_agent',
-                            'comment_approved',
-                            'comment_author',
-                            'comment_author_email',
-                            'comment_author_IP',
-                            'comment_author_url',
-                            'comment_content',
-                            'comment_date',
-                            'comment_date_gmt',
-                            'comment_ID',
-                            'comment_karma',
-                            'comment_parent',
-                            'comment_post_ID',
-                            'comment_type',
-                            'user_id',
-                    )
-            );
-            $orderby = empty( $ordersby ) ? 'comment_date_gmt' : implode(', ', $ordersby);
-    } else {
-            $orderby = 'comment_date_gmt';
-    }
-
-	$number = absint($number);
-	$offset = absint($offset);
-
-	if ( !empty($number) ) {
-		if ( $offset )
-			$number = 'LIMIT ' . $offset . ',' . $number;
-		else
-			$number = 'LIMIT ' . $number;
-
-	} else {
-		$number = '';
-	}
-
-	$post_where = '';
-
-	if ( ! empty($post_id) )
-		$post_where .= $wpdb->prepare( 'comment_post_ID = %d AND ', $post_id );
-    if ( '' !== $author_email )
-            $post_where .= $wpdb->prepare( 'comment_author_email = %s AND ', $author_email );
-    if ( '' !== $karma )
-            $post_where .= $wpdb->prepare( 'comment_karma = %d AND ', $karma );
-    if ( 'comment' == $type )
-            $post_where .= "comment_type = '' AND ";
-    elseif ( ! empty( $type ) )
-            $post_where .= $wpdb->prepare( 'comment_type = %s AND ', $type );
-    if ( '' !== $parent )
-            $post_where .= $wpdb->prepare( 'comment_parent = %d AND ', $parent );
-    if ( '' !== $user_id )
-            $post_where .= $wpdb->prepare( 'user_id = %d AND ', $user_id );
-
-	$comments = $wpdb->get_results( "SELECT * FROM $wpdb->comments WHERE $post_where $approved ORDER BY $orderby $order $number" );
-	wp_cache_add( $cache_key, $comments, 'comment' );
-
-	return $comments;
+	_deprecated_function( 'ef_get_comments_plus', '1.0', 'get_comments' );
+	return get_comments( $args );
 }
