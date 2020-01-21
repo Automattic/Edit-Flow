@@ -15,16 +15,6 @@ class EF_Module {
 		'private',
 	);
 
-	/**
-	 * Associative array of hook_name => callback_name
-	 * This is used for Gutenberg-compat initialization
-	 * [
-	 *  	'init' => 'init_callback_on_module_instance'
-	 * ]
-	 * @var array
-	 */
-	protected $compat_hooks = [];
-
 	function __construct() {}
 
 	/**
@@ -598,15 +588,6 @@ class EF_Module {
 			wp_update_term( $term->term_id, $taxonomy, array( 'description' => $new_description ) );
 		}
 	}
-
-	/**
-	 * Return compatibility hooks for the current instance
-	 *
-	 * @return array
-	 */
-	function get_compat_hooks() {
-		return isset( $this->compat_hooks ) && is_array( $this->compat_hooks ) ? $this->compat_hooks : [];
-	}
-
 }
+
 }
