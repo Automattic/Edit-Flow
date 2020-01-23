@@ -210,7 +210,7 @@ class EF_Module {
 		//Timepicker needs to come after jquery-ui-datepicker and jquery
 		wp_enqueue_script( 'edit_flow-timepicker', EDIT_FLOW_URL . 'common/js/jquery-ui-timepicker-addon.js', array( 'jquery', 'jquery-ui-datepicker' ), EDIT_FLOW_VERSION, true );
 		wp_enqueue_script( 'edit_flow-date_picker', EDIT_FLOW_URL . 'common/js/ef_date.js', array( 'jquery', 'jquery-ui-datepicker', 'edit_flow-timepicker' ), EDIT_FLOW_VERSION, true );
-		wp_add_inline_script( 'edit_flow-date_picker', sprintf( 'var ef_week_first_day =  \'%s\';', esc_attr( get_option( 'start_of_week' ) ) ), 'before' );
+		wp_add_inline_script( 'edit_flow-date_picker', sprintf( 'var ef_week_first_day =  %s;', wp_json_encode( get_option( 'start_of_week' ) ) ), 'before' );
 
 		// Now styles
 		wp_enqueue_style( 'jquery-ui-datepicker', EDIT_FLOW_URL . 'common/css/jquery.ui.datepicker.css', array( 'wp-jquery-ui-dialog' ), EDIT_FLOW_VERSION, 'screen' );
