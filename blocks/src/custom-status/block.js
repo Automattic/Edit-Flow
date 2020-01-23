@@ -1,17 +1,28 @@
+/* eslint react/react-in-jsx-scope: 0 */
+/* global wp, document, Node, ef_default_custom_status */
+
+/**
+ * External dependencies
+ */
+import PropTypes from 'prop-types';
+
+/**
+ * Internal dependencies
+ */
 import './editor.scss';
 import './style.scss';
 
-let { __ } = wp.i18n;
-let { PluginPostStatusInfo } = wp.editPost;
-let { registerPlugin } = wp.plugins;
-let { subscribe, dispatch, select, withSelect, withDispatch } = wp.data;
-let { compose } = wp.compose;
-let { SelectControl } = wp.components;
+const { __ } = wp.i18n;
+const { PluginPostStatusInfo } = wp.editPost;
+const { registerPlugin } = wp.plugins;
+const { subscribe, dispatch, select, withSelect, withDispatch } = wp.data;
+const { compose } = wp.compose;
+const { SelectControl } = wp.components;
 
 /**
  * Map Custom Statuses as options for SelectControl
  */
-let statuses = window.EditFlowCustomStatuses.map( s => ({ label: s.name, value: s.slug }) );
+const statuses = window.EditFlowCustomStatuses.map( s => ( { label: s.name, value: s.slug } ) );
 
 /**
  * Hack :(
@@ -22,99 +33,106 @@ let statuses = window.EditFlowCustomStatuses.map( s => ({ label: s.name, value: 
  *
  * So instead, we're keeping the button label generic ("Save"). There's a brief period where it still flips to "Save Draft" but that's something we need to work upstream to find a good fix for.
  */
-let sideEffectL10nManipulation = () => {
-  let node = document.querySelector('.editor-post-save-draft');
-  
-  /**
+const sideEffectL10nManipulation = () => {
+	const node = document.querySelector( '.editor-post-save-draft' );
+
+	/**
    * Sometimes, a Gutenberg <Button> has a child node thats an <svg>, and sometimes it's <text>.
-   * 
+   *
    * If we manipulate this node when it's an <svg>, React will complain
-   * 
+   *
    * We're already breaking the rules, just continuing to break them.
-   * 
+   *
    * @see: https://github.com/WordPress/gutenberg/issues/18743
    */
-  if ( node 
-    && node.childNodes 
-    && node.childNodes[0] 
-    && node.childNodes[0].nodeType === Node.TEXT_NODE ) {
-    node.innerText = `${ __( 'Save' ) }`
-  }
-}
+	if ( node &&
+		node.childNodes &&
+		node.childNodes[ 0 ] &&
+		node.childNodes[ 0 ].nodeType === Node.TEXT_NODE ) {
+		node.innerText = `${ __( 'Save' ) }`;
+	}
+};
 
 // Set the status to the default custom status.
-subscribe( function () {
-  const postId = select( 'core/editor' ).getCurrentPostId();
-  // Post isn't ready yet so don't do anything.
-  if ( ! postId ) {
-    return;
-  }
+subscribe( function() {
+	const postId = select( 'core/editor' ).getCurrentPostId();
+	// Post isn't ready yet so don't do anything.
+	if ( ! postId ) {
+		return;
+	}
 
-  // For new posts, we need to force the our default custom status.
-  // Otherwise WordPress will force it to "Draft".
-  const isCleanNewPost = select( 'core/editor' ).isCleanNewPost();
-  if ( isCleanNewPost ) {
-    dispatch( 'core/editor' ).editPost( {
-      status: ef_default_custom_status
-    } );
+	// For new posts, we need to force the our default custom status.
+	// Otherwise WordPress will force it to "Draft".
+	const isCleanNewPost = select( 'core/editor' ).isCleanNewPost();
+	if ( isCleanNewPost ) {
+		dispatch( 'core/editor' ).editPost( {
+			status: ef_default_custom_status,
+		} );
 
-    return;
-  }
+		return;
+	}
 
-  // Update the "Save" button.
-  var status = select( 'core/editor' ).getEditedPostAttribute( 'status' );
-  if ( typeof status !== 'undefined' && status !== 'publish' ) {
-    sideEffectL10nManipulation();
-  }
+	// Update the "Save" button.
+	const status = select( 'core/editor' ).getEditedPostAttribute( 'status' );
+	if ( typeof status !== 'undefined' && status !== 'publish' ) {
+		sideEffectL10nManipulation();
+	}
 } );
 
 /**
  * Custom status component
- * @param object props
+ * @param {object} props onUpdate and status
+ *
+ * @return {EditFlowCustomPostStati} the EditFlowCustomPostStati
  */
-let EditFlowCustomPostStati = ( { onUpdate, status } ) => (
-  <PluginPostStatusInfo
-    className={ `edit-flow-extended-post-status edit-flow-extended-post-status-${status}` }
-  >
-    <h4>{ status !== 'publish' ? __( 'Extended Post Status', 'edit-flow' ) : __( 'Extended Post Status Disabled.', 'edit-flow' ) }</h4>
+const EditFlowCustomPostStati = ( { onUpdate, status } ) => (
+	<PluginPostStatusInfo
+		className={ `edit-flow-extended-post-status edit-flow-extended-post-status-${ status }` }
+	>
+		<h4>{ status !== 'publish' ? __( 'Extended Post Status', 'edit-flow' ) : __( 'Extended Post Status Disabled.', 'edit-flow' ) }</h4>
 
-    { status !== 'publish' ? <SelectControl
-      label=""
-      value={ status }
-      options={ statuses }
-      onChange={ onUpdate }
-    /> : null }
+		{ status !== 'publish' ? <SelectControl
+			label=""
+			value={ status }
+			options={ statuses }
+			onChange={ onUpdate }
+		/> : null }
 
-    <small className="edit-flow-extended-post-status-note">
-      { status !== 'publish' ? __( `Note: this will override all status settings above.`, 'edit-flow' ) : __( 'To select a custom status, please unpublish the content first.', 'edit-flow' ) }
-    </small>
-  </PluginPostStatusInfo>
+		<small className="edit-flow-extended-post-status-note">
+			{ status !== 'publish' ? __( 'Note: this will override all status settings above.', 'edit-flow' ) : __( 'To select a custom status, please unpublish the content first.', 'edit-flow' ) }
+		</small>
+	</PluginPostStatusInfo>
 );
 
-const mapSelectToProps = ( select ) => {
-  return {
-    status: select('core/editor').getEditedPostAttribute('status'),
-  };
+EditFlowCustomPostStati.propTypes = {
+	onUpdate: PropTypes.func,
+	status: PropTypes.string,
 };
 
-const mapDispatchToProps = ( dispatch ) => {
-  return {
-    onUpdate( status ) {
-      dispatch( 'core/editor' ).editPost( { status } );
-      sideEffectL10nManipulation();
-    },
-  };
+const mapSelectToProps = selectProp => {
+	return {
+		status: selectProp( 'core/editor' ).getEditedPostAttribute( 'status' ),
+	};
 };
 
-let plugin = compose(
-  withSelect( mapSelectToProps ),
-  withDispatch( mapDispatchToProps )
+const mapDispatchToProps = dispatchProp => {
+	return {
+		onUpdate( status ) {
+			dispatchProp( 'core/editor' ).editPost( { status } );
+			sideEffectL10nManipulation();
+		},
+	};
+};
+
+const plugin = compose(
+	withSelect( mapSelectToProps ),
+	withDispatch( mapDispatchToProps )
 )( EditFlowCustomPostStati );
 
 /**
  * Kick it off
  */
 registerPlugin( 'edit-flow-custom-status', {
-  icon: 'edit-flow',
-  render: plugin
+	icon: 'edit-flow',
+	render: plugin,
 } );

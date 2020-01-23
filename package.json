@@ -73,7 +73,9 @@
     "webpack": "^4.27.1",
     "webpack-cli": "^3.1.2"
   },
-  "dependencies": {},
+  "dependencies": {
+    "prop-types": "^15.7.2"
+  },
   "eslintConfig": {
     "extends": "wpvip"
   }
