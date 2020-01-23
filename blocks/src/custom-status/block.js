@@ -24,8 +24,21 @@ let statuses = window.EditFlowCustomStatuses.map( s => ({ label: s.name, value: 
  */
 let sideEffectL10nManipulation = () => {
   let node = document.querySelector('.editor-post-save-draft');
-  if ( node ) {
-    document.querySelector( '.editor-post-save-draft' ).innerText = `${ __( 'Save' ) }`
+  
+  /**
+   * Sometimes, a Gutenberg <Button> has a child node thats an <svg>, and sometimes it's <text>.
+   * 
+   * If we manipulate this node when it's an <svg>, React will complain
+   * 
+   * We're already breaking the rules, just continuing to break them.
+   * 
+   * @see: https://github.com/WordPress/gutenberg/issues/18743
+   */
+  if ( node 
+    && node.childNodes 
+    && node.childNodes[0] 
+    && node.childNodes[0].nodeType === Node.TEXT_NODE ) {
+    node.innerText = `${ __( 'Save' ) }`
   }
 }
 
