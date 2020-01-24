@@ -14,19 +14,48 @@ let { SelectControl } = wp.components;
 let statuses = window.EditFlowCustomStatuses.map( s => ({ label: s.name, value: s.slug }) );
 
 /**
- * Hack :(
+ * Hack. Change the save button's text in Gutenberg.
  *
  * @see https://github.com/WordPress/gutenberg/issues/3144
+ * @see https://github.com/Automattic/Edit-Flow/issues/583
  *
  * Gutenberg overrides the label of the Save button after save (i.e. "Save Draft"). But there's no way to subscribe to a "post save" message.
- *
- * So instead, we're keeping the button label generic ("Save"). There's a brief period where it still flips to "Save Draft" but that's something we need to work upstream to find a good fix for.
+ * So instead, we're just keeping the button label generic ("Save"), while waiting for a better upstream fix.
  */
 let sideEffectL10nManipulation = () => {
-  let node = document.querySelector('.editor-post-save-draft');
-  if ( node ) {
-    document.querySelector( '.editor-post-save-draft' ).innerText = `${ __( 'Save' ) }`
-  }
+	// If the button already exists, update the text right away. Occurs on initial page load.
+	let saveButton = document.querySelector( '.editor-post-save-draft' );
+	if ( saveButton ) {
+		if ( saveButton.innerText === __( 'Save Draft' ) || saveButton.innerText === __( 'Save as Pending' ) ) {
+			saveButton.innerText = __( 'Save' );
+		}
+		return;
+	}
+
+	// The button does not exist yet, let's set up an observer to wait for it to be ready.
+	// Occurs during the time period when a post is saving itself.
+	const parentNode = document.querySelector( '.edit-post-header__settings' );
+	if ( parentNode && window.MutationObserver ) {
+		const observer = buttonTextObserver();
+		observer.observe( parentNode, { childList: true } );
+	}
+}
+
+const buttonTextObserver = () => {
+	return new MutationObserver( ( mutationsList, observer ) => {
+		for ( const mutation of mutationsList ) {
+			if ( ! mutation.addedNodes.length ) {
+				continue;
+			}
+
+			for ( const node of mutation.addedNodes ) {
+				if ( node.innerText === __( 'Save Draft' ) || node.innerText === __( 'Save as Pending' ) ) {
+					node.innerText = __( 'Save' );
+					observer.disconnect();
+				}
+			}
+		}
+	} );
 }
 
 // Set the status to the default custom status.
@@ -88,7 +117,6 @@ const mapDispatchToProps = ( dispatch ) => {
   return {
     onUpdate( status ) {
       dispatch( 'core/editor' ).editPost( { status } );
-      sideEffectL10nManipulation();
     },
   };
 };
