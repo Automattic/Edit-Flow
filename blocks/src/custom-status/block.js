@@ -14,75 +14,55 @@ let { SelectControl } = wp.components;
 let statuses = window.EditFlowCustomStatuses.map( s => ({ label: s.name, value: s.slug }) );
 
 /**
- * Hack. Change the save button's text in Gutenberg.
- *
- * @see https://github.com/WordPress/gutenberg/issues/3144
- * @see https://github.com/Automattic/Edit-Flow/issues/583
- *
- * Gutenberg overrides the label of the Save button after save (i.e. "Save Draft"). But there's no way to subscribe to a "post save" message.
- * So instead, we're just keeping the button label generic ("Save"), while waiting for a better upstream fix.
+ * Subscribe to changes so we can set a default status and update a button's text.
  */
-let sideEffectL10nManipulation = () => {
-	// If the button already exists, update the text right away. Occurs on initial page load.
-	let saveButton = document.querySelector( '.editor-post-save-draft' );
-	if ( saveButton ) {
-		if ( saveButton.innerText === __( 'Save Draft' ) || saveButton.innerText === __( 'Save as Pending' ) ) {
-			saveButton.innerText = __( 'Save' );
-		}
+let buttonTextObserver = null;
+subscribe( function () {
+	const postId = select( 'core/editor' ).getCurrentPostId();
+	if ( ! postId ) {
+		// Post isn't ready yet so don't do anything.
 		return;
 	}
 
-	// The button does not exist yet, let's set up an observer to wait for it to be ready.
-	// Occurs during the time period when a post is saving itself.
-	const parentNode = document.querySelector( '.edit-post-header__settings' );
-	if ( parentNode && window.MutationObserver ) {
-		const observer = buttonTextObserver();
-		observer.observe( parentNode, { childList: true } );
+	// For new posts, we need to force the default custom status.
+	const isCleanNewPost = select( 'core/editor' ).isCleanNewPost();
+	if ( isCleanNewPost ) {
+		dispatch( 'core/editor' ).editPost( {
+			status: ef_default_custom_status
+		} );
 	}
-}
 
-const buttonTextObserver = () => {
-	return new MutationObserver( ( mutationsList, observer ) => {
+	// If the save button exists, let's update the text if needed.
+	maybeUpdateButtonText( document.querySelector( '.editor-post-save-draft' ) );
+
+	// The post is being saved, so we need to set up an observer to update the button text when it's back.
+	if ( buttonTextObserver === null && window.MutationObserver && select( 'core/editor' ).isSavingPost() ) {
+		buttonTextObserver = createButtonObserver( document.querySelector( '.edit-post-header__settings' ) );
+	}
+} );
+
+function createButtonObserver( parentNode ) {
+	if ( ! parentNode ) {
+		return null;
+	}
+
+	const observer = new MutationObserver( ( mutationsList ) => {
 		for ( const mutation of mutationsList ) {
-			if ( ! mutation.addedNodes.length ) {
-				continue;
-			}
-
 			for ( const node of mutation.addedNodes ) {
-				if ( node.innerText === __( 'Save Draft' ) || node.innerText === __( 'Save as Pending' ) ) {
-					node.innerText = __( 'Save' );
-					observer.disconnect();
-				}
+				maybeUpdateButtonText( node );
 			}
 		}
 	} );
+
+	observer.observe( parentNode, { childList: true } );
+	return observer;
 }
 
-// Set the status to the default custom status.
-subscribe( function () {
-  const postId = select( 'core/editor' ).getCurrentPostId();
-  // Post isn't ready yet so don't do anything.
-  if ( ! postId ) {
-    return;
-  }
-
-  // For new posts, we need to force the our default custom status.
-  // Otherwise WordPress will force it to "Draft".
-  const isCleanNewPost = select( 'core/editor' ).isCleanNewPost();
-  if ( isCleanNewPost ) {
-    dispatch( 'core/editor' ).editPost( {
-      status: ef_default_custom_status
-    } );
-
-    return;
-  }
-
-  // Update the "Save" button.
-  var status = select( 'core/editor' ).getEditedPostAttribute( 'status' );
-  if ( typeof status !== 'undefined' && status !== 'publish' ) {
-    sideEffectL10nManipulation();
-  }
-} );
+function maybeUpdateButtonText( saveButton ) {
+	if ( saveButton && ( saveButton.innerText === __( 'Save Draft' ) || saveButton.innerText === __( 'Save as Pending' ) ) ) {
+		saveButton.innerText = __( 'Save' );
+	}
+}
 
 /**
  * Custom status component

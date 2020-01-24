@@ -123,41 +123,41 @@ var statuses = window.EditFlowCustomStatuses.map(function (s) {
   };
 });
 /**
- * Hack. Change the save button's text in Gutenberg.
- *
- * @see https://github.com/WordPress/gutenberg/issues/3144
- * @see https://github.com/Automattic/Edit-Flow/issues/583
- *
- * Gutenberg overrides the label of the Save button after save (i.e. "Save Draft"). But there's no way to subscribe to a "post save" message.
- * So instead, we're just keeping the button label generic ("Save"), while waiting for a better upstream fix.
+ * Subscribe to changes so we can set a default status and update a button's text.
  */
 
-var sideEffectL10nManipulation = function sideEffectL10nManipulation() {
-  // If the button already exists, update the text right away. Occurs on initial page load.
-  var saveButton = document.querySelector('.editor-post-save-draft');
+var buttonTextObserver = null;
+subscribe(function () {
+  var postId = select('core/editor').getCurrentPostId();
 
-  if (saveButton) {
-    if (saveButton.innerText === __('Save Draft') || saveButton.innerText === __('Save as Pending')) {
-      saveButton.innerText = __('Save');
-    }
-
+  if (!postId) {
+    // Post isn't ready yet so don't do anything.
     return;
-  } // The button does not exist yet, let's set up an observer to wait for it to be ready.
-  // Occurs during the time period when a post is saving itself.
+  } // For new posts, we need to force the default custom status.
 
 
-  var parentNode = document.querySelector('.edit-post-header__settings');
+  var isCleanNewPost = select('core/editor').isCleanNewPost();
 
-  if (parentNode && window.MutationObserver) {
-    var observer = buttonTextObserver();
-    observer.observe(parentNode, {
-      childList: true
+  if (isCleanNewPost) {
+    dispatch('core/editor').editPost({
+      status: ef_default_custom_status
     });
-  }
-};
+  } // If the save button exists, let's update the text if needed.
 
-var buttonTextObserver = function buttonTextObserver() {
-  return new MutationObserver(function (mutationsList, observer) {
+
+  maybeUpdateButtonText(document.querySelector('.editor-post-save-draft')); // The post is being saved, so we need to set up an observer to update the button text when it's back.
+
+  if (buttonTextObserver === null && window.MutationObserver && select('core/editor').isSavingPost()) {
+    buttonTextObserver = createButtonObserver(document.querySelector('.edit-post-header__settings'));
+  }
+});
+
+function createButtonObserver(parentNode) {
+  if (!parentNode) {
+    return null;
+  }
+
+  var observer = new MutationObserver(function (mutationsList) {
     var _iteratorNormalCompletion = true;
     var _didIteratorError = false;
     var _iteratorError = undefined;
@@ -165,11 +165,6 @@ var buttonTextObserver = function buttonTextObserver() {
     try {
       for (var _iterator = mutationsList[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
         var mutation = _step.value;
-
-        if (!mutation.addedNodes.length) {
-          continue;
-        }
-
         var _iteratorNormalCompletion2 = true;
         var _didIteratorError2 = false;
         var _iteratorError2 = undefined;
@@ -177,11 +172,7 @@ var buttonTextObserver = function buttonTextObserver() {
         try {
           for (var _iterator2 = mutation.addedNodes[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
             var node = _step2.value;
-
-            if (node.innerText === __('Save Draft') || node.innerText === __('Save as Pending')) {
-              node.innerText = __('Save');
-              observer.disconnect();
-            }
+            maybeUpdateButtonText(node);
           }
         } catch (err) {
           _didIteratorError2 = true;
@@ -213,38 +204,22 @@ var buttonTextObserver = function buttonTextObserver() {
       }
     }
   });
-}; // Set the status to the default custom status.
+  observer.observe(parentNode, {
+    childList: true
+  });
+  return observer;
+}
 
-
-subscribe(function () {
-  var postId = select('core/editor').getCurrentPostId(); // Post isn't ready yet so don't do anything.
-
-  if (!postId) {
-    return;
-  } // For new posts, we need to force the our default custom status.
-  // Otherwise WordPress will force it to "Draft".
-
-
-  var isCleanNewPost = select('core/editor').isCleanNewPost();
-
-  if (isCleanNewPost) {
-    dispatch('core/editor').editPost({
-      status: ef_default_custom_status
-    });
-    return;
-  } // Update the "Save" button.
-
-
-  var status = select('core/editor').getEditedPostAttribute('status');
-
-  if (typeof status !== 'undefined' && status !== 'publish') {
-    sideEffectL10nManipulation();
+function maybeUpdateButtonText(saveButton) {
+  if (saveButton && (saveButton.innerText === __('Save Draft') || saveButton.innerText === __('Save as Pending'))) {
+    saveButton.innerText = __('Save');
   }
-});
+}
 /**
  * Custom status component
  * @param object props
  */
+
 
 var EditFlowCustomPostStati = function EditFlowCustomPostStati(_ref) {
   var onUpdate = _ref.onUpdate,
