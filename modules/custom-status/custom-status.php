@@ -289,9 +289,11 @@ class EF_Custom_Status extends EF_Module {
 
 		// Load block editor assets and return early.
 		if ( $this->is_block_editor() ) {
+			global $post;
 			wp_enqueue_style( 'edit-flow-block-custom-status-styles', EDIT_FLOW_URL . 'blocks/dist/custom-status.editor.build.css', false, EDIT_FLOW_VERSION );
 			wp_enqueue_script( 'edit-flow-block-custom-status-script', EDIT_FLOW_URL . 'blocks/dist/custom-status.build.js', array( 'wp-blocks', 'wp-element', 'wp-edit-post', 'wp-plugins', 'wp-components' ), EDIT_FLOW_VERSION );
-			wp_localize_script( 'edit-flow-block-custom-status-script', 'EditFlowCustomStatuses', array_values( $this->get_custom_statuses() ) );
+			$custom_statuses = apply_filters( 'ef_custom_status_list', $this->get_custom_statuses(), $post );
+			wp_localize_script( 'edit-flow-block-custom-status-script', 'EditFlowCustomStatuses', array_values( $custom_statuses ) );
 			return;
 		}
 
@@ -585,7 +587,7 @@ class EF_Custom_Status extends EF_Module {
 	 * @return array $statuses All of the statuses
 	 */
 	function get_custom_statuses( $args = array() ) {
-		global $post, $wp_post_statuses;
+		global $wp_post_statuses;
 
 		if ( $this->disable_custom_statuses_for_post_type() ) {
 			return $this->get_core_post_statuses();
@@ -632,8 +634,6 @@ class EF_Custom_Status extends EF_Module {
 		// Append all of the statuses that didn't have an existing position
 		foreach( $hold_to_end as $unpositioned_status )
 			$ordered_statuses[] = $unpositioned_status;
-
-		$ordered_statuses = apply_filters( 'ef_custom_status_list', $ordered_statuses, $post );
 
 		$this->custom_statuses_cache[ $arg_hash ] = $ordered_statuses;
 
