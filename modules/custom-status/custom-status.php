@@ -585,7 +585,7 @@ class EF_Custom_Status extends EF_Module {
 	 * @return array $statuses All of the statuses
 	 */
 	function get_custom_statuses( $args = array() ) {
-		global $wp_post_statuses;
+		global $post, $wp_post_statuses;
 
 		if ( $this->disable_custom_statuses_for_post_type() ) {
 			return $this->get_core_post_statuses();
@@ -632,6 +632,8 @@ class EF_Custom_Status extends EF_Module {
 		// Append all of the statuses that didn't have an existing position
 		foreach( $hold_to_end as $unpositioned_status )
 			$ordered_statuses[] = $unpositioned_status;
+
+		$ordered_statuses = apply_filters( 'ef_custom_status_list', $ordered_statuses, $post );
 
 		$this->custom_statuses_cache[ $arg_hash ] = $ordered_statuses;
 
