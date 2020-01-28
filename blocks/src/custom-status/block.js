@@ -41,6 +41,13 @@ subscribe( function () {
 	}
 } );
 
+/**
+ * Create a mutation observer that will update the
+ * save button text right away when it's changed/re-added.
+ *
+ * Ideally there will be better ways to go about this in the future.
+ * @see https://github.com/Automattic/Edit-Flow/issues/583
+ */
 function createButtonObserver( parentNode ) {
 	if ( ! parentNode ) {
 		return null;
