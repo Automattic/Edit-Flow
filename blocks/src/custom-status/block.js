@@ -14,46 +14,62 @@ let { SelectControl } = wp.components;
 let statuses = window.EditFlowCustomStatuses.map( s => ({ label: s.name, value: s.slug }) );
 
 /**
- * Hack :(
- *
- * @see https://github.com/WordPress/gutenberg/issues/3144
- *
- * Gutenberg overrides the label of the Save button after save (i.e. "Save Draft"). But there's no way to subscribe to a "post save" message.
- *
- * So instead, we're keeping the button label generic ("Save"). There's a brief period where it still flips to "Save Draft" but that's something we need to work upstream to find a good fix for.
+ * Subscribe to changes so we can set a default status and update a button's text.
  */
-let sideEffectL10nManipulation = () => {
-  let node = document.querySelector('.editor-post-save-draft');
-  if ( node ) {
-    document.querySelector( '.editor-post-save-draft' ).innerText = `${ __( 'Save' ) }`
-  }
+let buttonTextObserver = null;
+subscribe( function () {
+	const postId = select( 'core/editor' ).getCurrentPostId();
+	if ( ! postId ) {
+		// Post isn't ready yet so don't do anything.
+		return;
+	}
+
+	// For new posts, we need to force the default custom status.
+	const isCleanNewPost = select( 'core/editor' ).isCleanNewPost();
+	if ( isCleanNewPost ) {
+		dispatch( 'core/editor' ).editPost( {
+			status: ef_default_custom_status
+		} );
+	}
+
+	// If the save button exists, let's update the text if needed.
+	maybeUpdateButtonText( document.querySelector( '.editor-post-save-draft' ) );
+
+	// The post is being saved, so we need to set up an observer to update the button text when it's back.
+	if ( buttonTextObserver === null && window.MutationObserver && select( 'core/editor' ).isSavingPost() ) {
+		buttonTextObserver = createButtonObserver( document.querySelector( '.edit-post-header__settings' ) );
+	}
+} );
+
+/**
+ * Create a mutation observer that will update the
+ * save button text right away when it's changed/re-added.
+ *
+ * Ideally there will be better ways to go about this in the future.
+ * @see https://github.com/Automattic/Edit-Flow/issues/583
+ */
+function createButtonObserver( parentNode ) {
+	if ( ! parentNode ) {
+		return null;
+	}
+
+	const observer = new MutationObserver( ( mutationsList ) => {
+		for ( const mutation of mutationsList ) {
+			for ( const node of mutation.addedNodes ) {
+				maybeUpdateButtonText( node );
+			}
+		}
+	} );
+
+	observer.observe( parentNode, { childList: true } );
+	return observer;
 }
 
-// Set the status to the default custom status.
-subscribe( function () {
-  const postId = select( 'core/editor' ).getCurrentPostId();
-  // Post isn't ready yet so don't do anything.
-  if ( ! postId ) {
-    return;
-  }
-
-  // For new posts, we need to force the our default custom status.
-  // Otherwise WordPress will force it to "Draft".
-  const isCleanNewPost = select( 'core/editor' ).isCleanNewPost();
-  if ( isCleanNewPost ) {
-    dispatch( 'core/editor' ).editPost( {
-      status: ef_default_custom_status
-    } );
-
-    return;
-  }
-
-  // Update the "Save" button.
-  var status = select( 'core/editor' ).getEditedPostAttribute( 'status' );
-  if ( typeof status !== 'undefined' && status !== 'publish' ) {
-    sideEffectL10nManipulation();
-  }
-} );
+function maybeUpdateButtonText( saveButton ) {
+	if ( saveButton && ( saveButton.innerText === __( 'Save Draft' ) || saveButton.innerText === __( 'Save as Pending' ) ) ) {
+		saveButton.innerText = __( 'Save' );
+	}
+}
 
 /**
  * Custom status component
@@ -88,7 +104,6 @@ const mapDispatchToProps = ( dispatch ) => {
   return {
     onUpdate( status ) {
       dispatch( 'core/editor' ).editPost( { status } );
-      sideEffectL10nManipulation();
     },
   };
 };
