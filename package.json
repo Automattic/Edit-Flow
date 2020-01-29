@@ -14,6 +14,7 @@
     "lint": "eslint --quiet -f json blocks common modules | eslines --quiet",
     "test": "echo \"Error: no test specified\" && exit 1",
     "test-e2e": "wp-scripts test-e2e --config tests/e2e/jest.config.js",
+    "debug-test-e2e": "ndb wp-scripts test-e2e --config tests/e2e/jest.config.js",
     "test-e2e:watch": "npm run test-e2e -- --watch",
     "test-unit-php": "wp-scripts env test-php"
   },

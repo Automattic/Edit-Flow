@@ -33,42 +33,72 @@ var scssConfig = {
   ]
 };
 
-module.exports = {
-  context: __dirname,
-  devtool: debug ? 'sourcemap' : null,
-  mode: debug ? 'development' : 'production',
-  // entry: './blocks/src/blocks.js',
-  entry: entries,
-  output: {
-    path: __dirname + '/blocks/dist/',
-    filename: "[name].build.js"
+
+module.exports = [
+  {
+    name: 'blocks',
+    context: __dirname,
+    devtool: debug ? 'sourcemap' : null,
+    mode: debug ? 'development' : 'production',
+    // entry: './blocks/src/blocks.js',
+    entry: entries,
+    output: {
+      path: __dirname + '/blocks/dist/',
+      filename: '[name].build.js'
+    },
+    externals: {
+      'react': "React",
+      'react-dom': "ReactDOM"
+    },
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          exclude: /node_modules/,
+          use: [
+            {
+              loader: 'babel-loader'
+            }
+          ]
+        },
+        {
+          test: /editor\.scss$/,
+          exclude: /node_modules/,
+          use: extractEditorSCSS.extract(scssConfig)
+        },
+        {
+          test: /style\.scss$/,
+          exclude: /node_modules/,
+          use: extractBlockSCSS.extract(scssConfig)
+        }
+      ]
+    },
+    plugins: plugins
   },
-  externals: {
-    'react': "React",
-    "react-dom": "ReactDOM"
-  },
-  module: {
-    rules: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: [
-          {
-            loader: 'babel-loader'
-          }
-        ]
-      },
-      {
-        test: /editor\.scss$/,
-        exclude: /node_modules/,
-        use: extractEditorSCSS.extract(scssConfig)
-      },
-      {
-        test: /style\.scss$/,
-        exclude: /node_modules/,
-        use: extractBlockSCSS.extract(scssConfig)
-      }
-    ]
-  },
-  plugins: plugins
-};
+  {
+    name: 'notifications',
+    context: __dirname,
+    devtool: debug ? 'sourcemap' : null,
+    mode: debug ? 'development' : 'production',
+    entry: {
+      notifications: __dirname + '/modules/notifications/lib/notifications.js',
+    },
+    output: {
+      path: __dirname + '/modules/notifications/dist',
+      filename: '[name].build.js'
+    },
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          exclude: /node_modules/,
+          use: [
+            {
+              loader: 'babel-loader'
+            }
+          ]
+        }
+      ]
+    }
+  }
+];

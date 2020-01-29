@@ -193,13 +193,15 @@ class EF_Notifications extends EF_Module {
 		if ( $this->is_whitelisted_functional_view() ) {
 			wp_enqueue_script( 'jquery-listfilterizer' );
 			wp_enqueue_script( 'jquery-quicksearch' );
-			wp_enqueue_script( 'edit-flow-notifications-js', $this->module_url . 'lib/notifications.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-notifications-js', EDIT_FLOW_URL . 'modules/notifications/dist/notifications.build.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
 			wp_localize_script(
 				'edit-flow-notifications-js',
 				'ef_notifications_localization',
 				array(
 					'no_access' => esc_html__( 'No Access', 'edit-flow' ),
-					'no_email' => esc_html__( 'No Email', 'edit-flow' )
+					'no_email' => esc_html__( 'No Email', 'edit-flow' ),
+					'post_author' => esc_html__( 'Post Author', 'edit-flow' ),
+					'auto_subscribed' => esc_html__( 'Auto-Subscribed', 'edit-flow' ),
 				)
 			);
 		}
@@ -343,6 +345,18 @@ jQuery(document).ready(function($) {
 				<h4><?php _e( 'Users', 'edit-flow' ); ?></h4>
 				<?php
 				$followers = $this->get_following_users( $post->ID, 'id' );
+
+				$post_author_is_follower = ! empty( in_array( $post->post_author, $followers ) ) ? 'true' : 'false';
+				$post_author_auto_subscribe = apply_filters( 'ef_notification_auto_subscribe_post_author', true, 'subscription_action' ) ? 'true' : 'false';
+
+				wp_add_inline_script( 
+					'edit-flow-notifications-js', 
+					'var ef_post_author_id = ' . wp_json_encode( $post->post_author ) . '; ' . 
+					'var ef_post_author_is_follower = ' . wp_json_encode( $post_author_is_follower ) . '; ' .
+					'var ef_post_author_auto_subscribe = ' . wp_json_encode( $post_author_auto_subscribe ) . ';',
+					'before'
+				);
+
 				$select_form_args = array(
 					'list_class' => 'ef-post_following_list',
 				);
@@ -384,14 +398,14 @@ jQuery(document).ready(function($) {
 		// Add No Access span if they won't be notified
 		if (! $this->user_can_be_notified( get_user_by( 'id', $user_id ), $post->ID )) {
 			// span.post_following_list-no_access is also added in notifications.js after AJAX that ticks/unticks a user
-			echo '<span class="post_following_list-no_access">' . esc_html__( 'No Access', 'edit-flow' ) . '</span>';
+			echo '<div class="ef-user-badge ef-user-badge-error" data-badge-id="no_access">' . esc_html__( 'No Access', 'edit-flow' ) . '</div>';
 		}
 		
 		// Add No Email span if they have no email
 		$user_object = get_user_by( 'id', $user_id );
 		if ( !is_a( $user_object, 'WP_User') OR empty( $user_object->user_email )  ) {
 			// span.post_following_list-no_email is also added in notifications.js after AJAX that ticks/unticks a user
-			echo '<span class="post_following_list-no_email">' . esc_html__( 'No Email', 'edit-flow' ) . '</span>';
+			echo '<div class="ef-user-badge ef-user-badge-error" data-badge-id="no_email">' . esc_html__( 'No Email', 'edit-flow' ) . '</div>';
 		}
 	}
 	

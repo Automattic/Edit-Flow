@@ -7,13 +7,17 @@
 }
 
 .ef-post_following_list li {
-	padding: 10px 5px 5px 5px;
-	margin: 0;
 	border-bottom: 1px solid #ccc;
-	min-height: 36px;
 }
 
-.ef-post_following_list li:hover {
+.ef-post_following_list li label {
+	min-height: 76px;
+	padding: 10px 5px 5px 5px;
+	margin: 0;
+	display: block;
+}
+
+.ef-post_following_list li label:hover {
 	background: #EAF2FA;
 }
 
@@ -35,17 +39,21 @@
 	font-size: 12px;
 }
 
-.ef-post_following_list li .ef-user-subscribe-actions {
-	float: right;
-	margin-top: 5px;
+.ef-post_following_list li .ef-user-list-badges {
+	margin-top: 10px;
 }
 
-.ef-post_following_list li .ef-user-subscribe-actions .post_following_list-no_email,
-.ef-post_following_list li .ef-user-subscribe-actions .post_following_list-no_access {
+.ef-post_following_list li .ef-user-badge {
 	margin-right: 10px;
-	border: solid 2px #DC3232;
-	color: #DC3232;
+	border: solid 2px #b8b8b8;
+	color: #b8b8b8;
 	padding: 4px;
+	display: inline-block;
+}
+
+.ef-post_following_list li .ef-user-badge-error {
+	color: #DC3232;
+	border: solid 2px #DC3232;
 }
 
 #ef-post_following_box {

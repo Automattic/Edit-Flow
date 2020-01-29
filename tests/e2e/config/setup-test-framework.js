@@ -7,7 +7,6 @@ import { get } from 'lodash';
  * WordPress dependencies
  */
 import {
-	activatePlugin,
 	clearLocalStorage,
 	enablePageDialogAccept,
 	isOfflineMode,
@@ -16,6 +15,9 @@ import {
 	switchUserToTest,
 	visitAdminPage,
 } from '@wordpress/e2e-test-utils';
+
+import { AUTHOR1 } from "./users";
+import { createUser } from "../util";
 
 /**
  * Environment variables
@@ -206,6 +208,10 @@ async function runAxeTestsForBlockEditor() {
 // other posts/comments/etc. aren't dirtying tests and tests don't depend on
 // each other's side-effects.
 beforeAll( async () => {
+	await createUser(AUTHOR1.username, AUTHOR1.email, AUTHOR1.password);
+	
+	await visitAdminPage('edit.php');
+
 	capturePageEventsForTearDown();
 	enablePageDialogAccept();
 	observeConsoleLogging();
