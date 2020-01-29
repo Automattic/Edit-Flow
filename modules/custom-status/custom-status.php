@@ -289,9 +289,14 @@ class EF_Custom_Status extends EF_Module {
 
 		// Load block editor assets and return early.
 		if ( $this->is_block_editor() ) {
+			global $post;
+
 			wp_enqueue_style( 'edit-flow-block-custom-status-styles', EDIT_FLOW_URL . 'blocks/dist/custom-status.editor.build.css', false, EDIT_FLOW_VERSION );
 			wp_enqueue_script( 'edit-flow-block-custom-status-script', EDIT_FLOW_URL . 'blocks/dist/custom-status.build.js', array( 'wp-blocks', 'wp-element', 'wp-edit-post', 'wp-plugins', 'wp-components' ), EDIT_FLOW_VERSION );
-			wp_localize_script( 'edit-flow-block-custom-status-script', 'EditFlowCustomStatuses', array_values( $this->get_custom_statuses() ) );
+
+			$custom_statuses = apply_filters( 'ef_custom_status_list', $this->get_custom_statuses(), $post );
+
+			wp_localize_script( 'edit-flow-block-custom-status-script', 'EditFlowCustomStatuses', array_values( $custom_statuses ) );
 			return;
 		}
 
