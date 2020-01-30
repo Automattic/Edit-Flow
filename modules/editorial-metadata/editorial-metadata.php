@@ -341,11 +341,6 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */
 	function handle_post_metaboxes() {
 		$title = __( 'Editorial Metadata', 'edit-flow' );
-		if ( current_user_can( 'manage_options' ) ) {
-			// Make the metabox title include a link to edit the Editorial Metadata terms. Logic similar to how Core dashboard widgets work.
-			$url = add_query_arg( 'page', 'ef-editorial-metadata-settings', get_admin_url( null, 'admin.php' ) );
-			$title .= ' <span class="postbox-title-action"><a href="' . esc_url( $url ) . '" class="edit-box open-box">' . __( 'Configure' ) . '</a></span>';
-		}
 
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		foreach ( $supported_post_types as $post_type ) {
@@ -362,6 +357,12 @@ class EF_Editorial_Metadata extends EF_Module {
 		echo "<div id='" . self::metadata_taxonomy . "_meta_box'>";
 		// Add nonce for verification upon save
 		echo "<input type='hidden' name='" . self::metadata_taxonomy . "_nonce' value='" . wp_create_nonce( 'ef-save-metabox' ) . "' />";
+
+		if ( current_user_can( 'manage_options' ) ) {
+			// Make the metabox title include a link to edit the Editorial Metadata terms. Logic similar to how Core dashboard widgets work.
+			$url = add_query_arg( 'page', 'ef-editorial-metadata-settings', get_admin_url( null, 'admin.php' ) );
+			echo '<p><a href="'. $url . '">' . __( 'Configure', 'edit-flow' ) . '</a></p>';
+		}
 	
 		$terms = $this->get_editorial_metadata_terms();
 		if ( !count( $terms ) ) {
