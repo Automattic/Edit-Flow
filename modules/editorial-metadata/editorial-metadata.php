@@ -361,7 +361,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		if ( current_user_can( 'manage_options' ) ) {
 			// Make the metabox title include a link to edit the Editorial Metadata terms. Logic similar to how Core dashboard widgets work.
 			$url = add_query_arg( 'page', 'ef-editorial-metadata-settings', get_admin_url( null, 'admin.php' ) );
-			echo '<p><a href="'. $url . '">' . __( 'Configure', 'edit-flow' ) . '</a></p>';
+			echo '<p><a href="'. esc_url( $url ) . '">' . __( 'Configure', 'edit-flow' ) . '</a></p>';
 		}
 	
 		$terms = $this->get_editorial_metadata_terms();
