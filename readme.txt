@@ -5,7 +5,7 @@ Tags: edit flow, workflow, editorial, newsroom, management, journalism, post sta
 Requires at least: 5.1
 Requires PHP: 5.6
 Tested up to: 5.3
-Stable tag: 0.9.3
+Stable tag: 0.9.4
 
 Redefining your editorial workflow.
 
@@ -56,6 +56,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 5. View all of your upcoming posts with the more traditional story budget view, and hit the print button to take it to your planning meeting.
 
 == Upgrade Notice ==
+
+= 0.9.4 =
+Updates to post list custom status UI. Plus, updates to API and bug fixes.
 
 = 0.9.3 =
 Fixes for localization and notifications
@@ -118,6 +121,17 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 == Changelog ==
+
+= 0.9.4 (February 4, 2020) =
+* Bug fix: Move 'Customize' link in metadata metabox to inside metabox (https://github.com/Automattic/Edit-Flow/pull/590 -- props jsit)
+* Bug fix: Fix ef_custom_status_list filter on get_custom_statuses (https://github.com/Automattic/Edit-Flow/pull/587 -- props jsit)
+* Bug fix: Keep save button text updated, without errors (https://github.com/Automattic/Edit-Flow/pull/585 -- props WPprodigy)
+* Bug fix: Add ef_week_first_day as script data to prevent echoing script tags (https://github.com/Automattic/Edit-Flow/pull/582 -- props ryelle)
+* Improvement: Deprecate ef_get_comments_plus (https://github.com/Automattic/Edit-Flow/pull/581 -- props WPprodigy)
+* Improvement: Cleanup block editor compatibility logic (https://github.com/Automattic/Edit-Flow/pull/580 -- props WPprodigy)
+* Improvement: Display custom statuses in post states (https://github.com/Automattic/Edit-Flow/pull/579 -- props WPprodigy)
+* Improvement: Clean up dashboard-note logic (https://github.com/Automattic/Edit-Flow/pull/578 -- props WPprodigy)
+
 
 = 0.9.3 (December 18, 2019) =
 * Bug fix: parse date time from numeric string instead of textual date (https://github.com/Automattic/Edit-Flow/pull/546 -- props batmoo, cojennin)
