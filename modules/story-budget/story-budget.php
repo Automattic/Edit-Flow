@@ -188,7 +188,8 @@ class EF_Story_Budget extends EF_Module {
 	 */
 	function handle_form_date_range_change() {
 		
-		if ( !isset( $_POST['ef-story-budget-range-submit'], $_POST['ef-story-budget-number-days'], $_POST['ef-story-budget-start-date'] ) )
+		if ( !isset( $_POST['ef-story-budget-number-days'], $_POST['ef-story-budget-start-date'] ) &&
+		     ( !isset( $_POST['ef-story-budget-range-submit'] ) || !isset( $_POST['ef-story-budget-today-submit'] ) ) )
 			return;
 			
 		if ( !wp_verify_nonce( $_POST['nonce'], 'change-date' ) )
@@ -196,7 +197,11 @@ class EF_Story_Budget extends EF_Module {
 		
 		$current_user = wp_get_current_user();
 		$user_filters = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
-		$user_filters['start_date'] = date( 'Y-m-d', strtotime( $_POST['ef-story-budget-start-date'] ) );
+		if ( isset( $_POST['ef-story-budget-today-submit'] ) ) {
+			$user_filters['start_date'] = current_time( 'Y-m-d' );
+		} else {
+			$user_filters['start_date'] = date_i18n( 'Y-m-d', strtotime( $_POST['ef-story-budget-start-date'] ) );
+		}
 		$user_filters['number_days'] = (int)$_POST['ef-story-budget-number-days'];
 		if ( $user_filters['number_days'] <= 1 )
 			$user_filters['number_days'] = 1;
@@ -322,11 +327,14 @@ class EF_Story_Budget extends EF_Module {
 	function story_budget_time_range() {
 		
 		$output = '<form method="POST" action="' . menu_page_url( $this->module->slug, false ) . '">';
-			
+
 		$start_date_value = '<input type="text" id="ef-story-budget-start-date" name="ef-story-budget-start-date"'
 			. ' size="10" class="date-pick" value="'
-			. esc_attr( date_i18n( get_option( 'date_format' ), strtotime( $this->user_filters['start_date'] ) ) ) . '" /><span class="form-value">';
-		
+			. esc_attr( date_i18n( get_option( 'date_format' ), strtotime( $this->user_filters[ 'start_date' ] ) ) ) . '" />'
+			. '&nbsp;<input id="ef-story-budget-today-submit" name="ef-story-budget-today-submit" type="submit"'
+			. 'class="button-secondary" value="' . __( 'Today', 'edit-flow' ) . '" />'
+			. '<span class="form-value">';
+
 		$start_date_value .= esc_html( date_i18n( get_option( 'date_format' ), strtotime( $this->user_filters['start_date'] ) ) );
 		$start_date_value .= '</span>';
 		
