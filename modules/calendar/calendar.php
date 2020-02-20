@@ -1231,14 +1231,13 @@ class EF_Calendar extends EF_Module {
 		// Unpublished as a status is just an array of everything but 'publish'.
 		if ( 'unpublish' == $args['post_status'] ) {
 			$args['post_status'] = '';
-			$post_stati = get_post_stati();
-			unset($post_stati['inherit'], $post_stati['auto-draft'], $post_stati['trash'], $post_stati['publish'] );
+			$post_stati = wp_filter_object_list( $this->get_calendar_post_stati(), array( 'name' => 'publish' ), 'not' );
+
 			if ( ! apply_filters( 'ef_show_scheduled_as_unpublished', false ) ) {
-				unset( $post_stati['future'] );
+				$post_stati = wp_filter_object_list( $post_stati, array( 'name' => 'future' ), 'not' );
 			}
-			foreach ( $post_stati as $post_status ) {
-				$args['post_status'] .= $post_status . ', ';
-			}
+
+			$args['post_status'] .= join( wp_list_pluck( $post_stati, 'name' ), ',' );
 		}
 		// The WP functions for printing the category and author assign a value of 0 to the default
 		// options, but passing this to the query is bad (trashed and auto-draft posts appear!), so
@@ -1698,9 +1697,9 @@ class EF_Calendar extends EF_Module {
 		switch( $key ) {
 			case 'post_status':
 				// Whitelist-based validation for this parameter
-				$valid_statuses = get_post_stati();
+				$valid_statuses = wp_list_pluck( $this->get_calendar_post_stati(), 'name' );
 				$valid_statuses[] = 'unpublish';
-				unset( $valid_statuses['inherit'], $valid_statuses['auto-draft'], $valid_statuses['trash'] );
+
 				if ( in_array( $dirty_value, $valid_statuses ) )
 					return $dirty_value;
 				else
@@ -1730,16 +1729,13 @@ class EF_Calendar extends EF_Module {
 	function calendar_filter_options( $select_id, $select_name, $filters ) {
 		switch( $select_id ){ 
 			case 'post_status':
-				$post_stati = get_post_stati();
-				unset( $post_stati['inherit'], $post_stati['auto-draft'], $post_stati['trash'] );
+				$post_stati = $this->get_calendar_post_stati();
 			?>
 				<select id="<?php echo $select_id; ?>" name="<?php echo $select_name; ?>" >
 					<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
 					<?php 
-						foreach ( $post_stati as $post_status ) { 
-							$value = $post_status;
-							$status = get_post_status_object($post_status);
-							echo "<option value='" . esc_attr( $value ) . "' " . selected( $value, $filters['post_status'] ) . ">" . esc_html( $status->label ) . "</option>";
+						foreach ( $post_stati as $status ) { 
+							echo "<option value='" . esc_attr( $status->name ) . "' " . selected( $status->name, $filters['post_status'] ) . ">" . esc_html( $status->label ) . "</option>";
 						}
 					?>
 					<option value="unpublish" <?php selected( 'unpublish', $filters['post_status'] ) ?> > <?php echo __( 'Unpublished', 'edit-flow' ) ?> </option>
@@ -1850,6 +1846,30 @@ class EF_Calendar extends EF_Module {
 		unset( $this->post_date_cache[ $post_ID ] );
 		$wpdb->update( $wpdb->posts, array( 'post_date' => $post_date ), array( 'ID' => $post_ID ) );
 		clean_post_cache( $post_ID );
+	}
+
+	/**
+	 * Returns a list of custom status used by the calendar
+	 * 
+	 * @return array An array of StdClass objects representing statuses
+	 */
+	public function get_calendar_post_stati() {
+		$post_stati = get_post_stati( array(), 'object' );
+		$custom_status_slugs = wp_list_pluck( $this->get_post_statuses(), 'slug' );
+		$custom_status_slugs[] = 'future';	
+		$custom_status_slugs[] = 'publish';
+
+		$custom_status_slug_keys = array_flip( $custom_status_slugs );
+
+		$final_statuses = [];
+
+		foreach( $post_stati as $status ) {
+			if ( !empty( $custom_status_slug_keys[ $status->name ] ) ) {
+				$final_statuses[] = $status;
+			}
+		}
+
+		return apply_filters( 'get_calendar_post_stati', $final_statuses );
 	}
 	
 } // EF_Calendar

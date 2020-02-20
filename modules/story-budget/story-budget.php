@@ -380,14 +380,13 @@ class EF_Story_Budget extends EF_Module {
 		// Unpublished as a status is just an array of everything but 'publish'.
 		if ( 'unpublish' == $args['post_status'] ) {
 			$args['post_status'] = '';
-			$post_stati = get_post_stati();
-			unset( $post_stati['inherit'], $post_stati['auto-draft'], $post_stati['trash'], $post_stati['publish'] );
+			$post_stati = wp_filter_object_list( $this->get_budget_post_stati(), array( 'name' => 'publish' ), 'not' );
+
 			if ( ! apply_filters( 'ef_show_scheduled_as_unpublished', false ) ) {
-				unset( $post_stati['future'] );
+				$post_stati = wp_filter_object_list( $post_stati, array( 'name' => 'future' ), 'not' );
 			}
-			foreach ( $post_stati as $post_status ) {
-				$args['post_status'] .= $post_status . ', ';
-			}
+
+			$args['post_status'] .= join( wp_list_pluck( $post_stati, 'name' ), ',' );
 		}
 
 		// Filter by post_author if it's set
@@ -723,16 +722,13 @@ class EF_Story_Budget extends EF_Module {
 	function story_budget_filter_options( $select_id, $select_name, $filters ) {
 		switch( $select_id ) {
 			case 'post_status': 
-			$post_stati = get_post_stati();
-			unset( $post_stati['inherit'], $post_stati['auto-draft'], $post_stati['trash'] );
+			$post_stati = $this->get_budget_post_stati();
 			?>
 				<select id="post_status" name="post_status"><!-- Status selectors -->
 						<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
 						<?php
-							foreach ( $post_stati as $post_status ) {
-								$value = $post_status;
-								$status = get_post_status_object($post_status)->label;
-								echo '<option value="' . esc_attr( $value ) . '" ' . selected( $value, $filters['post_status'] ) . '>' . esc_html( $status ) . '</option>';
+							foreach ( $post_stati as $status ) { 
+								echo '<option value="' . esc_attr( $status->name ) . '" ' . selected( $status->name, $filters['post_status'] ) . '>' . esc_html( $status->label ) . '</option>';
 							}
 							echo '<option value="unpublish"' . selected('unpublish', $filters['post_status']) . '>' . __( 'Unpublished', 'edit-flow' ) . '</option>';
 						?>
@@ -767,6 +763,30 @@ class EF_Story_Budget extends EF_Module {
 				do_action( 'ef_story_budget_filter_display', $select_id, $select_name, $filters);
 			break;
 		}
+	}
+
+	/**
+	 * Returns a list of custom status used by the calendar
+	 * 
+	 * @return array An array of StdClass objects representing statuses
+	 */
+	public function get_budget_post_stati() {
+		$post_stati = get_post_stati( array(), 'object' );
+		$custom_status_slugs = wp_list_pluck( $this->get_post_statuses(), 'slug' );
+		$custom_status_slugs[] = 'future';	
+		$custom_status_slugs[] = 'publish';
+
+		$custom_status_slug_keys = array_flip( $custom_status_slugs );
+
+		$final_statuses = [];
+
+		foreach( $post_stati as $status ) {
+			if ( !empty( $custom_status_slug_keys[ $status->name ] ) ) {
+				$final_statuses[] = $status;
+			}
+		}
+
+		return apply_filters( 'ef_budget_stati', $final_statuses );
 	}
 	
 }
