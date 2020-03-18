@@ -372,4 +372,488 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		$post_states = apply_filters( 'display_post_states', array(), get_post( $post ) );
 		$this->assertFalse( array_key_exists( 'pitch', $post_states ) );
 	}
+	
+	/**
+	 * When a post with a custom status is inserted, post_name should remain empty
+	 */
+	public function test_post_with_custom_status_post_name_not_set() {
+		$post = array(
+			'post_type' => 'post',
+			'post_title' => 'Post',
+			'post_status' => 'pitch',
+			'post_author' => self::$admin_user_id,
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		wp_delete_post( $post_id, true );
+
+		$this->assertEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a post with a custom status that replaces a core status is inserted, post_name should remain empty
+	 */
+	public function test_post_with_custom_status_replacing_core_status_post_name_not_set() {
+		$post = array(
+			'post_type' => 'post',
+			'post_title' => 'Post',
+			'post_status' => 'draft',
+			'post_author' => self::$admin_user_id,
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		wp_delete_post( $post_id, true );
+
+		$this->assertEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a post with a "scheduled" status is inserted, post_name should be set
+	 */
+	public function test_post_with_scheduled_status_post_name_not_set() {
+		$post = array(
+			'post_type' => 'post',
+			'post_title' => 'Post',
+			'post_status' => 'future',
+			'post_author' => self::$admin_user_id,
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		wp_delete_post( $post_id, true );
+
+		$this->assertNotEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a post with a "publish" status is inserted, post_name should be set
+	 */
+	public function test_post_with_publish_status_post_name_is_set() {
+		$post = array(
+			'post_type' => 'post',
+			'post_title' => 'Post',
+			'post_status' => 'publish',
+			'post_author' => self::$admin_user_id,
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		wp_delete_post( $post_id, true );
+
+		$this->assertNotEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a page with a custom status is inserted, post_name should remain empty
+	 */
+	public function test_page_with_custom_status_post_name_not_set() {
+		$post = array(
+			'post_type' => 'page',
+			'post_title' => 'Page',
+			'post_status' => 'pitch',
+			'post_author' => self::$admin_user_id,
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		wp_delete_post( $post_id, true );
+
+		$this->assertEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a page with a custom status that replaces a core status is inserted, post_name should remain empty
+	 */
+	public function test_page_with_custom_status_replacing_core_status_post_name_not_set() {
+		$post = array(
+			'post_type' => 'page',
+			'post_title' => 'Page',
+			'post_status' => 'draft',
+			'post_author' => self::$admin_user_id,
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		wp_delete_post( $post_id, true );
+
+		$this->assertEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a page with a "scheduled" status is inserted, post_name should be set
+	 */
+	public function test_page_with_scheduled_status_post_name_not_set() {
+		$post = array(
+			'post_type' => 'page',
+			'post_title' => 'Page',
+			'post_status' => 'future',
+			'post_author' => self::$admin_user_id,
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		wp_delete_post( $post_id, true );
+
+		$this->assertNotEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a post with a "publish" status is inserted, post_name should be set
+	 */
+	public function test_page_with_publish_status_post_name_is_set() {
+		$post = array(
+			'post_type' => 'page',
+			'post_title' => 'Page',
+			'post_status' => 'publish',
+			'post_author' => self::$admin_user_id,
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		wp_delete_post( $post_id, true );
+
+		$this->assertNotEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a post with a custom status is updated, post_name should remain empty
+	 */
+	public function test_post_with_custom_status_updated_post_name_not_set() {
+		$post = array(
+			'post_type' => 'post',
+			'post_title' => 'Post',
+			'post_status' => 'pitch',
+			'post_author' => self::$admin_user_id,
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		wp_insert_post( array_merge( $post, array( 'post_title' => 'New Post' ) ) );
+
+		wp_delete_post( $post_id, true );
+
+		$this->assertEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a post with a custom status replacing a core status is updated, post_name should remain empty
+	 */
+	public function test_post_with_custom_status_replacing_core_status_updated_post_name_not_set() {
+		$post = array(
+			'post_type' => 'post',
+			'post_title' => 'Post',
+			'post_status' => 'draft',
+			'post_author' => self::$admin_user_id,
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		wp_insert_post( array_merge( $post, array( 'post_title' => 'New Post' ) ) );
+
+		wp_delete_post( $post_id, true );
+
+		$this->assertEmpty( $post_inserted->post_name );
+	}
+
+	/**
+	 * When a post with a "publish" status is updated, post_name should not change
+	 */
+	public function test_post_with_publish_status_updated_post_name_does_not_change() {
+		$post = array(
+			'post_type' => 'post',
+			'post_title' => 'Post',
+			'post_status' => 'publish',
+			'post_author' => self::$admin_user_id,
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		wp_insert_post( array_merge( $post_inserted->to_array(), array( 'post_title' => 'New Post' ) ) );
+
+		$post_updated = get_post( $post_id );
+
+		wp_delete_post( $post_id, true );
+
+		$this->assertEquals( $post_inserted->post_name, $post_updated->post_name );
+	}
+
+	/**
+	 * When a post with a "publish" status is updated and post name is explicitly set, post_name should change
+	 */
+	public function test_post_with_publish_status_updated_post_name_set_post_name_should_change() {
+		$post = array(
+			'post_type' => 'post',
+			'post_title' => 'Post',
+			'post_status' => 'publish',
+			'post_author' => self::$admin_user_id,
+		);
+
+		$post_id = wp_insert_post( $post );
+
+		$post_inserted = get_post( $post_id );
+
+		wp_insert_post( array_merge( $post_inserted->to_array(), array( 'post_name' => 'a-new-slug' ) ) );
+
+		$post_updated = get_post( $post_id );
+
+		wp_delete_post( $post_id, true );
+
+		$this->assertNotEquals( $post_inserted->post_name, $post_updated->post_name );
+	}
+
+	/**
+	 * When a request with the REST API is made to create a post with a custom status,
+	 * the post name should not be set
+	 */
+	public function test_post_with_custom_status_post_name_not_set_rest_api() {
+		wp_set_current_user( self::$admin_user_id );
+
+		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
+		$request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
+		$params = array( 
+			'title' => 'Post title',
+			'content' => 'Post content',
+			'status' => 'pitch',
+			'author' => self::$admin_user_id,
+			'type' => 'post',
+		);
+		$request->set_body_params( $params );
+		$response = rest_get_server()->dispatch( $request );
+
+		$data = $response->get_data();
+		$post = get_post( $data['id'] );
+
+		$this->assertEmpty( $post->post_name );
+	}
+
+	/**
+	 * When a request with the REST API is made to create a post with a custom status that replaces a core status,
+	 * the post name should not be set
+	 */
+	public function test_post_with_custom_status_replacing_core_status_post_name_not_set_rest_api() {
+		wp_set_current_user( self::$admin_user_id );
+
+		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
+		$request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
+		$params = array( 
+			'title' => 'Post title',
+			'content' => 'Post content',
+			'status' => 'draft',
+			'author' => self::$admin_user_id,
+			'type' => 'post',
+		);
+		$request->set_body_params( $params );
+		$response = rest_get_server()->dispatch( $request );
+
+		$data = $response->get_data();
+		$post = get_post( $data['id'] );
+
+		$this->assertEmpty( $post->post_name );
+	}
+
+	/**
+	 * When a request with the REST API is made to update a post with a custom status,
+	 * the post name should not be set
+	 */
+	public function test_post_with_custom_status_updated_post_name_not_set_rest_api() {
+		wp_set_current_user( self::$admin_user_id );
+
+		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
+		$request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
+		$params = array( 
+			'title' => 'Post title',
+			'content' => 'Post content',
+			'status' => 'pitch',
+			'author' => self::$admin_user_id,
+			'type' => 'post',
+		);
+		$request->set_body_params( $params );
+		$response = rest_get_server()->dispatch( $request );
+		$data = $response->get_data();
+
+		$update_request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/posts/%d', $data['id'] ) );
+		$update_request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
+		$update_params = array( 
+			'title' => 'Post title new',
+			'content' => 'Post content new',
+			'status' => 'pitch',
+			'author' => self::$admin_user_id,
+			'type' => 'post',
+		);
+		
+		$update_request->set_body_params( $update_params );
+		$update_response = rest_get_server()->dispatch( $update_request );
+
+		$updated_data = $update_response->get_data();
+		$updated_post = get_post( $updated_data['id'] );
+
+		$this->assertEmpty( $updated_post->post_name );
+	}
+
+	/**
+	 * When a request with the REST API is made to create a post with a "publish" status,
+	 * the post name should be set
+	 */
+	public function test_post_with_publish_status_post_name_set_rest_api() {
+		wp_set_current_user( self::$admin_user_id );
+
+		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
+		$request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
+		$params = array( 
+			'title' => 'Post title',
+			'content' => 'Post content',
+			'status' => 'publish',
+			'author' => self::$admin_user_id,
+			'type' => 'post',
+		);
+
+		$request->set_body_params( $params );
+		$response = rest_get_server()->dispatch( $request );
+
+		$data = $response->get_data();
+		$post = get_post( $data['id'] );
+
+		$this->assertNotEmpty( $post->post_name );
+	}
+
+	/**
+	 * When a request with the REST API is made to create a post with a custom status, and the the post_name is set,
+	 * if the post is updated the post_name should remain the same
+	 */
+	public function test_post_with_custom_status_set_post_name_stays_set_rest_api() {
+		wp_set_current_user( self::$admin_user_id );
+
+		$custom_post_name = 'a-post-name';
+		
+		$p = self::factory()->post->create( 
+			array( 
+				'post_status' => 'pitch', 
+				'post_author' => self::$admin_user_id ,
+			) 
+		);
+
+		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/posts/%d', $p ) );
+		$request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
+		$params = array( 
+			'title' => 'Post title new',
+			'content' => 'Post content new',
+			'slug' => $custom_post_name,
+			'status' => 'pitch',
+			'author' => self::$admin_user_id,
+			'type' => 'post',
+		);
+		$request->set_body_params( $params );
+		rest_get_server()->dispatch( $request );
+
+		$update_request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/posts/%d', $p ) );
+		$update_request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
+		$update_params = array( 
+			'title' => 'Post title new',
+			'content' => 'Post content new',
+			'status' => 'pitch',
+			'author' => self::$admin_user_id,
+			'type' => 'post',
+		);
+		$update_request->set_body_params( $update_params );
+		$update_response = rest_get_server()->dispatch( $update_request );
+		
+		$update_data = $update_response->get_data();
+		$update_post = get_post( $update_data['id'] );
+
+		$this->assertEquals( $custom_post_name, $update_post->post_name );
+	}
+
+	/**
+	 * When a request with the REST API is made to create a page with a custom status,
+	 * the page name should not be set
+	 */
+	public function test_page_with_custom_status_post_name_not_set_rest_api() {
+		wp_set_current_user( self::$admin_user_id );
+
+		$request = new WP_REST_Request( 'POST', '/wp/v2/pages' );
+		$request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
+		$params = array( 
+			'title' => 'Page title',
+			'content' => 'Page content',
+			'status' => 'pitch',
+			'author' => self::$admin_user_id,
+			'type' => 'page',
+		);
+		$request->set_body_params( $params );
+		$response = rest_get_server()->dispatch( $request );
+
+		$data = $response->get_data();
+		$post = get_post( $data['id'] );
+
+		$this->assertEmpty( $post->post_name );
+	}
+
+	/**
+	 * When a request with the REST API is made to create a page with a custom status, and the the post_name is set,
+	 * if the page is updated the post_name should remain the same
+	 */
+	public function test_page_with_custom_status_set_post_name_stays_set_rest_api() {
+		wp_set_current_user( self::$admin_user_id );
+
+		$custom_post_name = 'a-page-name';
+		
+		$p = self::factory()->post->create( 
+			array( 
+				'title' => 'Page title new',
+				'content' => 'Page content new',
+				'post_status' => 'pitch', 
+				'post_type' => 'page',
+			) 
+		);
+		
+		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/pages/%d', $p ) );
+		$request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
+		$params = array( 
+			'title' => 'Page title new',
+			'content' => 'Page content new',
+			'slug' => $custom_post_name,
+			'status' => 'pitch',
+		);
+		$request->set_body_params( $params );
+		rest_get_server()->dispatch( $request );
+
+		$update_request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/pages/%d', $p ) );
+		$update_request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
+		$update_params = array( 
+			'title' => 'Page title new',
+			'content' => 'Page content new',
+			'status' => 'pitch',
+		);
+		$update_request->set_body_params( $update_params );
+		$update_response = rest_get_server()->dispatch( $update_request );
+		
+		$update_data = $update_response->get_data();
+		$update_post = get_post( $update_data['id'] );
+
+		$this->assertEquals( $custom_post_name, $update_post->post_name );
+	}
 }
