@@ -188,22 +188,55 @@ class EF_Story_Budget extends EF_Module {
 	 */
 	function handle_form_date_range_change() {
 		
-		if ( !isset( $_POST['ef-story-budget-range-submit'], $_POST['ef-story-budget-number-days'], $_POST['ef-story-budget-start-date'] ) )
+		if ( ! isset( $_POST['ef-story-budget-range-submit'], $_POST['ef-story-budget-number-days'], $_POST['ef-story-budget-start-date_hidden'] ) ) {
 			return;
+		}
 			
 		if ( !wp_verify_nonce( $_POST['nonce'], 'change-date' ) )
 			wp_die( $this->module->messages['nonce-failed'] );
 		
 		$current_user = wp_get_current_user();
-		$user_filters = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
-		$user_filters['start_date'] = date( 'Y-m-d', strtotime( $_POST['ef-story-budget-start-date'] ) );
-		$user_filters['number_days'] = (int)$_POST['ef-story-budget-number-days'];
-		if ( $user_filters['number_days'] <= 1 )
-			$user_filters['number_days'] = 1;
+		$new_filters = array (
+			'start_date' => $_POST['ef-story-budget-start-date_hidden'],
+			'number_days' => (int) $_POST['ef-story-budget-number-days'],
+		);
+		$user_filters = $this->update_user_filters_from_form_date_range_change( $current_user, $new_filters );
 		
 		$this->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $user_filters );
 		wp_redirect( menu_page_url( $this->module->slug, false ) );
 		exit;
+	}
+
+	/**
+	 * Handles updating the users
+	 */
+	public function update_user_filters_from_form_date_range_change( $current_user, $new_filters ) {
+		$existing_filters = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
+
+		// Default start date value
+		if ( isset( $new_filters['start_date'] ) ) {
+			// Validate that it's a legitimate date
+			$valid_date = DateTime::createFromFormat( 'Y-m-d', $new_filters['start_date'] );
+
+			if ( false === $valid_date ) {
+				$start_date = date_i18n( 'Y-m-d' );
+			} else {
+				$start_date = $valid_date->format( 'Y-m-d' );
+			}
+
+			// Set the start_date filter (to new value or default)
+			$existing_filters['start_date'] = $start_date;
+		}
+
+		if ( isset( $new_filters['number_days'] ) ) {
+			if ( $new_filters['number_days'] <= 1 ) {
+				$existing_filters['number_days'] = 1;
+			} else {
+				$existing_filters['number_days'] = $new_filters['number_days'];
+			}
+		}
+		
+		return $existing_filters;
 	}
 	
 	/**
@@ -320,32 +353,24 @@ class EF_Story_Budget extends EF_Module {
 	 * @since 0.7
 	 */
 	function story_budget_time_range() {
-		
-		$output = '<form method="POST" action="' . menu_page_url( $this->module->slug, false ) . '">';
-			
-		$start_date_value = '<input type="text" id="ef-story-budget-start-date" name="ef-story-budget-start-date"'
-			. ' size="10" class="date-pick" value="'
-			. esc_attr( date_i18n( get_option( 'date_format' ), strtotime( $this->user_filters['start_date'] ) ) ) . '" /><span class="form-value">';
-		
-		$start_date_value .= esc_html( date_i18n( get_option( 'date_format' ), strtotime( $this->user_filters['start_date'] ) ) );
-		$start_date_value .= '</span>';
-		
-		$number_days_value = '<input type="text" id="ef-story-budget-number-days" name="ef-story-budget-number-days"'
-			. ' size="3" maxlength="3" value="'
-			. esc_attr( $this->user_filters['number_days'] ) . '" /><span class="form-value">' . esc_html( $this->user_filters['number_days'] )
-			. '</span>';		
-		
-		$output .= sprintf( _x( 'starting %1$s showing %2$s %3$s', '%1$s = start date, %2$s = number of days, %3$s = translation of \'Days\'', 'edit-flow' ), $start_date_value, $number_days_value, _n( 'day', 'days', $this->user_filters['number_days'], 'edit-flow' ) );
-		$output .= '&nbsp;&nbsp;<span class="change-date-buttons">';
-		$output .= '<input id="ef-story-budget-range-submit" name="ef-story-budget-range-submit" type="submit"';
-		$output .= ' class="button-primary" value="' . __( 'Change', 'edit-flow' ) . '" />';
-		$output .= '&nbsp;';
-		$output .= '<a class="change-date-cancel hidden" href="#">' . __( 'Cancel', 'edit-flow' ) . '</a>';
-		$output .= '<a class="change-date" href="#">' . __( 'Change', 'edit-flow' ) . '</a>';
-		$output .= wp_nonce_field( 'change-date', 'nonce', 'change-date-nonce', false );
-		$output .= '</span></form>';
-		
-		echo $output;
+		?>
+		<form method="POST" action="<?php echo esc_attr( menu_page_url( $this->module->slug, false ) ); ?>">
+			<?php _e( 'starting', 'edit-flow' ); ?>
+			<span class="form-value"><?php echo esc_html( date_i18n( get_option( 'date_format' ), strtotime( $this->user_filters['start_date'] ) ) ); ?></span>
+			<input type="text" id="ef-story-budget-start-date" name="ef-story-budget-start-date" size="20" autocomplete="off" class="date-pick" value="<?php echo esc_attr( date_i18n( get_option( 'date_format' ), strtotime( $this->user_filters['start_date'] ) ) ); ?>" />
+			<input type="hidden" id="ef-story-budget-start-date_hidden" name="ef-story-budget-start-date_hidden" />
+			<?php _e( 'showing', 'edit-flow' ); ?>
+			<input type="text" id="ef-story-budget-number-days" name="ef-story-budget-number-days" size="3" maxlength="3" value="<?php echo esc_attr( $this->user_filters['number_days'] ); ?>" />
+			<span class="form-value"><?php echo esc_html( $this->user_filters['number_days'] ); ?></span>
+			<?php echo esc_html( _n( 'day', 'days', $this->user_filters['number_days'], 'edit-flow' ) ); ?>			
+			<span class="change-date-buttons">
+				<input id="ef-story-budget-range-submit" name="ef-story-budget-range-submit" type="submit" class="button-primary" value="<?php echo esc_attr( __( 'Change', 'edit-flow' ) ); ?>" />
+				<a class="change-date-cancel hidden" href="#"><?php echo esc_html( __( 'Cancel', 'edit-flow' ) ); ?></a>
+				<a class="change-date" href="#"><?php echo esc_html( __( 'Change', 'edit-flow' ) ); ?></a>
+			</span>
+			<?php wp_nonce_field( 'change-date', 'nonce', 'change-date-nonce', true ); ?>
+		</form>
+		<?php	
 	}
 
 	/**
