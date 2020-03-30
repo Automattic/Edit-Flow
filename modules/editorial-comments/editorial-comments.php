@@ -84,7 +84,7 @@ class EF_Editorial_Comments extends EF_Module
 		if ( !in_array( $pagenow, array( 'post.php', 'page.php', 'post-new.php', 'page-new.php' ) ) )
 			return;
 
-		wp_enqueue_script( 'edit_flow-post_comment', $this->module_url . 'lib/editorial-comments.js', array( 'jquery','post' ), EDIT_FLOW_VERSION, true );
+		wp_enqueue_script( 'edit_flow-post_comment', $this->module_url . 'lib/editorial-comments.js', array( 'jquery', 'wp-ajax-response' ), EDIT_FLOW_VERSION, true );
 		wp_localize_script( 'edit_flow-post_comment', '__ef_localize_post_comment', array(
 			'and'           => esc_html__( 'and', 'edit-flow' ),
 			'none_notified' => esc_html__( 'No one will be notified.', 'edit-flow' ),
