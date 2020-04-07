@@ -1508,7 +1508,7 @@ class EF_Custom_Status extends EF_Module {
 	 * @see https://github.com/Automattic/Edit-Flow/issues/513
 	 */
 	public function fix_preview_link_part_three( $preview_link, $query_args ) {
-		if ( $autosave = wp_get_post_autosave( $query_args->ID, $query_args->post_author ) ) {
+		if ( $autosave = wp_get_post_autosave( $query_args->ID, get_current_user_id() ) ) {
 		    foreach ( array_intersect( array_keys( _wp_post_revision_fields( $query_args ) ), array_keys( _wp_post_revision_fields( $autosave ) ) ) as $field ) {
 		        if ( normalize_whitespace( $query_args->$field ) != normalize_whitespace( $autosave->$field ) ) {
 		        	// Pass through, it's a personal preview.
