@@ -53,6 +53,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 
 ## Upgrade Notice
 
+**0.9.5**
+Fix bugs around slugs, plus some localization improvements and other bug fixes
+
 **0.9.4**
 Updates to post list custom status UI. Plus, updates to API and bug fixes.
 
@@ -117,6 +120,13 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 ## Changelog
+
+**0.9.5 (April 8, 2020)**
+* Bug fix: Fix bug preventing previewing posts authored by other users (https://github.com/Automattic/Edit-Flow/pull/597 -- props mallorydxw)
+* Imrpovement: Status dropdowns are now be Edit Flow specific but filterable (https://github.com/Automattic/Edit-Flow/pull/595)
+* Improvement: Support i18n in Story Budget date picker (https://github.com/Automattic/Edit-Flow/pull/569)
+* Bug fix: Prevent multiple custom fields from being created (https://github.com/Automattic/Edit-Flow/pull/591)
+* Bug fix: Fix slug behavior (https://github.com/Automattic/Edit-Flow/pull/575)
 
 **0.9.4 (February 4, 2020)**
 * Bug fix: Move 'Customize' link in metadata metabox to inside metabox (https://github.com/Automattic/Edit-Flow/pull/590 -- props jsit)
