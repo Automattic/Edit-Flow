@@ -1,0 +1,35 @@
+.ef-calendar-navigation {
+  display: flex;
+  flex-direction: row;
+
+  .ef-calendar-filters-form {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-right: 10px;
+
+    .components-base-control .components-base-control__field {
+      margin-bottom: 0;
+    }
+
+    .ef-calendar-filter {
+      margin-right: 5px;
+    }
+
+    .ef-calendar-filters-buttons {
+      margin-left: 5px;
+      display: flex;
+
+      button {
+        padding-right: 12px;
+        padding-left: 12px;
+
+        &:first-child {
+          margin-right: 5px;
+        }
+      }
+    }
+  }
+}

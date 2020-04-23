@@ -1,0 +1,83 @@
+.ef-combobox {
+    position: relative;
+    
+    .ef-combobox-input-wrapper {
+      position: relative;
+  
+      .ef-combobox-input {
+        &.is-open {
+          border-color: #007cba;
+          box-shadow: 0 0 0 1px #007cba;
+          outline: 2px solid transparent;
+        }
+
+        &:focus {
+          &::placeholder {
+            color: transparent;
+          }
+        }
+
+        &::placeholder {
+          color: #32373c;
+        }
+      }
+  
+      .ef-combobox-input-button {
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: calc(100% - 2px);
+        margin-top: 1px;
+        box-shadow: none !important;
+        background-color: white;
+
+        svg {
+            height: 16px;
+            width: 16px;
+        }
+      }
+    }
+  
+    .ef-combobox-menu-wrapper {
+      position: absolute;
+      width: calc(100% - 2px);
+      background-color: white;
+      border-top: 2px solid #007cba;
+      border-left: 2px solid #007cba;
+      border-right: 2px solid #007cba;
+      border-bottom: 2px solid #007cba;
+      outline: 2px solid transparent;
+      z-index: 999;
+      box-shadow: 0 2px 3px 0 rgba(34, 36, 38, 0.15);
+      margin: -3px 0 0 0;
+      max-height: 20rem;
+      overflow-y: auto;
+      overflow-x: hidden;
+      
+      li {
+        padding: 6px 10px;
+        margin: 0;
+  
+        &.is-active {
+          background-color: #007cba;
+          color: #ffffff;
+          cursor: pointer;
+        }
+  
+        &.disabled {
+          color: rgb(129, 133, 138);
+        }
+  
+        .ef-combobox-item-parent {
+            display: block;
+            font-size: 9px;
+            color: #AEAEAE;
+        }
+      }
+    }
+  
+    .ef-combobox-menu-wrapper-hidden {
+      display: none;
+    }
+  }
+  

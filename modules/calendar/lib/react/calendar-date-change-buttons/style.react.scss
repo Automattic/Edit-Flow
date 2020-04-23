@@ -1,0 +1,16 @@
+.ef-calendar-date-change-buttons {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+
+    .ef-calendar-date-change-button {
+        height: 30px;
+        margin-right: 5px;
+        padding-left: 10px;
+        padding-right: 10px;
+
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+}
