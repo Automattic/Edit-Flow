@@ -98,4 +98,5 @@ script:
       $( npm bin )/wp-scripts test-e2e --config=./tests/e2e/jest.config.js
       bash bin/phpcs-diff.sh
       npm run lint
+      npm run test-jest
     fi

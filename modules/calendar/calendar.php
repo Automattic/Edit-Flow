@@ -27,6 +27,7 @@ class EF_Calendar extends EF_Module {
 	 * Construct the EF_Calendar class
 	 */
 	function __construct() {
+		$this->max_weeks = 12;
 	
 		$this->module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
@@ -176,8 +177,10 @@ class EF_Calendar extends EF_Module {
 	function add_admin_styles() {
 		global $pagenow;
 		// Only load calendar styles on the calendar page
-		if ( $pagenow == 'index.php' && isset( $_GET['page'] ) && $_GET['page'] == 'calendar' ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if ( 'index.php' === $pagenow && isset( $_GET['page'] ) && 'calendar' === $_GET['page'] ) {
 			wp_enqueue_style( 'edit-flow-calendar-css', $this->module_url . 'lib/calendar.css', false, EDIT_FLOW_VERSION );
+			wp_enqueue_style( 'edit-flow-calendar-react-css', $this->module_url . 'lib/dist/calendar.react.style.build.css', array( 'wp-components' ), EDIT_FLOW_VERSION );
+		}
 	}
 	
 	/**
@@ -187,10 +190,11 @@ class EF_Calendar extends EF_Module {
 	 * @uses wp_enqueue_script()
 	 */
 	function enqueue_admin_scripts() {
-
-		$this->enqueue_datepicker_resources();
+		global $pagenow;
 		
-		if ( $this->is_whitelisted_functional_view() ) {
+		if ( 'index.php' === $pagenow && isset( $_GET['page'] ) && 'calendar' === $_GET['page'] ) {
+			$this->enqueue_datepicker_resources();
+
 			$js_libraries = array(
 				'jquery',
 				'jquery-ui-core',
@@ -205,6 +209,17 @@ class EF_Calendar extends EF_Module {
 			
 			$ef_cal_js_params = array( 'can_add_posts' => current_user_can( $this->create_post_cap ) ? 'true' : 'false' );
 			wp_localize_script( 'edit-flow-calendar-js', 'ef_calendar_params', $ef_cal_js_params );
+
+			/**
+			 * Powering the new React interface
+			 */
+			wp_enqueue_script( 'edit-flow-calendar-react-js', $this->module_url . 'lib/dist/calendar.react.build.js', array( 'react', 'react-dom', 'wp-components', 'wp-url', 'moment' ), EDIT_FLOW_VERSION, true );
+			
+			wp_add_inline_script(
+				'edit-flow-calendar-react-js',
+				'var EF_CALENDAR = ' . wp_json_encode( $this->get_calendar_frontend_config() ),
+				'before'
+			);
 		}
 		
 	}
@@ -261,7 +276,7 @@ class EF_Calendar extends EF_Module {
 	function handle_save_screen_options() {
 		
 		// Only handle screen options submissions from the current screen
-		if ( !isset( $_POST['screen-options-apply'], $_POST['ef_calendar_num_weeks'] ) )
+		if ( ! isset( $_POST['screen-options-apply'] ) )
 			return;
 		
 		// Nonce check
@@ -272,9 +287,6 @@ class EF_Calendar extends EF_Module {
 		
 		// Get the current screen options
 		$screen_options = $this->get_screen_options();
-		
-		// Save the number of weeks to show
-		$screen_options['num_weeks'] = (int)$_POST['ef_calendar_num_weeks'];
 		
 		// Save the screen options
 		$current_user = wp_get_current_user();
@@ -582,6 +594,10 @@ class EF_Calendar extends EF_Module {
 	 */
 	function get_screen_options() {
 		
+		/**
+		 * `num_weeks` has been moved to a filter and out of screen options, it's maintained here for legacy purposes
+		 * @deprecated `num_weeks`
+		 */
 		$defaults = array(
 			'num_weeks' => (int)$this->total_weeks,
 		);
@@ -600,18 +616,24 @@ class EF_Calendar extends EF_Module {
 	 */
 	function get_filters() {
 				
-		$current_user = wp_get_current_user();
-		$filters = array();
-		$old_filters = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
+		$current_user 	= wp_get_current_user();
+		$filters 		= array();
+		$old_filters 	= $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
+		
+		/**
+		 * To support legacy screen option for num_weeks
+		 */
+		$screen_options = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'screen_options', true );
 
 		$default_filters = array(
 				'post_status' => '',
 				'cpt' => '',
 				'cat' => '',
 				'author' => '',
+				'num_weeks' => $this->total_weeks,
 				'start_date' => date( 'Y-m-d', current_time( 'timestamp' ) ),
 			);
-		$old_filters = array_merge( $default_filters, (array)$old_filters );
+		$old_filters = array_merge( $default_filters, isset( $screen_options['num_weeks'] ) ? array( 'num_weeks' => $screen_options['num_weeks'] ) : array(), (array)$old_filters );
 		
 		// Sanitize and validate any newly added filters
 		foreach( $old_filters as $key => $old_value ) {
@@ -639,12 +661,13 @@ class EF_Calendar extends EF_Module {
 		$this->dropdown_taxonomies = array();
 		
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
-		
-		// Get the user's screen options for displaying the data
-		$screen_options = $this->get_screen_options();
+
+		// Get filters either from $_GET or from user settings
+		$filters = $this->get_filters();
+
 		// Total number of weeks to display on the calendar. Run it through a filter in case we want to override the
 		// user's standard
-		$this->total_weeks = apply_filters( 'ef_calendar_total_weeks', $screen_options['num_weeks'], 'dashboard' );
+		$this->total_weeks = apply_filters( 'ef_calendar_total_weeks', $filters['num_weeks'], 'dashboard' );
 		
 		$dotw = array(
 			'Sat',
@@ -652,8 +675,6 @@ class EF_Calendar extends EF_Module {
 		);
 		$dotw = apply_filters( 'ef_calendar_weekend_days', $dotw );
 		
-		// Get filters either from $_GET or from user settings
-		$filters = $this->get_filters();
 		// For generating the WP Query objects later on
 		$post_query_args = array(
 			'post_status' => $filters['post_status'],
@@ -705,8 +726,8 @@ class EF_Calendar extends EF_Module {
 			?>
 
 			<div id="ef-calendar-wrap"><!-- Calendar Wrapper -->
-					
-			<?php $this->print_top_navigation( $filters, $dates ); ?>
+
+			<div id="ef-calendar-navigation-mount"></div> <!-- Mount point for React -->
 
 			<?php
 				$table_classes = array();
@@ -1153,64 +1174,6 @@ class EF_Calendar extends EF_Module {
 				unset( $information_fields[$field] );
 		}
 		return $information_fields;
-	}
-	
-	/**
-	 * Generates the filtering and navigation options for the top of the calendar
-	 *
-	 * @param array $filters Any set filters
-	 * @param array $dates All of the days of the week. Used for generating navigation links
-	 */
-	function print_top_navigation( $filters, $dates ) {
-		?>
-		<ul class="ef-calendar-navigation">
-			<li id="calendar-filter">
-				<form method="GET">
-					<input type="hidden" name="page" value="calendar" />
-					<input type="hidden" name="start_date" value="<?php echo esc_attr( $filters['start_date'] ); ?>"/>
-					<!-- Filter by status -->
-					<?php 
-						foreach( $this->calendar_filters() as $select_id => $select_name ) {
-							echo $this->calendar_filter_options( $select_id, $select_name, $filters ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						} 
-					?>
-					<input type="submit" id="post-query-submit" class="button-primary button" value="<?php esc_html_e( 'Filter', 'edit-flow' ); ?>"/>
-				</form>
-			</li>
-			<!-- Clear filters functionality (all of the fields, but empty) -->
-			<li>
-				<form method="GET">
-					<input type="hidden" name="page" value="calendar" />
-					<input type="hidden" name="start_date" value="<?php echo esc_attr( $filters['start_date'] ); ?>"/>
-					<?php 
-					foreach( $this->calendar_filters() as $select_id => $select_name )
-						echo '<input type="hidden" name="' . esc_attr( $select_name ) . '" value="" />';
-					?>
-					<input type="submit" id="post-query-clear" class="button-secondary button" value="<?php esc_html_e( 'Reset', 'edit-flow' ); ?>"/>
-				</form>
-			</li>
-
-			<?php /** Previous and next navigation items (translatable so they can be increased if needed )**/ ?>
-			<li class="date-change next-week">
-				<a title="<?php echo esc_attr( sprintf( __( 'Forward 1 week', 'edit-flow' ) ) ); ?>" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters, 1 ) ); ?>"><?php esc_html_e( '&rsaquo;', 'edit-flow' ); ?></a>
-				<?php if ( $this->total_weeks > 1): ?>			
-				<a title="<?php echo esc_attr( sprintf( __( 'Forward %d weeks', 'edit-flow' ), $this->total_weeks ) ); ?>" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters ) ); ?>"><?php esc_html_e( '&raquo;', 'edit-flow' ); ?></a>
-				<?php endif; ?>
-			</li>
-			<li class="date-change today">
-				<a title="<?php echo esc_attr( sprintf( __( 'Today is %s', 'edit-flow' ), date( get_option( 'date_format' ), current_time( 'timestamp' ) ) ) ); ?>" href="<?php echo esc_url( $this->get_pagination_link( 'next', $filters, 0 ) ); ?>"><?php esc_html_e( 'Today', 'edit-flow' ); ?></a>
-			</li>
-			<li class="date-change previous-week">
-				<?php if ( $this->total_weeks > 1): ?>				
-				<a title="<?php echo esc_attr( sprintf( __( 'Back %d weeks', 'edit-flow' ), $this->total_weeks ) ); ?>"  href="<?php echo esc_url( $this->get_pagination_link( 'previous', $filters ) ); ?>"><?php esc_html_e( '&laquo;', 'edit-flow' ); ?></a>
-				<?php endif; ?>
-				<a title="<?php echo esc_attr( sprintf( __( 'Back 1 week', 'edit-flow' ) ) ); ?>" href="<?php echo esc_url( $this->get_pagination_link( 'previous', $filters, 1 ) ); ?>"><?php esc_html_e( '&lsaquo;', 'edit-flow' ); ?></a>
-			</li>
-			<li class="ajax-actions">
-				<img class="waiting" style="display:none;" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
-			</li>			
-		</ul>
-	<?php
 	}
 	
 	/**
@@ -1715,6 +1678,7 @@ class EF_Calendar extends EF_Module {
 		$select_filter_names['cat'] = 'cat';
 		$select_filter_names['author'] = 'author';
 		$select_filter_names['type'] = 'cpt';
+		$select_filter_name['num_weeks'] = 'num_weeks';
 
 		return apply_filters( 'ef_calendar_filter_names', $select_filter_names );
 	}
@@ -1756,71 +1720,18 @@ class EF_Calendar extends EF_Module {
 			case 'author':
 				return intval( $dirty_value );
 				break;
+			case 'num_weeks':
+				$num_weeks = intval( $dirty_value );
+				if ( $num_weeks <= 0 ) {
+					return $this->total_weeks;
+				} else if ( $num_weeks > $this->max_weeks ) {
+					return $this->max_weeks;
+				} else {
+					return $num_weeks;
+				}
 			default:
 				return false;
 				break;
-		}
-	}
-
-	function calendar_filter_options( $select_id, $select_name, $filters ) {
-		switch( $select_id ){ 
-			case 'post_status':
-				$post_stati = $this->get_calendar_post_stati();
-			?>
-				<select id="<?php echo esc_attr( $select_id ); ?>" name="<?php echo esc_attr( $select_name ); ?>" >
-					<option value=""><?php esc_html_e( 'View all statuses', 'edit-flow' ); ?></option>
-					<?php 
-						foreach ( $post_stati as $status ) { 
-							echo "<option value='" . esc_attr( $status->name ) . "' " . selected( $status->name, $filters['post_status'] ) . ">" . esc_html( $status->label ) . "</option>";
-						}
-					?>
-					<option value="unpublish" <?php selected( 'unpublish', $filters['post_status'] ) ?> > <?php echo esc_html_e( 'Unpublished', 'edit-flow' ) ?> </option>
-				</select>
-				<?php
-			break;
-			case 'cat':
-				// Filter by categories, borrowed from wp-admin/edit.php
-				if ( taxonomy_exists( 'category' ) ) {
-					$category_dropdown_args = array(
-						'show_option_all' => __( 'View all categories', 'edit-flow' ),
-						'hide_empty' => 0,
-						'hierarchical' => 1,
-						'show_count' => 0,
-						'orderby' => 'name',
-						'selected' => $filters['cat']
-						);
-					wp_dropdown_categories( $category_dropdown_args );
-				}
-			break;
-			case 'author':
-				$users_dropdown_args = array(
-					'show_option_all'   => __( 'View all users', 'edit-flow' ),
-					'name'              => 'author',
-					'selected'          => $filters['author'],
-					'who'               => 'authors',
-					);
-				$users_dropdown_args = apply_filters( 'ef_calendar_users_dropdown_args', $users_dropdown_args );
-				wp_dropdown_users( $users_dropdown_args );
-			break;
-			case 'type':
-				$supported_post_types = $this->get_post_types_for_module( $this->module );
-				if ( count( $supported_post_types ) > 1 ) {
-				?>
-					<select id="type" name="cpt">
-						<option value=""><?php esc_html_e( 'View all types', 'edit-flow' ); ?></option>
-					<?php
-						foreach ( $supported_post_types as $key => $post_type_name ) {
-							$all_post_types = get_post_types( null, 'objects' );
-							echo '<option value="' . esc_attr( $post_type_name ) . '"' . selected( $post_type_name, $filters['cpt'] ) . '>' . esc_html( $all_post_types[$post_type_name]->labels->name ) . '</option>';
-						}
-					?>
-					</select>
-				<?php
-				}
-			break;
-			default:
-				do_action( 'ef_calendar_filter_display', $select_id, $select_name, $filters );
-			break;
 		}
 	}
 
@@ -1906,6 +1817,80 @@ class EF_Calendar extends EF_Module {
 		}
 
 		return apply_filters( 'ef_calendar_post_stati', $final_statuses );
+	}
+
+	public function get_calendar_dropdown_users() {
+		$users_dropdown_args = array(
+			'orderby'                 => 'display_name',
+			'order'                   => 'ASC',
+			'blog_id'                 => get_current_blog_id()
+		);
+
+		$users_dropdown_args = apply_filters( 'ef_calendar_dropdown_users_args', $users_dropdown_args );
+
+		return get_users( $users_dropdown_args );
+	}
+
+	public function get_calendar_categories_dropdown() {
+		$categories_dropdown_args = array(
+			'orderby'           => 'id',
+			'order'             => 'ASC',
+			'hide_empty'        => 0,
+			'hierarchical'      => 0,
+			'taxonomy'          => 'category'
+		);
+
+		return get_terms( $categories_dropdown_args );
+	}
+
+	public function get_calendar_frontend_config() {
+		$all_post_types = get_post_types( null, 'objects' );
+
+		$config = array(
+			'POST_STATI' => array_map( 
+				function( $item ) {
+					return array( 
+						'name' => $item->name, 
+						'label' => $item->label,
+					);
+				}, 
+				$this->get_calendar_post_stati() 
+			),
+			'USERS' => array_map( 
+				function( $item ) {
+					return array( 
+						'id' => $item->ID, 
+						'display_name' => $item->display_name,
+					);
+				}, 
+				$this->get_calendar_dropdown_users() 
+			),
+			'CATEGORIES' => array_map( 
+				function( $item ) {
+					return array( 
+						'term_id' => $item->term_id, 
+						'name' => $item->name, 
+						'parent' => $item->parent 
+					);
+				}, 
+				$this->get_calendar_categories_dropdown() 
+			),
+			'CALENDAR_POST_TYPES' => array_map( function ( $item ) use ( $all_post_types ) {
+				return array(
+					'name' => $all_post_types[ $item ]->name,
+					'label' => $all_post_types[ $item ]->label
+				);
+			}, $this->get_post_types_for_module( $this->module ) ),
+			'NUM_WEEKS' => array(
+				'MAX' => $this->max_weeks,
+				'DEFAULT' => $this->total_weeks,
+			),
+			'BEGINNING_OF_WEEK' => $this->get_beginning_of_week( date( 'Y-m-d', current_time( 'timestamp' ) ) ),
+			'FILTERS' => $this->get_filters(),
+			'PAGE_URL' => menu_page_url( $this->module->slug, false ),
+		);
+
+		return apply_filters( 'ef_calendar_frontend_config', $config );
 	}
 	
 } // EF_Calendar

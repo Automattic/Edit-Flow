@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { get } from 'lodash';
+import { get, isEqual, reduce, some, forEach } from 'lodash';
+import { matcherHint, printExpected, printReceived } from 'jest-matcher-utils';
 
 /**
  * WordPress dependencies
@@ -190,8 +191,8 @@ async function runAxeTestsForBlockEditor() {
 			'label',
 			'link-name',
 			'listitem',
-      'region',
-      'heading-order'
+			'region',
+			'heading-order'
 		],
 		exclude: [
 			// Ignores elements created by metaboxes.
@@ -201,6 +202,108 @@ async function runAxeTestsForBlockEditor() {
 		],
 	} );
 }
+
+/**
+ * The following is copied from @wordpress/jest-console.
+ * There are existing console warnings that Edit Flow causing that need to be resolved before this can be turned back on.
+ * In the meantime, we'll configure this ourselves and ignore warnings that are thrown for the time being
+ */
+
+const supportedMatchers = {
+	error: 'toHaveErrored',
+	info: 'toHaveInformed',
+	log: 'toHaveLogged',
+	// warn: 'toHaveWarned', // Removing this because Edit Flow is emitting warnings that need to be fixed
+};
+
+const createToBeCalledMatcher = ( matcherName, methodName ) =>
+( received ) => {
+	const spy = received[ methodName ];
+	const calls = spy.mock.calls;
+	const pass = calls.length > 0;
+	const message = pass ?
+		() =>
+			matcherHint( `.not${ matcherName }`, spy.getMockName() ) +
+			'\n\n' +
+			'Expected mock function not to be called but it was called with:\n' +
+			calls.map( printReceived ) :
+		() =>
+			matcherHint( matcherName, spy.getMockName() ) +
+			'\n\n' +
+			'Expected mock function to be called.';
+
+	spy.assertionsNumber += 1;
+
+	return {
+		message,
+		pass,
+	};
+};
+
+const createToBeCalledWithMatcher = ( matcherName, methodName ) =>
+( received, ...expected ) => {
+	const spy = received[ methodName ];
+	const calls = spy.mock.calls;
+	const pass = some(
+		calls,
+		( objects ) => isEqual( objects, expected )
+	);
+	const message = pass ?
+		() =>
+			matcherHint( `.not${ matcherName }`, spy.getMockName() ) +
+			'\n\n' +
+			'Expected mock function not to be called with:\n' +
+			printExpected( expected ) :
+		() =>
+			matcherHint( matcherName, spy.getMockName() ) +
+			'\n\n' +
+			'Expected mock function to be called with:\n' +
+			printExpected( expected ) + '\n' +
+			'but it was called with:\n' +
+			calls.map( printReceived );
+
+	spy.assertionsNumber += 1;
+
+	return {
+		message,
+		pass,
+	};
+};
+
+expect.extend(
+reduce( supportedMatchers, ( result, matcherName, methodName ) => {
+	const matcherNameWith = `${ matcherName }With`;
+
+	return {
+		...result,
+		[ matcherName ]: createToBeCalledMatcher( `.${ matcherName }`, methodName ),
+		[ matcherNameWith ]: createToBeCalledWithMatcher( `.${ matcherNameWith }`, methodName ),
+	};
+}, {} )
+);
+
+/**
+ * Sets spy on the console object's method to make it possible to fail test when method called without assertion.
+ *
+ * @param {string} matcherName Name of Jest matcher.
+ * @param {string} methodName Name of console method.
+ */
+const setConsoleMethodSpy = ( matcherName, methodName ) => {
+	const spy = jest.spyOn( console, methodName ).mockName( `console.${ methodName }` );
+
+	beforeEach( () => {
+		spy.mockReset();
+		spy.assertionsNumber = 0;
+	} );
+
+	afterEach( () => {
+		if ( spy.assertionsNumber === 0 && spy.mock.calls.length > 0 ) {
+			expect( console ).not[ matcherName ]();
+		}
+	} );
+};
+
+forEach( supportedMatchers, setConsoleMethodSpy );
 
 // Before every test suite run, delete all content created by the test. This ensures
 // other posts/comments/etc. aren't dirtying tests and tests don't depend on
