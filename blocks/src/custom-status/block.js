@@ -66,7 +66,11 @@ function createButtonObserver( parentNode ) {
 }
 
 function maybeUpdateButtonText( saveButton ) {
-	if ( saveButton && ( saveButton.innerText === __( 'Save Draft' ) || saveButton.innerText === __( 'Save as Pending' ) ) ) {
+	/* 
+	 * saveButton.children < 1 accounts for when a user hovers over the save button
+	 * and a tooltip is rendered
+	*/
+	if ( saveButton && saveButton.children < 1 && ( saveButton.innerText === __( 'Save Draft' ) || saveButton.innerText === __( 'Save as Pending' ) ) ) {
 		saveButton.innerText = __( 'Save' );
 	}
 }
