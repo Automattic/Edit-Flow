@@ -1,4 +1,12 @@
 .ef-calendar-header {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
+  margin-bottom: 5px;
+}
+
+.ef-calendar-snackbar {
+  position: fixed;
+  bottom: 10px;
+  z-index: 999;
 }

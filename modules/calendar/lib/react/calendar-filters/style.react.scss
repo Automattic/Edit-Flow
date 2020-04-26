@@ -1,6 +1,7 @@
 .ef-calendar-navigation {
   display: flex;
   flex-direction: row;
+  margin-right: auto;
 
   .ef-calendar-filters-form {
     display: flex;
@@ -9,6 +10,7 @@
     margin-top: 5px;
     margin-bottom: 5px;
     margin-right: 10px;
+    flex-wrap: wrap;
 
     .components-base-control .components-base-control__field {
       margin-bottom: 0;
@@ -16,11 +18,13 @@
 
     .ef-calendar-filter {
       margin-right: 5px;
+      margin-bottom: 5px;
     }
 
     .ef-calendar-filters-buttons {
-      margin-left: 5px;
       display: flex;
+      align-items: center;
+      margin-bottom: 5px;
 
       button {
         padding-right: 12px;
