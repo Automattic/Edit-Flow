@@ -2,10 +2,10 @@
 Contributors: batmoo, danielbachhuber, sbressler, automattic
 Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
-Requires at least: 5.1
+Requires at least: 5.2
 Requires PHP: 5.6
 Tested up to: 5.4
-Stable tag: 0.9.5
+Stable tag: 0.9.6
 
 Redefining your editorial workflow.
 
@@ -56,6 +56,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 5. View all of your upcoming posts with the more traditional story budget view, and hit the print button to take it to your planning meeting.
 
 == Upgrade Notice ==
+
+= 0.9.6 =
+Fix bug around post save, bring Gutenberg to Calendar filters
 
 = 0.9.5 =
 Fix bugs around slugs, plus some localization improvements and other bug fixes
@@ -124,6 +127,12 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 == Changelog ==
+
+= 0.9.6 (April 26, 2020) =
+* Bug fix: Fix bug causing error on save button click for post after hovering over button (https://github.com/Automattic/Edit-Flow/pull/604)
+* Enhancements: Bring Gutenebrg to Calendar filters (https://github.com/Automattic/Edit-Flow/pull/603)
+* Enhancmenets: Tweak styling on Calendar (https://github.com/Automattic/Edit-Flow/pull/605)
+
 
 = 0.9.5 (April 8, 2020) =
 * Bug fix: Fix bug preventing previewing posts authored by other users (https://github.com/Automattic/Edit-Flow/pull/597 -- props mallorydxw)
