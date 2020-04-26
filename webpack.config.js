@@ -90,7 +90,8 @@ module.exports = [
       'moment': 'moment',
       '@wordpress/i18n': 'wp.i18n',
       '@wordpress/components': 'wp.components',
-      '@wordpress/url': 'wp.url'
+      '@wordpress/url': 'wp.url',
+      '@wordpress/data': 'wp.data'
     },
     module: {
       rules: [
