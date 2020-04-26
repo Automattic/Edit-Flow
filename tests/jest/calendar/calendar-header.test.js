@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, fireEvent, screen, getAllByLabelText } from '@testing-library/react'
+import { render, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom/extend-expect'
 import { CalendarHeader } from '../../../modules/calendar/lib/react/calendar-header';

@@ -615,8 +615,7 @@ class EF_Calendar extends EF_Module {
 	 * @uses get_user_meta()
 	 * @return array $filters All of the set or saved calendar filters
 	 */
-	function get_filters() {
-				
+	function get_filters() {				
 		$current_user 	= wp_get_current_user();
 		$filters 		= array();
 		$old_filters 	= $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );

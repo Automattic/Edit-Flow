@@ -95,7 +95,7 @@ script:
   - npm run test-unit-php
   - |
     if [[ ${RUN_EXTRA} == "1" ]]; then
-      $( npm bin )/wp-scripts test-e2e --config=./tests/e2e/jest.config.js
+      npm run test-e2e
       bash bin/phpcs-diff.sh
       npm run lint
       npm run test-jest

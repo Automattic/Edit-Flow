@@ -13,6 +13,7 @@ import { BaseControl, Button } from '@wordpress/components';
  */
 import './style.react.scss';
 
+
 /**
  * Filters items based on simple name text match
  *
@@ -35,7 +36,7 @@ function getItems( filter, items ) {
  * @return {Item} an item with the id
  */
 function getItem( items, id ) {
-	return items.find( item => item.id === id );
+	return items.find( item => item.value === id );
 }
 
 /**
@@ -88,9 +89,9 @@ const ComboBox = ( {
 									className={classnames( {
 										'is-active': highlightedIndex === index,
 									} )}
-									key={item.id}
 									{...getItemProps( {
 										item: item,
+										key: item.value,
 										index,
 									} )}
 								>
