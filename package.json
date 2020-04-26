@@ -89,6 +89,7 @@
   "dependencies": {
     "@babel/plugin-transform-react-jsx": "^7.9.4",
     "@wordpress/babel-plugin-import-jsx-pragma": "^2.5.0",
+    "@wordpress/data": "^4.16.1",
     "classnames": "^2.2.6",
     "downshift": "^5.1.0",
     "install": "^0.13.0",

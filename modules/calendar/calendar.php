@@ -201,6 +201,7 @@ class EF_Calendar extends EF_Module {
 				'jquery-ui-sortable',
 				'jquery-ui-draggable',
 				'jquery-ui-droppable',
+				'wp-data'
 			);
 			foreach( $js_libraries as $js_library ) {
 				wp_enqueue_script( $js_library );
@@ -213,7 +214,7 @@ class EF_Calendar extends EF_Module {
 			/**
 			 * Powering the new React interface
 			 */
-			wp_enqueue_script( 'edit-flow-calendar-react-js', $this->module_url . 'lib/dist/calendar.react.build.js', array( 'react', 'react-dom', 'wp-components', 'wp-url', 'moment' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-calendar-react-js', $this->module_url . 'lib/dist/calendar.react.build.js', array( 'react', 'react-dom', 'wp-components', 'wp-url', 'wp-data', 'moment' ), EDIT_FLOW_VERSION, true );
 			
 			wp_add_inline_script(
 				'edit-flow-calendar-react-js',
@@ -725,9 +726,9 @@ class EF_Calendar extends EF_Module {
 				}
 			?>
 
-			<div id="ef-calendar-wrap"><!-- Calendar Wrapper -->
-
 			<div id="ef-calendar-navigation-mount"></div> <!-- Mount point for React -->
+
+			<div id="ef-calendar-wrap"><!-- Calendar Wrapper -->
 
 			<?php
 				$table_classes = array();

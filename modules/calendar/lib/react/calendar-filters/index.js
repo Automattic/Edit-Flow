@@ -4,7 +4,7 @@
 import React, { useReducer, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { __ } from '@wordpress/i18n';
-import { SelectControl, Button } from '@wordpress/components';
+import { SelectControl, Button, Spinner } from '@wordpress/components';
 import { addQueryArgs } from '@wordpress/url';
 
 /**
@@ -68,7 +68,7 @@ const CalendarFilters = props => {
 
 	const [ state, dispatch ] = useReducer( reducer, props, init );
 
-	const { filters, pageUrl } = props;
+	const { filters, pageUrl, isLoading } = props;
 
 	return (
 		<div className="ef-calendar-navigation">
@@ -167,6 +167,7 @@ const CalendarFilters = props => {
 							}, {} ) )}
 							name="ef-calendar-reset-filters"
 							isSecondary={true}>{__( 'Reset', 'edit-flow' )}</Button>
+						{ isLoading ? <Spinner /> : null }
 					</div>
 				</form>
 			</div>
@@ -186,6 +187,7 @@ CalendarFilters.propTypes = {
 		initialValue: PropTypes.any,
 	} ) ),
 	pageUrl: PropTypes.string,
+	isLoading: PropTypes.bool
 };
 
 export { CalendarFilters };

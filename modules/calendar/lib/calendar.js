@@ -1,3 +1,5 @@
+var dispatch = wp.data.dispatch;
+
 jQuery(document).ready(function ($) {
 	
 	$('a.show-more').click(function(){
@@ -186,6 +188,7 @@ jQuery(document).ready(function ($) {
 	/**
 	 * Instantiates drag and drop sorting for posts on the calendar
 	 */
+	let snackbarMessageTimeout = null;
 	$('td.day-unit ul').sortable({
 		items: 'li.day-item.sortable',
 		connectWith: 'td.day-unit ul',
@@ -211,7 +214,8 @@ jQuery(document).ready(function ($) {
 				var next_date = $(ui.item).closest('.day-unit').attr('id');
 				var nonce = $(document).find('#ef-calendar-modify').val();
 				$('.edit-flow-message').remove();
-				$('li.ajax-actions .waiting').show();
+				dispatch( 'edit-flow/calendar' ).setCalendarIsLoading( true );
+				// $('li.ajax-actions .waiting').show();
 				// make ajax request
 				var params = {
 					action: 'ef_calendar_drag_and_drop',
@@ -222,15 +226,16 @@ jQuery(document).ready(function ($) {
 				};
 				jQuery.post(ajaxurl, params,
 					function(response) {
-						$('li.ajax-actions .waiting').hide();
-						var html = '';
-						if ( response.status == 'success' ) {
-							html = '<div class="edit-flow-message edit-flow-updated-message">' + response.message + '</div>';
-							//setTimeout( edit_flow_calendar_hide_message, 5000 );
-						} else if ( response.status == 'error' ) {
-							html = '<div class="edit-flow-message edit-flow-error-message">' + response.message + '</div>';
+						if ( snackbarMessageTimeout ) {
+							clearTimeout( snackbarMessageTimeout );
 						}
-						$('li.ajax-actions').prepend(html);
+
+						dispatch( 'edit-flow/calendar' ).setPostSaved( response.message );
+
+						snackbarMessageTimeout = setTimeout( () => {
+							dispatch( 'edit-flow/calendar' ).clearCalendarSnackbarMessage();
+						}, 2500 );
+						
 						setTimeout( edit_flow_calendar_hide_message, 10000 );
 					}
 				);
