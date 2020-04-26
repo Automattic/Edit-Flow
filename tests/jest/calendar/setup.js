@@ -49,7 +49,7 @@ const filters = [
         placeholder: 'Select a user',
         options: [
             {
-                id: 1,
+                value: 1,
                 name: 'admin'
             }
         ],
@@ -65,7 +65,7 @@ const filters = [
         placeholder: 'Select a category',
         options: [
             {
-                id: 1,
+                value: 1,
                 name: 'Uncategorized',
                 parent: 0,
                 level: 0

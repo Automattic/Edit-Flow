@@ -31,10 +31,13 @@ function organizeItems( items, parent = 0, level = 0 ) {
 		.map( item => {
 			return [ { ...item, level } ]
 				.concat(
-					organizeItems( items, item.id, level + 1 )
+					organizeItems( items, item.value, level + 1 )
 				);
 		} );
 }
+
+const EF_USER_MAP = ( { id: value, display_name: name } ) => ( { value, name } );
+const EF_CATEGORY_MAP = ( { term_id: value, name, parent } ) => ( { value, name, parent } );
 
 /**
  * The number of weeks is a drop listing the maximum number of weeks a user can select (usually 12). This creates an array and fills
@@ -44,8 +47,8 @@ const NUM_WEEKS_OPTIONS = ( new Array( EF_CALENDAR.NUM_WEEKS.MAX ) )
 	.fill( null )
 	.map( ( value, index ) => ( { value: index + 1, label: sprintf( _n( '%d week', '%d weeks', index + 1, 'text-domain' ), index + 1 ) } ) );
 
-const INITIAL_CATEGORY = EF_CALENDAR.CATEGORIES.filter( category => category.id === EF_CALENDAR.FILTERS.cat )[ 0 ];
-const INITIAL_USER = EF_CALENDAR.USERS.filter( user => user.id === EF_CALENDAR.FILTERS.author )[ 0 ];
+const INITIAL_CATEGORY = EF_CALENDAR.CATEGORIES.filter( category => category.term_id === EF_CALENDAR.FILTERS.cat ).map( EF_CATEGORY_MAP )[ 0 ];
+const INITIAL_USER = EF_CALENDAR.USERS.filter( user => user.id === EF_CALENDAR.FILTERS.author ).map( EF_USER_MAP )[ 0 ];
 
 /**
  * Filters are hardcoded here for the moment, eventually should introduce some filtering to support custom filters
@@ -68,7 +71,7 @@ const filters = [
 		buttonCloseLabel: __( 'Close user menu', 'edit-flow' ),
 		buttonClearLabel: __( 'Clear user selection', 'edit-flow' ),
 		placeholder: __( 'Select a user', 'edit-flow' ),
-		options: EF_CALENDAR.USERS.map( ( { id: value, display_name: name } ) => ( { value, name } ) ),
+		options: EF_CALENDAR.USERS.map( EF_USER_MAP ),
 		initialValue: INITIAL_USER ? INITIAL_USER : null,
 		selectFirstItemOnBlur: true,
 	},
@@ -81,9 +84,9 @@ const filters = [
 		buttonClearLabel: __( 'Clear category selection', 'edit-flow' ),
 		placeholder: __( 'Select a category', 'edit-flow' ),
 		options: flatDeep(
-			organizeItems( EF_CALENDAR.CATEGORIES.map( cat => ( { id: cat.term_id, ...cat } ) ), 0 ),
+			organizeItems( EF_CALENDAR.CATEGORIES.map( EF_CATEGORY_MAP ), 0 ),
 			Infinity
-		).map( ( { id: value, name } ) => ( { value, name } ) ),
+		),
 		initialValue: INITIAL_CATEGORY ? INITIAL_CATEGORY : null,
 		selectFirstItemOnBlur: true,
 	},

@@ -82,6 +82,7 @@ const CalendarFilters = props => {
 									return (
 										<div className={`ef-calendar-filter ef-calendar-filter-${ filter.name }`} key={`ef-calendar-filter-${ filter.name }`}>
 											<SelectControl
+												key={filter.name}
 												name={filter.name}
 												hideLabelFromVision={true}
 												label={filter.label}
@@ -101,6 +102,7 @@ const CalendarFilters = props => {
 									return (
 										<div className={`ef-calendar-filter ef-calendar-filter-${ filter.name }`} key={`ef-calendar-filter-${ filter.name }`}>
 											<ComboBox
+												key={filter.name}
 												className="ef-calendar-filter-combobox"
 												inputLabel={filter.inputLabel}
 												buttonOpenLabel={filter.buttonOpenLabel}
@@ -149,7 +151,7 @@ const CalendarFilters = props => {
 													}
 												}}
 											/>
-											<input type="hidden" name={filter.name} value={state[ filter.name ] ? state[ filter.name ].id : ''} />
+											<input key={`${ filter.name }-input`} type="hidden" name={filter.name} value={state[ filter.name ] ? state[ filter.name ].value : ''} />
 										</div>
 									);
 							}
