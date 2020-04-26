@@ -233,10 +233,6 @@ table#ef-calendar-view .day-unit ul li.is-published:hover {
 	cursor: pointer;
 }
 
-table#ef-calendar-view .day-unit li.is-published:hover .item-headline {
-	color: #444;
-}
-
 table#ef-calendar-view .day-unit ul li.sortable:hover {
 	border-color: #21759B;
 	background-color: #F7F7F7;
