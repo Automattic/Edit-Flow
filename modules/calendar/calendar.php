@@ -233,28 +233,16 @@ class EF_Calendar extends EF_Module {
 	function generate_screen_options() {
 		
 		$output = '';
-		$screen_options = $this->get_screen_options();
 		
-		$output .= __( 'Number of Weeks: ', 'edit-flow' );
-		$output .= '<select id="' . self::usermeta_key_prefix . 'num_weeks" name="' . self::usermeta_key_prefix . 'num_weeks">';
-		for( $i = 1; $i <= 12; $i++ ) {
-			$output .= '<option value="' . esc_attr( $i ) . '" ' . selected( $i, $screen_options['num_weeks'], false ) . '>' . esc_attr( $i ) . '</option>';
-		}
-		$output .= '</select>';
-		
-		$output .= '&nbsp;&nbsp;&nbsp;<input id="screen-options-apply" name="screen-options-apply" type="submit" value="' . __( 'Apply' ) . '" class="button-secondary" />';
-
-		if ( 'on' == $this->module->options->ics_subscription && $this->module->options->ics_secret_key ) {
-			$args = array(
-					'action'       => 'ef_calendar_ics_subscription',
-					'user'         => wp_get_current_user()->user_login,
-					'user_key'     => md5( wp_get_current_user()->user_login . $this->module->options->ics_secret_key ),
-				);
-			$subscription_link = add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
-			$output .= '<br />';
-			$output .= __( 'Subscribe in iCal or Google Calendar', 'edit-flow' );
-			$output .= ':<br /><input type="text" size="100" value="' . esc_attr( $subscription_link ) . '" />';
-		}
+		$args = array(
+				'action'       => 'ef_calendar_ics_subscription',
+				'user'         => wp_get_current_user()->user_login,
+				'user_key'     => md5( wp_get_current_user()->user_login . $this->module->options->ics_secret_key ),
+			);
+		$subscription_link = add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
+		$output .= '<br />';
+		$output .= __( 'Subscribe in iCal or Google Calendar', 'edit-flow' );
+		$output .= ':<br /><input type="text" size="100" value="' . esc_attr( $subscription_link ) . '" />';
 		
 		return $output;	
 	}
@@ -266,7 +254,9 @@ class EF_Calendar extends EF_Module {
 	 */
 	function add_screen_options_panel() {
 		require_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
-		add_screen_options_panel( self::usermeta_key_prefix . 'screen_options', __( 'Calendar Options', 'edit-flow' ), array( $this, 'generate_screen_options' ), self::screen_id, false, true );		
+		if ( 'on' == $this->module->options->ics_subscription && $this->module->options->ics_secret_key ) {
+			add_screen_options_panel( self::usermeta_key_prefix . 'screen_options', __( 'Calendar Options', 'edit-flow' ), array( $this, 'generate_screen_options' ), self::screen_id, false, true );		
+		}
 	}
 	
 	/**
@@ -1395,7 +1385,6 @@ class EF_Calendar extends EF_Module {
 	function register_settings() {
 		
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'number_of_weeks', __( 'Number of weeks to show', 'edit-flow' ), array( $this, 'settings_number_weeks_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 			add_settings_field( 'post_types', __( 'Post types to show', 'edit-flow' ), array( $this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 			add_settings_field( 'quick_create_post_type', __( 'Post type to create directly from calendar', 'edit-flow' ), array( $this, 'settings_quick_create_post_type_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 			add_settings_field( 'ics_subscription', __( 'Subscription in iCal or Google Calendar', 'edit-flow' ), array( $this, 'settings_ics_subscription_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
@@ -1426,16 +1415,6 @@ class EF_Calendar extends EF_Module {
 			echo "<option value='" . esc_attr( $post_type ) . "' " . selected( $post_type, $this->module->options->quick_create_post_type, false ) . ">".esc_html( $title )."</option>";
 		echo "</select>";
 
-	}
-
-	/**
-	 * Give a bit of helper text to indicate the user can change
-	 * number of weeks in the screen options
-	 *
-	 * @since 0.7
-	 */
-	function settings_number_weeks_option() {
-		echo '<span class="description">' . esc_html_e( 'The number of weeks shown on the calendar can be changed on a user-by-user basis using the calendar\'s screen options.', 'edit-flow' ) . '</span>';
 	}
 
 	/**
