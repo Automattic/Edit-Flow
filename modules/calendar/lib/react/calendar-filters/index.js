@@ -116,12 +116,13 @@ const CalendarFilters = props => {
 												itemToString={item => item ? item.name : ''}
 												onInputBlur={( items, inputValue ) => {
 													/**
-                           * If this is set, if a user has typed out a name
-                           * and it matches an item in the list, select it for them
-                           */
-													if ( ! filter.selectFirstItemOnBlur ||
-                            items.length < 1 ||
-                            inputValue !== items[ 0 ].name ) {
+													 * If this is set, if a user has typed out a name
+													 * and it matches an item in the list, select it for them
+													 */
+													if ( ! filter.selectFirstItemOnBlur 
+														|| items.length < 1 
+														|| !inputValue
+														|| inputValue.toLowerCase() !== items[ 0 ].name.toLowerCase() ) {
 														return;
 													}
 
