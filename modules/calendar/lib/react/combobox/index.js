@@ -11,7 +11,7 @@ import PropTypes from 'prop-types';
 import { BaseControl, Button, IconButton } from '@wordpress/components';
 
 // Get rid of this eventually
-const ACTIVE_ICON_BUTTON = parseFloat( EF_CALENDAR.WP_VERSION ) >= 5.4 ? Button : IconButton;
+const ACTIVE_ICON_BUTTON = parseFloat( EF_CALENDAR.WP_VERSION ) >= 5.3 ? Button : IconButton;
 
 /**
  * Internal dependencies
