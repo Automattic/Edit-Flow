@@ -1,3 +1,5 @@
+/* global EF_CALENDAR */
+
 /**
  * External dependencies
  */
@@ -6,13 +8,15 @@ import Downshift from 'downshift';
 import matchSorter from 'match-sorter';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import { BaseControl, Button } from '@wordpress/components';
+import { BaseControl, Button, IconButton } from '@wordpress/components';
+
+// Get rid of this eventually
+const ACTIVE_ICON_BUTTON = parseFloat( EF_CALENDAR.WP_VERSION ) >= 5.4 ? Button : IconButton;
 
 /**
  * Internal dependencies
  */
 import './style.react.scss';
-
 
 /**
  * Filters items based on simple name text match
@@ -56,7 +60,6 @@ const ComboBox = ( {
 	buttonOpenLabel,
 	buttonCloseLabel,
 	buttonClearLabel,
-	hideLabelFromVision,
 	items,
 	noMatchText = 'No items match',
 	onInputBlur,
@@ -89,9 +92,9 @@ const ComboBox = ( {
 									className={classnames( {
 										'is-active': highlightedIndex === index,
 									} )}
+									key={item.value}
 									{...getItemProps( {
 										item: item,
-										key: item.value,
 										index,
 									} )}
 								>
@@ -130,7 +133,6 @@ const ComboBox = ( {
 							<div className="ef-combobox-input-wrapper">
 								<BaseControl
 									label={inputLabel}
-									hideLabelFromVision={hideLabelFromVision}
 								>
 									<input
 										className={classnames(
@@ -148,7 +150,7 @@ const ComboBox = ( {
 									/>
 								</BaseControl>
 								{selectedItem ? (
-									<Button
+									<ACTIVE_ICON_BUTTON
 										{...getToggleButtonProps( {
 											'aria-label': buttonClearLabel,
 										} )}
@@ -158,7 +160,7 @@ const ComboBox = ( {
 										icon="no-alt"
 									/>
 								) : (
-									<Button
+									<ACTIVE_ICON_BUTTON
 										{...getToggleButtonProps( {
 											'aria-label': isOpen ? buttonCloseLabel : buttonOpenLabel,
 										} )}
@@ -191,7 +193,6 @@ ComboBox.propTypes = {
 	buttonCloseLabel: PropTypes.string,
 	buttonClearLabel: PropTypes.string,
 	label: PropTypes.string,
-	hideLabelFromVision: PropTypes.bool,
 	items: PropTypes.arrayOf( PropTypes.shape( {
 		name: PropTypes.string.isRequired,
 		id: PropTypes.oneOfType( [ PropTypes.string, PropTypes.number ] ),

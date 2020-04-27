@@ -1,46 +1,23 @@
+/* global EF_CALENDAR */
+
 /**
  * External Dependencies
  */
-import React, { useReducer, useRef } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 import { __ } from '@wordpress/i18n';
 import { SelectControl, Button, Spinner } from '@wordpress/components';
 import { addQueryArgs } from '@wordpress/url';
+
+// Get rid of this eventually
+const BUTTON_TYPE_PROPS = parseFloat( EF_CALENDAR.WP_VERSION ) >= 5.4 ? { isSecondary: true } : { isDefault: true };
 
 /**
  * Internal Dependencies
  */
 import { ComboBox } from '../combobox';
 import './style.react.scss';
-
-/**
- * The actions for our `useReducer`
- */
-const ACTIONS = {
-	CHANGE_FILTER_VALUE: 'CHANGE_FILTER_VALUE',
-};
-
-/**
- * An action to be passed to our reducer
- * @typedef {Object} Action
- * @property {string} type represents the type of the action
- * @property {*} payload represents the payload of the action
- */
-
-/**
- * The reducer for our `useReducer`
- * @param {*} state represents the current state
- * @param {Action} action represents the type of the action
- * @returns {*} the current state
- */
-function reducer( state, action ) {
-	switch ( action.type ) {
-		case ACTIONS.CHANGE_FILTER_VALUE:
-			return { ...state, [ action.name ]: action.value };
-		default:
-			throw new Error();
-	}
-}
 
 function init( {
 	filters,
@@ -63,120 +40,128 @@ function init( {
 	};
 }
 
-const CalendarFilters = props => {
-	const formRef = useRef( null );
+class CalendarFilters extends React.Component {
+	constructor( props ) {
+		super( props );
 
-	const [ state, dispatch ] = useReducer( reducer, props, init );
+		this.state = init( props );
+		this.formRef = React.createRef();
+	}
 
-	const { filters, pageUrl, isLoading } = props;
+	updateFilter( { name, value } ) {
+		this.setState( {
+			...this.state,
+			[ name ]: value,
+		} );
+	}
 
-	return (
-		<div className="ef-calendar-navigation">
-			<div className="ef-calendar-filters">
-				<form ref={formRef} action="" method="GET" className="ef-calendar-filters-form">
-					<input type="hidden" name="page" value="calendar" />
-					{
-						filters.map( filter => {
-							switch ( filter.filterType ) {
-								case 'select':
-									return (
-										<div className={`ef-calendar-filter ef-calendar-filter-${ filter.name }`} key={`ef-calendar-filter-${ filter.name }`}>
-											<SelectControl
-												key={filter.name}
-												name={filter.name}
-												hideLabelFromVision={true}
-												label={filter.label}
-												value={state[ filter.name ]}
-												options={filter.options}
-												onChange={newValue =>
-													dispatch( {
-														type: ACTIONS.CHANGE_FILTER_VALUE,
-														name: filter.name,
-														value: newValue,
-													} )
-												}
-											/>
-										</div>
-									);
-								case 'combobox':
-									return (
-										<div className={`ef-calendar-filter ef-calendar-filter-${ filter.name }`} key={`ef-calendar-filter-${ filter.name }`}>
-											<ComboBox
-												key={filter.name}
-												className="ef-calendar-filter-combobox"
-												inputLabel={filter.inputLabel}
-												buttonOpenLabel={filter.buttonOpenLabel}
-												buttonCloseLabel={filter.buttonCloseLabel}
-												buttonClearLabel={filter.buttonClearLabel}
-												placeholder={filter.placeholder}
-												hideLabelFromVision={true}
-												items={filter.options}
-												selectedItem={state[ filter.name ]}
-												inputValue={state[ `${ filter.name }InputValue` ]}
-												itemToString={item => item ? item.name : ''}
-												onInputBlur={( items, inputValue ) => {
-													/**
-													 * If this is set, if a user has typed out a name
-													 * and it matches an item in the list, select it for them
-													 */
-													if ( ! filter.selectFirstItemOnBlur 
-														|| items.length < 1 
-														|| !inputValue
-														|| inputValue.toLowerCase() !== items[ 0 ].name.toLowerCase() ) {
-														return;
-													}
+	render() {
+		const { filters, pageUrl, isLoading } = this.props;
+		const state = this.state;
 
-													dispatch( {
-														type: ACTIONS.CHANGE_FILTER_VALUE,
-														name: filter.name,
-														value: items[ 0 ],
-													} );
-												}}
-												onStateChange={changes => {
-													if (
-														changes.hasOwnProperty( 'selectedItem' )
-													) {
-														dispatch( {
-															type: ACTIONS.CHANGE_FILTER_VALUE,
+		return (
+			<div className="ef-calendar-navigation">
+				<div className="ef-calendar-filters">
+					<form ref={this.formRef} action="" method="GET" className="ef-calendar-filters-form">
+						<input type="hidden" name="page" value="calendar" />
+						{
+							filters.map( filter => {
+								switch ( filter.filterType ) {
+									case 'select':
+										return (
+											<div className={`ef-calendar-filter ef-calendar-filter-${ filter.name }`} key={`ef-calendar-filter-${ filter.name }`}>
+												<SelectControl
+													className={'label-screen-reader-text'} // Replaced by `hideLabelFromVision` prop in later versions
+													key={filter.name}
+													name={filter.name}
+													label={filter.label}
+													value={state[ filter.name ]}
+													options={filter.options}
+													onChange={newValue =>
+														this.updateFilter( {
 															name: filter.name,
-															value: changes.selectedItem,
-														} );
-													} else if (
-														changes.hasOwnProperty( 'inputValue' )
-													) {
-														dispatch( {
-															type: ACTIONS.CHANGE_FILTER_VALUE,
-															name: `${ filter.name }InputValue`,
-															value: changes.inputValue,
-														} );
+															value: newValue,
+														} )
 													}
-												}}
-											/>
-											<input key={`${ filter.name }-input`} type="hidden" name={filter.name} value={state[ filter.name ] ? state[ filter.name ].value : ''} />
-										</div>
-									);
-							}
-						} )
-					}
-					<div className="ef-calendar-filters-buttons">
-						<Button type="submit" isPrimary={true}>{__( 'Apply', 'edit-flow' )}</Button>
-						<Button
-							type="button'"
-							href={addQueryArgs( pageUrl, filters.reduce( ( acc, filter ) => {
-								return {
-									...acc,
-									[ filter.name ]: '',
-								};
-							}, {} ) )}
-							name="ef-calendar-reset-filters"
-							isSecondary={true}>{__( 'Reset', 'edit-flow' )}</Button>
-						{ isLoading ? <Spinner /> : null }
-					</div>
-				</form>
+												/>
+											</div>
+										);
+									case 'combobox':
+										return (
+											<div className={`ef-calendar-filter ef-calendar-filter-${ filter.name }`} key={`ef-calendar-filter-${ filter.name }`}>
+												<ComboBox
+													key={filter.name}
+													className="ef-calendar-filter-combobox label-screen-reader-text"
+													inputLabel={filter.inputLabel}
+													buttonOpenLabel={filter.buttonOpenLabel}
+													buttonCloseLabel={filter.buttonCloseLabel}
+													buttonClearLabel={filter.buttonClearLabel}
+													placeholder={filter.placeholder}
+													items={filter.options}
+													selectedItem={state[ filter.name ]}
+													inputValue={state[ `${ filter.name }InputValue` ]}
+													itemToString={item => item ? item.name : ''}
+													onInputBlur={( items, inputValue ) => {
+														/**
+														 * If this is set, if a user has typed out a name
+														 * and it matches an item in the list, select it for them
+														 */
+														if ( ! filter.selectFirstItemOnBlur ||
+															items.length < 1 ||
+															! inputValue ||
+															inputValue.toLowerCase() !== items[ 0 ].name.toLowerCase() ) {
+															return;
+														}
+
+														this.updateFilter( {
+															name: filter.name,
+															value: items[ 0 ],
+														} );
+													}}
+													onStateChange={changes => {
+														if (
+															changes.hasOwnProperty( 'selectedItem' )
+														) {
+															this.updateFilter( {
+																name: filter.name,
+																value: changes.selectedItem,
+															} );
+														} else if (
+															changes.hasOwnProperty( 'inputValue' )
+														) {
+															this.updateFilter( {
+																name: `${ filter.name }InputValue`,
+																value: changes.inputValue,
+															} );
+														}
+													}}
+												/>
+												<input key={`${ filter.name }-input`} type="hidden" name={filter.name} value={state[ filter.name ] ? state[ filter.name ].value : ''} />
+											</div>
+										);
+								}
+							} )
+						}
+						<div className="ef-calendar-filters-buttons">
+							<Button type="submit" isPrimary={true}>{__( 'Apply', 'edit-flow' )}</Button>
+							<Button
+								type="button'"
+								href={addQueryArgs( pageUrl, filters.reduce( ( acc, filter ) => {
+									return {
+										...acc,
+										[ filter.name ]: '',
+									};
+								}, {} ) )}
+								name="ef-calendar-reset-filters"
+								{...BUTTON_TYPE_PROPS}>{__( 'Reset', 'edit-flow' )}</Button>
+							{ isLoading ? <Spinner /> : null }
+						</div>
+					</form>
+				</div>
 			</div>
-		</div>
-	);
-};
+		);
+	}
+}
 
 CalendarFilters.propTypes = {
 	filters: PropTypes.arrayOf( PropTypes.shape( {
@@ -190,7 +175,7 @@ CalendarFilters.propTypes = {
 		initialValue: PropTypes.any,
 	} ) ),
 	pageUrl: PropTypes.string,
-	isLoading: PropTypes.bool
+	isLoading: PropTypes.bool,
 };
 
 export { CalendarFilters };

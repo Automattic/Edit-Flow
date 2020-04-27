@@ -1,3 +1,5 @@
+/* global EF_CALENDAR */
+
 /**
  * External dependencies
  */
@@ -7,6 +9,9 @@ import moment from 'moment';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
 import { addQueryArgs } from '@wordpress/url';
+
+// Get rid of this eventually
+const BUTTON_TYPE_PROPS = parseFloat( EF_CALENDAR.WP_VERSION ) >= 5.4 ? { isSecondary: true } : { isDefault: true };
 
 /**
  * Internal dependencies
@@ -70,7 +75,7 @@ const CalendarDateChangeButtons = ( {
 		<div className="ef-calendar-date-change-buttons">
 			{numberOfWeeks > 1 ? (
 				<Button
-					isSecondary={true}
+					{...BUTTON_TYPE_PROPS}
 					className="ef-calendar-date-change-button"
 					title={sprintf( __( 'Backwards %d weeks', 'edit-flow' ), numberOfWeeks )}
 					href={moveBackByWeeks( numberOfWeeks, beginningOfWeek, pageUrl, filterValues )}>
@@ -79,21 +84,21 @@ const CalendarDateChangeButtons = ( {
 			) : null}
 
 			<Button
-				isSecondary={true}
+				{...BUTTON_TYPE_PROPS}
 				className="ef-calendar-date-change-button"
 				title={__( 'Backwards 1 week', 'edit-flow' )}
 				href={moveBackByWeeks( 1, beginningOfWeek, pageUrl, filterValues )}>
 				{__( '‹', 'edit-flow' )}
 			</Button>
 			<Button
-				isSecondary={true}
+				{...BUTTON_TYPE_PROPS}
 				className="ef-calendar-date-change-button"
 				title={__( 'Today', 'edit-flow' )}
 				href={moveFowardByWeeks( 0, beginningOfWeek, pageUrl, filterValues )}>
 				{__( 'Today', 'edit-flow' )}
 			</Button>
 			<Button
-				isSecondary={true}
+				{...BUTTON_TYPE_PROPS}
 				className="ef-calendar-date-change-button"
 				title={__( 'Forward 1 week', 'edit-flow' )}
 				href={moveFowardByWeeks( 1, beginningOfWeek, pageUrl, filterValues )}>
@@ -102,7 +107,7 @@ const CalendarDateChangeButtons = ( {
 
 			{numberOfWeeks > 1 ? (
 				<Button
-					isSecondary={true}
+					{...BUTTON_TYPE_PROPS}
 					className="ef-calendar-date-change-button"
 					title={sprintf( __( 'Forward %d weeks', 'edit-flow' ), numberOfWeeks )}
 					href={moveFowardByWeeks( numberOfWeeks, beginningOfWeek, pageUrl, filterValues )}>

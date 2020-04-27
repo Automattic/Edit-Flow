@@ -11,6 +11,7 @@ import { _n, __, sprintf } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { CalendarHeader } from './calendar-header';
+import './style.react.scss';
 
 // See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
 function flatDeep( arr, d = 1 ) {
@@ -97,8 +98,8 @@ if ( EF_CALENDAR.CALENDAR_POST_TYPES && EF_CALENDAR.CALENDAR_POST_TYPES.length >
 		name: 'cpt',
 		filterType: 'select',
 		label: __( 'Select a type', 'edit-flow' ),
-		options: [ { value: '', label: __( 'Select a status', 'edit-flow' ) } ]
-			.concat( EF_CALENDAR.POST_STATI.map( ( { name: value, label } ) => ( { value, label } ) ) ),
+		options: [ { value: '', label: __( 'Select a type', 'edit-flow' ) } ]
+			.concat( EF_CALENDAR.CALENDAR_POST_TYPES.map( ( { name: value, label } ) => ( { value, label } ) ) ),
 		initialValue: EF_CALENDAR.FILTERS.cpt,
 	} );
 }
