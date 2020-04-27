@@ -3,5 +3,10 @@ module.exports = {
     moduleNameMapper: {
         "^.+\\.(css|less|scss)$": "babel-jest"
     },
+    globals: {
+        "EF_CALENDAR": {
+            "WP_VERSION": 5.4
+        }
+    },
     preset: '@wordpress/jest-preset-default',
 };

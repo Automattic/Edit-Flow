@@ -1,3 +1,5 @@
+/* global EF_CALENDAR */
+
 /**
  * External dependencies
  */
@@ -16,51 +18,51 @@ import './style.react.scss';
 
 const DEFAULT_STORE_STATE = {
 	calendarSnackbarMessage: null,
-	calendarIsLoading: false
+	calendarIsLoading: false,
 };
 
 registerStore( 'edit-flow/calendar', {
 	reducer( state = DEFAULT_STORE_STATE, action ) {
-		switch( action.type ) {
+		switch ( action.type ) {
 			case 'SET_POST_SAVED':
 				return {
 					...state,
 					calendarSnackbarMessage: action.message,
-					calendarIsLoading: false
+					calendarIsLoading: false,
 				};
 			case 'CLEAR_CALENDAR_SNACKBAR_MESSAGE':
 				return {
 					...state,
-					calendarSnackbarMessage: null
-				}
+					calendarSnackbarMessage: null,
+				};
 			case 'SET_CALENDAR_IS_LOADING':
 				return {
 					...state,
-					calendarIsLoading: action.isLoading
+					calendarIsLoading: action.isLoading,
 				};
 		}
 
 		return state;
-	}, 
+	},
 	actions: {
 		setPostSaved( message ) {
 			return {
 				type: 'SET_POST_SAVED',
-				message
-			}
+				message,
+			};
 		},
 
 		clearCalendarSnackbarMessage() {
 			return {
-				type: 'CLEAR_CALENDAR_SNACKBAR_MESSAGE'
-			}
+				type: 'CLEAR_CALENDAR_SNACKBAR_MESSAGE',
+			};
 		},
 
 		setCalendarIsLoading( isLoading ) {
 			return {
 				type: 'SET_CALENDAR_IS_LOADING',
-				isLoading
-			}
+				isLoading,
+			};
 		},
 	},
 	selectors: {
@@ -69,10 +71,10 @@ registerStore( 'edit-flow/calendar', {
 		},
 
 		getCalendarIsLoading( state ) {
-			return state.calendarIsLoading
-		}
-	}
-})
+			return state.calendarIsLoading;
+		},
+	},
+} );
 
 const CalendarHeader = ( ( { snackbarMessage, isLoading, filters, filterValues, numberOfWeeks, beginningOfWeek, pageUrl } ) => {
 	return (
@@ -86,12 +88,12 @@ const CalendarHeader = ( ( { snackbarMessage, isLoading, filters, filterValues, 
 			/>
 			{
 				snackbarMessage ? (
-					<Animate options={{origin: 'bottom left'}} type="appear">
+					<Animate options={{ origin: 'bottom left' }} type="appear">
 						{ ( { className } ) => (
-							<Snackbar className={classnames(className, "ef-calendar-snackbar")}>
+							<Snackbar className={classnames( className, 'ef-calendar-snackbar' )}>
 								<div>{snackbarMessage}</div>
 							</Snackbar>
-        				) }
+						) }
 					</Animate>
 				) : null
 			}
@@ -116,19 +118,19 @@ CalendarHeader.propTypes = {
 	beginningOfWeek: PropTypes.string, // Formatted 'YYYY-MM-DD'
 	pageUrl: PropTypes.string,
 	snackbarMessage: PropTypes.string,
-	isLoading: PropTypes.bool
+	isLoading: PropTypes.bool,
 };
 
-const CalendarHeaderWithData = withSelect( ( select ) => {
-	const { 
+const CalendarHeaderWithData = withSelect( select => {
+	const {
 		getCalendarSnackbarMessage,
-		getCalendarIsLoading
+		getCalendarIsLoading,
 	} = select( 'edit-flow/calendar' );
 
 	return {
 		snackbarMessage: getCalendarSnackbarMessage(),
-		isLoading: getCalendarIsLoading()
-	}
-} )( CalendarHeader )
+		isLoading: getCalendarIsLoading(),
+	};
+} )( CalendarHeader );
 
 export { CalendarHeaderWithData as CalendarHeader };

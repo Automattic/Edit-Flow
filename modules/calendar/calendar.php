@@ -1823,6 +1823,8 @@ class EF_Calendar extends EF_Module {
 	}
 
 	public function get_calendar_frontend_config() {
+		global $wp_version;
+
 		$all_post_types = get_post_types( null, 'objects' );
 
 		$config = array(
@@ -1867,6 +1869,7 @@ class EF_Calendar extends EF_Module {
 			'BEGINNING_OF_WEEK' => $this->get_beginning_of_week( date( 'Y-m-d', current_time( 'timestamp' ) ) ),
 			'FILTERS' => $this->get_filters(),
 			'PAGE_URL' => menu_page_url( $this->module->slug, false ),
+			'WP_VERSION' => $wp_version
 		);
 
 		return apply_filters( 'ef_calendar_frontend_config', $config );
