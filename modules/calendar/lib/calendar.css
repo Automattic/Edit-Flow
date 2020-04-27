@@ -202,6 +202,7 @@ table#ef-calendar-view .day-unit ul li {
 	border-top: 1px solid #CCCCCC;
 	border-bottom: 1px solid #CCCCCC;
 	margin-bottom: 5px;
+	background-color: #FFFFFF;
 }
 
 table#ef-calendar-view .day-unit ul li .item-status {
