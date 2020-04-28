@@ -1837,14 +1837,22 @@ class EF_Calendar extends EF_Module {
 		$all_post_types = get_post_types( null, 'objects' );
 
 		$config = array(
-			'POST_STATI' => array_map( 
-				function( $item ) {
-					return array( 
-						'name' => $item->name, 
-						'label' => $item->label,
-					);
-				}, 
-				$this->get_calendar_post_stati() 
+			'POST_STATI' => array_merge(
+				array( 
+					array(
+						'label' => 'Unpublish',
+						'name' => 'unpublish'
+					)
+				),
+				array_map( 
+					function( $item ) {
+						return array( 
+							'name' => $item->name, 
+							'label' => $item->label,
+						);
+					}, 
+					$this->get_calendar_post_stati() 
+				)
 			),
 			'USERS' => array_map( 
 				function( $item ) {
