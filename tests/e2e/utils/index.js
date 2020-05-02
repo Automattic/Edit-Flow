@@ -51,4 +51,20 @@ const publishPost = async() => {
 
 }
 
-export { addCategoryToPost, publishPost }
+const schedulePost = async() => {
+    await page.waitForSelector( '.edit-post-post-schedule__toggle' );
+
+    await page.click( '.edit-post-post-schedule__toggle' );
+
+    // wait for popout animation
+    await page.waitFor(200);
+
+    await page.click( 'div[aria-label="Move forward to switch to the next month."]' );
+
+    await page.click( '.CalendarDay_1' );
+
+    await publishPost();
+
+}
+
+export { addCategoryToPost, publishPost, schedulePost }
