@@ -24,6 +24,15 @@ class EF_Calendar extends EF_Module {
 	private static $post_li_html_cache_key = 'ef_calendar_post_li_html';
 
 	/**
+	 * Calendar published statuses are the same as other 
+	 * components but without the future
+	 */
+	public $published_statuses = array(
+		'publish',
+		'private',
+	);
+
+	/**
 	 * Construct the EF_Calendar class
 	 */
 	function __construct() {
