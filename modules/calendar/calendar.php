@@ -1807,20 +1807,20 @@ class EF_Calendar extends EF_Module {
 		return apply_filters( 'ef_calendar_post_stati', $final_statuses );
 	}
 
-	public function get_calendar_dropdown_users() {
-		$users_dropdown_args = array(
+	public function get_calendar_users() {
+		$users_args = array(
 			'orderby'                 => 'display_name',
 			'order'                   => 'ASC',
 			'blog_id'                 => get_current_blog_id()
 		);
 
-		$users_dropdown_args = apply_filters( 'ef_calendar_dropdown_users_args', $users_dropdown_args );
+		$users_args = apply_filters( 'ef_calendar_dropdown_users_args', $users_args );
 
-		return get_users( $users_dropdown_args );
+		return get_users( $users_args );
 	}
 
-	public function get_calendar_categories_dropdown() {
-		$categories_dropdown_args = array(
+	public function get_calendar_categories() {
+		$categories_args = array(
 			'orderby'           => 'id',
 			'order'             => 'ASC',
 			'hide_empty'        => 0,
@@ -1828,7 +1828,7 @@ class EF_Calendar extends EF_Module {
 			'taxonomy'          => 'category'
 		);
 
-		return get_terms( $categories_dropdown_args );
+		return get_terms( $categories_args );
 	}
 
 	public function get_calendar_frontend_config() {
@@ -1837,23 +1837,7 @@ class EF_Calendar extends EF_Module {
 		$all_post_types = get_post_types( null, 'objects' );
 
 		$config = array(
-			'POST_STATI' => array_merge(
-				array( 
-					array(
-						'label' => 'Unpublish',
-						'name' => 'unpublish'
-					)
-				),
-				array_map( 
-					function( $item ) {
-						return array( 
-							'name' => $item->name, 
-							'label' => $item->label,
-						);
-					}, 
-					$this->get_calendar_post_stati() 
-				)
-			),
+			'POST_STATI' => $this->get_calendar_post_stati(),
 			'USERS' => array_map( 
 				function( $item ) {
 					return array( 
@@ -1861,23 +1845,11 @@ class EF_Calendar extends EF_Module {
 						'display_name' => $item->display_name,
 					);
 				}, 
-				$this->get_calendar_dropdown_users() 
+				$this->get_calendar_users() 
 			),
-			'CATEGORIES' => array_map( 
-				function( $item ) {
-					return array( 
-						'term_id' => $item->term_id, 
-						'name' => $item->name, 
-						'parent' => $item->parent 
-					);
-				}, 
-				$this->get_calendar_categories_dropdown() 
-			),
-			'CALENDAR_POST_TYPES' => array_map( function ( $item ) use ( $all_post_types ) {
-				return array(
-					'name' => $all_post_types[ $item ]->name,
-					'label' => $all_post_types[ $item ]->label
-				);
+			'CATEGORIES' => $this->get_calendar_categories(),
+			'POST_TYPES' => array_map( function ( $item ) use ( $all_post_types ) {	
+				return $all_post_types[ $item ];	
 			}, $this->get_post_types_for_module( $this->module ) ),
 			'NUM_WEEKS' => array(
 				'MAX' => $this->max_weeks,

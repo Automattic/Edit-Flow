@@ -93,13 +93,13 @@ const filters = [
 	},
 ];
 
-if ( EF_CALENDAR.CALENDAR_POST_TYPES && EF_CALENDAR.CALENDAR_POST_TYPES.length > 1 ) {
+if ( EF_CALENDAR.POST_TYPES && EF_CALENDAR.POST_TYPES.length > 1 ) {
 	filters.push( {
 		name: 'cpt',
 		filterType: 'select',
 		label: __( 'Select a type', 'edit-flow' ),
 		options: [ { value: '', label: __( 'Select a type', 'edit-flow' ) } ]
-			.concat( EF_CALENDAR.CALENDAR_POST_TYPES.map( ( { name: value, label } ) => ( { value, label } ) ) ),
+			.concat( EF_CALENDAR.POST_TYPES.map( ( { name: value, label } ) => ( { value, label } ) ) ),
 		initialValue: EF_CALENDAR.FILTERS.cpt,
 	} );
 }
