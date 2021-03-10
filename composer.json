@@ -1,20 +1,20 @@
 {
-    "name"       : "automattic/edit-flow",
+    "name": "automattic/edit-flow",
     "description": "WordPress plugin to accelerate your editorial workflow.",
-    "homepage"   : "http://editflow.org/",
-    "type"       : "wordpress-plugin",
-    "license"    : "GPL-2.0+",
-    "support"    : {
-			"issues": "https://github.com/Automattic/edit-flow/issues",
-			"forum": "https://wordpress.org/support/plugin/edit-flow",
-			"source": "https://github.com/Automattic/edit-flow"
-	},
-    "require"    : {
+    "homepage": "http://editflow.org/",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0+",
+    "support": {
+        "issues": "https://github.com/Automattic/edit-flow/issues",
+        "forum": "https://wordpress.org/support/plugin/edit-flow",
+        "source": "https://github.com/Automattic/edit-flow"
+    },
+    "require": {
         "composer/installers": "~1.0"
     },
     "require-dev": {
-        "automattic/vipwpcs": "^2.0",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
+        "automattic/vipwpcs": "^2.2",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
         "exussum12/coverage-checker": "^0.11.2"
     }
 }
