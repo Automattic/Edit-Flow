@@ -10,11 +10,22 @@
 			"source": "https://github.com/Automattic/edit-flow"
 	},
     "require"    : {
-        "composer/installers": "~1.0"
+        "composer/installers": "~1.0",
+        "php": ">=5.6"
     },
     "require-dev": {
         "automattic/vipwpcs": "^2.0",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
-        "exussum12/coverage-checker": "^0.11.2"
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.4.1 || ^0.5 || ^0.6.2 || ^0.7",
+        "exussum12/coverage-checker": "^0.11.2",
+        "phpunit/phpunit": "^4 || ^5 || ^6 || ^7"
+    },
+    "scripts": {
+      "integration": [
+        "@php ./vendor/bin/phpunit --testsuite WP_Tests"
+      ],
+      "integration-ms": [
+        "@putenv WP_MULTISITE=1",
+        "@composer integration"
+      ]
     }
 }
