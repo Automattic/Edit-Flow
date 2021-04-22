@@ -1,14 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <phpunit
-	bootstrap="tests/bootstrap.php"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/7.5/phpunit.xsd"
 	backupGlobals="false"
+	bootstrap="./tests/bootstrap.php"
+	beStrictAboutTestsThatDoNotTestAnything="false"
 	colors="true"
-	convertErrorsToExceptions="true"
-	convertNoticesToExceptions="true"
-	convertWarningsToExceptions="true"
 	>
+	<php>
+		<server name="SERVER_PORT" value="80"/>
+		<server name="HTTP_HOST" value="localhost"/>
+		<server name="REMOTE_ADDR" value="127.0.0.1"/>
+		<const name="WP_PARSELY_TESTING" value="true"/>
+	</php>
 	<testsuites>
 		<testsuite>
 			<directory prefix="test-" suffix=".php">./tests/</directory>
 		</testsuite>
 	</testsuites>
+	<filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">edit_flow.php</directory>
+        </whitelist>
+    </filter>
 </phpunit>
