@@ -1,14 +1,6 @@
 name: E2E and JS tests
 
-on:
-  # Run on all pushes and on all pull requests.
-  # Prevent the "push" build from running when there are only irrelevant changes.
-  push:
-    paths-ignore:
-      - '**.md'
-  pull_request:
-  # Allow manually triggering the workflow.
-  workflow_dispatch:
+on: push
 
 jobs:
   test:
