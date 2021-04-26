@@ -11,9 +11,6 @@ jobs:
     runs-on: ubuntu-16.04
     continue-on-error: ${{ matrix.allowed_failure }}
 
-    env:
-      WP_VERSION: ${{ matrix.wp }}
-
     strategy:
       fail-fast: false
       matrix:
@@ -57,7 +54,7 @@ jobs:
         run: sudo systemctl start mysql.service
 
       - name: Install WordPress test site
-        run: bash bin/install-wp-tests.sh wordpress_test root root localhost
+        run: bash bin/install-wp-tests.sh wordpress_test root root localhost ${{ matrix.wp }}
 
       - name: Run PHPCS diff tests
         run: bash bin/phpcs-diff.sh
