@@ -9,13 +9,12 @@
   "scripts": {
     "build": "webpack --mode production --verbose",
     "dev": "webpack --watch",
-    "env": "wp-scripts env",
-    "lint": "eslint --quiet -f json blocks common modules | eslines --quiet",
+    "wp-env": "wp-env",
+    "lint-js": "eslint --quiet -f json blocks common modules | eslines --quiet",
     "test": "echo \"Error: no test specified\" && exit 1",
     "test-jest": "jest -c jest.config.js",
     "test-e2e": "wp-scripts test-e2e --config tests/e2e/jest.config.js",
-    "test-e2e:watch": "npm run test-e2e -- --watch",
-    "test-unit-php": "wp-scripts env test-php"
+    "test-e2e:watch": "npm run test-e2e -- --watch"
   },
   "wp-env": {
     "plugin-dir": "Edit-Flow",
@@ -51,6 +50,7 @@
     "@wordpress/components": "^9.4.1",
     "@wordpress/e2e-test-utils": "^4.5.0",
     "@wordpress/element": "^2.13.1",
+    "@wordpress/env": "^4.0.2",
     "@wordpress/i18n": "^3.11.0",
     "@wordpress/jest-console": "^3.6.0",
     "@wordpress/jest-preset-default": "^6.0.0",
