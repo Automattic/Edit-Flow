@@ -10,8 +10,6 @@
 
 == Описание ==
 
-[![Статус сборки](https://travis-ci.org/Automattic/Edit-Flow.svg?branch=master)](https://travis-ci.org/Automattic/Edit-Flow)
-
 Edit Flow позволяет организовать взаимодействие с командой редакции прямо в WordPress. Мы сделали его модульным, чтобы вы могли подстроить Edit Flow под свои нужжы:
 
 * [Календарь](http://editflow.org/features/calendar/) - Удобный помесячный взгляд на материалы.
