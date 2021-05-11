@@ -1223,7 +1223,7 @@ class EF_Calendar extends EF_Module {
 				$post_stati = wp_filter_object_list( $post_stati, array( 'name' => 'future' ), 'not' );
 			}
 
-			$args['post_status'] .= join( wp_list_pluck( $post_stati, 'name' ), ',' );
+			$args['post_status'] .= implode( ',', wp_list_pluck( $post_stati, 'name' ) );
 		}
 		// The WP functions for printing the category and author assign a value of 0 to the default
 		// options, but passing this to the query is bad (trashed and auto-draft posts appear!), so

@@ -411,7 +411,7 @@ class EF_Story_Budget extends EF_Module {
 				$post_stati = wp_filter_object_list( $post_stati, array( 'name' => 'future' ), 'not' );
 			}
 
-			$args['post_status'] .= join( wp_list_pluck( $post_stati, 'name' ), ',' );
+			$args['post_status'] .= implode( ',', wp_list_pluck( $post_stati, 'name' ) );
 		}
 
 		// Filter by post_author if it's set
