@@ -19,7 +19,7 @@ jQuery(document).ready(function(){
 		setTimeout( edit_flow_hide_message, 8000 );
 	}
 
-	jQuery('.enable-disable-edit-flow-module').click(function(){
+	jQuery('.enable-disable-edit-flow-module').on( 'click', function(){
 		if ( jQuery(this).hasClass('button-primary') )
 			var module_action = 'enable';
 		else if ( jQuery(this).hasClass('button-remove') )

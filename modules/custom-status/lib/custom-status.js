@@ -25,18 +25,18 @@ jQuery(document).ready(function() {
 				jQuery('#post-status-select').hide();
 				jQuery('.edit-post-status').show();
 			}
-		
-			jQuery('.edit-post-status').click(function() {
+
+			jQuery('.edit-post-status').on( 'click', function() {
 				jQuery('#post-status-select').slideDown();
 				jQuery('.edit-post-status').hide();
 				return false;
 			});
-			jQuery('.cancel-post-status, .save-post-status').click(function() {
+			jQuery('.cancel-post-status, .save-post-status').on( 'click', function() {
 				jQuery('#post-status-select').slideUp();
 				jQuery('.edit-post-status').show();
 				return false;
 			});
-			jQuery('.save-post-status').click(function() {
+			jQuery('.save-post-status').on( 'click', function() {
 				jQuery('#post-status-display').text(jQuery('select[name="post_status"] :selected').text());
 				return false;
 			});
@@ -52,7 +52,7 @@ jQuery(document).ready(function() {
 		ef_update_save_button(i18n.save);
 		
 		// Bind event when OK button is clicked
-		jQuery('.save-post-status').bind('click', function() {	
+		jQuery('.save-post-status').on( 'click', function() {
 			ef_update_save_button();
 		});
 		
@@ -82,12 +82,12 @@ jQuery(document).ready(function() {
 	} else if ( jQuery('select[name="_status"]').length > 0 ) {
 		ef_append_to_dropdown('select[name="_status"]');
 		// Refresh the custom status dropdowns everytime Quick Edit is loaded
-		jQuery('#the-list a.editinline').bind( 'click', function() {
+		jQuery('#the-list a.editinline').on( 'click', function() {
 			ef_append_to_dropdown('#the-list select[name="_status"]');
 		} );
 		// Clean up the bulk edit selector because it's non-standard
 		jQuery( '#bulk-edit' ).find( 'select[name="_status"]' ).prepend( '<option value="">' + i18n.no_change + '</option>' );
-		jQuery( '#bulk-edit' ).find( 'select[name="_status"] option' ).removeAttr('selected');
+		jQuery( '#bulk-edit' ).find( 'select[name="_status"] option' ).prop( 'selected', false );
 		jQuery( '#bulk-edit' ).find( 'select[name="_status"] option[value="future"]').remove();
 	} else {
 

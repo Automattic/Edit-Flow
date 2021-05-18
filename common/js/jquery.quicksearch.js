@@ -169,11 +169,11 @@ jQuery(function ($) {
 			
 		function focus_on_load()
 		{
-			$('input[rel="' + options.randomElement + '"]').get(0).focus();
+			$('input[rel="' + options.randomElement + '"]').get(0).trigger( 'focus' );
 		}
 		
 		function toggle_text() {
-			$('input[rel="' + options.randomElement + '"]').focus(function () {
+			$('input[rel="' + options.randomElement + '"]').on( 'focus', function () {
 				if ($(this).val() === options.inputText) {
 					$(this).val('');
 				}
@@ -312,17 +312,17 @@ jQuery(function ($) {
 		});
 		
 		init();
-		
-		$('input[rel="' + options.randomElement + '"]').keydown(function (e) {
+
+		$('input[rel="' + options.randomElement + '"]').on( 'keydown', function (e) {
 			var keycode = e.keyCode;
 			if (!(keycode === 9 || keycode === 13 || keycode === 16 || keycode === 17 || keycode === 18 || keycode === 38 || keycode === 40 || keycode === 224))
 			{
 				qs();
 			}
 		});
-		
-		$('form.quicksearch, fieldset.quicksearch').submit( function () { return false; });
-		
+
+		$('form.quicksearch, fieldset.quicksearch').on( 'submit', function () { return false; });
+
 		return this;
 	};
 });

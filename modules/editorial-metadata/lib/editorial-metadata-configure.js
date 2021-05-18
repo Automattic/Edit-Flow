@@ -13,13 +13,13 @@ inlineEditMetadataTerm = {
 		});
 
 		// prepare the edit row
-		row.keyup(function(e) { if(e.which == 27) return inlineEditMetadataTerm.revert(); });
+		row.on( 'keyup', function(e) { if(e.which == 27) return inlineEditMetadataTerm.revert(); });
 
-		$('a.cancel', row).click(function() { return inlineEditMetadataTerm.revert(); });
-		$('a.save', row).click(function() { return inlineEditMetadataTerm.save(this); });
-		$('input, select', row).keydown(function(e) { if(e.which == 13) return inlineEditMetadataTerm.save(this); });
+		$('a.cancel', row).on( 'click', function() { return inlineEditMetadataTerm.revert(); });
+		$('a.save', row).on( 'click', function() { return inlineEditMetadataTerm.save(this); });
+		$('input, select', row).on( 'keydown', function(e) { if(e.which == 13) return inlineEditMetadataTerm.save(this); });
 
-		$('#posts-filter input[type="submit"]').mousedown(function(e){
+		$('#posts-filter input[type="submit"]').on( 'mousedown', function(e){
 			t.revert();
 		});
 	},
@@ -116,8 +116,8 @@ $(document).ready(function(){inlineEditMetadataTerm.init();});
 })(jQuery);
 
 jQuery(document).ready(function(){
-	
-	jQuery('.delete-status a').click(function(){
+
+	jQuery('.delete-status a').on( 'click', function(){
 		if ( !confirm( ef_confirm_delete_term_string ) )
 			return false;
 	});

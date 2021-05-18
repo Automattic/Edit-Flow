@@ -2,25 +2,25 @@
 
 jQuery(document).ready(function($) {
 	// Hide all post details when directed
-	$("#toggle_details").click(function() {
-		$(".post-title > p").toggle('hidden'); 
+	$("#toggle_details").on( 'click', function() {
+		$(".post-title > p").toggle('hidden');
 	});
 	
 	// Make print link open up print dialog
-	$("#print_link").click(function() {
+	$("#print_link").on( 'click', function() {
 		window.print();
 		return false;
 	});
 	
 	// Hide a single section when directed
-	$("h3.hndle,div.handlediv").click(function() {
+	$("h3.hndle,div.handlediv").on( 'click', function() {
 		$(this).parent().children("div.inside").toggle();
 	});
 
 	// Change number of columns when choosing a new number from Screen Options
 
 	var columnsSwitch = $("input[name=ef_story_budget_screen_columns]");
-	columnsSwitch.click(function() {
+	columnsSwitch.on( 'click', function() {
 		var numColumns = parseInt($(this).val());
 		var classPrefix = 'columns-number-';
 		$(".postbox-container").removeClass(function() {
@@ -31,16 +31,16 @@ jQuery(document).ready(function($) {
 		}).addClass(classPrefix + numColumns);
 	});
 
-	
-	$('h2 a.change-date').click(function(){
+
+	$('h2 a.change-date').on( 'click', function(){
 		$(this).hide();
 		$('h2 form .form-value').hide();
 		$('h2 form input').show();
 		$('h2 form a.change-date-cancel').show();
 		return false;
 	});
-	
-	$('h2 form a.change-date-cancel').click(function(){
+
+	$('h2 form a.change-date-cancel').on( 'click', function(){
 		$(this).hide();
 		$('h2 form .form-value').show();
 		$('h2 form input').hide();

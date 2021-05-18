@@ -7,19 +7,19 @@ inlineEditCustomStatus = {
 
 		t.what = '#term-';
 
-		$('.editinline').live('click', function(){
+		$('.editinline').on( 'click', function(){
 			inlineEditCustomStatus.edit(this);
 			return false;
 		});
 
 		// prepare the edit row
-		row.keyup(function(e) { if(e.which == 27) return inlineEditCustomStatus.revert(); });
+		row.on( 'keyup', function(e) { if(e.which == 27) return inlineEditCustomStatus.revert(); });
 
-		$('a.cancel', row).click(function() { return inlineEditCustomStatus.revert(); });
-		$('a.save', row).click(function() { return inlineEditCustomStatus.save(this); });
-		$('input, select', row).keydown(function(e) { if(e.which == 13) return inlineEditCustomStatus.save(this); });
+		$('a.cancel', row).on( 'click', function() { return inlineEditCustomStatus.revert(); });
+		$('a.save', row).on( 'click', function() { return inlineEditCustomStatus.save(this); });
+		$('input, select', row).on( 'keydown', function(e) { if(e.which == 13) return inlineEditCustomStatus.save(this); });
 
-		$('#posts-filter input[type="submit"]').mousedown(function(e){
+		$('#posts-filter input[type="submit"]').on( 'mousedown', function(e){
 			t.revert();
 		});
 	},
@@ -125,7 +125,7 @@ $(document).ready(function(){inlineEditCustomStatus.init();});
 
 jQuery(document).ready(function(){
 
-	jQuery('.delete-status a').click(function(){
+	jQuery('.delete-status a').on( 'click', function(){
 		if ( !confirm( ef_confirm_delete_status_string ) )
 			return false;
 	});

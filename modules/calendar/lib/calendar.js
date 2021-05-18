@@ -1,8 +1,8 @@
 var dispatch = wp.data.dispatch;
 
 jQuery(document).ready(function ($) {
-	
-	$('a.show-more').click(function(){
+
+	$('a.show-more').on( 'click', function(){
 		var parent = $(this).closest('td.day-unit');
 		$('ul li', parent).removeClass('hidden');
 		$(this).hide();
@@ -109,7 +109,7 @@ jQuery(document).ready(function ($) {
 	
 	// Close out all of the overlays with your escape key,
 	// or by clicking anywhere other than inside an existing overlay
-	$(document).keydown(function(event) {
+	$(document).on( 'keydown', function(event) {
 		if (event.keyCode == '27') {
 			edit_flow_calendar_close_overlays();
 		}
@@ -118,7 +118,7 @@ jQuery(document).ready(function ($) {
 	/**
 	 * Somewhat hackish way to close overlays automagically when you click outside an overlay
 	 */
-	$(document).click(function(event){
+	$(document).on( 'click', function(event){
 		//Did we click on a list item? How do we figure that out?
 		//First let's see if we directly clicked on a .day-item
 		var target = $(event.target);
@@ -259,7 +259,7 @@ jQuery(document).ready(function ($) {
 			// or to a double click on the calendar square
 			$day_units.find('.schedule-new-post-button').on('click.editFlow.quickPublish', EFQuickPublish.open_quickpost_dialogue );
 			$day_units.on('dblclick.editFlow.quickPublish', EFQuickPublish.open_quickpost_dialogue );
-			$day_units.hover(
+			$day_units.on( 'hover',
 				function(){ $(this).find('.schedule-new-post-button').stop().delay(500).fadeIn(100);},
 				function(){ $(this).find('.schedule-new-post-button').stop().hide();}
 			);

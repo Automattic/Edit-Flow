@@ -6,19 +6,19 @@ inlineEditUsergroup = {
 
 		t.what = '#usergroup-';
 
-		$('.editinline').live('click', function(){
+		$('.editinline').on( 'click', function(){
 			inlineEditUsergroup.edit(this);
 			return false;
 		});
 
 		// prepare the edit row
-		row.keyup(function(e) { if(e.which == 27) return inlineEditUsergroup.revert(); });
+		row.on( 'keyup', function(e) { if(e.which == 27) return inlineEditUsergroup.revert(); });
 
-		$('a.cancel', row).click(function() { return inlineEditUsergroup.revert(); });
-		$('a.save', row).click(function() { return inlineEditUsergroup.save(this); });
-		$('input, select', row).keydown(function(e) { if(e.which == 13) return inlineEditUsergroup.save(this); });
+		$('a.cancel', row).on( 'click', function() { return inlineEditUsergroup.revert(); });
+		$('a.save', row).on( 'click', function() { return inlineEditUsergroup.save(this); });
+		$('input, select', row).on( 'keydown', function(e) { if(e.which == 13) return inlineEditUsergroup.save(this); });
 
-		$('#posts-filter input[type="submit"]').mousedown(function(e){
+		$('#posts-filter input[type="submit"]').on( 'mousedown', function(e){
 			t.revert();
 		});
 	},

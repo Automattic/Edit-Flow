@@ -8,6 +8,6 @@ jQuery(function($){
 			params
 		);
 	}
-	
-	$('#screen-options-wrap div.requires-autosave').find('input, select, textarea').change(performAutosave);
+
+	$('#screen-options-wrap div.requires-autosave').find('input, select, textarea').on( 'change', performAutosave);
 });
