@@ -6,7 +6,7 @@ inlineEditUsergroup = {
 
 		t.what = '#usergroup-';
 
-		$('.editinline').on( 'click', function(){
+		$( document ).on( 'click', '.editinline', function(){
 			inlineEditUsergroup.edit(this);
 			return false;
 		});

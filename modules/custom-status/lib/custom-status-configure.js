@@ -7,7 +7,7 @@ inlineEditCustomStatus = {
 
 		t.what = '#term-';
 
-		$('.editinline').on( 'click', function(){
+		$( document ).on( 'click', '.editinline', function(){
 			inlineEditCustomStatus.edit(this);
 			return false;
 		});
