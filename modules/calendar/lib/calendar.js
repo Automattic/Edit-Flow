@@ -259,10 +259,8 @@ jQuery(document).ready(function ($) {
 			// or to a double click on the calendar square
 			$day_units.find('.schedule-new-post-button').on('click.editFlow.quickPublish', EFQuickPublish.open_quickpost_dialogue );
 			$day_units.on('dblclick.editFlow.quickPublish', EFQuickPublish.open_quickpost_dialogue );
-			$day_units.on( 'hover',
-				function(){ $(this).find('.schedule-new-post-button').stop().delay(500).fadeIn(100);},
-				function(){ $(this).find('.schedule-new-post-button').stop().hide();}
-			);
+			$day_units.on( 'mouseenter', function(){ $(this).find('.schedule-new-post-button').stop().delay(500).fadeIn(100);});
+			$day_units.on( 'mouseleave', function(){ $(this).find('.schedule-new-post-button').stop().hide();});
 		}, // init
 
 		/**
