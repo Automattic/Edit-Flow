@@ -26,7 +26,7 @@ jQuery(document).ready(function(){
 			var module_action = 'disable';
 		
 		var slug = jQuery(this).closest('.edit-flow-module').attr('id');
-		var change_module_nonce = jQuery('#' + slug + ' #change-module-nonce').val();
+		var change_module_nonce = jQuery('#' + slug + ' #change-module-nonce-' + slug).val();
 		var data = {
 			action: 'change_edit_flow_module_state',
 			module_action: module_action,
