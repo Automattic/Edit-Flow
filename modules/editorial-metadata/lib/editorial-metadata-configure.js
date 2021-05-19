@@ -7,7 +7,7 @@ inlineEditMetadataTerm = {
 
 		t.what = '#term-';
 
-		$('.editinline').live('click', function(){
+		$( document ).on( 'click', '.editinline', function(){
 			inlineEditMetadataTerm.edit(this);
 			return false;
 		});
