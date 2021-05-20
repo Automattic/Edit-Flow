@@ -269,7 +269,7 @@ class EF_Settings extends EF_Module {
 				if ( $mod_data->options->enabled == 'off' ) echo ' style="display:none;"';				
 				echo ' value="' . __( 'Disable', 'edit-flow' ) . '" />';
 				echo '</p>';
-				wp_nonce_field( 'change-edit-flow-module-nonce', 'change-module-nonce', false );
+				wp_nonce_field( 'change-edit-flow-module-nonce', 'change-module-nonce-' . $mod_data->slug, false );
 				echo '</form>';
 				echo '</div>';
 			}
