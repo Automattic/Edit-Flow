@@ -229,6 +229,7 @@ class EF_Story_Budget extends EF_Module {
 		}
 
 		if ( isset( $new_filters['number_days'] ) ) {
+			$new_filters['number_days'] = intval( $new_filters['number_days'] );
 			if ( $new_filters['number_days'] <= 1 ) {
 				$existing_filters['number_days'] = 1;
 			} else {
