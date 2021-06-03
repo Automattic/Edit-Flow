@@ -42,15 +42,15 @@
   },
   "homepage": "https://github.com/Automattic/Edit-Flow#readme",
   "devDependencies": {
-    "@babel/core": "^7.14.0",
-    "@babel/preset-env": "^7.14.1",
+    "@babel/core": "^7.14.3",
+    "@babel/preset-env": "^7.14.4",
     "@testing-library/jest-dom": "^5.12.0",
     "@testing-library/react": "^10.4.9",
     "@testing-library/user-event": "^10.4.1",
     "@wordpress/components": "^9.9.0",
     "@wordpress/e2e-test-utils": "^4.16.1",
     "@wordpress/element": "^2.20.3",
-    "@wordpress/env": "^4.0.3",
+    "@wordpress/env": "^4.0.5",
     "@wordpress/i18n": "^3.20.0",
     "@wordpress/jest-console": "^3.10.0",
     "@wordpress/jest-preset-default": "^6.6.0",
@@ -87,7 +87,7 @@
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
-    "@babel/plugin-transform-react-jsx": "^7.13.12",
+    "@babel/plugin-transform-react-jsx": "^7.14.3",
     "@wordpress/babel-plugin-import-jsx-pragma": "^2.7.0",
     "@wordpress/data": "^4.27.3",
     "classnames": "^2.3.1",
