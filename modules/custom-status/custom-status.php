@@ -1373,10 +1373,9 @@ class EF_Custom_Status extends EF_Module {
 	 * @since 0.9.4
 	 *
 	 * If the post_name is set, set it, otherwise keep it empty
-	 * 
-	 * @see https://github.com/Automattic/Edit-Flow/issues/123
-	 * @see http://core.trac.wordpress.org/browser/tags/3.4.2/wp-includes/post.php#L2530
-	 * @see http://core.trac.wordpress.org/browser/tags/3.4.2/wp-includes/post.php#L2646
+	 *
+	 * @see https://github.com/Automattic/Edit-Flow/issues/523
+	 * @see https://github.com/Automattic/Edit-Flow/issues/633
 	 */
 	public function maybe_keep_post_name_empty( $data, $postarr ) {
 		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
@@ -1389,7 +1388,7 @@ class EF_Custom_Status extends EF_Module {
 
 		// If the post_name was intentionally set, set the post_name
 		if ( ! empty( $postarr['post_name'] ) ) {
-			$data['post_name'] = $postarr['post_name'];
+			$data['post_name'] = sanitize_title( $postarr['post_name'] );
 			return $data;
 		}
 
@@ -1406,7 +1405,7 @@ class EF_Custom_Status extends EF_Module {
 	 *
 	 * `wp_unique_post_slug` is used to set the `post_name`. When a custom status is used, WordPress will try
 	 * really hard to set `post_name`, and we leverage `wp_unique_post_slug` to prevent it being set
-	 * 
+	 *
 	 * @see: https://github.com/WordPress/WordPress/blob/396647666faebb109d9cd4aada7bb0c7d0fb8aca/wp-includes/post.php#L3932
 	 */
 	public function fix_unique_post_slug( $override_slug, $slug, $post_ID, $post_status, $post_type, $post_parent ) {
