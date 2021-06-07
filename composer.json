@@ -20,6 +20,12 @@
         "phpunit/phpunit": "^4 || ^5 || ^6 || ^7"
     },
     "scripts": {
+      "cs": [
+        "@php ./vendor/bin/phpcs -p -s -v -n . --standard=\"WordPress-VIP-Go\" --extensions=php --ignore=\"/vendor/*,/node_modules/*,/tests/*\""
+      ],
+      "cbf": [
+        "@php ./vendor/bin/phpcbf -p -s -v -n . --standard=\"WordPress-VIP-Go\" --extensions=php --ignore=\"/vendor/*,/node_modules/*,/tests/*\""
+      ],
       "integration": [
         "@php ./vendor/bin/phpunit --testsuite WP_Tests"
       ],
