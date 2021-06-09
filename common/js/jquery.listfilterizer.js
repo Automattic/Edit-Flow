@@ -14,7 +14,7 @@
 	
 	// We need :contains to be case insensitive so lets redefine it as containsi (i for case insensitive)
 	// http://stackoverflow.com/questions/187537/is-there-a-case-insensitive-jquery-contains-selector
-	jQuery.expr[':'].containsi = function(a, i, m){
+	jQuery.expr.pseudos.containsi = function(a, i, m){
 		return (a.textContent || a.innerText || '').toLowerCase().indexOf(m[3].toLowerCase()) >= 0;
 	};
 	
@@ -50,7 +50,7 @@
 						var $filterTab = $('<li/>')
 							.text(filter.label)
 							.attr(options._filterIdAttr, i)
-							.bind('click', _filterTabEvent)
+							.on('click', _filterTabEvent)
 							;
 						$tabs.append($filterTab);
 					}
@@ -65,9 +65,9 @@
 					.attr('type', inputType)
 					.attr(options.inputAttrs)
 					.addClass(options.inputClass)
-					.bind('search', _filterInputSearch)
-					.bind('keydown', _filterInputKeydown)
-					.bind('keyup', _filterInputKeyup)
+					.on('search', _filterInputSearch)
+					.on('keydown', _filterInputKeydown)
+					.on('keyup', _filterInputKeyup)
 					.attr('placeholder', options.inputPlaceholder)
 					;
 				
@@ -76,7 +76,7 @@
 					$input
 						.addClass(options.inputPlaceholderClass)
 						.val(options.inputPlaceholder)
-						.focus(function() {
+						.on( 'focus', function() {
 							var $this = $(this);
 							if($this.val() == options.inputPlaceholder) {
 								$this
