@@ -166,7 +166,8 @@ class wsScreenOptions10 {
 		}
 		
 		//The 'action' argument is in the form "save_settings-panel_id"
-		$id = end(explode('-', $_POST['action'], 2));
+		$ids = explode( '-', $_POST['action'], 2 );
+		$id = end( $ids );
 		
 		//Basic security check.
 		check_ajax_referer('save_settings-' . $id, '_wpnonce-' . $id);
