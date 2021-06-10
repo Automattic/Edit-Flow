@@ -1729,7 +1729,8 @@ class EF_Custom_Status_List_Table extends WP_List_Table
 		parent::__construct( array(
 			'plural' => 'custom statuses',
 			'singular' => 'custom status',
-			'ajax' => true
+			'ajax' => true,
+            'screen' => 'ef-custom-status-settings'
 		) );
 
 	}

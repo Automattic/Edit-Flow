@@ -1600,6 +1600,7 @@ class EF_Editorial_Metadata_List_Table extends WP_List_Table {
 		parent::__construct( array(
 			'plural' => 'editorial metadata',
 			'singular' => 'editorial metadata',
+			'screen'   =>   'ef-editorial-metadata-settings'
 		) );
 	}
 

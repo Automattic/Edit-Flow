@@ -1099,7 +1099,8 @@ class EF_Usergroups_List_Table extends WP_List_Table
 		parent::__construct( array(
 			'plural' => 'user groups',
 			'singular' => 'user group',
-			'ajax' => true
+			'ajax' => true,
+			'screen' => 'ef-user-groups-settings'
 		) );
 		
 	}
