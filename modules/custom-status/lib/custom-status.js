@@ -81,10 +81,6 @@ jQuery(document).ready(function() {
 
 	} else if ( jQuery('select[name="_status"]').length > 0 ) {
 		ef_append_to_dropdown('select[name="_status"]');
-		// Refresh the custom status dropdowns everytime Quick Edit is loaded
-		jQuery('#the-list a.editinline').on( 'click', function() {
-			ef_append_to_dropdown('#the-list select[name="_status"]');
-		} );
 		// Clean up the bulk edit selector because it's non-standard
 		jQuery( '#bulk-edit' ).find( 'select[name="_status"]' ).prepend( '<option value="">' + i18n.no_change + '</option>' );
 		jQuery( '#bulk-edit' ).find( 'select[name="_status"] option' ).prop( 'selected', false );
