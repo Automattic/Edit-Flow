@@ -1,17 +1,12 @@
 // Story Budget specific JS, assumes that ef_date.js has already been included
 
 jQuery(document).ready(function($) {
-	// Hide all post details when directed
-	$("#toggle_details").on( 'click', function() {
-		$(".post-title > p").toggle('hidden');
-	});
-	
 	// Make print link open up print dialog
 	$("#print_link").on( 'click', function() {
 		window.print();
 		return false;
 	});
-	
+
 	// Hide a single section when directed
 	$("h3.hndle,div.handlediv").on( 'click', function() {
 		$(this).parent().children("div.inside").toggle();
