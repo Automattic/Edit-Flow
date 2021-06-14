@@ -59,9 +59,32 @@ const schedulePost = async() => {
     // wait for popout animation
     await page.waitFor(200);
 
-    await page.click( 'div[aria-label="Move forward to switch to the next month."]' );
+    // Get the date after two weeks since today
+    const today = new Date();
+    const futureDate = new Date();
+    futureDate.setDate( today.getDate() + 14 );
+    const [ month, day, year ] = futureDate
+        .toLocaleDateString( 'en-US' )
+        .split( '/' );
 
-    await page.click( '.CalendarDay_1' );
+    // Set the future date in the post editing screen
+    await page.$eval(
+        '.components-datetime__time-field-day-input',
+        ( el, day ) => el.value = day,
+        day
+    );
+
+    await page.$eval(
+        '.components-datetime__time-field-month-select',
+        ( el, month ) => el.value = month.length === 1 ? '0' + month : month,
+        month
+    );
+
+    await page.$eval(
+        '.components-datetime__time-field-year-input',
+        ( el, year ) => el.value = year,
+        year
+    );
 
     await publishPost();
 
