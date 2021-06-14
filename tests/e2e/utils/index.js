@@ -59,7 +59,7 @@ const schedulePost = async() => {
     // wait for popout animation
     await page.waitFor(200);
 
-    // Get the date after four weeks since today
+    // Get the date after two weeks since today
     const today = new Date();
     const futureDate = new Date();
     futureDate.setDate( today.getDate() + 14 );
