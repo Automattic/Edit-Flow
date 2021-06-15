@@ -1395,7 +1395,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		<?php if ( !isset( $_GET['action'] ) || ( isset( $_GET['action'] ) && $_GET['action'] != 'edit-term' ) ): ?>
 		<div id="col-right">
 		<div class="col-wrap">
-		<form id="posts-filter" action="" method="post">
+		<form action="" method="post">
 			<?php $wp_list_table->display(); ?>
 			<?php wp_nonce_field( 'editorial-metadata-sortable', 'editorial-metadata-sortable' ); ?>
 		</form>
