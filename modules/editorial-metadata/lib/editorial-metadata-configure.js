@@ -18,10 +18,6 @@ inlineEditMetadataTerm = {
 		$('a.cancel', row).on( 'click', function() { return inlineEditMetadataTerm.revert(); });
 		$('a.save', row).on( 'click', function() { return inlineEditMetadataTerm.save(this); });
 		$('input, select', row).on( 'keydown', function(e) { if(e.which == 13) return inlineEditMetadataTerm.save(this); });
-
-		$('#posts-filter input[type="submit"]').on( 'mousedown', function(e){
-			t.revert();
-		});
 	},
 
 	toggle : function(el) {

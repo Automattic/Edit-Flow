@@ -18,10 +18,6 @@ inlineEditCustomStatus = {
 		$('a.cancel', row).on( 'click', function() { return inlineEditCustomStatus.revert(); });
 		$('a.save', row).on( 'click', function() { return inlineEditCustomStatus.save(this); });
 		$('input, select', row).on( 'keydown', function(e) { if(e.which == 13) return inlineEditCustomStatus.save(this); });
-
-		$('#posts-filter input[type="submit"]').on( 'mousedown', function(e){
-			t.revert();
-		});
 	},
 
 	toggle : function(el) {
