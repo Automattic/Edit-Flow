@@ -1,17 +1,12 @@
 {
-    "name"       : "automattic/edit-flow",
+    "name": "automattic/edit-flow",
+    "type": "wordpress-plugin",
     "description": "WordPress plugin to accelerate your editorial workflow.",
-    "homepage"   : "http://editflow.org/",
-    "type"       : "wordpress-plugin",
-    "license"    : "GPL-2.0+",
-    "support"    : {
-			"issues": "https://github.com/Automattic/edit-flow/issues",
-			"forum": "https://wordpress.org/support/plugin/edit-flow",
-			"source": "https://github.com/Automattic/edit-flow"
-	},
-    "require"    : {
-        "composer/installers": "~1.0",
-        "php": ">=5.6"
+    "homepage": "http://editflow.org/",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=5.6",
+        "composer/installers": "~1.0"
     },
     "require-dev": {
         "automattic/vipwpcs": "^2.0",
@@ -20,18 +15,32 @@
         "phpunit/phpunit": "^4 || ^5 || ^6 || ^7"
     },
     "scripts": {
-      "cs": [
-        "@php ./vendor/bin/phpcs -p -s -v -n . --standard=\"WordPress-VIP-Go\" --extensions=php --ignore=\"/vendor/*,/node_modules/*,/tests/*\""
-      ],
-      "cbf": [
-        "@php ./vendor/bin/phpcbf -p -s -v -n . --standard=\"WordPress-VIP-Go\" --extensions=php --ignore=\"/vendor/*,/node_modules/*,/tests/*\""
-      ],
-      "integration": [
-        "@php ./vendor/bin/phpunit --testsuite WP_Tests"
-      ],
-      "integration-ms": [
-        "@putenv WP_MULTISITE=1",
-        "@composer integration"
-      ]
+        "cbf": [
+            "@php ./vendor/bin/phpcbf"
+        ],
+        "coverage": [
+            "@php ./vendor/bin/phpunit --coverage-html ./build/coverage-html"
+        ],
+        "coverage-ci": [
+            "@php ./vendor/bin/phpunit"
+        ],
+        "cs": [
+            "@php ./vendor/bin/phpcs"
+        ],
+        "prepare-ci": [
+            "bash bin/install-wp-tests.sh wordpress_test root root localhost"
+        ],
+        "test": [
+            "@php ./vendor/bin/phpunit --testsuite WP_Tests"
+        ],
+        "test-ms": [
+            "@putenv WP_MULTISITE=1",
+            "@composer test"
+        ]
+    },
+    "support": {
+        "issues": "https://github.com/Automattic/edit-flow/issues",
+        "forum": "https://wordpress.org/support/plugin/edit-flow",
+        "source": "https://github.com/Automattic/edit-flow"
     }
 }
