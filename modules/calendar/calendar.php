@@ -118,10 +118,6 @@ class EF_Calendar extends EF_Module {
 
 		// Action to regenerate the calendar feed sekret
 		add_action( 'admin_init', array( $this, 'handle_regenerate_calendar_feed_secret' ) );
-
-		// Hacks to fix deficiencies in core
-		add_action( 'pre_post_update', array( $this, 'fix_post_date_on_update_part_one' ), 10, 2 );
-		add_action( 'post_updated', array( $this, 'fix_post_date_on_update_part_two' ), 10, 3 );
 	}
 	
 	/**
@@ -353,16 +349,10 @@ class EF_Calendar extends EF_Module {
 		$existing_time_gmt = date( 'H:i:s', strtotime( $post->post_date_gmt ) );
 		$new_values = array(
 			'post_date' => date( 'Y-m-d', $next_date_full ) . ' ' . $existing_time,
+			'post_date_gmt' => date( 'Y-m-d', $next_date_full ) . ' ' . $existing_time_gmt,
 			'post_modified' => current_time( 'mysql' ),
 			'post_modified_gmt' => current_time( 'mysql', 1 ),
 		);
-		
-		// By default, changing a post on the calendar won't set the timestamp.
-		// If the user desires that to be the behaviour, they can set the result of this filter to 'true'
-		// With how WordPress works internally, setting 'post_date_gmt' will set the timestamp
-		if ( apply_filters( 'ef_calendar_allow_ajax_to_set_timestamp', false ) ) {
-			$new_values['post_date_gmt'] = date( 'Y-m-d', $next_date_full ) . ' ' . $existing_time_gmt;
-		}
 		
 		// We have to do SQL unfortunately because of core bugginess
 		// Note to those reading this: bug Nacin to allow us to finish the custom status API
@@ -1533,14 +1523,9 @@ class EF_Calendar extends EF_Module {
 			'post_title' => $post_title,
 			'post_status' => $post_status,
 			'post_date' => date( 'Y-m-d H:i:s', strtotime( $post_date ) ),
+			'post_date_gmt' => date( 'Y-m-d H:i:s', strtotime( $post_date ) ),
 			'post_type' => $this->module->options->quick_create_post_type,
 		);
-
-		// By default, adding a post to the calendar won't set the timestamp.
-		// If the user desires that to be the behavior, they can set the result of this filter to 'true'
-		// With how WordPress works internally, setting 'post_date_gmt' will set the timestamp
-		if ( apply_filters( 'ef_calendar_allow_ajax_to_set_timestamp', false ) )
-			$post_placeholder['post_date_gmt'] = date( 'Y-m-d H:i:s', strtotime( $post_date ) );
 
 		// Create the post
 		$post_id = wp_insert_post( $post_placeholder );
@@ -1730,57 +1715,6 @@ class EF_Calendar extends EF_Module {
 
 		wp_cache_delete( $post_id . 'can_modify', self::$post_li_html_cache_key );
 		wp_cache_delete( $post_id . 'read_only', self::$post_li_html_cache_key );
-	}
-
-	/**
-	 * This is a hack! hack! hack! until core is fixed
-	 * 
-	 * The calendar uses 'post_date' field to store the position on the calendar
-	 * If a post has a core post status assigned (e.g. 'draft' or 'pending'), the `post_date`
-	 * field will be reset when `wp_update_post()`
-	 * is used: http://core.trac.wordpress.org/browser/tags/3.7.1/src/wp-includes/post.php#L2998
-	 * 
-	 * This method temporarily caches the `post_date` field if it needs to be restored.
-	 * 
-	 * @uses fix_post_date_on_update_part_two()
-	 */
-	public function fix_post_date_on_update_part_one( $post_ID, $data ) {
-
-		$post = get_post( $post_ID );
-
-		// `post_date` is only nooped for these three statuses,
-		// but don't try to persist if `post_date_gmt` is set
-		if ( ! in_array( $post->post_status, array( 'draft', 'pending', 'auto-draft' ) )
-			|| '0000-00-00 00:00:00' !== $post->post_date_gmt
-			|| '0000-00-00 00:00:00' !== $data['post_date_gmt'] )
-			return;
-
-		$this->post_date_cache[ $post_ID ] = $post->post_date;
-
-	}
-
-	/**
-	 * This is a hack! hack! hack! until core is fixed
-	 * 
-	 * The calendar uses 'post_date' field to store the position on the calendar
-	 * If a post has a core post status assigned (e.g. 'draft' or 'pending'), the `post_date`
-	 * field will be reset when `wp_update_post()`
-	 * is used: http://core.trac.wordpress.org/browser/tags/3.7.1/src/wp-includes/post.php#L2998
-	 * 
-	 * This method restores the `post_date` field if it needs to be restored.
-	 * 
-	 * @uses fix_post_date_on_update_part_one()
-	 */
-	public function fix_post_date_on_update_part_two( $post_ID, $post_after, $post_before ) {
-		global $wpdb;
-
-		if ( empty( $this->post_date_cache[ $post_ID ] ) )
-			return;
-
-		$post_date = $this->post_date_cache[ $post_ID ];
-		unset( $this->post_date_cache[ $post_ID ] );
-		$wpdb->update( $wpdb->posts, array( 'post_date' => $post_date ), array( 'ID' => $post_ID ) );
-		clean_post_cache( $post_ID );
 	}
 
 	/**
