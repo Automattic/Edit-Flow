@@ -78,7 +78,7 @@
     "eslint-plugin-wpcalypso": "4.1.0",
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "lodash": "^4.17.21",
-    "moment": "^2.29.1",
+    "moment": "^2.29.2",
     "node-sass": "^4.14.1",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
