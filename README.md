@@ -51,6 +51,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 
 ## Upgrade Notice
 
+**0.9.7**
+PHP 8 compatible now with various bug fixes
+
 **0.9.6**
 Fix bug around post save, bring Gutenberg to Calendar filters
 
@@ -121,6 +124,19 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 ## Changelog
+
+**0.9.7 (August 26, 2022)**
+* Bug fix: Allow scheduled posts to be shifted around on calendar (https://github.com/Automattic/Edit-Flow/pull/614)
+* Bug fix: Add back unpublish status, small css tweak for statuses (https://github.com/Automattic/Edit-Flow/pull/613)
+* Enhancements: Renaming some frontend calendar configuration variable (https://github.com/Automattic/Edit-Flow/pull/615)
+* Bug fix: Swap join() with implode() for PHP 8 compatibility (https://github.com/Automattic/Edit-Flow/pull/627)
+* Enhancements: Give each attribute in Edit Flow settings page a different id (https://github.com/Automattic/Edit-Flow/pull/650)
+* Bug fix: Fix test_story_budget_set_number_days_filter_invalid in PHP 8.0 (https://github.com/Automattic/Edit-Flow/pull/644)
+* Bug fix: Allow updating post slugs in Quick Edit and Classic Editor with a different status from published (https://github.com/Automattic/Edit-Flow/pull/648)
+* Bug fix: Fix jQuery warnings as WordPress upgraded it from 1.12.4-wp to 3.5.1 (https://github.com/Automattic/Edit-Flow/pull/649)
+* Enhancements: Remove redundant jQuery selector #the-list a.editinline (https://github.com/Automattic/Edit-Flow/pull/668)
+* Enhancements: Remove redundant jQuery selector #toggle_details (https://github.com/Automattic/Edit-Flow/pull/669)
+* Bug fix: Fixes non-variable being passed by reference (https://github.com/Automattic/Edit-Flow/pull/667)
 
 **0.9.6 (April 26, 2020)**
 * Bug fix: Fix bug causing error on save button click for post after hovering over button (https://github.com/Automattic/Edit-Flow/pull/604)
