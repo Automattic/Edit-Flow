@@ -94,7 +94,7 @@
     "downshift": "^5.4.7",
     "install": "^0.13.0",
     "match-sorter": "^4.2.1",
-    "npm": "^6.14.13",
+    "npm": "^9.4.1",
     "prop-types": "^15.7.2"
   },
   "eslintConfig": {
