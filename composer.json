@@ -1,37 +1,57 @@
 {
-    "name"       : "automattic/edit-flow",
+    "name": "automattic/edit-flow",
+    "type": "wordpress-plugin",
     "description": "WordPress plugin to accelerate your editorial workflow.",
-    "homepage"   : "http://editflow.org/",
-    "type"       : "wordpress-plugin",
-    "license"    : "GPL-2.0+",
-    "support"    : {
-			"issues": "https://github.com/Automattic/edit-flow/issues",
-			"forum": "https://wordpress.org/support/plugin/edit-flow",
-			"source": "https://github.com/Automattic/edit-flow"
-	},
-    "require"    : {
-        "composer/installers": "~1.0",
-        "php": ">=5.6"
+    "homepage": "http://editflow.org/",
+    "license": "GPL-2.0-or-later",
+    "require": {
+        "php": ">=5.6",
+        "composer/installers": "~1.0"
     },
     "require-dev": {
         "automattic/vipwpcs": "^2.0",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.4.1 || ^0.5 || ^0.6.2 || ^0.7",
         "exussum12/coverage-checker": "^0.11.2 || ^1.0.0",
-        "phpunit/phpunit": "^4 || ^5 || ^6 || ^7"
+        "php-parallel-lint/php-parallel-lint": "^1.0",
+        "phpcompatibility/phpcompatibility-wp": "^2.1",
+        "phpunit/phpunit": "^4 || ^5 || ^6 || ^7",
+        "squizlabs/php_codesniffer": "^3.5",
+        "wp-coding-standards/wpcs": "^2.3.0",
+        "yoast/phpunit-polyfills": "^0.2.0"
     },
     "scripts": {
-      "cs": [
-        "@php ./vendor/bin/phpcs -p -s -v -n . --standard=\"WordPress-VIP-Go\" --extensions=php --ignore=\"/vendor/*,/node_modules/*,/tests/*\""
-      ],
-      "cbf": [
-        "@php ./vendor/bin/phpcbf -p -s -v -n . --standard=\"WordPress-VIP-Go\" --extensions=php --ignore=\"/vendor/*,/node_modules/*,/tests/*\""
-      ],
-      "integration": [
-        "@php ./vendor/bin/phpunit --testsuite WP_Tests"
-      ],
-      "integration-ms": [
-        "@putenv WP_MULTISITE=1",
-        "@composer integration"
-      ]
+        "cbf": [
+            "@php ./vendor/bin/phpcbf"
+        ],
+        "coverage": [
+            "@php ./vendor/bin/phpunit --coverage-html ./build/coverage-html"
+        ],
+        "coverage-ci": [
+            "@php ./vendor/bin/phpunit"
+        ],
+        "cs": [
+          "@php ./vendor/bin/phpcs"
+        ],
+        "lint": [
+          "@php ./vendor/php-parallel-lint/php-parallel-lint/parallel-lint . -e php --exclude vendor --exclude .git"
+        ],
+        "lint-ci": [
+          "@php ./vendor/php-parallel-lint/php-parallel-lint/parallel-lint . -e php --exclude vendor --exclude .git --checkstyle"
+        ],
+        "prepare-ci": [
+            "bash bin/install-wp-tests.sh wordpress_test root root localhost"
+        ],
+        "test": [
+            "@php ./vendor/bin/phpunit --testsuite WP_Tests"
+        ],
+        "test-ms": [
+            "@putenv WP_MULTISITE=1",
+            "@composer test"
+        ]
+    },
+    "support": {
+        "issues": "https://github.com/Automattic/edit-flow/issues",
+        "forum": "https://wordpress.org/support/plugin/edit-flow",
+        "source": "https://github.com/Automattic/edit-flow"
     }
 }
