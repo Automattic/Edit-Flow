@@ -1,0 +1,27 @@
+name: Behat Testing
+
+on:
+  push:
+    paths:
+      - '.github/workflows/behat-test.yml'
+      - '**.php'
+      - '**.feature'
+      - 'behat.yml'
+      - 'composer.json'
+  pull_request:
+    paths:
+      - '.github/workflows/behat-test.yml'
+      - '**.php'
+      - '**.feature'
+      - 'behat.yml'
+      - 'composer.json'
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+  workflow_dispatch:
+
+jobs:
+  behat:
+    uses: automattic/wpvip-plugins-.github/.github/workflows/reusable-behat-test.yml@trunk
