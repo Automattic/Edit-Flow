@@ -260,6 +260,10 @@ class EF_Editorial_Comments extends EF_Module
 			}
 		}
 
+		$escaped_comment_author = esc_html( $comment->comment_author );
+		if ( apply_filters( 'ef_display_user_email_address', true, $comment->user_id ) ) {
+			$escaped_comment_author = get_comment_author_email_link( $comment->comment_author );
+		}
 	?>
 
 		<li id="comment-<?php echo esc_attr( $comment->comment_ID ); ?>" <?php comment_class( array( 'comment-item', wp_get_comment_status($comment->comment_ID) ) ); ?>>
@@ -269,7 +273,7 @@ class EF_Editorial_Comments extends EF_Module
 			<div class="post-comment-wrap">
 				<h5 class="comment-meta">
 					<?php printf( __('<span class="comment-author">%1$s</span><span class="meta"> said on %2$s at %3$s</span>', 'edit-flow'),
-							comment_author_email_link( $comment->comment_author ),
+							$escaped_comment_author,
 							get_comment_date( get_option( 'date_format' ) ),
 							get_comment_time() ); ?>
 				</h5>
