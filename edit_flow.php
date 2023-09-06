@@ -70,19 +70,19 @@ class edit_flow {
 	 *
 	 * @var \stdClass
 	 */
-	protected $modules;
+	public $modules;
 
 	/**
 	 * Number of active modules.
 	 *
 	 * @var int
 	 */
-	protected $modules_count;
+	public $modules_count;
 
 	/**
 	 * @var EF_Module
 	 */
-	protected $helpers;
+	public $helpers;
 
 	/**
 	 * Main EditFlow Instance
