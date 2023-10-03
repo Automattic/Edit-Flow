@@ -65,6 +65,70 @@ class edit_flow {
 	private static $instance;
 
 	/**
+	 * Active modules.
+	 *
+	 * @var \stdClass
+	 */
+	public $modules;
+
+	/**
+	 * Number of active modules.
+	 *
+	 * @var int
+	 */
+	public $modules_count;
+
+	/**
+	 * @var EF_Module
+	 */
+	public $helpers;
+
+	/**
+	 * @var EF_Calendar
+	 */
+	public $calendar;
+
+	/**
+	 * @var EF_Custom_Status
+	 */
+	public $custom_status;
+
+	/**
+	 * @var EF_Dashboard
+	 */
+	public $dashboard;
+
+	/**
+	 * @var EF_Settings
+	 */
+	public $settings;
+
+	/**
+	 * @var EF_Notifications
+	 */
+	public $notifications;
+
+	/**
+	 * @var EF_Story_Budget
+	 */
+	public $story_budget;
+
+	/**
+	 * @var EF_Editorial_Comments
+	 */
+	public $editorial_comments;
+
+	/**
+	 * @var EF_Editorial_Medata
+	 */
+	public $editorial_metadata;
+
+	/**
+	 * @var EF_User_Groups
+	 */
+	public $user_groups;
+
+	/**
 	 * Main EditFlow Instance
 	 *
 	 * Insures that only one instance of EditFlow exists in memory at any one

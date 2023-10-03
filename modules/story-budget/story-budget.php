@@ -6,32 +6,34 @@
  * @author sbressler
  */
 class EF_Story_Budget extends EF_Module {
-	
+
 	var $taxonomy_used = 'category';
-	
+
 	var $module;
-	
+
 	var $num_columns = 0;
-	
+
 	var $max_num_columns;
-	
+
 	var $no_matching_posts = true;
-	
+
 	var $terms = array();
-	
+
 	var $user_filters;
-	
+
 	const screen_id = 'dashboard_page_story-budget';
-	
+
 	const usermeta_key_prefix = 'ef_story_budget_';
-	
+
 	const default_num_columns = 1;
-	
+
+	private $term_columns;
+
 	/**
 	 * Register the module with Edit Flow but don't do anything else
 	 */
 	function __construct() {
-	
+
 		$this->module_url = $this->get_module_url( __FILE__ );
 		// Register the module with Edit Flow
 		$args = array(
@@ -48,18 +50,18 @@ class EF_Story_Budget extends EF_Module {
 			'autoload' => false,
 		);
 		$this->module = EditFlow()->register_module( 'story_budget', $args );
-	
+
 	}
-	
+
 	/**
 	 * Initialize the rest of the stuff in the class if the module is active
 	 */
 	function init() {
-		
+
 		$view_story_budget_cap = apply_filters( 'ef_view_story_budget_cap', 'ef_view_story_budget' );
 		if ( !current_user_can( $view_story_budget_cap ) )
 			return;
-	
+
 		$this->num_columns = $this->get_num_columns();
 		$this->max_num_columns = apply_filters( 'ef_story_budget_max_num_columns', 3 );
 
@@ -71,14 +73,14 @@ class EF_Story_Budget extends EF_Module {
 		// Register the columns of data appearing on every term. This is hooked into admin_init
 		// so other Edit Flow modules can register their filters if needed
 		add_action( 'admin_init', array( $this, 'register_term_columns' ) );
-		
+
 		add_action( 'admin_menu', array( $this, 'action_admin_menu' ) );
 		// Load necessary scripts and stylesheets
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'action_enqueue_admin_styles' ) );
-		
+
 	}
-	
+
 	/**
 	 * Give users the appropriate permissions to view the story budget the first time the module is loaded
 	 *
@@ -118,9 +120,9 @@ class EF_Story_Budget extends EF_Module {
 			// Technically we've run this code before so we don't want to auto-install new data
 			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
 		}
-		
+
 	}
-	
+
 	/**
 	 * Include the story budget link in the admin menu.
 	 *
@@ -129,7 +131,7 @@ class EF_Story_Budget extends EF_Module {
 	function action_admin_menu() {
 		add_submenu_page( 'index.php', __('Story Budget', 'edit-flow'), __('Story Budget', 'edit-flow'), apply_filters( 'ef_view_story_budget_cap', 'ef_view_story_budget' ), $this->module->slug, array( $this, 'story_budget') );
 	}
-	
+
 	/**
 	 * Enqueue necessary admin scripts only on the story budget page.
 	 *
@@ -137,30 +139,30 @@ class EF_Story_Budget extends EF_Module {
 	 */
 	function enqueue_admin_scripts() {
 		global $current_screen;
-		
+
 		if ( $current_screen->id != self::screen_id )
 			return;
-		
+
 		$num_columns = $this->get_num_columns();
 		echo '<script type="text/javascript"> var ef_story_budget_number_of_columns="' . esc_js( $this->num_columns ) . '";</script>';
-		
+
 		$this->enqueue_datepicker_resources();
 		wp_enqueue_script( 'edit_flow-story_budget', $this->module_url . 'lib/story-budget.js', array( 'edit_flow-date_picker' ), EDIT_FLOW_VERSION, true );
 	}
-	
+
 	/**
 	 * Enqueue a screen and print stylesheet for the story budget.
 	 */
 	function action_enqueue_admin_styles() {
 		global $current_screen;
-		
+
 		if ( $current_screen->id != self::screen_id )
 			return;
-		
+
 		wp_enqueue_style( 'edit_flow-story_budget-styles', $this->module_url . 'lib/story-budget.css', false, EDIT_FLOW_VERSION, 'screen' );
 		wp_enqueue_style( 'edit_flow-story_budget-print-styles', $this->module_url . 'lib/story-budget-print.css', false, EDIT_FLOW_VERSION, 'print' );
 	}
-	
+
 	/**
 	 * Register the columns of information that appear for each term module.
 	 * Modeled after how WP_List_Table works, but focused on hooks instead of OOP extending
@@ -168,7 +170,7 @@ class EF_Story_Budget extends EF_Module {
 	 * @since 0.7
 	 */
 	function register_term_columns() {
-		
+
 		$term_columns = array(
 			'title' => __( 'Title', 'edit-flow' ),
 			'status' => __( 'Status', 'edit-flow' ),
@@ -176,32 +178,32 @@ class EF_Story_Budget extends EF_Module {
 			'post_date' => __( 'Post Date', 'edit-flow' ),
 			'post_modified' => __( 'Last Modified', 'edit-flow' ),
 		);
-		
+
 		$term_columns = apply_filters( 'ef_story_budget_term_columns', $term_columns );
 		$this->term_columns = $term_columns;
 	}
-	
+
 	/**
 	 * Handle a form submission to change the user's date range on the budget
 	 *
 	 * @since 0.7
 	 */
 	function handle_form_date_range_change() {
-		
+
 		if ( ! isset( $_POST['ef-story-budget-range-submit'], $_POST['ef-story-budget-number-days'], $_POST['ef-story-budget-start-date_hidden'] ) ) {
 			return;
 		}
-			
+
 		if ( !wp_verify_nonce( $_POST['nonce'], 'change-date' ) )
 			wp_die( $this->module->messages['nonce-failed'] );
-		
+
 		$current_user = wp_get_current_user();
 		$new_filters = array (
 			'start_date' => $_POST['ef-story-budget-start-date_hidden'],
 			'number_days' => (int) $_POST['ef-story-budget-number-days'],
 		);
 		$user_filters = $this->update_user_filters_from_form_date_range_change( $current_user, $new_filters );
-		
+
 		$this->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $user_filters );
 		wp_redirect( menu_page_url( $this->module->slug, false ) );
 		exit;
@@ -236,10 +238,10 @@ class EF_Story_Budget extends EF_Module {
 				$existing_filters['number_days'] = $new_filters['number_days'];
 			}
 		}
-		
+
 		return $existing_filters;
 	}
-	
+
 	/**
 	 * Get the number of columns to show on the story budget
 	 */
@@ -256,7 +258,7 @@ class EF_Story_Budget extends EF_Module {
 		}
 		return $this->num_columns;
 	}
-	
+
 	/**
 	 * Add module options to the screen panel
 	 *
@@ -266,7 +268,7 @@ class EF_Story_Budget extends EF_Module {
 		require_once( EDIT_FLOW_ROOT . '/common/php/' . 'screen-options.php' );
 		add_screen_options_panel( self::usermeta_key_prefix . 'screen_columns', __( 'Screen Layout', 'edit-flow' ), array( $this, 'print_column_prefs' ), self::screen_id, array( $this, 'save_column_prefs' ), true );
 	}
-	
+
 	/**
 	 * Print column number preferences for screen options
 	 */
@@ -277,7 +279,7 @@ class EF_Story_Budget extends EF_Module {
 		}
 		return $return_val;
 	}
-	
+
 	/**
 	 * Save the current user's preference for number of columns.
 	 */
@@ -285,7 +287,7 @@ class EF_Story_Budget extends EF_Module {
 
 		$key = self::usermeta_key_prefix . 'screen_columns';
 		$this->num_columns = (int) $posted_fields[ $key ];
-		
+
 		$current_user = wp_get_current_user();
 		$this->update_user_meta( $current_user->ID, $key, $this->num_columns );
 	}
@@ -299,7 +301,7 @@ class EF_Story_Budget extends EF_Module {
 
 		// Update the current user's filters with the variables set in $_GET
 		$this->user_filters = $this->update_user_filters();
-		
+
 		if ( !empty( $this->user_filters[$this->taxonomy_used] ) ) {
 			$terms = array();
 			$terms[] = get_term( $this->user_filters[$this->taxonomy_used], $this->taxonomy_used );
@@ -314,7 +316,7 @@ class EF_Story_Budget extends EF_Module {
 			$terms = get_terms( $this->taxonomy_used, $args );
 		}
 		$this->terms = apply_filters( 'ef_story_budget_filter_terms', $terms ); // allow for reordering or any other filtering of terms
-		
+
 		?>
 		<div class="wrap" id="ef-story-budget-wrap">
 			<div id="ef-story-budget-title">
@@ -347,7 +349,7 @@ class EF_Story_Budget extends EF_Module {
 		</div>
 		<?php
 	}
-	
+
 	/**
 	 * Allow the user to define the date range in a new and exciting way
 	 *
@@ -363,7 +365,7 @@ class EF_Story_Budget extends EF_Module {
 			<?php _e( 'showing', 'edit-flow' ); ?>
 			<input type="text" id="ef-story-budget-number-days" name="ef-story-budget-number-days" size="3" maxlength="3" value="<?php echo esc_attr( $this->user_filters['number_days'] ); ?>" />
 			<span class="form-value"><?php echo esc_html( $this->user_filters['number_days'] ); ?></span>
-			<?php echo esc_html( _n( 'day', 'days', $this->user_filters['number_days'], 'edit-flow' ) ); ?>			
+			<?php echo esc_html( _n( 'day', 'days', $this->user_filters['number_days'], 'edit-flow' ) ); ?>
 			<span class="change-date-buttons">
 				<input id="ef-story-budget-range-submit" name="ef-story-budget-range-submit" type="submit" class="button-primary" value="<?php echo esc_attr( __( 'Change', 'edit-flow' ) ); ?>" />
 				<a class="change-date-cancel hidden" href="#"><?php echo esc_html( __( 'Cancel', 'edit-flow' ) ); ?></a>
@@ -371,7 +373,7 @@ class EF_Story_Budget extends EF_Module {
 			</span>
 			<?php wp_nonce_field( 'change-date', 'nonce', 'change-date-nonce', true ); ?>
 		</form>
-		<?php	
+		<?php
 	}
 
 	/**
@@ -381,14 +383,14 @@ class EF_Story_Budget extends EF_Module {
 	 * @return array $term_posts An array of post objects for the term
 	 */
 	function get_posts_for_term( $term, $args = null ) {
-		
+
 		$defaults = array(
 			'post_status' => null,
 			'author'      => null,
 			'posts_per_page' => apply_filters( 'ef_story_budget_max_query', 200 ),
-		);				 
+		);
 		$args = array_merge( $defaults, $args );
-		
+
 		// Filter to the term and any children if it's hierarchical
 		$arg_terms = array(
 			$term->term_id,
@@ -432,18 +434,18 @@ class EF_Story_Budget extends EF_Module {
 		$args = apply_filters( 'ef_story_budget_posts_query_args', $args );
 
 		$term_posts_query_results = new WP_Query( $args );
-		
+
 		$term_posts = array();
 		while ( $term_posts_query_results->have_posts() ) {
 			$term_posts_query_results->the_post();
 			global $post;
 			$term_posts[] = $post;
 		}
-		
+
 		return $term_posts;
 	}
 
-	
+
 	/**
 	 * Prints the stories in a single term in the story budget.
 	 *
@@ -455,7 +457,7 @@ class EF_Story_Budget extends EF_Module {
 		if ( !empty( $posts ) )
 			// Don't display the message for $no_matching_posts
 			$this->no_matching_posts = false;
-			
+
 	?>
 	<div class="postbox<?php if ( !empty( $posts )) echo ' postbox-has-posts'; ?>">
 		<div class="handlediv" title="<?php _e( 'Click to toggle', 'edit-flow' ); ?>"><br /></div>
@@ -485,7 +487,7 @@ class EF_Story_Budget extends EF_Module {
 	</div>
 	<?php
 	}
-	
+
 	/**
 	 * Prints a single post within a term in the story budget.
 	 *
@@ -508,26 +510,26 @@ class EF_Story_Budget extends EF_Module {
 		</tr>
 		<?php
 	}
-	
+
 	/**
 	 * Default callback for producing the HTML for a term column's single post value
 	 * Includes a filter other modules can hook into
 	 *
 	 * @since 0.7
-	 * 
+	 *
 	 * @param object $post The post we're displaying
 	 * @param string $column_name Name of the column, as registered with register_term_columns
 	 * @param object $parent_term The parent term for the term column
 	 * @return string $output Output value for the term column
 	 */
 	function term_column_default( $post, $column_name, $parent_term ) {
-		
+
 		// Hook for other modules to get data into columns
 		$column_value = null;
-		$column_value = apply_filters( 'ef_story_budget_term_column_value', $column_name, $post, $parent_term ); 
+		$column_value = apply_filters( 'ef_story_budget_term_column_value', $column_name, $post, $parent_term );
 		if ( !is_null( $column_value ) && $column_value != $column_name )
 			return $column_value;
-			
+
 		switch( $column_name ) {
 			case 'status':
 				$status_name = get_post_status_object( $post->post_status );
@@ -548,9 +550,9 @@ class EF_Story_Budget extends EF_Module {
 			default:
 				break;
 		}
-		
+
 	}
-	
+
 	/**
 	 * Prepare the data for the title term column
 	 *
@@ -558,14 +560,14 @@ class EF_Story_Budget extends EF_Module {
 	 */
 	function term_column_title( $post, $parent_term ) {
 		$post_title = _draft_or_post_title( $post->ID );
-		
+
 		$post_type_object = get_post_type_object( $post->post_type );
 		$can_edit_post = current_user_can( $post_type_object->cap->edit_post, $post->ID );
 		if ( $can_edit_post )
-			$output = '<strong><a href="' . get_edit_post_link( $post->ID ) . '">' . esc_html( $post_title ) . '</a></strong>'; 
+			$output = '<strong><a href="' . get_edit_post_link( $post->ID ) . '">' . esc_html( $post_title ) . '</a></strong>';
 		else
 			$output = '<strong>' . esc_html( $post_title ) . '</strong>';
-		
+
 		// Edit or Trash or View
 		$output .= '<div class="row-actions">';
 		$item_actions = array();
@@ -593,20 +595,20 @@ class EF_Story_Budget extends EF_Module {
 
 		return $output;
 	}
-	
+
 	/**
 	 * Print any messages that should appear based on the action performed
 	 */
 	function print_messages() {
 	?>
-	
+
 	<?php
 		if ( isset($_GET['trashed']) || isset($_GET['untrashed']) ) {
 
 			echo '<div id="trashed-message" class="updated"><p>';
-			
+
 			// Following mostly stolen from edit.php
-			
+
 			if ( isset( $_GET['trashed'] ) && (int) $_GET['trashed'] ) {
 				printf( _n( 'Item moved to the trash.', '%d items moved to the trash.', $_GET['trashed'] ), number_format_i18n( $_GET['trashed'] ) );
 				$ids = isset($_GET['ids']) ? $_GET['ids'] : 0;
@@ -618,11 +620,11 @@ class EF_Story_Budget extends EF_Module {
 				printf( _n( 'Item restored from the Trash.', '%d items restored from the Trash.', $_GET['untrashed'] ), number_format_i18n( $_GET['untrashed'] ) );
 				unset($_GET['undeleted']);
 			}
-			
+
 			echo '</p></div>';
 		}
 	}
-	
+
 	/**
 	 * Print the table navigation and filter controls, using the current user's filters if any are set.
 	 */
@@ -632,9 +634,9 @@ class EF_Story_Budget extends EF_Module {
 		<div class="alignleft actions">
 			<form method="GET" style="float: left;">
 				<input type="hidden" name="page" value="story-budget"/>
-				<?php 
+				<?php
 					foreach($this->story_budget_filters() as $select_id => $select_name ) {
-						echo $this->story_budget_filter_options( $select_id, $select_name, $this->user_filters ); 
+						echo $this->story_budget_filter_options( $select_id, $select_name, $this->user_filters );
 					}
 				?>
 				<input type="submit" id="post-query-submit" value="<?php _e( 'Filter', 'edit-flow' ); ?>" class="button-primary button" />
@@ -644,7 +646,7 @@ class EF_Story_Budget extends EF_Module {
 				<input type="hidden" name="post_status" value=""/>
 				<input type="hidden" name="cat" value=""/>
 				<input type="hidden" name="author" value=""/>
-				<?php 
+				<?php
 				foreach( $this->story_budget_filters() as $select_id => $select_name ) {
 					echo '<input type="hidden" name="'.$select_name.'" value="" />';
 				}
@@ -652,16 +654,16 @@ class EF_Story_Budget extends EF_Module {
 				<input type="submit" id="post-query-clear" value="<?php _e( 'Reset', 'edit-flow' ); ?>" class="button-secondary button" />
 			</form>
 		</div><!-- /alignleft actions -->
-		
+
 		<div class="print-box" style="float:right; margin-right: 30px;"><!-- Print link -->
 			<a href="#" id="print_link"><?php _e( 'Print', 'edit-flow' ); ?></a>
 		</div>
 		<div class="clear"></div>
-		
+
 	</div><!-- /tablenav -->
 	<?php
 	}
-	
+
 	/**
 	 * Update the current user's filters for story budget display with the filters in $_GET. The filters
 	 * in $_GET take precedence over the current users filters if they exist.
@@ -669,7 +671,7 @@ class EF_Story_Budget extends EF_Module {
 	function update_user_filters() {
 
 		$current_user = wp_get_current_user();
-		
+
 		$user_filters = array(
 			'post_status' 	=> $this->filter_get_param( 'post_status' ),
 			'cat' 			=> $this->filter_get_param( 'cat' ),
@@ -677,47 +679,47 @@ class EF_Story_Budget extends EF_Module {
 			'start_date' 	=> $this->filter_get_param( 'start_date' ),
 			'number_days'   => $this->filter_get_param( 'number_days' )
 		);
-		
+
 		$current_user_filters = array();
 		$current_user_filters = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
-		
+
 		// If any of the $_GET vars are missing, then use the current user filter
 		foreach ( $user_filters as $key => $value ) {
 			if ( is_null( $value ) && !empty( $current_user_filters[$key] ) ) {
 				$user_filters[$key] = $current_user_filters[$key];
 			}
 		}
-		
+
 		if ( !$user_filters['start_date'] )
 			$user_filters['start_date'] = date( 'Y-m-d' );
-		
+
 		if ( !$user_filters['number_days'] )
 			$user_filters['number_days'] = 10;
-		
+
 		$user_filters = apply_filters('ef_story_budget_filter_values', $user_filters, $current_user_filters);
 
 		$this->update_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', $user_filters );
 		return $user_filters;
 	}
-	
+
 	/**
 	 * Get the filters for the current user for the story budget display, or insert the default
 	 * filters if not already set.
-	 * 
+	 *
 	 * @return array The filters for the current user, or the default filters if the current user has none.
 	 */
 	function get_user_filters() {
-		
+
 		$current_user = wp_get_current_user();
 		$user_filters = array();
 		$user_filters = $this->get_user_meta( $current_user->ID, self::usermeta_key_prefix . 'filters', true );
-		
+
 		// If usermeta didn't have filters already, insert defaults into DB
 		if ( empty( $user_filters ) )
 			$user_filters = $this->update_user_filters();
 		return $user_filters;
 	}
-	
+
 	/**
 	 *
 	 * @param string $param The parameter to look for in $_GET
@@ -731,7 +733,7 @@ class EF_Story_Budget extends EF_Module {
 		} else if ( empty( $_GET[$param] ) ) {
 			return '';
 		}
-		
+
 		return sanitize_key( $_GET[$param] );
 	}
 
@@ -747,13 +749,13 @@ class EF_Story_Budget extends EF_Module {
 
 	function story_budget_filter_options( $select_id, $select_name, $filters ) {
 		switch( $select_id ) {
-			case 'post_status': 
+			case 'post_status':
 			$post_stati = $this->get_budget_post_stati();
 			?>
 				<select id="post_status" name="post_status"><!-- Status selectors -->
 						<option value=""><?php _e( 'View all statuses', 'edit-flow' ); ?></option>
 						<?php
-							foreach ( $post_stati as $status ) { 
+							foreach ( $post_stati as $status ) {
 								echo '<option value="' . esc_attr( $status->name ) . '" ' . selected( $status->name, $filters['post_status'] ) . '>' . esc_html( $status->label ) . '</option>';
 							}
 							echo '<option value="unpublish"' . selected('unpublish', $filters['post_status']) . '>' . __( 'Unpublished', 'edit-flow' ) . '</option>';
@@ -793,13 +795,13 @@ class EF_Story_Budget extends EF_Module {
 
 	/**
 	 * Returns a list of custom status objects used by the story budget
-	 * 
+	 *
 	 * @return array An array of StdClass objects representing statuses
 	 */
 	public function get_budget_post_stati() {
 		$post_stati = get_post_stati( array(), 'object' );
 		$custom_status_slugs = wp_list_pluck( $this->get_post_statuses(), 'slug' );
-		$custom_status_slugs[] = 'future';	
+		$custom_status_slugs[] = 'future';
 		$custom_status_slugs[] = 'publish';
 
 		$custom_status_slug_keys = array_flip( $custom_status_slugs );
@@ -814,5 +816,5 @@ class EF_Story_Budget extends EF_Module {
 
 		return apply_filters( 'ef_budget_post_stati', $final_statuses );
 	}
-	
+
 }

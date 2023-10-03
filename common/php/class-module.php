@@ -15,6 +15,10 @@ class EF_Module {
 		'private',
 	);
 
+	public $module_url;
+
+	public $module;
+
 	function __construct() {}
 
 	/**
@@ -478,7 +482,7 @@ class EF_Module {
 
 		<?php if( !empty($users) ) : ?>
 			<ul class="<?php echo esc_attr( $list_class ) ?>">
-				<?php foreach( $users as $user ) : 
+				<?php foreach( $users as $user ) :
 					$checked = ( in_array($user->ID, $selected) ) ? 'checked="checked"' : '';
 					// Add a class to checkbox of current user so we know not to add them in notified list during notifiedMessage() js function
 					$current_user_class = ( get_current_user_id() == $user->ID ) ? 'class="post_following_list-current_user" ' : '';
