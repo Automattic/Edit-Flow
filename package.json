@@ -79,7 +79,7 @@
     "extract-text-webpack-plugin": "^4.0.0-beta.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
-    "node-sass": "^4.14.1",
+    "node-sass": "^9.0.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "sass-loader": "^7.3.1",
@@ -94,7 +94,7 @@
     "downshift": "^5.4.7",
     "install": "^0.13.0",
     "match-sorter": "^4.2.1",
-    "npm": "^6.14.13",
+    "npm": "^6.14.18",
     "prop-types": "^15.7.2"
   },
   "eslintConfig": {
