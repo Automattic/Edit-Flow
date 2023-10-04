@@ -59,7 +59,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 	 * Test that when post is published, post_date_gmt is set to post_date
 	 */
 	function test_insert_post_publish_post_date_set() {
-		$past_date = strftime( "%Y-%m-%d %H:%M:%S", strtotime( '-1 second' ) );
+		$past_date = date( 'Y-m-d H:i:s', strtotime( '-1 second' ) );
 
 		$post = array(
 			'post_author' => self::$admin_user_id,
@@ -154,7 +154,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 	 * is not set when the status is not 'future'
 	 */
 	function test_insert_scheduled_post_gmt_set() {
-		$future_date = strftime( "%Y-%m-%d %H:%M:%S", strtotime('+1 day') );
+		$future_date = date( 'Y-m-d H:i:s', strtotime('+1 day') );
 
 		$post = array(
 			'post_author' => self::$admin_user_id,
@@ -182,7 +182,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 	 * A post with 'future' status should correctly set post_date_gmt from post_date
 	 */
 	function test_insert_draft_to_future_post_date_gmt_set() {
-		$future_date = strftime( "%Y-%m-%d %H:%M:%S" , strtotime( '+1 day' ) );
+		$future_date = date( 'Y-m-d H:i:s', strtotime( '+1 day' ) );
 
 		$post = array(
 			'post_author' => self::$admin_user_id,
@@ -372,7 +372,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		$post_states = apply_filters( 'display_post_states', array(), get_post( $post ) );
 		$this->assertFalse( array_key_exists( 'pitch', $post_states ) );
 	}
-	
+
 	/**
 	 * When a post with a custom status is inserted, post_name should remain empty
 	 */
@@ -634,7 +634,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
 		$request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
-		$params = array( 
+		$params = array(
 			'title' => 'Post title',
 			'content' => 'Post content',
 			'status' => 'pitch',
@@ -659,7 +659,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
 		$request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
-		$params = array( 
+		$params = array(
 			'title' => 'Post title',
 			'content' => 'Post content',
 			'status' => 'draft',
@@ -684,7 +684,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
 		$request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
-		$params = array( 
+		$params = array(
 			'title' => 'Post title',
 			'content' => 'Post content',
 			'status' => 'pitch',
@@ -697,14 +697,14 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 		$update_request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/posts/%d', $data['id'] ) );
 		$update_request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
-		$update_params = array( 
+		$update_params = array(
 			'title' => 'Post title new',
 			'content' => 'Post content new',
 			'status' => 'pitch',
 			'author' => self::$admin_user_id,
 			'type' => 'post',
 		);
-		
+
 		$update_request->set_body_params( $update_params );
 		$update_response = rest_get_server()->dispatch( $update_request );
 
@@ -723,7 +723,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
 		$request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
-		$params = array( 
+		$params = array(
 			'title' => 'Post title',
 			'content' => 'Post content',
 			'status' => 'publish',
@@ -748,17 +748,17 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		wp_set_current_user( self::$admin_user_id );
 
 		$custom_post_name = 'a-post-name';
-		
-		$p = self::factory()->post->create( 
-			array( 
-				'post_status' => 'pitch', 
+
+		$p = self::factory()->post->create(
+			array(
+				'post_status' => 'pitch',
 				'post_author' => self::$admin_user_id ,
-			) 
+			)
 		);
 
 		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/posts/%d', $p ) );
 		$request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
-		$params = array( 
+		$params = array(
 			'title' => 'Post title new',
 			'content' => 'Post content new',
 			'slug' => $custom_post_name,
@@ -771,7 +771,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 		$update_request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/posts/%d', $p ) );
 		$update_request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
-		$update_params = array( 
+		$update_params = array(
 			'title' => 'Post title new',
 			'content' => 'Post content new',
 			'status' => 'pitch',
@@ -780,7 +780,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		);
 		$update_request->set_body_params( $update_params );
 		$update_response = rest_get_server()->dispatch( $update_request );
-		
+
 		$update_data = $update_response->get_data();
 		$update_post = get_post( $update_data['id'] );
 
@@ -796,7 +796,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 		$request = new WP_REST_Request( 'POST', '/wp/v2/pages' );
 		$request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
-		$params = array( 
+		$params = array(
 			'title' => 'Page title',
 			'content' => 'Page content',
 			'status' => 'pitch',
@@ -820,19 +820,19 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		wp_set_current_user( self::$admin_user_id );
 
 		$custom_post_name = 'a-page-name';
-		
-		$p = self::factory()->post->create( 
-			array( 
+
+		$p = self::factory()->post->create(
+			array(
 				'title' => 'Page title new',
 				'content' => 'Page content new',
-				'post_status' => 'pitch', 
+				'post_status' => 'pitch',
 				'post_type' => 'page',
-			) 
+			)
 		);
-		
+
 		$request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/pages/%d', $p ) );
 		$request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
-		$params = array( 
+		$params = array(
 			'title' => 'Page title new',
 			'content' => 'Page content new',
 			'slug' => $custom_post_name,
@@ -843,14 +843,14 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 
 		$update_request = new WP_REST_Request( 'PUT', sprintf( '/wp/v2/pages/%d', $p ) );
 		$update_request->add_header( 'content-type', 'application/x-www-form-urlencoded' );
-		$update_params = array( 
+		$update_params = array(
 			'title' => 'Page title new',
 			'content' => 'Page content new',
 			'status' => 'pitch',
 		);
 		$update_request->set_body_params( $update_params );
 		$update_response = rest_get_server()->dispatch( $update_request );
-		
+
 		$update_data = $update_response->get_data();
 		$update_post = get_post( $update_data['id'] );
 
