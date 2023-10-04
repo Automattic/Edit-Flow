@@ -53,6 +53,7 @@ define( 'EDIT_FLOW_URL' , plugins_url( '/', __FILE__ ) );
 define( 'EDIT_FLOW_SETTINGS_PAGE' , add_query_arg( 'page', 'ef-settings', get_admin_url( null, 'admin.php' ) ) );
 
 // Core class
+#[\AllowDynamicProperties]
 class edit_flow {
 
 	// Unique identified added as a prefix to all options
@@ -63,6 +64,25 @@ class edit_flow {
 	 * @var EditFlow The one true EditFlow
 	 */
 	private static $instance;
+
+	/**
+	 * Active modules.
+	 *
+	 * @var \stdClass
+	 */
+	public $modules;
+
+	/**
+	 * Number of active modules.
+	 *
+	 * @var int
+	 */
+	public $modules_count;
+
+	/**
+	 * @var EF_Module
+	 */
+	public $helpers;
 
 	/**
 	 * Main EditFlow Instance

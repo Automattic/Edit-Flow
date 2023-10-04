@@ -23,7 +23,7 @@ class WP_Test_Edit_Flow_Custom_Status_Ajax extends WP_Edit_Flow_Ajax_UnitTestCas
 
 		$user = new WP_User( $admin_user_id );
 
-		$future_date = strftime( "%Y-%m-%d %H:%M:%S", strtotime( '+1 day' ) );
+		$future_date = date( 'Y-m-d H:i:s', strtotime( '+1 day' ) );
 		$post = $this->factory->post->create_and_get( array(
 			'post_author' => $admin_user_id,
 			'post_status' => 'future',

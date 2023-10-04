@@ -15,6 +15,10 @@ class EF_Module {
 		'private',
 	);
 
+	public $module_url;
+
+	public $module;
+
 	function __construct() {}
 
 	/**
@@ -437,7 +441,7 @@ class EF_Module {
 			}
 		}
 
-		return sprintf( _n( "1 $name ago", "$count ${name}s ago", $count), $count);
+		return sprintf( _n( "1 $name ago", "$count {$name}s ago", $count), $count);
 	}
 
 	/**
