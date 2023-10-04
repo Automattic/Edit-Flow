@@ -50,7 +50,7 @@
     "@wordpress/components": "^9.9.0",
     "@wordpress/e2e-test-utils": "^4.16.1",
     "@wordpress/element": "^2.20.3",
-    "@wordpress/env": "^4.0.5",
+    "@wordpress/env": "^4.9.0",
     "@wordpress/i18n": "^3.20.0",
     "@wordpress/jest-console": "^3.10.0",
     "@wordpress/jest-preset-default": "^6.6.0",
