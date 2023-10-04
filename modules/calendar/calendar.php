@@ -658,9 +658,6 @@ class EF_Calendar extends EF_Module {
 	 * Build all of the HTML for the calendar view
 	 */
 	function view_calendar() {
-
-		$this->dropdown_taxonomies = array();
-
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 
 		// Get filters either from $_GET or from user settings
