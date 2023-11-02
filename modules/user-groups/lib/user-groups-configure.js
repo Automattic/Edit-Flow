@@ -17,10 +17,6 @@ inlineEditUsergroup = {
 		$('a.cancel', row).on( 'click', function() { return inlineEditUsergroup.revert(); });
 		$('a.save', row).on( 'click', function() { return inlineEditUsergroup.save(this); });
 		$('input, select', row).on( 'keydown', function(e) { if(e.which == 13) return inlineEditUsergroup.save(this); });
-
-		$('#posts-filter input[type="submit"]').on( 'mousedown', function(e){
-			t.revert();
-		});
 	},
 
 	toggle : function(el) {
