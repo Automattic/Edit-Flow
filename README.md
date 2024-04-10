@@ -51,6 +51,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 
 ## Upgrade Notice
 
+**0.9.8**
+PHP 8.2 compatible with various bug fixes
+
 **0.9.7**
 PHP 8 compatible now with various bug fixes
 
