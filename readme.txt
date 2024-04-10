@@ -5,7 +5,7 @@ Tags: edit flow, workflow, editorial, newsroom, management, journalism, post sta
 Requires at least: 5.2
 Requires PHP: 5.6
 Tested up to: 5.8
-Stable tag: 0.9.7
+Stable tag: 0.9.8
 
 Redefining your editorial workflow.
 
