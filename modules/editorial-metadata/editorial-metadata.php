@@ -559,13 +559,9 @@ class EF_Editorial_Metadata extends EF_Module {
 			wp_set_object_terms( $id, $term_slugs, self::metadata_taxonomy );
 
 			// Bistro ToDo: Kick off a scheduled task in the future to change the status of the post to pending_review instead, using the content-expiry-date as the date to match against.
-			if ( $term->slug == 'content-expiry-date' ) {
-				$current_metadata = get_post_meta( $id, $key, true );
-				if ( ! empty ( $current_metadata ) ) {
-					// Bistro ToDo: Update the scheduled task to have the new data now.
-				}
+			if ( $send_time ) {
+				wp_schedule_single_event( $send_time, 'ef_unpublish_post_task', array( $id ) );
 			}
-			wp_schedule_single_event( $send_time, 'ef_unpublish_post_task', array( $id ) );
 		}
 	}
 
