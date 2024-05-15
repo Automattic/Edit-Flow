@@ -117,6 +117,8 @@ class EF_Editorial_Metadata extends EF_Module {
 		
 		// Load necessary scripts and stylesheets
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_scripts' ) );	
+
+		add_action( 'ef_unpublish_post_task', 'unpublish_post_task', 10, 3 );
 		
 	}
 	
@@ -185,7 +187,19 @@ class EF_Editorial_Metadata extends EF_Module {
 			// Editorial metadata descriptions become base64_encoded, instead of maybe json_encoded.
 			$this->upgrade_074_term_descriptions( self::metadata_taxonomy );
 		}
-		
+		// Upgrade path to v0.9.9
+		if ( version_compare( $previous_version, '0.9.9', '<' ) ) {
+			$content_expiry_date = array(
+				'name' => __( 'Expiry Date', 'edit-flow' ),
+				'slug' => 'content-expiry-date',
+				'type' => 'date',
+				'description' => __( 'When the content expires and needs to be updated.', 'edit-flow' ),
+			);
+
+			if ( !term_exists( 'content-expiry-date', self::metadata_taxonomy ) ) {
+				$this->insert_editorial_metadata_term( $content_expiry_date );
+			}
+		}
 	}
 
 	/**
@@ -485,6 +499,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		// Authentication passed, let's save the data		
 		$terms = $this->get_editorial_metadata_terms();
 		$term_slugs = array();
+		$send_time = 0;
 				
 		foreach ( $terms as $term ) {
 			// Setup the key for this editorial metadata term (same as what's in $_POST)
@@ -494,8 +509,13 @@ class EF_Editorial_Metadata extends EF_Module {
 			// TODO: do we care about the current_metadata at all?
 			//$current_metadata = get_post_meta( $id, $key, true );
 
-			// Bistro ToDo: Prevent the content-expiry-date from being edited if it's being saved already.
-			
+			if ( $term->slug == 'content-expiry-date' ) {
+				$current_metadata = get_post_meta( $id, $key, true );
+				if ( ! empty ( $current_metadata ) ) {
+					// Bistro ToDo: Update the scheduled task to have the new data now.
+				}
+			}
+
 			$new_metadata = isset( $_POST[$key] ) ? $_POST[$key] : '';
 
 			$type = $term->type;
@@ -513,6 +533,10 @@ class EF_Editorial_Metadata extends EF_Module {
 					} else {
 						// Fallback, in case $_POST[ $key . '_hidden' ] was not previosuly set
 						$new_metadata = strtotime( $new_metadata );
+					}
+
+					if ( $term->slug == 'content-expiry-date' ) {
+						$send_time = strip_tags( $new_metadata );
 					}
 				}
 				if ( 'number' === $type ) {
@@ -535,7 +559,21 @@ class EF_Editorial_Metadata extends EF_Module {
 			wp_set_object_terms( $id, $term_slugs, self::metadata_taxonomy );
 
 			// Bistro ToDo: Kick off a scheduled task in the future to change the status of the post to pending_review instead, using the content-expiry-date as the date to match against.
+			if ( $term->slug == 'content-expiry-date' ) {
+				$current_metadata = get_post_meta( $id, $key, true );
+				if ( ! empty ( $current_metadata ) ) {
+					// Bistro ToDo: Update the scheduled task to have the new data now.
+				}
+			}
+			wp_schedule_single_event( $send_time, 'ef_unpublish_post_task', array( $id ) );
 		}
+	}
+
+	function unpublish_post_task( $post_id ) {
+		// Bistro ToDo: Cancel the scheduled task to change the status of the post to pending_review.
+		$post = get_post( $post_id );
+		$post->post_status = 'pending_review';
+		wp_update_post( $post );
 	}
 	
 	/**

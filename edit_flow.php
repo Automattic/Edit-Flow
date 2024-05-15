@@ -46,7 +46,7 @@ if ( version_compare( phpversion(), '5.6', '<' ) ) {
 }
 
 // Define contants
-define( 'EDIT_FLOW_VERSION' , '0.9.8' );
+define( 'EDIT_FLOW_VERSION' , '0.9.9' );
 define( 'EDIT_FLOW_ROOT' , dirname(__FILE__) );
 define( 'EDIT_FLOW_FILE_PATH' , EDIT_FLOW_ROOT . '/' . basename(__FILE__) );
 define( 'EDIT_FLOW_URL' , plugins_url( '/', __FILE__ ) );
