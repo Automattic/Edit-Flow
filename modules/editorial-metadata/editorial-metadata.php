@@ -509,13 +509,6 @@ class EF_Editorial_Metadata extends EF_Module {
 			// TODO: do we care about the current_metadata at all?
 			//$current_metadata = get_post_meta( $id, $key, true );
 
-			if ( $term->slug == 'content-expiry-date' ) {
-				$current_metadata = get_post_meta( $id, $key, true );
-				if ( ! empty ( $current_metadata ) ) {
-					// Bistro ToDo: Update the scheduled task to have the new data now.
-				}
-			}
-
 			$new_metadata = isset( $_POST[$key] ) ? $_POST[$key] : '';
 
 			$type = $term->type;
