@@ -152,6 +152,12 @@ class EF_Editorial_Metadata extends EF_Module {
 				'type' => 'number',
 				'description' => __( 'Required post length in words.', 'edit-flow' ),
 			),
+			array(
+				'name' => __( 'Expiry Date', 'edit-flow' ),
+				'slug' => 'content-expiry-date',
+				'type' => 'date',
+				'description' => __( 'When the content expires and needs to be updated.', 'edit-flow' ),
+			),
 		);
 		// Load the metadata fields if the slugs don't conflict
 		foreach ( $default_metadata as $args ) {
@@ -487,6 +493,8 @@ class EF_Editorial_Metadata extends EF_Module {
 			// Get the current editorial metadata
 			// TODO: do we care about the current_metadata at all?
 			//$current_metadata = get_post_meta( $id, $key, true );
+
+			// Bistro ToDo: Prevent the content-expiry-date from being edited if it's being saved already.
 			
 			$new_metadata = isset( $_POST[$key] ) ? $_POST[$key] : '';
 
@@ -525,6 +533,8 @@ class EF_Editorial_Metadata extends EF_Module {
 		// TODO: Core only correlates posts with terms if the post_status is publish. Do we care what it is?
 		if ( $post->post_status === 'publish' ) {
 			wp_set_object_terms( $id, $term_slugs, self::metadata_taxonomy );
+
+			// Bistro ToDo: Kick off a scheduled task in the future to change the status of the post to pending_review instead, using the content-expiry-date as the date to match against.
 		}
 	}
 	
