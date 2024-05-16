@@ -135,20 +135,22 @@ editorialCommentReply = {
 
 		var subscribed_users = jQuery( '.ef-post_following_list li input:checkbox:checked' );
 
-		// No users will be notified, so return early with a default message.
-		if ( 0 === subscribed_users.length ) {
-			message_wrapper.addClass( 'ef-none-selected' );
-			message_wrapper.val( __ef_localize_post_comment.none_notified );
-			return;
-		}
-
+		// Track usernames that will actually be displayed/notified
 		var usernames = [];
+
 		subscribed_users.each( function() {			
 			// Add usernames of checked users to the list if they don't have a blocking class
 			if ( ! jQuery( this ).siblings().is( '.post_following_list-no_email,.post_following_list-no_access' ) && ! jQuery( this ).hasClass( 'post_following_list-current_user' ) ) {
 				usernames.push( jQuery( this ).parent().siblings( '.ef-user_displayname, .ef-usergroup_name' ).text() );
 			}
 		} );
+
+		// No users will be notified, so return early with a default message.
+		if ( 0 === usernames.length ) {
+			message_wrapper.addClass( 'ef-none-selected' );
+			message_wrapper.val( __ef_localize_post_comment.none_notified );
+			return;
+		}
 
 		// Convert array of usernames into a sentence.
 		var message = usernames.pop();
