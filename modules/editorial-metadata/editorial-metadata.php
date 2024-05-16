@@ -94,6 +94,9 @@ class EF_Editorial_Metadata extends EF_Module {
 		add_action( 'wp_ajax_inline_save_term', array( $this, 'handle_ajax_inline_save_term' ) );
 		add_action( 'wp_ajax_update_term_positions', array( $this, 'handle_ajax_update_term_positions' ) );
 		
+
+		add_action( 'ef_unpublish_post_task', array( $this, 'unpublish_post_task' ) , 10, 1 );
+
 		add_action( 'add_meta_boxes', array( $this, 'handle_post_metaboxes' ) );
 		add_action( 'save_post', array( $this, 'save_meta_box' ), 10, 2 );
 		
@@ -117,8 +120,6 @@ class EF_Editorial_Metadata extends EF_Module {
 		
 		// Load necessary scripts and stylesheets
 		add_action( 'admin_enqueue_scripts', array( $this, 'add_admin_scripts' ) );	
-
-		add_action( 'ef_unpublish_post_task', 'unpublish_post_task', 10, 3 );
 		
 	}
 	
@@ -553,16 +554,21 @@ class EF_Editorial_Metadata extends EF_Module {
 
 			// Bistro ToDo: Kick off a scheduled task in the future to change the status of the post to pending_review instead, using the content-expiry-date as the date to match against.
 			if ( $send_time ) {
-				wp_schedule_single_event( $send_time, 'ef_unpublish_post_task', array( $id ) );
+				wp_schedule_event( $send_time, 'ef_unpublish_post_task', array( $id ) );
 			}
 		}
 	}
 
 	function unpublish_post_task( $post_id ) {
 		// Bistro ToDo: Cancel the scheduled task to change the status of the post to pending_review.
-		$post = get_post( $post_id );
-		$post->post_status = 'pending_review';
-		wp_update_post( $post );
+		$success_value = wp_update_post( array(
+            'ID'          => $post_id,
+            'post_status' => 'pending'
+        ), true );
+
+		if ( is_wp_error( $success_value ) ) {
+			error_log( 'Error updating post status to pending: ' . $success_value->get_error_message() );
+		}
 	}
 	
 	/**
