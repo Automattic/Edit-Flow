@@ -552,7 +552,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		if ( $post->post_status === 'publish' ) {
 			wp_set_object_terms( $id, $term_slugs, self::metadata_taxonomy );
 
-			// Bistro ToDo: Kick off a scheduled task in the future to change the status of the post to pending_review instead, using the content-expiry-date as the date to match against.
+			// ToDo: Kick off a scheduled task in the future to change the status of the post to pending_review instead, using the content-expiry-date as the date to match against.
 			if ( $send_time ) {
 				wp_schedule_event( $send_time, 'ef_unpublish_post_task', array( $id ) );
 			}
@@ -562,11 +562,11 @@ class EF_Editorial_Metadata extends EF_Module {
 	function unpublish_post_task( $post_id ) {
 		$post_status_to_set = 'pending';
 
-		if ( $this->module_enabled( 'custom-status' ) ) {
+		if ( $this->module_enabled( 'custom_status' ) ) {
 			$post_status_to_set	= 'expired';
 		}
 
-		// Bistro ToDo: Cancel the scheduled task to change the status of the post to pending_review.
+		// ToDo: Cancel the scheduled task to change the status of the post to pending_review.
 		$success_value = wp_update_post( array(
             'ID'          => $post_id,
             'post_status' => $post_status_to_set
