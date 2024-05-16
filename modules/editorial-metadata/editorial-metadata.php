@@ -560,14 +560,20 @@ class EF_Editorial_Metadata extends EF_Module {
 	}
 
 	function unpublish_post_task( $post_id ) {
+		$post_status_to_set = 'pending';
+
+		if ( $this->module_enabled( 'custom-status' ) ) {
+			$post_status_to_set	= 'expired';
+		}
+
 		// Bistro ToDo: Cancel the scheduled task to change the status of the post to pending_review.
 		$success_value = wp_update_post( array(
             'ID'          => $post_id,
-            'post_status' => 'pending'
+            'post_status' => $post_status_to_set
         ), true );
 
 		if ( is_wp_error( $success_value ) ) {
-			error_log( 'Error updating post status to pending: ' . $success_value->get_error_message() );
+			error_log( 'Error updating post status to ' . $post_status_to_set . ': ' . $success_value->get_error_message() );
 		}
 	}
 	

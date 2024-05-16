@@ -162,6 +162,14 @@ class EF_Custom_Status extends EF_Module {
 					'position' => 5,
 				),
 			),
+			array(
+				'term' => __( 'Expired', 'edit-flow' ),
+				'args' => array(
+					'slug' => 'expired',
+					'description' => __( 'Post has expired, and it has to bew updated an editor.', 'edit-flow' ),
+					'position' => 6,
+				),
+			),
 		);
 
 		// Okay, now add the default statuses to the db if they don't already exist
@@ -201,6 +209,20 @@ class EF_Custom_Status extends EF_Module {
 		if ( version_compare( $previous_version, '0.7.4', '<' ) ) {
 			// Custom status descriptions become base64_encoded, instead of maybe json_encoded.
 			$this->upgrade_074_term_descriptions( self::taxonomy_key );
+		}
+		// Upgrade path to v0.9.9
+		if ( version_compare( $previous_version, '0.9.9', '<' ) ) {
+			$expiry_custom_status = array(
+				'term' => __( 'Expired', 'edit-flow' ),
+				'args' => array(
+					'slug' => 'expired',
+					'description' => __( 'Post has expired, and it has to bew updated an editor.', 'edit-flow' ),
+					'position' => 6,
+				),
+			);
+
+			if( !term_exists( $expiry_custom_status['term'], self::taxonomy_key ) )
+				$this->add_custom_status( $expiry_custom_status['term'], $expiry_custom_status['args'] );
 		}
 
 	}
