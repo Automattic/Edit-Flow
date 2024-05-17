@@ -569,7 +569,7 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */
 	function schedule_unpublishing_post( $post_id, $send_time ) {
 		// If there's already a scheduled task for this post, we'll clear it out.
-		if ( ! wp_next_scheduled( 'ef_unpublish_post_task', array( $post_id ) ) ) {
+		if ( wp_next_scheduled( 'ef_unpublish_post_task', array( $post_id ) ) ) {
 			wp_clear_scheduled_hook( 'ef_unpublish_post_task', array( $post_id ) );
 		}
 
