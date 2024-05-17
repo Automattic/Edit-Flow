@@ -528,16 +528,18 @@ class EF_Editorial_Metadata extends EF_Module {
 						// Fallback, in case $_POST[ $key . '_hidden' ] was not previosuly set
 						$new_metadata = strtotime( $new_metadata );
 					}
-
-					if ( $term->slug == 'content-expiry-date' ) {
-						$send_time = strip_tags( $new_metadata );
-					}
 				}
 				if ( 'number' === $type ) {
 					$new_metadata = (int)$new_metadata;
 				}
 				
 				$new_metadata = strip_tags( $new_metadata );
+
+				// If the term is the content expiry date, we'll use this to schedule a task to unpublish the post.
+				if ( $term->slug == 'content-expiry-date' ) {
+					$send_time = $new_metadata ;
+				}
+
 				update_post_meta( $id, $key, $new_metadata );
 				
 				// Add the slugs of the terms with non-empty new metadata to an array
@@ -552,28 +554,48 @@ class EF_Editorial_Metadata extends EF_Module {
 		if ( $post->post_status === 'publish' ) {
 			wp_set_object_terms( $id, $term_slugs, self::metadata_taxonomy );
 
-			// ToDo: Kick off a scheduled task in the future to change the status of the post to pending_review instead, using the content-expiry-date as the date to match against.
+			// If the send_time is set, it means we can try to schedule the unpublishing of the post in the future.
 			if ( $send_time ) {
-				wp_schedule_event( $send_time, 'ef_unpublish_post_task', array( $id ) );
+				$this->schedule_unpublishing_post( $id, $send_time );
 			}
 		}
 	}
 
-	function unpublish_post_task( $post_id ) {
-		$post_status_to_set = 'pending';
-
-		if ( $this->module_enabled( 'custom_status' ) ) {
-			$post_status_to_set	= 'expired';
+	/**
+	 * Schedule a task to unpublish the post at the given time.
+	 *
+	 * @param  int post_id The ID of the post
+	 * @param  int send_time The time to unpublish the post
+	 */
+	function schedule_unpublishing_post( $post_id, $send_time ) {
+		// If there's already a scheduled task for this post, we'll clear it out.
+		if ( ! wp_next_scheduled( 'ef_unpublish_post_task', array( $post_id ) ) ) {
+			wp_clear_scheduled_hook( 'ef_unpublish_post_task', array( $post_id ) );
 		}
 
-		// ToDo: Cancel the scheduled task to change the status of the post to pending_review.
-		$success_value = wp_update_post( array(
+		// Schedule the task to unpublish the post at the given time.
+		wp_schedule_single_event( $send_time, 'ef_unpublish_post_task', array( $post_id ) );
+	}
+
+	/**
+	 * Unpublish the post, as it has expired.
+	 *
+	 * @param  int post_id The ID of the post
+	 */
+	function unpublish_post_task( $post_id ) {
+		// If expired exists in the custom_status_slugs use that, or else use pending.
+		$custom_status_slugs = wp_list_pluck( $this->get_post_statuses(), 'slug' );
+		$post_status_to_set = in_array( 'expired', $custom_status_slugs ) ? 'expired' : 'pending';
+
+		// Update the post status to set it to the new status that we want this post to have.
+		$result = wp_update_post( array(
             'ID'          => $post_id,
             'post_status' => $post_status_to_set
         ), true );
 
-		if ( is_wp_error( $success_value ) ) {
-			error_log( 'Error updating post status to ' . $post_status_to_set . ': ' . $success_value->get_error_message() );
+		// In the event that we have an error, log it but since this is a background task, we don't want to show it to the user.
+		if ( is_wp_error( $result ) ) {
+			error_log( 'Error updating post status to ' . $post_status_to_set . ': ' . $result->get_error_message() );
 		}
 	}
 	
