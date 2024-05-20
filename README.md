@@ -18,7 +18,6 @@ More details for each feature, screenshots and documentation can be found on [ou
 
 All development happens on [GitHub](https://github.com/Automattic/Edit-Flow).
 
-
 We'd love to hear from you! For support questions, feedback and ideas, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10), which we look at often. If you'd like to contribute code, [we'd love to have you involved](http://editflow.org/contribute/).
 
 ## Installation
