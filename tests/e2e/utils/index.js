@@ -52,9 +52,9 @@ const publishPost = async() => {
 }
 
 const schedulePost = async() => {
-    await page.waitForSelector( '.edit-post-post-schedule__toggle' );
+    await page.waitForSelector( '.editor-post-schedule__dialog-toggle' );
 
-    await page.click( '.edit-post-post-schedule__toggle' );
+    await page.click( '.editor-post-schedule__dialog-toggle' );
 
     // wait for popout animation
     await page.waitFor(200);
@@ -69,19 +69,19 @@ const schedulePost = async() => {
 
     // Set the future date in the post editing screen
     await page.$eval(
-        '.components-datetime__time-field-day-input',
+        '.components-datetime__time-field-day input',
         ( el, day ) => el.value = day,
         day
     );
 
     await page.$eval(
-        '.components-datetime__time-field-month-select',
+        '.components-datetime__time-field-month select',
         ( el, month ) => el.value = month.length === 1 ? '0' + month : month,
         month
     );
 
     await page.$eval(
-        '.components-datetime__time-field-year-input',
+        '.components-datetime__time-field-year input',
         ( el, year ) => el.value = year,
         year
     );
