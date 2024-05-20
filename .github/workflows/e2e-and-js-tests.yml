@@ -2,6 +2,10 @@ name: E2E and JS tests
 
 on: push
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -27,11 +31,11 @@ jobs:
       - name: Install WordPress with wp-env
         run: npm run wp-env start
 
-      - name: Run Lint JS 
+      - name: Run Lint JS
         run: npm run lint-js
-      
+
       - name: Run JS tests (Jest)
         run: npm run test-jest
-      
-      - name: Run E2E tests 
+
+      - name: Run E2E tests
         run: npm run test-e2e
