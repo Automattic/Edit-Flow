@@ -67,24 +67,15 @@ const schedulePost = async() => {
         .toLocaleDateString( 'en-US' )
         .split( '/' );
 
-    // Set the future date in the post editing screen
-    await page.$eval(
-        '.components-datetime__time-field-day input',
-        ( el, day ) => el.value = day,
-        day
-    );
+    const dayInput = await page.$('.components-datetime__time-field-day input');
+    await dayInput.click({ clickCount: 3 });
+    await dayInput.type( day );
 
-    await page.$eval(
-        '.components-datetime__time-field-month select',
-        ( el, month ) => el.value = month.length === 1 ? '0' + month : month,
-        month
-    );
+    await page.select('.components-datetime__time-field-month select', month.length === 1 ? '0' + month : month );
 
-    await page.$eval(
-        '.components-datetime__time-field-year input',
-        ( el, year ) => el.value = year,
-        year
-    );
+    const yearInput = await page.$('.components-datetime__time-field-year input');
+    await yearInput.click({ clickCount: 3 });
+    await yearInput.type( year );
 
     await publishPost();
 
