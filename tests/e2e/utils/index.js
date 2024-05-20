@@ -13,18 +13,18 @@ const addCategoryToPost = async (categoryName) => {
     addCategoryLink[0].click();
 
     await page.waitForSelector(
-        '.editor-post-taxonomies__hierarchical-terms-input', 
+        '.editor-post-taxonomies__hierarchical-terms-input input',
         { timeout: 3000 }
     );
 
     // Type the category name in the field.
     await page.type(
-        '.editor-post-taxonomies__hierarchical-terms-input',
+        '.editor-post-taxonomies__hierarchical-terms-input input',
         categoryName
     );
 
     await page.click(
-        '.editor-post-taxonomies__hierarchical-terms-submit'   
+        '.editor-post-taxonomies__hierarchical-terms-submit'
     )
 }
 
