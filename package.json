@@ -14,6 +14,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "test-jest": "jest -c jest.config.js",
     "test-e2e": "wp-scripts test-e2e --config tests/e2e/jest.config.js",
+    "test-e2e:interactive": "wp-scripts test-e2e --config tests/e2e/jest.config.js -- --puppeteer-interactive",
     "test-e2e:watch": "npm run test-e2e -- --watch"
   },
   "wp-env": {
