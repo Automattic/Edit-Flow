@@ -1,9 +1,9 @@
 /* global document, jQuery, ef_week_first_day  */
 
-jQuery( document ).ready( function() {
+jQuery( document ).ready( function () {
 	const dateTimePicks = jQuery( '.date-time-pick' );
 
-	dateTimePicks.each( function() {
+	dateTimePicks.each( function () {
 		const $dTP = jQuery( this );
 
 		$dTP.datetimepicker( {
@@ -19,7 +19,7 @@ jQuery( document ).ready( function() {
 	} );
 
 	const datePicks = jQuery( '.date-pick' );
-	datePicks.each( function() {
+	datePicks.each( function () {
 		const $datePicker = jQuery( this );
 
 		$datePicker.datepicker( {

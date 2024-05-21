@@ -1,0 +1,5 @@
+node_modules
+vendor
+*.php
+package-lock.json
+package.json

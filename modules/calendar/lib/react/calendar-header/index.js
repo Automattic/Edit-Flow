@@ -3,17 +3,17 @@
 /**
  * External dependencies
  */
-import React from 'react';
-import PropTypes from 'prop-types';
 import { Snackbar, Animate } from '@wordpress/components';
 import { withSelect, registerStore } from '@wordpress/data';
 import classnames from 'classnames';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 /**
  * Internal dependencies
  */
-import { CalendarFilters } from '../calendar-filters';
 import { CalendarDateChangeButtons } from '../calendar-date-change-buttons';
+import { CalendarFilters } from '../calendar-filters';
 import './style.react.scss';
 
 const DEFAULT_STORE_STATE = {
@@ -76,43 +76,52 @@ registerStore( 'edit-flow/calendar', {
 	},
 } );
 
-const CalendarHeader = ( ( { snackbarMessage, isLoading, filters, filterValues, numberOfWeeks, beginningOfWeek, pageUrl } ) => {
+const CalendarHeader = ( {
+	snackbarMessage,
+	isLoading,
+	filters,
+	filterValues,
+	numberOfWeeks,
+	beginningOfWeek,
+	pageUrl,
+} ) => {
 	return (
 		<div className="ef-calendar-header">
-			<CalendarFilters isLoading={isLoading} pageUrl={pageUrl} filters={filters} />
+			<CalendarFilters isLoading={ isLoading } pageUrl={ pageUrl } filters={ filters } />
 			<CalendarDateChangeButtons
-				beginningOfWeek={beginningOfWeek}
-				pageUrl={pageUrl}
-				numberOfWeeks={numberOfWeeks}
-				filterValues={filterValues}
+				beginningOfWeek={ beginningOfWeek }
+				pageUrl={ pageUrl }
+				numberOfWeeks={ numberOfWeeks }
+				filterValues={ filterValues }
 			/>
-			{
-				snackbarMessage ? (
-					<Animate options={{ origin: 'bottom left' }} type="appear">
-						{ ( { className } ) => (
-							<Snackbar className={classnames( className, 'ef-calendar-snackbar' )}>
-								<div>{snackbarMessage}</div>
-							</Snackbar>
-						) }
-					</Animate>
-				) : null
-			}
-
+			{ snackbarMessage ? (
+				<Animate options={ { origin: 'bottom left' } } type="appear">
+					{ ( { className } ) => (
+						<Snackbar className={ classnames( className, 'ef-calendar-snackbar' ) }>
+							<div>{ snackbarMessage }</div>
+						</Snackbar>
+					) }
+				</Animate>
+			) : null }
 		</div>
 	);
-} );
+};
 
 CalendarHeader.propTypes = {
-	filters: PropTypes.arrayOf( PropTypes.shape( {
-		name: PropTypes.string,
-		filterType: PropTypes.string,
-		label: PropTypes.string,
-		options: PropTypes.arrayOf( PropTypes.shape( {
+	filters: PropTypes.arrayOf(
+		PropTypes.shape( {
+			name: PropTypes.string,
+			filterType: PropTypes.string,
 			label: PropTypes.string,
-			value: PropTypes.any,
-		} ) ),
-		initialValue: PropTypes.any,
-	} ) ),
+			options: PropTypes.arrayOf(
+				PropTypes.shape( {
+					label: PropTypes.string,
+					value: PropTypes.any,
+				} )
+			),
+			initialValue: PropTypes.any,
+		} )
+	),
 	filterValues: PropTypes.object, // FilterValues is an object of key value pairs
 	numberOfWeeks: PropTypes.number,
 	beginningOfWeek: PropTypes.string, // Formatted 'YYYY-MM-DD'
@@ -122,10 +131,7 @@ CalendarHeader.propTypes = {
 };
 
 const CalendarHeaderWithData = withSelect( select => {
-	const {
-		getCalendarSnackbarMessage,
-		getCalendarIsLoading,
-	} = select( 'edit-flow/calendar' );
+	const { getCalendarSnackbarMessage, getCalendarIsLoading } = select( 'edit-flow/calendar' );
 
 	return {
 		snackbarMessage: getCalendarSnackbarMessage(),
