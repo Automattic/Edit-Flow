@@ -1,5 +1,5 @@
 const addCategoryToPost = async (categoryName) => {
-	await page.waitForXPath('//button[text()="Categories"]');
+    await page.waitForXPath('//button[text()="Categories"]');
     const categoryPanelButton = await page.$x('//button[text()="Categories"]');
 
     await page.$$eval(
@@ -12,6 +12,11 @@ const addCategoryToPost = async (categoryName) => {
             }
         }
     );
+
+    if ( categoryPanelButton[0] === undefined ) {
+        console.log('categoryPanelButton:', categoryPanelButton);
+        await page.screenshot({path: 'add-category-link.png'});
+    }
 
     await categoryPanelButton[0].click();
 
