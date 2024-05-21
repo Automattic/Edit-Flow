@@ -1,4 +1,5 @@
 const addCategoryToPost = async (categoryName) => {
+	await page.waitForXPath('//button[text()="Categories"]');
     const categoryPanelButton = await page.$x('//button[text()="Categories"]');
 
     await page.$$eval(
