@@ -10,7 +10,7 @@
     "build": "webpack --mode production --verbose",
     "dev": "webpack --watch",
     "wp-env": "wp-env",
-    "lint-js": "eslint --quiet blocks common modules",
+    "lint-js": "eslint --quiet blocks modules",
     "test": "echo \"Error: no test specified\" && exit 1",
     "test-jest": "jest -c jest.config.js",
     "test-e2e": "wp-scripts test-e2e --config tests/e2e/jest.config.js",
@@ -43,6 +43,7 @@
   },
   "homepage": "https://github.com/Automattic/Edit-Flow#readme",
   "devDependencies": {
+    "@automattic/eslint-plugin-wpvip": "0.9.1",
     "@babel/core": "^7.14.3",
     "@babel/preset-env": "^7.14.4",
     "@testing-library/jest-dom": "^5.12.0",
@@ -56,7 +57,6 @@
     "@wordpress/jest-console": "^3.10.0",
     "@wordpress/jest-preset-default": "^6.6.0",
     "@wordpress/jest-puppeteer-axe": "^1.10.0",
-    "@wordpress/prettier-config": "^0.2.0",
     "@wordpress/scripts": "^7.2.0",
     "@wordpress/url": "^2.22.2",
     "babel-eslint": "10.0.3",
@@ -66,9 +66,8 @@
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-preset-env": "^1.7.0",
     "css-loader": "^2.1.1",
-    "eslint": "5.16.0",
-    "eslint-config-wpvip": "github:automattic/eslint-config-wpvip#00fb352",
-    "eslint-plugin-flowtype": "4.5.2",
+    "eslint": "8.54.0",
+    "eslint-plugin-flowtype": "^4.5.2",
     "eslint-plugin-import": "2.19.1",
     "eslint-plugin-jest": "23.1.1",
     "eslint-plugin-json": "2.0.1",
@@ -80,6 +79,7 @@
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "node-sass": "^4.14.1",
+    "prettier": "npm:wp-prettier@2.8.5",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "sass-loader": "^7.3.1",
@@ -96,8 +96,5 @@
     "match-sorter": "^4.2.1",
     "npm": "^6.14.13",
     "prop-types": "^15.7.2"
-  },
-  "eslintConfig": {
-    "extends": "wpvip"
   }
 }

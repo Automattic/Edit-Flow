@@ -3,15 +3,16 @@
 /**
  * External dependencies
  */
-import React from 'react';
-import PropTypes from 'prop-types';
-import moment from 'moment';
-import { __, sprintf } from '@wordpress/i18n';
 import { Button } from '@wordpress/components';
+import { __, sprintf } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import moment from 'moment';
+import PropTypes from 'prop-types';
+import React from 'react';
 
 // Get rid of this eventually
-const BUTTON_TYPE_PROPS = parseFloat( EF_CALENDAR.WP_VERSION ) >= 5.4 ? { isSecondary: true } : { isDefault: true };
+const BUTTON_TYPE_PROPS =
+	parseFloat( EF_CALENDAR.WP_VERSION ) >= 5.4 ? { isSecondary: true } : { isDefault: true };
 
 /**
  * Internal dependencies
@@ -34,7 +35,9 @@ const moveByWeeks = ( addOrSubtract, beginningOfWeek, pageUrl, filterValues, wee
 		queryArgFilters.start_date = beginningOfWeek;
 	}
 
-	queryArgFilters.start_date = ( ( moment( queryArgFilters.start_date, 'YYYY-MM-DD' ) )[ addOrSubtract ]( weeksNumber, 'weeks' ) ).format( 'YYYY-MM-DD' );
+	queryArgFilters.start_date = moment( queryArgFilters.start_date, 'YYYY-MM-DD' )
+		[ addOrSubtract ]( weeksNumber, 'weeks' )
+		.format( 'YYYY-MM-DD' );
 
 	return addQueryArgs( pageUrl, queryArgFilters );
 };
@@ -65,55 +68,55 @@ const moveBackByWeeks = ( weeksNumber, beginningOfWeek, pageUrl, filterValues ) 
 	return moveByWeeks( 'subtract', beginningOfWeek, pageUrl, filterValues, weeksNumber );
 };
 
-const CalendarDateChangeButtons = ( {
-	numberOfWeeks,
-	beginningOfWeek,
-	pageUrl,
-	filterValues,
-} ) => {
+const CalendarDateChangeButtons = ( { numberOfWeeks, beginningOfWeek, pageUrl, filterValues } ) => {
 	return (
 		<div className="ef-calendar-date-change-buttons">
-			{numberOfWeeks > 1 ? (
+			{ numberOfWeeks > 1 ? (
 				<Button
-					{...BUTTON_TYPE_PROPS}
+					{ ...BUTTON_TYPE_PROPS }
 					className="ef-calendar-date-change-button"
-					title={sprintf( __( 'Backwards %d weeks', 'edit-flow' ), numberOfWeeks )}
-					href={moveBackByWeeks( numberOfWeeks, beginningOfWeek, pageUrl, filterValues )}>
-					{__( '«', 'edit-flow' )}
+					title={ sprintf( __( 'Backwards %d weeks', 'edit-flow' ), numberOfWeeks ) }
+					href={ moveBackByWeeks( numberOfWeeks, beginningOfWeek, pageUrl, filterValues ) }
+				>
+					{ __( '«', 'edit-flow' ) }
 				</Button>
-			) : null}
+			) : null }
 
 			<Button
-				{...BUTTON_TYPE_PROPS}
+				{ ...BUTTON_TYPE_PROPS }
 				className="ef-calendar-date-change-button"
-				title={__( 'Backwards 1 week', 'edit-flow' )}
-				href={moveBackByWeeks( 1, beginningOfWeek, pageUrl, filterValues )}>
-				{__( '‹', 'edit-flow' )}
+				title={ __( 'Backwards 1 week', 'edit-flow' ) }
+				href={ moveBackByWeeks( 1, beginningOfWeek, pageUrl, filterValues ) }
+			>
+				{ __( '‹', 'edit-flow' ) }
 			</Button>
 			<Button
-				{...BUTTON_TYPE_PROPS}
+				{ ...BUTTON_TYPE_PROPS }
 				className="ef-calendar-date-change-button"
-				title={__( 'Today', 'edit-flow' )}
-				href={moveFowardByWeeks( 0, beginningOfWeek, pageUrl, filterValues )}>
-				{__( 'Today', 'edit-flow' )}
+				title={ __( 'Today', 'edit-flow' ) }
+				href={ moveFowardByWeeks( 0, beginningOfWeek, pageUrl, filterValues ) }
+			>
+				{ __( 'Today', 'edit-flow' ) }
 			</Button>
 			<Button
-				{...BUTTON_TYPE_PROPS}
+				{ ...BUTTON_TYPE_PROPS }
 				className="ef-calendar-date-change-button"
-				title={__( 'Forward 1 week', 'edit-flow' )}
-				href={moveFowardByWeeks( 1, beginningOfWeek, pageUrl, filterValues )}>
-				{__( '›', 'edit-flow' )}
+				title={ __( 'Forward 1 week', 'edit-flow' ) }
+				href={ moveFowardByWeeks( 1, beginningOfWeek, pageUrl, filterValues ) }
+			>
+				{ __( '›', 'edit-flow' ) }
 			</Button>
 
-			{numberOfWeeks > 1 ? (
+			{ numberOfWeeks > 1 ? (
 				<Button
-					{...BUTTON_TYPE_PROPS}
+					{ ...BUTTON_TYPE_PROPS }
 					className="ef-calendar-date-change-button"
-					title={sprintf( __( 'Forward %d weeks', 'edit-flow' ), numberOfWeeks )}
-					href={moveFowardByWeeks( numberOfWeeks, beginningOfWeek, pageUrl, filterValues )}>
-					{__( '»', 'edit-flow' )}
+					title={ sprintf( __( 'Forward %d weeks', 'edit-flow' ), numberOfWeeks ) }
+					href={ moveFowardByWeeks( numberOfWeeks, beginningOfWeek, pageUrl, filterValues ) }
+				>
+					{ __( '»', 'edit-flow' ) }
 				</Button>
-			) : null}
+			) : null }
 		</div>
 	);
 };

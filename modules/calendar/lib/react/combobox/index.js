@@ -3,12 +3,12 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import { BaseControl, Button, IconButton } from '@wordpress/components';
+import classnames from 'classnames';
 import Downshift from 'downshift';
 import matchSorter from 'match-sorter';
-import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import { BaseControl, Button, IconButton } from '@wordpress/components';
+import React from 'react';
 
 // Get rid of this eventually
 const ACTIVE_ICON_BUTTON = parseFloat( EF_CALENDAR.WP_VERSION ) >= 5.3 ? Button : IconButton;
@@ -28,8 +28,8 @@ import './style.react.scss';
 function getItems( filter, items ) {
 	return filter
 		? matchSorter( items, filter, {
-			keys: [ 'name' ],
-		} )
+				keys: [ 'name' ],
+		  } )
 		: items;
 }
 
@@ -66,9 +66,9 @@ const ComboBox = ( {
 	...comboboxPropsRest
 } ) => {
 	return (
-		<div className={classnames( 'ef-combobox', className )}>
-			<Downshift {...comboboxPropsRest}>
-				{( {
+		<div className={ classnames( 'ef-combobox', className ) }>
+			<Downshift { ...comboboxPropsRest }>
+				{ ( {
 					getInputProps,
 					getToggleButtonProps,
 					getMenuProps,
@@ -88,25 +88,26 @@ const ComboBox = ( {
 						foundItems = filteredItems.map( ( item, index ) => {
 							return (
 								<li
-									aria-label={item.name}
-									className={classnames( {
+									aria-label={ item.name }
+									className={ classnames( {
 										'is-active': highlightedIndex === index,
-									} )}
-									key={item.value}
-									{...getItemProps( {
-										item: item,
+									} ) }
+									key={ item.value }
+									{ ...getItemProps( {
+										item,
 										index,
-									} )}
+									} ) }
 								>
-									{item.level && ! inputValue
+									{ item.level && ! inputValue
 										? new Array( item.level ).fill( '\xa0' ).join( '' )
-										: null}
-									{item.parent && inputValue ? (
+										: null }
+									{ item.parent && inputValue ? (
 										<span className="ef-combobox-item-parent">
-											{getItem( items, item.parent ).name}
+											{ getItem( items, item.parent ).name }
 										</span>
-									) : null}
-									{item.parent && inputValue ? '\xa0' : null}{item.name}
+									) : null }
+									{ item.parent && inputValue ? '\xa0' : null }
+									{ item.name }
 								</li>
 							);
 						} );
@@ -115,15 +116,15 @@ const ComboBox = ( {
 					if ( isOpen && foundItems.length < 1 ) {
 						foundItems = [
 							<li
-								aria-label={noMatchText}
+								aria-label={ noMatchText }
 								className="disabled"
 								key="no-items-match"
-								{...getItemProps( {
+								{ ...getItemProps( {
 									item: noMatchText,
 									disabled: true,
-								} )}
+								} ) }
 							>
-								{noMatchText}
+								{ noMatchText }
 							</li>,
 						];
 					}
@@ -131,55 +132,53 @@ const ComboBox = ( {
 					return (
 						<div>
 							<div className="ef-combobox-input-wrapper">
-								<BaseControl
-									label={inputLabel}
-								>
+								<BaseControl label={ inputLabel }>
 									<input
-										className={classnames(
+										className={ classnames(
 											{ 'is-open': isOpen },
 											'ef-combobox-input components-text-control__input'
-										)}
-										{...getInputProps( {
+										) }
+										{ ...getInputProps( {
 											onBlur: () => {
 												onInputBlur && onInputBlur( filteredItems, inputValue );
 											},
 											onFocus: openMenu,
 											type: 'text',
-											placeholder: placeholder,
-										} )}
+											placeholder,
+										} ) }
 									/>
 								</BaseControl>
-								{selectedItem ? (
+								{ selectedItem ? (
 									<ACTIVE_ICON_BUTTON
-										{...getToggleButtonProps( {
+										{ ...getToggleButtonProps( {
 											'aria-label': buttonClearLabel,
-										} )}
-										onClick={clearSelection}
+										} ) }
+										onClick={ clearSelection }
 										key="no-alt"
 										className="ef-combobox-input-button"
 										icon="no-alt"
 									/>
 								) : (
 									<ACTIVE_ICON_BUTTON
-										{...getToggleButtonProps( {
+										{ ...getToggleButtonProps( {
 											'aria-label': isOpen ? buttonCloseLabel : buttonOpenLabel,
-										} )}
+										} ) }
 										className="ef-combobox-input-button"
-										icon={isOpen ? 'arrow-up-alt2' : 'arrow-down-alt2'}
+										icon={ isOpen ? 'arrow-up-alt2' : 'arrow-down-alt2' }
 									/>
-								)}
+								) }
 							</div>
 							<ul
-								className={classnames( 'ef-combobox-menu-wrapper', {
+								className={ classnames( 'ef-combobox-menu-wrapper', {
 									'ef-combobox-menu-wrapper-hidden': ! isOpen,
-								} )}
-								{...getMenuProps()}
+								} ) }
+								{ ...getMenuProps() }
 							>
-								{isOpen ? foundItems : null}
+								{ isOpen ? foundItems : null }
 							</ul>
 						</div>
 					);
-				}}
+				} }
 			</Downshift>
 		</div>
 	);
@@ -193,12 +192,14 @@ ComboBox.propTypes = {
 	buttonCloseLabel: PropTypes.string,
 	buttonClearLabel: PropTypes.string,
 	label: PropTypes.string,
-	items: PropTypes.arrayOf( PropTypes.shape( {
-		name: PropTypes.string.isRequired,
-		id: PropTypes.oneOfType( [ PropTypes.string, PropTypes.number ] ),
-		parent: PropTypes.oneOfType( [ PropTypes.string, PropTypes.number ] ),
-		level: PropTypes.number,
-	} ) ),
+	items: PropTypes.arrayOf(
+		PropTypes.shape( {
+			name: PropTypes.string.isRequired,
+			id: PropTypes.oneOfType( [ PropTypes.string, PropTypes.number ] ),
+			parent: PropTypes.oneOfType( [ PropTypes.string, PropTypes.number ] ),
+			level: PropTypes.number,
+		} )
+	),
 	noMatchText: PropTypes.string, // What to display in the menu dropdown if no items match
 	onInputBlur: PropTypes.func, // Arguments to function: (filtered items at the time of blur, the value in the input)
 };

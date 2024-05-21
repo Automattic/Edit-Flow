@@ -1,2 +1,2 @@
 // Custom Statuses
-import './custom-status/block'
+import './custom-status/block';
