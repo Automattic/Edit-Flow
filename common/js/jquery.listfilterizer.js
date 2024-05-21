@@ -7,218 +7,233 @@
  *   http://www.opensource.org/licenses/mit-license.php
  *
  */
-( function ( $ ) {
+;(function($) {
+	
 	// Console buster
-	if ( typeof console === undefined ) {
-		console = { log() {} };
-	}
-
+	if(typeof(console) === undefined) console = { log: function() {} }
+	
 	// We need :contains to be case insensitive so lets redefine it as containsi (i for case insensitive)
 	// http://stackoverflow.com/questions/187537/is-there-a-case-insensitive-jquery-contains-selector
-	jQuery.expr.pseudos.containsi = function ( a, i, m ) {
-		return (
-			( a.textContent || a.innerText || '' ).toLowerCase().indexOf( m[ 3 ].toLowerCase() ) >= 0
-		);
+	jQuery.expr.pseudos.containsi = function(a, i, m){
+		return (a.textContent || a.innerText || '').toLowerCase().indexOf(m[3].toLowerCase()) >= 0;
 	};
-
-	$.fn.listFilterizer = function ( options ) {
-		var options = $.extend( {}, $.fn.listFilterizer.defaults, options );
-		const inputElem = document.createElement( 'input' );
-		const filtersEnabled = options.filters.length > 0;
-		return this.each( function () {
-			let $list;
-			let $tabs;
-			let $input;
-			let $tools;
-			let $container;
-
-			function init( list ) {
-				$list = $( list );
-
-				$container = $( '<' + options.containerTag + '/>' ).attr( options.containerAttrs );
-				$tools = $( '<' + options.toolsTag + '/>' )
-					.attr( options.toolsAttrs )
-					.addClass( options.toolsClass );
-
-				if ( filtersEnabled ) {
-					$tabs = $( '<ul/>' ).addClass( options.tabsClass );
-
-					for ( let i = 0; i < options.filters.length; i++ ) {
-						const filter = options.filters[ i ];
-						const $filterTab = $( '<li/>' )
-							.text( filter.label )
-							.attr( options._filterIdAttr, i )
-							.on( 'click', _filterTabEvent );
-						$tabs.append( $filterTab );
+	
+	$.fn.listFilterizer = function(options) {
+		var options = $.extend({}, $.fn.listFilterizer.defaults, options)
+			, inputElem = document.createElement('input')
+			, filtersEnabled = options.filters.length > 0
+			;
+		
+		return this.each(function() {
+			
+			var $list, $tabs, $input, $tools, $container;
+			
+			function init(list) {
+				
+				$list = $(list);
+				
+				$container = $('<' + options.containerTag + '/>')
+					.attr(options.containerAttrs)
+					;
+				$tools = $('<' + options.toolsTag + '/>')
+					.attr(options.toolsAttrs)
+					.addClass(options.toolsClass)
+					;
+				
+				if(filtersEnabled) {
+					$tabs = $('<ul/>')
+						.addClass(options.tabsClass)
+						;
+					
+					for(var i = 0; i < options.filters.length; i++) {
+						var filter = options.filters[i];
+						var $filterTab = $('<li/>')
+							.text(filter.label)
+							.attr(options._filterIdAttr, i)
+							.on('click', _filterTabEvent)
+							;
+						$tabs.append($filterTab);
 					}
-
-					$tools.append( $tabs );
+					
+					$tools.append($tabs)
 				}
-
+				
 				// IE freaks out if you try to set the input type as search
-				const inputType = supportsSearch() ? 'search' : 'text';
-
-				$input = $( '<input/>' )
-					.attr( 'type', inputType )
-					.attr( options.inputAttrs )
-					.addClass( options.inputClass )
-					.on( 'search', _filterInputSearch )
-					.on( 'keydown', _filterInputKeydown )
-					.on( 'keyup', _filterInputKeyup )
-					.attr( 'placeholder', options.inputPlaceholder );
-
+				var inputType = supportsSearch() ? 'search' : 'text';
+				
+				$input = $('<input/>')
+					.attr('type', inputType)
+					.attr(options.inputAttrs)
+					.addClass(options.inputClass)
+					.on('search', _filterInputSearch)
+					.on('keydown', _filterInputKeydown)
+					.on('keyup', _filterInputKeyup)
+					.attr('placeholder', options.inputPlaceholder)
+					;
+				
 				// Fallback for browsers that don't support placeholders
-				if ( ! supportsPlaceholder() ) {
+				if(!supportsPlaceholder()) {
 					$input
-						.addClass( options.inputPlaceholderClass )
-						.val( options.inputPlaceholder )
-						.on( 'focus', function () {
-							const $this = $( this );
-							if ( $this.val() == options.inputPlaceholder ) {
-								$this.val( '' ).removeClass( options.inputPlaceholderClass );
+						.addClass(options.inputPlaceholderClass)
+						.val(options.inputPlaceholder)
+						.on( 'focus', function() {
+							var $this = $(this);
+							if($this.val() == options.inputPlaceholder) {
+								$this
+									.val('')
+									.removeClass(options.inputPlaceholderClass)
+									;
 							}
-						} )
-						.blur( function () {
-							const $this = $( this );
-							if ( ! $.trim( $this.val() ) ) {
-								$this.val( options.inputPlaceholder ).addClass( options.inputPlaceholderClass );
+						})
+						.blur(function() {
+							var $this = $(this);
+							if(!$.trim($this.val())) {
+								$this
+									.val(options.inputPlaceholder)
+									.addClass(options.inputPlaceholderClass)
+									;
 							}
-						} );
+						})
+						;
 				}
-
-				$tools.append( $input );
-
-				// Wrap list in new container
-				$container.append( $tools ).insertBefore( $list ).append( $list );
-
+				
+				$tools.append($input);
+				
+				// Wrap list in new container	
+				$container
+					.append($tools)
+					.insertBefore($list)
+					.append($list)
+					;
+					
 				// Filter to first
-				if ( filtersEnabled ) {
-					selectTab( $tabs.children().first() );
-				}
+				if(filtersEnabled) selectTab($tabs.children().first());
 			}
-
-			function _filterInputSearch( e ) {
+			
+			function _filterInputSearch(e) {
 				filterList();
 				return false;
 			}
-
-			function _filterInputKeydown( e ) {
+			
+			function _filterInputKeydown(e) {
 				// Prevent enter key
-				switch ( e.keyCode ) {
+				switch(e.keyCode) {
 					case 13:
 						e.preventDefault();
 						break;
 					case 27:
-						e.target.setAttribute( 'value', '' );
+						e.target.setAttribute('value', '');
 						break;
 					default:
 						break;
 				}
 			}
-			function _filterInputKeyup( e ) {
+			function _filterInputKeyup(e) {
 				filterList();
 			}
-
-			function _filterTabEvent( e ) {
+			
+			function _filterTabEvent(e) {
 				e.preventDefault();
-				selectTab( $( this ) );
+				selectTab($(this));
 			}
-
-			function selectTab( $tab ) {
+			
+			function selectTab($tab) {
 				$tab
 					.siblings()
-					.removeClass( options.activeTabClass )
-					.end()
-					.addClass( options.activeTabClass );
+						.removeClass(options.activeTabClass)
+						.end()
+					.addClass(options.activeTabClass)
+					;
 				filterList();
 			}
-
+			
 			function filterList() {
-				const activeSearch = getActiveSearch();
-				const activeTab = getActiveTab();
-
-				let $filtered = ( $listItems = getListItems() );
-
+				var activeSearch = getActiveSearch();
+				var activeTab = getActiveTab();
+				
+				var $filtered = $listItems = getListItems();
+				
 				// Get visible items based on selected tab
-				if ( activeTab ) {
-					const filter = getFilter( activeTab );
-					$filtered = $filtered.filter( filter.selector ); // TODO: should this be filtered from listitems?
+				if(activeTab) {
+					var filter = getFilter(activeTab);
+					$filtered = $filtered.filter(filter.selector) // TODO: should this be filtered from listitems?
 				}
-
+				
 				// Filter based on search term
-				if ( activeSearch ) {
-					$filtered = $filtered.filter( ':containsi(' + activeSearch + ')' );
+				if(activeSearch) {
+					$filtered = $filtered.filter(':containsi('+ activeSearch +')');
 				}
-
+				
 				$listItems.hide();
 				$filtered.show();
 			}
-
+			
 			function getListItems() {
-				return $list.find( options.elementSelector );
+				return $list.find(options.elementSelector);
 			}
-
-			function getFilter( filterId ) {
-				return options.filters[ filterId ];
+			
+			function getFilter(filterId) {
+				return options.filters[filterId]
 			}
-
+			
 			function getActiveSearch() {
-				let search = $input.val() || '';
-				search = search == options.inputPlaceholder ? '' : search;
+				var search = $input.val() || '';
+				search = (search == options.inputPlaceholder) ? '' : search;
 				return search;
 			}
-
+			
 			function getActiveTab() {
-				if ( filtersEnabled ) {
-					return $tabs.find( '.' + options.activeTabClass ).attr( options._filterIdAttr ) || -1;
-				}
+				if(filtersEnabled)
+					return $tabs.find('.'+options.activeTabClass).attr(options._filterIdAttr) || -1;
 			}
-
+			
 			// Do the init thing!
-			init( this );
-		} );
-
+			init(this);
+		});
+		
 		// Borrowed graciously from Modernizr: https://github.com/Modernizr/Modernizr
 		function supportsSearch() {
-			inputElem.setAttribute( 'type', 'search' );
+			inputElem.setAttribute('type', 'search');
 			return inputElem.type !== 'text';
 		}
 		function supportsPlaceholder() {
-			return Boolean( 'placeholder' in inputElem );
+			return !!('placeholder' in inputElem);
 		}
-	};
-
+	}
+	
 	$.fn.listFilterizer.defaults = {
 		filters: [
 			{
-				label: window.__i18n_jquery_filterizer.all || 'All',
-				selector: '*',
-			},
+				label: window.__i18n_jquery_filterizer.all || 'All'
+				, selector: '*'
+			}
+			,
 			{
-				label: window.__i18n_jquery_filterizer.selected || 'Selected',
-				selector: ':has(input:checked)', // TODO: pass in function as a filter selector
-			},
-		],
-		showCounts: true, // TODO: implement this
-		selectedClass: 'selected',
-		elementSelector: 'li',
-		containerTag: 'div',
-		containerAttrs: {},
-		toolsTag: 'div',
-		toolsClass: 'list-filterizer-tools',
-		toolsAttrs: {},
-
-		tabsClass: 'list-filterizer-tabs',
-		tabsAttrs: {},
-		activeTabClass: 'active',
-
-		inputClass: 'list-filterizer-search',
-		inputPlaceholder: 'Search...',
-		inputPlaceholderClass: 'input-placeholder',
-		inputAttrs: {},
-
-		noResultsText: 'No results found', // TODO: implement this
-
-		_filterIdAttr: 'data-listfilterid',
-	};
-} )( jQuery );
+				label: window.__i18n_jquery_filterizer.selected || 'Selected'
+				, selector: ':has(input:checked)' // TODO: pass in function as a filter selector
+			}
+		]
+		, showCounts: true // TODO: implement this
+		, selectedClass: 'selected'
+		, elementSelector: 'li'
+		, containerTag: 'div'
+		, containerAttrs: {}
+		, toolsTag: 'div'
+		, toolsClass: 'list-filterizer-tools'
+		, toolsAttrs: {}
+		
+		, tabsClass: 'list-filterizer-tabs'
+		, tabsAttrs: {}
+		, activeTabClass: 'active'
+		
+		, inputClass: 'list-filterizer-search'
+		, inputPlaceholder: 'Search...'
+		, inputPlaceholderClass: 'input-placeholder'
+		, inputAttrs: {}
+		
+		, noResultsText: 'No results found' // TODO: implement this
+		
+		,_filterIdAttr: 'data-listfilterid'
+	}
+    
+})(jQuery);
