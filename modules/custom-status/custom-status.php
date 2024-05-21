@@ -166,7 +166,7 @@ class EF_Custom_Status extends EF_Module {
 				'term' => __( 'Expired', 'edit-flow' ),
 				'args' => array(
 					'slug' => 'expired',
-					'description' => __( 'Post has expired, and it has to bew updated an editor.', 'edit-flow' ),
+					'description' => __( 'Post has expired and requires updates .', 'edit-flow' ),
 					'position' => 6,
 				),
 			),
