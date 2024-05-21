@@ -3,3 +3,4 @@ vendor
 *.php
 package-lock.json
 package.json
+*.build.js
