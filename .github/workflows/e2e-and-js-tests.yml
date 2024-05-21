@@ -2,19 +2,17 @@ name: E2E and JS tests
 
 on: push
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
     continue-on-error: false
 
-    env:
-      # Currently these tests are being run for PHP 7.4 only
-      # TODO: When a new version of wp-env (after 4.0.2) including this https://github.com/WordPress/gutenberg/pull/30651
-      # is released, we can switch all PHP tests using wp-env
-      WP_ENV_PHP_VERSION: 7.4
-
     strategy:
-      fail-fast: false
+      fail-fast: true
 
     steps:
       - name: Checkout code
@@ -33,11 +31,11 @@ jobs:
       - name: Install WordPress with wp-env
         run: npm run wp-env start
 
-      - name: Run Lint JS 
-        run: npm run lint-js
-      
       - name: Run JS tests (Jest)
         run: npm run test-jest
-      
-      - name: Run E2E tests 
+
+      - name: Run E2E tests
         run: npm run test-e2e
+
+      - name: Run Lint JS
+        run: npm run lint-js

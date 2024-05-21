@@ -22,6 +22,10 @@ on:
 
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   behat:
     uses: automattic/wpvip-plugins-.github/.github/workflows/reusable-behat-test.yml@trunk

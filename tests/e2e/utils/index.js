@@ -13,18 +13,18 @@ const addCategoryToPost = async (categoryName) => {
     addCategoryLink[0].click();
 
     await page.waitForSelector(
-        '.editor-post-taxonomies__hierarchical-terms-input', 
+        '.editor-post-taxonomies__hierarchical-terms-input input',
         { timeout: 3000 }
     );
 
     // Type the category name in the field.
     await page.type(
-        '.editor-post-taxonomies__hierarchical-terms-input',
+        '.editor-post-taxonomies__hierarchical-terms-input input',
         categoryName
     );
 
     await page.click(
-        '.editor-post-taxonomies__hierarchical-terms-submit'   
+        '.editor-post-taxonomies__hierarchical-terms-submit'
     )
 }
 
@@ -52,9 +52,9 @@ const publishPost = async() => {
 }
 
 const schedulePost = async() => {
-    await page.waitForSelector( '.edit-post-post-schedule__toggle' );
+    await page.waitForSelector( '.editor-post-schedule__dialog-toggle' );
 
-    await page.click( '.edit-post-post-schedule__toggle' );
+    await page.click( '.editor-post-schedule__dialog-toggle' );
 
     // wait for popout animation
     await page.waitFor(200);
@@ -67,24 +67,15 @@ const schedulePost = async() => {
         .toLocaleDateString( 'en-US' )
         .split( '/' );
 
-    // Set the future date in the post editing screen
-    await page.$eval(
-        '.components-datetime__time-field-day-input',
-        ( el, day ) => el.value = day,
-        day
-    );
+    const dayInput = await page.$('.components-datetime__time-field-day input');
+    await dayInput.click({ clickCount: 3 });
+    await dayInput.type( day );
 
-    await page.$eval(
-        '.components-datetime__time-field-month-select',
-        ( el, month ) => el.value = month.length === 1 ? '0' + month : month,
-        month
-    );
+    await page.select('.components-datetime__time-field-month select', month.length === 1 ? '0' + month : month );
 
-    await page.$eval(
-        '.components-datetime__time-field-year-input',
-        ( el, year ) => el.value = year,
-        year
-    );
+    const yearInput = await page.$('.components-datetime__time-field-year input');
+    await yearInput.click({ clickCount: 3 });
+    await yearInput.type( year );
 
     await publishPost();
 

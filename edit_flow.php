@@ -35,12 +35,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 function _ef_print_php_version_admin_notice() {
 	?>
 	<div class="notice notice-error">
-			<p><?php esc_html_e( 'Edit Flow requires PHP 5.6+. Please contact your host to update your PHP version.', 'edit-flow' ); ?></p>
+			<p><?php esc_html_e( 'Edit Flow requires PHP 7.4+. Please contact your host to update your PHP version.', 'edit-flow' ); ?></p>
 		</div>
 	<?php
 }
 
-if ( version_compare( phpversion(), '5.6', '<' ) ) {
+if ( version_compare( phpversion(), '7.4', '<' ) ) {
 	add_action( 'admin_notices', '_ef_print_php_version_admin_notice' );
 	return;
 }
