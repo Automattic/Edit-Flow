@@ -1,6 +1,17 @@
 const addCategoryToPost = async (categoryName) => {
     const categoryPanelButton = await page.$x('//button[text()="Categories"]');
 
+    await page.$$eval(
+        '.components-panel__body button',
+        ( sidebarButtons ) => {
+            const categoriesButton = sidebarButtons.filter( el => el.textContent === 'Categories' );
+
+            if ( categoriesButton.length === 1 ) {
+                categoriesButton[ 0 ].scrollIntoView();
+            }
+        }
+    );
+
     await categoryPanelButton[0].click();
 
     await page.waitForXPath(
