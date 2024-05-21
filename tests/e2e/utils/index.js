@@ -1,6 +1,5 @@
 const addCategoryToPost = async (categoryName) => {
     await page.waitForXPath('//button[text()="Categories"]');
-    const categoryPanelButton = await page.$x('//button[text()="Categories"]');
 
     await page.$$eval(
         '.components-panel__body button',
@@ -9,25 +8,20 @@ const addCategoryToPost = async (categoryName) => {
 
             if ( categoriesButton.length === 1 ) {
                 categoriesButton[ 0 ].scrollIntoView();
+                categoriesButton[ 0 ].click();
             }
         }
     );
 
-    if ( categoryPanelButton[0] === undefined ) {
-        console.log('categoryPanelButton:', categoryPanelButton);
-        await page.screenshot({path: 'add-category-link.png'});
-    }
-
-    await categoryPanelButton[0].click();
-
-    await page.waitForXPath(
-        '//button[text()="Add New Category"]',
+    await page.waitForSelector(
+        '.editor-post-taxonomies__hierarchical-terms-add',
         { timeout: 3000 }
     );
 
-    const addCategoryLink = await page.$x('//button[text()="Add New Category"]');
-
-    addCategoryLink[0].click();
+    // Click the "Add New Category" button
+    await page.click(
+        '.editor-post-taxonomies__hierarchical-terms-add'
+    )
 
     await page.waitForSelector(
         '.editor-post-taxonomies__hierarchical-terms-input input',
