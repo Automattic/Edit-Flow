@@ -141,6 +141,11 @@ function observeConsoleLogging() {
 			return;
 		}
 
+		// Chromium frequently logs this error with each request made. Unreleated to Edit Flow.
+		if ( text.includes( 'Preflight request for request with keepalive specified is currently not supported' ) ) {
+			return;
+		}
+
 		const logFunction = OBSERVED_CONSOLE_MESSAGE_TYPES[ type ];
 
 		// As of Puppeteer 1.6.1, `message.text()` wrongly returns an object of
