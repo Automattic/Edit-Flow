@@ -26,13 +26,8 @@
     "cbf": [
       "@php ./vendor/bin/phpcbf -p -s -v -n . --standard=\"WordPress-VIP-Go\" --extensions=php --ignore=\"/vendor/*,/node_modules/*,/tests/*\""
     ],
-    "integration": [
-      "@php ./vendor/bin/phpunit --testsuite WP_Tests"
-    ],
-    "integration-ms": [
-      "@putenv WP_MULTISITE=1",
-      "@composer integration"
-    ]
+    "integration": "wp-env run tests-cli --env-cwd=wp-content/plugins/Edit-Flow ./vendor/bin/phpunit",
+    "integration-ms": "wp-env run tests-cli --env-cwd=wp-content/plugins/Edit-Flow /bin/bash -c 'WP_MULTISITE=1 ./vendor/bin/phpunit'"
   },
   "config": {
     "allow-plugins": {
