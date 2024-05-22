@@ -33,13 +33,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@master
 
+      - name: Install wordpress environment
+        run: npm -g install @wordpress/env
+
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          coverage: pcov
-          # https://make.wordpress.org/hosting/handbook/handbook/server-environment/#php-extensions
-          extensions: curl, dom, exif, fileinfo, hash, json, mbstring, mysqli, libsodium, openssl, pcre, imagick, xml, zip
+          tools: composer
 
       - name: Install Composer dependencies (PHP < 8.0 )
         if: ${{ matrix.php < 8.0 }}
@@ -51,17 +52,24 @@ jobs:
         with:
           composer-options: --ignore-platform-reqs
 
-      - name: Start MySQL service
-        run: sudo systemctl start mysql.service
+      - name: Cache Composer packages
+        id: composer-cache
+        uses: actions/cache@v2
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-
 
-      - name: Install WordPress test site
-        run: bash bin/install-wp-tests.sh wordpress_test root root localhost ${{ matrix.wp }}
-
-      - name: Run PHPCS diff tests
-        run: bash bin/phpcs-diff.sh
+      - name: Setup wp-env
+        run: wp-env start
 
       - name: Run PHPUnit tests (single site)
         run: composer integration
 
       - name: Run PHPUnit tests (multisite)
         run: composer integration-ms
+
+      # (previously before "Run PHPUnit tests (single site)")
+      - name: Run PHPCS diff tests
+        run: bash bin/phpcs-diff.sh
