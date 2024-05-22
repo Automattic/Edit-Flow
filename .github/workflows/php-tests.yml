@@ -22,7 +22,7 @@ jobs:
             allowed_failure: false
           # Check latest WP with the highest supported PHP.
           - php: 'latest'
-            wp: 'latest'
+            wp: 'trunk'
             allowed_failure: false
 
     steps:
