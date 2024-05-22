@@ -1,43 +1,38 @@
 {
-    "name"       : "automattic/edit-flow",
-    "description": "WordPress plugin to accelerate your editorial workflow.",
-    "homepage"   : "http://editflow.org/",
-    "type"       : "wordpress-plugin",
-    "license"    : "GPL-2.0+",
-    "support"    : {
-			"issues": "https://github.com/Automattic/edit-flow/issues",
-			"forum": "https://wordpress.org/support/plugin/edit-flow",
-			"source": "https://github.com/Automattic/edit-flow"
-	},
-    "require"    : {
-        "composer/installers": "~1.0",
-        "php": ">=7.4"
-    },
-    "require-dev": {
-        "automattic/vipwpcs": "^3.0",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.4.1 || ^0.5 || ^0.6.2 || ^0.7",
-        "exussum12/coverage-checker": "^0.11.2 || ^1.0.0",
-        "phpunit/phpunit": "^4 || ^5 || ^6 || ^7"
-    },
-    "scripts": {
-      "cs": [
-        "@php ./vendor/bin/phpcs -p -s -v -n . --standard=\"WordPress-VIP-Go\" --extensions=php --ignore=\"/vendor/*,/node_modules/*,/tests/*\""
-      ],
-      "cbf": [
-        "@php ./vendor/bin/phpcbf -p -s -v -n . --standard=\"WordPress-VIP-Go\" --extensions=php --ignore=\"/vendor/*,/node_modules/*,/tests/*\""
-      ],
-      "integration": [
-        "@php ./vendor/bin/phpunit --testsuite WP_Tests"
-      ],
-      "integration-ms": [
-        "@putenv WP_MULTISITE=1",
-        "@composer integration"
-      ]
-    },
-    "config": {
-        "allow-plugins": {
-            "composer/installers": true,
-            "dealerdirect/phpcodesniffer-composer-installer": true
-        }
+  "name": "automattic/edit-flow",
+  "description": "WordPress plugin to accelerate your editorial workflow.",
+  "homepage": "http://editflow.org/",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0+",
+  "support": {
+    "issues": "https://github.com/Automattic/edit-flow/issues",
+    "forum": "https://wordpress.org/support/plugin/edit-flow",
+    "source": "https://github.com/Automattic/edit-flow"
+  },
+  "require": {
+    "composer/installers": "~1.0",
+    "php": ">=7.4"
+  },
+  "require-dev": {
+    "automattic/vipwpcs": "^3.0",
+    "exussum12/coverage-checker": "^1.0.0",
+    "phpunit/phpunit": "^9.0",
+    "yoast/phpunit-polyfills": "^2.0"
+  },
+  "scripts": {
+    "cs": [
+      "@php ./vendor/bin/phpcs -p -s -v -n . --standard=\"WordPress-VIP-Go\" --extensions=php --ignore=\"/vendor/*,/node_modules/*,/tests/*\""
+    ],
+    "cbf": [
+      "@php ./vendor/bin/phpcbf -p -s -v -n . --standard=\"WordPress-VIP-Go\" --extensions=php --ignore=\"/vendor/*,/node_modules/*,/tests/*\""
+    ],
+    "integration": "wp-env run tests-cli --env-cwd=wp-content/plugins/Edit-Flow ./vendor/bin/phpunit",
+    "integration-ms": "wp-env run tests-cli --env-cwd=wp-content/plugins/Edit-Flow /bin/bash -c 'WP_MULTISITE=1 ./vendor/bin/phpunit'"
+  },
+  "config": {
+    "allow-plugins": {
+      "composer/installers": true,
+      "dealerdirect/phpcodesniffer-composer-installer": true
     }
+  }
 }

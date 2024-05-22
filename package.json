@@ -17,21 +17,6 @@
     "test-e2e:interactive": "wp-scripts test-e2e --config tests/e2e/jest.config.js -- --puppeteer-interactive",
     "test-e2e:watch": "npm run test-e2e -- --watch"
   },
-  "wp-env": {
-    "plugin-dir": "Edit-Flow",
-    "plugin-name": "Edit Flow",
-    "docker-template": "./bin/docker-compose.override.yml.template",
-    "welcome-logo": [
-      " _______  ______   ___   _______    _______  ___      _______  _     _  ",
-      "|       ||      | |   | |       |  |       ||   |    |       || | _ | |",
-      "|    ___||  _    ||   | |_     _|  |    ___||   |    |   _   || || || |",
-      "|   |___ | | |   ||   |   |   |    |   |___ |   |    |  | |  ||       |",
-      "|    ___|| |_|   ||   |   |   |    |    ___||   |___ |  |_|  ||       |",
-      "|   |___ |       ||   |   |   |    |   |    |       ||       ||   _   |",
-      "|_______||______| |___|   |___|    |___|    |_______||_______||__| |__|"
-    ],
-    "welcome-build-command": "npm run dev"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Automattic/Edit-Flow.git"
@@ -52,7 +37,7 @@
     "@wordpress/components": "^9.9.0",
     "@wordpress/e2e-test-utils": "^4.16.1",
     "@wordpress/element": "^2.20.3",
-    "@wordpress/env": "^4.0.5",
+    "@wordpress/env": "^9.10.0",
     "@wordpress/i18n": "^3.20.0",
     "@wordpress/jest-console": "^3.10.0",
     "@wordpress/jest-preset-default": "^6.6.0",
