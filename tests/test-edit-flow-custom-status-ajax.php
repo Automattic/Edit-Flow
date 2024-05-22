@@ -1,12 +1,14 @@
 <?php
 
+require_once 'testcase-edit-flow-ajax.php';
+
 /**
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
  */
 class WP_Test_Edit_Flow_Custom_Status_Ajax extends WP_Edit_Flow_Ajax_UnitTestCase {
 
-	function setUp() {
+	function setUp(): void {
 		parent::setUp();
 
 		require_once( ABSPATH . 'wp-admin/includes/ajax-actions.php' );

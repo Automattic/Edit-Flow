@@ -4,7 +4,7 @@
  */
 
 abstract class WP_Edit_Flow_Ajax_UnitTestCase extends WP_UnitTestCase {
-	
+
 	/**
 	 * Last AJAX response.  This is set via echo -or- wp_die.
 	 */
@@ -13,7 +13,7 @@ abstract class WP_Edit_Flow_Ajax_UnitTestCase extends WP_UnitTestCase {
 	/**
 	 * Taken from testcase-ajax.php setUpBeforeClass function
 	 */
-	public static function setUpBeforeClass() {
+	public static function setUpBeforeClass(): void {
 		if ( ! defined( 'DOING_AJAX' ) ) {
 			define( 'DOING_AJAX', true );
 		}
@@ -31,7 +31,7 @@ abstract class WP_Edit_Flow_Ajax_UnitTestCase extends WP_UnitTestCase {
 	/**
 	 * Taken from testcase-ajax.php setUp function
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		add_filter( 'wp_die_ajax_handler', array( $this, 'getDieHandler' ), 1, 1 );
@@ -49,7 +49,7 @@ abstract class WP_Edit_Flow_Ajax_UnitTestCase extends WP_UnitTestCase {
 	/**
 	 * Taken from testcase-ajax.php tearDown function
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 		$_POST = array();
 		$_GET = array();

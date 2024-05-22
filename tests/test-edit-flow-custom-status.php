@@ -19,14 +19,14 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		self::$ef_custom_status = null;
 	}
 
-	function setUp() {
+	function setUp(): void {
 		parent::setUp();
 
 		global $pagenow;
 		$pagenow = 'post.php';
 	}
 
-	function tearDown() {
+	function tearDown(): void {
 		global $pagenow;
 		$pagenow = 'index.php';
 
@@ -223,7 +223,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		$preview_link = get_permalink( $post->ID );
 		$preview_link = add_query_arg( 'preview', 'true', $preview_link );
 
-		$this->assertContains( 'href="' . esc_url( $preview_link ) . '"', $found, $message );
+		$this->assertStringContainsString( 'href="' . esc_url( $preview_link ) . '"', $found, $message );
 
 	}
 
@@ -249,7 +249,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		$preview_link = get_permalink( $post->ID );
 		$preview_link = add_query_arg( 'preview', 'true', $preview_link );
 
-		$this->assertContains( 'href="' . esc_url( $preview_link ) . '"', $found, $message );
+		$this->assertStringContainsString( 'href="' . esc_url( $preview_link ) . '"', $found, $message );
 	}
 
 	function test_fix_sample_permalink_html_on_publish_when_pretty_permalinks_are_enabled() {
@@ -268,8 +268,8 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		$post = get_post( $p );
 		$message = 'Published post';
 
-		$this->assertContains( 'href="' . get_option( 'home' ) . "/" . $post->post_name . '/"', $found, $message );
-		$this->assertContains( '>new_slug-صورة<', $found, $message );
+		$this->assertStringContainsString( 'href="' . get_option( 'home' ) . "/" . $post->post_name . '/"', $found, $message );
+		$this->assertStringContainsString( '>new_slug-صورة<', $found, $message );
 	}
 
 	public function test_fix_get_sample_permalink_should_respect_pitch_pages() {

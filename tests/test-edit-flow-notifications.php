@@ -4,7 +4,7 @@ class WP_Test_Edit_Flow_Notifications extends WP_UnitTestCase {
 
 	protected static $admin_user_id;
 	protected static $ef_notifications;
-		
+
 	public static function wpSetUpBeforeClass( $factory ) {
 		global $edit_flow;
 
@@ -13,16 +13,16 @@ class WP_Test_Edit_Flow_Notifications extends WP_UnitTestCase {
 		 * This means when running these tests, you can encounter a situation
 		 * where the custom post type taxonomy has not been loaded into the database
 		 * since the tests don't trigger `admin_init` and the `install` function is where
-		 * the custom post type taxonomy is loaded into the DB. 
-		 * 
-		 * So make sure we do one cycle of `install` followed by `init` to ensure 
+		 * the custom post type taxonomy is loaded into the DB.
+		 *
+		 * So make sure we do one cycle of `install` followed by `init` to ensure
 		 * custom post type taxonomy has been loaded.
 		 */
 		$edit_flow->custom_status->install();
 		$edit_flow->custom_status->init();
 
 		self::$admin_user_id = $factory->user->create( array( 'role' => 'administrator' ) );
-		
+
 		self::$ef_notifications = new EF_Notifications();
 		self::$ef_notifications->install();
 		self::$ef_notifications->init();
