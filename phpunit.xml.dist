@@ -5,6 +5,8 @@
 	convertErrorsToExceptions="true"
 	convertNoticesToExceptions="true"
 	convertWarningsToExceptions="true"
+	convertDeprecationsToExceptions="true"
+	cacheResult="false"
 	>
 	<testsuites>
 		<testsuite name="WP_Tests">
