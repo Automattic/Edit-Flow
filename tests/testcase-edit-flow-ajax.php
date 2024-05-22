@@ -31,7 +31,7 @@ abstract class WP_Edit_Flow_Ajax_UnitTestCase extends WP_UnitTestCase {
 	/**
 	 * Taken from testcase-ajax.php setUp function
 	 */
-	public function setUp(): void {
+	protected function setUp(): void {
 		parent::setUp();
 
 		add_filter( 'wp_die_ajax_handler', array( $this, 'getDieHandler' ), 1, 1 );
@@ -49,7 +49,7 @@ abstract class WP_Edit_Flow_Ajax_UnitTestCase extends WP_UnitTestCase {
 	/**
 	 * Taken from testcase-ajax.php tearDown function
 	 */
-	public function tearDown(): void {
+	protected function tearDown(): void {
 		parent::tearDown();
 		$_POST = array();
 		$_GET = array();

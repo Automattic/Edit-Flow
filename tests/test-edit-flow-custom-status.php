@@ -19,14 +19,14 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		self::$ef_custom_status = null;
 	}
 
-	function setUp(): void {
+	protected function setUp(): void {
 		parent::setUp();
 
 		global $pagenow;
 		$pagenow = 'post.php';
 	}
 
-	function tearDown(): void {
+	protected function tearDown(): void {
 		global $pagenow;
 		$pagenow = 'index.php';
 
@@ -268,7 +268,7 @@ class WP_Test_Edit_Flow_Custom_Status extends WP_UnitTestCase {
 		$post = get_post( $p );
 		$message = 'Published post';
 
-		$this->assertStringContainsString( 'href="' . get_option( 'home' ) . "/" . $post->post_name . '/"', $found, $message );
+		$this->assertStringContainsString( 'href="' . get_option( 'home' ) . '/' . $post->post_name . '/"', $found, $message );
 		$this->assertStringContainsString( '>new_slug-صورة<', $found, $message );
 	}
 
