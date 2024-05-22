@@ -35,7 +35,12 @@ function _manually_load_plugin() {
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
 // Allow wp_mail() in tests from a valid domain name
-tests_add_filter( 'wp_mail_from', function() { return 'admin@localhost.test'; } );
+tests_add_filter(
+	'wp_mail_from',
+	function () {
+		return 'admin@localhost.test';
+	} 
+);
 
 // Start up the WP testing environment.
 require "{$_tests_dir}/includes/bootstrap.php";
