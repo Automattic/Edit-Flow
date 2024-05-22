@@ -8,6 +8,7 @@ concurrency:
 
 jobs:
   test:
+    # Alias 'master' to 'latest'
     name: WP ${{ matrix.wp == 'master' && 'latest' || matrix.wp }} and PHP ${{ matrix.php }}
     runs-on: ubuntu-latest
     continue-on-error: ${{ matrix.allowed_failure }}
