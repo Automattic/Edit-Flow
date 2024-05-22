@@ -24,10 +24,6 @@ jobs:
           - php: 'latest'
             wp: 'latest'
             allowed_failure: false
-          # Check upcoming WP with the highest supported PHP.
-          - php: 'latest'
-            wp: 'trunk'
-            allowed_failure: false
 
     steps:
       - name: Checkout code
@@ -63,6 +59,8 @@ jobs:
 
       - name: Setup wp-env
         run: wp-env start
+        env:
+          WP_ENV_CORE: WordPress/WordPress#${{ matrix.wp }}
 
       - name: Run PHPUnit tests (single site)
         run: composer integration
