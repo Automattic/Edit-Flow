@@ -21,18 +21,13 @@ var plugins = [extractEditorSCSS, extractBlockSCSS];
 
 var scssConfig = [
   'css-loader',
-  {
-    loader: 'sass-loader',
-    options: {
-      outputStyle: 'compressed'
-    }
-  }
+  'sass-loader',
 ];
 
 module.exports = [
   {
     context: __dirname,
-    devtool: debug ? 'sourcemap' : null,
+    devtool: debug ? 'source-map' : null,
     mode: debug ? 'development' : 'production',
     // entry: './blocks/src/blocks.js',
     entry: entries,
@@ -73,7 +68,7 @@ module.exports = [
   },
   {
     context: __dirname,
-    devtool: debug ? 'sourcemap' : null,
+    devtool: debug ? 'source-map' : null,
     mode: debug ? 'development' : 'production',
     entry: {
       'calendar.react': __dirname + '/modules/calendar/lib/react/calendar.react.js',

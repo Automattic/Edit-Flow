@@ -7,7 +7,7 @@
     "test": "tests"
   },
   "scripts": {
-    "build": "webpack --mode production --verbose",
+    "build": "webpack --mode production",
     "dev": "webpack --watch",
     "wp-env": "wp-env",
     "lint-js": "eslint --quiet blocks modules",
