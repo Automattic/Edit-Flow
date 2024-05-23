@@ -21,7 +21,7 @@ jobs:
       - name: Set up NodeJS 14.x
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '20'
 
       - name: Build Edit Flow
         run: |
