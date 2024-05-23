@@ -5,7 +5,7 @@
  */
 import { _n, __, sprintf } from '@wordpress/i18n';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 /**
  * Internal dependencies
@@ -122,13 +122,14 @@ filters.push( {
 	initialValue: EF_CALENDAR.FILTERS.num_weeks,
 } );
 
-ReactDOM.render(
+const root = createRoot( document.getElementById( 'ef-calendar-navigation-mount' ) );
+
+root.render(
 	<CalendarHeader
 		numberOfWeeks={ EF_CALENDAR.FILTERS.num_weeks }
 		beginningOfWeek={ EF_CALENDAR.BEGINNING_OF_WEEK }
 		pageUrl={ EF_CALENDAR.PAGE_URL }
 		filters={ filters }
 		filterValues={ EF_CALENDAR.FILTERS }
-	/>,
-	document.getElementById( 'ef-calendar-navigation-mount' )
+	/>
 );
