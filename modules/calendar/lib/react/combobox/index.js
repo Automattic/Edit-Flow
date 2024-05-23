@@ -6,7 +6,7 @@
 import { BaseControl, Button, IconButton } from '@wordpress/components';
 import classnames from 'classnames';
 import Downshift from 'downshift';
-import matchSorter from 'match-sorter';
+import { matchSorter } from 'match-sorter';
 import PropTypes from 'prop-types';
 import React from 'react';
 
