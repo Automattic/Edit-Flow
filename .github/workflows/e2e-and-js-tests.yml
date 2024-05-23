@@ -18,7 +18,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@master
 
-      - name: Set up NodeJS 14.x
+      - name: Set up NodeJS 20
         uses: actions/setup-node@v2
         with:
           node-version: '20'
