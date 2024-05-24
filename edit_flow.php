@@ -59,8 +59,8 @@ define( 'EDIT_FLOW_SETTINGS_PAGE', add_query_arg( 'page', 'ef-settings', get_adm
 class edit_flow {
 
 	// Unique identified added as a prefix to all options
-	var $options_group      = 'edit_flow_';
-	var $options_group_name = 'edit_flow_options';
+	public $options_group      = 'edit_flow_';
+	public $options_group_name = 'edit_flow_options';
 
 	/**
 	 * @var EditFlow The one true EditFlow
@@ -220,7 +220,7 @@ class edit_flow {
 		// Load all of the modules that are enabled.
 		// Modules won't have an options value if they aren't enabled
 		foreach ( $this->modules as $mod_name => $mod_data ) {
-			if ( isset( $mod_data->options->enabled ) && $mod_data->options->enabled == 'on' ) {
+			if ( isset( $mod_data->options->enabled ) && 'on' === $mod_data->options->enabled ) {
 				$this->$mod_name->init();
 			}
 		}
