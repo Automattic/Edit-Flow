@@ -38,5 +38,32 @@ jobs:
       - name: Run Jest tests
         run: npm run test-jest
 
-      - name: Run E2E tests
+      - name: Run E2E tests (1/10)
+        run: npm run test-e2e
+
+      - name: Run E2E tests (2/10)
+        run: npm run test-e2e
+
+      - name: Run E2E tests (3/10)
+        run: npm run test-e2e
+
+      - name: Run E2E tests (4/10)
+        run: npm run test-e2e
+
+      - name: Run E2E tests (5/10)
+        run: npm run test-e2e
+
+      - name: Run E2E tests (6/10)
+        run: npm run test-e2e
+
+      - name: Run E2E tests (7/10)
+        run: npm run test-e2e
+
+      - name: Run E2E tests (8/10)
+        run: npm run test-e2e
+
+      - name: Run E2E tests (9/10)
+        run: npm run test-e2e
+
+      - name: Run E2E tests (10/10)
         run: npm run test-e2e
