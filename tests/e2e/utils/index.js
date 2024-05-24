@@ -6,7 +6,7 @@ const addCategoryToPost = async (categoryName) => {
         ( sidebarButtons ) => {
             const categoriesButton = sidebarButtons.filter( el => el.textContent === 'Categories' );
 
-            if ( categoriesButton.length === 1 ) {
+            if ( categoriesButton.length === 1 && categoriesButton[ 0 ].getAttribute( 'aria-expanded' ) !== true ) {
                 categoriesButton[ 0 ].scrollIntoView();
                 categoriesButton[ 0 ].click();
             }
