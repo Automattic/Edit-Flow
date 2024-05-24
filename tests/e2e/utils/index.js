@@ -1,5 +1,3 @@
-import { ensureSidebarOpened } from "@wordpress/e2e-test-utils";
-
 const addCategoryToPost = async (categoryName) => {
     await ensureSidebarOpened();
     await page.waitForXPath('//button[text()="Categories"]');
@@ -92,7 +90,19 @@ const schedulePost = async() => {
     await yearInput.type( year );
 
     await publishPost();
+}
 
+const ensureSidebarOpened = async() => {
+	const toggleSidebarButton = await page.$(
+		'.edit-post-header__settings [aria-label="Settings"][aria-expanded="false"],' +
+			'.edit-site-header__actions [aria-label="Settings"][aria-expanded="false"],' +
+			'.edit-widgets-header__actions [aria-label="Settings"][aria-expanded="false"],' +
+			'.edit-site-header-edit-mode__actions [aria-label="Settings"][aria-expanded="false"]'
+	);
+
+	if ( toggleSidebarButton ) {
+		await toggleSidebarButton.click();
+	}
 }
 
 export { addCategoryToPost, publishPost, schedulePost };
