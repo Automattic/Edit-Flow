@@ -39,17 +39,10 @@ jobs:
           php-version: ${{ matrix.php }}
           tools: composer
 
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v4
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v3
         with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-
-
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+          composer-options: --prefer-dist --no-progress
 
       - name: Setup wp-env
         run: wp-env start
