@@ -51,7 +51,7 @@ const publishPost = async() => {
     await page.waitForSelector( '.editor-post-publish-button' );
 
     // Wait for the sliding panel animation to complete
-    await page.waitFor(200);
+    await new Promise( r => setTimeout( r, 200 ) );
 
     // Publish the post
     // see: https://github.com/WordPress/gutenberg/pull/20329
@@ -68,7 +68,7 @@ const schedulePost = async() => {
     await page.click( '.editor-post-schedule__dialog-toggle' );
 
     // wait for popout animation
-    await page.waitFor(200);
+    await new Promise( r => setTimeout( r, 200 ) );
 
     // Get the date after two weeks since today
     const today = new Date();
@@ -92,4 +92,5 @@ const schedulePost = async() => {
 
 }
 
-export { addCategoryToPost, publishPost, schedulePost }
+export { addCategoryToPost, publishPost, schedulePost };
+

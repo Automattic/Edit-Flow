@@ -20,17 +20,17 @@ describe("Calendar Header", () => {
         await page.select('[name="post_status"]', 'publish');
 
         await page.click('[placeholder="Select a user"]')
-        
-        // Wait for selector didn't seem to be working here, subbing for just a simple time wait
-        page.waitFor(200);
+
+		// Wait for selector didn't seem to be working here, subbing for just a simple time wait
+		await new Promise( r => setTimeout( r, 200 ) );
 
         await page.click('.ef-calendar-filter-author ul li[aria-label="admin"]');
 
         await page.click('[placeholder="Select a category"]')
 
         // Wait for selector didn't seem to be working here, subbing for just a simple time wait
-        page.waitFor(200);
-        
+        await new Promise( r => setTimeout( r, 200 ) );
+
         await page.click('.ef-calendar-filter-cat ul li[aria-label="Category A"]');
 
         await page.select('[name="num_weeks"]', '7');
@@ -50,7 +50,7 @@ describe("Calendar Header", () => {
 
         const numWeeksSelect = await page.$('[name="num_weeks"]');
         const numWeeksSelectValue = await numWeeksSelect.evaluate(el => el.value);
-        
+
         expect(postStatusValue).toBe('publish');
         expect(userValue).toBe('admin');
         expect(categoryValue).toBe('Category A');
@@ -58,9 +58,9 @@ describe("Calendar Header", () => {
 
         // Click the reset button
         await page.click('.ef-calendar-filters-buttons a[name="ef-calendar-reset-filters"]');
-        
+
         await page.waitForSelector('.ef-calendar-header');
-        
+
         const postStatusSelectReset = await page.$('[name="post_status"]');
         const postStatusValueReset = await postStatusSelectReset.evaluate(el => el.value);
 

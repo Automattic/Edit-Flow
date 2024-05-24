@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
 
       - name: Install wordpress environment
         run: npm -g install @wordpress/env
@@ -39,24 +39,10 @@ jobs:
           php-version: ${{ matrix.php }}
           tools: composer
 
-      - name: Install Composer dependencies (PHP < 8.0 )
-        if: ${{ matrix.php < 8.0 }}
-        uses: ramsey/composer-install@v1
-
-      - name: Install Composer dependencies (PHP >= 8.0)
-        if: ${{ matrix.php >= 8.0 || matrix.php == 'latest' }}
-        uses: ramsey/composer-install@v1
+      - name: Install Composer dependencies
+        uses: ramsey/composer-install@v3
         with:
-          composer-options: --ignore-platform-reqs
-
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v2
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-
+          composer-options: --prefer-dist --no-progress
 
       - name: Setup wp-env
         run: wp-env start

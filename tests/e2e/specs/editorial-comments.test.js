@@ -24,7 +24,7 @@ describe("Editorial Comments", () => {
     const saveReplyButton = await page.$('.ef-replysave');
     await saveReplyButton.click();
 
-    const commentNodes = await page.waitFor('#ef-comments .comment-content');
+    const commentNodes = await page.waitForSelector('#ef-comments .comment-content');
 
     const comments = await commentNodes.$$eval('p', nodes => nodes.map(n => {
       return n.innerText

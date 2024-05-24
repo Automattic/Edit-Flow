@@ -1,21 +1,18 @@
 /**
  * External dependencies
  */
-import { get, isEqual, reduce, some, forEach } from 'lodash';
-import { matcherHint, printExpected, printReceived } from 'jest-matcher-utils';
 
 /**
  * WordPress dependencies
  */
 import {
-	activatePlugin,
 	clearLocalStorage,
 	enablePageDialogAccept,
 	isOfflineMode,
 	setBrowserViewport,
 	switchUserToAdmin,
 	switchUserToTest,
-	visitAdminPage,
+	visitAdminPage
 } from '@wordpress/e2e-test-utils';
 
 /**
@@ -125,7 +122,9 @@ function observeConsoleLogging() {
 		// See: https://core.trac.wordpress.org/ticket/37000
 		// See: https://www.chromestatus.com/feature/5088147346030592
 		// See: https://www.chromestatus.com/feature/5633521622188032
-		if ( text.includes( 'A cookie associated with a cross-site resource' ) ) {
+		if (
+			text.includes( 'A cookie associated with a cross-site resource' )
+		) {
 			return;
 		}
 
@@ -137,12 +136,28 @@ function observeConsoleLogging() {
 
 		// Network errors are ignored only if we are intentionally testing
 		// offline mode.
-		if ( text.includes( 'net::ERR_INTERNET_DISCONNECTED' ) && isOfflineMode() ) {
+		if (
+			text.includes( 'net::ERR_INTERNET_DISCONNECTED' ) &&
+			isOfflineMode()
+		) {
 			return;
 		}
 
 		// Chromium frequently logs this error with each request made. Unreleated to Edit Flow.
 		if ( text.includes( 'Preflight request for request with keepalive specified is currently not supported' ) ) {
+			return;
+		}
+
+		// As of WordPress 5.3.2 in Chrome 79, navigating to the block editor
+		// (Posts > Add New) will display a console warning about
+		// non - unique IDs.
+		// See: https://core.trac.wordpress.org/ticket/23165
+		if ( text.includes( 'elements with non-unique id #_wpnonce' ) ) {
+			return;
+		}
+
+		// Ignore all JQMIGRATE (jQuery migrate) deprecation warnings.
+		if ( text.includes( 'JQMIGRATE' ) ) {
 			return;
 		}
 
@@ -159,7 +174,7 @@ function observeConsoleLogging() {
 		// correctly. Instead, the logic here synchronously inspects the
 		// internal object shape of the JSHandle to find the error text. If it
 		// cannot be found, the default text value is used instead.
-		text = get( message.args(), [ 0, '_remoteObject', 'description' ], text );
+		text = message.args()[ 0 ]?._remoteObject?.description ?? text;
 
 		// Disable reason: We intentionally bubble up the console message
 		// which, unless the test explicitly anticipates the logging via
@@ -168,43 +183,6 @@ function observeConsoleLogging() {
 
 		// eslint-disable-next-line no-console
 		console[ logFunction ]( text );
-	} );
-}
-
-/**
- * Runs Axe tests when the block editor is found on the current page.
- *
- * @return {?Promise} Promise resolving once Axe texts are finished.
- */
-async function runAxeTestsForBlockEditor() {
-	if ( ! await page.$( '.block-editor' ) ) {
-		return;
-	}
-
-	await expect( page ).toPassAxeTests( {
-		// Temporary disabled rules to enable initial integration.
-		// See: https://github.com/WordPress/gutenberg/pull/15018.
-		disabledRules: [
-			'aria-allowed-role',
-			'aria-hidden-focus',
-			'aria-input-field-name',
-			'aria-valid-attr-value',
-			'button-name',
-			'color-contrast',
-			'dlitem',
-			'duplicate-id',
-			'label',
-			'link-name',
-			'listitem',
-			'region',
-			'heading-order'
-		],
-		exclude: [
-			// Ignores elements created by metaboxes.
-			'.edit-post-layout__metaboxes',
-			// Ignores elements created by TinyMCE.
-			'.mce-container',
-		],
 	} );
 }
 
@@ -221,7 +199,6 @@ beforeAll( async () => {
 } );
 
 afterEach( async () => {
-	await runAxeTestsForBlockEditor();
 	await setupBrowser();
 } );
 

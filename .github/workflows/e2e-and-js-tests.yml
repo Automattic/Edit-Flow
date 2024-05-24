@@ -16,12 +16,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
 
-      - name: Set up NodeJS 14.x
-        uses: actions/setup-node@v2
+      - name: Set up NodeJS 20
+        uses: actions/setup-node@v4
         with:
-          node-version: '14'
+          node-version: '20'
+          cache: npm
 
       - name: Build Edit Flow
         run: |
@@ -34,7 +35,7 @@ jobs:
       - name: Run Lint JS
         run: npm run lint-js
 
-      - name: Run JS tests (Jest)
+      - name: Run Jest tests
         run: npm run test-jest
 
       - name: Run E2E tests
