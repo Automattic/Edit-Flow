@@ -1,4 +1,7 @@
+import { ensureSidebarOpened } from "@wordpress/e2e-test-utils";
+
 const addCategoryToPost = async (categoryName) => {
+    await ensureSidebarOpened();
     await page.waitForXPath('//button[text()="Categories"]');
 
     await page.$$eval(
