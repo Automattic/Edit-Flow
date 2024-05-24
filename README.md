@@ -137,6 +137,11 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Enhancements: Update WordPress minimum version to 5.9 & update PHPUnit #724 (https://github.com/Automattic/Edit-Flow/pull/724)
 * Enhancements: Move JS environment to node 20, upgrade packages (https://github.com/Automattic/Edit-Flow/pull/725)
 
+**0.9.8 (April 10, 2024)**
+* Fix WP 5.9 deprecation notice with `who` in `WP_User_Query` (https://github.com/Automattic/Edit-Flow/pull/701)
+* Add PHP 8.2 fixes (https://github.com/Automattic/Edit-Flow/pull/700)
+* Bump @babel/traverse from 7.1.6 to 7.23.2 (https://github.com/Automattic/Edit-Flow/pull/714)
+
 **0.9.7 (August 26, 2022)**
 * Bug fix: Allow scheduled posts to be shifted around on calendar (https://github.com/Automattic/Edit-Flow/pull/614)
 * Bug fix: Add back unpublish status, small css tweak for statuses (https://github.com/Automattic/Edit-Flow/pull/613)
