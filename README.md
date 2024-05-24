@@ -51,6 +51,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 
 ## Upgrade Notice
 
+**0.9.9**
+Bump minimum PHP supported version to 7.4, WordPress minimum supported version to 5.9.
+
 **0.9.8**
 PHP 8.2 compatible with various bug fixes
 
@@ -127,6 +130,12 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 ## Changelog
+
+**0.9.9 (May 24, 2024)**
+* Test fix: Fix e2e tests, bump lowest supported PHP version to 7.4 (https://github.com/Automattic/Edit-Flow/pull/722)
+* Test fix: Update ESLint configuration and format JS files (https://github.com/Automattic/Edit-Flow/pull/723)
+* Enhancements: Update WordPress minimum version to 5.9 & update PHPUnit #724 (https://github.com/Automattic/Edit-Flow/pull/724)
+* Enhancements: Move JS environment to node 20, upgrade packages (https://github.com/Automattic/Edit-Flow/pull/725)
 
 **0.9.7 (August 26, 2022)**
 * Bug fix: Allow scheduled posts to be shifted around on calendar (https://github.com/Automattic/Edit-Flow/pull/614)
