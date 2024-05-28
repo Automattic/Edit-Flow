@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5cf9481316e1e0b6e33ee6392c28d45a",
+    "content-hash": "b52213b4b3d6b33a45a906d80d77b46e",
     "packages": [
         {
             "name": "composer/installers",
@@ -2255,16 +2255,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.10.0",
+            "version": "3.10.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "57e09801c2fbae2d257b8b75bebb3deeb7e9deb2"
+                "reference": "8f90f7a53ce271935282967f53d0894f8f1ff877"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/57e09801c2fbae2d257b8b75bebb3deeb7e9deb2",
-                "reference": "57e09801c2fbae2d257b8b75bebb3deeb7e9deb2",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/8f90f7a53ce271935282967f53d0894f8f1ff877",
+                "reference": "8f90f7a53ce271935282967f53d0894f8f1ff877",
                 "shasum": ""
             },
             "require": {
@@ -2331,7 +2331,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-05-20T08:11:32+00:00"
+            "time": "2024-05-22T21:24:41+00:00"
         },
         {
             "name": "theseer/tokenizer",
@@ -2519,7 +2519,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=7.4"
+        "php": ">=8.0"
     },
     "platform-dev": [],
     "plugin-api-version": "2.6.0"
