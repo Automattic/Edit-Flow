@@ -2,10 +2,10 @@
 Contributors: batmoo, danielbachhuber, sbressler, automattic
 Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
-Requires at least: 6.0
-Requires PHP: 8.0
-Tested up to: 6.5
-Stable tag: 0.9.9
+Requires at least: 5.2
+Requires PHP: 5.6
+Tested up to: 5.8
+Stable tag: 0.9.8
 
 Redefining your editorial workflow.
 
@@ -56,12 +56,6 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 5. View all of your upcoming posts with the more traditional story budget view, and hit the print button to take it to your planning meeting.
 
 == Upgrade Notice ==
-
-= 0.9.9 =
-Bump minimum PHP supported version to 8.0, WordPress minimum supported version to 6.0.
-
-= 0.9.8 =
-PHP 8.2 compatible with various bug fixes
 
 = 0.9.7 =
 PHP 8 compatible now with various bug fixes
@@ -136,16 +130,6 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 == Changelog ==
-
-= 0.9.9 (May 24, 2024) =
-* Enhancements: bump lowest supported PHP version to 8.0 and lowest WordPress version to 6.0 (https://github.com/Automattic/Edit-Flow/pull/727)
-* Test fix: Update ESLint configuration and format JS files (https://github.com/Automattic/Edit-Flow/pull/723)
-* Enhancements: Move JS environment to node 20, upgrade packages (https://github.com/Automattic/Edit-Flow/pull/725)
-
-= 0.9.8 (April 10, 2024) =
-* Fix WP 5.9 deprecation notice with `who` in `WP_User_Query` (https://github.com/Automattic/Edit-Flow/pull/701)
-* Add PHP 8.2 fixes (https://github.com/Automattic/Edit-Flow/pull/700)
-* Bump @babel/traverse from 7.1.6 to 7.23.2 (https://github.com/Automattic/Edit-Flow/pull/714)
 
 = 0.9.7 (Aug 26, 2022) =
 * Bug fix: Allow scheduled posts to be shifted around on calendar (https://github.com/Automattic/Edit-Flow/pull/614)
