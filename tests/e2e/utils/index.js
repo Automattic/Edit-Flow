@@ -1,4 +1,5 @@
 const addCategoryToPost = async (categoryName) => {
+    await ensureSidebarOpened();
     await page.waitForXPath('//button[text()="Categories"]');
 
     await page.$$eval(
@@ -6,7 +7,7 @@ const addCategoryToPost = async (categoryName) => {
         ( sidebarButtons ) => {
             const categoriesButton = sidebarButtons.filter( el => el.textContent === 'Categories' );
 
-            if ( categoriesButton.length === 1 ) {
+            if ( categoriesButton.length === 1 && categoriesButton[ 0 ].getAttribute( 'aria-expanded' ) !== true ) {
                 categoriesButton[ 0 ].scrollIntoView();
                 categoriesButton[ 0 ].click();
             }
@@ -89,7 +90,19 @@ const schedulePost = async() => {
     await yearInput.type( year );
 
     await publishPost();
+}
 
+const ensureSidebarOpened = async() => {
+	const toggleSidebarButton = await page.$(
+		'.edit-post-header__settings [aria-label="Settings"][aria-expanded="false"],' +
+			'.edit-site-header__actions [aria-label="Settings"][aria-expanded="false"],' +
+			'.edit-widgets-header__actions [aria-label="Settings"][aria-expanded="false"],' +
+			'.edit-site-header-edit-mode__actions [aria-label="Settings"][aria-expanded="false"]'
+	);
+
+	if ( toggleSidebarButton ) {
+		await toggleSidebarButton.click();
+	}
 }
 
 export { addCategoryToPost, publishPost, schedulePost };
