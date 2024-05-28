@@ -1,31 +1,17 @@
 <?php
-/*
-Plugin Name: Edit Flow
-Plugin URI: http://editflow.org/
-Description: Remixing the WordPress admin for better editorial workflow options.
-Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Automattic, and others
-Version: 0.9.8
-Author URI: http://editflow.org/
-
-Copyright 2009-2019 Mohammad Jangda, Daniel Bachhuber, Automattic, et al.
-
-GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-*/
+/**
+ * Plugin Name: Edit Flow
+ * Plugin URI: http://editflow.org/
+ * Description: Remixing the WordPress admin for better editorial workflow options.
+ * Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Automattic, and others
+ * Version: 0.9.8
+ * Requires at least: 6.0
+ * Requires PHP: 8.0
+ * License: GPL-3
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
+ *
+ * Copyright 2009-2019 Mohammad Jangda, Daniel Bachhuber, Automattic, et al.
+ */
 
 /**
  * Print admin notice regarding having an old version of PHP.
@@ -35,12 +21,12 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 function _ef_print_php_version_admin_notice() {
 	?>
 	<div class="notice notice-error">
-			<p><?php esc_html_e( 'Edit Flow requires PHP 7.4+. Please contact your host to update your PHP version.', 'edit-flow' ); ?></p>
+			<p><?php esc_html_e( 'Edit Flow requires PHP 8.0+. Please contact your host to update your PHP version.', 'edit-flow' ); ?></p>
 		</div>
 	<?php
 }
 
-if ( version_compare( phpversion(), '7.4', '<' ) ) {
+if ( version_compare( phpversion(), '8.0', '<' ) ) {
 	add_action( 'admin_notices', '_ef_print_php_version_admin_notice' );
 	return;
 }
