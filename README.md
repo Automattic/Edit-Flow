@@ -52,7 +52,7 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 ## Upgrade Notice
 
 **0.9.9**
-Bump minimum PHP supported version to 7.4, WordPress minimum supported version to 5.9.
+Bump minimum PHP supported version to 8.0, WordPress minimum supported version to 6.0.
 
 **0.9.8**
 PHP 8.2 compatible with various bug fixes
@@ -132,9 +132,8 @@ New features, including story budget and editorial metadata, a completely rewrit
 ## Changelog
 
 **0.9.9 (May 24, 2024)**
-* Test fix: Fix e2e tests, bump lowest supported PHP version to 7.4 (https://github.com/Automattic/Edit-Flow/pull/722)
+* Enhancements: bump lowest supported PHP version to 8.0 and lowest WordPress version to 6.0 (https://github.com/Automattic/Edit-Flow/pull/727)
 * Test fix: Update ESLint configuration and format JS files (https://github.com/Automattic/Edit-Flow/pull/723)
-* Enhancements: Update WordPress minimum version to 5.9 & update PHPUnit #724 (https://github.com/Automattic/Edit-Flow/pull/724)
 * Enhancements: Move JS environment to node 20, upgrade packages (https://github.com/Automattic/Edit-Flow/pull/725)
 
 **0.9.8 (April 10, 2024)**

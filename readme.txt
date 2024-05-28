@@ -2,10 +2,10 @@
 Contributors: batmoo, danielbachhuber, sbressler, automattic
 Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
-Requires at least: 5.2
-Requires PHP: 5.6
-Tested up to: 5.8
-Stable tag: 0.9.8
+Requires at least: 6.0
+Requires PHP: 8.0
+Tested up to: 6.5
+Stable tag: 0.9.9
 
 Redefining your editorial workflow.
 
@@ -56,6 +56,12 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 5. View all of your upcoming posts with the more traditional story budget view, and hit the print button to take it to your planning meeting.
 
 == Upgrade Notice ==
+
+= 0.9.9 =
+Bump minimum PHP supported version to 8.0, WordPress minimum supported version to 6.0.
+
+= 0.9.8 =
+PHP 8.2 compatible with various bug fixes
 
 = 0.9.7 =
 PHP 8 compatible now with various bug fixes
