@@ -18,24 +18,24 @@ class WP_Test_Edit_Flow_Class_Module extends WP_UnitTestCase {
 		}
 	}
 
-	function setUp() {
+	protected function setUp(): void {
 		parent::setUp();
-		
+
 		self::$EditFlowModule = new EF_Module();
 
 		$this->_flush_roles();
 	}
 
-	function tearDown() {
+	protected function tearDown(): void {
 		self::$EditFlowModule = null;
 	}
-	
+
 	function test_add_caps_to_role() {
 		$usergroup_roles = array(
 			'administrator' => array( 'edit_usergroups' ),
 		);
 
-		foreach( $usergroup_roles as $role => $caps ) {
+		foreach ( $usergroup_roles as $role => $caps ) {
 			self::$EditFlowModule->add_caps_to_role( $role, $caps );
 		}
 
@@ -58,11 +58,13 @@ class WP_Test_Edit_Flow_Class_Module extends WP_UnitTestCase {
 	function test_current_post_type_post_screen() {
 		set_current_screen( 'post.php' );
 
-		$post_id = $this->factory->post->create( array (
-			'post_author' => self::$admin_user_id
-		) );
+		$post_id = $this->factory->post->create(
+			array(
+				'post_author' => self::$admin_user_id,
+			) 
+		);
 
-		$_REQUEST['post'] = $post_id; 
+		$_REQUEST['post'] = $post_id;
 
 		$this->assertEquals( 'post', self::$EditFlowModule->get_current_post_type() );
 
@@ -71,7 +73,7 @@ class WP_Test_Edit_Flow_Class_Module extends WP_UnitTestCase {
 	}
 
 	function test_current_post_type_edit_screen() {
-		set_current_screen( 'edit.php' );		
+		set_current_screen( 'edit.php' );
 
 		$this->assertEquals( 'post', self::$EditFlowModule->get_current_post_type() );
 
@@ -87,7 +89,7 @@ class WP_Test_Edit_Flow_Class_Module extends WP_UnitTestCase {
 		_unregister_post_type( 'content' );
 		set_current_screen( 'front' );
 	}
-	
+
 	public static function wpTearDownAfterClass() {
 		self::delete_user( self::$admin_user_id );
 	}

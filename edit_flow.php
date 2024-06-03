@@ -1,31 +1,17 @@
 <?php
-/*
-Plugin Name: Edit Flow
-Plugin URI: http://editflow.org/
-Description: Remixing the WordPress admin for better editorial workflow options.
-Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Automattic, and others
-Version: 0.9.8
-Author URI: http://editflow.org/
-
-Copyright 2009-2019 Mohammad Jangda, Daniel Bachhuber, Automattic, et al.
-
-GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-*/
+/**
+ * Plugin Name: Edit Flow
+ * Plugin URI: http://editflow.org/
+ * Description: Remixing the WordPress admin for better editorial workflow options.
+ * Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Automattic, and others
+ * Version: 0.9.9
+ * Requires at least: 6.0
+ * Requires PHP: 8.0
+ * License: GPL-3
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
+ *
+ * Copyright 2009-2019 Mohammad Jangda, Daniel Bachhuber, Automattic, et al.
+ */
 
 /**
  * Print admin notice regarding having an old version of PHP.
@@ -35,30 +21,30 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 function _ef_print_php_version_admin_notice() {
 	?>
 	<div class="notice notice-error">
-			<p><?php esc_html_e( 'Edit Flow requires PHP 5.6+. Please contact your host to update your PHP version.', 'edit-flow' ); ?></p>
+			<p><?php esc_html_e( 'Edit Flow requires PHP 8.0+. Please contact your host to update your PHP version.', 'edit-flow' ); ?></p>
 		</div>
 	<?php
 }
 
-if ( version_compare( phpversion(), '5.6', '<' ) ) {
+if ( version_compare( phpversion(), '8.0', '<' ) ) {
 	add_action( 'admin_notices', '_ef_print_php_version_admin_notice' );
 	return;
 }
 
 // Define contants
-define( 'EDIT_FLOW_VERSION' , '0.9.8' );
-define( 'EDIT_FLOW_ROOT' , dirname(__FILE__) );
-define( 'EDIT_FLOW_FILE_PATH' , EDIT_FLOW_ROOT . '/' . basename(__FILE__) );
-define( 'EDIT_FLOW_URL' , plugins_url( '/', __FILE__ ) );
-define( 'EDIT_FLOW_SETTINGS_PAGE' , add_query_arg( 'page', 'ef-settings', get_admin_url( null, 'admin.php' ) ) );
+define( 'EDIT_FLOW_VERSION', '0.9.9' );
+define( 'EDIT_FLOW_ROOT', __DIR__ );
+define( 'EDIT_FLOW_FILE_PATH', EDIT_FLOW_ROOT . '/' . basename( __FILE__ ) );
+define( 'EDIT_FLOW_URL', plugins_url( '/', __FILE__ ) );
+define( 'EDIT_FLOW_SETTINGS_PAGE', add_query_arg( 'page', 'ef-settings', get_admin_url( null, 'admin.php' ) ) );
 
 // Core class
 #[\AllowDynamicProperties]
 class edit_flow {
 
 	// Unique identified added as a prefix to all options
-	var $options_group = 'edit_flow_';
-	var $options_group_name = 'edit_flow_options';
+	public $options_group      = 'edit_flow_';
+	public $options_group_name = 'edit_flow_options';
 
 	/**
 	 * @var EditFlow The one true EditFlow
@@ -100,7 +86,7 @@ class edit_flow {
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
-			self::$instance = new edit_flow;
+			self::$instance = new edit_flow();
 			self::$instance->setup_globals();
 			self::$instance->setup_actions();
 			// Backwards compat for when we promoted use of the $edit_flow global
@@ -115,7 +101,7 @@ class edit_flow {
 	}
 
 	private function setup_globals() {
-		$this->modules = new stdClass();
+		$this->modules       = new stdClass();
 		$this->modules_count = 0;
 	}
 
@@ -125,32 +111,33 @@ class edit_flow {
 	private function load_modules() {
 
 		// We use the WP_List_Table API for some of the table gen
-		if ( !class_exists( 'WP_List_Table' ) )
-			require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
+		if ( ! class_exists( 'WP_List_Table' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
+		}
 
 		// Edit Flow base module
-		require_once( EDIT_FLOW_ROOT . '/common/php/class-module.php' );
+		require_once EDIT_FLOW_ROOT . '/common/php/class-module.php';
 
 		// Edit Flow Block Editor Compat trait
-		require_once( EDIT_FLOW_ROOT . '/common/php/trait-block-editor-compatible.php' );
+		require_once EDIT_FLOW_ROOT . '/common/php/trait-block-editor-compatible.php';
 
 		// Scan the modules directory and include any modules that exist there
 		$module_dirs = scandir( EDIT_FLOW_ROOT . '/modules/' );
 		$class_names = array();
-		foreach( $module_dirs as $module_dir ) {
+		foreach ( $module_dirs as $module_dir ) {
 			if ( file_exists( EDIT_FLOW_ROOT . "/modules/{$module_dir}/$module_dir.php" ) ) {
-				include_once( EDIT_FLOW_ROOT . "/modules/{$module_dir}/$module_dir.php" );
+				include_once EDIT_FLOW_ROOT . "/modules/{$module_dir}/$module_dir.php";
 
 				// Prepare the class name because it should be standardized
-				$tmp = explode( '-', $module_dir );
+				$tmp        = explode( '-', $module_dir );
 				$class_name = '';
-				$slug_name = '';
-				foreach( $tmp as $word ) {
+				$slug_name  = '';
+				foreach ( $tmp as $word ) {
 					$class_name .= ucfirst( $word ) . '_';
-					$slug_name .= $word . '_';
+					$slug_name  .= $word . '_';
 				}
-				$slug_name = rtrim( $slug_name, '_' );
-				$class_names[$slug_name] = 'EF_' . rtrim( $class_name, '_' );
+				$slug_name                 = rtrim( $slug_name, '_' );
+				$class_names[ $slug_name ] = 'EF_' . rtrim( $class_name, '_' );
 			}
 		}
 
@@ -159,11 +146,11 @@ class edit_flow {
 		$this->helpers = new EF_Module();
 
 		// Other utils
-		require_once( EDIT_FLOW_ROOT . '/common/php/util.php' );
+		require_once EDIT_FLOW_ROOT . '/common/php/util.php';
 
 		// Instantiate all of our classes onto the Edit Flow object
 		// but make sure they exist too
-		foreach( $class_names as $slug => $class_name ) {
+		foreach ( $class_names as $slug => $class_name ) {
 			if ( class_exists( $class_name ) ) {
 				$this->$slug = new $class_name();
 			}
@@ -176,7 +163,6 @@ class edit_flow {
 		 *
 		 */
 		do_action( 'ef_modules_loaded' );
-
 	}
 
 	/**
@@ -217,9 +203,11 @@ class edit_flow {
 
 		// Load all of the modules that are enabled.
 		// Modules won't have an options value if they aren't enabled
-		foreach ( $this->modules as $mod_name => $mod_data )
-			if ( isset( $mod_data->options->enabled ) && $mod_data->options->enabled == 'on' )
+		foreach ( $this->modules as $mod_name => $mod_data ) {
+			if ( isset( $mod_data->options->enabled ) && 'on' == $mod_data->options->enabled ) {
 				$this->$mod_name->init();
+			}
+		}
 
 		/**
 		 * Fires after edit_flow has loaded all modules and module options.
@@ -239,26 +227,27 @@ class edit_flow {
 		$previous_version = get_option( $this->options_group . 'version' );
 		if ( $previous_version && version_compare( $previous_version, EDIT_FLOW_VERSION, '<' ) ) {
 			foreach ( $this->modules as $mod_name => $mod_data ) {
-				if ( method_exists( $this->$mod_name, 'upgrade' ) )
+				if ( method_exists( $this->$mod_name, 'upgrade' ) ) {
 						$this->$mod_name->upgrade( $previous_version );
+				}
 			}
 			update_option( $this->options_group . 'version', EDIT_FLOW_VERSION );
-		} else if ( !$previous_version ) {
+		} elseif ( ! $previous_version ) {
 			update_option( $this->options_group . 'version', EDIT_FLOW_VERSION );
 		}
 
 		// For each module that's been loaded, auto-load data if it's never been run before
 		foreach ( $this->modules as $mod_name => $mod_data ) {
 			// If the module has never been loaded before, run the install method if there is one
-			if ( !isset( $mod_data->options->loaded_once ) || !$mod_data->options->loaded_once ) {
-				if ( method_exists( $this->$mod_name, 'install' ) )
+			if ( ! isset( $mod_data->options->loaded_once ) || ! $mod_data->options->loaded_once ) {
+				if ( method_exists( $this->$mod_name, 'install' ) ) {
 					$this->$mod_name->install();
+				}
 				$this->update_module_option( $mod_name, 'loaded_once', true );
 			}
 		}
 
 		$this->register_scripts_and_styles();
-
 	}
 
 	/**
@@ -267,47 +256,52 @@ class edit_flow {
 	public function register_module( $name, $args = array() ) {
 
 		// A title and name is required for every module
-		if ( !isset( $args['title'], $name ) )
+		if ( ! isset( $args['title'], $name ) ) {
 			return false;
+		}
 
 		$defaults = array(
-			'title' => '',
-			'short_description' => '',
+			'title'                => '',
+			'short_description'    => '',
 			'extended_description' => '',
-			'img_url' => false,
-			'slug' => '',
-			'post_type_support' => '',
-			'default_options' => array(),
-			'options' => false,
-			'configure_page_cb' => false,
-			'configure_link_text' => __( 'Configure', 'edit-flow' ),
+			'img_url'              => false,
+			'slug'                 => '',
+			'post_type_support'    => '',
+			'default_options'      => array(),
+			'options'              => false,
+			'configure_page_cb'    => false,
+			'configure_link_text'  => __( 'Configure', 'edit-flow' ),
 			// These messages are applied to modules and can be overridden if custom messages are needed
-			'messages' => array(
-				'settings-updated' => __( 'Settings updated.', 'edit-flow' ),
-				'form-error' => __( 'Please correct your form errors below and try again.', 'edit-flow' ),
-				'nonce-failed' => __( 'Cheatin&#8217; uh?', 'edit-flow' ),
+			'messages'             => array(
+				'settings-updated'    => __( 'Settings updated.', 'edit-flow' ),
+				'form-error'          => __( 'Please correct your form errors below and try again.', 'edit-flow' ),
+				'nonce-failed'        => __( 'Cheatin&#8217; uh?', 'edit-flow' ),
 				'invalid-permissions' => __( 'You do not have necessary permissions to complete this action.', 'edit-flow' ),
-				'missing-post' => __( 'Post does not exist', 'edit-flow' ),
+				'missing-post'        => __( 'Post does not exist', 'edit-flow' ),
 			),
-			'autoload' => false, // autoloading a module will remove the ability to enable or disable it
+			'autoload'             => false, // autoloading a module will remove the ability to enable or disable it
 		);
-		if ( isset( $args['messages'] ) )
-			$args['messages'] = array_merge( (array)$args['messages'], $defaults['messages'] );
-		$args = array_merge( $defaults, $args );
-		$args['name'] = $name;
+		if ( isset( $args['messages'] ) ) {
+			$args['messages'] = array_merge( (array) $args['messages'], $defaults['messages'] );
+		}
+		$args                       = array_merge( $defaults, $args );
+		$args['name']               = $name;
 		$args['options_group_name'] = $this->options_group . $name . '_options';
-		if ( !isset( $args['settings_slug'] ) )
+		if ( ! isset( $args['settings_slug'] ) ) {
 			$args['settings_slug'] = 'ef-' . $args['slug'] . '-settings';
-		if ( empty( $args['post_type_support'] ) )
+		}
+		if ( empty( $args['post_type_support'] ) ) {
 			$args['post_type_support'] = 'ef_' . $name;
+		}
 		// If there's a Help Screen registered for the module, make sure we
 		// auto-load it
-		if ( !empty( $args['settings_help_tab'] ) )
+		if ( ! empty( $args['settings_help_tab'] ) ) {
 			add_action( 'load-edit-flow_page_' . $args['settings_slug'], array( &$this->$name, 'action_settings_help_menu' ) );
+		}
 
 		$this->modules->$name = (object) $args;
 
-		$this->modules_count++;
+		++$this->modules_count;
 
 		/**
 		 * Fires after edit_flow has registered a module.
@@ -328,10 +322,11 @@ class edit_flow {
 
 		foreach ( $this->modules as $mod_name => $mod_data ) {
 
-			$this->modules->$mod_name->options = get_option( $this->options_group . $mod_name . '_options', new stdClass );
+			$this->modules->$mod_name->options = get_option( $this->options_group . $mod_name . '_options', new stdClass() );
 			foreach ( $mod_data->default_options as $default_key => $default_value ) {
-				if ( !isset( $this->modules->$mod_name->options->$default_key ) )
+				if ( ! isset( $this->modules->$mod_name->options->$default_key ) ) {
 					$this->modules->$mod_name->options->$default_key = $default_value;
+				}
 			}
 
 			$this->$mod_name->module = $this->modules->$mod_name;
@@ -354,8 +349,9 @@ class edit_flow {
 	function action_init_after() {
 		foreach ( $this->modules as $mod_name => $mod_data ) {
 
-			if ( isset( $this->modules->$mod_name->options->post_types ) )
+			if ( isset( $this->modules->$mod_name->options->post_types ) ) {
 				$this->modules->$mod_name->options->post_types = $this->helpers->clean_post_type_options( $this->modules->$mod_name->options->post_types, $mod_data->post_type_support );
+			}
 
 			$this->$mod_name->module = $this->modules->$mod_name;
 		}
@@ -372,11 +368,12 @@ class edit_flow {
 		foreach ( $this->modules as $mod_name => $mod_data ) {
 
 			if ( $key == 'name' && $value == $mod_name ) {
-				$module =  $this->modules->$mod_name;
+				$module = $this->modules->$mod_name;
 			} else {
-				foreach( $mod_data as $mod_data_key => $mod_data_value ) {
-					if ( $mod_data_key == $key && $mod_data_value == $value )
+				foreach ( $mod_data as $mod_data_key => $mod_data_value ) {
+					if ( $mod_data_key == $key && $mod_data_value == $value ) {
 						$module = $this->modules->$mod_name;
+					}
 				}
 			}
 		}
@@ -388,15 +385,16 @@ class edit_flow {
 	 */
 	function update_module_option( $mod_name, $key, $value ) {
 		$this->modules->$mod_name->options->$key = $value;
-		$this->$mod_name->module = $this->modules->$mod_name;
+		$this->$mod_name->module                 = $this->modules->$mod_name;
 		return update_option( $this->options_group . $mod_name . '_options', $this->modules->$mod_name->options );
 	}
 
 	function update_all_module_options( $mod_name, $new_options ) {
-		if ( is_array( $new_options ) )
-			$new_options = (object)$new_options;
+		if ( is_array( $new_options ) ) {
+			$new_options = (object) $new_options;
+		}
 		$this->modules->$mod_name->options = $new_options;
-		$this->$mod_name->module = $this->modules->$mod_name;
+		$this->$mod_name->module           = $this->modules->$mod_name;
 		return update_option( $this->options_group . $mod_name . '_options', $this->modules->$mod_name->options );
 	}
 
@@ -410,17 +408,17 @@ class edit_flow {
 		wp_register_style( 'jquery-listfilterizer', EDIT_FLOW_URL . 'common/css/jquery.listfilterizer.css', false, EDIT_FLOW_VERSION, 'all' );
 
 
-		wp_localize_script( 'jquery-listfilterizer',
-		                    '__i18n_jquery_filterizer',
-		                    array(
-			                    'all'      => esc_html__( 'All', 'edit-flow' ),
-			                    'selected' => esc_html__( 'Selected', 'edit-flow' ),
-		                    ) );
+		wp_localize_script(
+			'jquery-listfilterizer',
+			'__i18n_jquery_filterizer',
+			array(
+				'all'      => esc_html__( 'All', 'edit-flow' ),
+				'selected' => esc_html__( 'Selected', 'edit-flow' ),
+			)
+		);
 
 		wp_register_script( 'jquery-quicksearch', EDIT_FLOW_URL . 'common/js/jquery.quicksearch.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
-
 	}
-
 }
 
 function EditFlow() {

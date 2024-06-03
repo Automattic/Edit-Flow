@@ -4,3 +4,7 @@
 node_modules
 wordpress
 vendor
+
+# Test files
+.phpunit.result.cache
+artifacts/

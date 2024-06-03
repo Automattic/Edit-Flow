@@ -1,30 +1,42 @@
 const addCategoryToPost = async (categoryName) => {
-    const categoryPanelButton = await page.$x('//button[text()="Categories"]');
+    await ensureSidebarOpened();
+    await page.waitForXPath('//button[text()="Categories"]');
 
-    await categoryPanelButton[0].click();
+    await page.$$eval(
+        '.components-panel__body button',
+        ( sidebarButtons ) => {
+            const categoriesButton = sidebarButtons.filter( el => el.textContent === 'Categories' );
 
-    await page.waitForXPath(
-        '//button[text()="Add New Category"]',
+            if ( categoriesButton.length === 1 && categoriesButton[ 0 ].getAttribute( 'aria-expanded' ) !== true ) {
+                categoriesButton[ 0 ].scrollIntoView();
+                categoriesButton[ 0 ].click();
+            }
+        }
+    );
+
+    await page.waitForSelector(
+        '.editor-post-taxonomies__hierarchical-terms-add',
         { timeout: 3000 }
     );
 
-    const addCategoryLink = await page.$x('//button[text()="Add New Category"]');
-
-    addCategoryLink[0].click();
+    // Click the "Add New Category" button
+    await page.click(
+        '.editor-post-taxonomies__hierarchical-terms-add'
+    )
 
     await page.waitForSelector(
-        '.editor-post-taxonomies__hierarchical-terms-input', 
+        '.editor-post-taxonomies__hierarchical-terms-input input',
         { timeout: 3000 }
     );
 
     // Type the category name in the field.
     await page.type(
-        '.editor-post-taxonomies__hierarchical-terms-input',
+        '.editor-post-taxonomies__hierarchical-terms-input input',
         categoryName
     );
 
     await page.click(
-        '.editor-post-taxonomies__hierarchical-terms-submit'   
+        '.editor-post-taxonomies__hierarchical-terms-submit'
     )
 }
 
@@ -40,7 +52,7 @@ const publishPost = async() => {
     await page.waitForSelector( '.editor-post-publish-button' );
 
     // Wait for the sliding panel animation to complete
-    await page.waitFor(200);
+    await new Promise( r => setTimeout( r, 200 ) );
 
     // Publish the post
     // see: https://github.com/WordPress/gutenberg/pull/20329
@@ -52,12 +64,12 @@ const publishPost = async() => {
 }
 
 const schedulePost = async() => {
-    await page.waitForSelector( '.edit-post-post-schedule__toggle' );
+    await page.waitForSelector( '.editor-post-schedule__dialog-toggle' );
 
-    await page.click( '.edit-post-post-schedule__toggle' );
+    await page.click( '.editor-post-schedule__dialog-toggle' );
 
     // wait for popout animation
-    await page.waitFor(200);
+    await new Promise( r => setTimeout( r, 200 ) );
 
     // Get the date after two weeks since today
     const today = new Date();
@@ -67,27 +79,31 @@ const schedulePost = async() => {
         .toLocaleDateString( 'en-US' )
         .split( '/' );
 
-    // Set the future date in the post editing screen
-    await page.$eval(
-        '.components-datetime__time-field-day-input',
-        ( el, day ) => el.value = day,
-        day
-    );
+    const dayInput = await page.$('.components-datetime__time-field-day input');
+    await dayInput.click({ clickCount: 3 });
+    await dayInput.type( day );
 
-    await page.$eval(
-        '.components-datetime__time-field-month-select',
-        ( el, month ) => el.value = month.length === 1 ? '0' + month : month,
-        month
-    );
+    await page.select('.components-datetime__time-field-month select', month.length === 1 ? '0' + month : month );
 
-    await page.$eval(
-        '.components-datetime__time-field-year-input',
-        ( el, year ) => el.value = year,
-        year
-    );
+    const yearInput = await page.$('.components-datetime__time-field-year input');
+    await yearInput.click({ clickCount: 3 });
+    await yearInput.type( year );
 
     await publishPost();
-
 }
 
-export { addCategoryToPost, publishPost, schedulePost }
+const ensureSidebarOpened = async() => {
+	const toggleSidebarButton = await page.$(
+		'.edit-post-header__settings [aria-label="Settings"][aria-expanded="false"],' +
+			'.edit-site-header__actions [aria-label="Settings"][aria-expanded="false"],' +
+			'.edit-widgets-header__actions [aria-label="Settings"][aria-expanded="false"],' +
+			'.edit-site-header-edit-mode__actions [aria-label="Settings"][aria-expanded="false"]'
+	);
+
+	if ( toggleSidebarButton ) {
+		await toggleSidebarButton.click();
+	}
+}
+
+export { addCategoryToPost, publishPost, schedulePost };
+

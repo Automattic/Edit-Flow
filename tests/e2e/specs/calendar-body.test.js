@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 
-import { createNewPost, visitAdminPage, saveDraft } from "@wordpress/e2e-test-utils";
+import { createNewPost, saveDraft, visitAdminPage } from "@wordpress/e2e-test-utils";
 import { publishPost, schedulePost } from '../utils';
 
 describe("Calendar Body", () => {
@@ -49,7 +49,7 @@ describe("Calendar Body", () => {
         const unpublishedPostDay = await unpublishedPost.evaluateHandle((node) => node.closest('.post-list'));
         const unpublishedPostDayBounding = await unpublishedPostDay.boundingBox();
 
-        /** 
+        /**
          * Simulate drag and drop
          */
         await page.mouse.move(unpublishedPostParentBounding.x + unpublishedPostParentBounding.width / 2, unpublishedPostParentBounding.y + unpublishedPostParentBounding.height / 2);
@@ -57,7 +57,7 @@ describe("Calendar Body", () => {
         await page.mouse.move(unpublishedPostParentBounding.x + unpublishedPostParentBounding.width / 2, unpublishedPostParentBounding.y + unpublishedPostDayBounding.height + 20);
         await page.mouse.up();
 
-        await page.waitFor(200);
+		await new Promise( r => setTimeout( r, 200 ) );
 
         expect(await unpublishedPostDay.evaluate((node) => {
             return Array.prototype.slice.call(node.querySelectorAll('.item-headline.post-title strong')).map((n) => n.innerText)
@@ -78,18 +78,18 @@ describe("Calendar Body", () => {
         const scheduledPostDay = await scheduledPost.evaluateHandle((node) => node.closest('.post-list'));
         const scheduledPostDayBounding = await scheduledPostDay.boundingBox();
 
-        /** 
+        /**
          * Simulate drag and drop
          */
         await page.mouse.move(scheduledPostParentBounding.x + scheduledPostParentBounding.width / 2, scheduledPostParentBounding.y + scheduledPostParentBounding.height / 2);
-        await page.mouse.down();
-        await page.waitFor(3000);
+		await page.mouse.down();
+		await new Promise( r => setTimeout( r, 3000 ) );
         await page.mouse.move(scheduledPostParentBounding.x + scheduledPostParentBounding.width / 2, scheduledPostParentBounding.y - scheduledPostDayBounding.height - 20);
-        await page.waitFor(3000);
+        await new Promise( r => setTimeout( r, 3000 ) );
         await page.mouse.up();
-        await page.waitFor(3000);
+        await new Promise( r => setTimeout( r, 3000 ) );
 
-        await page.waitFor(200);
+        await new Promise( r => setTimeout( r, 200 ) );
 
         expect(await scheduledPostDay.evaluate((node) => {
             return Array.prototype.slice.call(node.querySelectorAll('.item-headline.post-title strong')).map((n) => n.innerText)

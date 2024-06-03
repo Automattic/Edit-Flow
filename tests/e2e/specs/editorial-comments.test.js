@@ -12,7 +12,7 @@ describe("Editorial Comments", () => {
 
     // todo: Eventually, we should show the "Respond to post" button when a post is saved in Gutenberg
     // without having to reload the page
-    await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] });
+    await page.reload({ waitUntil: "domcontentloaded" });
 
     const COMMENT_TEXT = 'Hello';
 
@@ -24,7 +24,7 @@ describe("Editorial Comments", () => {
     const saveReplyButton = await page.$('.ef-replysave');
     await saveReplyButton.click();
 
-    const commentNodes = await page.waitFor('#ef-comments .comment-content');
+    const commentNodes = await page.waitForSelector('#ef-comments .comment-content');
 
     const comments = await commentNodes.$$eval('p', nodes => nodes.map(n => {
       return n.innerText
