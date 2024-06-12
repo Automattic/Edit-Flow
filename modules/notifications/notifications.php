@@ -1281,7 +1281,7 @@ jQuery(document).ready(function($) {
 			'off' => __( 'Disabled', 'edit-flow' ),
 			'on' => __( 'Enabled', 'edit-flow' ),
 		);
-		echo '<select id="send_to_slack" name="' . $this->module->options_group_name . '[send_to_slack]">';
+		echo '<select id="send_to_slack" name="' . esc_attr( $this->module->options_group_name ) . '[send_to_slack]">';
 		foreach ( $options as $value => $label ) {
 			echo '<option value="' . esc_attr( $value ) . '"';
 			echo selected( $this->module->options->send_to_slack, $value );
@@ -1296,7 +1296,7 @@ jQuery(document).ready(function($) {
 	 * @since 0.9.9
 	 */
 	function settings_slack_webhook_url() {
-		echo '<input type="text" id="slack_webhook_url" name="' . $this->module->options_group_name . '[slack_webhook_url]" value="' . esc_attr( $this->module->options->slack_webhook_url ) . '" />';
+		echo '<input type="text" id="slack_webhook_url" name="' . esc_attr( $this->module->options_group_name ) . '[slack_webhook_url]" value="' . esc_attr( $this->module->options->slack_webhook_url ) . '" />';
 	}
 
 	/**
