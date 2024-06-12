@@ -686,7 +686,10 @@ jQuery(document).ready(function($) {
 			$this->send_email( 'status-change', $post, $subject, $body );
 
 			if ( 'on' === $this->module->options->send_to_slack )
-				$this->send_to_slack( $body );
+				$format = __( '*%1$s* changed the status of *%2$s #%3$s - <%4$s|%5$s>* from *%6$s* to *%7$s*', 'edit-flow' );
+				$text = sprintf( $format, $current_user->display_name, $post_type, $post_id, $edit_link, $post_title, $old_status_friendly_name, $new_status_friendly_name );
+
+				$this->send_to_slack( $text );
 		}
 
 	}
@@ -773,11 +776,11 @@ jQuery(document).ready(function($) {
 
 		$this->send_email( 'comment', $post, $subject, $body );
 
-		$format = "*%s* left a comment on *%s #%s - %s*\n\n %s";
-		$text   = sprintf( $format, $comment->comment_author, $post_type, $post_id, $post_title, $comment->comment_content );
-
 		if ( 'on' === $this->module->options->send_to_slack )
-			$this->send_to_slack( $body );
+			$format = __( '*%1$s* left a comment on *%2$s #%3$s - <%4$s|%5$s>*' . "\n\n" . '%6$s', 'edit-flow' );
+			$text   = sprintf( $format, $comment->comment_author, $post_type, $post_id, $edit_link, $post_title, $comment->comment_content );
+
+			$this->send_to_slack( $text );
 	}
 
 	function get_notification_footer( $post ) {
