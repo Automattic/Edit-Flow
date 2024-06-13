@@ -825,27 +825,36 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 		/**
 		 * Send notifications to Slack
 		 */
-		public function send_to_slack( $message ) {
-			$slack_webhook_url = $this->module->options->slack_webhook_url;
+		public function send_to_webhook( $message ) {
+			$webhook_url = $this->module->options->webhook_url;
 
 			// Bail if the webhook URL is not set
-			if ( empty( $slack_webhook_url ) ) {
+			if ( empty( $webhook_url ) ) {
 				return;
 			}
+
+			// apply filters to the message
+			$message = apply_filters( 'ef_notification_send_to_webhook_message', $message );
 
 			// Set up the payload
 			$payload = array(
 				'text' => $message,
 			);
 
+			// apply filters to the payload
+			$payload = apply_filters( 'ef_notification_send_to_webhook_payload', $payload );
+
 			// Send the notification
 			$response = wp_remote_post(
-				$slack_webhook_url,
+				$webhook_url,
 				[
 					'body' => json_encode( $payload ),
 					'headers' => [ 'Content-Type' => 'application/json' ],
 				]
 			);
+			if ( is_wp_error( $response ) ) {
+				$this->print_ajax_response( 'error', $response->get_error_message() );
+			}
 		}
 
 		/**
