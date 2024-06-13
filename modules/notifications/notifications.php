@@ -80,7 +80,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			// is properly saved before sending notifs
 			add_action( 'transition_post_status', array( $this, 'save_post_subscriptions' ), 0, 3 );
 			add_action( 'transition_post_status', array( $this, 'notification_status_change' ), 10, 3 );
-			add_action( 'ef_post_insert_editorial_comment', array( $this, 'notification_comment') );
+			add_action( 'ef_post_insert_editorial_comment', array( $this, 'notification_comment' ) );
 			add_action( 'delete_user', array( $this, 'delete_user_action' ) );
 			add_action( 'ef_send_scheduled_email', array( $this, 'send_single_email' ), 10, 4 );
 
@@ -137,17 +137,19 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			// Upgrade path to v0.7
 			if ( version_compare( $previous_version, '0.7', '<' ) ) {
 				// Migrate whether notifications were enabled or not
-				if ( $enabled = get_option( 'edit_flow_notifications_enabled' ) )
+				if ( $enabled = get_option( 'edit_flow_notifications_enabled' ) ) {
 					$enabled = 'on';
-				else
+				} else {
 					$enabled = 'off';
+				}
 				$edit_flow->update_module_option( $this->module->name, 'enabled', $enabled );
 				delete_option( 'edit_flow_notifications_enabled' );
 				// Migrate whether to always notify the admin
-				if ( $always_notify_admin = get_option( 'edit_flow_always_notify_admin' ) )
+				if ( $always_notify_admin = get_option( 'edit_flow_always_notify_admin' ) ) {
 					$always_notify_admin = 'on';
-				else
+				} else {
 					$always_notify_admin = 'off';
+				}
 				$edit_flow->update_module_option( $this->module->name, 'always_notify_admin', $always_notify_admin );
 				delete_option( 'edit_flow_always_notify_admin' );
 
