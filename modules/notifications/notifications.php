@@ -28,7 +28,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 
 			// Register the module with Edit Flow
 			$this->module_url = $this->get_module_url( __FILE__ );
-			$args = array(
+			$args             = array(
 				'title'                 => __( 'Notifications', 'edit-flow' ),
 				'short_description'     => __( 'Update your team of important changes to your content.', 'edit-flow' ),
 				'extended_description'  => __( 'With email notifications, you can keep everyone updated about what’s happening with a given content. Each status change or editorial comment sends out an email notification to users subscribed to a post. User groups can be used to manage who receives notifications on what.', 'edit-flow' ),
@@ -137,7 +137,8 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			// Upgrade path to v0.7
 			if ( version_compare( $previous_version, '0.7', '<' ) ) {
 				// Migrate whether notifications were enabled or not
-				if ( $enabled = get_option( 'edit_flow_notifications_enabled' ) ) {
+				$enabled = get_option( 'edit_flow_notifications_enabled' );
+				if ( $enabled ) {
 					$enabled = 'on';
 				} else {
 					$enabled = 'off';
@@ -145,7 +146,8 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 				$edit_flow->update_module_option( $this->module->name, 'enabled', $enabled );
 				delete_option( 'edit_flow_notifications_enabled' );
 				// Migrate whether to always notify the admin
-				if ( $always_notify_admin = get_option( 'edit_flow_always_notify_admin' ) ) {
+				$always_notify_admin = get_option( 'edit_flow_always_notify_admin' );
+				if ( $always_notify_admin ) {
 					$always_notify_admin = 'on';
 				} else {
 					$always_notify_admin = 'off';
@@ -200,7 +202,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 					'ef_notifications_localization',
 					array(
 						'no_access' => esc_html__( 'No Access', 'edit-flow' ),
-						'no_email' => esc_html__( 'No Email', 'edit-flow' ),
+						'no_email'  => esc_html__( 'No Email', 'edit-flow' ),
 					)
 				);
 			}
@@ -271,13 +273,16 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 
 			$post = get_post( $post );
 
-			if ( ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
+			if ( ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) ) {
 				return $actions;
+			}
 
-			if ( ! current_user_can( $this->edit_post_subscriptions_cap ) || ! current_user_can( 'edit_post', $post->ID ) )
+			if ( ! current_user_can( $this->edit_post_subscriptions_cap ) || ! current_user_can( 'edit_post', $post->ID ) ) {
 				return $actions;
+			}
 
 			$parts = $this->get_follow_action_parts( $post );
+
 			$actions['ef_follow_link'] = '<a title="' . esc_attr( $parts['title'] ) . '" href="' . esc_url( $parts['link'] ) . '">' . $parts['text'] . '</a>';
 
 			return $actions;
@@ -293,15 +298,16 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 				'action'  => 'ef_notifications_user_post_subscription',
 				'post_id' => $post->ID,
 			);
+
 			$following_users = $this->get_following_users( $post->ID );
 			if ( in_array( wp_get_current_user()->user_login, $following_users ) ) {
 				$args['method'] = 'unfollow';
-				$title_text = __( 'Click to unfollow updates to this post', 'edit-flow' );
-				$follow_text = __( 'Following', 'edit-flow' );
+				$title_text     = __( 'Click to unfollow updates to this post', 'edit-flow' );
+				$follow_text    = __( 'Following', 'edit-flow' );
 			} else {
 				$args['method'] = 'follow';
-				$title_text = __( 'Follow updates to this post', 'edit-flow' );
-				$follow_text = __( 'Follow', 'edit-flow' );
+				$title_text     = __( 'Follow updates to this post', 'edit-flow' );
+				$follow_text    = __( 'Follow', 'edit-flow' );
 			}
 
 			// wp_nonce_url() has encoding issues: http://core.trac.wordpress.org/ticket/20771
@@ -344,7 +350,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 				<div id="ef-post_following_users_box">
 					<h4><?php _e( 'Users', 'edit-flow' ); ?></h4>
 					<?php
-					$followers = $this->get_following_users( $post->ID, 'id' );
+					$followers        = $this->get_following_users( $post->ID, 'id' );
 					$select_form_args = array(
 						'list_class' => 'ef-post_following_list',
 					);
@@ -407,7 +413,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 
 			// Verify nonce.
 			if ( ! isset( $_POST['_nonce'] ) || ! wp_verify_nonce( $_POST['_nonce'], 'save_user_usergroups' ) ) {
-				die( __( 'Nonce check failed. Please ensure you can add users or user groups to a post.', 'edit-flow' ) );
+				die( esc_html__( 'Nonce check failed. Please ensure you can add users or user groups to a post.', 'edit-flow' ) );
 			}
 
 			$post_id = isset( $_POST['post_id'] ) ? (int) $_POST['post_id'] : 0;
@@ -434,7 +440,8 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 					$subscribers_with_no_access = array_filter(
 						$user_group_ids,
 						function ( $user_id ) {
-							return ! $this->user_can_be_notified( get_user_by( 'id', $user_id ), $_POST['post_id'] );
+							$post_id = isset( $_POST['post_id'] ) ? (int) $_POST['post_id'] : 0;
+							return ! $this->user_can_be_notified( get_user_by( 'id', $user_id ), $post_id );
 						}
 					);
 
@@ -450,7 +457,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 					// Assemble the json reply with various lists of problematic users
 					$json_success = array(
 						'subscribers_with_no_access' => array_values( $subscribers_with_no_access ),
-						'subscribers_with_no_email' => array_values( $subscribers_with_no_email ),
+						'subscribers_with_no_email'  => array_values( $subscribers_with_no_email ),
 					);
 
 					wp_send_json_success( $json_success );
@@ -474,24 +481,30 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 		 */
 		public function handle_user_post_subscription() {
 
-			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'ef_notifications_user_post_subscription' ) )
+			if ( ! empty( $_GET['_wpnonce'] ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'ef_notifications_user_post_subscription' ) ) {
 				$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
+			}
 
-			if ( ! current_user_can( $this->edit_post_subscriptions_cap ) )
+			if ( ! current_user_can( $this->edit_post_subscriptions_cap ) ) {
 				$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
+			}
 
-			$post = get_post( ( $post_id = $_GET['post_id'] ) );
+			$post_id = isset( $_GET['post_id'] ) ? (int) $_GET['post_id'] : 0;
+			$post    = get_post( $post_id );
 
-			if ( ! $post )
+			if ( ! $post ) {
 				$this->print_ajax_response( 'error', $this->module->messages['missing-post'] );
+			}
 
-			if ( 'follow' == $_GET['method'] )
+			if ( isset( $_GET['method'] ) && 'follow' == $_GET['method'] ) {
 				$retval = $this->follow_post_user( $post, get_current_user_id() );
-			else
+			} else {
 				$retval = $this->unfollow_post_user( $post, get_current_user_id() );
+			}
 
-			if ( is_wp_error( $retval ) )
+			if ( is_wp_error( $retval ) ) {
 				$this->print_ajax_response( 'error', $retval->get_error_message() );
+			}
 
 			$this->print_ajax_response( 'success', (object) $this->get_follow_action_parts( $post ) );
 		}
@@ -509,28 +522,32 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 				$users      = isset( $_POST['ef-selected-users'] ) ? $_POST['ef-selected-users'] : array();
 				$usergroups = isset( $_POST['following_usergroups'] ) ? $_POST['following_usergroups'] : array();
 				$this->save_post_following_users( $post, $users );
-				if ( $this->module_enabled( 'user_groups' ) && in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $edit_flow->user_groups->module ) ) )
+				if ( $this->module_enabled( 'user_groups' ) && in_array( $this->get_current_post_type(), $this->get_post_types_for_module( $edit_flow->user_groups->module ) ) ) {
 					$this->save_post_following_usergroups( $post, $usergroups );
+				}
 			}
 		}
 
 		/**
 		 * Sets users to follow specified post
 		 *
-		 * @param int $post ID of the post
+		 * @param int|Object $post ID of the post
 		 */
 		public function save_post_following_users( $post, $users = null ) {
-			if ( ! is_array( $users ) )
+			if ( ! is_array( $users ) ) {
 				$users = array();
+			}
 
 			// Add current user to following users
 			$user = wp_get_current_user();
-			if ( $user && apply_filters( 'ef_notification_auto_subscribe_current_user', true, 'subscription_action' ) )
+			if ( $user && apply_filters( 'ef_notification_auto_subscribe_current_user', true, 'subscription_action' ) ) {
 				$users[] = $user->ID;
+			}
 
 			// Add post author to following users
-			if ( apply_filters( 'ef_notification_auto_subscribe_post_author', true, 'subscription_action' ) )
+			if ( apply_filters( 'ef_notification_auto_subscribe_post_author', true, 'subscription_action' ) ) {
 				$users[] = $post->post_author;
+			}
 
 			$users = array_unique( array_map( 'intval', $users ) );
 
@@ -545,7 +562,9 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 		 */
 		public function save_post_following_usergroups( $post, $usergroups = null ) {
 
-			if ( ! is_array($usergroups) ) $usergroups = array();
+			if ( ! is_array( $usergroups ) ) {
+				$usergroups = array();
+			}
 			$usergroups = array_map( 'intval', $usergroups );
 
 			$follow = $this->follow_post_usergroups( $post, $usergroups, false );
@@ -558,12 +577,14 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			global $edit_flow;
 
 			// Kill switch for notification
-			if ( ! apply_filters( 'ef_notification_status_change', $new_status, $old_status, $post ) || ! apply_filters( "ef_notification_{$post->post_type}_status_change", $new_status, $old_status, $post ) )
+			if ( ! apply_filters( 'ef_notification_status_change', $new_status, $old_status, $post ) || ! apply_filters( "ef_notification_{$post->post_type}_status_change", $new_status, $old_status, $post ) ) {
 				return false;
+			}
 
 			$supported_post_types = $this->get_post_types_for_module( $this->module );
-			if ( ! in_array( $post->post_type, $supported_post_types ) )
+			if ( ! in_array( $post->post_type, $supported_post_types ) ) {
 				return;
+			}
 
 			// No need to notify if it's a revision, auto-draft, or if post status wasn't changed
 			$ignored_statuses = apply_filters( 'ef_notification_ignored_statuses', array( $old_status, 'inherit', 'auto-draft' ), $post->post_type );
@@ -578,22 +599,22 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 
 				$blogname = get_option( 'blogname' );
 
-				$body  = '';
+				$body = '';
 
-				$post_id = $post->ID;
+				$post_id    = $post->ID;
 				$post_title = ef_draft_or_post_title( $post_id );
-				$post_type = get_post_type_object( $post->post_type )->labels->singular_name;
+				$post_type  = get_post_type_object( $post->post_type )->labels->singular_name;
 
 				if ( 0 != $current_user->ID ) {
 					$current_user_display_name = $current_user->display_name;
-					$current_user_email = sprintf( '(%s)', $current_user->user_email );
+					$current_user_email        = sprintf( '(%s)', $current_user->user_email );
 				} else {
 					$current_user_display_name = __( 'WordPress Scheduler', 'edit-flow' );
-					$current_user_email = '';
+					$current_user_email        = '';
 				}
 
-				$old_status_post_obj = get_post_status_object( $old_status );
-				$new_status_post_obj = get_post_status_object( $new_status );
+				$old_status_post_obj      = get_post_status_object( $old_status );
+				$new_status_post_obj      = get_post_status_object( $new_status );
 				$old_status_friendly_name = '';
 				$new_status_friendly_name = '';
 
@@ -616,33 +637,33 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 
 				// Email subject and first line of body
 				// Set message subjects according to what action is being taken on the Post
-				if ( $old_status == 'new' || $old_status == 'auto-draft' ) {
-					$old_status_friendly_name = "New";
+				if ( 'new' == $old_status || 'auto-draft' == $old_status ) {
+					$old_status_friendly_name = 'New';
 					/* translators: 1: site name, 2: post type, 3. post title */
 					$subject = sprintf( __( '[%1$s] New %2$s Created: "%3$s"', 'edit-flow' ), $blogname, $post_type, $post_title );
 					/* translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user email */
 					$body .= sprintf( __( 'A new %1$s (#%2$s "%3$s") was created by %4$s %5$s', 'edit-flow' ), $post_type, $post_id, $post_title, $current_user->display_name, $current_user->user_email ) . "\r\n";
-				} else if ( $new_status == 'trash' ) {
+				} elseif ( 'trash' == $new_status ) {
 					/* translators: 1: site name, 2: post type, 3. post title */
 					$subject = sprintf( __( '[%1$s] %2$s Trashed: "%3$s"', 'edit-flow' ), $blogname, $post_type, $post_title );
 					/* translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user email */
 					$body .= sprintf( __( '%1$s #%2$s "%3$s" was moved to the trash by %4$s %5$s', 'edit-flow' ), $post_type, $post_id, $post_title, $current_user_display_name, $current_user_email ) . "\r\n";
-				} else if ( $old_status == 'trash' ) {
+				} elseif ( 'trash' == $old_status ) {
 					/* translators: 1: site name, 2: post type, 3. post title */
 					$subject = sprintf( __( '[%1$s] %2$s Restored (from Trash): "%3$s"', 'edit-flow' ), $blogname, $post_type, $post_title );
 					/* translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user email */
 					$body .= sprintf( __( '%1$s #%2$s "%3$s" was restored from trash by %4$s %5$s', 'edit-flow' ), $post_type, $post_id, $post_title, $current_user_display_name, $current_user_email ) . "\r\n";
-				} else if ( $new_status == 'future' ) {
+				} elseif ( 'future' == $new_status ) {
 					/* translators: 1: site name, 2: post type, 3. post title */
 					$subject = sprintf( __( '[%1$s] %2$s Scheduled: "%3$s"' ), $blogname, $post_type, $post_title );
 					/* translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user email 6. scheduled date  */
 					$body .= sprintf( __( '%1$s #%2$s "%3$s" was scheduled by %4$s %5$s.  It will be published on %6$s' ), $post_type, $post_id, $post_title, $current_user_display_name, $current_user_email, $this->get_scheduled_datetime( $post ) ) . "\r\n";
-				} else if ( $new_status == 'publish' ) {
+				} elseif ( 'publish' == $new_status ) {
 					/* translators: 1: site name, 2: post type, 3. post title */
 					$subject = sprintf( __( '[%1$s] %2$s Published: "%3$s"', 'edit-flow' ), $blogname, $post_type, $post_title );
 					/* translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user email */
 					$body .= sprintf( __( '%1$s #%2$s "%3$s" was published by %4$s %5$s', 'edit-flow' ), $post_type, $post_id, $post_title, $current_user_display_name, $current_user_email ) . "\r\n";
-				} else if ( $old_status == 'publish' ) {
+				} elseif ( 'publish' == $old_status ) {
 					/* translators: 1: site name, 2: post type, 3. post title */
 					$subject = sprintf( __( '[%1$s] %2$s Unpublished: "%3$s"', 'edit-flow' ), $blogname, $post_type, $post_title );
 					/* translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user email */
@@ -665,7 +686,9 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 
 				$body .= "--------------------\r\n\r\n";
 
+				/* translators: 1: post type */
 				$body .= sprintf( __( '== %s Details ==', 'edit-flow' ), $post_type ) . "\r\n";
+				/* translators: 1: post title */
 				$body .= sprintf( __( 'Title: %s', 'edit-flow' ), $post_title ) . "\r\n";
 				if ( ! empty( $post_author ) ) {
 					/* translators: 1: author name, 2: author email */
@@ -673,15 +696,18 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 				}
 
 				$edit_link = htmlspecialchars_decode( get_edit_post_link( $post_id ) );
-				if ( $new_status != 'publish' ) {
+				if ( 'publish' != $new_status ) {
 					$view_link = add_query_arg( array( 'preview' => 'true' ), wp_get_shortlink( $post_id ) );
 				} else {
 					$view_link = htmlspecialchars_decode( get_permalink( $post_id ) );
 				}
 				$body .= "\r\n";
 				$body .= __( '== Actions ==', 'edit-flow' ) . "\r\n";
+				/* translators: 1: edit link */
 				$body .= sprintf( __( 'Add editorial comment: %s', 'edit-flow' ), $edit_link . '#editorialcomments/add' ) . "\r\n";
+				/* translators: 1: edit link */
 				$body .= sprintf( __( 'Edit: %s', 'edit-flow' ), $edit_link ) . "\r\n";
+				/* translators: 1: view link */
 				$body .= sprintf( __( 'View: %s', 'edit-flow' ), $view_link ) . "\r\n";
 
 				$body .= $this->get_notification_footer( $post );
@@ -691,7 +717,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 				if ( 'on' === $this->module->options->send_to_webhook ) {
 					/* translators: 1: user name, 2: post type, 3: post id, 4: edit link, 5: post title, 6: old status, 7: new status */
 					$format = __( '*%1$s* changed the status of *%2$s #%3$s - <%4$s|%5$s>* from *%6$s* to *%7$s*', 'edit-flow' );
-					$text = sprintf( $format, $current_user->display_name, $post_type, $post_id, $edit_link, $post_title, $old_status_friendly_name, $new_status_friendly_name );
+					$text   = sprintf( $format, $current_user->display_name, $post_type, $post_id, $edit_link, $post_title, $old_status_friendly_name, $new_status_friendly_name );
 
 					$this->send_to_webhook( $text );
 				}
@@ -709,18 +735,20 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			$post = get_post( $comment->comment_post_ID );
 
 			$supported_post_types = $this->get_post_types_for_module( $this->module );
-			if ( ! in_array( $post->post_type, $supported_post_types ) )
+			if ( ! in_array( $post->post_type, $supported_post_types ) ) {
 				return;
+			}
 
 			// Kill switch for notification
-			if ( ! apply_filters( 'ef_notification_editorial_comment', $comment, $post ) )
+			if ( ! apply_filters( 'ef_notification_editorial_comment', $comment, $post ) ) {
 				return false;
+			}
 
-			$user = get_userdata( $post->post_author );
+			$user         = get_userdata( $post->post_author );
 			$current_user = wp_get_current_user();
 
-			$post_id = $post->ID;
-			$post_type = get_post_type_object( $post->post_type )->labels->singular_name;
+			$post_id    = $post->ID;
+			$post_type  = get_post_type_object( $post->post_type )->labels->singular_name;
 			$post_title = ef_draft_or_post_title( $post_id );
 
 			// Fetch the text list of people who were notified from comment meta @see EF_Editorial_Comments->maybe_output_comment_meta()
@@ -731,12 +759,14 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			//if($parent_ID) $parent = get_comment($parent_ID);
 
 			// Set user to follow post, but make it filterable
-			if ( apply_filters( 'ef_notification_auto_subscribe_current_user', true, 'comment' ) )
+			if ( apply_filters( 'ef_notification_auto_subscribe_current_user', true, 'comment' ) ) {
 				$this->follow_post_user( $post, (int) $current_user->ID );
+			}
 
 			// Set the post author to follow the post but make it filterable
-			if ( apply_filters( 'ef_notification_auto_subscribe_post_author', true, 'comment' ) )
+			if ( apply_filters( 'ef_notification_auto_subscribe_post_author', true, 'comment' ) ) {
 				$this->follow_post_user( $post, (int) $post->post_author );
+			}
 
 			$blogname = get_option( 'blogname' );
 
@@ -744,7 +774,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			$subject = sprintf( __( '[%1$s] New Editorial Comment: "%2$s"', 'edit-flow' ), $blogname, $post_title );
 
 			/* translators: 1: post id, 2: post title, 3. post type */
-			$body  = sprintf( __( 'A new editorial comment was added to %3$s #%1$s "%2$s"', 'edit-flow' ), $post_id, $post_title, $post_type ) . "\r\n\r\n";
+			$body = sprintf( __( 'A new editorial comment was added to %3$s #%1$s "%2$s"', 'edit-flow' ), $post_id, $post_title, $post_type ) . "\r\n\r\n";
 			/* translators: 1: comment author, 2: author email, 3: date, 4: time */
 			$body .= sprintf( __( '%1$s (%2$s) said on %3$s at %4$s:', 'edit-flow' ), $current_user->display_name, $current_user->user_email, mysql2date( get_option( 'date_format' ), $comment->comment_date ), mysql2date( get_option( 'time_format' ), $comment->comment_date ) ) . "\r\n";
 			$body .= "\r\n" . $comment->comment_content . "\r\n";
@@ -768,12 +798,17 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 
 			$body .= "\r\n";
 			$body .= __( '== Actions ==', 'edit-flow' ) . "\r\n";
+			/* translators: 1: edit link */
 			$body .= sprintf( __( 'Reply: %s', 'edit-flow' ), $edit_link . '#editorialcomments/reply/' . $comment->comment_ID ) . "\r\n";
+			/* translators: 1: edit link */
 			$body .= sprintf( __( 'Add editorial comment: %s', 'edit-flow' ), $edit_link . '#editorialcomments/add' ) . "\r\n";
+			/* translators: 1: edit link */
 			$body .= sprintf( __( 'Edit: %s', 'edit-flow' ), $edit_link ) . "\r\n";
+			/* translators: 1: view link */
 			$body .= sprintf( __( 'View: %s', 'edit-flow' ), $view_link ) . "\r\n";
 
-			$body .= "\r\n" . sprintf( __( 'You can see all editorial comments on this %s here: ', 'edit-flow' ), $post_type ). "\r\n";
+			/* translators: 1: post type */
+			$body .= "\r\n" . sprintf( __( 'You can see all editorial comments on this %s here: ', 'edit-flow' ), $post_type ) . "\r\n";
 			$body .= $edit_link . '#editorialcomments' . "\r\n\r\n";
 
 			$body .= $this->get_notification_footer( $post );
@@ -792,11 +827,13 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 		public function get_notification_footer( $post ) {
 			$body  = '';
 			$body .= "\r\n--------------------\r\n";
-			$body .= sprintf( __( 'You are receiving this email because you are subscribed to "%s".', 'edit-flow' ), ef_draft_or_post_title ($post->ID ) );
+			/* translators: 1: post title */
+			$body .= sprintf( __( 'You are receiving this email because you are subscribed to "%s".', 'edit-flow' ), ef_draft_or_post_title( $post->ID ) );
 			$body .= "\r\n";
-			$body .= sprintf( __( 'This email was sent %s.', 'edit-flow' ), date( 'r' ) );
+			/* translators: 1: date */
+			$body .= sprintf( __( 'This email was sent %s.', 'edit-flow' ), gmdate( 'r' ) );
 			$body .= "\r\n \r\n";
-			$body .= get_option( 'blogname' ) .' | ' . get_bloginfo( 'url' ) . ' | ' . admin_url( '/' ) . "\r\n";
+			$body .= get_option( 'blogname' ) . ' | ' . get_bloginfo( 'url' ) . ' | ' . admin_url( '/' ) . "\r\n";
 			return $body;
 		}
 
@@ -808,11 +845,12 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			// Get list of email recipients -- set them CC
 			$recipients = $this->_get_notification_recipients( $post, true );
 
-			if ( $recipients && ! is_array( $recipients ) )
+			if ( $recipients && ! is_array( $recipients ) ) {
 				$recipients = explode( ',', $recipients );
+			}
 
-			$subject = apply_filters( 'ef_notification_send_email_subject', $subject, $action, $post );
-			$message = apply_filters( 'ef_notification_send_email_message', $message, $action, $post );
+			$subject         = apply_filters( 'ef_notification_send_email_subject', $subject, $action, $post );
+			$message         = apply_filters( 'ef_notification_send_email_message', $message, $action, $post );
 			$message_headers = apply_filters( 'ef_notification_send_email_message_headers', $message_headers, $action, $post );
 
 			if ( EF_NOTIFICATION_USE_CRON ) {
@@ -849,10 +887,10 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			// Send the notification
 			$response = wp_remote_post(
 				$webhook_url,
-				[
-					'body' => json_encode( $payload ),
-					'headers' => [ 'Content-Type' => 'application/json' ],
-				]
+				array(
+					'body'    => wp_json_encode( $payload ),
+					'headers' => array( 'Content-Type' => 'application/json' ),
+				)
 			);
 			if ( is_wp_error( $response ) ) {
 				$this->print_ajax_response( 'error', $response->get_error_message() );
@@ -1001,22 +1039,26 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 		public function follow_post_user( $post, $users, $append = true ) {
 
 			$post = get_post( $post );
-			if ( ! $post )
+			if ( ! $post ) {
 				return new WP_Error( 'missing-post', $this->module->messages['missing-post'] );
+			}
 
-			if ( ! is_array( $users ) )
+			if ( ! is_array( $users ) ) {
 				$users = array( $users );
+			}
 
 			$user_terms = array();
 			foreach ( $users as $user ) {
 
-				if ( is_int( $user ) )
+				if ( is_int( $user ) ) {
 					$user = get_user_by( 'id', $user );
-				elseif ( is_string( $user ) )
+				} elseif ( is_string( $user ) ) {
 					$user = get_user_by( 'login', $user );
+				}
 
-				if ( ! is_object( $user ) )
+				if ( ! is_object( $user ) ) {
 					continue;
+				}
 
 				$name = $user->user_login;
 
@@ -1029,10 +1071,11 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			}
 			$set = wp_set_object_terms( $post->ID, $user_terms, $this->following_users_taxonomy, $append );
 
-			if ( is_wp_error( $set ) )
+			if ( is_wp_error( $set ) ) {
 				return $set;
-			else
+			} else {
 				return true;
+			}
 		}
 
 		/**
@@ -1046,37 +1089,44 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 		public function unfollow_post_user( $post, $users ) {
 
 			$post = get_post( $post );
-			if ( ! $post )
+			if ( ! $post ) {
 				return new WP_Error( 'missing-post', $this->module->messages['missing-post'] );
+			}
 
-			if ( ! is_array( $users ) )
+			if ( ! is_array( $users ) ) {
 				$users = array( $users );
+			}
 
 			$terms = get_the_terms( $post->ID, $this->following_users_taxonomy );
-			if ( is_wp_error( $terms ) )
+			if ( is_wp_error( $terms ) ) {
 				return $terms;
+			}
 
 			$user_terms = wp_list_pluck( $terms, 'slug' );
 			foreach ( $users as $user ) {
 
-				if ( is_int( $user ) )
+				if ( is_int( $user ) ) {
 					$user = get_user_by( 'id', $user );
-				elseif ( is_string( $user ) )
+				} elseif ( is_string( $user ) ) {
 					$user = get_user_by( 'login', $user );
+				}
 
-				if ( ! is_object( $user ) )
+				if ( ! is_object( $user ) ) {
 					continue;
+				}
 
 				$key = array_search( $user->user_login, $user_terms );
-				if ( false !== $key )
+				if ( false !== $key ) {
 					unset( $user_terms[ $key ] );
+				}
 			}
 			$set = wp_set_object_terms( $post->ID, $user_terms, $this->following_users_taxonomy, false );
 
-			if ( is_wp_error( $set ) )
+			if ( is_wp_error( $set ) ) {
 				return $set;
-			else
+			} else {
 				return true;
+			}
 		}
 
 		/**
@@ -1084,12 +1134,15 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 		 *
 		 */
 		public function follow_post_usergroups( $post, $usergroups = 0, $append = true ) {
-			if ( ! $this->module_enabled( 'user_groups' ) )
+			if ( ! $this->module_enabled( 'user_groups' ) ) {
 				return;
+			}
 
 			$post_id = ( is_int( $post ) ) ? $post : $post->ID;
-			if ( ! is_array( $usergroups ) )
+
+			if ( ! is_array( $usergroups ) ) {
 				$usergroups = array( $usergroups );
+			}
 
 			// make sure each usergroup id is an integer and not a number stored as a string
 			foreach ( $usergroups as $key => $usergroup ) {
@@ -1106,7 +1159,9 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 		 * @param $id int ID of the user
 		 */
 		public function delete_user_action( $id ) {
-			if ( !$id ) return;
+			if ( ! $id ) {
+				return;
+			}
 
 			// get user data
 			$user = get_userdata( $id );
@@ -1114,9 +1169,10 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			if ( $user ) {
 				// Delete term from the following_users taxonomy
 				$user_following_term = get_term_by( 'name', $user->user_login, $this->following_users_taxonomy );
-				if ( $user_following_term ) wp_delete_term( $user_following_term->term_id, $this->following_users_taxonomy );
+				if ( $user_following_term ) {
+					wp_delete_term( $user_following_term->term_id, $this->following_users_taxonomy );
+				}
 			}
-			return;
 		}
 
 		/**
@@ -1146,12 +1202,14 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			$users = wp_get_object_terms( $post_id, $this->following_users_taxonomy, array( 'fields' => 'names' ) );
 
 			// Don't have any following users
-			if ( ! $users || is_wp_error( $users ) )
+			if ( ! $users || is_wp_error( $users ) ) {
 				return array();
+			}
 
 			// if just want user_login, return as is
-			if ( $return == 'user_login' )
+			if ( 'user_login' == $return ) {
 				return $users;
+			}
 
 			foreach ( (array) $users as $key => $user ) {
 				switch ( $user ) {
@@ -1182,8 +1240,9 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 						break;
 				}
 			}
-			if ( ! $users || is_wp_error( $users ) )
+			if ( ! $users || is_wp_error( $users ) ) {
 				$users = array();
+			}
 			return $users;
 		}
 
@@ -1197,14 +1256,15 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			global $edit_flow;
 
 			// Workaround for the fact that get_object_terms doesn't return just slugs
-			if ( $return == 'slugs' )
+			if ( 'slugs' == $return ) {
 				$fields = 'all';
-			else
+			} else {
 				$fields = $return;
+			}
 
 			$usergroups = wp_get_object_terms( $post_id, $this->following_usergroups_taxonomy, array( 'fields' => $fields ) );
 
-			if ( $return == 'slugs' ) {
+			if ( 'slugs' == $return ) {
 				$slugs = array();
 				foreach ( $usergroups as $usergroup ) {
 					$slugs[] = $usergroup->slug;
@@ -1222,11 +1282,13 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 		 * @return array $posts Posts a user is following
 		 */
 		public function get_user_following_posts( $user = 0, $args = null ) {
-			if ( ! $user )
+			if ( ! $user ) {
 				$user = (int) wp_get_current_user()->ID;
+			}
 
-			if ( is_int( $user ) )
+			if ( is_int( $user ) ) {
 				$user = get_userdata( $user )->user_login;
+			}
 
 			$post_args = array(
 				'tax_query' => array(
@@ -1256,8 +1318,8 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 				add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
 				add_settings_field( 'post_types', __( 'Post types for notifications:', 'edit-flow' ), array( $this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 				add_settings_field( 'always_notify_admin', __( 'Always notify blog admin', 'edit-flow' ), array( $this, 'settings_always_notify_admin_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-				add_settings_field( 'send_to_webhook', __( 'Send to Webhook', 'edit-flow' ), [ $this, 'settings_send_to_webhook' ], $this->module->options_group_name, $this->module->options_group_name . '_general' );
-				add_settings_field( 'webhook_url', __( 'Webhook URL', 'edit-flow' ), [ $this, 'settings_webhook_url' ], $this->module->options_group_name, $this->module->options_group_name . '_general' );
+				add_settings_field( 'send_to_webhook', __( 'Send to Webhook', 'edit-flow' ), array( $this, 'settings_send_to_webhook' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+				add_settings_field( 'webhook_url', __( 'Webhook URL', 'edit-flow' ), array( $this, 'settings_webhook_url' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 		}
 
 		/**
@@ -1278,7 +1340,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 		public function settings_always_notify_admin_option() {
 			$options = array(
 				'off' => __( 'Disabled', 'edit-flow' ),
-				'on' => __( 'Enabled', 'edit-flow' ),
+				'on'  => __( 'Enabled', 'edit-flow' ),
 			);
 			echo '<select id="always_notify_admin" name="' . esc_attr( $this->module->options_group_name ) . '[always_notify_admin]">';
 			foreach ( $options as $value => $label ) {
@@ -1295,10 +1357,10 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 		 * @since 0.9.9
 		 */
 		public function settings_send_to_webhook() {
-			$options = [
+			$options = array(
 				'off' => __( 'Disabled', 'edit-flow' ),
-				'on' => __( 'Enabled', 'edit-flow' ),
-			];
+				'on'  => __( 'Enabled', 'edit-flow' ),
+			);
 			echo '<select id="send_to_webhook" name="' . esc_attr( $this->module->options_group_name ) . '[send_to_webhook]">';
 			foreach ( $options as $value => $label ) {
 				echo '<option value="' . esc_attr( $value ) . '"';
@@ -1331,12 +1393,12 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			$new_options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
 
 			// Whitelist validation for the 'always_notify_admin' options
-			if ( ! isset( $new_options['always_notify_admin'] ) || $new_options['always_notify_admin'] != 'on' ) {
+			if ( ! isset( $new_options['always_notify_admin'] ) || 'on' != $new_options['always_notify_admin'] ) {
 				$new_options['always_notify_admin'] = 'off';
 			}
 
 			// White list validation for the 'send_to_slack' option
-			if ( ! isset( $new_options['send_to_webhook'] ) || $new_options['send_to_webhook'] != 'on' ) {
+			if ( ! isset( $new_options['send_to_webhook'] ) || 'on' != $new_options['send_to_webhook'] ) {
 				$new_options['send_to_webhook'] = 'off';
 			}
 
@@ -1381,6 +1443,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 				$date = date_i18n( get_option( 'date_format' ), $scheduled_ts );
 				$time = date_i18n( get_option( 'time_format' ), $scheduled_ts );
 
+				/* translators: 1: date, 2: time */
 				return sprintf( __( '%1$s at %2$s', 'edit-flow' ), $date, $time );
 		}
 	}
