@@ -1,4 +1,26 @@
-.edit-flow-extended-post-status{flex-flow:row wrap}.edit-flow-extended-post-status>*{flex-basis:45%}.edit-flow-extended-post-status .edit-flow-extended-post-status-note{flex-basis:100%}.edit-flow-extended-post-status-switch-to-draft{flex-basis:100%}.edit-flow-extended-post-status-publish>*{flex-basis:100%}
+/*!*******************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./blocks/src/custom-status/editor.scss ***!
+  \*******************************************************************************************************************************/
+.edit-flow-extended-post-status {
+  flex-flow: row wrap;
+}
+.edit-flow-extended-post-status > * {
+  flex-basis: 45%;
+}
+.edit-flow-extended-post-status .edit-flow-extended-post-status-note {
+  flex-basis: 100%;
+}
+
+.edit-flow-extended-post-status-switch-to-draft {
+  flex-basis: 100%;
+}
+
+.edit-flow-extended-post-status-publish > * {
+  flex-basis: 100%;
+}
+/*!******************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js!./node_modules/sass-loader/dist/cjs.js!./blocks/src/custom-status/style.scss ***!
+  \******************************************************************************************************************************/
 
 
 /*# sourceMappingURL=custom-status.editor.build.css.map*/

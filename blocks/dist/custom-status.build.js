@@ -1,2 +1,270 @@
-(()=>{"use strict";var t={n:e=>{var n=e&&e.__esModule?()=>e.default:()=>e;return t.d(n,{a:n}),n},d:(e,n)=>{for(var r in n)t.o(n,r)&&!t.o(e,r)&&Object.defineProperty(e,r,{enumerable:!0,get:n[r]})},o:(t,e)=>Object.prototype.hasOwnProperty.call(t,e)};const e=React;var n=t.n(e);function r(t,e){var n="undefined"!=typeof Symbol&&t[Symbol.iterator]||t["@@iterator"];if(!n){if(Array.isArray(t)||(n=function(t,e){if(t){if("string"==typeof t)return o(t,e);var n=Object.prototype.toString.call(t).slice(8,-1);return"Object"===n&&t.constructor&&(n=t.constructor.name),"Map"===n||"Set"===n?Array.from(t):"Arguments"===n||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)?o(t,e):void 0}}(t))||e&&t&&"number"==typeof t.length){n&&(t=n);var r=0,a=function(){};return{s:a,n:function(){return r>=t.length?{done:!0}:{done:!1,value:t[r++]}},e:function(t){throw t},f:a}}throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}var s,i=!0,u=!1;return{s:function(){n=n.call(t)},n:function(){var t=n.next();return i=t.done,t},e:function(t){u=!0,s=t},f:function(){try{i||null==n.return||n.return()}finally{if(u)throw s}}}}function o(t,e){(null==e||e>t.length)&&(e=t.length);for(var n=0,r=new Array(e);n<e;n++)r[n]=t[n];return r}var a=wp.i18n.__,s=wp.editPost.PluginPostStatusInfo,i=wp.plugins.registerPlugin,u=wp.data,l=u.subscribe,c=u.dispatch,d=u.select,f=u.withSelect,p=u.withDispatch,v=wp.compose.compose,m=wp.components.SelectControl,w=window.EditFlowCustomStatuses.map((function(t){return{label:t.name,value:t.slug}})),b=null;function h(t){t&&t.children<1&&(t.innerText===a("Save Draft")||t.innerText===a("Save as Pending"))&&(t.innerText=a("Save"))}l((function(){d("core/editor").getCurrentPostId()&&(d("core/editor").isCleanNewPost()&&c("core/editor").editPost({status:ef_default_custom_status}),h(document.querySelector(".editor-post-save-draft")),null===b&&window.MutationObserver&&d("core/editor").isSavingPost()&&(b=function(t){if(!t)return null;var e=new MutationObserver((function(t){var e,n=r(t);try{for(n.s();!(e=n.n()).done;){var o,a=r(e.value.addedNodes);try{for(a.s();!(o=a.n()).done;)h(o.value)}catch(t){a.e(t)}finally{a.f()}}}catch(t){n.e(t)}finally{n.f()}}));return e.observe(t,{childList:!0}),e}(document.querySelector(".edit-post-header__settings"))))}));var y=v(f((function(t){return{status:t("core/editor").getEditedPostAttribute("status")}})),p((function(t){return{onUpdate:function(e){t("core/editor").editPost({status:e})}}})))((function(t){var e=t.onUpdate,r=t.status;return n().createElement(s,{className:"edit-flow-extended-post-status edit-flow-extended-post-status-".concat(r)},n().createElement("h4",null,a("publish"!==r?"Extended Post Status":"Extended Post Status Disabled.","edit-flow")),"publish"!==r?n().createElement(m,{label:"",value:r,options:w,onChange:e}):null,n().createElement("small",{className:"edit-flow-extended-post-status-note"},a("publish"!==r?"Note: this will override all status settings above.":"To select a custom status, please unpublish the content first.","edit-flow")))}));i("edit-flow-custom-status",{icon:"edit-flow",render:y})})();
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./blocks/src/custom-status/editor.scss":
+/*!**********************************************!*\
+  !*** ./blocks/src/custom-status/editor.scss ***!
+  \**********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
+/***/ "./blocks/src/custom-status/style.scss":
+/*!*********************************************!*\
+  !*** ./blocks/src/custom-status/style.scss ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+// extracted by mini-css-extract-plugin
+
+
+/***/ }),
+
+/***/ "react":
+/*!************************!*\
+  !*** external "React" ***!
+  \************************/
+/***/ ((module) => {
+
+module.exports = React;
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__webpack_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__webpack_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+(() => {
+/*!*******************************************!*\
+  !*** ./blocks/src/custom-status/block.js ***!
+  \*******************************************/
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "react");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _editor_scss__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./editor.scss */ "./blocks/src/custom-status/editor.scss");
+/* harmony import */ var _style_scss__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./style.scss */ "./blocks/src/custom-status/style.scss");
+
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) arr2[i] = arr[i]; return arr2; }
+
+
+var __ = wp.i18n.__;
+var PluginPostStatusInfo = wp.editPost.PluginPostStatusInfo;
+var registerPlugin = wp.plugins.registerPlugin;
+var _wp$data = wp.data,
+  subscribe = _wp$data.subscribe,
+  dispatch = _wp$data.dispatch,
+  select = _wp$data.select,
+  withSelect = _wp$data.withSelect,
+  withDispatch = _wp$data.withDispatch;
+var compose = wp.compose.compose;
+var SelectControl = wp.components.SelectControl;
+
+/**
+ * Map Custom Statuses as options for SelectControl
+ */
+var statuses = window.EditFlowCustomStatuses.map(function (s) {
+  return {
+    label: s.name,
+    value: s.slug
+  };
+});
+
+/**
+ * Subscribe to changes so we can set a default status and update a button's text.
+ */
+var buttonTextObserver = null;
+subscribe(function () {
+  var postId = select('core/editor').getCurrentPostId();
+  if (!postId) {
+    // Post isn't ready yet so don't do anything.
+    return;
+  }
+
+  // For new posts, we need to force the default custom status.
+  var isCleanNewPost = select('core/editor').isCleanNewPost();
+  if (isCleanNewPost) {
+    dispatch('core/editor').editPost({
+      status: ef_default_custom_status
+    });
+  }
+
+  // If the save button exists, let's update the text if needed.
+  maybeUpdateButtonText(document.querySelector('.editor-post-save-draft'));
+
+  // The post is being saved, so we need to set up an observer to update the button text when it's back.
+  if (buttonTextObserver === null && window.MutationObserver && select('core/editor').isSavingPost()) {
+    buttonTextObserver = createButtonObserver(document.querySelector('.edit-post-header__settings'));
+  }
+});
+
+/**
+ * Create a mutation observer that will update the
+ * save button text right away when it's changed/re-added.
+ *
+ * Ideally there will be better ways to go about this in the future.
+ * @see https://github.com/Automattic/Edit-Flow/issues/583
+ */
+function createButtonObserver(parentNode) {
+  if (!parentNode) {
+    return null;
+  }
+  var observer = new MutationObserver(function (mutationsList) {
+    var _iterator = _createForOfIteratorHelper(mutationsList),
+      _step;
+    try {
+      for (_iterator.s(); !(_step = _iterator.n()).done;) {
+        var mutation = _step.value;
+        var _iterator2 = _createForOfIteratorHelper(mutation.addedNodes),
+          _step2;
+        try {
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+            var node = _step2.value;
+            maybeUpdateButtonText(node);
+          }
+        } catch (err) {
+          _iterator2.e(err);
+        } finally {
+          _iterator2.f();
+        }
+      }
+    } catch (err) {
+      _iterator.e(err);
+    } finally {
+      _iterator.f();
+    }
+  });
+  observer.observe(parentNode, {
+    childList: true
+  });
+  return observer;
+}
+function maybeUpdateButtonText(saveButton) {
+  /*
+   * saveButton.children < 1 accounts for when a user hovers over the save button
+   * and a tooltip is rendered
+   */
+  if (saveButton && saveButton.children < 1 && (saveButton.innerText === __('Save Draft') || saveButton.innerText === __('Save as Pending'))) {
+    saveButton.innerText = __('Save');
+  }
+}
+
+/**
+ * Custom status component
+ * @param object props
+ */
+var EditFlowCustomPostStati = function EditFlowCustomPostStati(_ref) {
+  var onUpdate = _ref.onUpdate,
+    status = _ref.status;
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(PluginPostStatusInfo, {
+    className: "edit-flow-extended-post-status edit-flow-extended-post-status-".concat(status)
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("h4", null, status !== 'publish' ? __('Extended Post Status', 'edit-flow') : __('Extended Post Status Disabled.', 'edit-flow')), status !== 'publish' ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement(SelectControl, {
+    label: "",
+    value: status,
+    options: statuses,
+    onChange: onUpdate
+  }) : null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default().createElement("small", {
+    className: "edit-flow-extended-post-status-note"
+  }, status !== 'publish' ? __('Note: this will override all status settings above.', 'edit-flow') : __('To select a custom status, please unpublish the content first.', 'edit-flow')));
+};
+var mapSelectToProps = function mapSelectToProps(select) {
+  return {
+    status: select('core/editor').getEditedPostAttribute('status')
+  };
+};
+var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+  return {
+    onUpdate: function onUpdate(status) {
+      dispatch('core/editor').editPost({
+        status: status
+      });
+    }
+  };
+};
+var plugin = compose(withSelect(mapSelectToProps), withDispatch(mapDispatchToProps))(EditFlowCustomPostStati);
+
+/**
+ * Kick it off
+ */
+registerPlugin('edit-flow-custom-status', {
+  icon: 'edit-flow',
+  render: plugin
+});
+})();
+
+/******/ })()
+;
 //# sourceMappingURL=custom-status.build.js.map
