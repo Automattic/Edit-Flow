@@ -691,7 +691,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 					$format = __( '*%1$s* changed the status of *%2$s #%3$s - <%4$s|%5$s>* from *%6$s* to *%7$s*', 'edit-flow' );
 					$text = sprintf( $format, $current_user->display_name, $post_type, $post_id, $edit_link, $post_title, $old_status_friendly_name, $new_status_friendly_name );
 
-					$this->send_to_slack( $text );
+					$this->send_to_webhook( $text );
 				}
 			}
 		}
@@ -778,12 +778,12 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 
 			$this->send_email( 'comment', $post, $subject, $body );
 
-			if ( 'on' === $this->module->options->send_to_slack ) {
+			if ( 'on' === $this->module->options->send_to_webhook ) {
 				/* translators: 1: comment author, 2: post type, 3: post id, 4: edit link, 5: post title */
 				$format = __( '*%1$s* left a comment on *%2$s #%3$s - <%4$s|%5$s>*' . "\n\n" . '%6$s', 'edit-flow' );
 				$text   = sprintf( $format, $comment->comment_author, $post_type, $post_id, $edit_link, $post_title, $comment->comment_content );
 
-				$this->send_to_slack( $text );
+				$this->send_to_webhook( $text );
 			}
 		}
 
@@ -1323,21 +1323,25 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 		public function settings_validate( $new_options ) {
 
 			// Whitelist validation for the post type options
-			if ( ! isset( $new_options['post_types'] ) )
+			if ( ! isset( $new_options['post_types'] ) ) {
 				$new_options['post_types'] = array();
+			}
 			$new_options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
 
 			// Whitelist validation for the 'always_notify_admin' options
-			if ( ! isset( $new_options['always_notify_admin'] ) || $new_options['always_notify_admin'] != 'on' )
+			if ( ! isset( $new_options['always_notify_admin'] ) || $new_options['always_notify_admin'] != 'on' ) {
 				$new_options['always_notify_admin'] = 'off';
+			}
 
 			// White list validation for the 'send_to_slack' option
-			if ( ! isset( $new_options['send_to_slack'] ) || $new_options['send_to_slack'] != 'on' )
-				$new_options['send_to_slack'] = 'off';
+			if ( ! isset( $new_options['send_to_webhook'] ) || $new_options['send_to_webhook'] != 'on' ) {
+				$new_options['send_to_webhook'] = 'off';
+			}
 
 			// White list validation for the 'slack_webhook_url' option
-			if ( ! isset( $new_options['slack_webhook_url'] ) )
-				$new_options['slack_webhook_url'] = '';
+			if ( ! isset( $new_options['webhook_url'] ) ) {
+				$new_options['webhook_url'] = '';
+			}
 
 			return $new_options;
 		}
