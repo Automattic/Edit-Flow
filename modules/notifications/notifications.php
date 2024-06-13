@@ -41,8 +41,8 @@ class EF_Notifications extends EF_Module {
 					'page' => 'on',
 				),
 				'always_notify_admin' => 'off',
-				'send_to_slack' => 'off',
-				'slack_webhook_url' => '',
+				'send_to_webhook' => 'off',
+				'webhook_url' => '',
 			),
 			'configure_page_cb' => 'print_configure_view',
 			'post_type_support' => 'ef_notification',
@@ -1241,8 +1241,8 @@ jQuery(document).ready(function($) {
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
 			add_settings_field( 'post_types', __( 'Post types for notifications:', 'edit-flow' ), array( $this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 			add_settings_field( 'always_notify_admin', __( 'Always notify blog admin', 'edit-flow' ), array( $this, 'settings_always_notify_admin_option'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-			add_settings_field( 'send_to_slack', __( 'Send to Slack', 'edit-flow' ), array( $this, 'settings_send_to_slack'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-			add_settings_field( 'slack_webhook_url', __( 'Slack Webhook URL', 'edit-flow' ), array( $this, 'settings_slack_webhook_url'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'send_to_webhook', __( 'Send to Webhook', 'edit-flow' ), array( $this, 'settings_send_to_webhook'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'webhook_url', __( 'Webhook URL', 'edit-flow' ), array( $this, 'settings_webhook_url'), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 	}
 
 	/**
@@ -1279,15 +1279,15 @@ jQuery(document).ready(function($) {
 	 *
 	 * @since 0.9.9
 	 */
-	function settings_send_to_slack() {
+	function settings_send_to_webhook() {
 		$options = array(
 			'off' => __( 'Disabled', 'edit-flow' ),
 			'on' => __( 'Enabled', 'edit-flow' ),
 		);
-		echo '<select id="send_to_slack" name="' . esc_attr( $this->module->options_group_name ) . '[send_to_slack]">';
+		echo '<select id="send_to_webhook" name="' . esc_attr( $this->module->options_group_name ) . '[send_to_webhook]">';
 		foreach ( $options as $value => $label ) {
 			echo '<option value="' . esc_attr( $value ) . '"';
-			echo selected( $this->module->options->send_to_slack, $value );
+			echo selected( $this->module->options->send_to_webhook, $value );
 			echo '>' . esc_html( $label ) . '</option>';
 		}
 		echo '</select>';
@@ -1298,8 +1298,8 @@ jQuery(document).ready(function($) {
 	 *
 	 * @since 0.9.9
 	 */
-	function settings_slack_webhook_url() {
-		echo '<input type="text" id="slack_webhook_url" name="' . esc_attr( $this->module->options_group_name ) . '[slack_webhook_url]" value="' . esc_attr( $this->module->options->slack_webhook_url ) . '" />';
+	function settings_webhook_url() {
+		echo '<input type="text" id="webhook_url" name="' . esc_attr( $this->module->options_group_name ) . '[webhook_url]" value="' . esc_attr( $this->module->options->webhook_url ) . '" />';
 	}
 
 	/**
