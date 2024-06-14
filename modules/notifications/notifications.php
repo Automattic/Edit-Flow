@@ -516,6 +516,11 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 		 */
 		public function save_post_subscriptions( $new_status, $old_status, $post ) {
 			global $edit_flow;
+
+			if ( ! empty( $_GET['_wpnonce'] ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'editpost' ) ) {
+				$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
+			}
+
 			// only if has edit_post_subscriptions cap
 			if ( ( ! wp_is_post_revision( $post ) && ! wp_is_post_autosave( $post ) ) && isset( $_POST['ef-save_followers'] ) && current_user_can( $this->edit_post_subscriptions_cap ) ) {
 				$users      = isset( $_POST['ef-selected-users'] ) ? $_POST['ef-selected-users'] : array();
