@@ -31,7 +31,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			$args             = array(
 				'title'                 => __( 'Notifications', 'edit-flow' ),
 				'short_description'     => __( 'Update your team of important changes to your content.', 'edit-flow' ),
-				'extended_description'  => __( 'With email notifications, you can keep everyone updated about what’s happening with a given content. Each status change or editorial comment sends out an email notification to users subscribed to a post. User groups can be used to manage who receives notifications on what.', 'edit-flow' ),
+				'extended_description'  => __( 'With email notifications, you can keep everyone updated about what’s happening with a given content. Each status change or editorial comment sends out an email notification to users subscribed to a post. User groups can be used to manage who receives notifications on what. With webhook notifications, all notifications will also be sent to the specified webhook URL(i.e.: Slack incoming webhooks).', 'edit-flow' ),
 				'module_url'            => $this->module_url,
 				'img_url'               => $this->module_url . 'lib/notifications_s128.png',
 				'slug'                  => 'notifications',
