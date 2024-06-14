@@ -815,9 +815,10 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			$this->send_email( 'comment', $post, $subject, $body );
 
 			if ( 'on' === $this->module->options->send_to_webhook ) {
-				/* translators: 1: comment author, 2: post type, 3: post id, 4: edit link, 5: post title */
-				$format = __( '*%1$s* left a comment on *%2$s #%3$s - <%4$s|%5$s>*' . "\n\n" . '%6$s', 'edit-flow' );
-				$text   = sprintf( $format, $comment->comment_author, $post_type, $post_id, $edit_link, $post_title, $comment->comment_content );
+				/* translators: 1: comment author, 2: post type, 3: post id, 4: edit link, 5: post title, 6: comment content */
+				$format  = __( '*%1$s* left a comment on *%2$s #%3$s - <%4$s|%5$s>*', 'edit-flow' ) . "\n\n";
+				$format .= '%6$s';
+				$text    = sprintf( $format, $comment->comment_author, $post_type, $post_id, $edit_link, $post_title, $comment->comment_content );
 
 				$this->send_to_webhook( $text );
 			}
