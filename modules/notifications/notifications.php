@@ -439,8 +439,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 					// Determine if any of the selected users won't have notification access
 					$subscribers_with_no_access = array_filter(
 						$user_group_ids,
-						function ( $user_id ) {
-							$post_id = isset( $_POST['post_id'] ) ? (int) $_POST['post_id'] : 0;
+						function ( $user_id ) use ( $post_id ) {
 							return ! $this->user_can_be_notified( get_user_by( 'id', $user_id ), $post_id );
 						}
 					);
