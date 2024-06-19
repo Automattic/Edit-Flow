@@ -723,7 +723,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 					$format = __( '*%1$s* changed the status of *%2$s #%3$s - <%4$s|%5$s>* from *%6$s* to *%7$s*', 'edit-flow' );
 					$text   = sprintf( $format, $current_user->display_name, $post_type, $post_id, $edit_link, $post_title, $old_status_friendly_name, $new_status_friendly_name );
 
-					$this->send_to_webhook( $text );
+					$this->send_to_webhook( $text, 'status-change', $current_user, $post );
 				}
 			}
 		}
@@ -825,7 +825,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 				$format .= '%6$s';
 				$text    = sprintf( $format, $comment->comment_author, $post_type, $post_id, $edit_link, $post_title, $comment->comment_content );
 
-				$this->send_to_webhook( $text );
+				$this->send_to_webhook( $text, 'comment', $current_user, $comment );
 			}
 		}
 
@@ -869,9 +869,17 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 
 		/**
 		 * Send notifications to Slack
+		 *
+		 * @param string $message Message to be sent to webhook
+		 * @param string $action Action being taken. Currently only `status-change` and `comment`
+		 * @param WP_User $user User who is taking the action
+		 * @param WP_Post|WP_Comment $post Post or comment that the action is being taken on
 		 */
-		public function send_to_webhook( $message ) {
+		public function send_to_webhook( $message, $action, $user, $post ) {
 			$webhook_url = $this->module->options->webhook_url;
+
+			// apply filters to the URL
+			$webhook_url = apply_filters( 'ef_notification_send_to_webhook_url', $webhook_url, $action, $user, $post );
 
 			// Bail if the webhook URL is not set
 			if ( empty( $webhook_url ) ) {
@@ -879,7 +887,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			}
 
 			// apply filters to the message
-			$message = apply_filters( 'ef_notification_send_to_webhook_message', $message );
+			$message = apply_filters( 'ef_notification_send_to_webhook_message', $message, $action, $user, $post );
 
 			// Set up the payload
 			$payload = array(
@@ -887,7 +895,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			);
 
 			// apply filters to the payload
-			$payload = apply_filters( 'ef_notification_send_to_webhook_payload', $payload );
+			$payload = apply_filters( 'ef_notification_send_to_webhook_payload', $payload, $action, $user, $post );
 
 			// Send the notification
 			$response = wp_remote_post(
