@@ -303,8 +303,9 @@ class EF_Module {
 	 *
 	 * @param string $status Whether it was a 'success' or an 'error'
 	 */
-	function print_ajax_response( $status, $message = '' ) {
+	function print_ajax_response( $status, $message = '', $http_code = 200 ) {
 		header( 'Content-type: application/json;' );
+		http_response_code( $http_code );
 		echo json_encode( array( 'status' => $status, 'message' => $message ) );
 		exit;
 	}

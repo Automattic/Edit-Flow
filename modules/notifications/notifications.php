@@ -898,7 +898,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 				)
 			);
 			if ( is_wp_error( $response ) ) {
-				$this->print_ajax_response( 'error', $response->get_error_message() );
+				$this->print_ajax_response( 'error', 'Webhook error: ' . $response->get_error_message(), 400 );
 			}
 		}
 
