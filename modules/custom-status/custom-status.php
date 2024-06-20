@@ -81,6 +81,13 @@ class EF_Custom_Status extends EF_Module {
 
 		// Load CSS and JS resources that we probably need
 		add_action( 'admin_enqueue_scripts', array( $this, 'action_admin_enqueue_scripts' ) );
+
+		// Assets for block editor UI.
+		add_action( 'enqueue_block_editor_assets', array( $this, 'load_scripts_for_block_editor') );
+
+		// Assets for iframed block editor and editor UI.
+		add_action( 'enqueue_block_editor_assets', array( $this, 'load_styles_for_block_editor') );
+
 		add_action( 'admin_notices', array( $this, 'no_js_notice' ) );
 		add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
 
@@ -288,12 +295,6 @@ class EF_Custom_Status extends EF_Module {
 			return;
 		}
 
-		// Assets for block editor UI.
-		add_action( 'enqueue_block_editor_assets', array( $this, 'load_scripts_for_block_editor') );
-
-		// Assets for iframed block editor and editor UI.
-		add_action( 'enqueue_block_editor_assets', array( $this, 'load_styles_for_block_editor') );
-
 		// // Load block editor assets and return early.
 		// if ( $this->is_block_editor() ) {
 		// 	global $post;
@@ -330,6 +331,10 @@ class EF_Custom_Status extends EF_Module {
 	}
 
 	function load_scripts_for_block_editor(){
+		if ( $this->disable_custom_statuses_for_post_type() ) {
+			return;
+		}
+
 		global $post;
 
 		wp_enqueue_script( 'edit-flow-block-custom-status-script', EDIT_FLOW_URL . 'blocks/dist/custom-status.build.js', array( 'wp-blocks', 'wp-element', 'wp-edit-post', 'wp-plugins', 'wp-components' ), EDIT_FLOW_VERSION );
@@ -340,6 +345,10 @@ class EF_Custom_Status extends EF_Module {
 	}
 
 	function load_styles_for_block_editor(){
+		if ( $this->disable_custom_statuses_for_post_type() ) {
+			return;
+		}
+
 		wp_enqueue_style( 'edit-flow-block-custom-status-styles', EDIT_FLOW_URL . 'blocks/dist/custom-status.editor.build.css', false, EDIT_FLOW_VERSION );
 	}
 
