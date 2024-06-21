@@ -78,7 +78,7 @@ class EF_Custom_Status extends EF_Module {
 		// Register our settings
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 
-		// Load CSS and JS resources that we probably need
+		// Load CSS and JS resources that we probably need in the admin page
 		add_action( 'admin_enqueue_scripts', array( $this, 'action_admin_enqueue_scripts' ) );
 
 		// Assets for block editor UI.
