@@ -2,7 +2,26 @@
 <ruleset name="Custom ruleset for Edit Flow">
 
 	<rule ref="WordPress-Extra"/>
-	<rule ref="WordPress-VIP-Go"/>
+	<rule ref="WordPress-VIP-Go">
+		<!-- These disallow anonymous functions as action callbacks -->
+		<exclude name="PEAR.Functions.FunctionCallSignature.ContentAfterOpenBracket" />
+		<exclude name="PEAR.Functions.FunctionCallSignature.MultipleArguments" />
+		<exclude name="PEAR.Functions.FunctionCallSignature.CloseBracketLine" />
+
+		<!-- Allow short array syntax -->
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax.Found" />
+
+		<!-- Do not enforce 'class-' prefix -->
+		<exclude name="WordPress.Files.FileName.InvalidClassFileName" />
+
+		<!-- Allow short ternaries -->
+		<exclude name="WordPress.PHP.DisallowShortTernary.Found" />
+
+		<!-- Generates too many false positives -->
+		<exclude name="WordPress.WP.CapitalPDangit.Misspelled" />
+		<!-- We use trigger_error extensively -->
+		<exclude name="WordPress.PHP.DevelopmentFunctions.error_log_trigger_error" />
+	</rule>
 
 	<file>.</file>
 
