@@ -31,7 +31,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			$args             = array(
 				'title'                 => __( 'Notifications', 'edit-flow' ),
 				'short_description'     => __( 'Update your team of important changes to your content.', 'edit-flow' ),
-				'extended_description'  => __( 'With email notifications, you can keep everyone updated about what’s happening with a given content. Each status change or editorial comment sends out an email notification to users subscribed to a post. User groups can be used to manage who receives notifications on what. With webhook notifications, all notifications will also be sent to the specified webhook URL(i.e.: Slack incoming webhooks).', 'edit-flow' ),
+				'extended_description'  => __( 'With email notifications, you can keep everyone updated about what’s happening with a given content. Each status change or editorial comment sends out an email notification to users subscribed to a post. User groups can be used to manage who receives notifications on what. With webhook notifications, all notifications will also be sent to the specified webhook URL(i.e.: Slack incoming webhooks) but will ignore specific user or user groups subscription settings.', 'edit-flow' ),
 				'module_url'            => $this->module_url,
 				'img_url'               => $this->module_url . 'lib/notifications_s128.png',
 				'slug'                  => 'notifications',
@@ -53,7 +53,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 					'title'   => __( 'Overview', 'edit-flow' ),
 					'content' => __( '<p>Notifications ensure you keep up to date with progress your most important content. Users can be subscribed to notifications on a post one by one or by selecting user groups.</p><p>When enabled, email notifications can be sent when a post changes status or an editorial comment is left by a writer or an editor.</p>', 'edit-flow' ),
 				),
-				'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/notifications/">Notifications Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
+				'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/notifications/">Notifications Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/Automattic/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
 			);
 			$this->module     = EditFlow()->register_module( 'notifications', $args );
 		}
