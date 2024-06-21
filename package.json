@@ -11,7 +11,7 @@
     "dev": "webpack --watch",
     "wp-env": "wp-env",
     "lint-js": "eslint --quiet modules",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run test-jest && npm run test-e2e",
     "test-jest": "jest -c jest.config.js",
     "test-e2e": "wp-scripts test-e2e --config tests/e2e/jest.config.js",
     "test-e2e:interactive": "wp-scripts test-e2e --config tests/e2e/jest.config.js -- --puppeteer-interactive",
