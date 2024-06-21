@@ -13,7 +13,6 @@
  if ( !class_exists( 'EF_Custom_Status' ) ) {
 
 class EF_Custom_Status extends EF_Module {
-	use Block_Editor_Compatible;
 
 	var $module;
 
