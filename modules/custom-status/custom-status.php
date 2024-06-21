@@ -290,6 +290,7 @@ class EF_Custom_Status extends EF_Module {
 	 * - We have other custom code for Quick Edit and JS niceties
 	 */
 	function action_admin_enqueue_scripts() {
+		// ToDo: This is duplicated in 3 places, should be refactored
 		if ( $this->disable_custom_statuses_for_post_type() ) {
 			return;
 		}
@@ -317,6 +318,7 @@ class EF_Custom_Status extends EF_Module {
 	}
 
 	function load_scripts_for_block_editor(){
+		// ToDo: This is duplicated in 3 places, should be refactored
 		if ( $this->disable_custom_statuses_for_post_type() ) {
 			return;
 		}
@@ -331,6 +333,7 @@ class EF_Custom_Status extends EF_Module {
 	}
 
 	function load_styles_for_block_editor(){
+		// ToDo: This is duplicated in 3 places, should be refactored
 		if ( $this->disable_custom_statuses_for_post_type() ) {
 			return;
 		}
