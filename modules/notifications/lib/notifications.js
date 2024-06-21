@@ -88,6 +88,7 @@ jQuery( document ).ready( function ( $ ) {
 		}
 	);
 
+	// TODO: Should change this to _not_ use JQuery
 	const webhookUrl = $( 'input#webhook_url' ).closest( 'tr' );
 	const sendToWebhook = $( 'select#send_to_webhook' );
 	if ( sendToWebhook.val() === 'off' ) {
