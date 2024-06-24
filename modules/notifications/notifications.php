@@ -346,7 +346,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			<div id="ef-post_following_box">
 				<a name="subscriptions"></a>
 
-				<p><?php _e( 'Select the users and user groups that should receive notifications when the status of this post is updated or when an editorial comment is added.', 'edit-flow' ); ?></p>
+				<p><?php _e( 'Select the users and user groups that should receive email notifications when the status of this post is updated or when an editorial comment is added.', 'edit-flow' ); ?></p>
 				<div id="ef-post_following_users_box">
 					<h4><?php _e( 'Users', 'edit-flow' ); ?></h4>
 					<?php
