@@ -367,11 +367,11 @@ class edit_flow {
 		$module = false;
 		foreach ( $this->modules as $mod_name => $mod_data ) {
 
-			if ( $key == 'name' && $value == $mod_name ) {
+			if ( 'name' === $key && $value === $mod_name ) {
 				$module = $this->modules->$mod_name;
 			} else {
 				foreach ( $mod_data as $mod_data_key => $mod_data_value ) {
-					if ( $mod_data_key == $key && $mod_data_value == $value ) {
+					if ( $mod_data_key === $key && $mod_data_value === $value ) {
 						$module = $this->modules->$mod_name;
 					}
 				}
