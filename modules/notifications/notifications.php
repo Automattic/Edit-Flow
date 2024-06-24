@@ -85,7 +85,6 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			add_action( 'ef_send_scheduled_email', [ $this, 'send_single_email' ], 10, 4 );
 
 			add_action( 'admin_init', [ $this, 'register_settings' ] );
-			add_action( 'admin_init', [ $this, 'handle_update_settings' ] );
 
 			// Javascript and CSS if we need it
 			add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_admin_scripts' ] );
@@ -1422,53 +1421,6 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			}
 
 			return $new_options;
-		}
-
-		/**
-		 * Handles a POST request to udpate notification settings
-		 *
-		 * @since 0.9.9
-		 */
-		public function handle_update_settings() {
-			if ( ! isset( $_POST['submit'], $_POST['action'], $_POST['_wpnonce'], $_POST['option_page'], $_GET['page'] )
-				|| $_GET['page'] !== $this->module->settings_slug || $_POST['option_page'] !== $this->module->options_group_name
-				|| 'update' !== $_POST['action'] ) {
-				return;
-			}
-
-			if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'change-edit-flow-module-nonce' ) ) {
-				// wp_die( esc_html( $this->module->messages['nonce-failed'] ) );
-			}
-
-			// Form validation for notifications settings
-			// webhook URL is required if webhook is enabled
-			$_REQUEST['form-errors'] = [];
-			if ( isset( $_POST[ $this->module->options_group_name ]['send_to_webhook'] )
-				&& 'on' === $_POST[ $this->module->options_group_name ]['send_to_webhook']
-				&& empty( $_POST[ $this->module->options_group_name ]['webhook_url'] ) ) {
-				$_REQUEST['form-errors']['webhook_url'] = __( 'Webhook URL is required if sending to webhook is enabled', 'edit-flow' );
-			} else {
-				// Test send to webhook to validate the URL
-				$payload = [
-					'text' => 'Integrated successfully with EditFlow',
-				];
-				$response = wp_remote_post(
-					$_POST[ $this->module->options_group_name ]['webhook_url'],
-					[
-						'body'    => wp_json_encode( $payload ),
-						'headers' => [ 'Content-Type' => 'application/json' ],
-					]
-				);
-				if ( is_wp_error( $response ) ) {
-					$_REQUEST['form-errors']['webhook_url'] = __( 'Unable to send notification to webhook provided', 'edit-flow' );
-				}
-
-				// Kick out if there are any errors
-				if ( isset( $_REQUEST['form-errors'] ) && count( $_REQUEST['form-errors'] ) ) {
-					$_REQUEST['error'] = 'form-error';
-					return;
-				}
-			}
 		}
 
 		/**
