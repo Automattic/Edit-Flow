@@ -78,14 +78,16 @@ class EF_Custom_Status extends EF_Module {
 		// Register our settings
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 
-		// Load CSS and JS resources that we probably need in the admin page
-		add_action( 'admin_enqueue_scripts', array( $this, 'action_admin_enqueue_scripts' ) );
+		if ( ! $this->disable_custom_statuses_for_post_type() ) {
+			// Load CSS and JS resources that we probably need in the admin page
+			add_action( 'admin_enqueue_scripts', array( $this, 'action_admin_enqueue_scripts' ) );
 
-		// Assets for block editor UI.
-		add_action( 'enqueue_block_editor_assets', array( $this, 'load_scripts_for_block_editor') );
+			// Assets for block editor UI.
+			add_action( 'enqueue_block_editor_assets', array( $this, 'load_scripts_for_block_editor') );
 
-		// Assets for iframed block editor and editor UI.
-		add_action( 'enqueue_block_editor_assets', array( $this, 'load_styles_for_block_editor') );
+			// Assets for iframed block editor and editor UI.
+			add_action( 'enqueue_block_editor_assets', array( $this, 'load_styles_for_block_editor') );
+		}
 
 		add_action( 'admin_notices', array( $this, 'no_js_notice' ) );
 		add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
@@ -290,11 +292,6 @@ class EF_Custom_Status extends EF_Module {
 	 * - We have other custom code for Quick Edit and JS niceties
 	 */
 	function action_admin_enqueue_scripts() {
-		// ToDo: This is duplicated in 3 places, should be refactored
-		if ( $this->disable_custom_statuses_for_post_type() ) {
-			return;
-		}
-
 		// Load Javascript we need to use on the configuration views (jQuery Sortable and Quick Edit)
 		if ( $this->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-ui-sortable' );
@@ -318,11 +315,6 @@ class EF_Custom_Status extends EF_Module {
 	}
 
 	function load_scripts_for_block_editor(){
-		// ToDo: This is duplicated in 3 places, should be refactored
-		if ( $this->disable_custom_statuses_for_post_type() ) {
-			return;
-		}
-
 		global $post;
 
 		wp_enqueue_script( 'edit-flow-block-custom-status-script', EDIT_FLOW_URL . 'dist/custom-status.build.js', array( 'wp-blocks', 'wp-element', 'wp-edit-post', 'wp-plugins', 'wp-components' ), EDIT_FLOW_VERSION );
@@ -333,11 +325,6 @@ class EF_Custom_Status extends EF_Module {
 	}
 
 	function load_styles_for_block_editor(){
-		// ToDo: This is duplicated in 3 places, should be refactored
-		if ( $this->disable_custom_statuses_for_post_type() ) {
-			return;
-		}
-
 		wp_enqueue_style( 'edit-flow-block-custom-status-styles', EDIT_FLOW_URL . 'dist/custom-status.editor.build.css', false, EDIT_FLOW_VERSION );
 	}
 
