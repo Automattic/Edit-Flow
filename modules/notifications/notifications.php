@@ -1416,11 +1416,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			}
 
 			// White list validation for the 'slack_webhook_url' option
-			if ( ! isset( $new_options['webhook_url'] ) ) {
-				$new_options['webhook_url'] = '';
-			}
-
-			if ( esc_url_raw( $new_options['webhook_url'] ) !== $new_options['webhook_url'] ) {
+			if ( ! isset( $new_options['webhook_url'] ) || esc_url_raw( $new_options['webhook_url'] ) !== $new_options['webhook_url'] ) {
 				$new_options['webhook_url'] = '';
 			} else {
 				$new_options['webhook_url'] = esc_url_raw( $new_options['webhook_url'] );
