@@ -72,6 +72,12 @@ class EF_Module {
 		return 'on' === $edit_flow->settings->module->options->analytics;
 	}
 
+	/**
+	 * Check if the site is a WPVIP site.
+	 *
+	 * @since 0.10.0
+	 * @return true, if it is a WPVIP site, false otherwise
+	 */
 	function is_vip_site() {
 		return defined( 'WPCOM_IS_VIP_ENV' ) && constant( 'WPCOM_IS_VIP_ENV' ) === true
 			&& defined( 'WPCOM_SANDBOXED' ) && constant( 'WPCOM_SANDBOXED' ) === false
