@@ -437,52 +437,6 @@ class EF_Module {
 	}
 
 	/**
-	 * Produce a human-readable version of the time since a timestamp
-	 *
-	 * @param int $original The UNIX timestamp we're producing a relative time for
-	 * @return string $relative_time Human-readable version of the difference between the timestamp and now
-	 */
-	function timesince( $original ) {
-		// array of time period chunks
-		$chunks = array(
-			array(60 * 60 * 24 * 365 , 'year'),
-			array(60 * 60 * 24 * 30 , 'month'),
-			array(60 * 60 * 24 * 7, 'week'),
-			array(60 * 60 * 24 , 'day'),
-			array(60 * 60 , 'hour'),
-			array(60 , 'minute'),
-			array(1 , 'second'),
-		);
-
-		$today = time(); /* Current unix time  */
-		$since = $today - $original;
-
-		if ( $since > $chunks[2][0] ) {
-			$print = date("M jS", $original);
-
-			if( $since > $chunks[0][0] ) { // Seconds in a year
-					$print .= ", " . date( "Y", $original );
-			}
-
-			return $print;
-		}
-
-		// $j saves performing the count function each time around the loop
-		for ($i = 0, $j = count($chunks); $i < $j; $i++) {
-
-			$seconds = $chunks[$i][0];
-			$name = $chunks[$i][1];
-
-			// finding the biggest chunk (if the chunk fits, break)
-			if (($count = floor($since / $seconds)) != 0) {
-				break;
-			}
-		}
-
-		return sprintf( _n( "1 $name ago", "$count {$name}s ago", $count), $count);
-	}
-
-	/**
 	 * Displays a list of users that can be selected!
 	 *
 	 * @since 0.7
@@ -529,7 +483,7 @@ class EF_Module {
 						<label for="<?php echo esc_attr( $input_id .'-'. $user->ID ) ?>">
 							<div class="ef-user-subscribe-actions">
 								<?php do_action( 'ef_user_subscribe_actions', $user->ID, $checked ) ?>
-								<input type="checkbox" id="<?php echo esc_attr( $input_id .'-'. $user->ID ) ?>" name="<?php echo esc_attr( $input_id ) ?>[]" value="<?php echo esc_attr( $user->ID ); ?>" <?php echo $checked; echo $current_user_class; ?> />
+								<input type="checkbox" id="<?php echo esc_attr( $input_id .'-'. $user->ID ) ?>" name="<?php echo esc_attr( $input_id ) ?>[]" value="<?php echo esc_attr( $user->ID ); ?>" <?php echo esc_attr($checked); echo esc_attr($current_user_class); ?> />
 							</div>
 
 							<span class="ef-user_displayname"><?php echo esc_html( $user->display_name ); ?></span>
