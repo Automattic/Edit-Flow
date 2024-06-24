@@ -1420,6 +1420,12 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 				$new_options['webhook_url'] = '';
 			}
 
+			if ( esc_url_raw( $new_options['webhook_url'] ) !== $new_options['webhook_url'] ) {
+				$new_options['webhook_url'] = '';
+			} else {
+				$new_options['webhook_url'] = esc_url_raw( $new_options['webhook_url'] );
+			}
+
 			return $new_options;
 		}
 
