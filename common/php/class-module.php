@@ -29,7 +29,7 @@ class EF_Module {
 	 * @return <code>true</code> if the module is enabled, <code>false</code> otherwise
 	 */
 	public function is_enabled() {
-		return $this->module->options->enabled === 'on';
+		return 'on' === $this->module->options->enabled;
 	}
 
 	/**
@@ -44,6 +44,38 @@ class EF_Module {
 		global $edit_flow;
 
 		return isset( $edit_flow->$slug ) && $edit_flow->$slug->is_enabled();
+	}
+
+	/**
+	 * Returns whether vip features have been enabled or not.
+	 *
+	 * @since 0.10.0
+	 *
+	 * @return true, if the module is enabled, false otherwise
+	 */
+	function are_vip_features_enabled() {
+		global $edit_flow;
+
+		return 'on' === $edit_flow->settings->module->options->vip_features;
+	}
+
+	/**
+	 * Returns whether vip features have been enabled or not.
+	 *
+	 * @since 0.10.0
+	 *
+	 * @return true, if the module is enabled, false otherwise
+	 */
+	function is_analytics_enabled() {
+		global $edit_flow;
+
+		return 'on' === $edit_flow->settings->module->options->analytics;
+	}
+
+	function is_vip_site() {
+		return defined( 'WPCOM_IS_VIP_ENV' ) && constant( 'WPCOM_IS_VIP_ENV' ) === true
+			&& defined( 'WPCOM_SANDBOXED' ) && constant( 'WPCOM_SANDBOXED' ) === false
+			&& defined( 'FILES_CLIENT_SITE_ID' );
 	}
 
 	/**

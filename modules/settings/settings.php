@@ -22,8 +22,8 @@ class EF_Settings extends EF_Module {
 			'settings_slug' => 'ef-settings',
 			'default_options' => array(
 				'enabled' => 'on',
-				'vip_features' => 'off',
-				'analytics' => 'off',
+				'vip_features' => $this->is_vip_site() ? 'on' : 'off',
+				'analytics' => $this->is_vip_site() ? 'on' : 'off',
 			),
 			'configure_page_cb' => 'print_default_settings',
 			'autoload' => true,
