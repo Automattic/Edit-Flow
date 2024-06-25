@@ -1,7 +1,7 @@
 <?php
 /**
  * class EF_User_Groups
- * 
+ *
  * @todo all of them PHPdocs
  * @todo Resolve whether the notifications component of this class should be moved to "subscriptions"
  * @todo Decide whether it's functional to store user_ids in the term description array
@@ -12,9 +12,9 @@
 if ( !class_exists( 'EF_User_Groups' ) ) {
 
 class EF_User_Groups extends EF_Module {
-	
+
 	var $module;
-	
+
 	/**
 	 * Keys for storing data
 	 * - taxonomy_key - used for custom taxonomy
@@ -31,9 +31,9 @@ class EF_User_Groups extends EF_Module {
 	 * @since 0.7
 	 */
 	function __construct( ) {
-		
+
 		$this->module_url = $this->get_module_url( __FILE__ );
-		
+
 		// Register the User Groups module with Edit Flow
 		$args = array(
 			'title' => __( 'User Groups', 'edit-flow' ),
@@ -53,7 +53,7 @@ class EF_User_Groups extends EF_Module {
 				'usergroup-added' => __( "User group created. Feel free to add users to the usergroup.", 'edit-flow' ),
 				'usergroup-updated' => __( "User group updated.", 'edit-flow' ),
 				'usergroup-missing' => __( "User group doesn't exist.", 'edit-flow' ),
-				'usergroup-deleted' => __( "User group deleted.", 'edit-flow' ),				
+				'usergroup-deleted' => __( "User group deleted.", 'edit-flow' ),
 			),
 			'configure_page_cb' => 'print_configure_view',
 			'configure_link_text' => __( 'Manage User Groups', 'edit-flow' ),
@@ -66,34 +66,34 @@ class EF_User_Groups extends EF_Module {
 			'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/user-groups/">User Groups Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
 		);
 		$this->module = EditFlow()->register_module( 'user_groups', $args );
-		
+
 	}
-	
+
 	/**
 	 * Module startup
 	 */
-	
+
 	/**
 	 * Initialize the rest of the stuff in the class if the module is active
 	 *
 	 * @since 0.7
-	 */	
+	 */
 	function init() {
-		
+
 		// Register the objects where we'll be storing data and relationships
 		$this->register_usergroup_objects();
 
 		$this->manage_usergroups_cap = apply_filters( 'ef_manage_usergroups_cap', $this->manage_usergroups_cap );
-		
+
 		// Register our settings
-		add_action( 'admin_init', array( $this, 'register_settings' ) );		
-		
+		add_action( 'admin_init', array( $this, 'register_settings' ) );
+
 		// Handle any adding, editing or saving
 		add_action( 'admin_init', array( $this, 'handle_add_usergroup' ) );
 		add_action( 'admin_init', array( $this, 'handle_edit_usergroup' ) );
 		add_action( 'admin_init', array( $this, 'handle_delete_usergroup' ) );
 		add_action( 'wp_ajax_inline_save_usergroup', array( $this, 'handle_ajax_inline_save_usergroup' ) );
-	
+
 		// Usergroups can be managed from the User profile view
 		add_action( 'show_user_profile', array( $this, 'user_profile_page' ) );
 		add_action( 'edit_user_profile', array( $this, 'user_profile_page' ) );
@@ -101,10 +101,10 @@ class EF_User_Groups extends EF_Module {
 
 		// Javascript and CSS if we need it
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );	
-		
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
+
 	}
-	
+
 	/**
 	 * Load the capabilities onto users the first time the module is run
 	 *
@@ -119,15 +119,15 @@ class EF_User_Groups extends EF_Module {
 		foreach( $usergroup_roles as $role => $caps ) {
 			$this->add_caps_to_role( $role, $caps );
 		}
-		
+
 		// Create our default usergroups
-		$default_usergroups = array( 
-			array( 
+		$default_usergroups = array(
+			array(
 				'name' => __( 'Copy Editors', 'edit-flow' ),
 				'description' => __( 'Making sure the quality is top-notch.', 'edit-flow' ),
 			),
 			array(
-				'name' => __( 'Photographers', 'edit-flow' ), 
+				'name' => __( 'Photographers', 'edit-flow' ),
 				'description' => __( 'Capturing the story visually.', 'edit-flow' ),
 			),
 			array(
@@ -142,7 +142,7 @@ class EF_User_Groups extends EF_Module {
 		foreach( $default_usergroups as $args ) {
 			$this->add_usergroup( $args );
 		}
-		
+
 	}
 
 	/**
@@ -196,7 +196,7 @@ class EF_User_Groups extends EF_Module {
 		}
 
 	}
-	
+
 	/**
 	 * Individual Usergroups are stored using a custom taxonomy
 	 * Posts are associated with usergroups based on taxonomy relationship
@@ -207,10 +207,10 @@ class EF_User_Groups extends EF_Module {
 	 * @uses register_taxonomy()
 	 */
 	function register_usergroup_objects() {
-		
+
 		// Load the currently supported post types so we only register against those
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
-		
+
 		// Use a taxonomy to manage relationships between posts and usergroups
 		$args = array(
 			'public' => false,
@@ -218,7 +218,7 @@ class EF_User_Groups extends EF_Module {
 		);
 		register_taxonomy( self::taxonomy_key, $supported_post_types, $args );
 	}
-	
+
 	/**
 	 * Enqueue necessary admin scripts
 	 *
@@ -227,62 +227,61 @@ class EF_User_Groups extends EF_Module {
 	 * @uses wp_enqueue_script()
 	 */
 	function enqueue_admin_scripts() {
-		
+
 		if ( $this->is_whitelisted_functional_view() || $this->is_whitelisted_settings_view( $this->module->name ) ) {
 			wp_enqueue_script( 'jquery-listfilterizer' );
-			wp_enqueue_script( 'jquery-quicksearch' );
-			wp_enqueue_script( 'edit-flow-user-groups-js', $this->module_url . 'lib/user-groups.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
+			wp_enqueue_script( 'edit-flow-user-groups-js', $this->module_url . 'lib/user-groups.js', array( 'jquery', 'jquery-listfilterizer' ), EDIT_FLOW_VERSION, true );
 		}
-			
-		if ( $this->is_whitelisted_settings_view( $this->module->name ) )	
+
+		if ( $this->is_whitelisted_settings_view( $this->module->name ) )
 			wp_enqueue_script( 'edit-flow-user-groups-configure-js', $this->module_url . 'lib/user-groups-configure.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 	}
-	
+
 	/**
 	 * Enqueue necessary admin styles, but only on the proper pages
 	 *
 	 * @since 0.7
 	 *
-	 * @uses wp_enqueue_style()	
+	 * @uses wp_enqueue_style()
 	 */
 	function enqueue_admin_styles() {
 
-		
+
 		if ( $this->is_whitelisted_functional_view() || $this->is_whitelisted_settings_view() ) {
 			wp_enqueue_style( 'jquery-listfilterizer' );
 			wp_enqueue_style( 'edit-flow-user-groups-css', $this->module_url . 'lib/user-groups.css', false, EDIT_FLOW_VERSION );
 		}
 	}
-	
+
 	/**
 	 * Module ???
 	 */
-	
+
 	/**
 	 * Handles a POST request to add a new Usergroup. Redirects to edit view after
 	 * for admin to add users to usergroup
-	 * Hooked into 'admin_init' and kicks out right away if no action	
+	 * Hooked into 'admin_init' and kicks out right away if no action
 	 *
 	 * @since 0.7
 	 */
 	function handle_add_usergroup() {
 
-		if ( !isset( $_POST['submit'], $_POST['form-action'], $_GET['page'] ) 
+		if ( !isset( $_POST['submit'], $_POST['form-action'], $_GET['page'] )
 			|| $_GET['page'] != $this->module->settings_slug || $_POST['form-action'] != 'add-usergroup' )
 				return;
-				
+
 		if ( !wp_verify_nonce( $_POST['_wpnonce'], 'add-usergroup' ) )
 			wp_die( $this->module->messages['nonce-failed'] );
-			
+
 		if ( !current_user_can( $this->manage_usergroups_cap ) )
-			wp_die( $this->module->messages['invalid-permissions'] );			
-		
+			wp_die( $this->module->messages['invalid-permissions'] );
+
 		// Sanitize all of the user-entered values
 		$name = strip_tags( trim( $_POST['name'] ) );
 		$description = stripslashes( strip_tags( trim( $_POST['description'] ) ) );
-		
+
 		$_REQUEST['form-errors'] = array();
-		
+
 		/**
 		 * Form validation for adding new Usergroup
 		 *
@@ -300,7 +299,7 @@ class EF_User_Groups extends EF_Module {
 		if ( $this->get_usergroup_by( 'slug', sanitize_title( $name ) ) )
 			$_REQUEST['form-errors']['name'] = __( 'Name conflicts with slug for another term. Please choose again.', 'edit-flow' );
 		if ( strlen( $name ) > 40 )
-			$_REQUEST['form-errors']['name'] = __( 'User group name cannot exceed 40 characters. Please try a shorter name.', 'edit-flow' );			
+			$_REQUEST['form-errors']['name'] = __( 'User group name cannot exceed 40 characters. Please try a shorter name.', 'edit-flow' );
 		// Kick out if there are any errors
 		if ( count( $_REQUEST['form-errors'] ) ) {
 			$_REQUEST['error'] = 'form-error';
@@ -325,33 +324,33 @@ class EF_User_Groups extends EF_Module {
 		wp_redirect( $redirect_url );
 		exit;
 	}
-	
+
 	/**
 	 * Handles a POST request to edit a Usergroup
 	 * Hooked into 'admin_init' and kicks out right away if no action
 	 *
-	 * @since 0.7	
-	 */ 
+	 * @since 0.7
+	 */
 	function handle_edit_usergroup() {
-		if ( !isset( $_POST['submit'], $_POST['form-action'], $_GET['page'] ) 
+		if ( !isset( $_POST['submit'], $_POST['form-action'], $_GET['page'] )
 			|| $_GET['page'] != $this->module->settings_slug || $_POST['form-action'] != 'edit-usergroup' )
 				return;
-				
+
 		if ( !wp_verify_nonce( $_POST['_wpnonce'], 'edit-usergroup' ) )
 			wp_die( $this->module->messages['nonce-failed'] );
-			
+
 		if ( !current_user_can( $this->manage_usergroups_cap ) )
 			wp_die( $this->module->messages['invalid-permissions'] );
-			
+
 		if ( !$existing_usergroup = $this->get_usergroup_by( 'id', (int)$_POST['usergroup_id'] ) )
-			wp_die( $this->module->messages['usergroup-missing'] );			
-		
+			wp_die( $this->module->messages['usergroup-missing'] );
+
 		// Sanitize all of the user-entered values
 		$name = strip_tags( trim( $_POST['name'] ) );
 		$description = stripslashes( strip_tags( trim( $_POST['description'] ) ) );
-		
+
 		$_REQUEST['form-errors'] = array();
-		
+
 		/**
 		 * Form validation for editing a Usergroup
 		 *
@@ -371,7 +370,7 @@ class EF_User_Groups extends EF_Module {
 		if ( is_object( $search_term ) && $search_term->term_id != $existing_usergroup->term_id )
 			$_REQUEST['form-errors']['name'] = __( 'Name conflicts with slug for another term. Please choose again.', 'edit-flow' );
 		if ( strlen( $name ) > 40 )
-			$_REQUEST['form-errors']['name'] = __( 'User group name cannot exceed 40 characters. Please try a shorter name.', 'edit-flow' );			
+			$_REQUEST['form-errors']['name'] = __( 'User group name cannot exceed 40 characters. Please try a shorter name.', 'edit-flow' );
 		// Kick out if there are any errors
 		if ( count( $_REQUEST['form-errors'] ) ) {
 			$_REQUEST['error'] = 'form-error';
@@ -397,7 +396,7 @@ class EF_User_Groups extends EF_Module {
 		wp_redirect( $redirect_url );
 		exit;
 	}
-	
+
 	/**
 	 * Handles a request to delete a Usergroup.
 	 * Hooked into 'admin_init' and kicks out right away if no action
@@ -405,48 +404,48 @@ class EF_User_Groups extends EF_Module {
 	 * @since 0.7
 	 */
 	function handle_delete_usergroup() {
-		if ( !isset( $_GET['page'], $_GET['action'], $_GET['usergroup-id'] ) 
+		if ( !isset( $_GET['page'], $_GET['action'], $_GET['usergroup-id'] )
 			|| $_GET['page'] != $this->module->settings_slug || $_GET['action'] != 'delete-usergroup' )
 				return;
-				
+
 		if ( !wp_verify_nonce( $_GET['nonce'], 'delete-usergroup' ) )
 			wp_die( $this->module->messages['nonce-failed'] );
-			
+
 		if ( !current_user_can( $this->manage_usergroups_cap ) )
-			wp_die( $this->module->messages['invalid-permissions'] );			
-			
+			wp_die( $this->module->messages['invalid-permissions'] );
+
 		$result = $this->delete_usergroup( (int)$_GET['usergroup-id'] );
 		if ( !$result || is_wp_error( $result ) )
 			wp_die( __( 'Error deleting user group.', 'edit-flow' ) );
-			
+
 		$redirect_url = $this->get_link( array( 'message' => 'usergroup-deleted' ) );
 		wp_redirect( $redirect_url );
-		exit;		
+		exit;
 	}
-	
+
 	/**
 	 * Handle the request to update a given Usergroup via inline edit
 	 *
 	 * @since 0.7
 	 */
 	function handle_ajax_inline_save_usergroup() {
-		
+
 		if ( !wp_verify_nonce( $_POST['inline_edit'], 'usergroups-inline-edit-nonce' ) )
 			die( $this->module->messages['nonce-failed'] );
-			
+
 		if ( !current_user_can( $this->manage_usergroups_cap ) )
 			die( $this->module->messages['invalid-permissions'] );
-		
+
 		$usergroup_id = (int) $_POST['usergroup_id'];
 		if ( !$existing_term = $this->get_usergroup_by( 'id', $usergroup_id ) )
 			die( $this->module->messages['usergroup-missing'] );
-		
+
 		$name = strip_tags( trim( $_POST['name'] ) );
 		$description = stripslashes( strip_tags( trim( $_POST['description'] ) ) );
-		
+
 		/**
 		 * Form validation for editing Usergroup
-		 */	
+		 */
 		// Check if name field was filled in
 		if ( empty( $name ) ) {
 			$change_error = new WP_Error( 'invalid', __( 'Please enter a name for the user group.', 'edit-flow' ) );
@@ -469,15 +468,15 @@ class EF_User_Groups extends EF_Module {
 			$change_error = new WP_Error( 'invalid', __( 'Name conflicts with slug for another term. Please choose again.', 'edit-flow' ) );
 			die( $change_error->get_error_message() );
 		}
-		
+
 		// Prepare the term name and description for saving
 		$args = array(
 			'name' => $name,
 			'description' => $description,
 		);
 		$return = $this->update_usergroup( $existing_term->term_id, $args );
-		if( !is_wp_error( $return ) ) {	
-			set_current_screen( 'edit-usergroup' );					
+		if( !is_wp_error( $return ) ) {
+			set_current_screen( 'edit-usergroup' );
 			$wp_list_table = new EF_Usergroups_List_Table();
 			$wp_list_table->prepare_items();
 			echo $wp_list_table->single_row( $return );
@@ -486,13 +485,13 @@ class EF_User_Groups extends EF_Module {
 			$change_error = new WP_Error( 'invalid', sprintf( __( 'Could not update the user group: <strong>%s</strong>', 'edit-flow' ), $usergroup_name ) );
 			die( $change_error->get_error_message() );
 		}
-		
+
 	}
-	
+
 	/**
 	 * Register settings for notifications so we can partially use the Settings API
 	 * (We use the Settings API for form generation, but not saving)
-	 * 
+	 *
 	 * @since 0.7
 	 * @uses add_settings_section(), add_settings_field()
 	 */
@@ -500,7 +499,7 @@ class EF_User_Groups extends EF_Module {
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
 			add_settings_field( 'post_types', __( 'Add to these post types:', 'edit-flow' ), array( $this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 	}
-	
+
 	/**
 	 * Choose the post types for Usergroups
 	 *
@@ -521,15 +520,15 @@ class EF_User_Groups extends EF_Module {
 	 */
 	function settings_validate( $new_options ) {
 
-		
+
 		// Whitelist validation for the post type options
 		if ( !isset( $new_options['post_types'] ) )
 			$new_options['post_types'] = array();
-		$new_options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );		
-		
+		$new_options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
+
 		return $new_options;
-	}	
-	
+	}
+
 	/**
 	 * Build a configuration view so we can manage our usergroups
 	 *
@@ -537,7 +536,7 @@ class EF_User_Groups extends EF_Module {
 	 */
 	function print_configure_view() {
 		global $edit_flow;
-		
+
 		if ( isset( $_GET['action'], $_GET['usergroup-id'] ) && $_GET['action'] == 'edit-usergroup' ) :
 			/** Full page width view for editing a given usergroup **/
 			// Check whether the usergroup exists
@@ -545,7 +544,7 @@ class EF_User_Groups extends EF_Module {
 			$usergroup = $this->get_usergroup_by( 'id', $usergroup_id );
 			if ( !$usergroup ) {
 				echo '<div class="error"><p>' . $this->module->messages['usergroup-missing'] . '</p></div>';
-				return; 
+				return;
 			}
 			$name = ( isset( $_POST['name'] ) ) ? stripslashes( $_POST['name'] ) : $usergroup->name;
 			$description = ( isset( $_POST['description'] ) ) ? stripslashes( $_POST['description'] ) : $usergroup->description;
@@ -553,7 +552,7 @@ class EF_User_Groups extends EF_Module {
 		<form method="post" action="<?php echo esc_url( $this->get_link( array( 'action' => 'edit-usergroup', 'usergroup-id' => $usergroup_id ) ) ); ?>">
 		<div id="col-right"><div class="col-wrap"><div id="ef-usergroup-users" class="form-wrap">
 			<h4><?php _e( 'Users', 'edit-flow' ); ?></h4>
-			<?php 
+			<?php
 				$select_form_args = array(
 					'list_class' => 'ef-post_following_list',
 					'input_id' => 'usergroup_users'
@@ -561,7 +560,7 @@ class EF_User_Groups extends EF_Module {
 			?>
 			<?php $this->users_select_form( $usergroup->user_ids , $select_form_args ); ?>
 		</div></div></div>
-		<div id="col-left"><div class="col-wrap"><div class="form-wrap">		
+		<div id="col-left"><div class="col-wrap"><div class="form-wrap">
 			<input type="hidden" name="form-action" value="edit-usergroup" />
 			<input type="hidden" name="usergroup_id" value="<?php echo esc_attr( $usergroup_id ); ?>" />
 			<?php
@@ -584,7 +583,7 @@ class EF_User_Groups extends EF_Module {
 			</p>
 		</div></div></div>
 		</form>
-		
+
 		<?php else :
 			/** Full page width view to allow adding a usergroup and edit the existing ones **/
 			$wp_list_table = new EF_Usergroups_List_Table();
@@ -604,7 +603,7 @@ class EF_User_Groups extends EF_Module {
 				<?php if ( isset( $_GET['action'] ) && $_GET['action'] == 'change-options' ): ?>
 				<form class="basic-settings" action="<?php echo esc_url( $this->get_link( array( 'action' => 'change-options' ) ) ); ?>" method="post">
 					<?php settings_fields( $this->module->options_group_name ); ?>
-					<?php do_settings_sections( $this->module->options_group_name ); ?>	
+					<?php do_settings_sections( $this->module->options_group_name ); ?>
 					<?php echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />'; ?>
 					<?php submit_button(); ?>
 				</form>
@@ -630,20 +629,20 @@ class EF_User_Groups extends EF_Module {
 			<?php $wp_list_table->inline_edit(); ?>
 		<?php endif;
 	}
-	
+
 	/**
 	 * Adds a form to the user profile page to allow adding usergroup selecting options
 	 */
 	function user_profile_page() {
 		global $user_id, $profileuser;
-		
+
 		if ( !$user_id || !current_user_can( $this->manage_usergroups_cap ) )
 			return;
 
 		//Don't allow display of user groups from network
 		if ( ( !is_null( get_current_screen() ) ) && ( get_current_screen()->is_network ) )
 			return;
-		
+
 		// Assemble all necessary data
 		$usergroups = $this->get_usergroups();
 		$selected_usergroups = $this->get_usergroups_for_user( $user_id );
@@ -668,9 +667,9 @@ class EF_User_Groups extends EF_Module {
 			</td>
 		</tr></tbody></table>
 		<?php wp_nonce_field( 'ef_edit_profile_usergroups_nonce', 'ef_edit_profile_usergroups_nonce' ); ?>
-	<?php 
+	<?php
 	}
-	
+
 	/**
 	 * Function called when a user's profile is updated
 	 * Adds user to specified usergroups
@@ -683,7 +682,7 @@ class EF_User_Groups extends EF_Module {
 	 * @return ???
 	 */
 	function user_profile_update( $errors, $update, $user ) {
-		
+
 		if ( !$update )
 			return array( &$errors, $update, &$user );
 
@@ -708,10 +707,10 @@ class EF_User_Groups extends EF_Module {
 					$this->remove_user_from_usergroup( $user->ID, $usergroup->term_id );
 			}
 		}
-			
+
 		return array( &$errors, $update, &$user );
 	}
-	
+
 	/**
 	 * Generate a link to one of the usergroups actions
 	 *
@@ -736,7 +735,7 @@ class EF_User_Groups extends EF_Module {
 		}
 		return add_query_arg( $args, get_admin_url( null, 'admin.php' ) );
 	}
-	
+
 	/**
 	 * Displays a list of usergroups with checkboxes
 	 *
@@ -789,29 +788,29 @@ class EF_User_Groups extends EF_Module {
 			<?php
 		}
 	}
-	
+
 	/**
 	 * Core Usergroups Module Functionality
 	 */
-	
+
 	/**
 	 * Get all of the registered usergroups. Returns an array of objects
 	 *
 	 * @since 0.7
-	 * 
+	 *
 	 * @param array $args Arguments to filter/sort by
 	 * @return array|bool $usergroups Array of Usergroups with relevant data, false if none
 	 */
 	function get_usergroups( $args = array() ) {
-		
+
 		// We want empty terms by default
 		if ( !isset( $args['hide_empty'] ) )
 			$args['hide_empty'] = 0;
-		
-		$usergroup_terms = get_terms( self::taxonomy_key, $args );	
+
+		$usergroup_terms = get_terms( self::taxonomy_key, $args );
 		if ( !$usergroup_terms )
 			return false;
-		
+
 		// Run the usergroups through get_usergroup_by() so we load users too
 		$usergroups = array();
 		foreach( $usergroup_terms as $usergroup_term ) {
@@ -819,7 +818,7 @@ class EF_User_Groups extends EF_Module {
 		}
 		return $usergroups;
 	}
-	
+
 	/**
 	 * Get all of the data associated with a single usergroup
 	 * Usergroup contains:
@@ -836,12 +835,12 @@ class EF_User_Groups extends EF_Module {
 	 * @return object|array|WP_Error $usergroup Usergroup information as specified by $output
 	 */
 	function get_usergroup_by( $field, $value ) {
-		
+
 		$usergroup = get_term_by( $field, $value, self::taxonomy_key );
-		
+
 		if ( !$usergroup || is_wp_error( $usergroup ) )
 			return $usergroup;
-		
+
 		// We're using an encoded description field to store extra values
 		// Declare $user_ids ahead of time just in case it's empty
 		$usergroup->user_ids = array();
@@ -856,7 +855,7 @@ class EF_User_Groups extends EF_Module {
 
 		return $usergroup;
 	}
-	
+
 	/**
 	 * Create a new usergroup containing:
 	 * - Name
@@ -874,15 +873,15 @@ class EF_User_Groups extends EF_Module {
 
 		if ( !isset( $args['name'] ) )
 			return new WP_Error( 'invalid', __( 'New user groups must have a name', 'edit-flow' ) );
-			
-		$name = $args['name'];			
+
+		$name = $args['name'];
 		$default = array(
 			'name' => '',
 			'slug' => self::term_prefix . sanitize_title( $name ),
 			'description' => '',
 		);
 		$args = array_merge( $default, $args );
-			
+
 		// Encode our extra fields and then store them in the description field
 		$args_to_encode = array(
 			'description' => $args['description'],
@@ -893,10 +892,10 @@ class EF_User_Groups extends EF_Module {
 		$usergroup = wp_insert_term( $name, self::taxonomy_key, $args );
 		if ( is_wp_error( $usergroup ) )
 			return $usergroup;
-		
+
 		return $this->get_usergroup_by( 'id', $usergroup['term_id'] );
 	}
-	
+
 	/**
 	 * Update a usergroup with new data.
 	 * Fields can include:
@@ -913,11 +912,11 @@ class EF_User_Groups extends EF_Module {
 	 * @return object|WP_Error $usergroup Object for the updated Usergroup on success, WP_Error otherwise
 	 */
 	function update_usergroup( $id, $args = array(), $users = null ) {
-		
+
 		$existing_usergroup = $this->get_usergroup_by( 'id', $id );
 		if ( is_wp_error( $existing_usergroup ) )
 			return new WP_Error( 'invalid', __( "User group doesn't exist.", 'edit-flow' ) );
-		
+
 		// Encode our extra fields and then store them in the description field
 		$args_to_encode = array();
 		$args_to_encode['description'] = ( isset( $args['description'] ) ) ? $args['description'] : $existing_usergroup->description;
@@ -925,14 +924,14 @@ class EF_User_Groups extends EF_Module {
 		$args_to_encode['user_ids'] = array_unique( $args_to_encode['user_ids'] );
 		$encoded_description = $this->get_encoded_description( $args_to_encode );
 		$args['description'] = $encoded_description;
-		
+
 		$usergroup = wp_update_term( $id, self::taxonomy_key, $args );
 		if ( is_wp_error( $usergroup ) )
 			return $usergroup;
-		
+
 		return $this->get_usergroup_by( 'id', $usergroup['term_id'] );
 	}
-	
+
 	/**
 	 * Delete a usergroup based on its term ID
 	 *
@@ -942,34 +941,34 @@ class EF_User_Groups extends EF_Module {
 	 * @param bool|WP_Error Returns true on success, WP_Error on failure
 	 */
 	function delete_usergroup( $id ) {
-		
+
 		$retval = wp_delete_term( $id, self::taxonomy_key );
 		return $retval;
 	}
-	
+
 	/**
 	 * Add an array of user logins or IDs to a given usergroup
 	 *
 	 * @since 0.7
 	 *
-	 * @param array $user_ids_or_logins User IDs or logins to be added to the usergroup	
+	 * @param array $user_ids_or_logins User IDs or logins to be added to the usergroup
 	 * @param int $id Usergroup to perform the action on
 	 * @param bool $reset Delete all of the relationships before adding
 	 * @return bool $success Whether or not we were successful
 	 */
 	function add_users_to_usergroup( $user_ids_or_logins, $id, $reset = true ) {
-		
+
 		if ( !is_array( $user_ids_or_logins ) )
 			return new WP_Error( 'invalid', __( "Invalid users variable. Should be array.", 'edit-flow' ) );
-		
+
 		// To dump the existing users from a usergroup, we need to pass an empty array
-		$usergroup = $this->get_usergroup_by( 'id', $id );		
+		$usergroup = $this->get_usergroup_by( 'id', $id );
 		if ( $reset ) {
 			$retval = $this->update_usergroup( $id, null, array() );
 			if ( is_wp_error( $retval ) )
 				return $retval;
 		}
-		
+
 		// Add the new users one by one to an array we'll pass back to the usergroup
 		$new_users = array();
 		foreach ( (array)$user_ids_or_logins as $user_id_or_login ) {
@@ -983,7 +982,7 @@ class EF_User_Groups extends EF_Module {
 			return $retval;
 		return true;
 	}
-	
+
 	/**
 	 * Add a given user to a Usergroup. Can use User ID or user login
 	 *
@@ -994,12 +993,12 @@ class EF_User_Groups extends EF_Module {
 	 * @return bool|WP_Error $retval Return true on success, WP_Error on error
 	 */
 	function add_user_to_usergroup( $user_id_or_login, $ids ) {
-		
+
 		if ( !is_numeric( $user_id_or_login ) )
 			$user_id = get_user_by( 'login', $user_id_or_login )->ID;
 		else
 			$user_id = (int)$user_id_or_login;
-		
+
 		foreach( (array)$ids as $usergroup_id ) {
 			$usergroup = $this->get_usergroup_by( 'id', $usergroup_id );
 			$usergroup->user_ids[] = $user_id;
@@ -1009,7 +1008,7 @@ class EF_User_Groups extends EF_Module {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Remove a given user from one or more usergroups
 	 *
@@ -1020,12 +1019,12 @@ class EF_User_Groups extends EF_Module {
 	 * @return bool|WP_Error $retval Return true on success, WP_Error on error
 	 */
 	function remove_user_from_usergroup( $user_id_or_login, $ids ) {
-		
+
 		if ( !is_numeric( $user_id_or_login ) )
 			$user_id = get_user_by( 'login', $user_id_or_login )->ID;
 		else
 			$user_id = (int)$user_id_or_login;
-		
+
 		// Remove the user from each usergroup specified
 		foreach( (array)$ids as $usergroup_id ) {
 			$usergroup = $this->get_usergroup_by( 'id', $usergroup_id );
@@ -1039,9 +1038,9 @@ class EF_User_Groups extends EF_Module {
 				return $retval;
 		}
 		return true;
-		
+
 	}
-	
+
 	/**
 	 * Get all of the Usergroup ids or objects for a given user
 	 *
@@ -1057,7 +1056,7 @@ class EF_User_Groups extends EF_Module {
 			$user_id = get_user_by( 'login', $user_id_or_login )->ID;
 		else
 			$user_id = (int)$user_id_or_login;
-		
+
 		// Unfortunately, the easiest way to do this is get all usergroups
 		// and then loop through each one to see if the user ID is stored
 		$all_usergroups = $this->get_usergroups();
@@ -1070,14 +1069,14 @@ class EF_User_Groups extends EF_Module {
 				if ( $ids_or_objects == 'ids' )
 					$usergroup_objects_or_ids[] = (int)$usergroup->term_id;
 				else if ( $ids_or_objects == 'objects' )
-					$usergroup_objects_or_ids[] = $usergroup;			
+					$usergroup_objects_or_ids[] = $usergroup;
 			}
 			return $usergroup_objects_or_ids;
 		} else {
 			return false;
 		}
 	}
-	
+
 }
 
 }
@@ -1091,35 +1090,35 @@ if ( !class_exists( 'EF_Usergroups_List_Table' ) ) {
  */
 class EF_Usergroups_List_Table extends WP_List_Table
 {
-	
+
 	var $callback_args;
-	
+
 	function __construct() {
-		
+
 		parent::__construct( array(
 			'plural' => 'user groups',
 			'singular' => 'user group',
 			'ajax' => true
 		) );
-		
+
 	}
-	
+
 	/**
 	 * @todo Paginate if we have a lot of usergroups
 	 *
 	 * @since 0.7
 	 */
 	function prepare_items() {
-		global $edit_flow;		
-		
+		global $edit_flow;
+
 		$columns = $this->get_columns();
 		$hidden = array();
 		$sortable = array();
-		
+
 		$this->_column_headers = array( $columns, $hidden, $sortable );
-		
+
 		$this->items = $edit_flow->user_groups->get_usergroups();
-		
+
 		$this->set_pagination_args( array(
 			'total_items' => count( $this->items ),
 			'per_page' => count( $this->items ),
@@ -1134,7 +1133,7 @@ class EF_Usergroups_List_Table extends WP_List_Table
 	function no_items() {
 		_e( 'No user groups found.', 'edit-flow' );
 	}
-	
+
 	/**
 	 * Columns in our Usergroups table
 	 *
@@ -1145,12 +1144,12 @@ class EF_Usergroups_List_Table extends WP_List_Table
 		$columns = array(
 			'name' => __( 'Name', 'edit-flow' ),
 			'description' => __( 'Description', 'edit-flow' ),
-			'users' => __( 'Users in Group', 'edit-flow' ),			
+			'users' => __( 'Users in Group', 'edit-flow' ),
 		);
-		
+
 		return $columns;
 	}
-	
+
 	/**
 	 * Process the Usergroup column value for all methods that aren't registered
 	 *
@@ -1158,9 +1157,9 @@ class EF_Usergroups_List_Table extends WP_List_Table
 	 */
 	function column_default( $usergroup, $column_name ) {
 
-		
+
 	}
-	
+
 	/**
 	 * Process the Usergroup name column value.
 	 * Displays the name of the Usergroup, and action links
@@ -1169,25 +1168,25 @@ class EF_Usergroups_List_Table extends WP_List_Table
 	 */
 	function column_name( $usergroup ) {
 		global $edit_flow;
-		
+
 		// @todo direct edit link
 		$output = '<strong><a href="' . esc_url( $edit_flow->user_groups->get_link( array( 'action' => 'edit-usergroup', 'usergroup-id' => $usergroup->term_id ) ) ) . '">' . esc_html( $usergroup->name ) . '</a></strong>';
-		
+
 		$actions = array();
 		$actions['edit edit-usergroup'] = sprintf( '<a href="%1$s">' . __( 'Edit', 'edit-flow' ) . '</a>', $edit_flow->user_groups->get_link( array( 'action' => 'edit-usergroup', 'usergroup-id' => $usergroup->term_id ) ) );
 		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';
 		$actions['delete delete-usergroup'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->user_groups->get_link( array( 'action' => 'delete-usergroup', 'usergroup-id' => $usergroup->term_id ) ) );
-		
+
 		$output .= $this->row_actions( $actions, false );
 		$output .= '<div class="hidden" id="inline_' . $usergroup->term_id . '">';
 		$output .= '<div class="name">' . esc_html( $usergroup->name ) . '</div>';
-		$output .= '<div class="description">' . esc_html( $usergroup->description ) . '</div>';	
+		$output .= '<div class="description">' . esc_html( $usergroup->description ) . '</div>';
 		$output .= '</div>';
-		
+
 		return $output;
-			
+
 	}
-	
+
 	/**
 	 * Handle the 'description' column for the table of Usergroups
 	 * Don't need to unencode this because we already did when the usergroup was loaded
@@ -1197,7 +1196,7 @@ class EF_Usergroups_List_Table extends WP_List_Table
 	function column_description( $usergroup ) {
 		return esc_html( $usergroup->description );
 	}
-	
+
 	/**
 	 * Show the "Total Users" in a given usergroup
 	 *
@@ -1207,7 +1206,7 @@ class EF_Usergroups_List_Table extends WP_List_Table
 		global $edit_flow;
 		return '<a href="' . esc_url( $edit_flow->user_groups->get_link( array( 'action' => 'edit-usergroup', 'usergroup-id' => $usergroup->term_id ) ) ) . '">' . count( $usergroup->user_ids ) . '</a>';
 	}
-	
+
 	/**
 	 * Prepare a single row of information about a usergroup
 	 *
@@ -1221,7 +1220,7 @@ class EF_Usergroups_List_Table extends WP_List_Table
 		echo $this->single_row_columns( $usergroup );
 		echo '</tr>';
 	}
-	
+
 	/**
 	 * If we use this form, we can have inline editing!
 	 *
@@ -1256,6 +1255,6 @@ class EF_Usergroups_List_Table extends WP_List_Table
 		</tbody></table></form>
 	<?php
 	}
-		
+
 }
 }
