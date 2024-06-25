@@ -21,12 +21,14 @@
 		<exclude name="WordPress.WP.CapitalPDangit.Misspelled" />
 		<!-- We use trigger_error extensively -->
 		<exclude name="WordPress.PHP.DevelopmentFunctions.error_log_trigger_error" />
+
+		<exclude name="WordPress.WP.I18n.InterpolatedVariableSingular" />
+		<exclude name="WordPress.WP.I18n.InterpolatedVariablePlural" />
 	</rule>
 
 	<file>.</file>
 
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
-	<exclude-pattern>*/nodeapp/*</exclude-pattern>
 	<exclude-pattern>*/vendor/*</exclude-pattern>
-	<exclude-pattern>*/wordpress/*</exclude-pattern>
+	<exclude-pattern>*/tests/*</exclude-pattern>
 </ruleset>
