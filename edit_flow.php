@@ -4,7 +4,7 @@
  * Plugin URI: http://editflow.org/
  * Description: Remixing the WordPress admin for better editorial workflow options.
  * Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Automattic, and others
- * Version: 0.9.9
+ * Version: 0.10.0
  * Requires at least: 6.0
  * Requires PHP: 8.0
  * License: GPL-3
@@ -32,7 +32,7 @@ if ( version_compare( phpversion(), '8.0', '<' ) ) {
 }
 
 // Define contants
-define( 'EDIT_FLOW_VERSION', '0.9.9' );
+define( 'EDIT_FLOW_VERSION', '0.10.0' );
 define( 'EDIT_FLOW_ROOT', __DIR__ );
 define( 'EDIT_FLOW_FILE_PATH', EDIT_FLOW_ROOT . '/' . basename( __FILE__ ) );
 define( 'EDIT_FLOW_URL', plugins_url( '/', __FILE__ ) );
@@ -364,11 +364,11 @@ class edit_flow {
 		$module = false;
 		foreach ( $this->modules as $mod_name => $mod_data ) {
 
-			if ( $key == 'name' && $value == $mod_name ) {
+			if ( 'name' === $key && $value === $mod_name ) {
 				$module = $this->modules->$mod_name;
 			} else {
 				foreach ( $mod_data as $mod_data_key => $mod_data_value ) {
-					if ( $mod_data_key == $key && $mod_data_value == $value ) {
+					if ( $mod_data_key === $key && $mod_data_value === $value ) {
 						$module = $this->modules->$mod_name;
 					}
 				}
