@@ -23,7 +23,7 @@ if ( ! class_exists( 'EF_Settings' ) ) {
 				'default_options' => array(
 					'enabled' => 'on',
 					'vip_features' => $this->is_vip_site() ? 'on' : 'off',
-					'analytics' => $this->is_vip_site() ? 'on' : 'off',
+					'analytics' => $this->is_vip_site( true ) ? 'on' : 'off',
 				),
 				'configure_page_cb' => 'print_default_settings',
 				'autoload' => true,
