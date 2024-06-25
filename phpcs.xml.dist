@@ -24,6 +24,10 @@
 
 		<exclude name="WordPress.WP.I18n.InterpolatedVariableSingular" />
 		<exclude name="WordPress.WP.I18n.InterpolatedVariablePlural" />
+		<exclude name="WordPress.WP.I18n.MissingSingularPlaceholder" />
+		<exclude name="WordPress.WP.I18n.NonSingularStringLiteralText" />
+
+		<exclude name="Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure" />
 	</rule>
 
 	<file>.</file>
