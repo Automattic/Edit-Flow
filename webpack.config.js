@@ -1,9 +1,22 @@
+const defaultScriptsConfig = require( '@wordpress/scripts/config/webpack.config' );
+var glob = require( 'glob' );
 var MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
 var debug = process.env.NODE_ENV !== 'production';
-var glob = require( 'glob' );
+
+const wpScriptsModules = [ 'workflow-manager' ];
+const wpScriptsModulesGlob =
+	wpScriptsModules.length === 1 ? wpScriptsModules[ 0 ] : `{${ wpScriptsModules.join( ',' ) }}`;
+
+const wpScriptsModulesEntries = glob
+	.sync( `./modules/${ wpScriptsModulesGlob }/lib/*.js` )
+	.reduce( ( acc, item ) => {
+		const name = item.replace( /\.\/modules\/(.*)\/lib\/(.*).js/, '$1' );
+		acc[ `${ name }/${ name }` ] = item;
+		return acc;
+	}, {} );
 
 const entries = glob.sync( './modules/**/lib/*-block.js' ).reduce( ( acc, item ) => {
-	const name = item.replace( /modules\/(.*)\/lib\/(.*)-block.js/, '$1' );
+	const name = item.replace( /\.\/modules\/(.*)\/lib\/(.*)-block.js/, '$1' );
 	acc[ name ] = item;
 	return acc;
 }, {} );
@@ -22,6 +35,16 @@ var plugins = [ extractEditorSCSS, extractBlockSCSS ];
 var scssConfig = [ 'css-loader', 'sass-loader' ];
 
 module.exports = [
+	{
+		...defaultScriptsConfig,
+		entry: {
+			...wpScriptsModulesEntries,
+		},
+		output: {
+			...defaultScriptsConfig.output,
+			path: __dirname + '/dist/modules/',
+		},
+	},
 	{
 		context: __dirname,
 		devtool: debug ? 'source-map' : null,
