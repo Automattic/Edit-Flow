@@ -4,7 +4,7 @@ import { createRoot } from '@wordpress/element';
 import './style.scss';
 
 export default function WorkflowManager() {
-	return <Button>Test component</Button>;
+	return <Button variant="primary">My button 123</Button>;
 }
 
 domReady( () => {

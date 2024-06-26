@@ -78,7 +78,7 @@ class EF_Workflow_Manager extends EF_Module {
 
 			wp_enqueue_script( 'edit-flow-workflow-manager-script', EDIT_FLOW_URL . 'dist/modules/workflow-manager/workflow-manager.js', $asset_file['dependencies'], $asset_file['version'], true );
 
-			wp_enqueue_style( 'edit-flow-workflow-manager-styles', EDIT_FLOW_URL . 'dist/modules/workflow-manager/style-workflow-manager.css', $asset_file['version'], true );
+			wp_enqueue_style( 'edit-flow-workflow-manager-styles', EDIT_FLOW_URL . 'dist/modules/workflow-manager/style-workflow-manager.css', [ 'wp-components' ], $asset_file['version'] );
 		}
 	}
 
