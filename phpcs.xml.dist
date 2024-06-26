@@ -17,6 +17,13 @@
 		<!-- Allow short ternaries -->
 		<exclude name="WordPress.PHP.DisallowShortTernary.Found" />
 
+		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase" />
+		<exclude name="Universal.Files.SeparateFunctionsFromOO.Mixed" />
+		<exclude name="PEAR.NamingConventions.ValidClassName.StartWithCapital" />
+		<exclude name="PEAR.NamingConventions.ValidClassName.Invalid" />
+
+		<exclude name="WordPressVIPMinimum.Hooks.AlwaysReturnInFilter.MissingReturnStatement" />
+
 		<!-- Generates too many false positives -->
 		<exclude name="WordPress.WP.CapitalPDangit.Misspelled" />
 		<!-- We use trigger_error extensively -->
