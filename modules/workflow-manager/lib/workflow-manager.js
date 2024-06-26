@@ -1,8 +1,13 @@
 import { Button } from '@wordpress/components';
+import domReady from '@wordpress/dom-ready';
+import { createRoot } from '@wordpress/element';
 import './style.scss';
 
-export default function MyButton() {
+export default function WorkflowManager() {
 	return <Button>Test component</Button>;
 }
 
-console.log( 'workflow-manager.js loaded' );
+domReady( () => {
+	const root = createRoot( document.getElementById( 'workflow-manager' ) );
+	root.render( <WorkflowManager /> );
+} );

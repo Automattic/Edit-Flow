@@ -1,7 +1,7 @@
 const defaultScriptsConfig = require( '@wordpress/scripts/config/webpack.config' );
-var glob = require( 'glob' );
-var MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
-var debug = process.env.NODE_ENV !== 'production';
+const glob = require( 'glob' );
+const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
+const debug = process.env.NODE_ENV !== 'production';
 
 const wpScriptsModules = [ 'workflow-manager' ];
 const wpScriptsModulesGlob =
@@ -10,29 +10,28 @@ const wpScriptsModulesGlob =
 const wpScriptsModulesEntries = glob
 	.sync( `./modules/${ wpScriptsModulesGlob }/lib/*.js` )
 	.reduce( ( acc, item ) => {
-		const name = item.replace( /\.\/modules\/(.*)\/lib\/(.*).js/, '$1' );
-		acc[ `${ name }/${ name }` ] = item;
+		const name = item.replace( /modules\/.*\/lib\/(.*).js/, '$1' );
+		acc[ `${ name }/${ name }` ] = `./${ item }`;
 		return acc;
 	}, {} );
 
 const entries = glob.sync( './modules/**/lib/*-block.js' ).reduce( ( acc, item ) => {
-	const name = item.replace( /\.\/modules\/(.*)\/lib\/(.*)-block.js/, '$1' );
-	acc[ name ] = item;
+	const name = item.replace( /modules\/(.*)\/lib\/(.*)-block.js/, '$1' );
+	acc[ name ] = `./${ item }`;
 	return acc;
 }, {} );
 
 // @todo
-var extractEditorSCSS = new MiniCssExtractPlugin( {
+const extractEditorSCSS = new MiniCssExtractPlugin( {
 	filename: './[name].editor.build.css',
 } );
 
-var extractBlockSCSS = new MiniCssExtractPlugin( {
+const extractBlockSCSS = new MiniCssExtractPlugin( {
 	filename: './[name].style.build.css',
 } );
 
-var plugins = [ extractEditorSCSS, extractBlockSCSS ];
-
-var scssConfig = [ 'css-loader', 'sass-loader' ];
+const plugins = [ extractEditorSCSS, extractBlockSCSS ];
+const scssConfig = [ 'css-loader', 'sass-loader' ];
 
 module.exports = [
 	{

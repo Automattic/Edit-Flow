@@ -74,7 +74,7 @@ class EF_Workflow_Manager extends EF_Module {
 	public function action_admin_enqueue_scripts() {
 		// Load Javascript we need to use on the configuration views (jQuery Sortable and Quick Edit)
 		if ( $this->is_whitelisted_settings_view( $this->module->name ) ) {
-			$asset_file = include EDIT_FLOW_FILE_PATH . 'dist/modules/workflow-manager/index.asset.php';
+			$asset_file = include EDIT_FLOW_ROOT . '/dist/modules/workflow-manager/workflow-manager.asset.php';
 
 			wp_enqueue_script( 'edit-flow-workflow-manager-script', EDIT_FLOW_URL . 'dist/modules/workflow-manager/workflow-manager.js', $asset_file['dependencies'], $asset_file['version'], true );
 
@@ -85,6 +85,6 @@ class EF_Workflow_Manager extends EF_Module {
 	public function print_configure_view() {
 		global $edit_flow;
 
-		printf( '<p>%s</p>', esc_html__( 'Workflow manager.', 'edit-flow' ) );
+		printf( '<div id="workflow-manager"></div>' );
 	}
 }
