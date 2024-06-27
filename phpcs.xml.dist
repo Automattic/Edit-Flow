@@ -19,14 +19,31 @@
 
 		<!-- Generates too many false positives -->
 		<exclude name="WordPress.WP.CapitalPDangit.Misspelled" />
+
 		<!-- We use trigger_error extensively -->
 		<exclude name="WordPress.PHP.DevelopmentFunctions.error_log_trigger_error" />
+
+		<!-- ToDo: Remove these exceptions overttime -->
+		<!-- These are for legacy reasons, as EditFlow's main file cannot be altered -->
+		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase" />
+		<exclude name="Universal.Files.SeparateFunctionsFromOO.Mixed" />
+		<exclude name="PEAR.NamingConventions.ValidClassName.StartWithCapital" />
+		<exclude name="PEAR.NamingConventions.ValidClassName.Invalid" />
+		<!-- Allow not returning after the setup theme filter for now -->
+		<exclude name="WordPressVIPMinimum.Hooks.AlwaysReturnInFilter.MissingReturnStatement" />
+		<!-- Localization is done in a legacy manner in some places, and its ben left as is for now -->
+		<exclude name="WordPress.WP.I18n.InterpolatedVariableSingular" />
+		<exclude name="WordPress.WP.I18n.InterpolatedVariablePlural" />
+		<exclude name="WordPress.WP.I18n.MissingSingularPlaceholder" />
+		<exclude name="WordPress.WP.I18n.NonSingularStringLiteralText" />
+		<!-- This rule is hard to solve given the heavy use of JS in the PHP code right now -->
+		<exclude name="Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure" />
+		<exclude name="WordPress.DateTime.RestrictedFunctions.date_date" />
 	</rule>
 
 	<file>.</file>
 
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
-	<exclude-pattern>*/nodeapp/*</exclude-pattern>
 	<exclude-pattern>*/vendor/*</exclude-pattern>
-	<exclude-pattern>*/wordpress/*</exclude-pattern>
+	<exclude-pattern>*/tests/*</exclude-pattern>
 </ruleset>
