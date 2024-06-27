@@ -413,8 +413,6 @@ class edit_flow {
 				'selected' => esc_html__( 'Selected', 'edit-flow' ),
 			)
 		);
-
-		wp_register_script( 'jquery-quicksearch', EDIT_FLOW_URL . 'common/js/jquery.quicksearch.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
 	}
 }
 

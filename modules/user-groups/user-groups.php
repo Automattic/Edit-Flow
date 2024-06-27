@@ -231,8 +231,7 @@ if ( ! class_exists( 'EF_User_Groups' ) ) {
 
 			if ( $this->is_whitelisted_functional_view() || $this->is_whitelisted_settings_view( $this->module->name ) ) {
 				wp_enqueue_script( 'jquery-listfilterizer' );
-				wp_enqueue_script( 'jquery-quicksearch' );
-				wp_enqueue_script( 'edit-flow-user-groups-js', $this->module_url . 'lib/user-groups.js', array( 'jquery', 'jquery-listfilterizer', 'jquery-quicksearch' ), EDIT_FLOW_VERSION, true );
+				wp_enqueue_script( 'edit-flow-user-groups-js', $this->module_url . 'lib/user-groups.js', array( 'jquery', 'jquery-listfilterizer' ), EDIT_FLOW_VERSION, true );
 			}
 
 			if ( $this->is_whitelisted_settings_view( $this->module->name ) ) {

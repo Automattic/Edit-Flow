@@ -1480,7 +1480,7 @@ if ( ! class_exists( 'EF_Editorial_Metadata' ) ) {
 			<?php if ( ! isset( $_GET['action'] ) || ( isset( $_GET['action'] ) && 'edit-term' != $_GET['action'] ) ) : ?>
 		<div id="col-right">
 		<div class="col-wrap">
-		<form id="posts-filter" action="" method="post">
+		<form id="" action="" method="post">
 				<?php $wp_list_table->display(); ?>
 				<?php wp_nonce_field( 'editorial-metadata-sortable', 'editorial-metadata-sortable' ); ?>
 		</form>
