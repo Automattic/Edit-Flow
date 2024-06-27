@@ -460,7 +460,7 @@ if ( ! class_exists( 'EF_Editorial_Metadata' ) ) {
 		 */
 		private function show_date_or_datetime( $current_date ) {
 
-			if ( gmdate( 'Hi', $current_date ) == '0000' ) {
+			if ( date( 'Hi', $current_date ) == '0000' ) {
 				return date_i18n( 'M d Y', $current_date );
 			} else {
 				return date_i18n( 'M d Y H:i', $current_date );
@@ -863,9 +863,9 @@ if ( ! class_exists( 'EF_Editorial_Metadata' ) ) {
 					}
 
 					// All day vs. day and time
-					$date = gmdate( get_option( 'date_format' ), $pm_value );
-					$time = gmdate( get_option( 'time_format' ), $pm_value );
-					if ( '0000' == gmdate( 'Hi', $pm_value ) ) {
+					$date = date( get_option( 'date_format' ), $pm_value );
+					$time = date( get_option( 'time_format' ), $pm_value );
+					if ( '0000' == date( 'Hi', $pm_value ) ) {
 						$pm_value = $date;
 					} else {
 						// translators: 1: date, 2: time

@@ -38,6 +38,7 @@
 		<exclude name="WordPress.WP.I18n.NonSingularStringLiteralText" />
 		<!-- This rule is hard to solve given the heavy use of JS in the PHP code right now -->
 		<exclude name="Squiz.PHP.DisallowMultipleAssignments.FoundInControlStructure" />
+		<exclude name="WordPress.DateTime.RestrictedFunctions.date_date" />
 	</rule>
 
 	<file>.</file>

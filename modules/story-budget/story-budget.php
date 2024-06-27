@@ -433,8 +433,8 @@ class EF_Story_Budget extends EF_Module {
 		$ending_date = $beginning_date + ( $days_to_show * DAY_IN_SECONDS );
 
 		$args['date_query'] = array(
-			'after'     => gmdate( 'Y-m-d', $beginning_date ),
-			'before'    => gmdate( 'Y-m-d', $ending_date ),
+			'after'     => date( 'Y-m-d', $beginning_date ),
+			'before'    => date( 'Y-m-d', $ending_date ),
 			'inclusive' => true,
 		);
 
@@ -717,7 +717,7 @@ class EF_Story_Budget extends EF_Module {
 		}
 
 		if ( ! $user_filters['start_date'] ) {
-			$user_filters['start_date'] = gmdate( 'Y-m-d' );
+			$user_filters['start_date'] = date( 'Y-m-d' );
 		}
 
 		if ( ! $user_filters['number_days'] ) {

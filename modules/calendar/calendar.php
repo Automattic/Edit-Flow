@@ -357,10 +357,10 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 
 			// Persist the old hourstamp because we can't manipulate the exact time on the calendar
 			// Bump the last modified timestamps too
-			$existing_time = gmdate( 'H:i:s', strtotime( $post->post_date ) );
-			$existing_time_gmt = gmdate( 'H:i:s', strtotime( $post->post_date_gmt ) );
+			$existing_time = date( 'H:i:s', strtotime( $post->post_date ) );
+			$existing_time_gmt = date( 'H:i:s', strtotime( $post->post_date_gmt ) );
 			$new_values = array(
-				'post_date' => gmdate( 'Y-m-d', $next_date_full ) . ' ' . $existing_time,
+				'post_date' => date( 'Y-m-d', $next_date_full ) . ' ' . $existing_time,
 				'post_modified' => current_time( 'mysql' ),
 				'post_modified_gmt' => current_time( 'mysql', 1 ),
 			);
@@ -369,7 +369,7 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 			// If the user desires that to be the behaviour, they can set the result of this filter to 'true'
 			// With how WordPress works internally, setting 'post_date_gmt' will set the timestamp
 			if ( apply_filters( 'ef_calendar_allow_ajax_to_set_timestamp', false ) ) {
-				$new_values['post_date_gmt'] = gmdate( 'Y-m-d', $next_date_full ) . ' ' . $existing_time_gmt;
+				$new_values['post_date_gmt'] = date( 'Y-m-d', $next_date_full ) . ' ' . $existing_time_gmt;
 			}
 
 			// We have to do SQL unfortunately because of core bugginess
@@ -421,7 +421,7 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 			}
 
 			// Set the start date for the posts_where filter
-			$this->start_date = apply_filters( 'ef_calendar_ics_subscription_start_date', $this->get_beginning_of_week( gmdate( 'Y-m-d', current_time( 'timestamp' ) ) ) );
+			$this->start_date = apply_filters( 'ef_calendar_ics_subscription_start_date', $this->get_beginning_of_week( date( 'Y-m-d', current_time( 'timestamp' ) ) ) );
 
 			$this->total_weeks = apply_filters( 'ef_calendar_total_weeks', $this->total_weeks, 'ics_subscription' );
 
@@ -566,7 +566,7 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 			$timestamp += $offset_in_seconds;
 
 			// \T and \Z are escaped for literal T and Z characters
-			return gmdate( 'Ymd\THis\Z', $timestamp );
+			return date( 'Ymd\THis\Z', $timestamp );
 		}
 
 		/**
@@ -640,7 +640,7 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 				'cat' => '',
 				'author' => '',
 				'num_weeks' => $this->total_weeks,
-				'start_date' => gmdate( 'Y-m-d', current_time( 'timestamp' ) ),
+				'start_date' => date( 'Y-m-d', current_time( 'timestamp' ) ),
 			);
 			$old_filters = array_merge( $default_filters, isset( $screen_options['num_weeks'] ) ? array( 'num_weeks' => $screen_options['num_weeks'] ) : array(), (array) $old_filters );
 
@@ -699,7 +699,7 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 			$heading_date = $filters['start_date'];
 			for ( $i = 0; $i < 7; $i++ ) {
 				$dates[ $i ] = $heading_date;
-				$heading_date = gmdate( 'Y-m-d', strtotime( '+1 day', strtotime( $heading_date ) ) );
+				$heading_date = date( 'Y-m-d', strtotime( '+1 day', strtotime( $heading_date ) ) );
 			}
 
 			// we sort by post statuses....... eventually
@@ -776,7 +776,7 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 							$split_month = $single_date_month;
 							$current_month = $single_date_month;
 						}
-						$week_single_date = gmdate( 'Y-m-d', strtotime( '+1 day', strtotime( $week_single_date ) ) );
+						$week_single_date = date( 'Y-m-d', strtotime( '+1 day', strtotime( $week_single_date ) ) );
 					}
 					?>
 					<?php if ( $split_month ) : ?>
@@ -823,13 +823,13 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 						$td_classes = array(
 							'day-unit',
 						);
-						$day_name = gmdate( 'D', strtotime( $week_single_date ) );
+						$day_name = date( 'D', strtotime( $week_single_date ) );
 
 						if ( in_array( $day_name, $dotw ) ) {
 							$td_classes[] = 'weekend-day';
 						}
 
-						if ( gmdate( 'Y-m-d', current_time( 'timestamp' ) ) == $week_single_date ) {
+						if ( date( 'Y-m-d', current_time( 'timestamp' ) ) == $week_single_date ) {
 							$td_classes[] = 'today';
 						}
 
@@ -842,10 +842,10 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 						?>
 				<td class="<?php echo esc_attr( implode( ' ', $td_classes ) ); ?>" id="<?php echo esc_attr( $week_single_date ); ?>">
 					<button class='schedule-new-post-button'>+</button>
-						<?php if ( gmdate( 'Y-m-d', current_time( 'timestamp' ) ) == $week_single_date ) : ?>
+						<?php if ( date( 'Y-m-d', current_time( 'timestamp' ) ) == $week_single_date ) : ?>
 						<div class="day-unit-today"><?php esc_html_e( 'Today', 'edit-flow' ); ?></div>
 					<?php endif; ?>
-					<div class="day-unit-label"><?php echo esc_html( gmdate( 'j', strtotime( $week_single_date ) ) ); ?></div>
+					<div class="day-unit-label"><?php echo esc_html( date( 'j', strtotime( $week_single_date ) ) ); ?></div>
 					<ul class="post-list">
 						<?php
 						$this->hidden = 0;
@@ -869,7 +869,7 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 
 						<?php
 						if ( current_user_can( $this->create_post_cap ) ) :
-							$date_formatted = gmdate( 'D, M jS, Y', strtotime( $week_single_date ) );
+							$date_formatted = date( 'D, M jS, Y', strtotime( $week_single_date ) );
 							?>
 
 						<form method="POST" class="post-insert-dialog">
@@ -1272,7 +1272,7 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 			}
 
 			$beginning_date = $this->get_beginning_of_week( $this->start_date, 'Y-m-d', $this->current_week );
-			$ending_date    = gmdate( 'Y-m-d', strtotime( $beginning_date ) + WEEK_IN_SECONDS );
+			$ending_date    = date( 'Y-m-d', strtotime( $beginning_date ) + WEEK_IN_SECONDS );
 
 			$args['date_query'] = array(
 				'after'     => $beginning_date,
@@ -1288,7 +1288,7 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 			while ( $post_results->have_posts() ) {
 				$post_results->the_post();
 				global $post;
-				$key_date = gmdate( 'Y-m-d', strtotime( $post->post_date ) );
+				$key_date = date( 'Y-m-d', strtotime( $post->post_date ) );
 				$posts[ $key_date ][] = $post;
 			}
 
@@ -1310,14 +1310,14 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 			if ( ! isset( $weeks_offset ) ) {
 				$weeks_offset = $this->total_weeks;
 			} else if ( 0 == $weeks_offset ) {
-				$filters['start_date'] = $this->get_beginning_of_week( gmdate( 'Y-m-d', current_time( 'timestamp' ) ) );
+				$filters['start_date'] = $this->get_beginning_of_week( date( 'Y-m-d', current_time( 'timestamp' ) ) );
 			}
 
 			if ( 'previous' == $direction ) {
 				$weeks_offset = '-' . $weeks_offset;
 			}
 
-			$filters['start_date'] = gmdate( 'Y-m-d', strtotime( $weeks_offset . ' weeks', strtotime( $filters['start_date'] ) ) );
+			$filters['start_date'] = date( 'Y-m-d', strtotime( $weeks_offset . ' weeks', strtotime( $filters['start_date'] ) ) );
 			$url = add_query_arg( $filters, menu_page_url( $this->module->slug, false ) );
 
 			if ( count( $supported_post_types ) > 1 ) {
@@ -1342,10 +1342,10 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 
 			$date = strtotime( $date );
 			$start_of_week = get_option( 'start_of_week' );
-			$day_of_week = gmdate( 'w', $date );
+			$day_of_week = date( 'w', $date );
 			$date += ( ( $start_of_week - $day_of_week - 7 ) % 7 ) * 60 * 60 * 24;
 			$date = strtotime( '+' . ( $week - 1 ) . ' week', $date );
-				$formatted_start_of_week = gmdate( $format, $date );
+				$formatted_start_of_week = date( $format, $date );
 			return $formatted_start_of_week;
 		}
 
@@ -1364,10 +1364,10 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 
 			$date = strtotime( $date );
 			$end_of_week = get_option( 'start_of_week' ) - 1;
-			$day_of_week = gmdate( 'w', $date );
+			$day_of_week = date( 'w', $date );
 			$date += ( ( $end_of_week - $day_of_week + 7 ) % 7 ) * 60 * 60 * 24;
 			$date = strtotime( '+' . ( $week - 1 ) . ' week', $date );
-			$formatted_end_of_week = gmdate( $format, $date );
+			$formatted_end_of_week = date( $format, $date );
 			return $formatted_end_of_week;
 		}
 
@@ -1382,7 +1382,7 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 			$first_datetime = strtotime( $this->start_date );
 			$first_date = date_i18n( get_option( 'date_format' ), $first_datetime );
 			$total_days = ( $this->total_weeks * 7 ) - 1;
-			$last_datetime = strtotime( '+' . $total_days . ' days', gmdate( 'U', strtotime( $this->start_date ) ) );
+			$last_datetime = strtotime( '+' . $total_days . ' days', date( 'U', strtotime( $this->start_date ) ) );
 			$last_date = date_i18n( get_option( 'date_format' ), $last_datetime );
 			// translators: %1$s = first date, %2$s = last date
 			echo esc_html( sprintf( __( 'for %1$s through %2$s', 'edit-flow' ), $first_date, $last_date ) );
@@ -1572,7 +1572,7 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 			$post_placeholder = array(
 				'post_title' => $post_title,
 				'post_status' => $post_status,
-				'post_date' => gmdate( 'Y-m-d H:i:s', strtotime( $post_date ) ),
+				'post_date' => date( 'Y-m-d H:i:s', strtotime( $post_date ) ),
 				'post_type' => $this->module->options->quick_create_post_type,
 			);
 
@@ -1580,7 +1580,7 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 			// If the user desires that to be the behavior, they can set the result of this filter to 'true'
 			// With how WordPress works internally, setting 'post_date_gmt' will set the timestamp
 			if ( apply_filters( 'ef_calendar_allow_ajax_to_set_timestamp', false ) ) {
-				$post_placeholder['post_date_gmt'] = gmdate( 'Y-m-d H:i:s', strtotime( $post_date ) );
+				$post_placeholder['post_date_gmt'] = date( 'Y-m-d H:i:s', strtotime( $post_date ) );
 			}
 
 			// Create the post
@@ -1752,7 +1752,7 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 					}
 					break;
 				case 'start_date':
-					return gmdate( 'Y-m-d', strtotime( $dirty_value ) );
+					return date( 'Y-m-d', strtotime( $dirty_value ) );
 				break;
 				case 'cat':
 				case 'author':
@@ -1906,7 +1906,7 @@ if ( ! class_exists( 'EF_Calendar' ) ) {
 					'MAX' => $this->max_weeks,
 					'DEFAULT' => $this->total_weeks,
 				),
-				'BEGINNING_OF_WEEK' => $this->get_beginning_of_week( gmdate( 'Y-m-d', current_time( 'timestamp' ) ) ),
+				'BEGINNING_OF_WEEK' => $this->get_beginning_of_week( date( 'Y-m-d', current_time( 'timestamp' ) ) ),
 				'FILTERS' => $this->get_filters(),
 				'PAGE_URL' => menu_page_url( $this->module->slug, false ),
 				'WP_VERSION' => $wp_version,

@@ -836,7 +836,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 			$body .= sprintf( __( 'You are receiving this email because you are subscribed to "%s".', 'edit-flow' ), ef_draft_or_post_title( $post->ID ) );
 			$body .= "\r\n";
 			/* translators: 1: date */
-			$body .= sprintf( __( 'This email was sent %s.', 'edit-flow' ), gmdate( 'r' ) );
+			$body .= sprintf( __( 'This email was sent %s.', 'edit-flow' ), date( 'r' ) );
 			$body .= "\r\n \r\n";
 			$body .= get_option( 'blogname' ) . ' | ' . get_bloginfo( 'url' ) . ' | ' . admin_url( '/' ) . "\r\n";
 			return $body;
