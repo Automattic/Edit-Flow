@@ -1253,8 +1253,15 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 					'term-id' => $term_id,
 				] );
 
-				$name        = ( isset( $_POST['name'] ) ) ? stripslashes( $_POST['name'] ) : $custom_status->name;
-				$description = ( isset( $_POST['description'] ) ) ? strip_tags( stripslashes( $_POST['description'] ) ) : $custom_status->description;
+				$name        = $custom_status->name;
+				$description = $custom_status->description;
+
+				$is_nonce_valid = isset( $_POST['_wpnonce'] ) && wp_verify_nonce( wp_strip_all_tags( $_POST['_wpnonce'] ), 'edit-status' );
+
+				if ( $is_nonce_valid ) {
+					$name        = ( isset( $_POST['name'] ) ) ? wp_strip_all_tags( $_POST['name'] ) : $custom_status->name;
+					$description = ( isset( $_POST['description'] ) ) ? wp_strip_all_tags( $_POST['description'] ) : $custom_status->description;
+				}
 
 				include __DIR__ . '/views/edit-status.php';
 			} else {

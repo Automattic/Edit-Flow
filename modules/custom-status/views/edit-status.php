@@ -7,6 +7,7 @@ global $edit_flow;
 ?>
 
 <div id="ajax-response"></div>
+
 <form method="post" action="<?php echo esc_url( $edit_status_link ); ?>" >
 	<input type="hidden" name="term-id" value="<?php echo esc_attr( $term_id ); ?>" />
 
