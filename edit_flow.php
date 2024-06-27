@@ -189,9 +189,9 @@ class edit_flow {
 	 * Inititalizes the Edit Flows!
 	 * Loads options for each registered module and then initializes it if it's active
 	 */
-	function action_init() {
+	public function action_init() {
 
-		load_plugin_textdomain( 'edit-flow', null, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+		load_plugin_textdomain( 'edit-flow', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 
 		$this->load_modules();
 
@@ -218,7 +218,7 @@ class edit_flow {
 	/**
 	 * Initialize the plugin for the admin
 	 */
-	function action_admin_init() {
+	public function action_admin_init() {
 
 		// Upgrade if need be but don't run the upgrade if the plugin has never been used
 		$previous_version = get_option( $this->options_group . 'version' );
@@ -315,7 +315,7 @@ class edit_flow {
 	 * Load all of the module options from the database
 	 * If a given option isn't yet set, then set it to the module's default (upgrades, etc.)
 	 */
-	function load_module_options() {
+	public function load_module_options() {
 
 		foreach ( $this->modules as $mod_name => $mod_data ) {
 
@@ -343,7 +343,7 @@ class edit_flow {
 	 *
 	 * @see http://dev.editflow.org/2011/11/17/edit-flow-v0-7-alpha2-notes/#comment-232
 	 */
-	function action_init_after() {
+	public function action_init_after() {
 		foreach ( $this->modules as $mod_name => $mod_data ) {
 
 			if ( isset( $this->modules->$mod_name->options->post_types ) ) {
@@ -360,7 +360,7 @@ class edit_flow {
 	 * @param string $key The property to use for searching a module (ex: 'name')
 	 * @param string|int|array $value The value to compare (using ==)
 	 */
-	function get_module_by( $key, $value ) {
+	public function get_module_by( $key, $value ) {
 		$module = false;
 		foreach ( $this->modules as $mod_name => $mod_data ) {
 
@@ -380,13 +380,13 @@ class edit_flow {
 	/**
 	 * Update the $edit_flow object with new value and save to the database
 	 */
-	function update_module_option( $mod_name, $key, $value ) {
+	public function update_module_option( $mod_name, $key, $value ) {
 		$this->modules->$mod_name->options->$key = $value;
 		$this->$mod_name->module                 = $this->modules->$mod_name;
 		return update_option( $this->options_group . $mod_name . '_options', $this->modules->$mod_name->options );
 	}
 
-	function update_all_module_options( $mod_name, $new_options ) {
+	public function update_all_module_options( $mod_name, $new_options ) {
 		if ( is_array( $new_options ) ) {
 			$new_options = (object) $new_options;
 		}
@@ -398,7 +398,7 @@ class edit_flow {
 	/**
 	 * Registers commonly used scripts + styles for easy enqueueing
 	 */
-	function register_scripts_and_styles() {
+	public function register_scripts_and_styles() {
 		wp_enqueue_style( 'ef-admin-css', EDIT_FLOW_URL . 'common/css/edit-flow-admin.css', false, EDIT_FLOW_VERSION, 'all' );
 
 		wp_register_script( 'jquery-listfilterizer', EDIT_FLOW_URL . 'common/js/jquery.listfilterizer.js', array( 'jquery' ), EDIT_FLOW_VERSION, true );
@@ -416,6 +416,7 @@ class edit_flow {
 	}
 }
 
+// phpcs:disable WordPress.NamingConventions.ValidFunctionName.FunctionNameInvalid
 function EditFlow() {
 	return edit_flow::instance();
 }

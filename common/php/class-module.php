@@ -76,12 +76,20 @@ if ( ! class_exists( 'EF_Module' ) ) {
 		 * Check if the site is a WPVIP site.
 		 *
 		 * @since 0.10.0
+		 *
+		 * @param bool $only_production Whether to only allow production sites to be considered WPVIP sites
 		 * @return true, if it is a WPVIP site, false otherwise
 		 */
-		protected function is_vip_site() {
-			return defined( 'WPCOM_IS_VIP_ENV' ) && constant( 'WPCOM_IS_VIP_ENV' ) === true
-			&& defined( 'WPCOM_SANDBOXED' ) && constant( 'WPCOM_SANDBOXED' ) === false
-			&& defined( 'FILES_CLIENT_SITE_ID' );
+		protected function is_vip_site( $only_production = false ) {
+			$is_vip_site = defined( 'VIP_GO_ENV' )
+				&& defined( 'WPCOM_SANDBOXED' ) && constant( 'WPCOM_SANDBOXED' ) === false
+				&& defined( 'FILES_CLIENT_SITE_ID' );
+
+			if ( $only_production ) {
+				$is_vip_site = $is_vip_site && defined( 'VIP_GO_ENV' ) && 'production' === constant( 'VIP_GO_ENV' );
+			}
+
+			return $is_vip_site;
 		}
 
 		/**
