@@ -210,7 +210,7 @@ if ( ! class_exists( 'EF_Settings' ) ) {
 			<h2><a href="<?php echo esc_url( EDIT_FLOW_SETTINGS_PAGE ); ?>"><?php _e( 'Edit Flow', 'edit-flow' ); ?></a>:&nbsp;<?php echo esc_attr( $current_module->title ); ?>
 									<?php
 									if ( isset( $display_text ) ) {
-										echo wp_kses( $display_text, 'a' ); }
+										echo wp_kses_post( $display_text ); }
 									?>
 			</h2>
 			<?php else : ?>
@@ -218,17 +218,17 @@ if ( ! class_exists( 'EF_Settings' ) ) {
 			<h2><?php _e( 'Edit Flow', 'edit-flow' ); ?>
 						  <?php
 							if ( isset( $display_text ) ) {
-								echo wp_kses( $display_text, 'a' ); }
+								echo wp_kses_post( $display_text ); }
 							?>
 			</h2>
 			<?php endif; ?>
 
 			<div class="explanation">
 				<?php if ( $current_module->short_description ) : ?>
-				<h3><?php echo wp_kses( $current_module->short_description, 'a' ); ?></h3>
+				<h3><?php echo wp_kses_post( $current_module->short_description ); ?></h3>
 				<?php endif; ?>
 				<?php if ( $current_module->extended_description ) : ?>
-				<p><?php echo wp_kses( $current_module->extended_description, 'a' ); ?></p>
+				<p><?php echo wp_kses_post( $current_module->extended_description ); ?></p>
 				<?php endif; ?>
 			</div>
 			<?php
