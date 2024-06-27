@@ -878,16 +878,10 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 		public function send_to_webhook( $message, $action, $user, $post ) {
 			$webhook_url = $this->module->options->webhook_url;
 
-			// apply filters to the URL
-			$webhook_url = apply_filters( 'ef_notification_send_to_webhook_url', $webhook_url, $action, $user, $post );
-
 			// Bail if the webhook URL is not set
 			if ( empty( $webhook_url ) ) {
 				return;
 			}
-
-			// apply filters to the message
-			$message = apply_filters( 'ef_notification_send_to_webhook_message', $message, $action, $user, $post );
 
 			// Set up the payload
 			$payload = [
