@@ -345,7 +345,7 @@ class EF_Story_Budget extends EF_Module {
 					for ( $i = 1; $i <= $this->max_num_columns; ++$i ) {
 						?>
 					.columns-number-<?php echo (int) $i; ?> .postbox {
-						flex-basis: <?php echo 99 / /* phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped */ $i; ?>%;
+						flex-basis: <?php echo floatval( 99 / $i ); ?>%;
 					}
 						<?php
 					}

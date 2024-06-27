@@ -844,7 +844,8 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			);
 			$return = $this->add_custom_status( $status_name, $status_args );
 			if ( is_wp_error( $return ) ) {
-				wp_die( esc_textarea( __( 'Could not add status: ', 'edit-flow' ) . $return->get_error_message() ) );
+				/* translators: %s: error message */
+				wp_die( esc_html( sprintf( __( 'Could not add status: %s', 'edit-flow' ), $return->get_error_message() ) ) );
 			}
 			// Redirect if successful
 			$redirect_url = $this->get_link( array( 'message' => 'status-added' ) );
@@ -929,7 +930,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			);
 			$return = $this->update_custom_status( $existing_status->term_id, $args );
 			if ( is_wp_error( $return ) ) {
-				wp_die( esc_textarea( __( 'Error updating post status.', 'edit-flow' ) ) );
+				wp_die( esc_html__( 'Error updating post status.', 'edit-flow' ) );
 			}
 
 			$redirect_url = $this->get_link( array( 'message' => 'status-updated' ) );
@@ -1151,8 +1152,8 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 				die();
 			} else {
 				/* translators: 1: the status's name */
-				$change_error = new WP_Error( 'invalid', wp_kses( sprintf( __( 'Could not update the status: <strong>%s</strong>', 'edit-flow' ), $status_name ), 'strong' ) );
-				die( esc_html( $change_error->get_error_message() ) );
+				$change_error = new WP_Error( 'invalid', sprintf( __( 'Could not update the status: <strong>%s</strong>', 'edit-flow' ), $status_name ) );
+				die( wp_kses( $change_error->get_error_message(), 'strong' ) );
 			}
 		}
 
@@ -1260,12 +1261,8 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 		<table class="form-table">
 			<tr class="form-field form-required">
 				<th scope="row" valign="top"><label for="name"><?php _e( 'Custom Status', 'edit-flow' ); ?></label></th>
-				<td><input name="name" id="name" type="text" value="<?php echo esc_attr( $name ); ?>" size="40" aria-required="true"
-																			   <?php
-																				if ( 'draft' === $status->slug ) {
-																					echo 'readonly="readonly"';}
-																				?>
-				/>
+				<?php $readonly_attr = 'draft' === $status->slug ? 'readonly="readonly"' : ''; ?>
+				<td><input name="name" id="name" type="text" value="<?php echo esc_attr( $name ); ?>" size="40" aria-required="true" <?php echo esc_attr( $readonly_attr ); ?> />
 				<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the status. (Max: 20 characters)', 'edit-flow' ) ); ?>
 				</td>
 			</tr>
@@ -1309,18 +1306,10 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 				<div class="col-wrap">
 				<div class="form-wrap">
 				<h3 class="nav-tab-wrapper">
-					<a href="<?php echo esc_url( $this->get_link() ); ?>" class="nav-tab
-										<?php
-										if ( ! isset( $_GET['action'] ) || 'change-options' != $_GET['action'] ) {
-											echo ' nav-tab-active';}
-										?>
-					"><?php _e( 'Add New', 'edit-flow' ); ?></a>
-					<a href="<?php echo esc_url( $this->get_link( array( 'action' => 'change-options' ) ) ); ?>" class="nav-tab
-										<?php
-										if ( isset( $_GET['action'] ) && 'change-options' == $_GET['action'] ) {
-											echo ' nav-tab-active';}
-										?>
-					"><?php _e( 'Options', 'edit-flow' ); ?></a>
+					<?php $add_new_nav_class = ! isset( $_GET['action'] ) || 'change-options' != $_GET['action'] ? 'nav-tab-active' : ''; ?>
+					<a href="<?php echo esc_url( $this->get_link() ); ?>" class="nav-tab <?php echo esc_attr( $add_new_nav_class ); ?>"><?php esc_html_e( 'Add New', 'edit-flow' ); ?></a>
+					<?php $options_nav_class = isset( $_GET['action'] ) && 'change-options' == $_GET['action'] ? 'nav-tab-active' : ''; ?>
+					<a href="<?php echo esc_url( $this->get_link( array( 'action' => 'change-options' ) ) ); ?>" class="nav-tab <?php echo esc_attr( $options_nav_class ); ?>"><?php esc_html_e( 'Options', 'edit-flow' ); ?></a>
 				</h3>
 				<?php if ( isset( $_GET['action'] ) && 'change-options' == $_GET['action'] ) : ?>
 				<form class="basic-settings" action="<?php echo esc_url( $this->get_link( array( 'action' => 'change-options' ) ) ); ?>" method="post">
@@ -1334,12 +1323,12 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 					<form class="add:the-list:" action="<?php echo esc_url( $this->get_link() ); ?>" method="post" id="addstatus" name="addstatus">
 					<div class="form-field form-required">
 						<label for="status_name"><?php _e( 'Name', 'edit-flow' ); ?></label>
-						<input type="text" aria-required="true" size="20" maxlength="20" id="status_name" name="status_name" value="<?php /* phpcs:ignore Generic.ControlStructures.InlineControlStructure.NotAllowed */ if ( ! empty( $_POST['status_name'] ) ) echo esc_attr( $_POST['status_name'] ); ?>" />
+						<input type="text" aria-required="true" size="20" maxlength="20" id="status_name" name="status_name" value="<?php echo ( empty( $_POST['status_name'] ) ? '' : esc_attr( $_POST['status_name'] ) ); ?>" />
 						<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the status. (Max: 20 characters)', 'edit-flow' ) ); ?>
 					</div>
 					<div class="form-field">
 						<label for="status_description"><?php _e( 'Description', 'edit-flow' ); ?></label>
-						<textarea cols="40" rows="5" id="status_description" name="status_description"><?php /* phpcs:ignore Generic.ControlStructures.InlineControlStructure.NotAllowed */ if ( ! empty( $_POST['status_description'] ) ) echo esc_textarea( $_POST['status_description'] ); ?></textarea>
+						<textarea cols="40" rows="5" id="status_description" name="status_description"><?php echo ( empty( $_POST['status_description'] ) ? '' : esc_textarea( $_POST['status_description'] ) ); ?></textarea>
 						<?php $edit_flow->settings->helper_print_error_or_description( 'description', __( 'The description is primarily for administrative use, to give you some context on what the custom status is to be used for.', 'edit-flow' ) ); ?>
 					</div>
 					<?php wp_nonce_field( 'custom-status-add-nonce' ); ?>

@@ -239,12 +239,12 @@ if ( ! class_exists( 'EF_Dashboard' ) ) {
 					$title = esc_html( $post->post_title );
 					?>
 					<li>
-						<h4><a href="<?php echo esc_url( $url ); ?>" title="<?php _e( 'Edit this post', 'edit-flow' ); ?>"><?php echo esc_html( $title ); ?></a></h4>
-						<span class="ef-myposts-timestamp"><?php _e( 'This post was last updated on', 'edit-flow' ); ?> <?php echo esc_html( get_the_time( 'F j, Y \\a\\t g:i a', $post ) ); ?></span>
+						<h4><a href="<?php echo esc_url( $url ); ?>" title="<?php esc_attr_e( 'Edit this post', 'edit-flow' ); ?>"><?php echo esc_html( $title ); ?></a></h4>
+						<span class="ef-myposts-timestamp"><?php esc_html_e( 'This post was last updated on', 'edit-flow' ); ?> <?php echo esc_html( get_the_time( 'F j, Y \\a\\t g:i a', $post ) ); ?></span>
 					</li>
 				<?php endforeach; ?>
 			<?php else : ?>
-				<p><?php _e( 'Sorry! You\'re not subscribed to any posts!', 'edit-flow' ); ?></p>
+				<p><?php esc_html_e( 'Sorry! You\'re not subscribed to any posts!', 'edit-flow' ); ?></p>
 			<?php endif; ?>
 		</div>
 			<?php

@@ -293,7 +293,8 @@ if ( ! class_exists( 'EF_Editorial_Metadata' ) ) {
 					$css_rules = apply_filters( 'ef_editorial_metadata_manage_posts_css_rules', $css_rules );
 					echo "<style type=\"text/css\">\n";
 					foreach ( (array) $css_rules as $css_property => $rules ) {
-						echo wp_kses_post( $css_property . ' {' . implode( ' ', $rules ) . "}\n " );
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is for the escaping of the CSS property and rules.
+						echo $css_property . ' {' . implode( ' ', $rules ) . "}\n ";
 					}
 					echo '</style>';
 				}
@@ -357,7 +358,7 @@ if ( ! class_exists( 'EF_Editorial_Metadata' ) ) {
 		public function display_meta_box( $post ) {
 			echo "<div id='" . esc_attr( self::metadata_taxonomy ) . "_meta_box'>";
 			// Add nonce for verification upon save
-			echo "<input type='hidden' name='" . esc_attr( self::metadata_taxonomy ) . "_nonce' value='" . esc_js( wp_create_nonce( 'ef-save-metabox' ) ) . "' />";
+			echo "<input type='hidden' name='" . esc_attr( self::metadata_taxonomy ) . "_nonce' value='" . esc_attr( wp_create_nonce( 'ef-save-metabox' ) ) . "' />";
 
 			if ( current_user_can( 'manage_options' ) ) {
 				// Make the metabox title include a link to edit the Editorial Metadata terms. Logic similar to how Core dashboard widgets work.
@@ -386,8 +387,7 @@ if ( ! class_exists( 'EF_Editorial_Metadata' ) ) {
 					} else {
 						$description_span = '';
 					}
-					// This is for the escaping of type.
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is for the escaping of type.
 					echo "<div class='" . esc_attr( self::metadata_taxonomy ) . ' ' . esc_attr( self::metadata_taxonomy ) . "_$type'>";
 					switch ( $type ) {
 						case 'date':
@@ -425,8 +425,7 @@ if ( ! class_exists( 'EF_Editorial_Metadata' ) ) {
 							break;
 						case 'checkbox':
 							echo '<label for="' . esc_attr( $postmeta_key ) . '">' . esc_html( $term->name ) . wp_kses_post( $description_span ) . '</label>';
-							$checked = checked( $current_metadata, 1, false );
-							echo '<input id="' . esc_attr( $postmeta_key ) . '" name="' . esc_attr( $postmeta_key ) . '" type=checkbox value=1 "' . wp_kses_post( $checked ) . '" />';
+							echo '<input id="' . esc_attr( $postmeta_key ) . '" name="' . esc_attr( $postmeta_key ) . '" type=checkbox value=1 "' . checked( $current_metadata, 1, false ) . '" />';
 							break;
 						case 'user':
 							echo '<label for="' . esc_attr( $postmeta_key ) . '">' . esc_html( $term->name ) . wp_kses_post( $description_span ) . '</label>';
@@ -1347,8 +1346,8 @@ if ( ! class_exists( 'EF_Editorial_Metadata' ) ) {
 				die();
 			} else {
 				/* Translators: 1: the name of the term that could not be found */
-				$change_error = new WP_Error( 'invalid', wp_kses( sprintf( __( 'Could not update the term: <strong>%s</strong>', 'edit-flow' ), $metadata_name ), 'strong' ) );
-				die( esc_html( $change_error->get_error_message() ) );
+				$change_error = new WP_Error( 'invalid', sprintf( __( 'Could not update the term: <strong>%s</strong>', 'edit-flow' ), $metadata_name ) );
+				die( wp_kses( $change_error->get_error_message() ) );
 			}
 		}
 
@@ -1583,27 +1582,18 @@ if ( ! class_exists( 'EF_Editorial_Metadata' ) ) {
 			<div class="col-wrap">
 			<div class="form-wrap">
 			<h3 class="nav-tab-wrapper">
-				<a href="<?php echo esc_url( add_query_arg( array( 'page' => $this->module->settings_slug ), get_admin_url( null, 'admin.php' ) ) ); ?>" class="nav-tab
-									<?php
-									if ( ! isset( $_GET['action'] ) || 'change-options' != $_GET['action'] ) {
-										echo ' nav-tab-active';}
-									?>
-				"><?php _e( 'Add New', 'edit-flow' ); ?></a>
-				<a href="
-				<?php
-				echo esc_url( add_query_arg( array(
-					'page' => $this->module->settings_slug,
-					'action' => 'change-options',
-				), get_admin_url( null, 'admin.php' ) ) );
-				?>
-							" class="nav-tab
-							<?php
-							if ( isset( $_GET['action'] ) && 'change-options' == $_GET['action'] ) {
-														echo ' nav-tab-active';}
-							?>
-"><?php _e( 'Options', 'edit-flow' ); ?></a>
+					<?php $add_new_nav_class = ! isset( $_GET['action'] ) || 'change-options' != $_GET['action'] ? 'nav-tab-active' : ''; ?>
+					<a href="<?php echo esc_url( add_query_arg( array( 'page' => $this->module->settings_slug ), get_admin_url( null, 'admin.php' ) ) ); ?>" class="nav-tab <?php echo esc_attr( $add_new_nav_class ); ?>"><?php esc_html_e( 'Add New', 'edit-flow' ); ?></a>
+					<?php $options_nav_class = isset( $_GET['action'] ) && 'change-options' == $_GET['action'] ? 'nav-tab-active' : ''; ?>
+					<a href="
+					<?php
+					echo esc_url( add_query_arg( array(
+						'page' => $this->module->settings_slug,
+						'action' => 'change-options',
+					), get_admin_url( null, 'admin.php' ) ) );
+					?>
+								" class="nav-tab <?php echo esc_attr( $options_nav_class ); ?>"><?php esc_html_e( 'Options', 'edit-flow' ); ?></a>
 			</h3>
-
 			<?php if ( isset( $_GET['action'] ) && 'change-options' == $_GET['action'] ) : ?>
 				<?php /** Basic form built on WP Settings API for outputting Editorial Metadata options **/ ?>
 		<form class="basic-settings" action="
@@ -1624,17 +1614,17 @@ if ( ! class_exists( 'EF_Editorial_Metadata' ) ) {
 			<form class="add:the-list:" action="<?php echo esc_url( add_query_arg( array( 'page' => $this->module->settings_slug ), get_admin_url( null, 'admin.php' ) ) ); ?>" method="post" id="addmetadata" name="addmetadata">
 			<div class="form-field form-required">
 				<label for="metadata_name"><?php _e( 'Name', 'edit-flow' ); ?></label>
-				<input type="text" aria-required="true" size="20" maxlength="200" id="metadata_name" name="metadata_name" value="<?php /* phpcs:ignore Generic.ControlStructures.InlineControlStructure.NotAllowed */ if ( ! empty( $_POST['metadata_name'] ) ) echo esc_attr( $_POST['metadata_name'] ); ?>" />
+				<input type="text" aria-required="true" size="20" maxlength="200" id="metadata_name" name="metadata_name" value="<?php echo ( empty( $_POST['metadata_name'] ) ? '' : esc_attr( $_POST['metadata_name'] ) ); ?>" />
 				<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is for labeling the metadata field.', 'edit-flow' ) ); ?>
 			</div>
 			<div class="form-field form-required">
 				<label for="metadata_slug"><?php _e( 'Slug', 'edit-flow' ); ?></label>
-				<input type="text" aria-required="true" size="20" maxlength="200" id="metadata_slug" name="metadata_slug" value="<?php /* phpcs:ignore Generic.ControlStructures.InlineControlStructure.NotAllowed */ if ( ! empty( $_POST['metadata_slug'] ) ) echo esc_attr( $_POST['metadata_slug'] ); ?>" />
+				<input type="text" aria-required="true" size="20" maxlength="200" id="metadata_slug" name="metadata_slug" value="<?php echo ( empty( $_POST['metadata_slug'] ) ? '' : esc_attr( $_POST['metadata_slug'] ) ); ?>" />
 				<?php $edit_flow->settings->helper_print_error_or_description( 'slug', __( 'The "slug" is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.', 'edit-flow' ) ); ?>
 			</div>
 			<div class="form-field">
 				<label for="metadata_description"><?php _e( 'Description', 'edit-flow' ); ?></label>
-				<textarea cols="40" rows="5" id="metadata_description" name="metadata_description"><?php /* phpcs:ignore Generic.ControlStructures.InlineControlStructure.NotAllowed */ if ( ! empty( $_POST['metadata_description'] ) ) echo esc_textarea( $_POST['metadata_description'] ); ?></textarea>
+				<textarea cols="40" rows="5" id="metadata_description" name="metadata_description"><?php echo ( empty( $_POST['metadata_description'] ) ? '' : esc_attr( $_POST['metadata_description'] ) ); ?></textarea>
 				<?php $edit_flow->settings->helper_print_error_or_description( 'description', __( 'The description can be used to communicate with your team about what the metadata is for.', 'edit-flow' ) ); ?>
 			</div>
 			<div class="form-field form-required">

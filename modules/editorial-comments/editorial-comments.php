@@ -97,7 +97,7 @@ if ( ! class_exists( 'EF_Editorial_Comments' ) ) {
 			$thread_comments = (int) get_option( 'thread_comments' );
 			?>
 		<script type="text/javascript">
-			var ef_thread_comments = <?php echo esc_html( ( $thread_comments ) ? $thread_comments : 0 ); ?>;
+			var ef_thread_comments = <?php echo $thread_comments ? intval( $thread_comments ) : 0; ?>;
 		</script>
 			<?php
 		}
@@ -190,7 +190,7 @@ if ( ! class_exists( 'EF_Editorial_Comments' ) ) {
 
 			<p id="ef-replysubmit">
 				<a class="ef-replysave button-primary alignright" href="#comments-form">
-					<span id="ef-replybtn"><?php _e( 'Submit Response', 'edit-flow' ); ?></span>
+					<span id="ef-replybtn"><?php esc_html_e( 'Submit Response', 'edit-flow' ); ?></span>
 				</a>
 				<a class="ef-replycancel button-secondary alignright" href="#comments-form"><?php _e( 'Cancel', 'edit-flow' ); ?></a>
 				<img alt="Sending comment..." src="<?php echo esc_url( admin_url( '/images/wpspin_light.gif' ) ); ?>" class="alignright" style="display: none;" id="ef-comment_loading" />
@@ -228,8 +228,7 @@ if ( ! class_exists( 'EF_Editorial_Comments' ) ) {
 				$message = '<strong>' . esc_html__( 'Notified', 'edit-flow' ) . ':</strong> ' . esc_html( $notification );
 			}
 
-			// It's already been escaped above.
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- It's already been escaped above
 			echo '<p class="ef-notification-meta">' . $message . '</p>';
 		}
 
@@ -242,9 +241,8 @@ if ( ! class_exists( 'EF_Editorial_Comments' ) ) {
 			// Get current user
 			wp_get_current_user();
 
-			// Without this, the comment will not appear.
 			// ToDo: Find an alternative so we don't override global variables
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Without this, the comment will not appear.
 			$GLOBALS['comment'] = $comment;
 
 			$actions = array();

@@ -324,7 +324,7 @@ if ( ! class_exists( 'EF_User_Groups' ) ) {
 			);
 			$usergroup = $this->add_usergroup( $args );
 			if ( is_wp_error( $usergroup ) ) {
-				wp_die( esc_textarea( __( 'Error adding usergroup.', 'edit-flow' ) ) );
+				wp_die( esc_html__( 'Error adding usergroup.', 'edit-flow' ) );
 			}
 
 			$args = array(
@@ -410,7 +410,7 @@ if ( ! class_exists( 'EF_User_Groups' ) ) {
 			$users = array_map( 'intval', $users );
 			$usergroup = $this->update_usergroup( $existing_usergroup->term_id, $args, $users );
 			if ( is_wp_error( $usergroup ) ) {
-				wp_die( esc_textarea( __( 'Error updating user group.', 'edit-flow' ) ) );
+				wp_die( esc_html__( 'Error updating user group.', 'edit-flow' ) );
 			}
 
 			$args = array(
@@ -515,7 +515,7 @@ if ( ! class_exists( 'EF_User_Groups' ) ) {
 			} else {
 				// translators: %s is the name of the user group
 				$change_error = new WP_Error( 'invalid', sprintf( __( 'Could not update the user group: <strong>%s</strong>', 'edit-flow' ), $name ) );
-				die( esc_html( $change_error->get_error_message() ) );
+				die( wp_kses( $change_error->get_error_message(), 'strong' ) );
 			}
 		}
 
@@ -639,18 +639,10 @@ if ( ! class_exists( 'EF_User_Groups' ) ) {
 			</div></div>
 			<div id="col-left"><div class="col-wrap"><div class="form-wrap">
 				<h3 class="nav-tab-wrapper">
-					<a href="<?php echo esc_url( $this->get_link() ); ?>" class="nav-tab
-										<?php
-										if ( ! isset( $_GET['action'] ) || 'change-options' != $_GET['action'] ) {
-											echo ' nav-tab-active';}
-										?>
-					"><?php _e( 'Add New', 'edit-flow' ); ?></a>
-					<a href="<?php echo esc_url( $this->get_link( array( 'action' => 'change-options' ) ) ); ?>" class="nav-tab
-										<?php
-										if ( isset( $_GET['action'] ) && 'change-options' == $_GET['action'] ) {
-											echo ' nav-tab-active';}
-										?>
-					"><?php _e( 'Options', 'edit-flow' ); ?></a>
+					<?php $add_new_nav_class = ! isset( $_GET['action'] ) || 'change-options' != $_GET['action'] ? 'nav-tab-active' : ''; ?>
+					<a href="<?php echo esc_url( $this->get_link() ); ?>" class="nav-tab <?php echo esc_attr( $add_new_nav_class ); ?>"><?php esc_html_e( 'Add New', 'edit-flow' ); ?></a>
+					<?php $options_nav_class = isset( $_GET['action'] ) && 'change-options' == $_GET['action'] ? 'nav-tab-active' : ''; ?>
+					<a href="<?php echo esc_url( $this->get_link( array( 'action' => 'change-options' ) ) ); ?>" class="nav-tab <?php echo esc_attr( $options_nav_class ); ?>"><?php esc_html_e( 'Options', 'edit-flow' ); ?></a>
 				</h3>
 				<?php if ( isset( $_GET['action'] ) && 'change-options' == $_GET['action'] ) : ?>
 				<form class="basic-settings" action="<?php echo esc_url( $this->get_link( array( 'action' => 'change-options' ) ) ); ?>" method="post">
@@ -664,12 +656,12 @@ if ( ! class_exists( 'EF_User_Groups' ) ) {
 					<form class="add:the-list:" action="<?php echo esc_url( $this->get_link() ); ?>" method="post" id="addusergroup" name="addusergroup">
 					<div class="form-field form-required">
 						<label for="name"><?php _e( 'Name', 'edit-flow' ); ?></label>
-						<input type="text" aria-required="true" id="name" name="name" maxlength="40" value="<?php /* phpcs:ignore Generic.ControlStructures.InlineControlStructure.NotAllowed */ if ( ! empty( $_POST['name'] ) ) echo esc_attr( $_POST['name'] ); ?>"
+						<input type="text" aria-required="true" id="name" name="name" maxlength="40" value="<?php echo ( empty( $_POST['name'] ) ? '' : esc_attr( $_POST['name'] ) ); ?>"/>
 						<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the user group.', 'edit-flow' ) ); ?>
 					</div>
 					<div class="form-field">
 						<label for="description"><?php _e( 'Description', 'edit-flow' ); ?></label>
-						<textarea cols="40" rows="5" id="description" name="description"><?php /* phpcs:ignore Generic.ControlStructures.InlineControlStructure.NotAllowed */ if ( ! empty( $_POST['description'] ) ) echo esc_textarea( $_POST['description'] ); ?></textarea>
+						<textarea cols="40" rows="5" id="description" name="description"><?php echo ( empty( $_POST['description'] ) ? '' : esc_attr( $_POST['description'] ) ); ?></textarea>
 						<?php $edit_flow->settings->helper_print_error_or_description( 'description', __( 'The description is primarily for administrative use, to give you some context on what the user group is to be used for.', 'edit-flow' ) ); ?>
 					</div>
 					<?php wp_nonce_field( 'add-usergroup' ); ?>
@@ -820,7 +812,7 @@ if ( ! class_exists( 'EF_User_Groups' ) ) {
 			$usergroups = $this->get_usergroups();
 			if ( empty( $usergroups ) ) {
 				?>
-			<p><?php _e( 'No user groups were found.', 'edit-flow' ); ?> <a href="<?php echo esc_url( $this->get_link() ); ?>" title="<?php _e( 'Add a new user group. Opens new window.', 'edit-flow' ); ?>" target="_blank"><?php _e( 'Add a User Group', 'edit-flow' ); ?></a></p>
+			<p><?php esc_html_e( 'No user groups were found.', 'edit-flow' ); ?> <a href="<?php echo esc_url( $this->get_link() ); ?>" title="<?php esc_attr_e( 'Add a new user group. Opens new window.', 'edit-flow' ); ?>" target="_blank"><?php esc_html_e( 'Add a User Group', 'edit-flow' ); ?></a></p>
 				<?php
 			} else {
 
@@ -828,12 +820,11 @@ if ( ! class_exists( 'EF_User_Groups' ) ) {
 			<ul id="<?php echo esc_attr( $list_id ); ?>" class="<?php echo esc_attr( $list_class ); ?>">
 				<?php
 				foreach ( $usergroups as $usergroup ) {
-					$checked = ( in_array( $usergroup->term_id, $selected ) ) ? ' checked="checked"' : '';
 					?>
 				<li>
 					<label for="<?php echo esc_attr( $input_id ) . esc_attr( $usergroup->term_id ); ?>" title="<?php echo esc_attr( $usergroup->description ); ?>">
 						<div class="ef-user-subscribe-actions">
-							<input type="checkbox" id="<?php echo esc_attr( $input_id . $usergroup->term_id ); ?>" name="<?php echo esc_attr( $input_id ); ?>[]" value="<?php echo esc_attr( $usergroup->term_id ); ?>"<?php echo wp_kses_post( $checked ); ?> />
+							<input type="checkbox" id="<?php echo esc_attr( $input_id . $usergroup->term_id ); ?>" name="<?php echo esc_attr( $input_id ); ?>[]" value="<?php echo esc_attr( $usergroup->term_id ); ?>"<?php echo checked( in_array( $usergroup->term_id, $selected ) ); ?> />
 						</div>
 						<span class="ef-usergroup_name"><?php echo esc_html( $usergroup->name ); ?></span>
 						<span class="ef-usergroup_description" title="<?php echo esc_attr( $usergroup->description ); ?>">
