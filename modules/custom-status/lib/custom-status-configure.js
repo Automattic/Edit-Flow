@@ -151,7 +151,7 @@
 
 jQuery( document ).ready( function () {
 	jQuery( '.delete-status a' ).on( 'click', function () {
-		if ( ! confirm( ef_confirm_delete_status_string ) ) {
+		if ( ! confirm( __ef_localize_custom_status_configure.delete_status_string ) ) {
 			return false;
 		}
 	} );

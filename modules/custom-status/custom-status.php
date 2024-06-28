@@ -15,7 +15,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 
 		public $module;
 
-		private $custom_statuses_cache = array();
+		private $custom_statuses_cache = [];
 
 		// This is taxonomy name used to store all our custom statuses
 		// phpcs:ignore Generic.NamingConventions.UpperCaseConstantName.ClassConstantNotUpperCase
@@ -28,41 +28,41 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 
 			$this->module_url = $this->get_module_url( __FILE__ );
 			// Register the module with Edit Flow
-			$args = array(
-				'title' => __( 'Custom Statuses', 'edit-flow' ),
-				'short_description' => __( 'Create custom post statuses to define the stages of your workflow.', 'edit-flow' ),
-				'extended_description' => __( 'Create your own post statuses to add structure your publishing workflow. You can change existing or add new ones anytime, and drag and drop to change their order.', 'edit-flow' ),
-				'module_url' => $this->module_url,
-				'img_url' => $this->module_url . 'lib/custom_status_s128.png',
-				'slug' => 'custom-status',
-				'default_options' => array(
-					'enabled' => 'on',
-					'default_status' => 'pitch',
+			$args         = [
+				'title'                 => __( 'Custom Statuses', 'edit-flow' ),
+				'short_description'     => __( 'Create custom post statuses to define the stages of your workflow.', 'edit-flow' ),
+				'extended_description'  => __( 'Create your own post statuses to add structure your publishing workflow. You can change existing or add new ones anytime, and drag and drop to change their order.', 'edit-flow' ),
+				'module_url'            => $this->module_url,
+				'img_url'               => $this->module_url . 'lib/custom_status_s128.png',
+				'slug'                  => 'custom-status',
+				'default_options'       => [
+					'enabled'              => 'on',
+					'default_status'       => 'pitch',
 					'always_show_dropdown' => 'off',
-					'post_types' => array(
+					'post_types'           => [
 						'post' => 'on',
 						'page' => 'on',
-					),
-				),
-				'post_type_support' => 'ef_custom_statuses', // This has been plural in all of our docs
-				'configure_page_cb' => 'print_configure_view',
-				'configure_link_text' => __( 'Edit Statuses', 'edit-flow' ),
-				'messages' => array(
-					'status-added' => __( 'Post status created.', 'edit-flow' ),
-					'status-missing' => __( "Post status doesn't exist.", 'edit-flow' ),
-					'default-status-changed' => __( 'Default post status has been changed.', 'edit-flow' ),
-					'term-updated' => __( 'Post status updated.', 'edit-flow' ),
-					'status-deleted' => __( 'Post status deleted.', 'edit-flow' ),
+					],
+				],
+				'post_type_support'     => 'ef_custom_statuses', // This has been plural in all of our docs
+				'configure_page_cb'     => 'print_configure_view',
+				'configure_link_text'   => __( 'Edit Statuses', 'edit-flow' ),
+				'messages'              => [
+					'status-added'            => __( 'Post status created.', 'edit-flow' ),
+					'status-missing'          => __( "Post status doesn't exist.", 'edit-flow' ),
+					'default-status-changed'  => __( 'Default post status has been changed.', 'edit-flow' ),
+					'term-updated'            => __( 'Post status updated.', 'edit-flow' ),
+					'status-deleted'          => __( 'Post status deleted.', 'edit-flow' ),
 					'status-position-updated' => __( 'Status order updated.', 'edit-flow' ),
-				),
-				'autoload' => false,
-				'settings_help_tab' => array(
-					'id' => 'ef-custom-status-overview',
-					'title' => __( 'Overview', 'edit-flow' ),
+				],
+				'autoload'              => false,
+				'settings_help_tab'     => [
+					'id'      => 'ef-custom-status-overview',
+					'title'   => __( 'Overview', 'edit-flow' ),
 					'content' => __( '<p>Edit Flow’s custom statuses allow you to define the most important stages of your editorial workflow. Out of the box, WordPress only offers “Draft” and “Pending Review” as post states. With custom statuses, you can create your own post states like “In Progress”, “Pitch”, or “Waiting for Edit” and keep or delete the originals. You can also drag and drop statuses to set the best order for your workflow.</p><p>Custom statuses are fully integrated into the rest of Edit Flow and the WordPress admin. On the calendar and story budget, you can filter your view to see only posts of a specific post state. Furthermore, email notifications can be sent to a specific group of users when a post changes state.</p>', 'edit-flow' ),
-				),
+				],
 				'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/custom-statuses/">Custom Status Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/Automattic/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
-			);
+			];
 			$this->module = EditFlow()->register_module( 'custom_status', $args );
 		}
 
@@ -76,50 +76,50 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			$this->register_custom_statuses();
 
 			// Register our settings
-			add_action( 'admin_init', array( $this, 'register_settings' ) );
+			add_action( 'admin_init', [ $this, 'register_settings' ] );
 
 			if ( ! $this->disable_custom_statuses_for_post_type() ) {
 				// Load CSS and JS resources that we probably need in the admin page
-				add_action( 'admin_enqueue_scripts', array( $this, 'action_admin_enqueue_scripts' ) );
+				add_action( 'admin_enqueue_scripts', [ $this, 'action_admin_enqueue_scripts' ] );
 
 				// Assets for block editor UI.
-				add_action( 'enqueue_block_editor_assets', array( $this, 'load_scripts_for_block_editor' ) );
+				add_action( 'enqueue_block_editor_assets', [ $this, 'load_scripts_for_block_editor' ] );
 
 				// Assets for iframed block editor and editor UI.
-				add_action( 'enqueue_block_editor_assets', array( $this, 'load_styles_for_block_editor' ) );
+				add_action( 'enqueue_block_editor_assets', [ $this, 'load_styles_for_block_editor' ] );
 			}
 
-			add_action( 'admin_notices', array( $this, 'no_js_notice' ) );
-			add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
+			add_action( 'admin_notices', [ $this, 'no_js_notice' ] );
+			add_action( 'admin_print_scripts', [ $this, 'post_admin_header' ] );
 
 			// Add custom statuses to the post states.
-			add_filter( 'display_post_states', array( $this, 'add_status_to_post_states' ), 10, 2 );
+			add_filter( 'display_post_states', [ $this, 'add_status_to_post_states' ], 10, 2 );
 
 			// Methods for handling the actions of creating, making default, and deleting post stati
-			add_action( 'admin_init', array( $this, 'handle_add_custom_status' ) );
-			add_action( 'admin_init', array( $this, 'handle_edit_custom_status' ) );
-			add_action( 'admin_init', array( $this, 'handle_make_default_custom_status' ) );
-			add_action( 'admin_init', array( $this, 'handle_delete_custom_status' ) );
-			add_action( 'wp_ajax_update_status_positions', array( $this, 'handle_ajax_update_status_positions' ) );
-			add_action( 'wp_ajax_inline_save_status', array( $this, 'ajax_inline_save_status' ) );
+			add_action( 'admin_init', [ $this, 'handle_add_custom_status' ] );
+			add_action( 'admin_init', [ $this, 'handle_edit_custom_status' ] );
+			add_action( 'admin_init', [ $this, 'handle_make_default_custom_status' ] );
+			add_action( 'admin_init', [ $this, 'handle_delete_custom_status' ] );
+			add_action( 'wp_ajax_update_status_positions', [ $this, 'handle_ajax_update_status_positions' ] );
+			add_action( 'wp_ajax_inline_save_status', [ $this, 'ajax_inline_save_status' ] );
 
 			// These seven-ish methods are hacks for fixing bugs in WordPress core
-			add_action( 'admin_init', array( $this, 'check_timestamp_on_publish' ) );
-			add_filter( 'wp_insert_post_data', array( $this, 'fix_custom_status_timestamp' ), 10, 2 );
-			add_filter( 'wp_insert_post_data', array( $this, 'maybe_keep_post_name_empty' ), 10, 2 );
-			add_filter( 'pre_wp_unique_post_slug', array( $this, 'fix_unique_post_slug' ), 10, 6 );
-			add_filter( 'preview_post_link', array( $this, 'fix_preview_link_part_one' ) );
-			add_filter( 'post_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
-			add_filter( 'page_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
-			add_filter( 'post_type_link', array( $this, 'fix_preview_link_part_two' ), 10, 3 );
-			add_filter( 'preview_post_link', array( $this, 'fix_preview_link_part_three' ), 11, 2 );
-			add_filter( 'get_sample_permalink', array( $this, 'fix_get_sample_permalink' ), 10, 5 );
-			add_filter( 'get_sample_permalink_html', array( $this, 'fix_get_sample_permalink_html' ), 10, 5 );
-			add_filter( 'post_row_actions', array( $this, 'fix_post_row_actions' ), 10, 2 );
-			add_filter( 'page_row_actions', array( $this, 'fix_post_row_actions' ), 10, 2 );
+			add_action( 'admin_init', [ $this, 'check_timestamp_on_publish' ] );
+			add_filter( 'wp_insert_post_data', [ $this, 'fix_custom_status_timestamp' ], 10, 2 );
+			add_filter( 'wp_insert_post_data', [ $this, 'maybe_keep_post_name_empty' ], 10, 2 );
+			add_filter( 'pre_wp_unique_post_slug', [ $this, 'fix_unique_post_slug' ], 10, 6 );
+			add_filter( 'preview_post_link', [ $this, 'fix_preview_link_part_one' ] );
+			add_filter( 'post_link', [ $this, 'fix_preview_link_part_two' ], 10, 3 );
+			add_filter( 'page_link', [ $this, 'fix_preview_link_part_two' ], 10, 3 );
+			add_filter( 'post_type_link', [ $this, 'fix_preview_link_part_two' ], 10, 3 );
+			add_filter( 'preview_post_link', [ $this, 'fix_preview_link_part_three' ], 11, 2 );
+			add_filter( 'get_sample_permalink', [ $this, 'fix_get_sample_permalink' ], 10, 5 );
+			add_filter( 'get_sample_permalink_html', [ $this, 'fix_get_sample_permalink_html' ], 10, 5 );
+			add_filter( 'post_row_actions', [ $this, 'fix_post_row_actions' ], 10, 2 );
+			add_filter( 'page_row_actions', [ $this, 'fix_post_row_actions' ], 10, 2 );
 
 			// Pagination for custom post statuses when previewing posts
-			add_filter( 'wp_link_pages_link', array( $this, 'modify_preview_link_pagination_url' ), 10, 2 );
+			add_filter( 'wp_link_pages_link', [ $this, 'modify_preview_link_pagination_url' ], 10, 2 );
 		}
 
 		/**
@@ -129,48 +129,48 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 		 */
 		public function install() {
 
-			$default_terms = array(
-				array(
+			$default_terms = [
+				[
 					'term' => __( 'Pitch', 'edit-flow' ),
-					'args' => array(
-						'slug' => 'pitch',
+					'args' => [
+						'slug'        => 'pitch',
 						'description' => __( 'Idea proposed; waiting for acceptance.', 'edit-flow' ),
-						'position' => 1,
-					),
-				),
-				array(
+						'position'    => 1,
+					],
+				],
+				[
 					'term' => __( 'Assigned', 'edit-flow' ),
-					'args' => array(
-						'slug' => 'assigned',
+					'args' => [
+						'slug'        => 'assigned',
 						'description' => __( 'Post idea assigned to writer.', 'edit-flow' ),
-						'position' => 2,
-					),
-				),
-				array(
+						'position'    => 2,
+					],
+				],
+				[
 					'term' => __( 'In Progress', 'edit-flow' ),
-					'args' => array(
-						'slug' => 'in-progress',
+					'args' => [
+						'slug'        => 'in-progress',
 						'description' => __( 'Writer is working on the post.', 'edit-flow' ),
-						'position' => 3,
-					),
-				),
-				array(
+						'position'    => 3,
+					],
+				],
+				[
 					'term' => __( 'Draft', 'edit-flow' ),
-					'args' => array(
-						'slug' => 'draft',
+					'args' => [
+						'slug'        => 'draft',
 						'description' => __( 'Post is a draft; not ready for review or publication.', 'edit-flow' ),
-						'position' => 4,
-					),
-				),
-				array(
+						'position'    => 4,
+					],
+				],
+				[
 					'term' => __( 'Pending Review' ),
-					'args' => array(
-						'slug' => 'pending',
+					'args' => [
+						'slug'        => 'pending',
 						'description' => __( 'Post needs to be reviewed by an editor.', 'edit-flow' ),
-						'position' => 5,
-					),
-				),
-			);
+						'position'    => 5,
+					],
+				],
+			];
 
 			// Okay, now add the default statuses to the db if they don't already exist
 			foreach ( $default_terms as $term ) {
@@ -229,14 +229,14 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 
 			// Register new taxonomy so that we can store all our fancy new custom statuses (or is it stati?)
 			if ( ! taxonomy_exists( self::taxonomy_key ) ) {
-				$args = array(
-					'hierarchical' => false,
+				$args = [
+					'hierarchical'          => false,
 					'update_count_callback' => '_update_post_term_count',
-					'label' => false,
-					'query_var' => false,
-					'rewrite' => false,
-					'show_ui' => false,
-				);
+					'label'                 => false,
+					'query_var'             => false,
+					'rewrite'               => false,
+					'show_ui'               => false,
+				];
 				register_taxonomy( self::taxonomy_key, 'post', $args );
 			}
 
@@ -254,12 +254,12 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 				// all post statuses for a post type appearing at the top
 				// of manage posts if there is a post with the status
 				foreach ( $custom_statuses as $status ) {
-					register_post_status( $status->slug, array(
+					register_post_status( $status->slug, [
 						'label'       => $status->name,
 						'protected'   => true,
 						'_builtin'    => false,
 						'label_count' => _n_noop( "{$status->name} <span class='count'>(%s)</span>", "{$status->name} <span class='count'>(%s)</span>" ),
-					) );
+					] );
 				}
 			}
 		}
@@ -276,7 +276,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			global $pagenow;
 
 			// Only allow deregistering on 'edit.php' and 'post.php'
-			if ( ! in_array( $pagenow, array( 'edit.php', 'post.php', 'post-new.php' ) ) ) {
+			if ( ! in_array( $pagenow, [ 'edit.php', 'post.php', 'post-new.php' ] ) ) {
 				return false;
 			}
 
@@ -301,13 +301,17 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			// Load Javascript we need to use on the configuration views (jQuery Sortable and Quick Edit)
 			if ( $this->is_whitelisted_settings_view( $this->module->name ) ) {
 				wp_enqueue_script( 'jquery-ui-sortable' );
-				wp_enqueue_script( 'edit-flow-custom-status-configure', $this->module_url . 'lib/custom-status-configure.js', array( 'jquery', 'jquery-ui-sortable', 'edit-flow-settings-js' ), EDIT_FLOW_VERSION, true );
+				wp_enqueue_script( 'edit-flow-custom-status-configure', $this->module_url . 'lib/custom-status-configure.js', [ 'jquery', 'jquery-ui-sortable', 'edit-flow-settings-js' ], EDIT_FLOW_VERSION, true );
+
+				wp_localize_script( 'edit-flow-custom-status-configure', '__ef_localize_custom_status_configure', [
+					'delete_status_string' => __( 'Are you sure you want to delete the post status? All posts with this status will be assigned to the default status.', 'edit-flow' ),
+				] );
 			}
 
 			// Custom javascript to modify the post status dropdown where it shows up
 			if ( $this->is_whitelisted_page() ) {
-				wp_enqueue_script( 'edit_flow-custom_status', $this->module_url . 'lib/custom-status.js', array( 'jquery', 'post' ), EDIT_FLOW_VERSION, true );
-				wp_localize_script('edit_flow-custom_status', '__ef_localize_custom_status', array(
+				wp_enqueue_script( 'edit_flow-custom_status', $this->module_url . 'lib/custom-status.js', [ 'jquery', 'post' ], EDIT_FLOW_VERSION, true );
+				wp_localize_script('edit_flow-custom_status', '__ef_localize_custom_status', [
 					'no_change' => esc_html__( '&mdash; No Change &mdash;', 'edit-flow' ),
 					'published' => esc_html__( 'Published', 'edit-flow' ),
 					'save_as'   => esc_html__( 'Save as', 'edit-flow' ),
@@ -315,14 +319,14 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 					'edit'      => esc_html__( 'Edit', 'edit-flow' ),
 					'ok'        => esc_html__( 'OK', 'edit-flow' ),
 					'cancel'    => esc_html__( 'Cancel', 'edit-flow' ),
-				));
+				] );
 			}
 		}
 
 		public function load_scripts_for_block_editor() {
 			global $post;
 
-			wp_enqueue_script( 'edit-flow-block-custom-status-script', EDIT_FLOW_URL . 'dist/custom-status.build.js', array( 'wp-blocks', 'wp-element', 'wp-edit-post', 'wp-plugins', 'wp-components' ), EDIT_FLOW_VERSION );
+			wp_enqueue_script( 'edit-flow-block-custom-status-script', EDIT_FLOW_URL . 'dist/custom-status.build.js', [ 'wp-blocks', 'wp-element', 'wp-edit-post', 'wp-plugins', 'wp-components' ], EDIT_FLOW_VERSION );
 
 			$custom_statuses = apply_filters( 'ef_custom_status_list', $this->get_custom_statuses(), $post );
 
@@ -375,7 +379,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			}
 
 			// Only add the script to Edit Post and Edit Page pages -- don't want to bog down the rest of the admin with unnecessary javascript
-			return in_array( $pagenow, array( 'post.php', 'edit.php', 'post-new.php', 'page.php', 'edit-pages.php', 'page-new.php' ) );
+			return in_array( $pagenow, [ 'post.php', 'edit.php', 'post-new.php', 'page.php', 'edit-pages.php', 'page-new.php' ] );
 		}
 
 		/**
@@ -399,7 +403,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 				$custom_statuses = $this->get_custom_statuses();
 
 				// $selected can be empty, but must be set because it's used as a JS variable
-				$selected = '';
+				$selected      = '';
 				$selected_name = '';
 
 				if ( ! empty( $post ) ) {
@@ -422,32 +426,32 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 				$custom_statuses = apply_filters( 'ef_custom_status_list', $custom_statuses, $post );
 
 				// All right, we want to set up the JS var which contains all custom statuses
-				$all_statuses = array();
+				$all_statuses = [];
 
 				// The default statuses from WordPress
-				$all_statuses[] = array(
-					'name' => __( 'Published', 'edit-flow' ),
-					'slug' => 'publish',
+				$all_statuses[] = [
+					'name'        => __( 'Published', 'edit-flow' ),
+					'slug'        => 'publish',
 					'description' => '',
-				);
-				$all_statuses[] = array(
-					'name' => __( 'Privately Published', 'edit-flow' ),
-					'slug' => 'private',
+				];
+				$all_statuses[] = [
+					'name'        => __( 'Privately Published', 'edit-flow' ),
+					'slug'        => 'private',
 					'description' => '',
-				);
-				$all_statuses[] = array(
-					'name' => __( 'Scheduled', 'edit-flow' ),
-					'slug' => 'future',
+				];
+				$all_statuses[] = [
+					'name'        => __( 'Scheduled', 'edit-flow' ),
+					'slug'        => 'future',
 					'description' => '',
-				);
+				];
 
 				// Load the custom statuses
 				foreach ( $custom_statuses as $status ) {
-					$all_statuses[] = array(
-						'name' => esc_js( $status->name ),
-						'slug' => esc_js( $status->slug ),
+					$all_statuses[] = [
+						'name'        => esc_js( $status->name ),
+						'slug'        => esc_js( $status->slug ),
 						'description' => esc_js( $status->description ),
-					);
+					];
 				}
 
 				$always_show_dropdown = ( 'on' == $this->module->options->always_show_dropdown ) ? 1 : 0;
@@ -487,17 +491,17 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 		 * @param array|string $args Change the values of the inserted term
 		 * @return array|WP_Error $response The Term ID and Term Taxonomy ID
 		 */
-		public function add_custom_status( $term, $args = array() ) {
+		public function add_custom_status( $term, $args = [] ) {
 			$slug = ( ! empty( $args['slug'] ) ) ? $args['slug'] : sanitize_title( $term );
 			unset( $args['slug'] );
 			$encoded_description = $this->get_encoded_description( $args );
-			$response = wp_insert_term( $term, self::taxonomy_key, array(
-				'slug' => $slug,
+			$response            = wp_insert_term( $term, self::taxonomy_key, [
+				'slug'        => $slug,
 				'description' => $encoded_description,
-			) );
+			] );
 
 			// Reset our internal object cache
-			$this->custom_statuses_cache = array();
+			$this->custom_statuses_cache = [];
 
 			return $response;
 		}
@@ -509,7 +513,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 		 * @param array $args Any arguments to be updated
 		 * @return object $updated_status Newly updated status object
 		 */
-		public function update_custom_status( $status_id, $args = array() ) {
+		public function update_custom_status( $status_id, $args = [] ) {
 			global $edit_flow;
 
 			$old_status = $this->get_custom_status_by( 'id', $status_id );
@@ -518,15 +522,15 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			}
 
 			// Reset our internal object cache
-			$this->custom_statuses_cache = array();
+			$this->custom_statuses_cache = [];
 
 			// Prevent user from changing draft name or slug
 			if ( 'draft' === $old_status->slug
-			 && (
-				 ( isset( $args['name'] ) && $args['name'] !== $old_status->name )
-				 ||
-				 ( isset( $args['slug'] ) && $args['slug'] !== $old_status->slug )
-			 ) ) {
+			&& (
+				( isset( $args['name'] ) && $args['name'] !== $old_status->name )
+				||
+				( isset( $args['slug'] ) && $args['slug'] !== $old_status->slug )
+			) ) {
 				return new WP_Error( 'invalid', __( 'Changing the name and slug of "Draft" is not allowed', 'edit-flow' ) );
 			}
 
@@ -546,14 +550,14 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 				}
 			}
 			// We're encoding metadata that isn't supported by default in the term's description field
-			$args_to_encode = array();
+			$args_to_encode                = [];
 			$args_to_encode['description'] = ( isset( $args['description'] ) ) ? $args['description'] : $old_status->description;
-			$args_to_encode['position'] = ( isset( $args['position'] ) ) ? $args['position'] : $old_status->position;
-			$encoded_description = $this->get_encoded_description( $args_to_encode );
-			$args['description'] = $encoded_description;
+			$args_to_encode['position']    = ( isset( $args['position'] ) ) ? $args['position'] : $old_status->position;
+			$encoded_description           = $this->get_encoded_description( $args_to_encode );
+			$args['description']           = $encoded_description;
 
 			$updated_status_array = wp_update_term( $status_id, self::taxonomy_key, $args );
-			$updated_status = $this->get_custom_status_by( 'id', $updated_status_array['term_id'] );
+			$updated_status       = $this->get_custom_status_by( 'id', $updated_status_array['term_id'] );
 
 			return $updated_status;
 		}
@@ -564,7 +568,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 		 * Partly a wrapper for the wp_delete_term function.
 		 * BUT, also reassigns posts that currently have the deleted status assigned.
 		 */
-		public function delete_custom_status( $status_id, $args = array(), $reassign = '' ) {
+		public function delete_custom_status( $status_id, $args = [], $reassign = '' ) {
 			global $edit_flow;
 			// Reassign posts to alternate status
 
@@ -576,7 +580,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			}
 
 			// Reset our internal object cache
-			$this->custom_statuses_cache = array();
+			$this->custom_statuses_cache = [];
 
 			if ( ! $this->is_restricted_status( $old_status ) && 'draft' !== $old_status ) {
 				$default_status = $this->get_default_custom_status()->slug;
@@ -606,7 +610,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 		 * @param array $args
 		 * @return array $statuses All of the statuses
 		 */
-		public function get_custom_statuses( $args = array() ) {
+		public function get_custom_statuses( $args = [] ) {
 			global $wp_post_statuses;
 
 			if ( $this->disable_custom_statuses_for_post_type() ) {
@@ -620,18 +624,18 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			}
 
 			// Handle if the requested taxonomy doesn't exist
-			$statuses = get_terms( array(
+			$statuses = get_terms( [
 				'taxonomy'   => self::taxonomy_key,
 				'hide_empty' => false,
-			));
+			]);
 
 			if ( is_wp_error( $statuses ) || empty( $statuses ) ) {
-				$statuses = array();
+				$statuses = [];
 			}
 
 			// Expand and order the statuses
-			$ordered_statuses = array();
-			$hold_to_end = array();
+			$ordered_statuses = [];
+			$hold_to_end      = [];
 			foreach ( $statuses as $key => $status ) {
 				// Unencode and set all of our psuedo term meta because we need the position if it exists
 				$unencoded_description = $this->get_unencoded_description( $status->description );
@@ -672,7 +676,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 		 */
 		public function get_custom_status_by( $field, $value ) {
 
-			if ( ! in_array( $field, array( 'id', 'slug', 'name' ) ) ) {
+			if ( ! in_array( $field, [ 'id', 'slug', 'name' ] ) ) {
 				return false;
 			}
 
@@ -681,7 +685,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			}
 
 			$custom_statuses = $this->get_custom_statuses();
-			$custom_status = wp_filter_object_list( $custom_statuses, array( $field => $value ) );
+			$custom_status   = wp_filter_object_list( $custom_statuses, [ $field => $value ] );
 
 			if ( ! empty( $custom_status ) ) {
 				return array_shift( $custom_status );
@@ -699,7 +703,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			$default_status = $this->get_custom_status_by( 'slug', $this->module->options->default_status );
 			if ( ! $default_status ) {
 				$custom_statuses = $this->get_custom_statuses();
-				$default_status = array_shift( $custom_statuses );
+				$default_status  = array_shift( $custom_statuses );
 			}
 			return $default_status;
 		}
@@ -718,7 +722,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			}
 
 			// Make the database call
-			$result = $wpdb->update( $wpdb->posts, array( 'post_status' => $new_status ), array( 'post_status' => $old_status ), array( '%s' ) );
+			$result = $wpdb->update( $wpdb->posts, [ 'post_status' => $new_status ], [ 'post_status' => $old_status ], [ '%s' ] );
 		}
 
 		/**
@@ -743,7 +747,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 				return $post_states;
 			}
 
-			$statuses_to_ignore = array( 'future', 'trash', 'publish' );
+			$statuses_to_ignore = [ 'future', 'trash', 'publish' ];
 			if ( in_array( $post_status->name, $statuses_to_ignore, true ) ) {
 				// Let WP core handle these more gracefully.
 				return $post_states;
@@ -799,8 +803,8 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			}
 
 			// Validate and sanitize the form data
-			$status_name = isset( $_POST['status_name'] ) ? sanitize_text_field( trim( $_POST['status_name'] ) ) : '';
-			$status_slug = sanitize_title( $status_name );
+			$status_name        = isset( $_POST['status_name'] ) ? sanitize_text_field( trim( $_POST['status_name'] ) ) : '';
+			$status_slug        = sanitize_title( $status_name );
 			$status_description = isset( $_POST['status_description'] ) ? stripslashes( wp_filter_nohtml_kses( trim( $_POST['status_description'] ) ) ) : '';
 
 			/**
@@ -808,7 +812,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			 * - Name is required and can't conflict with an existing name or slug
 			 * - Description is optional
 			 */
-			$_REQUEST['form-errors'] = array();
+			$_REQUEST['form-errors'] = [];
 			// Check if name field was filled in
 			if ( empty( $status_name ) ) {
 				$_REQUEST['form-errors']['name'] = __( 'Please enter a name for the status', 'edit-flow' );
@@ -838,17 +842,17 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			}
 
 			// Try to add the status
-			$status_args = array(
+			$status_args = [
 				'description' => $status_description,
-				'slug' => $status_slug,
-			);
-			$return = $this->add_custom_status( $status_name, $status_args );
+				'slug'        => $status_slug,
+			];
+			$return      = $this->add_custom_status( $status_name, $status_args );
 			if ( is_wp_error( $return ) ) {
 				/* translators: %s: error message */
 				wp_die( esc_html( sprintf( __( 'Could not add status: %s', 'edit-flow' ), $return->get_error_message() ) ) );
 			}
 			// Redirect if successful
-			$redirect_url = $this->get_link( array( 'message' => 'status-added' ) );
+			$redirect_url = $this->get_link( [ 'message' => 'status-added' ] );
 			wp_redirect( $redirect_url );
 			exit;
 		}
@@ -877,7 +881,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 				wp_die( esc_html( $this->module->messages['status-missing'] ) );
 			}
 
-			$name = isset( $_POST['name'] ) ? sanitize_text_field( trim( $_POST['name'] ) ) : '';
+			$name        = isset( $_POST['name'] ) ? sanitize_text_field( trim( $_POST['name'] ) ) : '';
 			$description = isset( $_POST['description'] ) ? stripslashes( wp_filter_nohtml_kses( trim( $_POST['description'] ) ) ) : '';
 
 			/**
@@ -887,7 +891,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			 * - 'name' is a required field and can't conflict with existing name or slug
 			 * - 'description' is optional
 			 */
-			$_REQUEST['form-errors'] = array();
+			$_REQUEST['form-errors'] = [];
 			// Check if name field was filled in
 			if ( empty( $name ) ) {
 				$_REQUEST['form-errors']['name'] = __( 'Please enter a name for the status', 'edit-flow' );
@@ -923,17 +927,17 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			}
 
 			// Try to add the new post status
-			$args = array(
-				'name' => $name,
-				'slug' => sanitize_title( $name ),
+			$args   = [
+				'name'        => $name,
+				'slug'        => sanitize_title( $name ),
 				'description' => $description,
-			);
+			];
 			$return = $this->update_custom_status( $existing_status->term_id, $args );
 			if ( is_wp_error( $return ) ) {
 				wp_die( esc_html__( 'Error updating post status.', 'edit-flow' ) );
 			}
 
-			$redirect_url = $this->get_link( array( 'message' => 'status-updated' ) );
+			$redirect_url = $this->get_link( [ 'message' => 'status-updated' ] );
 			wp_redirect( $redirect_url );
 			exit;
 		}
@@ -963,11 +967,11 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			}
 
 			$term_id = (int) $_GET['term-id'];
-			$term = $this->get_custom_status_by( 'id', $term_id );
+			$term    = $this->get_custom_status_by( 'id', $term_id );
 			if ( is_object( $term ) ) {
 				$edit_flow->update_module_option( $this->module->name, 'default_status', $term->slug );
 				// @todo How do we want to handle users who click the link from "Add New Status"
-				$redirect_url = $this->get_link( array( 'message' => 'default-status-changed' ) );
+				$redirect_url = $this->get_link( [ 'message' => 'default-status-changed' ] );
 				wp_redirect( $redirect_url );
 				exit;
 			} else {
@@ -1000,7 +1004,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 
 			// Check to make sure the status isn't already deleted
 			$term_id = (int) $_GET['term-id'];
-			$term = $this->get_custom_status_by( 'id', $term_id );
+			$term    = $this->get_custom_status_by( 'id', $term_id );
 			if ( ! $term ) {
 				wp_die( esc_html__( 'Status does not exist.', 'edit-flow' ) );
 			}
@@ -1015,7 +1019,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 				wp_die( esc_html( __( 'Could not delete the status: ', 'edit-flow' ) . $return->get_error_message() ) );
 			}
 
-			$redirect_url = $this->get_link( array( 'message' => 'status-deleted' ) );
+			$redirect_url = $this->get_link( [ 'message' => 'status-deleted' ] );
 			wp_redirect( $redirect_url );
 			exit;
 		}
@@ -1028,7 +1032,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 		 * @param array $args (optional) Action and any query args to add to the URL
 		 * @return string $link Direct link to complete the action
 		 */
-		public function get_link( $args = array() ) {
+		public function get_link( $args = [] ) {
 			if ( ! isset( $args['action'] ) ) {
 				$args['action'] = '';
 			}
@@ -1070,9 +1074,9 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			foreach ( $_POST['status_positions'] as $position => $term_id ) {
 
 				// Have to add 1 to the position because the index started with zero
-				$args = array(
+				$args   = [
 					'position' => (int) $position + 1,
-				);
+				];
 				$return = $this->update_custom_status( (int) $term_id, $args );
 				// @todo check that this was a valid return
 			}
@@ -1095,9 +1099,9 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 				die( esc_html( $this->module->messages['invalid-permissions'] ) );
 			}
 
-			$term_id = isset( $_POST['status_id'] ) ? (int) $_POST['status_id'] : 0;
-			$status_name = isset( $_POST['name'] ) ? sanitize_text_field( trim( $_POST['name'] ) ) : '';
-			$status_slug = isset( $_POST['name'] ) ? sanitize_title( trim( $_POST['name'] ) ) : '';
+			$term_id            = isset( $_POST['status_id'] ) ? (int) $_POST['status_id'] : 0;
+			$status_name        = isset( $_POST['name'] ) ? sanitize_text_field( trim( $_POST['name'] ) ) : '';
+			$status_slug        = isset( $_POST['name'] ) ? sanitize_title( trim( $_POST['name'] ) ) : '';
 			$status_description = isset( $_POST['description'] ) ? stripslashes( wp_filter_nohtml_kses( trim( $_POST['description'] ) ) ) : '';
 
 			// Check if name field was filled in
@@ -1138,11 +1142,11 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			}
 
 			// get status_name & status_description
-			$args = array(
-				'name' => $status_name,
+			$args   = [
+				'name'        => $status_name,
 				'description' => $status_description,
-				'slug' => $status_slug,
-			);
+				'slug'        => $status_slug,
+			];
 			$return = $this->update_custom_status( $term_id, $args );
 			if ( ! is_wp_error( $return ) ) {
 				set_current_screen( 'edit-custom-status' );
@@ -1166,8 +1170,8 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 		public function register_settings() {
 
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', __( 'Use on these post types:', 'edit-flow' ), array( $this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
-			add_settings_field( 'always_show_dropdown', __( 'Always show dropdown:', 'edit-flow' ), array( $this, 'settings_always_show_dropdown_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', __( 'Use on these post types:', 'edit-flow' ), [ $this, 'settings_post_types_option' ], $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'always_show_dropdown', __( 'Always show dropdown:', 'edit-flow' ), [ $this, 'settings_always_show_dropdown_option' ], $this->module->options_group_name, $this->module->options_group_name . '_general' );
 		}
 
 		/**
@@ -1186,10 +1190,10 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 		 * @since 0.7
 		 */
 		public function settings_always_show_dropdown_option() {
-			$options = array(
+			$options = [
 				'off' => __( 'Disabled', 'edit-flow' ),
-				'on' => __( 'Enabled', 'edit-flow' ),
-			);
+				'on'  => __( 'Enabled', 'edit-flow' ),
+			];
 			echo '<select id="always_show_dropdown" name="' . esc_attr( $this->module->options_group_name ) . '[always_show_dropdown]">';
 			foreach ( $options as $value => $label ) {
 				echo '<option value="' . esc_attr( $value ) . '"';
@@ -1208,7 +1212,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 
 			// Whitelist validation for the post type options
 			if ( ! isset( $new_options['post_types'] ) ) {
-				$new_options['post_types'] = array();
+				$new_options['post_types'] = [];
 			}
 			$new_options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
 
@@ -1220,128 +1224,51 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			return $new_options;
 		}
 
+		// phpcs:disable:WordPress.Security.NonceVerification.Missing -- Disabling nonce verification because that is not available here, it's just rendering it. The actual save is done in helper_settings_validate_and_save and that's guarded well.
+
 		/**
 		 * Primary configuration page for custom status class.
 		 * Shows form to add new custom statuses on the left and a
 		 * WP_List_Table with the custom status terms on the right
 		 *
-		 * Disabling nonce verification because that is not available here, it's just rendering it. The actual save is done in helper_settings_validate_and_save and that's guarded well.
-		 * phpcs:disable:WordPress.Security.NonceVerification.Missing
 		 */
 		public function print_configure_view() {
-			global $edit_flow;
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- No verification required for unprivileged URL check.
+			$action = isset( $_GET['action'] ) && in_array( $_GET['action'], [ 'edit-status', 'change-options' ] ) ? $_GET['action'] : '';
 
-			/** Full width view for editing a custom status **/
-			if ( isset( $_GET['action'], $_GET['term-id'] ) && 'edit-status' == $_GET['action'] ) :
-				?>
-				<?php
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No verification required for unprivileged URL check.
+			$term_id = isset( $_GET['term-id'] ) ? absint( $_GET['term-id'] ) : false;
+
+			if ( $term_id && 'edit-status' === $action ) {
 				// Check whether the term exists
-				$term_id = (int) $_GET['term-id'];
-				$status = $this->get_custom_status_by( 'id', $term_id );
-				if ( ! $status ) {
-					echo '<div class="error"><p>' . esc_html( $this->module->messages['status-missing'] ) . '</p></div>';
+				$custom_status = $this->get_custom_status_by( 'id', $term_id );
+
+				if ( ! $custom_status ) {
+					printf( '<div class="error"><p>%s</p></div>', esc_html( $this->module->messages['status-missing'] ) );
 					return;
 				}
-				$edit_status_link = $this->get_link( array(
-					'action' => 'edit-status',
+
+				$edit_status_link = $this->get_link( [
+					'action'  => 'edit-status',
 					'term-id' => $term_id,
-				) );
+				] );
 
-				$name = ( isset( $_POST['name'] ) ) ? stripslashes( $_POST['name'] ) : $status->name;
-				$description = ( isset( $_POST['description'] ) ) ? strip_tags( stripslashes( $_POST['description'] ) ) : $status->description;
-				?>
+				$name        = $custom_status->name;
+				$description = $custom_status->description;
 
-		<div id="ajax-response"></div>
-		<form method="post" action="<?php echo esc_url( $edit_status_link ); ?>" >
-		<input type="hidden" name="term-id" value="<?php echo esc_attr( $term_id ); ?>" />
-				<?php
-				wp_original_referer_field();
-				wp_nonce_field( 'edit-status' );
-				?>
-		<table class="form-table">
-			<tr class="form-field form-required">
-				<th scope="row" valign="top"><label for="name"><?php _e( 'Custom Status', 'edit-flow' ); ?></label></th>
-				<?php $readonly_attr = 'draft' === $status->slug ? 'readonly="readonly"' : ''; ?>
-				<td><input name="name" id="name" type="text" value="<?php echo esc_attr( $name ); ?>" size="40" aria-required="true" <?php echo esc_attr( $readonly_attr ); ?> />
-				<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the status. (Max: 20 characters)', 'edit-flow' ) ); ?>
-				</td>
-			</tr>
-			<tr class="form-field">
-				<th scope="row" valign="top"><?php _e( 'Slug', 'edit-flow' ); ?></th>
-				<td>
-					<input type="text" disabled="disabled" value="<?php echo esc_attr( $status->slug ); ?>" />
-					<?php $edit_flow->settings->helper_print_error_or_description( 'slug', __( 'The slug is the unique ID for the status and is changed when the name is changed.', 'edit-flow' ) ); ?>
-				</td>
-			</tr>
-			<tr class="form-field">
-				<th scope="row" valign="top"><label for="description"><?php _e( 'Description', 'edit-flow' ); ?></label></th>
-				<td>
-					<textarea name="description" id="description" rows="5" cols="50" style="width: 97%;"><?php echo esc_textarea( $description ); ?></textarea>
-				<?php $edit_flow->settings->helper_print_error_or_description( 'description', __( 'The description is primarily for administrative use, to give you some context on what the custom status is to be used for.', 'edit-flow' ) ); ?>
-				</td>
-			</tr>
-		</table>
-		<p class="submit">
-				<?php submit_button( __( 'Update Status', 'edit-flow' ), 'primary', 'submit', false ); ?>
-		<a class="cancel-settings-link" href="<?php echo esc_url( $this->get_link() ); ?>"><?php _e( 'Cancel', 'edit-flow' ); ?></a>
-		</p>
-		</form>
+				$is_nonce_valid = isset( $_POST['_wpnonce'] ) && wp_verify_nonce( wp_strip_all_tags( $_POST['_wpnonce'] ), 'edit-status' );
 
-		<?php else : ?>
-			<?php
-			$wp_list_table = new EF_Custom_Status_List_Table();
-			$wp_list_table->prepare_items();
-			?>
-		<script type="text/javascript">
-			var ef_confirm_delete_status_string = "<?php echo esc_js( __( 'Are you sure you want to delete the post status? All posts with this status will be assigned to the default status.', 'edit-flow' ) ); ?>";
-		</script>
-			<div id="col-right">
-				<div class="col-wrap">
-					<?php $wp_list_table->display(); ?>
-					<?php wp_nonce_field( 'custom-status-sortable', 'custom-status-sortable' ); ?>
-					<p class="description" style="padding-top:10px;"><?php _e( 'Deleting a post status will assign all posts to the default post status.', 'edit-flow' ); ?></p>
-				</div>
-			</div>
-			<div id="col-left">
-				<div class="col-wrap">
-				<div class="form-wrap">
-				<h3 class="nav-tab-wrapper">
-					<?php $add_new_nav_class = ! isset( $_GET['action'] ) || 'change-options' != $_GET['action'] ? 'nav-tab-active' : ''; ?>
-					<a href="<?php echo esc_url( $this->get_link() ); ?>" class="nav-tab <?php echo esc_attr( $add_new_nav_class ); ?>"><?php esc_html_e( 'Add New', 'edit-flow' ); ?></a>
-					<?php $options_nav_class = isset( $_GET['action'] ) && 'change-options' == $_GET['action'] ? 'nav-tab-active' : ''; ?>
-					<a href="<?php echo esc_url( $this->get_link( array( 'action' => 'change-options' ) ) ); ?>" class="nav-tab <?php echo esc_attr( $options_nav_class ); ?>"><?php esc_html_e( 'Options', 'edit-flow' ); ?></a>
-				</h3>
-				<?php if ( isset( $_GET['action'] ) && 'change-options' == $_GET['action'] ) : ?>
-				<form class="basic-settings" action="<?php echo esc_url( $this->get_link( array( 'action' => 'change-options' ) ) ); ?>" method="post">
-					<?php settings_fields( $this->module->options_group_name ); ?>
-					<?php do_settings_sections( $this->module->options_group_name ); ?>
-					<?php echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />'; ?>
-					<?php submit_button(); ?>
-				</form>
-				<?php else : ?>
-					<?php /** Custom form for adding a new Custom Status term **/ ?>
-					<form class="add:the-list:" action="<?php echo esc_url( $this->get_link() ); ?>" method="post" id="addstatus" name="addstatus">
-					<div class="form-field form-required">
-						<label for="status_name"><?php _e( 'Name', 'edit-flow' ); ?></label>
-						<input type="text" aria-required="true" size="20" maxlength="20" id="status_name" name="status_name" value="<?php echo ( empty( $_POST['status_name'] ) ? '' : esc_attr( $_POST['status_name'] ) ); ?>" />
-						<?php $edit_flow->settings->helper_print_error_or_description( 'name', __( 'The name is used to identify the status. (Max: 20 characters)', 'edit-flow' ) ); ?>
-					</div>
-					<div class="form-field">
-						<label for="status_description"><?php _e( 'Description', 'edit-flow' ); ?></label>
-						<textarea cols="40" rows="5" id="status_description" name="status_description"><?php echo ( empty( $_POST['status_description'] ) ? '' : esc_textarea( $_POST['status_description'] ) ); ?></textarea>
-						<?php $edit_flow->settings->helper_print_error_or_description( 'description', __( 'The description is primarily for administrative use, to give you some context on what the custom status is to be used for.', 'edit-flow' ) ); ?>
-					</div>
-					<?php wp_nonce_field( 'custom-status-add-nonce' ); ?>
-					<?php echo '<input id="action" name="action" type="hidden" value="add-new" />'; ?>
-					<p class="submit"><?php submit_button( __( 'Add New Status', 'edit-flow' ), 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo esc_url( EDIT_FLOW_SETTINGS_PAGE ); ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
-					</form>
-				<?php endif; ?>
-				</div>
-			</div>
-			</div>
-			<?php $wp_list_table->inline_edit(); ?>
-			<?php endif; ?>
-			<?php
+				if ( $is_nonce_valid ) {
+					$name        = ( isset( $_POST['name'] ) ) ? wp_strip_all_tags( $_POST['name'] ) : $custom_status->name;
+					$description = ( isset( $_POST['description'] ) ) ? wp_strip_all_tags( $_POST['description'] ) : $custom_status->description;
+				}
+
+				include_once __DIR__ . '/views/edit-status.php';
+			} else {
+				$custom_status_list_table = new EF_Custom_Status_List_Table();
+				$custom_status_list_table->prepare_items();
+				include_once __DIR__ . '/views/configure.php';
+			}
 		}
 
 		/**
@@ -1365,10 +1292,10 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 				if ( isset( $_REQUEST['post'] ) && isset( $_REQUEST['_status'] ) && 'publish' == $_REQUEST['_status'] ) {
 					$post_ids = array_map( 'intval', (array) $_REQUEST['post'] );
 					foreach ( $post_ids as $post_id ) {
-						$wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array(
-							'ID' => $post_id,
+						$wpdb->update( $wpdb->posts, [ 'post_status' => 'pending' ], [
+							'ID'            => $post_id,
 							'post_date_gmt' => '0000-00-00 00:00:00',
-						) );
+						] );
 						clean_post_cache( $post_id );
 					}
 				}
@@ -1379,20 +1306,20 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 				// Set the post_status as 'pending' only when there's no timestamp set for $post_date_gmt
 				if ( isset( $_POST['post_ID'] ) ) {
 					$post_id = (int) $_POST['post_ID'];
-					$ret = $wpdb->update( $wpdb->posts, array( 'post_status' => 'pending' ), array(
-						'ID' => $post_id,
+					$ret     = $wpdb->update( $wpdb->posts, [ 'post_status' => 'pending' ], [
+						'ID'            => $post_id,
 						'post_date_gmt' => '0000-00-00 00:00:00',
-					) );
+					] );
 					clean_post_cache( $post_id );
-					foreach ( array( 'aa', 'mm', 'jj', 'hh', 'mn' ) as $timeunit ) {
+					foreach ( [ 'aa', 'mm', 'jj', 'hh', 'mn' ] as $timeunit ) {
 						if ( isset( $_POST[ $timeunit ] ) && ! empty( $_POST[ 'hidden_' . $timeunit ] ) && $_POST[ 'hidden_' . $timeunit ] != $_POST[ $timeunit ] ) {
 							$edit_date = '1';
 							break;
 						}
 					}
 					if ( $ret && empty( $edit_date ) ) {
-						add_filter( 'pre_post_date', array( $this, 'helper_timestamp_hack' ) );
-						add_filter( 'pre_post_date_gmt', array( $this, 'helper_timestamp_hack' ) );
+						add_filter( 'pre_post_date', [ $this, 'helper_timestamp_hack' ] );
+						add_filter( 'pre_post_date_gmt', [ $this, 'helper_timestamp_hack' ] );
 					}
 				}
 			}
@@ -1600,7 +1527,7 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 					}
 				}
 			}
-			return remove_query_arg( array( 'preview_nonce' ), $preview_link );
+			return remove_query_arg( [ 'preview_nonce' ], $preview_link );
 		}
 
 		/**
@@ -1627,20 +1554,20 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 				return $permalink;
 			}
 
-			remove_filter( 'get_sample_permalink', array( $this, 'fix_get_sample_permalink' ), 10, 5 );
+			remove_filter( 'get_sample_permalink', [ $this, 'fix_get_sample_permalink' ], 10, 5 );
 
 			$new_name  = ! is_null( $name ) ? $name : $post->post_name;
 			$new_title = ! is_null( $title ) ? $title : $post->post_title;
 
-			$post = get_post( $post_id );
-			$status_before = $post->post_status;
+			$post              = get_post( $post_id );
+			$status_before     = $post->post_status;
 			$post->post_status = 'draft';
 
 			$permalink = get_sample_permalink( $post, $title, sanitize_title( $new_name ? $new_name : $new_title, $post->ID ) );
 
 			$post->post_status = $status_before;
 
-			add_filter( 'get_sample_permalink', array( $this, 'fix_get_sample_permalink' ), 10, 5 );
+			add_filter( 'get_sample_permalink', [ $this, 'fix_get_sample_permalink' ], 10, 5 );
 
 			return $permalink;
 		}
@@ -1671,12 +1598,12 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 				return $permalink;
 			}
 
-			remove_filter( 'get_sample_permalink_html', array( $this, 'fix_get_sample_permalink_html' ), 10, 5 );
+			remove_filter( 'get_sample_permalink_html', [ $this, 'fix_get_sample_permalink_html' ], 10, 5 );
 
-			$post->post_status = 'draft';
+			$post->post_status     = 'draft';
 			$sample_permalink_html = get_sample_permalink_html( $post, $new_title, $new_slug );
 
-			add_filter( 'get_sample_permalink_html', array( $this, 'fix_get_sample_permalink_html' ), 10, 5 );
+			add_filter( 'get_sample_permalink_html', [ $this, 'fix_get_sample_permalink_html' ], 10, 5 );
 
 			return $sample_permalink_html;
 		}
@@ -1706,11 +1633,11 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			$custom_statuses = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
 
 			// Apply original link filters from core `wp_link_pages()`
-			$r = apply_filters( 'wp_link_pages_args', array(
+			$r = apply_filters( 'wp_link_pages_args', [
 				'link_before' => '',
 				'link_after'  => '',
 				'pagelink'    => '%',
-			));
+			]);
 
 			// _wp_link_page() && _ef_wp_link_page() produce an opening link tag ( <a href=".."> )
 			// This is necessary to replicate core behavior:
@@ -1729,19 +1656,19 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 		private function get_preview_link( $post ) {
 
 			if ( 'page' == $post->post_type ) {
-				$args = array(
-					'page_id'    => $post->ID,
-				);
-			} else if ( 'post' == $post->post_type ) {
-				$args = array(
-					'p'          => $post->ID,
-					'preview'    => 'true',
-				);
+				$args = [
+					'page_id' => $post->ID,
+				];
+			} elseif ( 'post' == $post->post_type ) {
+				$args = [
+					'p'       => $post->ID,
+					'preview' => 'true',
+				];
 			} else {
-				$args = array(
-					'p'          => $post->ID,
-					'post_type'  => $post->post_type,
-				);
+				$args = [
+					'p'         => $post->ID,
+					'post_type' => $post->post_type,
+				];
 			}
 
 			$args['preview_id'] = $post->ID;
@@ -1773,21 +1700,21 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			}
 
 			if ( 'page' == $post->post_type ) {
-				$args = array(
-					'page_id'    => $post->ID,
-				);
-			} else if ( 'post' == $post->post_type ) {
-				$args = array(
-					'p'          => $post->ID,
-				);
+				$args = [
+					'page_id' => $post->ID,
+				];
+			} elseif ( 'post' == $post->post_type ) {
+				$args = [
+					'p' => $post->ID,
+				];
 			} else {
-				$args = array(
-					'p'          => $post->ID,
-					'post_type'  => $post->post_type,
-				);
+				$args = [
+					'p'         => $post->ID,
+					'post_type' => $post->post_type,
+				];
 			}
 			$args['preview'] = 'true';
-			$preview_link = add_query_arg( $args, home_url( '/' ) );
+			$preview_link    = add_query_arg( $args, home_url( '/' ) );
 
 			/* translators: %s: post title */
 			$actions['view'] = '<a href="' . esc_url( $preview_link ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $post->post_title ) ) . '" rel="permalink">' . __( 'Preview' ) . '</a>';
@@ -1815,11 +1742,11 @@ class EF_Custom_Status_List_Table extends WP_List_Table {
 	 */
 	public function __construct() {
 
-		parent::__construct( array(
-			'plural' => 'custom statuses',
+		parent::__construct( [
+			'plural'   => 'custom statuses',
 			'singular' => 'custom status',
-			'ajax' => true,
-		) );
+			'ajax'     => true,
+		] );
 	}
 
 	/**
@@ -1830,21 +1757,21 @@ class EF_Custom_Status_List_Table extends WP_List_Table {
 	public function prepare_items() {
 		global $edit_flow;
 
-		$columns = $this->get_columns();
-		$hidden = array(
+		$columns               = $this->get_columns();
+		$hidden                = [
 			'position',
-		);
-		$sortable = array();
-		$this->_column_headers = array( $columns, $hidden, $sortable );
+		];
+		$sortable              = [];
+		$this->_column_headers = [ $columns, $hidden, $sortable ];
 
-		$this->items = $edit_flow->custom_status->get_custom_statuses();
-		$total_items = count( $this->items );
+		$this->items          = $edit_flow->custom_status->get_custom_statuses();
+		$total_items          = count( $this->items );
 		$this->default_status = $edit_flow->custom_status->get_default_custom_status()->slug;
 
-		$this->set_pagination_args( array(
+		$this->set_pagination_args( [
 			'total_items' => $total_items,
-			'per_page' => $total_items,
-		) );
+			'per_page'    => $total_items,
+		] );
 	}
 
 	/**
@@ -1868,13 +1795,13 @@ class EF_Custom_Status_List_Table extends WP_List_Table {
 	public function get_columns() {
 		global $edit_flow;
 
-		$columns = array(
-			'position'          => __( 'Position', 'edit-flow' ),
-			'name'              => __( 'Name', 'edit-flow' ),
-			'description'       => __( 'Description', 'edit-flow' ),
-		);
+		$columns = [
+			'position'    => __( 'Position', 'edit-flow' ),
+			'name'        => __( 'Name', 'edit-flow' ),
+			'description' => __( 'Description', 'edit-flow' ),
+		];
 
-		$post_types = get_post_types( '', 'objects' );
+		$post_types           = get_post_types( '', 'objects' );
 		$supported_post_types = $edit_flow->helpers->get_post_types_for_module( $edit_flow->custom_status->module );
 		foreach ( $post_types as $post_type ) {
 			if ( in_array( $post_type->name, $supported_post_types ) ) {
@@ -1905,7 +1832,7 @@ class EF_Custom_Status_List_Table extends WP_List_Table {
 			// @todo Cachify this
 			$post_count = wp_cache_get( "ef_custom_status_count_$column_name" );
 			if ( false === $post_count ) {
-				$posts = wp_count_posts( $column_name );
+				$posts       = wp_count_posts( $column_name );
 				$post_status = $item->slug;
 				// To avoid error notices when changing the name of non-standard statuses
 				if ( isset( $posts->$post_status ) ) {
@@ -1943,10 +1870,10 @@ class EF_Custom_Status_List_Table extends WP_List_Table {
 	public function column_name( $item ) {
 		global $edit_flow;
 
-		$item_edit_link = esc_url( $edit_flow->custom_status->get_link( array(
-			'action' => 'edit-status',
+		$item_edit_link = esc_url( $edit_flow->custom_status->get_link( [
+			'action'  => 'edit-status',
 			'term-id' => $item->term_id,
-		) ) );
+		] ) );
 
 		$output = '<strong><a href="' . $item_edit_link . '">' . esc_html( $item->name ) . '</a>';
 		if ( $item->slug == $this->default_status ) {
@@ -1959,20 +1886,20 @@ class EF_Custom_Status_List_Table extends WP_List_Table {
 			return $output;
 		}
 
-		$actions = array();
-		$actions['edit'] = "<a href='$item_edit_link'>" . __( 'Edit', 'edit-flow' ) . '</a>';
+		$actions                         = [];
+		$actions['edit']                 = "<a href='$item_edit_link'>" . __( 'Edit', 'edit-flow' ) . '</a>';
 		$actions['inline hide-if-no-js'] = '<a href="#" class="editinline">' . __( 'Quick&nbsp;Edit' ) . '</a>';
-		$actions['make_default'] = sprintf( '<a href="%1$s">' . __( 'Make&nbsp;Default', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array(
-			'action' => 'make-default',
+		$actions['make_default']         = sprintf( '<a href="%1$s">' . __( 'Make&nbsp;Default', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( [
+			'action'  => 'make-default',
 			'term-id' => $item->term_id,
-		) ) );
+		] ) );
 
 		// Prevent deleting draft status
 		if ( 'draft' !== $item->slug && $item->slug !== $this->default_status ) {
-			$actions['delete delete-status'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( array(
-				'action' => 'delete-status',
+			$actions['delete delete-status'] = sprintf( '<a href="%1$s">' . __( 'Delete', 'edit-flow' ) . '</a>', $edit_flow->custom_status->get_link( [
+				'action'  => 'delete-status',
 				'term-id' => $item->term_id,
-			) ) );
+			] ) );
 		}
 
 		$output .= $this->row_actions( $actions, false );
@@ -2003,8 +1930,8 @@ class EF_Custom_Status_List_Table extends WP_List_Table {
 	 */
 	public function single_row( $item ) {
 		static $alternate_class = '';
-		$alternate_class = ( '' == $alternate_class ? ' alternate' : '' );
-		$row_class = ' class="term-static' . $alternate_class . '"';
+		$alternate_class        = ( '' == $alternate_class ? ' alternate' : '' );
+		$row_class              = ' class="term-static' . $alternate_class . '"';
 
 		echo wp_kses_post( '<tr id="term-' . $item->term_id . '"' . $row_class . '>' );
 		echo wp_kses_post( $this->single_row_columns( $item ) );

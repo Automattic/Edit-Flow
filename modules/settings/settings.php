@@ -207,20 +207,10 @@ if ( ! class_exists( 'EF_Settings' ) ) {
 		<div class="wrap edit-flow-admin">
 			<?php if ( 'settings' != $current_module->name ) : ?>
 				<?php echo wp_kses_post( $page_icon ); ?>
-			<h2><a href="<?php echo esc_url( EDIT_FLOW_SETTINGS_PAGE ); ?>"><?php _e( 'Edit Flow', 'edit-flow' ); ?></a>:&nbsp;<?php echo esc_attr( $current_module->title ); ?>
-									<?php
-									if ( isset( $display_text ) ) {
-										echo wp_kses_post( $display_text ); }
-									?>
-			</h2>
+			<h2><a href="<?php echo esc_url( EDIT_FLOW_SETTINGS_PAGE ); ?>"><?php _e( 'Edit Flow', 'edit-flow' ); ?></a>:&nbsp;<?php echo esc_attr( $current_module->title ); ?><?php echo ( isset( $display_text ) ? wp_kses_post( $display_text ) : '' ); ?></h2>
 			<?php else : ?>
 				<?php echo wp_kses_post( $page_icon ); ?>
-			<h2><?php _e( 'Edit Flow', 'edit-flow' ); ?>
-						  <?php
-							if ( isset( $display_text ) ) {
-								echo wp_kses_post( $display_text ); }
-							?>
-			</h2>
+			<h2><?php _e( 'Edit Flow', 'edit-flow' ); ?><?php echo ( isset( $display_text ) ? wp_kses_post( $display_text ) : '' ); ?></h2>
 			<?php endif; ?>
 
 			<div class="explanation">
