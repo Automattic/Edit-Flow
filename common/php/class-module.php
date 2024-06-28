@@ -51,7 +51,7 @@ if ( ! class_exists( 'EF_Module' ) ) {
 		 *
 		 * @since 0.10.0
 		 *
-		 * @return true, if the module is enabled, false otherwise
+		 * @return true, if the feature is enabled, false otherwise
 		 */
 		protected function are_vip_features_enabled() {
 			global $edit_flow;
@@ -60,16 +60,22 @@ if ( ! class_exists( 'EF_Module' ) ) {
 		}
 
 		/**
-		 * Returns whether vip features have been enabled or not.
+		 * Returns whether analytics has been enabled or not.
+		 *
+		 * It's only enabled if the site is a production WPVIP site.
 		 *
 		 * @since 0.10.0
 		 *
-		 * @return true, if the module is enabled, false otherwise
+		 * @return true, if analytics is enabled, false otherwise
 		 */
-		protected function is_analytics_enabled() {
-			global $edit_flow;
+		public function is_analytics_enabled() {
+			// Check if the site is a production WPVIP site and only then enable it
+			$is_analytics_enabled = $this->is_vip_site( true );
 
-			return 'on' === $edit_flow->settings->module->options->analytics;
+			// filter to disable it.
+			$is_analytics_enabled = apply_filters( 'ef_should_analytics_be_enabled', $is_analytics_enabled );
+
+			return $is_analytics_enabled;
 		}
 
 		/**

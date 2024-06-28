@@ -23,7 +23,6 @@ if ( ! class_exists( 'EF_Settings' ) ) {
 				'default_options' => array(
 					'enabled' => 'on',
 					'vip_features' => $this->is_vip_site() ? 'on' : 'off',
-					'analytics' => $this->is_vip_site( true ) ? 'on' : 'off',
 				),
 				'configure_page_cb' => 'print_default_settings',
 				'autoload' => true,
@@ -161,7 +160,6 @@ if ( ! class_exists( 'EF_Settings' ) ) {
 		 */
 		public function register_settings() {
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'analytics', __( 'Turn on analytics', 'edit-flow' ), array( $this, 'settings_analytics_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 			add_settings_field( 'vip_features', __( 'Turn on WordPress VIP features', 'edit-flow' ), array( $this, 'settings_vip_features_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 		}
 
@@ -253,20 +251,6 @@ if ( ! class_exists( 'EF_Settings' ) ) {
 			foreach ( $options as $value => $label ) {
 				echo '<option value="' . esc_attr( $value ) . '"';
 				echo selected( $this->module->options->vip_features, $value );
-				echo '>' . esc_html( $label ) . '</option>';
-			}
-			echo '</select>';
-		}
-
-		public function settings_analytics_option() {
-			$options = array(
-				'off' => __( 'Disabled', 'edit-flow' ),
-				'on' => __( 'Enabled', 'edit-flow' ),
-			);
-			echo '<select id="analytics" name="' . esc_attr( $this->module->options_group_name ) . '[analytics]">';
-			foreach ( $options as $value => $label ) {
-				echo '<option value="' . esc_attr( $value ) . '"';
-				echo selected( $this->module->options->analytics, $value );
 				echo '>' . esc_html( $label ) . '</option>';
 			}
 			echo '</select>';
