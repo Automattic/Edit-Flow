@@ -1606,7 +1606,7 @@ if ( ! class_exists( 'EF_Editorial_Metadata' ) ) {
 												" method="post">
 				<?php settings_fields( $this->module->options_group_name ); ?>
 				<?php do_settings_sections( $this->module->options_group_name ); ?>
-				<?php echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />'; ?>
+				<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="<?php echo esc_attr( $this->module->name ); ?>" />
 				<?php submit_button(); ?>
 		</form>
 		<?php else : ?>

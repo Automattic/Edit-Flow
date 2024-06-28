@@ -2,6 +2,8 @@
 
 defined( 'ABSPATH' ) || exit();
 
+// phpcs:disable:WordPress.Security.NonceVerification.Missing -- Disabling nonce verification because that is not available here, it's just rendering it. The actual save is done in helper_settings_validate_and_save and that's guarded well.
+
 global $edit_flow;
 
 ?>
@@ -28,7 +30,7 @@ global $edit_flow;
 			<form class="basic-settings" action="<?php echo esc_url( $this->get_link( array( 'action' => 'change-options' ) ) ); ?>" method="post">
 				<?php settings_fields( $this->module->options_group_name ); ?>
 				<?php do_settings_sections( $this->module->options_group_name ); ?>
-				<?php echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />'; ?>
+				<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="<?php echo esc_attr( $this->module->name ); ?>" />
 				<?php submit_button(); ?>
 			</form>
 			<?php } else { ?>
@@ -47,7 +49,7 @@ global $edit_flow;
 				</div>
 
 				<?php wp_nonce_field( 'custom-status-add-nonce' ); ?>
-				<?php echo '<input id="action" name="action" type="hidden" value="add-new" />'; ?>
+				<input id="action" name="action" type="hidden" value="add-new" />
 				<p class="submit"><?php submit_button( __( 'Add New Status', 'edit-flow' ), 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo esc_url( EDIT_FLOW_SETTINGS_PAGE ); ?>"><?php esc_html_e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
 			</form>
 			<?php } ?>
@@ -56,5 +58,7 @@ global $edit_flow;
 </div>
 
 <?php
+
+// phpcs:enable:WordPress.Security.NonceVerification.Missing
 
 $custom_status_list_table->inline_edit();

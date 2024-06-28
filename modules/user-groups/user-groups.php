@@ -648,7 +648,7 @@ if ( ! class_exists( 'EF_User_Groups' ) ) {
 				<form class="basic-settings" action="<?php echo esc_url( $this->get_link( array( 'action' => 'change-options' ) ) ); ?>" method="post">
 					<?php settings_fields( $this->module->options_group_name ); ?>
 					<?php do_settings_sections( $this->module->options_group_name ); ?>
-					<?php echo '<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="' . esc_attr( $this->module->name ) . '" />'; ?>
+					<input id="edit_flow_module_name" name="edit_flow_module_name" type="hidden" value="<?php echo esc_attr( $this->module->name ); ?>" />
 					<?php submit_button(); ?>
 				</form>
 				<?php else : ?>
@@ -665,7 +665,7 @@ if ( ! class_exists( 'EF_User_Groups' ) ) {
 						<?php $edit_flow->settings->helper_print_error_or_description( 'description', __( 'The description is primarily for administrative use, to give you some context on what the user group is to be used for.', 'edit-flow' ) ); ?>
 					</div>
 					<?php wp_nonce_field( 'add-usergroup' ); ?>
-					<?php echo '<input id="form-action" name="form-action" type="hidden" value="add-usergroup" />'; ?>
+					<input id="form-action" name="form-action" type="hidden" value="add-usergroup" />
 					<p class="submit"><?php submit_button( __( 'Add New User Group', 'edit-flow' ), 'primary', 'submit', false ); ?><a class="cancel-settings-link" href="<?php echo esc_url( EDIT_FLOW_SETTINGS_PAGE ); ?>"><?php _e( 'Back to Edit Flow', 'edit-flow' ); ?></a></p>
 					</form>
 				<?php endif; ?>

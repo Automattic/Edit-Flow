@@ -1224,13 +1224,13 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 			return $new_options;
 		}
 
+		// phpcs:disable:WordPress.Security.NonceVerification.Missing -- Disabling nonce verification because that is not available here, it's just rendering it. The actual save is done in helper_settings_validate_and_save and that's guarded well.
+
 		/**
 		 * Primary configuration page for custom status class.
 		 * Shows form to add new custom statuses on the left and a
 		 * WP_List_Table with the custom status terms on the right
 		 *
-		 * Disabling nonce verification because that is not available here, it's just rendering it. The actual save is done in helper_settings_validate_and_save and that's guarded well.
-		 * phpcs:disable:WordPress.Security.NonceVerification.Missing
 		 */
 		public function print_configure_view() {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- No verification required for unprivileged URL check.
@@ -1263,11 +1263,11 @@ if ( ! class_exists( 'EF_Custom_Status' ) ) {
 					$description = ( isset( $_POST['description'] ) ) ? wp_strip_all_tags( $_POST['description'] ) : $custom_status->description;
 				}
 
-				include __DIR__ . '/views/edit-status.php';
+				include_once __DIR__ . '/views/edit-status.php';
 			} else {
 				$custom_status_list_table = new EF_Custom_Status_List_Table();
 				$custom_status_list_table->prepare_items();
-				include __DIR__ . '/views/configure.php';
+				include_once __DIR__ . '/views/configure.php';
 			}
 		}
 
