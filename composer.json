@@ -21,10 +21,10 @@
   },
   "scripts": {
     "cs": [
-      "@php ./vendor/bin/phpcs -p -s -v -n . --standard=\"phpcs.xml.dist\" --extensions=php --ignore=\"/vendor/*,/node_modules/*,/tests/*,/common/*\""
+      "@php ./vendor/bin/phpcs -p -s -v -n . --standard=\"phpcs.xml.dist\" --extensions=php --ignore=\"/vendor/*,/node_modules/*,/tests/*\""
     ],
     "cbf": [
-      "@php ./vendor/bin/phpcbf -p -s -v -n . --standard=\"phpcs.xml.dist\" --extensions=php --ignore=\"/vendor/*,/node_modules/*,/tests/*,/common/*\""
+      "@php ./vendor/bin/phpcbf -p -s -v -n . --standard=\"phpcs.xml.dist\" --extensions=php --ignore=\"/vendor/*,/node_modules/*,/tests/*\""
     ],
     "integration": "wp-env run tests-cli --env-cwd=wp-content/plugins/Edit-Flow ./vendor/bin/phpunit",
     "integration-ms": "wp-env run tests-cli --env-cwd=wp-content/plugins/Edit-Flow /bin/bash -c 'WP_MULTISITE=1 ./vendor/bin/phpunit'"
