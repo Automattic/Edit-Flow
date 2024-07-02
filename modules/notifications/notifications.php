@@ -516,7 +516,7 @@ if ( ! class_exists( 'EF_Notifications' ) ) {
 		public function save_post_subscriptions( $new_status, $old_status, $post ) {
 			global $edit_flow;
 
-			if ( ! empty( $_GET['_wpnonce'] ) && ! wp_verify_nonce( $_GET['_wpnonce'], 'editpost' ) ) {
+			if ( ! empty( $_POST['_wpnonce'] ) && ! wp_verify_nonce( $_POST['_wpnonce'], 'editpost' ) ) {
 				$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
 			}
 
